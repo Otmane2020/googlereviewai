@@ -68,6 +68,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       provider: "google",
       options: {
         redirectTo: `${window.location.origin}/dashboard`,
+        scopes: "https://www.googleapis.com/auth/business.manage",
+        queryParams: {
+          access_type: "offline",
+          prompt: "consent",
+        },
       },
     });
     return { error };
