@@ -61,6 +61,33 @@ serve(async (req) => {
     if (!accountsResponse.ok) {
       const errorText = await accountsResponse.text();
       console.error("Google API accounts error:", accountsResponse.status, errorText);
+      
+      // Handle quota/rate limit errors gracefully
+      if (accountsResponse.status === 429) {
+        return new Response(
+          JSON.stringify({ 
+            success: false, 
+            error_code: "QUOTA_EXCEEDED",
+            message: "L'API Google Business Profile n'est pas encore activée ou le quota est dépassé. Veuillez activer l'API dans Google Cloud Console.",
+            businesses: [] 
+          }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      
+      // Handle permission/access errors
+      if (accountsResponse.status === 403) {
+        return new Response(
+          JSON.stringify({ 
+            success: false, 
+            error_code: "ACCESS_DENIED",
+            message: "Accès refusé à l'API Google Business Profile. Veuillez vérifier les autorisations de votre compte Google.",
+            businesses: [] 
+          }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      
       throw new Error(`Failed to fetch Google accounts: ${accountsResponse.status} - ${errorText}`);
     }
 

@@ -48,11 +48,23 @@ export const useSyncGoogleBusinesses = () => {
           });
         }
       } else {
-        toast({
-          title: "Erreur de synchronisation",
-          description: result.message || result.error,
-          variant: "destructive",
-        });
+        // Handle specific error codes gracefully
+        if (result.error_code === "QUOTA_EXCEEDED") {
+          toast({
+            title: "API Google non activée",
+            description: "L'API Google Business Profile doit être activée dans Google Cloud Console pour synchroniser vos établissements.",
+          });
+        } else if (result.error_code === "ACCESS_DENIED") {
+          toast({
+            title: "Accès refusé",
+            description: "Veuillez vérifier que votre compte Google a accès à Google Business Profile.",
+          });
+        } else {
+          toast({
+            title: "Synchronisation impossible",
+            description: result.message || "Une erreur s'est produite lors de la synchronisation.",
+          });
+        }
       }
 
       return result;
