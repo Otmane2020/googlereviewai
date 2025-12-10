@@ -17,27 +17,11 @@ serve(async (req) => {
       throw new Error("No authorization header");
     }
 
-    const supabaseClient = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
-      { global: { headers: { Authorization: authHeader } } }
-    );
-
-    // Get the current user
-    const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
-    if (userError || !user) {
-      throw new Error("User not authenticated");
-    }
-
-    // Get the provider token from the session
-    const { data: { session }, error: sessionError } = await supabaseClient.auth.getSession();
-    if (sessionError || !session) {
-      throw new Error("No session found");
-    }
-
-    const providerToken = session.provider_token;
-    if (!providerToken) {
-      console.log("No provider token found - user may need to re-authenticate");
+    // Get provider_token from request body
+    const { provider_token } = await req.json();
+    
+    if (!provider_token) {
+      console.log("No provider token provided in request body");
       return new Response(
         JSON.stringify({ 
           success: false, 
@@ -48,20 +32,36 @@ serve(async (req) => {
       );
     }
 
+    const supabaseClient = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+      { global: { headers: { Authorization: authHeader } } }
+    );
+
+    // Get the current user
+    const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+    if (userError || !user) {
+      console.error("User auth error:", userError);
+      throw new Error("User not authenticated");
+    }
+
+    console.log("User authenticated:", user.id);
+
     // Fetch accounts from Google Business Profile API
+    console.log("Fetching Google Business accounts...");
     const accountsResponse = await fetch(
       "https://mybusinessaccountmanagement.googleapis.com/v1/accounts",
       {
         headers: {
-          Authorization: `Bearer ${providerToken}`,
+          Authorization: `Bearer ${provider_token}`,
         },
       }
     );
 
     if (!accountsResponse.ok) {
       const errorText = await accountsResponse.text();
-      console.error("Google API accounts error:", errorText);
-      throw new Error(`Failed to fetch Google accounts: ${accountsResponse.status}`);
+      console.error("Google API accounts error:", accountsResponse.status, errorText);
+      throw new Error(`Failed to fetch Google accounts: ${accountsResponse.status} - ${errorText}`);
     }
 
     const accountsData = await accountsResponse.json();
@@ -85,10 +85,10 @@ serve(async (req) => {
       const accountName = account.name; // Format: accounts/{accountId}
       
       const locationsResponse = await fetch(
-        `https://mybusinessbusinessinformation.googleapis.com/v1/${accountName}/locations?readMask=name,title,storefrontAddress,websiteUri,phoneNumbers,regularHours`,
+        `https://mybusinessbusinessinformation.googleapis.com/v1/${accountName}/locations?readMask=name,title,storefrontAddress,websiteUri,phoneNumbers`,
         {
           headers: {
-            Authorization: `Bearer ${providerToken}`,
+            Authorization: `Bearer ${provider_token}`,
           },
         }
       );
