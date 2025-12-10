@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { OAuthCallback } from "@/components/OAuthCallback";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
@@ -22,16 +23,18 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/reviews" element={<Reviews />} />
-            <Route path="/ai-settings" element={<AISettings />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/businesses" element={<Businesses />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <OAuthCallback>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/reviews" element={<Reviews />} />
+              <Route path="/ai-settings" element={<AISettings />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/businesses" element={<Businesses />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </OAuthCallback>
         </BrowserRouter>
       </TooltipProvider>
     </AuthProvider>
