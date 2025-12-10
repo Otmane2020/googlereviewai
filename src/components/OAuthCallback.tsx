@@ -1,16 +1,21 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 
 export const OAuthCallback = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
     const hash = window.location.hash;
-    const hasTokens = hash.includes('access_token') || hash.includes('refresh_token');
     
-    if (hasTokens && !isProcessing) {
+    // Only process if we have actual OAuth tokens in the hash
+    // Must contain access_token with a value, not just empty hash or fragment
+    const hashParams = new URLSearchParams(hash.substring(1));
+    const accessToken = hashParams.get('access_token');
+    
+    if (accessToken && !isProcessing) {
       setIsProcessing(true);
       
       // Let Supabase process the tokens
@@ -21,12 +26,13 @@ export const OAuthCallback = ({ children }: { children: React.ReactNode }) => {
         if (session) {
           // Redirect to dashboard after successful OAuth
           navigate("/dashboard", { replace: true });
-        } else {
-          setIsProcessing(false);
         }
+        setIsProcessing(false);
+      }).catch(() => {
+        setIsProcessing(false);
       });
     }
-  }, [navigate, isProcessing]);
+  }, [location, navigate, isProcessing]);
 
   if (isProcessing) {
     return (
