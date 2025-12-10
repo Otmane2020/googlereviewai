@@ -51,8 +51,8 @@ export const useSyncGoogleBusinesses = () => {
         // Handle specific error codes gracefully
         if (result.error_code === "QUOTA_EXCEEDED") {
           toast({
-            title: "API Google non activée",
-            description: "L'API Google Business Profile doit être activée dans Google Cloud Console pour synchroniser vos établissements.",
+            title: "Accès API en attente",
+            description: "L'accès à l'API Google Business Profile doit être demandé via le formulaire officiel Google. Le quota est actuellement à 0.",
           });
         } else if (result.error_code === "ACCESS_DENIED") {
           toast({
