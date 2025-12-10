@@ -15,8 +15,12 @@ import {
   Clock,
   CheckCircle,
   XCircle,
-  Loader2
+  Loader2,
+  Copy,
+  ExternalLink,
+  TestTube
 } from "lucide-react";
+import { AddTestReviewDialog } from "@/components/AddTestReviewDialog";
 
 interface Review {
   id: number;
@@ -116,6 +120,26 @@ const Reviews = () => {
     }
   };
 
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast({
+        title: "Copié !",
+        description: "La réponse a été copiée dans le presse-papier.",
+      });
+    } catch (error) {
+      toast({
+        title: "Erreur",
+        description: "Impossible de copier le texte.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const openGoogleReviews = () => {
+    window.open("https://business.google.com/reviews", "_blank");
+  };
+
   const filteredReviews = reviews.filter((review) => {
     const matchesSearch = review.author.toLowerCase().includes(searchTerm.toLowerCase()) ||
       review.comment.toLowerCase().includes(searchTerm.toLowerCase());
@@ -169,6 +193,25 @@ const Reviews = () => {
           <StarlinkoLogo showBadge={false} />
         </div>
       </header>
+
+      {/* Test mode banner */}
+      <div className="bg-primary/10 border-b border-primary/20 px-6 py-3">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div className="flex items-center gap-2 text-sm text-foreground">
+            <TestTube className="w-4 h-4 text-primary" />
+            <span>
+              <strong>Mode test :</strong> Ajoutez des avis fictifs pour tester la génération de réponses IA
+            </span>
+          </div>
+          <div className="flex gap-2">
+            {user && <AddTestReviewDialog userId={user.id} onReviewAdded={fetchReviews} />}
+            <Button variant="outline" size="sm" className="gap-2" onClick={openGoogleReviews}>
+              <ExternalLink className="w-4 h-4" />
+              Ouvrir Google Avis
+            </Button>
+          </div>
+        </div>
+      </div>
 
       <main className="max-w-7xl mx-auto p-6 space-y-6">
         {/* Filters */}
@@ -264,9 +307,20 @@ const Reviews = () => {
 
                 {review.ai_response && (
                   <div className="bg-secondary/5 rounded-xl p-4 border border-secondary/20 mb-4">
-                    <div className="flex items-center gap-2 text-secondary text-sm font-medium mb-2">
-                      <Sparkles className="w-4 h-4" />
-                      Réponse IA
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2 text-secondary text-sm font-medium">
+                        <Sparkles className="w-4 h-4" />
+                        Réponse IA
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="gap-1 h-7 text-xs"
+                        onClick={() => copyToClipboard(review.ai_response!)}
+                      >
+                        <Copy className="w-3 h-3" />
+                        Copier
+                      </Button>
                     </div>
                     <p className="text-muted-foreground text-sm">{review.ai_response}</p>
                   </div>
