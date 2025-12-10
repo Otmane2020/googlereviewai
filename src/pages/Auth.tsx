@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { StarlinkoLogo } from "@/components/StarlinkoLogo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
-import { Eye, EyeOff, Mail, Lock, User, ArrowLeft, Loader2 } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, User, ArrowLeft, Loader2, Check } from "lucide-react";
 import { z } from "zod";
 
 const signUpSchema = z.object({
@@ -71,7 +71,7 @@ const Auth = () => {
         } else {
           toast({
             title: "Compte créé !",
-            description: "Bienvenue sur Starlinko ! Vous êtes maintenant connecté.",
+            description: "Bienvenue sur Starlinko !",
           });
           navigate("/dashboard");
         }
@@ -92,7 +92,7 @@ const Auth = () => {
           if (error.message.includes("Invalid login credentials")) {
             toast({
               title: "Identifiants incorrects",
-              description: "Email ou mot de passe incorrect. Vérifiez vos informations.",
+              description: "Email ou mot de passe incorrect.",
               variant: "destructive",
             });
           } else {
@@ -105,7 +105,7 @@ const Auth = () => {
         } else {
           toast({
             title: "Connexion réussie !",
-            description: "Bon retour parmi nous !",
+            description: "Bon retour !",
           });
           navigate("/dashboard");
         }
@@ -121,130 +121,187 @@ const Auth = () => {
     }
   };
 
-  return (
-    <div className="min-h-screen gradient-hero flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        {/* Back button */}
-        <Button
-          variant="heroOutline"
-          size="sm"
-          className="mb-8"
-          onClick={() => navigate("/")}
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Retour à l'accueil
-        </Button>
+  const benefits = [
+    "14 jours d'essai gratuit",
+    "Réponses IA illimitées",
+    "Synchronisation Google My Business",
+    "Support prioritaire",
+  ];
 
-        {/* Auth card */}
-        <div className="bg-card rounded-3xl shadow-2xl p-8 animate-fade-in">
-          <div className="text-center mb-8">
-            <div className="flex justify-center mb-4">
-              <StarlinkoLogo showBadge={false} className="text-foreground" />
-            </div>
-            <h1 className="text-2xl font-bold text-foreground">
-              {isSignUp ? "Créer un compte" : "Se connecter"}
+  return (
+    <div className="min-h-screen flex flex-col lg:flex-row">
+      {/* Left panel - Benefits (hidden on mobile) */}
+      <div className="hidden lg:flex lg:w-1/2 gradient-hero p-12 flex-col justify-between">
+        <div>
+          <Link to="/">
+            <StarlinkoLogo showBadge={false} className="text-card" />
+          </Link>
+        </div>
+        
+        <div className="space-y-8">
+          <div>
+            <h1 className="text-4xl font-bold text-card mb-4">
+              Gérez vos avis Google avec l'IA
             </h1>
-            <p className="text-muted-foreground mt-2">
-              {isSignUp
-                ? "Commencez votre essai gratuit de 14 jours"
-                : "Accédez à votre tableau de bord"}
+            <p className="text-card/80 text-lg">
+              Rejoignez des centaines d'entreprises qui automatisent leurs réponses aux avis.
             </p>
           </div>
+          
+          <ul className="space-y-4">
+            {benefits.map((benefit) => (
+              <li key={benefit} className="flex items-center gap-3 text-card">
+                <div className="w-6 h-6 rounded-full bg-card/20 flex items-center justify-center">
+                  <Check className="w-4 h-4" />
+                </div>
+                {benefit}
+              </li>
+            ))}
+          </ul>
+        </div>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
-            {isSignUp && (
+        <p className="text-card/60 text-sm">
+          © {new Date().getFullYear()} Starlinko. Tous droits réservés.
+        </p>
+      </div>
+
+      {/* Right panel - Auth form */}
+      <div className="flex-1 flex flex-col bg-background">
+        {/* Mobile header */}
+        <div className="lg:hidden p-4 border-b border-border">
+          <div className="flex items-center justify-between">
+            <Link to="/" className="flex items-center gap-2 text-muted-foreground">
+              <ArrowLeft className="w-5 h-5" />
+              <span>Retour</span>
+            </Link>
+            <StarlinkoLogo showBadge={false} />
+          </div>
+        </div>
+
+        <div className="flex-1 flex items-center justify-center p-6">
+          <div className="w-full max-w-md space-y-8">
+            {/* Desktop back button */}
+            <div className="hidden lg:block">
+              <Link
+                to="/"
+                className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Retour à l'accueil
+              </Link>
+            </div>
+
+            <div>
+              <h2 className="text-2xl font-bold text-foreground">
+                {isSignUp ? "Créer un compte" : "Connexion"}
+              </h2>
+              <p className="text-muted-foreground mt-2">
+                {isSignUp
+                  ? "Commencez votre essai gratuit de 14 jours"
+                  : "Accédez à votre tableau de bord"}
+              </p>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-5">
+              {isSignUp && (
+                <div className="space-y-2">
+                  <Label htmlFor="fullName">Nom complet</Label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                    <Input
+                      id="fullName"
+                      type="text"
+                      placeholder="Jean Dupont"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      className="pl-10 h-12"
+                      required
+                    />
+                  </div>
+                </div>
+              )}
+
               <div className="space-y-2">
-                <Label htmlFor="fullName">Nom complet</Label>
+                <Label htmlFor="email">Email</Label>
                 <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                   <Input
-                    id="fullName"
-                    type="text"
-                    placeholder="Jean Dupont"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    className="pl-10"
+                    id="email"
+                    type="email"
+                    placeholder="votre@email.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="pl-10 h-12"
                     required
                   />
                 </div>
               </div>
-            )}
 
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="votre@email.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="pl-10"
-                  required
-                />
+              <div className="space-y-2">
+                <Label htmlFor="password">Mot de passe</Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="pl-10 pr-10 h-12"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
+                {isSignUp && (
+                  <p className="text-xs text-muted-foreground">
+                    Minimum 6 caractères
+                  </p>
+                )}
               </div>
-            </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="password">Mot de passe</Label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                <Input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="pl-10 pr-10"
-                  required
-                />
+              <Button type="submit" className="w-full h-12 text-base" disabled={isLoading}>
+                {isLoading ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : isSignUp ? (
+                  "Créer mon compte"
+                ) : (
+                  "Se connecter"
+                )}
+              </Button>
+            </form>
+
+            <div className="text-center">
+              <p className="text-muted-foreground">
+                {isSignUp ? "Déjà un compte ?" : "Pas encore de compte ?"}
                 <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  onClick={() => setIsSignUp(!isSignUp)}
+                  className="ml-2 text-primary hover:underline font-medium"
                 >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {isSignUp ? "Se connecter" : "Créer un compte"}
                 </button>
-              </div>
+              </p>
             </div>
 
-            <Button type="submit" className="w-full" size="lg" disabled={isLoading}>
-              {isLoading ? (
-                <Loader2 className="w-5 h-5 animate-spin" />
-              ) : isSignUp ? (
-                "Créer mon compte"
-              ) : (
-                "Se connecter"
-              )}
-            </Button>
-          </form>
-
-          <div className="mt-6 text-center">
-            <p className="text-muted-foreground">
-              {isSignUp ? "Déjà un compte ?" : "Pas encore de compte ?"}
-              <button
-                onClick={() => setIsSignUp(!isSignUp)}
-                className="ml-2 text-primary hover:underline font-medium"
-              >
-                {isSignUp ? "Se connecter" : "Créer un compte"}
-              </button>
-            </p>
+            {isSignUp && (
+              <p className="text-xs text-center text-muted-foreground">
+                En créant un compte, vous acceptez nos{" "}
+                <Link to="/terms" className="text-primary hover:underline">
+                  Conditions d'utilisation
+                </Link>{" "}
+                et notre{" "}
+                <Link to="/privacy" className="text-primary hover:underline">
+                  Politique de confidentialité
+                </Link>
+                .
+              </p>
+            )}
           </div>
-
-          {isSignUp && (
-            <p className="mt-6 text-xs text-center text-muted-foreground">
-              En créant un compte, vous acceptez nos{" "}
-              <a href="/terms" className="text-primary hover:underline">
-                Conditions d'utilisation
-              </a>{" "}
-              et notre{" "}
-              <a href="/privacy" className="text-primary hover:underline">
-                Politique de confidentialité
-              </a>
-              .
-            </p>
-          )}
         </div>
       </div>
     </div>
