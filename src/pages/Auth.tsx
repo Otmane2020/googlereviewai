@@ -32,25 +32,24 @@ const Auth = () => {
   const { signUp, signIn, signInWithGoogle, user, loading } = useAuth();
   const navigate = useNavigate();
 
-  // Handle OAuth callback - detect tokens in URL hash
+  // Handle OAuth callback and regular auth redirect
   useEffect(() => {
-    const hashParams = new URLSearchParams(window.location.hash.substring(1));
-    const accessToken = hashParams.get('access_token');
+    // Check URL for OAuth callback tokens
+    const hash = window.location.hash;
+    const hasTokens = hash.includes('access_token') || hash.includes('refresh_token');
     
-    if (accessToken) {
-      // OAuth callback detected - force session refresh
+    if (hasTokens) {
+      // OAuth callback - let Supabase process tokens, then redirect
       supabase.auth.getSession().then(({ data: { session } }) => {
         if (session) {
-          // Clear the hash and redirect
-          window.history.replaceState(null, '', window.location.pathname);
+          window.history.replaceState(null, '', '/auth');
           navigate("/dashboard", { replace: true });
         }
       });
+      return;
     }
-  }, [navigate]);
-
-  // Regular auth state redirect
-  useEffect(() => {
+    
+    // Regular auth check - redirect if already logged in
     if (!loading && user) {
       navigate("/dashboard", { replace: true });
     }
