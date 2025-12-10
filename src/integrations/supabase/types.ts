@@ -14,7 +14,225 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      ai_settings: {
+        Row: {
+          auto_reply_delay: number | null
+          created_at: string | null
+          custom_template: string | null
+          enabled: boolean | null
+          id: string
+          include_signature: boolean | null
+          minimum_rating: number | null
+          only_positive_reviews: boolean | null
+          response_length: string | null
+          signature: string | null
+          tone: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          auto_reply_delay?: number | null
+          created_at?: string | null
+          custom_template?: string | null
+          enabled?: boolean | null
+          id?: string
+          include_signature?: boolean | null
+          minimum_rating?: number | null
+          only_positive_reviews?: boolean | null
+          response_length?: string | null
+          signature?: string | null
+          tone?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          auto_reply_delay?: number | null
+          created_at?: string | null
+          custom_template?: string | null
+          enabled?: boolean | null
+          id?: string
+          include_signature?: boolean | null
+          minimum_rating?: number | null
+          only_positive_reviews?: boolean | null
+          response_length?: string | null
+          signature?: string | null
+          tone?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_settings_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      businesses: {
+        Row: {
+          address: string | null
+          created_at: string | null
+          google_place_id: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          phone: string | null
+          rating: number | null
+          total_reviews: number | null
+          updated_at: string | null
+          user_id: string
+          website: string | null
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string | null
+          google_place_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          phone?: string | null
+          rating?: number | null
+          total_reviews?: number | null
+          updated_at?: string | null
+          user_id: string
+          website?: string | null
+        }
+        Update: {
+          address?: string | null
+          created_at?: string | null
+          google_place_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          phone?: string | null
+          rating?: number | null
+          total_reviews?: number | null
+          updated_at?: string | null
+          user_id?: string
+          website?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "businesses_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          billing_cycle: string | null
+          created_at: string | null
+          current_period_end: string | null
+          current_period_start: string | null
+          current_streak: number | null
+          email: string
+          full_name: string | null
+          id: string
+          level: number | null
+          onboarding_completed: boolean | null
+          plan_id: string | null
+          subscription_status: string | null
+          total_points: number | null
+          trial_end: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          billing_cycle?: string | null
+          created_at?: string | null
+          current_period_end?: string | null
+          current_period_start?: string | null
+          current_streak?: number | null
+          email: string
+          full_name?: string | null
+          id: string
+          level?: number | null
+          onboarding_completed?: boolean | null
+          plan_id?: string | null
+          subscription_status?: string | null
+          total_points?: number | null
+          trial_end?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          billing_cycle?: string | null
+          created_at?: string | null
+          current_period_end?: string | null
+          current_period_start?: string | null
+          current_streak?: number | null
+          email?: string
+          full_name?: string | null
+          id?: string
+          level?: number | null
+          onboarding_completed?: boolean | null
+          plan_id?: string | null
+          subscription_status?: string | null
+          total_points?: number | null
+          trial_end?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      reviews: {
+        Row: {
+          ai_response: string | null
+          author: string
+          comment: string | null
+          created_at: string | null
+          id: number
+          location_id: string
+          rating: number
+          replied: boolean | null
+          review_date: string
+          review_id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          ai_response?: string | null
+          author: string
+          comment?: string | null
+          created_at?: string | null
+          id?: number
+          location_id: string
+          rating: number
+          replied?: boolean | null
+          review_date: string
+          review_id: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          ai_response?: string | null
+          author?: string
+          comment?: string | null
+          created_at?: string | null
+          id?: number
+          location_id?: string
+          rating?: number
+          replied?: boolean | null
+          review_date?: string
+          review_id?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

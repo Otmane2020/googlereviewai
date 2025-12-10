@@ -1,0 +1,238 @@
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { StarlinkoLogo } from "@/components/StarlinkoLogo";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { 
+  Star, 
+  Search, 
+  Filter, 
+  MessageSquare, 
+  ArrowLeft,
+  Sparkles,
+  Clock,
+  CheckCircle,
+  XCircle
+} from "lucide-react";
+
+interface Review {
+  id: number;
+  review_id: string;
+  author: string;
+  rating: number;
+  comment: string;
+  review_date: string;
+  replied: boolean;
+  ai_response: string | null;
+}
+
+const Reviews = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterRating, setFilterRating] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!user) {
+      navigate("/auth");
+      return;
+    }
+
+    const fetchReviews = async () => {
+      const { data, error } = await supabase
+        .from("reviews")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("review_date", { ascending: false });
+
+      if (error) {
+        console.error("Error fetching reviews:", error);
+      } else {
+        setReviews(data || []);
+      }
+      setLoading(false);
+    };
+
+    fetchReviews();
+  }, [user, navigate]);
+
+  const filteredReviews = reviews.filter((review) => {
+    const matchesSearch = review.author.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      review.comment.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesRating = filterRating === null || review.rating === filterRating;
+    return matchesSearch && matchesRating;
+  });
+
+  const renderStars = (rating: number) => {
+    return (
+      <div className="flex gap-0.5">
+        {[1, 2, 3, 4, 5].map((star) => (
+          <Star
+            key={star}
+            className={`w-4 h-4 ${
+              star <= rating ? "text-accent fill-accent" : "text-muted-foreground/30"
+            }`}
+          />
+        ))}
+      </div>
+    );
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-muted/30">
+      {/* Header */}
+      <header className="bg-card border-b border-border px-6 py-4">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate("/dashboard")}
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+            <div>
+              <h1 className="text-2xl font-bold text-foreground">Avis Google</h1>
+              <p className="text-sm text-muted-foreground">
+                Gérez et répondez à vos avis clients
+              </p>
+            </div>
+          </div>
+          <StarlinkoLogo showBadge={false} />
+        </div>
+      </header>
+
+      <main className="max-w-7xl mx-auto p-6 space-y-6">
+        {/* Filters */}
+        <div className="flex flex-col sm:flex-row gap-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+            <Input
+              placeholder="Rechercher un avis..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+          <div className="flex gap-2">
+            {[null, 5, 4, 3, 2, 1].map((rating) => (
+              <Button
+                key={rating ?? "all"}
+                variant={filterRating === rating ? "default" : "outline"}
+                size="sm"
+                onClick={() => setFilterRating(rating)}
+              >
+                {rating === null ? (
+                  "Tous"
+                ) : (
+                  <span className="flex items-center gap-1">
+                    {rating} <Star className="w-3 h-3 fill-current" />
+                  </span>
+                )}
+              </Button>
+            ))}
+          </div>
+        </div>
+
+        {/* Reviews list */}
+        {filteredReviews.length === 0 ? (
+          <div className="bg-card rounded-2xl border border-border p-12 text-center">
+            <Star className="w-16 h-16 mx-auto mb-4 text-muted-foreground/30" />
+            <h2 className="text-xl font-semibold text-foreground mb-2">
+              {reviews.length === 0 ? "Aucun avis" : "Aucun résultat"}
+            </h2>
+            <p className="text-muted-foreground mb-6">
+              {reviews.length === 0
+                ? "Connectez votre compte Google My Business pour synchroniser vos avis."
+                : "Essayez de modifier vos filtres de recherche."}
+            </p>
+            {reviews.length === 0 && (
+              <Button>Connecter Google My Business</Button>
+            )}
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {filteredReviews.map((review) => (
+              <div
+                key={review.id}
+                className="bg-card rounded-2xl border border-border p-6 hover:shadow-lg transition-shadow"
+              >
+                <div className="flex items-start justify-between gap-4 mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                      <span className="text-lg font-semibold text-primary">
+                        {review.author.charAt(0).toUpperCase()}
+                      </span>
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-foreground">{review.author}</h3>
+                      <div className="flex items-center gap-3 mt-1">
+                        {renderStars(review.rating)}
+                        <span className="text-sm text-muted-foreground flex items-center gap-1">
+                          <Clock className="w-3 h-3" />
+                          {new Date(review.review_date).toLocaleDateString("fr-FR")}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {review.replied ? (
+                      <span className="flex items-center gap-1 text-sm text-secondary">
+                        <CheckCircle className="w-4 h-4" />
+                        Répondu
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-1 text-sm text-muted-foreground">
+                        <XCircle className="w-4 h-4" />
+                        En attente
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {review.comment && (
+                  <p className="text-muted-foreground mb-4">{review.comment}</p>
+                )}
+
+                {review.ai_response && (
+                  <div className="bg-secondary/5 rounded-xl p-4 border border-secondary/20 mb-4">
+                    <div className="flex items-center gap-2 text-secondary text-sm font-medium mb-2">
+                      <Sparkles className="w-4 h-4" />
+                      Réponse IA
+                    </div>
+                    <p className="text-muted-foreground text-sm">{review.ai_response}</p>
+                  </div>
+                )}
+
+                <div className="flex gap-2">
+                  <Button variant="default" size="sm" className="gap-2">
+                    <Sparkles className="w-4 h-4" />
+                    Générer une réponse
+                  </Button>
+                  <Button variant="outline" size="sm" className="gap-2">
+                    <MessageSquare className="w-4 h-4" />
+                    Répondre manuellement
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </main>
+    </div>
+  );
+};
+
+export default Reviews;
