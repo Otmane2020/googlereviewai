@@ -12,6 +12,8 @@ import Reviews from "./pages/Reviews";
 import AISettings from "./pages/AISettings";
 import Settings from "./pages/Settings";
 import Businesses from "./pages/Businesses";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfService from "./pages/TermsOfService";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -32,6 +34,8 @@ const App = () => (
               <Route path="/ai-settings" element={<AISettings />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/businesses" element={<Businesses />} />
+              <Route path="/privacy" element={<PrivacyPolicy />} />
+              <Route path="/terms" element={<TermsOfService />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </OAuthCallback>
