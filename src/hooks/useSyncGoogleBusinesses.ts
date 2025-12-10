@@ -14,10 +14,19 @@ export const useSyncGoogleBusinesses = () => {
         throw new Error("No session found");
       }
 
+      const providerToken = session.provider_token;
+      
+      if (!providerToken) {
+        toast({
+          title: "Token Google manquant",
+          description: "Veuillez vous déconnecter et vous reconnecter avec Google pour synchroniser vos établissements.",
+          variant: "destructive",
+        });
+        return { success: false, businesses: [] };
+      }
+
       const response = await supabase.functions.invoke("sync-google-businesses", {
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-        },
+        body: { provider_token: providerToken },
       });
 
       if (response.error) {
