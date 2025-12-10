@@ -1,20 +1,21 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { StarlinkoLogo } from "@/components/StarlinkoLogo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { toast } from "@/hooks/use-toast";
 import { 
   Star, 
   Search, 
-  Filter, 
   MessageSquare, 
   ArrowLeft,
   Sparkles,
   Clock,
   CheckCircle,
-  XCircle
+  XCircle,
+  Loader2
 } from "lucide-react";
 
 interface Review {
@@ -35,30 +36,85 @@ const Reviews = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterRating, setFilterRating] = useState<number | null>(null);
+  const [generatingId, setGeneratingId] = useState<number | null>(null);
+
+  const fetchReviews = useCallback(async () => {
+    if (!user) return;
+    const { data, error } = await supabase
+      .from("reviews")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("review_date", { ascending: false });
+
+    if (error) {
+      console.error("Error fetching reviews:", error);
+    } else {
+      setReviews(data || []);
+    }
+    setLoading(false);
+  }, [user]);
 
   useEffect(() => {
     if (!user) {
       navigate("/auth");
       return;
     }
-
-    const fetchReviews = async () => {
-      const { data, error } = await supabase
-        .from("reviews")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("review_date", { ascending: false });
-
-      if (error) {
-        console.error("Error fetching reviews:", error);
-      } else {
-        setReviews(data || []);
-      }
-      setLoading(false);
-    };
-
     fetchReviews();
-  }, [user, navigate]);
+
+    // Subscribe to realtime updates
+    const channel = supabase
+      .channel("reviews-realtime")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "reviews",
+          filter: `user_id=eq.${user.id}`,
+        },
+        () => {
+          fetchReviews();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user, navigate, fetchReviews]);
+
+  const generateAIResponse = async (reviewId: number) => {
+    if (!user) return;
+    setGeneratingId(reviewId);
+
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-ai-response", {
+        body: { reviewId, userId: user.id },
+      });
+
+      if (error) throw error;
+
+      if (data?.error) {
+        throw new Error(data.error);
+      }
+
+      toast({
+        title: "Réponse générée !",
+        description: "La réponse IA a été créée avec succès.",
+      });
+
+      fetchReviews();
+    } catch (error) {
+      console.error("Error generating AI response:", error);
+      toast({
+        title: "Erreur",
+        description: error instanceof Error ? error.message : "Impossible de générer la réponse.",
+        variant: "destructive",
+      });
+    } finally {
+      setGeneratingId(null);
+    }
+  };
 
   const filteredReviews = reviews.filter((review) => {
     const matchesSearch = review.author.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -217,9 +273,19 @@ const Reviews = () => {
                 )}
 
                 <div className="flex gap-2">
-                  <Button variant="default" size="sm" className="gap-2">
-                    <Sparkles className="w-4 h-4" />
-                    Générer une réponse
+                  <Button 
+                    variant="default" 
+                    size="sm" 
+                    className="gap-2"
+                    onClick={() => generateAIResponse(review.id)}
+                    disabled={generatingId === review.id}
+                  >
+                    {generatingId === review.id ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Sparkles className="w-4 h-4" />
+                    )}
+                    {generatingId === review.id ? "Génération..." : "Générer une réponse"}
                   </Button>
                   <Button variant="outline" size="sm" className="gap-2">
                     <MessageSquare className="w-4 h-4" />
