@@ -22,8 +22,8 @@ const footerLinks = {
   legal: {
     title: "Légal",
     links: [
-      { label: "Confidentialité", href: "#" },
-      { label: "Conditions d'utilisation", href: "#" },
+      { label: "Confidentialité", href: "/privacy" },
+      { label: "Conditions d'utilisation", href: "/terms" },
       { label: "Politique cookies", href: "#" },
       { label: "Conformité API", href: "#" },
     ],
