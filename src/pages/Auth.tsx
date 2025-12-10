@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { StarlinkoLogo } from "@/components/StarlinkoLogo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,8 +32,25 @@ const Auth = () => {
   const { signUp, signIn, signInWithGoogle, user, loading } = useAuth();
   const navigate = useNavigate();
 
+  // Handle OAuth callback - detect tokens in URL hash
   useEffect(() => {
-    // Wait for auth to finish loading before redirecting
+    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    const accessToken = hashParams.get('access_token');
+    
+    if (accessToken) {
+      // OAuth callback detected - force session refresh
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session) {
+          // Clear the hash and redirect
+          window.history.replaceState(null, '', window.location.pathname);
+          navigate("/dashboard", { replace: true });
+        }
+      });
+    }
+  }, [navigate]);
+
+  // Regular auth state redirect
+  useEffect(() => {
     if (!loading && user) {
       navigate("/dashboard", { replace: true });
     }
