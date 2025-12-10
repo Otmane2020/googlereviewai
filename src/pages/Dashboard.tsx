@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { useSyncGoogleBusinesses } from "@/hooks/useSyncGoogleBusinesses";
 import { StarlinkoLogo } from "@/components/StarlinkoLogo";
 import { Button } from "@/components/ui/button";
 import { 
@@ -18,7 +19,8 @@ import {
   Sparkles,
   ChevronRight,
   Home,
-  User
+  User,
+  RefreshCw
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
@@ -42,12 +44,14 @@ interface StatsCard {
 }
 
 const Dashboard = () => {
-  const { user, signOut } = useAuth();
+  const { user, signOut, session } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const { syncBusinesses, isSyncing } = useSyncGoogleBusinesses();
+  const hasSyncedRef = useRef(false);
 
   useEffect(() => {
     if (!user) {
@@ -72,6 +76,14 @@ const Dashboard = () => {
 
     fetchProfile();
   }, [user, navigate]);
+
+  // Auto-sync Google businesses on first load if user signed in with Google
+  useEffect(() => {
+    if (!loading && user && session?.provider_token && !hasSyncedRef.current) {
+      hasSyncedRef.current = true;
+      syncBusinesses();
+    }
+  }, [loading, user, session, syncBusinesses]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -378,8 +390,15 @@ const Dashboard = () => {
                 <p className="text-sm text-muted-foreground mb-4">
                   Connectez votre compte Google My Business
                 </p>
-                <Button variant="default">
-                  Connecter Google
+                <Button variant="default" onClick={syncBusinesses} disabled={isSyncing}>
+                  {isSyncing ? (
+                    <>
+                      <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                      Synchronisation...
+                    </>
+                  ) : (
+                    "Synchroniser Google"
+                  )}
                 </Button>
               </div>
             </div>
