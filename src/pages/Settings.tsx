@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
+import { UpgradeDialog } from "@/components/UpgradeDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,7 +22,7 @@ import {
   Settings as SettingsIcon,
   Link2,
   Unlink,
-  RefreshCw
+  Sparkles
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
@@ -68,6 +69,7 @@ const SettingsPage = () => {
   const [saving, setSaving] = useState(false);
   const [isGoogleConnected, setIsGoogleConnected] = useState(false);
   const [connectingGoogle, setConnectingGoogle] = useState(false);
+  const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
 
   useEffect(() => {
     if (!user) {
@@ -325,11 +327,17 @@ const SettingsPage = () => {
                   ))}
                 </ul>
                 <Button
-                  variant={profile?.plan_name?.toLowerCase() === plan.id ? "secondary" : "outline"}
+                  variant={profile?.plan_name?.toLowerCase() === plan.id ? "secondary" : "default"}
                   className="w-full mt-4"
                   disabled={profile?.plan_name?.toLowerCase() === plan.id}
+                  onClick={() => setShowUpgradeDialog(true)}
                 >
-                  {profile?.plan_name?.toLowerCase() === plan.id ? "Plan actuel" : "Choisir"}
+                  {profile?.plan_name?.toLowerCase() === plan.id ? "Plan actuel" : (
+                    <>
+                      <Sparkles className="w-4 h-4 mr-1" />
+                      Upgrade
+                    </>
+                  )}
                 </Button>
               </div>
             ))}
@@ -433,6 +441,12 @@ const SettingsPage = () => {
       </main>
 
       <MobileBottomNav />
+      
+      <UpgradeDialog 
+        open={showUpgradeDialog} 
+        onOpenChange={setShowUpgradeDialog}
+        currentPlan={profile?.plan_name || undefined}
+      />
     </div>
   );
 };
