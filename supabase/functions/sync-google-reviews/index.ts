@@ -248,13 +248,22 @@ serve(async (req) => {
 
             // Process and save each review
             for (const review of reviews) {
-              // Use review.name as the unique ID (format: accounts/xxx/locations/xxx/reviews/xxx)
-              const reviewId = review.name || review.reviewId;
+              // Use review.name as the full ID, but extract the unique review part
+              // Format: accounts/xxx/locations/xxx/reviews/UNIQUE_REVIEW_ID
+              const fullReviewId = review.name || review.reviewId;
               
-              if (!reviewId) {
+              if (!fullReviewId) {
                 console.error("Review has no ID:", review);
                 continue;
               }
+
+              // Extract the unique review ID (the last part after /reviews/)
+              const reviewIdParts = fullReviewId.split("/reviews/");
+              const uniqueReviewId = reviewIdParts.length > 1 ? reviewIdParts[1] : fullReviewId;
+              
+              // Create a canonical review_id without the account prefix to avoid duplicates
+              // Use format: locations/{locationId}/reviews/{uniqueReviewId}
+              const canonicalReviewId = `locations/${locationId}/reviews/${uniqueReviewId}`;
 
               // Convert star rating
               const starMapping: Record<string, number> = {
@@ -271,7 +280,7 @@ serve(async (req) => {
 
               const reviewData = {
                 user_id: user.id,
-                review_id: reviewId,
+                review_id: canonicalReviewId,
                 location_id: locationId,
                 author: review.reviewer?.displayName || "Anonyme",
                 rating: rating,
@@ -281,13 +290,14 @@ serve(async (req) => {
                 ai_response: review.reviewReply?.comment || null,
               };
 
-              console.log(`Processing review: ${reviewId} from ${reviewData.author} (${rating} stars)`);
+              console.log(`Processing review: ${canonicalReviewId} from ${reviewData.author} (${rating} stars)`);
 
-              // Upsert review using service role to bypass RLS
+              // Check for existing review by canonical review_id OR by user_id + location_id + unique part
               const { data: existingReview } = await supabaseAdmin
                 .from("reviews")
                 .select("id")
-                .eq("review_id", reviewId)
+                .eq("user_id", user.id)
+                .eq("review_id", canonicalReviewId)
                 .maybeSingle();
 
               let result;
