@@ -53,6 +53,8 @@ const BusinessesPage = () => {
   const navigate = useNavigate();
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [reviewCounts, setReviewCounts] = useState<Record<string, number>>({});
+  const [reviewRatings, setReviewRatings] = useState<Record<string, number>>({});
+  const [businessPosts, setBusinessPosts] = useState<Record<string, any[]>>({});
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
@@ -90,23 +92,54 @@ const BusinessesPage = () => {
     } else {
       setBusinesses(data || []);
       
-      // Fetch review counts per business
+      // Fetch review counts and ratings per business
       if (data && data.length > 0) {
         const googlePlaceIds = data.map(b => b.google_place_id).filter(Boolean);
+        const businessIds = data.map(b => b.id);
+        
         if (googlePlaceIds.length > 0) {
           const { data: reviews } = await supabase
             .from("reviews")
-            .select("location_id")
+            .select("location_id, rating")
             .eq("user_id", user.id)
             .in("location_id", googlePlaceIds);
           
           if (reviews) {
             const counts: Record<string, number> = {};
+            const ratings: Record<string, number[]> = {};
+            
             reviews.forEach(r => {
               counts[r.location_id] = (counts[r.location_id] || 0) + 1;
+              if (!ratings[r.location_id]) ratings[r.location_id] = [];
+              ratings[r.location_id].push(r.rating);
             });
+            
             setReviewCounts(counts);
+            
+            // Calculate average ratings
+            const avgRatings: Record<string, number> = {};
+            Object.entries(ratings).forEach(([locationId, ratingsList]) => {
+              avgRatings[locationId] = ratingsList.reduce((a, b) => a + b, 0) / ratingsList.length;
+            });
+            setReviewRatings(avgRatings);
           }
+        }
+
+        // Fetch posts for each business
+        const { data: posts } = await supabase
+          .from("scheduled_content")
+          .select("*")
+          .eq("user_id", user.id)
+          .in("business_id", businessIds)
+          .order("created_at", { ascending: false });
+
+        if (posts) {
+          const postsMap: Record<string, any[]> = {};
+          posts.forEach(p => {
+            if (!postsMap[p.business_id]) postsMap[p.business_id] = [];
+            postsMap[p.business_id].push(p);
+          });
+          setBusinessPosts(postsMap);
         }
       }
     }
@@ -332,6 +365,8 @@ const BusinessesPage = () => {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {businesses.map((business) => {
               const reviewCount = business.google_place_id ? (reviewCounts[business.google_place_id] || 0) : 0;
+              const calculatedRating = business.google_place_id ? (reviewRatings[business.google_place_id] || business.rating) : business.rating;
+              const posts = businessPosts[business.id] || [];
               const isGoogleConnected = !!business.google_place_id;
               
               return (
@@ -374,16 +409,16 @@ const BusinessesPage = () => {
 
                   {/* Stats */}
                   <div className="flex items-center gap-1 mb-3">
-                    <span className="text-sm font-medium text-[#202124] dark:text-foreground">{business.rating?.toFixed(1) || "–"}</span>
+                    <span className="text-sm font-medium text-[#202124] dark:text-foreground">{calculatedRating?.toFixed(1) || "–"}</span>
                     <div className="flex items-center">
                       {[...Array(5)].map((_, i) => (
                         <Star 
                           key={i} 
-                          className={`w-3.5 h-3.5 text-[#FBBC04] ${i < Math.round(business.rating || 0) ? "fill-[#FBBC04]" : "fill-transparent"}`} 
+                          className={`w-3.5 h-3.5 text-[#FBBC04] ${i < Math.round(calculatedRating || 0) ? "fill-[#FBBC04]" : "fill-transparent"}`} 
                         />
                       ))}
                     </div>
-                    <span className="text-sm text-[#70757A] dark:text-muted-foreground">({reviewCount})</span>
+                    <span className="text-sm text-[#70757A] dark:text-muted-foreground">({reviewCount} avis)</span>
                   </div>
 
                   <div className="space-y-2 text-sm">
@@ -427,14 +462,28 @@ const BusinessesPage = () => {
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-2">
                         <FileText className="w-4 h-4 text-muted-foreground" />
-                        <span className="text-sm font-medium text-foreground">Posts</span>
+                        <span className="text-sm font-medium text-foreground">Posts ({posts.length})</span>
                       </div>
                       <Button variant="ghost" size="sm" className="h-7 gap-1 text-xs">
                         <PlusCircle className="w-3 h-3" />
                         Ajouter
                       </Button>
                     </div>
-                    <p className="text-xs text-muted-foreground">Aucun post pour le moment</p>
+                    {posts.length > 0 ? (
+                      <div className="space-y-2">
+                        {posts.slice(0, 2).map((post) => (
+                          <div key={post.id} className="p-2 bg-muted/50 rounded-lg">
+                            <p className="text-xs font-medium text-foreground line-clamp-1">{post.title || post.question || "Post"}</p>
+                            <p className="text-xs text-muted-foreground">{post.status}</p>
+                          </div>
+                        ))}
+                        {posts.length > 2 && (
+                          <p className="text-xs text-primary cursor-pointer hover:underline">+{posts.length - 2} autres posts</p>
+                        )}
+                      </div>
+                    ) : (
+                      <p className="text-xs text-muted-foreground">Aucun post pour le moment</p>
+                    )}
                   </div>
 
                   <div className="mt-4 pt-4 border-t border-border flex gap-2">
