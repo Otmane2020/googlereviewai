@@ -17,6 +17,7 @@ import TermsOfService from "./pages/TermsOfService";
 import Install from "./pages/Install";
 import SEOAutoPost from "./pages/SEOAutoPost";
 import AEORank from "./pages/AEORank";
+import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -32,6 +33,7 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
+              <Route path="/auth/reset-password" element={<ResetPassword />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/reviews" element={<Reviews />} />
               <Route path="/ai-settings" element={<AISettings />} />

@@ -22,13 +22,14 @@ const signInSchema = z.object({
 });
 
 const Auth = () => {
-  const [isSignUp, setIsSignUp] = useState(false);
+  const [mode, setMode] = useState<"signin" | "signup" | "forgot">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [resetEmailSent, setResetEmailSent] = useState(false);
   const { signUp, signIn, signInWithGoogle, user, loading } = useAuth();
   const navigate = useNavigate();
 
@@ -55,12 +56,56 @@ const Auth = () => {
     }
   }, [user, loading, navigate]);
 
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      const validation = z.string().email("Adresse email invalide").safeParse(email);
+      if (!validation.success) {
+        toast({
+          title: "Email invalide",
+          description: "Veuillez entrer une adresse email valide.",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth/reset-password`,
+      });
+
+      if (error) {
+        toast({
+          title: "Erreur",
+          description: error.message,
+          variant: "destructive",
+        });
+      } else {
+        setResetEmailSent(true);
+        toast({
+          title: "Email envoyé !",
+          description: "Consultez votre boîte mail pour réinitialiser votre mot de passe.",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Erreur",
+        description: "Une erreur inattendue s'est produite.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      if (isSignUp) {
+      if (mode === "signup") {
         const validation = signUpSchema.safeParse({ email, password, fullName });
         if (!validation.success) {
           toast({
@@ -212,158 +257,245 @@ const Auth = () => {
 
             <div>
               <h2 className="text-2xl font-bold text-foreground">
-                {isSignUp ? "Créer un compte" : "Connexion"}
+                {mode === "signup" 
+                  ? "Créer un compte" 
+                  : mode === "forgot" 
+                    ? "Mot de passe oublié" 
+                    : "Connexion"}
               </h2>
               <p className="text-muted-foreground mt-2">
-                {isSignUp
+                {mode === "signup"
                   ? "Commencez votre essai gratuit de 14 jours"
-                  : "Accédez à votre tableau de bord"}
+                  : mode === "forgot"
+                    ? "Entrez votre email pour recevoir un lien de réinitialisation"
+                    : "Accédez à votre tableau de bord"}
               </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-5">
-              {isSignUp && (
+            {/* Forgot Password Form */}
+            {mode === "forgot" ? (
+              resetEmailSent ? (
+                <div className="space-y-6 text-center">
+                  <div className="w-16 h-16 mx-auto bg-secondary/20 rounded-full flex items-center justify-center">
+                    <Mail className="w-8 h-8 text-secondary" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-medium text-foreground mb-2">
+                      Email envoyé !
+                    </h3>
+                    <p className="text-muted-foreground text-sm">
+                      Nous avons envoyé un lien de réinitialisation à <strong>{email}</strong>.
+                      Vérifiez votre boîte mail (et vos spams).
+                    </p>
+                  </div>
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => {
+                      setMode("signin");
+                      setResetEmailSent(false);
+                    }}
+                  >
+                    <ArrowLeft className="w-4 h-4 mr-2" />
+                    Retour à la connexion
+                  </Button>
+                </div>
+              ) : (
+                <form onSubmit={handleForgotPassword} className="space-y-5">
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                      <Input
+                        id="email"
+                        type="email"
+                        placeholder="votre@email.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="pl-10 h-12"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <Button type="submit" className="w-full h-12 text-base" disabled={isLoading}>
+                    {isLoading ? (
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                    ) : (
+                      "Envoyer le lien"
+                    )}
+                  </Button>
+
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    className="w-full"
+                    onClick={() => setMode("signin")}
+                  >
+                    <ArrowLeft className="w-4 h-4 mr-2" />
+                    Retour à la connexion
+                  </Button>
+                </form>
+              )
+            ) : (
+              /* Sign In / Sign Up Form */
+              <form onSubmit={handleSubmit} className="space-y-5">
+                {mode === "signup" && (
+                  <div className="space-y-2">
+                    <Label htmlFor="fullName">Nom complet</Label>
+                    <div className="relative">
+                      <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                      <Input
+                        id="fullName"
+                        type="text"
+                        placeholder="Jean Dupont"
+                        value={fullName}
+                        onChange={(e) => setFullName(e.target.value)}
+                        className="pl-10 h-12"
+                        required
+                      />
+                    </div>
+                  </div>
+                )}
+
                 <div className="space-y-2">
-                  <Label htmlFor="fullName">Nom complet</Label>
+                  <Label htmlFor="email">Email</Label>
                   <div className="relative">
-                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                     <Input
-                      id="fullName"
-                      type="text"
-                      placeholder="Jean Dupont"
-                      value={fullName}
-                      onChange={(e) => setFullName(e.target.value)}
+                      id="email"
+                      type="email"
+                      placeholder="votre@email.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
                       className="pl-10 h-12"
                       required
                     />
                   </div>
                 </div>
-              )}
 
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="password">Mot de passe</Label>
+                    {mode === "signin" && (
+                      <button
+                        type="button"
+                        onClick={() => setMode("forgot")}
+                        className="text-sm text-primary hover:underline"
+                      >
+                        Mot de passe oublié ?
+                      </button>
+                    )}
+                  </div>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                    <Input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      placeholder="••••••••"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="pl-10 pr-10 h-12"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    </button>
+                  </div>
+                  {mode === "signup" && (
+                    <p className="text-xs text-muted-foreground">
+                      Minimum 6 caractères
+                    </p>
+                  )}
+                </div>
+
+                <Button type="submit" className="w-full h-12 text-base" disabled={isLoading}>
+                  {isLoading ? (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  ) : mode === "signup" ? (
+                    "Créer mon compte"
+                  ) : (
+                    "Se connecter"
+                  )}
+                </Button>
+
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="votre@email.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="pl-10 h-12"
-                    required
-                  />
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t border-border" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-background px-2 text-muted-foreground">
+                      Ou continuer avec
+                    </span>
+                  </div>
                 </div>
-              </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="password">Mot de passe</Label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                  <Input
-                    id="password"
-                    type={showPassword ? "text" : "password"}
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="pl-10 pr-10 h-12"
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                  </button>
-                </div>
-                {isSignUp && (
-                  <p className="text-xs text-muted-foreground">
-                    Minimum 6 caractères
-                  </p>
-                )}
-              </div>
-
-              <Button type="submit" className="w-full h-12 text-base" disabled={isLoading}>
-                {isLoading ? (
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                ) : isSignUp ? (
-                  "Créer mon compte"
-                ) : (
-                  "Se connecter"
-                )}
-              </Button>
-
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t border-border" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-background px-2 text-muted-foreground">
-                    Ou continuer avec
-                  </span>
-                </div>
-              </div>
-
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full h-12"
-                onClick={async () => {
-                  setIsGoogleLoading(true);
-                  const { error } = await signInWithGoogle();
-                  if (error) {
-                    toast({
-                      title: "Erreur Google",
-                      description: error.message,
-                      variant: "destructive",
-                    });
-                  }
-                  setIsGoogleLoading(false);
-                }}
-                disabled={isGoogleLoading}
-              >
-                {isGoogleLoading ? (
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                ) : (
-                  <>
-                    <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
-                      <path
-                        fill="currentColor"
-                        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                      />
-                      <path
-                        fill="currentColor"
-                        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                      />
-                      <path
-                        fill="currentColor"
-                        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                      />
-                      <path
-                        fill="currentColor"
-                        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                      />
-                    </svg>
-                    Continuer avec Google
-                  </>
-                )}
-              </Button>
-            </form>
-
-            <div className="text-center">
-              <p className="text-muted-foreground">
-                {isSignUp ? "Déjà un compte ?" : "Pas encore de compte ?"}
-                <button
-                  onClick={() => setIsSignUp(!isSignUp)}
-                  className="ml-2 text-primary hover:underline font-medium"
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full h-12"
+                  onClick={async () => {
+                    setIsGoogleLoading(true);
+                    const { error } = await signInWithGoogle();
+                    if (error) {
+                      toast({
+                        title: "Erreur Google",
+                        description: error.message,
+                        variant: "destructive",
+                      });
+                    }
+                    setIsGoogleLoading(false);
+                  }}
+                  disabled={isGoogleLoading}
                 >
-                  {isSignUp ? "Se connecter" : "Créer un compte"}
-                </button>
-              </p>
-            </div>
+                  {isGoogleLoading ? (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  ) : (
+                    <>
+                      <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
+                        <path
+                          fill="currentColor"
+                          d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                        />
+                        <path
+                          fill="currentColor"
+                          d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                        />
+                        <path
+                          fill="currentColor"
+                          d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                        />
+                        <path
+                          fill="currentColor"
+                          d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                        />
+                      </svg>
+                      Continuer avec Google
+                    </>
+                  )}
+                </Button>
+              </form>
+            )}
 
-            {isSignUp && (
+            {mode !== "forgot" && (
+              <div className="text-center">
+                <p className="text-muted-foreground">
+                  {mode === "signup" ? "Déjà un compte ?" : "Pas encore de compte ?"}
+                  <button
+                    onClick={() => setMode(mode === "signup" ? "signin" : "signup")}
+                    className="ml-2 text-primary hover:underline font-medium"
+                  >
+                    {mode === "signup" ? "Se connecter" : "Créer un compte"}
+                  </button>
+                </p>
+              </div>
+            )}
+
+            {mode === "signup" && (
               <p className="text-xs text-center text-muted-foreground">
                 En créant un compte, vous acceptez nos{" "}
                 <Link to="/terms" className="text-primary hover:underline">
