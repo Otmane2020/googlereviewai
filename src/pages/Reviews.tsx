@@ -297,18 +297,26 @@ const Reviews = () => {
             {/* Sync button removed - cron runs every 60 seconds */}
           </div>
 
-          {/* Stats */}
+          {/* Stats - Clickable Filters */}
           <div className="grid grid-cols-4 gap-3 mt-6">
             {[
-              { label: "Total", value: stats.total, color: "text-foreground" },
-              { label: "En attente", value: stats.pending, color: "text-orange-500" },
-              { label: "Prêts", value: stats.ready, color: "text-primary" },
-              { label: "Publiés", value: stats.published, color: "text-secondary" },
+              { label: "Total", value: stats.total, color: "text-foreground", bgColor: "bg-background", status: "all" },
+              { label: "Non répondu", value: stats.pending, color: "text-red-500", bgColor: "bg-red-500/10", status: "pending" },
+              { label: "Réponse IA", value: stats.ready, color: "text-primary", bgColor: "bg-primary/10", status: "ready" },
+              { label: "Publié", value: stats.published, color: "text-green-500", bgColor: "bg-green-500/10", status: "published" },
             ].map((stat) => (
-              <div key={stat.label} className="bg-background rounded-lg p-3 text-center border border-border">
+              <button
+                key={stat.label}
+                onClick={() => setFilterStatus(stat.status)}
+                className={`rounded-lg p-3 text-center border transition-all ${
+                  filterStatus === stat.status 
+                    ? `${stat.bgColor} border-current ${stat.color} ring-2 ring-current/20` 
+                    : "bg-background border-border hover:border-muted-foreground/50"
+                }`}
+              >
                 <div className={`text-xl font-bold ${stat.color}`}>{stat.value}</div>
                 <div className="text-xs text-muted-foreground">{stat.label}</div>
-              </div>
+              </button>
             ))}
           </div>
         </div>
