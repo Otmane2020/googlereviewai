@@ -16,7 +16,10 @@ import {
   Clock,
   Star,
   Save,
-  Loader2
+  Loader2,
+  RefreshCw,
+  Send,
+  Bell
 } from "lucide-react";
 
 interface AISettings {
@@ -29,6 +32,9 @@ interface AISettings {
   auto_reply_delay: number;
   only_positive_reviews: boolean;
   minimum_rating: number;
+  auto_sync_reviews: boolean;
+  sync_interval_minutes: number;
+  auto_publish_to_google: boolean;
 }
 
 const toneOptions = [
@@ -57,6 +63,9 @@ const AISettingsPage = () => {
     auto_reply_delay: 5,
     only_positive_reviews: false,
     minimum_rating: 3,
+    auto_sync_reviews: true,
+    sync_interval_minutes: 30,
+    auto_publish_to_google: false,
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -78,15 +87,18 @@ const AISettingsPage = () => {
         console.error("Error fetching AI settings:", error);
       } else if (data) {
         setSettings({
-          enabled: data.enabled,
-          tone: data.tone,
-          response_length: data.response_length,
-          include_signature: data.include_signature,
-          signature: data.signature,
+          enabled: data.enabled ?? true,
+          tone: data.tone ?? "friendly",
+          response_length: data.response_length ?? "M",
+          include_signature: data.include_signature ?? true,
+          signature: data.signature ?? "L'équipe {business_name}",
           custom_template: data.custom_template || "",
-          auto_reply_delay: data.auto_reply_delay,
-          only_positive_reviews: data.only_positive_reviews,
-          minimum_rating: data.minimum_rating,
+          auto_reply_delay: data.auto_reply_delay ?? 5,
+          only_positive_reviews: data.only_positive_reviews ?? false,
+          minimum_rating: data.minimum_rating ?? 3,
+          auto_sync_reviews: data.auto_sync_reviews ?? true,
+          sync_interval_minutes: data.sync_interval_minutes ?? 30,
+          auto_publish_to_google: data.auto_publish_to_google ?? false,
         });
       }
       setLoading(false);
@@ -310,6 +322,88 @@ const AISettingsPage = () => {
               ))}
             </div>
           </div>
+        </div>
+
+        {/* Auto Sync Settings */}
+        <div className="bg-card rounded-2xl border border-border p-6 space-y-6">
+          <div className="flex items-center gap-3">
+            <RefreshCw className="w-5 h-5 text-primary" />
+            <h3 className="font-semibold text-foreground">Synchronisation automatique</h3>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div>
+              <h4 className="font-medium text-foreground">Synchroniser les avis automatiquement</h4>
+              <p className="text-sm text-muted-foreground">
+                Les nouveaux avis seront importés périodiquement depuis Google
+              </p>
+            </div>
+            <Switch
+              checked={settings.auto_sync_reviews}
+              onCheckedChange={(auto_sync_reviews) =>
+                setSettings({ ...settings, auto_sync_reviews })
+              }
+            />
+          </div>
+
+          {settings.auto_sync_reviews && (
+            <div className="space-y-2">
+              <Label htmlFor="sync_interval">Intervalle de synchronisation (minutes)</Label>
+              <div className="flex gap-2">
+                {[15, 30, 60, 120].map((interval) => (
+                  <button
+                    key={interval}
+                    onClick={() => setSettings({ ...settings, sync_interval_minutes: interval })}
+                    className={`px-4 py-2 rounded-lg border transition-all ${
+                      settings.sync_interval_minutes === interval
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-border hover:border-primary/50"
+                    }`}
+                  >
+                    {interval < 60 ? `${interval}min` : `${interval / 60}h`}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Auto Publish to Google */}
+        <div className="bg-card rounded-2xl border border-border p-6 space-y-6">
+          <div className="flex items-center gap-3">
+            <Send className="w-5 h-5 text-primary" />
+            <h3 className="font-semibold text-foreground">Publication automatique sur Google</h3>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div>
+              <h4 className="font-medium text-foreground">Publier automatiquement les réponses IA</h4>
+              <p className="text-sm text-muted-foreground">
+                Les réponses générées par l'IA seront publiées directement sur Google Business Profile
+              </p>
+            </div>
+            <Switch
+              checked={settings.auto_publish_to_google}
+              onCheckedChange={(auto_publish_to_google) =>
+                setSettings({ ...settings, auto_publish_to_google })
+              }
+            />
+          </div>
+
+          {settings.auto_publish_to_google && (
+            <div className="bg-accent/10 rounded-xl p-4 border border-accent/20">
+              <div className="flex items-start gap-3">
+                <Bell className="w-5 h-5 text-accent mt-0.5" />
+                <div>
+                  <h4 className="font-medium text-foreground text-sm">Attention</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Les réponses seront publiées automatiquement après le délai configuré ({settings.auto_reply_delay} min). 
+                    Assurez-vous que vos paramètres de ton et de contenu sont correctement configurés.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Custom template */}
