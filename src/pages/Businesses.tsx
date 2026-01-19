@@ -343,26 +343,21 @@ const BusinessesPage = () => {
                   <h3 className="font-semibold text-foreground text-lg mb-2 line-clamp-2">{business.name}</h3>
 
                   {/* Stats */}
-                  <div className="flex items-center gap-4 mb-3">
-                    <div className="flex items-center gap-1.5">
-                      <div className="flex items-center">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <Star 
-                            key={star} 
-                            className={`w-3.5 h-3.5 ${
-                              star <= Math.round(business.rating || 0) 
-                                ? "text-yellow-500 fill-yellow-500" 
-                                : "text-muted-foreground/30"
-                            }`} 
-                          />
-                        ))}
-                      </div>
-                      <span className="font-semibold text-sm">{business.rating?.toFixed(1) || "–"}</span>
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="font-medium text-sm text-foreground">{business.rating?.toFixed(1) || "–"}</span>
+                    <div className="flex items-center gap-0.5">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <Star 
+                          key={star} 
+                          className={`w-3 h-3 ${
+                            star <= Math.round(business.rating || 0) 
+                              ? "text-[#FBBC04] fill-[#FBBC04]" 
+                              : "text-[#DADCE0] fill-[#DADCE0]"
+                          }`} 
+                        />
+                      ))}
                     </div>
-                    <div className="flex items-center gap-1 text-muted-foreground">
-                      <MessageSquare className="w-4 h-4" />
-                      <span className="text-sm">{reviewCount} avis</span>
-                    </div>
+                    <span className="text-sm text-muted-foreground">({reviewCount})</span>
                   </div>
 
                   <div className="space-y-2 text-sm">
