@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
-import { Check, Sparkles, Star, TrendingUp, Zap, Bot, Search, FileText, MessageSquare } from "lucide-react";
+import { Check, Sparkles, Star, TrendingUp, Zap, Bot, Search, FileText, MessageSquare, Rocket, User } from "lucide-react";
 
 const ChatGPTIcon = ({ className = "w-5 h-5" }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
@@ -24,9 +24,9 @@ export const HeroSection = () => {
         <div className="max-w-4xl mx-auto text-center">
           {/* Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-card/10 backdrop-blur-sm rounded-full border border-card/20 mb-6 animate-fade-in">
-            <Sparkles className="w-4 h-4 text-accent" />
+            <Rocket className="w-4 h-4 text-accent" />
             <span className="text-card text-xs sm:text-sm font-medium">
-              🚀 Devancez vos concurrents
+              Devancez vos concurrents
             </span>
           </div>
 
@@ -137,7 +137,7 @@ export const HeroSection = () => {
               {/* Review */}
               <div className="flex items-start gap-3 mb-4">
                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary/30 to-secondary/30 flex items-center justify-center flex-shrink-0">
-                  <span className="text-lg">👤</span>
+                  <User className="w-5 h-5 text-primary" />
                 </div>
                 <div className="flex-1">
                   <div className="flex flex-wrap items-center gap-2 mb-1">
@@ -163,7 +163,7 @@ export const HeroSection = () => {
                   <span className="text-[10px] px-2 py-0.5 bg-secondary/20 text-secondary rounded-full font-medium">Auto</span>
                 </div>
                 <p className="text-sm text-foreground leading-relaxed">
-                  "Merci beaucoup Marie pour ce retour chaleureux ! 🙏 Nous sommes ravis que notre service ait été à la hauteur de vos attentes. Votre satisfaction est notre priorité. À très bientôt !"
+                  "Merci beaucoup Marie pour ce retour chaleureux ! Nous sommes ravis que notre service ait été à la hauteur de vos attentes. Votre satisfaction est notre priorité. À très bientôt !"
                 </p>
               </div>
             </div>

@@ -1,5 +1,5 @@
 import { Button } from "./ui/button";
-import { Check, Zap, Building2, Coins, Star, FileText, MessageSquare, Eye } from "lucide-react";
+import { Check, Zap, Building2, Coins, Star, FileText, MessageSquare, Eye, Battery, Flame, Crown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const ChatGPTIcon = ({ className = "w-5 h-5" }: { className?: string }) => (
@@ -18,9 +18,9 @@ const GoogleIcon = ({ className = "w-5 h-5" }: { className?: string }) => (
 );
 
 const creditPacks = [
-  { credits: 10, price: "2,99€", emoji: "🔋" },
-  { credits: 100, price: "24,99€", popular: true, emoji: "⚡" },
-  { credits: 400, price: "79€", emoji: "🔥" },
+  { credits: 10, price: "2,99€", icon: Battery },
+  { credits: 100, price: "24,99€", popular: true, icon: Zap },
+  { credits: 400, price: "79€", icon: Flame },
 ];
 
 const modules = [
@@ -87,7 +87,10 @@ export const PricingSection = () => {
         {/* Premium Modules */}
         <div className="mb-12 sm:mb-16">
           <div className="text-center mb-6">
-            <h3 className="text-lg sm:text-xl font-bold text-foreground mb-2">🚀 Modules Premium</h3>
+            <div className="inline-flex items-center gap-2 mb-2">
+              <Crown className="w-5 h-5 text-accent" />
+              <h3 className="text-lg sm:text-xl font-bold text-foreground">Modules Premium</h3>
+            </div>
             <p className="text-muted-foreground text-xs sm:text-sm">Automatisation quotidienne pour une visibilité maximale</p>
           </div>
           
@@ -155,7 +158,9 @@ export const PricingSection = () => {
                   pack.popular ? "border-primary shadow-md ring-1 ring-primary/20" : "border-border"
                 }`}
               >
-                <span className="text-xl sm:text-2xl mb-2 block">{pack.emoji}</span>
+                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary/15 to-secondary/15 flex items-center justify-center mx-auto mb-2">
+                  <pack.icon className="w-5 h-5 text-primary" />
+                </div>
                 {pack.popular && (
                   <span className="inline-block px-2 py-0.5 bg-primary/10 text-primary text-[10px] font-bold rounded-full mb-2">
                     Populaire

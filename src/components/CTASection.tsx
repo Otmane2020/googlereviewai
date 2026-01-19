@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
-import { Sparkles, Zap, Check, ArrowRight } from "lucide-react";
+import { Sparkles, Zap, Check, ArrowRight, Target } from "lucide-react";
 
 const GoogleIcon = ({ className = "w-5 h-5" }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24">
@@ -32,7 +32,9 @@ export const CTASection = () => {
         {/* Card with light background for better readability */}
         <div className="bg-card rounded-2xl border border-border shadow-xl p-6 sm:p-10 max-w-3xl mx-auto">
           <div className="text-center">
-            <span className="text-4xl mb-4 block">🚀</span>
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center mx-auto mb-4">
+              <Target className="w-7 h-7 text-primary" />
+            </div>
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-4">
               Prêt à dominer votre marché ?
             </h2>
