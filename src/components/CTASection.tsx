@@ -1,6 +1,10 @@
+import { useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
+import { Sparkles, Clock, Shield } from "lucide-react";
 
 export const CTASection = () => {
+  const navigate = useNavigate();
+  
   return (
     <section className="py-24 gradient-hero relative overflow-hidden">
       {/* Background decoration */}
@@ -11,16 +15,34 @@ export const CTASection = () => {
 
       <div className="relative container mx-auto px-4 text-center">
         <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-card mb-6">
-          Prêt à connecter vos avis avec une API vérifiée ?
+          Prêt à automatiser vos réponses aux avis ?
         </h2>
-        <p className="text-lg text-card/80 max-w-2xl mx-auto mb-10">
-          Rejoignez des centaines d'entreprises qui utilisent Starlinko en toute confiance 
-          avec notre accès API Google My Business vérifié.
+        <p className="text-lg text-card/80 max-w-2xl mx-auto mb-8">
+          Rejoignez des centaines d'entreprises qui utilisent Starlinko pour gérer leurs avis Google 
+          avec notre IA et accès API vérifié.
         </p>
-        <Button variant="hero" size="xl" className="gap-3">
+        
+        {/* Benefits */}
+        <div className="flex flex-wrap items-center justify-center gap-6 mb-10 text-card/90">
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-5 h-5 text-accent-gold" />
+            <span>Réponses IA personnalisées</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Clock className="w-5 h-5 text-secondary" />
+            <span>Gain de temps x10</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Shield className="w-5 h-5 text-accent" />
+            <span>API Google vérifiée</span>
+          </div>
+        </div>
+        
+        <Button variant="hero" size="xl" className="gap-3" onClick={() => navigate("/auth")}>
           <GoogleIcon />
-          S'authentifier avec Google
+          Démarrer mon essai gratuit
         </Button>
+        <p className="text-card/60 text-sm mt-4">14 jours gratuits • Sans carte bancaire</p>
       </div>
     </section>
   );
