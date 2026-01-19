@@ -299,7 +299,8 @@ serve(async (req) => {
                   comment: review.comment || "",
                   review_date: review.createTime || new Date().toISOString(),
                   replied: !!review.reviewReply,
-                  ai_response: review.reviewReply?.comment || null,
+                  // Store existing Google replies in google_reply, NOT ai_response
+                  google_reply: review.reviewReply?.comment || null,
                 };
 
                 console.log(`Processing review: ${canonicalReviewId} from ${reviewData.author} (${rating} stars)`);
@@ -315,6 +316,7 @@ serve(async (req) => {
                 let result;
                 if (existingReview) {
                   console.log(`Updating existing review ${existingReview.id}`);
+                  // Update google_reply but NEVER overwrite ai_response (which is our AI-generated content)
                   result = await supabaseAdmin
                     .from("reviews")
                     .update({
@@ -322,7 +324,7 @@ serve(async (req) => {
                       rating: reviewData.rating,
                       comment: reviewData.comment,
                       replied: reviewData.replied,
-                      ai_response: reviewData.ai_response,
+                      google_reply: reviewData.google_reply,
                       updated_at: new Date().toISOString(),
                     })
                     .eq("id", existingReview.id)

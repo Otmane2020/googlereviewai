@@ -459,6 +459,7 @@ export type Database = {
           author: string
           comment: string | null
           created_at: string | null
+          google_reply: string | null
           google_reply_id: string | null
           id: number
           location_id: string
@@ -476,6 +477,7 @@ export type Database = {
           author: string
           comment?: string | null
           created_at?: string | null
+          google_reply?: string | null
           google_reply_id?: string | null
           id?: number
           location_id: string
@@ -493,6 +495,7 @@ export type Database = {
           author?: string
           comment?: string | null
           created_at?: string | null
+          google_reply?: string | null
           google_reply_id?: string | null
           id?: number
           location_id?: string

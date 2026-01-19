@@ -51,6 +51,7 @@ interface Review {
   review_date: string;
   replied: boolean;
   ai_response: string | null;
+  google_reply: string | null; // Existing Google response (manual/human)
   published_to_google: boolean | null;
 }
 
@@ -278,9 +279,9 @@ const Reviews = () => {
       (review.comment && review.comment.toLowerCase().includes(searchTerm.toLowerCase()));
     const matchesRating = filterRating === "all" || review.rating === parseInt(filterRating);
     const matchesStatus = filterStatus === "all" || 
-      (filterStatus === "pending" && !review.ai_response) ||
+      (filterStatus === "pending" && !review.ai_response && !review.google_reply) ||
       (filterStatus === "ready" && review.ai_response && !review.published_to_google) ||
-      (filterStatus === "published" && review.published_to_google);
+      (filterStatus === "published" && (review.published_to_google || review.google_reply));
     return matchesSearch && matchesRating && matchesStatus;
   });
 
@@ -291,9 +292,9 @@ const Reviews = () => {
 
   const stats = {
     total: businessReviews.length,
-    pending: businessReviews.filter(r => !r.ai_response).length,
+    pending: businessReviews.filter(r => !r.ai_response && !r.google_reply).length,
     ready: businessReviews.filter(r => r.ai_response && !r.published_to_google).length,
-    published: businessReviews.filter(r => r.published_to_google).length,
+    published: businessReviews.filter(r => r.published_to_google || r.google_reply).length,
   };
 
   // Calculate rating distribution for Google-style filter
@@ -628,9 +629,11 @@ const Reviews = () => {
                       </span>
                       {/* Status Badge */}
                       {review.published_to_google ? (
-                        <Badge variant="secondary" className="text-xs gap-1"><CheckCircle className="w-3 h-3" /> Publié</Badge>
+                        <Badge variant="secondary" className="text-xs gap-1"><CheckCircle className="w-3 h-3" /> Publié via Starlinko</Badge>
+                      ) : review.google_reply ? (
+                        <Badge variant="secondary" className="text-xs gap-1 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"><CheckCircle className="w-3 h-3" /> Répondu manuellement</Badge>
                       ) : review.ai_response ? (
-                        <Badge className="text-xs gap-1 bg-primary/10 text-primary hover:bg-primary/20"><Sparkles className="w-3 h-3" /> Prêt</Badge>
+                        <Badge className="text-xs gap-1 bg-primary/10 text-primary hover:bg-primary/20"><Sparkles className="w-3 h-3" /> Réponse IA prête</Badge>
                       ) : (
                         <Badge variant="outline" className="text-xs gap-1"><Clock className="w-3 h-3" /> En attente</Badge>
                       )}
@@ -640,13 +643,23 @@ const Reviews = () => {
                       <p className="text-sm text-muted-foreground mt-2 line-clamp-2">{review.comment}</p>
                     )}
 
+                    {/* Google Reply (existing manual response) */}
+                    {review.google_reply && !review.ai_response && (
+                      <div className="mt-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                        <div className="flex items-center gap-1.5 text-xs text-green-700 dark:text-green-400 font-medium mb-1">
+                          <CheckCircle className="w-3 h-3" /> Réponse existante (Google)
+                        </div>
+                        <p className="text-sm text-muted-foreground line-clamp-2">{review.google_reply}</p>
+                      </div>
+                    )}
+
                     {/* AI Response */}
                     {review.ai_response && (
                       <Dialog>
                         <DialogTrigger asChild>
                           <div className="mt-3 p-3 bg-primary/5 rounded-lg border border-primary/10 cursor-pointer hover:bg-primary/10 transition-colors">
                             <div className="flex items-center gap-1.5 text-xs text-primary font-medium mb-1">
-                              <Sparkles className="w-3 h-3" /> Réponse IA
+                              <Sparkles className="w-3 h-3" /> Réponse IA Starlinko
                               <span className="ml-auto text-muted-foreground text-[10px]">Cliquer pour lire</span>
                             </div>
                             <p className="text-sm text-muted-foreground line-clamp-2">{review.ai_response}</p>
@@ -695,7 +708,13 @@ const Reviews = () => {
 
                     {/* Actions */}
                     <div className="flex items-center gap-2 mt-3">
-                      {!review.ai_response ? (
+                      {/* If has existing Google reply but no AI response - allow regenerating */}
+                      {review.google_reply && !review.ai_response ? (
+                        <Button size="sm" variant="outline" onClick={() => generateAIResponse(review.id)} disabled={generatingId === review.id}>
+                          {generatingId === review.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                          <span className="ml-1.5">Générer une nouvelle réponse IA</span>
+                        </Button>
+                      ) : !review.ai_response ? (
                         <Button size="sm" onClick={() => generateAIResponse(review.id)} disabled={generatingId === review.id}>
                           {generatingId === review.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
                           <span className="ml-1.5">Générer</span>
