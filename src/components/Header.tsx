@@ -1,7 +1,7 @@
 import { StarlinkoLogo } from "./StarlinkoLogo";
 import { Button } from "./ui/button";
 import { Menu, X } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
 const navLinks = [
@@ -13,13 +13,28 @@ const navLinks = [
 
 export const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 50);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-transparent">
+    <header 
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        scrolled 
+          ? "bg-background/95 backdrop-blur-lg border-b border-border shadow-sm" 
+          : "bg-transparent"
+      }`}
+    >
       <div className="container mx-auto px-4">
         <nav className="flex items-center justify-between h-20">
           <Link to="/">
-            <StarlinkoLogo className="text-card" />
+            <StarlinkoLogo className={scrolled ? "text-foreground" : "text-card"} />
           </Link>
           
           {/* Desktop Navigation */}
@@ -28,7 +43,11 @@ export const Header = () => {
               <a
                 key={link.href}
                 href={link.href}
-                className="text-card/80 hover:text-card transition-colors font-medium"
+                className={`font-medium transition-colors ${
+                  scrolled 
+                    ? "text-muted-foreground hover:text-foreground" 
+                    : "text-card/80 hover:text-card"
+                }`}
               >
                 {link.label}
               </a>
@@ -37,12 +56,18 @@ export const Header = () => {
           
           <div className="hidden md:flex items-center gap-3">
             <Link to="/auth">
-              <Button variant="heroOutline" size="default">
+              <Button 
+                variant={scrolled ? "outline" : "heroOutline"} 
+                size="default"
+              >
                 Se connecter
               </Button>
             </Link>
             <Link to="/auth">
-              <Button variant="hero" size="default">
+              <Button 
+                variant={scrolled ? "default" : "hero"} 
+                size="default"
+              >
                 Créer un compte
               </Button>
             </Link>
@@ -50,7 +75,7 @@ export const Header = () => {
 
           {/* Mobile Menu Button */}
           <button
-            className="md:hidden text-card p-2"
+            className={`md:hidden p-2 ${scrolled ? "text-foreground" : "text-card"}`}
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
             {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -59,7 +84,7 @@ export const Header = () => {
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden bg-card/95 backdrop-blur-xl rounded-2xl p-6 mt-2 shadow-2xl animate-fade-in">
+          <div className="md:hidden bg-card/95 backdrop-blur-xl rounded-2xl p-6 mt-2 shadow-2xl animate-fade-in border border-border">
             <div className="flex flex-col gap-4">
               {navLinks.map((link) => (
                 <a
