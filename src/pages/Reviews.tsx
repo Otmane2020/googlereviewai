@@ -7,6 +7,7 @@ import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
+import { UpgradeDialog } from "@/components/UpgradeDialog";
 import { 
   Star, 
   Search, 
@@ -83,6 +84,9 @@ const Reviews = () => {
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
   const [isLive, setIsLive] = useState(false);
   const realtimeRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
+  const [upgradeDialogOpen, setUpgradeDialogOpen] = useState(false);
+  const [userCredits, setUserCredits] = useState<number>(0);
+  const [currentPlan, setCurrentPlan] = useState<string | null>(null);
 
   // Load saved business selection from localStorage
   useEffect(() => {
@@ -108,15 +112,22 @@ const Reviews = () => {
     
     if (!silent) setLoading(true);
     
-    const [businessesRes, reviewsRes] = await Promise.all([
+    const [businessesRes, reviewsRes, profileRes] = await Promise.all([
       supabase.from("businesses").select("id, name, google_place_id").eq("user_id", user.id).eq("is_active", true),
-      supabase.from("reviews").select("*").eq("user_id", user.id).order("review_date", { ascending: false })
+      supabase.from("reviews").select("*").eq("user_id", user.id).order("review_date", { ascending: false }),
+      supabase.from("profiles").select("credits, plan_name").eq("id", user.id).single()
     ]);
 
     const businessesList = businessesRes.data || [];
     setBusinesses(businessesList);
     setReviews(reviewsRes.data || []);
     setLastUpdate(new Date());
+    
+    // Update credits and plan
+    if (profileRes.data) {
+      setUserCredits(profileRes.data.credits || 0);
+      setCurrentPlan(profileRes.data.plan_name || null);
+    }
     
     // Auto-select first business if none selected or saved selection not found
     if (businessesList.length > 0) {
@@ -190,6 +201,13 @@ const Reviews = () => {
 
   const generateAIResponse = async (reviewId: number) => {
     if (!user) return;
+    
+    // Check credits before generating
+    if (userCredits < 1) {
+      setUpgradeDialogOpen(true);
+      return;
+    }
+    
     setGeneratingId(reviewId);
 
     try {
@@ -204,6 +222,8 @@ const Reviews = () => {
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
 
+      // Update local credits count
+      setUserCredits(data.credits_remaining || 0);
       toast({ title: "Réponse générée !", description: `Crédits restants: ${data.credits_remaining}` });
       // No need to fetchData - Realtime handles it
     } catch (error) {
@@ -810,6 +830,13 @@ const Reviews = () => {
       </main>
 
       <MobileBottomNav />
+      
+      {/* Upgrade Dialog for insufficient credits */}
+      <UpgradeDialog 
+        open={upgradeDialogOpen} 
+        onOpenChange={setUpgradeDialogOpen}
+        currentPlan={currentPlan || undefined}
+      />
     </div>
   );
 };
