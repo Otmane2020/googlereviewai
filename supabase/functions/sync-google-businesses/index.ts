@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { getGoogleAccessToken } from "../_shared/googleAuth.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -17,20 +18,11 @@ serve(async (req) => {
       throw new Error("No authorization header");
     }
 
-    // Get provider_token from request body
-    const { provider_token } = await req.json();
-    
-    if (!provider_token) {
-      console.log("No provider token provided in request body");
-      return new Response(
-        JSON.stringify({ 
-          success: false, 
-          message: "No Google access token. Please sign out and sign in again with Google.",
-          businesses: [] 
-        }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
+    // Create admin client for server-side operations
+    const supabaseAdmin = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+    );
 
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
@@ -47,13 +39,32 @@ serve(async (req) => {
 
     console.log("User authenticated:", user.id);
 
+    // Get access token using shared helper
+    const tokenResult = await getGoogleAccessToken(supabaseAdmin, user.id);
+    
+    if (!tokenResult.token) {
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          message: tokenResult.requires_reconnect 
+            ? "Reconnectez votre compte Google Business."
+            : (tokenResult.error || "No Google access token."),
+          businesses: [],
+          requires_reconnect: tokenResult.requires_reconnect
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const accessToken = tokenResult.token;
+
     // Fetch accounts from Google Business Profile API
     console.log("Fetching Google Business accounts...");
     const accountsResponse = await fetch(
       "https://mybusinessaccountmanagement.googleapis.com/v1/accounts",
       {
         headers: {
-          Authorization: `Bearer ${provider_token}`,
+          Authorization: `Bearer ${accessToken}`,
         },
       }
     );
@@ -61,6 +72,8 @@ serve(async (req) => {
     if (!accountsResponse.ok) {
       const errorText = await accountsResponse.text();
       console.error("Google API accounts error:", accountsResponse.status, errorText);
+      
+      const requiresReconnect = accountsResponse.status === 401 || tokenResult.requires_reconnect;
       
       // Handle quota/rate limit errors gracefully
       if (accountsResponse.status === 429) {
@@ -82,7 +95,20 @@ serve(async (req) => {
             success: false, 
             error_code: "ACCESS_DENIED",
             message: "Accès refusé à l'API Google Business Profile. Veuillez vérifier les autorisations de votre compte Google.",
-            businesses: [] 
+            businesses: [],
+            requires_reconnect: true
+          }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      
+      if (accountsResponse.status === 401) {
+        return new Response(
+          JSON.stringify({ 
+            success: false, 
+            message: "Session Google expirée. Reconnectez votre compte.",
+            businesses: [],
+            requires_reconnect: true
           }),
           { headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
@@ -115,7 +141,7 @@ serve(async (req) => {
         `https://mybusinessbusinessinformation.googleapis.com/v1/${accountName}/locations?readMask=name,title,storefrontAddress,websiteUri,phoneNumbers`,
         {
           headers: {
-            Authorization: `Bearer ${provider_token}`,
+            Authorization: `Bearer ${accessToken}`,
           },
         }
       );
@@ -152,7 +178,7 @@ serve(async (req) => {
     });
 
     // Use upsert with onConflict to handle duplicates
-    const { data: syncedBusinesses, error: upsertError } = await supabaseClient
+    const { data: syncedBusinesses, error: upsertError } = await supabaseAdmin
       .from("businesses")
       .upsert(businessesData, { 
         onConflict: "google_place_id,user_id",

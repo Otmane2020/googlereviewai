@@ -62,18 +62,12 @@ export const ReconnectGoogleBanner = ({ className }: ReconnectGoogleBannerProps)
 
 export const GoogleConnectionStatus = () => {
   const { checkOAuthStatus, isCheckingStatus } = useGoogleOAuth();
-  const [status, setStatus] = useState<{ isConnected: boolean; expiresAt: string | null }>({
-    isConnected: false,
-    expiresAt: null,
-  });
+  const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
     const checkStatus = async () => {
       const result = await checkOAuthStatus();
-      setStatus({
-        isConnected: result.isConnected,
-        expiresAt: result.expiresAt,
-      });
+      setIsConnected(result.isConnected);
     };
     checkStatus();
   }, [checkOAuthStatus]);
@@ -87,7 +81,7 @@ export const GoogleConnectionStatus = () => {
     );
   }
 
-  if (status.isConnected) {
+  if (isConnected) {
     return (
       <div className="flex items-center gap-2 text-green-600">
         <CheckCircle className="h-4 w-4" />
