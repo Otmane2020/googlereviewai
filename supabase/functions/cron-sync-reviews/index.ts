@@ -1,93 +1,11 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { getGoogleAccessToken } from "../_shared/googleAuth.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
-
-interface ProfileTokens {
-  google_refresh_token: string | null;
-  google_access_token: string | null;
-  google_token_expires_at: string | null;
-}
-
-// Helper function to refresh Google access token
-async function refreshGoogleToken(
-  supabase: any,
-  userId: string,
-  clientId: string,
-  clientSecret: string
-): Promise<string | null> {
-  // Get current tokens
-  const { data: profile, error: profileError } = await supabase
-    .from("profiles")
-    .select("google_refresh_token, google_access_token, google_token_expires_at")
-    .eq("id", userId)
-    .single() as { data: ProfileTokens | null; error: any };
-
-  if (profileError || !profile?.google_refresh_token) {
-    console.log(`No refresh token for user ${userId}`);
-    return null;
-  }
-
-  // Check if current token is still valid (with 5 min buffer)
-  if (profile.google_token_expires_at && profile.google_access_token) {
-    const expiresAt = new Date(profile.google_token_expires_at);
-    const bufferTime = 5 * 60 * 1000; // 5 minutes
-    if (expiresAt.getTime() - bufferTime > Date.now()) {
-      console.log(`Token still valid for user ${userId}`);
-      return profile.google_access_token;
-    }
-  }
-
-  console.log(`Refreshing token for user ${userId}`);
-
-  // Refresh the token
-  const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({
-      client_id: clientId,
-      client_secret: clientSecret,
-      refresh_token: profile.google_refresh_token,
-      grant_type: "refresh_token",
-    }),
-  });
-
-  const tokenData = await tokenResponse.json();
-
-  if (!tokenResponse.ok) {
-    console.error(`Token refresh failed for user ${userId}:`, tokenData);
-    
-    // If token was revoked, clear it
-    if (tokenData.error === "invalid_grant") {
-      await supabase
-        .from("profiles")
-        .update({
-          google_refresh_token: null,
-          google_access_token: null,
-          google_token_expires_at: null,
-        })
-        .eq("id", userId);
-    }
-    return null;
-  }
-
-  const { access_token, expires_in } = tokenData;
-  const expiresAt = new Date(Date.now() + expires_in * 1000).toISOString();
-
-  // Store new token
-  await supabase
-    .from("profiles")
-    .update({
-      google_access_token: access_token,
-      google_token_expires_at: expiresAt,
-    })
-    .eq("id", userId);
-
-  return access_token;
-}
 
 // Helper function to sync reviews for a single business
 async function syncBusinessReviews(
@@ -160,25 +78,11 @@ serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const clientId = Deno.env.get("GOOGLE_OAUTH_CLIENT_ID");
-    const clientSecret = Deno.env.get("GOOGLE_OAUTH_CLIENT_SECRET");
     
+    // CRON uses SERVICE_ROLE only - no user session
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    console.log("Starting autonomous cron sync reviews job...");
-
-    // Check if OAuth is configured
-    if (!clientId || !clientSecret) {
-      console.log("Google OAuth not configured - skipping autonomous sync");
-      return new Response(
-        JSON.stringify({ 
-          success: false, 
-          message: "Google OAuth credentials not configured",
-          synced: 0 
-        }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
+    console.log("[CRON] Starting autonomous sync reviews job...");
 
     // Get all users with auto_sync_reviews enabled AND a refresh token
     const { data: settings, error: settingsError } = await supabase
@@ -187,19 +91,19 @@ serve(async (req) => {
       .eq("auto_sync_reviews", true);
 
     if (settingsError) {
-      console.error("Error fetching settings:", settingsError);
+      console.error("[CRON] Error fetching settings:", settingsError);
       throw new Error("Failed to fetch AI settings");
     }
 
     if (!settings || settings.length === 0) {
-      console.log("No users with auto-sync enabled");
+      console.log("[CRON] No users with auto-sync enabled");
       return new Response(
         JSON.stringify({ success: true, message: "No users to sync", synced: 0 }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    console.log(`Found ${settings.length} users with auto-sync enabled`);
+    console.log(`[CRON] Found ${settings.length} users with auto-sync enabled`);
 
     let totalSynced = 0;
     let totalNewReviews = 0;
@@ -209,32 +113,16 @@ serve(async (req) => {
 
     for (const userSettings of settings) {
       try {
-        // Get user profile to check for refresh token
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("google_refresh_token")
-          .eq("id", userSettings.user_id)
-          .single();
+        // Get access token using shared helper (SERVICE_ROLE client)
+        const tokenResult = await getGoogleAccessToken(supabase, userSettings.user_id);
 
-        if (!profile?.google_refresh_token) {
-          console.log(`User ${userSettings.user_id} has no refresh token - skipping`);
+        if (!tokenResult.token) {
+          console.log(`[CRON] User ${userSettings.user_id}: ${tokenResult.error || 'No token'}`);
           usersSkipped++;
           continue;
         }
 
-        // Refresh access token
-        const accessToken = await refreshGoogleToken(
-          supabase,
-          userSettings.user_id,
-          clientId,
-          clientSecret
-        );
-
-        if (!accessToken) {
-          console.log(`Could not get access token for user ${userSettings.user_id}`);
-          usersSkipped++;
-          continue;
-        }
+        const accessToken = tokenResult.token;
 
         // Get user's businesses
         const { data: businesses, error: businessError } = await supabase
@@ -244,11 +132,11 @@ serve(async (req) => {
           .eq("is_active", true);
 
         if (businessError || !businesses || businesses.length === 0) {
-          console.log(`No businesses for user ${userSettings.user_id}`);
+          console.log(`[CRON] No businesses for user ${userSettings.user_id}`);
           continue;
         }
 
-        console.log(`Syncing ${businesses.length} businesses for user ${userSettings.user_id}`);
+        console.log(`[CRON] Syncing ${businesses.length} businesses for user ${userSettings.user_id}`);
 
         // Get existing review IDs to detect new ones
         const { data: existingReviews } = await supabase
@@ -334,7 +222,7 @@ serve(async (req) => {
                     }),
                   });
                 } catch (emailError) {
-                  console.error("Failed to send email notification:", emailError);
+                  console.error("[CRON] Failed to send email notification:", emailError);
                 }
               }
 
@@ -355,7 +243,7 @@ serve(async (req) => {
                   }),
                 });
               } catch (pushError) {
-                console.error("Failed to send push notification:", pushError);
+                console.error("[CRON] Failed to send push notification:", pushError);
               }
             }
           }
@@ -363,7 +251,7 @@ serve(async (req) => {
 
         usersProcessed++;
       } catch (userError) {
-        console.error(`Error processing user ${userSettings.user_id}:`, userError);
+        console.error(`[CRON] Error processing user ${userSettings.user_id}:`, userError);
         errors.push(`User ${userSettings.user_id}: ${userError instanceof Error ? userError.message : 'Unknown error'}`);
       }
     }
@@ -371,7 +259,7 @@ serve(async (req) => {
     // After syncing, trigger auto-respond if there are new reviews
     if (totalNewReviews > 0) {
       try {
-        console.log("Triggering auto-respond-reviews for new reviews...");
+        console.log("[CRON] Triggering auto-respond-reviews for new reviews...");
         await fetch(`${supabaseUrl}/functions/v1/auto-respond-reviews`, {
           method: "POST",
           headers: {
@@ -380,11 +268,11 @@ serve(async (req) => {
           },
         });
       } catch (autoRespondError) {
-        console.error("Failed to trigger auto-respond:", autoRespondError);
+        console.error("[CRON] Failed to trigger auto-respond:", autoRespondError);
       }
     }
 
-    const message = `Autonomous sync completed. Processed ${usersProcessed} users (${usersSkipped} skipped), synced ${totalSynced} reviews, ${totalNewReviews} new reviews detected.`;
+    const message = `[CRON] Autonomous sync completed. Processed ${usersProcessed} users (${usersSkipped} skipped), synced ${totalSynced} reviews, ${totalNewReviews} new reviews detected.`;
     console.log(message);
 
     return new Response(
@@ -402,7 +290,7 @@ serve(async (req) => {
 
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
-    console.error("Cron sync error:", error);
+    console.error("[CRON] Sync error:", error);
     return new Response(
       JSON.stringify({ success: false, error: errorMessage }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }

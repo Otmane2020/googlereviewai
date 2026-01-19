@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { REDIRECT_URI_MAP } from "../_shared/googleAuth.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -34,11 +35,19 @@ serve(async (req) => {
       );
     }
 
-    // Get the redirect URI from the request origin or use a default
-    const origin = req.headers.get("origin") || "https://starlinko.lovable.app";
-    const redirectUri = `${origin}/dashboard`;
+    // Determine redirect_uri from origin (must match the one used in get-google-oauth-url)
+    const origin = req.headers.get("origin") || "";
+    const redirectUri = REDIRECT_URI_MAP[origin];
 
-    console.log("Exchanging code for tokens with redirect_uri:", redirectUri);
+    if (!redirectUri) {
+      console.error("Unauthorized origin for callback:", origin);
+      return new Response(
+        JSON.stringify({ error: "Unauthorized origin" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    console.log(`[OAuth Callback] Exchanging code for tokens with redirect_uri: ${redirectUri}`);
 
     // Exchange authorization code for tokens
     const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
@@ -66,7 +75,7 @@ serve(async (req) => {
       );
     }
 
-    const { access_token, refresh_token, expires_in } = tokenData;
+    const { refresh_token } = tokenData;
 
     if (!refresh_token) {
       console.warn("No refresh_token received - user may need to revoke app access and reconnect");
@@ -79,18 +88,16 @@ serve(async (req) => {
       );
     }
 
-    // Calculate token expiration
-    const expiresAt = new Date(Date.now() + expires_in * 1000).toISOString();
-
-    // Store tokens in database
+    // Store ONLY the refresh_token in database (no access_token caching)
     const supabase = createClient(supabaseUrl!, supabaseServiceKey!);
     
     const { error: updateError } = await supabase
       .from("profiles")
       .update({
         google_refresh_token: refresh_token,
-        google_access_token: access_token,
-        google_token_expires_at: expiresAt,
+        // Clear any old cached tokens
+        google_access_token: null,
+        google_token_expires_at: null,
         updated_at: new Date().toISOString(),
       })
       .eq("id", user_id);
@@ -103,13 +110,12 @@ serve(async (req) => {
       );
     }
 
-    console.log(`Successfully stored OAuth tokens for user ${user_id}`);
+    console.log(`[OAuth Callback] Successfully stored refresh_token for user ${user_id}`);
 
     return new Response(
       JSON.stringify({ 
         success: true, 
-        message: "Google connected successfully",
-        expires_at: expiresAt 
+        message: "Google connected successfully"
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );

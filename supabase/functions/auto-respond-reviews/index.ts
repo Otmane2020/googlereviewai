@@ -1,74 +1,11 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { getGoogleAccessToken } from "../_shared/googleAuth.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
-
-// Refresh Google access token
-async function refreshGoogleToken(
-  supabase: any,
-  userId: string,
-  clientId: string,
-  clientSecret: string
-): Promise<string | null> {
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("google_refresh_token, google_access_token, google_token_expires_at")
-    .eq("id", userId)
-    .single();
-
-  if (!profile?.google_refresh_token) {
-    console.log(`No refresh token for user ${userId}`);
-    return null;
-  }
-
-  // Check if token is still valid
-  if (profile.google_token_expires_at && profile.google_access_token) {
-    const expiresAt = new Date(profile.google_token_expires_at);
-    if (expiresAt.getTime() - 5 * 60 * 1000 > Date.now()) {
-      return profile.google_access_token;
-    }
-  }
-
-  console.log(`Refreshing token for user ${userId}`);
-
-  const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({
-      client_id: clientId,
-      client_secret: clientSecret,
-      refresh_token: profile.google_refresh_token,
-      grant_type: "refresh_token",
-    }),
-  });
-
-  const tokenData = await tokenResponse.json();
-
-  if (!tokenResponse.ok) {
-    console.error(`Token refresh failed:`, tokenData);
-    if (tokenData.error === "invalid_grant") {
-      await supabase.from("profiles").update({
-        google_refresh_token: null,
-        google_access_token: null,
-        google_token_expires_at: null,
-      }).eq("id", userId);
-    }
-    return null;
-  }
-
-  const { access_token, expires_in } = tokenData;
-  const expiresAt = new Date(Date.now() + expires_in * 1000).toISOString();
-
-  await supabase.from("profiles").update({
-    google_access_token: access_token,
-    google_token_expires_at: expiresAt,
-  }).eq("id", userId);
-
-  return access_token;
-}
 
 // Generate AI response
 async function generateAIResponse(
@@ -127,7 +64,7 @@ Do not include any greeting like "Cher client" - start directly with the respons
   });
 
   if (!response.ok) {
-    console.error("AI gateway error:", response.status);
+    console.error("[AutoRespond] AI gateway error:", response.status);
     return null;
   }
 
@@ -146,7 +83,7 @@ async function publishToGoogle(
     ? review.review_id
     : `${locationName}/reviews/${review.review_id}`;
 
-  console.log(`Publishing to Google: ${reviewName}`);
+  console.log(`[AutoRespond] Publishing to Google: ${reviewName}`);
 
   const googleResponse = await fetch(
     `https://mybusiness.googleapis.com/v4/${reviewName}/reply`,
@@ -162,7 +99,7 @@ async function publishToGoogle(
 
   if (!googleResponse.ok) {
     const errorText = await googleResponse.text();
-    console.error("Google API error:", googleResponse.status, errorText);
+    console.error("[AutoRespond] Google API error:", googleResponse.status, errorText);
     return false;
   }
 
@@ -177,20 +114,12 @@ serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const clientId = Deno.env.get("GOOGLE_OAUTH_CLIENT_ID");
-    const clientSecret = Deno.env.get("GOOGLE_OAUTH_CLIENT_SECRET");
     const OPENROUTER_API_KEY = Deno.env.get("OPENROUTER_API_KEY");
 
+    // CRON uses SERVICE_ROLE only - no user session
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    console.log("Starting auto-respond-reviews job...");
-
-    if (!clientId || !clientSecret) {
-      return new Response(
-        JSON.stringify({ success: false, message: "Google OAuth not configured" }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
+    console.log("[AutoRespond] Starting auto-respond-reviews job...");
 
     if (!OPENROUTER_API_KEY) {
       return new Response(
@@ -199,7 +128,7 @@ serve(async (req) => {
       );
     }
 
-    // Get users with auto-sync and auto-publish enabled
+    // Get users with AI enabled
     const { data: settings } = await supabase
       .from("ai_settings")
       .select("user_id, auto_sync_reviews, auto_publish_to_google, minimum_rating, auto_reply_delay, tone, response_length, include_signature, signature, custom_template")
@@ -225,7 +154,7 @@ serve(async (req) => {
           .single();
 
         if (!profile || profile.credits < 1) {
-          console.log(`User ${userSettings.user_id} has insufficient credits`);
+          console.log(`[AutoRespond] User ${userSettings.user_id} has insufficient credits`);
           continue;
         }
 
@@ -261,7 +190,7 @@ serve(async (req) => {
           const timeDiff = (now.getTime() - reviewDate.getTime()) / (1000 * 60);
 
           if (timeDiff < delayMinutes) {
-            console.log(`Review ${review.id} is too recent, waiting ${delayMinutes - timeDiff} more minutes`);
+            console.log(`[AutoRespond] Review ${review.id} is too recent, waiting ${delayMinutes - timeDiff} more minutes`);
             continue;
           }
 
@@ -310,15 +239,11 @@ serve(async (req) => {
 
           // Auto-publish if enabled and user has Google token
           if (userSettings.auto_publish_to_google && profile.google_refresh_token) {
-            const accessToken = await refreshGoogleToken(
-              supabase,
-              userSettings.user_id,
-              clientId,
-              clientSecret
-            );
+            // Get access token using shared helper (SERVICE_ROLE client)
+            const tokenResult = await getGoogleAccessToken(supabase, userSettings.user_id);
 
-            if (accessToken) {
-              const published = await publishToGoogle(accessToken, review, aiResponse);
+            if (tokenResult.token) {
+              const published = await publishToGoogle(tokenResult.token, review, aiResponse);
               
               if (published) {
                 await supabase
@@ -341,15 +266,17 @@ serve(async (req) => {
                   review_id: review.id,
                 });
               }
+            } else {
+              console.log(`[AutoRespond] Could not get token for user ${userSettings.user_id}: ${tokenResult.error}`);
             }
           }
         }
       } catch (userError) {
-        console.error(`Error processing user ${userSettings.user_id}:`, userError);
+        console.error(`[AutoRespond] Error processing user ${userSettings.user_id}:`, userError);
       }
     }
 
-    const message = `Auto-respond completed: ${totalResponses} responses generated, ${totalPublished} published to Google`;
+    const message = `[AutoRespond] Completed: ${totalResponses} responses generated, ${totalPublished} published to Google`;
     console.log(message);
 
     return new Response(
@@ -363,7 +290,7 @@ serve(async (req) => {
     );
 
   } catch (error: unknown) {
-    console.error("Auto-respond error:", error);
+    console.error("[AutoRespond] Error:", error);
     return new Response(
       JSON.stringify({ success: false, error: error instanceof Error ? error.message : "Unknown error" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
