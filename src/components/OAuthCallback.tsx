@@ -14,6 +14,12 @@ export const OAuthCallback = ({ children }: { children: React.ReactNode }) => {
     // Must contain access_token with a value, not just empty hash or fragment
     const hashParams = new URLSearchParams(hash.substring(1));
     const accessToken = hashParams.get('access_token');
+    const tokenType = hashParams.get('type');
+    
+    // Skip if this is a password recovery token - let ResetPassword handle it
+    if (tokenType === 'recovery') {
+      return;
+    }
     
     if (accessToken && !isProcessing) {
       setIsProcessing(true);
