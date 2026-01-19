@@ -31,6 +31,9 @@ interface Profile {
   full_name: string | null;
   subscription_status: string;
   plan_id: string;
+  plan_name: string | null;
+  credits: number;
+  max_businesses: number;
   trial_end: string | null;
 }
 
@@ -38,21 +41,21 @@ const plans = [
   {
     id: "starter",
     name: "Starter",
-    price: "9,90€",
-    features: ["1 établissement", "50 avis/mois", "IA basique"],
+    price: "2,99€",
+    features: ["1 établissement", "10 crédits/mois", "Réponses IA"],
   },
   {
     id: "pro",
     name: "Pro",
-    price: "29,90€",
-    features: ["3 établissements", "300 avis/mois", "IA premium"],
+    price: "29,99€",
+    features: ["2 établissements", "100 crédits/mois", "IA premium"],
     popular: true,
   },
   {
     id: "business",
     name: "Business",
-    price: "79,90€",
-    features: ["Illimité", "1000 avis/mois", "IA premium + posts"],
+    price: "99€",
+    features: ["Illimité", "400 crédits/mois", "IA premium + SEO"],
   },
 ];
 
@@ -86,11 +89,20 @@ const SettingsPage = () => {
         setFullName(data.full_name || "");
       }
       
-      // Check if Google is connected
+      // Check if Google is connected by looking at active businesses
+      const { data: businesses } = await supabase
+        .from("businesses")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("is_active", true)
+        .limit(1);
+      
+      const hasBusinesses = businesses && businesses.length > 0;
       const hasGoogleProvider = user.app_metadata?.provider === "google" || 
         user.app_metadata?.providers?.includes("google") ||
         !!session?.provider_token;
-      setIsGoogleConnected(hasGoogleProvider);
+      
+      setIsGoogleConnected(hasBusinesses || hasGoogleProvider);
       
       setLoading(false);
     };
@@ -256,19 +268,29 @@ const SettingsPage = () => {
           </div>
 
           <div className="mb-6 p-4 rounded-xl bg-primary/5 border border-primary/20">
-            <div className="flex items-center gap-2 mb-2">
-              <Crown className="w-5 h-5 text-primary" />
-              <span className="font-semibold text-foreground">
-                Plan {profile?.plan_id?.charAt(0).toUpperCase()}{profile?.plan_id?.slice(1) || "Starter"}
-              </span>
-              {profile?.subscription_status === "trial" && (
-                <span className="px-2 py-0.5 bg-secondary text-secondary-foreground text-xs rounded-full">
-                  Essai gratuit
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <Crown className="w-5 h-5 text-primary" />
+                <span className="font-semibold text-foreground">
+                  Plan {profile?.plan_name?.charAt(0).toUpperCase()}{profile?.plan_name?.slice(1) || "Gratuit"}
                 </span>
-              )}
+                {profile?.subscription_status === "trial" && (
+                  <Badge variant="secondary">Essai gratuit</Badge>
+                )}
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <p className="text-muted-foreground">Crédits disponibles</p>
+                <p className="text-xl font-bold text-foreground">{profile?.credits ?? 0}</p>
+              </div>
+              <div>
+                <p className="text-muted-foreground">Établissements max</p>
+                <p className="text-xl font-bold text-foreground">{profile?.max_businesses ?? 1}</p>
+              </div>
             </div>
             {profile?.trial_end && profile?.subscription_status === "trial" && (
-              <p className="text-sm text-muted-foreground">
+              <p className="text-xs text-muted-foreground mt-3">
                 Essai gratuit jusqu'au {new Date(profile.trial_end).toLocaleDateString("fr-FR")}
               </p>
             )}
@@ -279,7 +301,7 @@ const SettingsPage = () => {
               <div
                 key={plan.id}
                 className={`p-4 rounded-xl border transition-all ${
-                  profile?.plan_id === plan.id
+                  profile?.plan_name?.toLowerCase() === plan.id
                     ? "border-primary bg-primary/5"
                     : "border-border hover:border-primary/50"
                 } ${plan.popular ? "ring-2 ring-primary" : ""}`}
@@ -303,11 +325,11 @@ const SettingsPage = () => {
                   ))}
                 </ul>
                 <Button
-                  variant={profile?.plan_id === plan.id ? "secondary" : "outline"}
+                  variant={profile?.plan_name?.toLowerCase() === plan.id ? "secondary" : "outline"}
                   className="w-full mt-4"
-                  disabled={profile?.plan_id === plan.id}
+                  disabled={profile?.plan_name?.toLowerCase() === plan.id}
                 >
-                  {profile?.plan_id === plan.id ? "Plan actuel" : "Choisir"}
+                  {profile?.plan_name?.toLowerCase() === plan.id ? "Plan actuel" : "Choisir"}
                 </Button>
               </div>
             ))}
