@@ -19,26 +19,43 @@ const ResetPassword = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check if we have a valid recovery session
-    const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      // Check URL for recovery token
-      const hash = window.location.hash;
-      const hasRecoveryToken = hash.includes('type=recovery') || hash.includes('access_token');
-      
-      if (session || hasRecoveryToken) {
-        setIsValidSession(true);
+    // Parse URL hash for recovery token
+    const hash = window.location.hash;
+    const params = new URLSearchParams(hash.replace('#', ''));
+    const accessToken = params.get('access_token');
+    const refreshToken = params.get('refresh_token');
+    const type = params.get('type');
+
+    const handleRecovery = async () => {
+      // If we have tokens in URL, set the session
+      if (accessToken && type === 'recovery') {
+        const { error } = await supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken || '',
+        });
+        
+        if (!error) {
+          setIsValidSession(true);
+          // Clean URL
+          window.history.replaceState(null, '', '/auth/reset-password');
+        }
+      } else {
+        // Check existing session
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          setIsValidSession(true);
+        }
       }
       setCheckingSession(false);
     };
 
-    checkSession();
+    handleRecovery();
 
-    // Listen for auth state changes (recovery flow)
+    // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === "PASSWORD_RECOVERY") {
         setIsValidSession(true);
+        setCheckingSession(false);
       }
     });
 
