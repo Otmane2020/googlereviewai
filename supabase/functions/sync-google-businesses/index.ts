@@ -156,26 +156,36 @@ serve(async (req) => {
     }
 
     // Sync locations to database using upsert to prevent duplicates
-    const businessesData = allLocations.map(location => {
+    const businessesMap = new Map<string, any>();
+    
+    // Deduplicate locations by google_place_id before upserting
+    for (const location of allLocations) {
       const locationId = location.name; // Format: locations/{locationId}
       const googlePlaceId = locationId.split("/").pop();
       
-      return {
-        user_id: user.id,
-        name: location.title || "Unnamed Business",
-        google_place_id: googlePlaceId,
-        address: location.storefrontAddress 
-          ? [
-              location.storefrontAddress.addressLines?.join(", "),
-              location.storefrontAddress.locality,
-              location.storefrontAddress.postalCode,
-            ].filter(Boolean).join(", ")
-          : null,
-        phone: location.phoneNumbers?.primaryPhone || null,
-        website: location.websiteUri || null,
-        is_active: true,
-      };
-    });
+      // Only keep the first occurrence of each google_place_id
+      if (!businessesMap.has(googlePlaceId)) {
+        businessesMap.set(googlePlaceId, {
+          user_id: user.id,
+          name: location.title || "Unnamed Business",
+          google_place_id: googlePlaceId,
+          address: location.storefrontAddress 
+            ? [
+                location.storefrontAddress.addressLines?.join(", "),
+                location.storefrontAddress.locality,
+                location.storefrontAddress.postalCode,
+              ].filter(Boolean).join(", ")
+            : null,
+          phone: location.phoneNumbers?.primaryPhone || null,
+          website: location.websiteUri || null,
+          is_active: true,
+        });
+      }
+    }
+    
+    const businessesData = Array.from(businessesMap.values());
+    
+    console.log(`Deduped ${allLocations.length} locations to ${businessesData.length} unique businesses`);
 
     // Use upsert with onConflict to handle duplicates
     const { data: syncedBusinesses, error: upsertError } = await supabaseAdmin
