@@ -81,6 +81,7 @@ export type Database = {
           auto_sync_reviews: boolean | null
           created_at: string | null
           custom_template: string | null
+          email_notifications: boolean | null
           enabled: boolean | null
           id: string
           include_signature: boolean | null
@@ -99,6 +100,7 @@ export type Database = {
           auto_sync_reviews?: boolean | null
           created_at?: string | null
           custom_template?: string | null
+          email_notifications?: boolean | null
           enabled?: boolean | null
           id?: string
           include_signature?: boolean | null
@@ -117,6 +119,7 @@ export type Database = {
           auto_sync_reviews?: boolean | null
           created_at?: string | null
           custom_template?: string | null
+          email_notifications?: boolean | null
           enabled?: boolean | null
           id?: string
           include_signature?: boolean | null

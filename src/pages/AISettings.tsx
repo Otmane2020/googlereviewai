@@ -42,6 +42,7 @@ interface AISettings {
   auto_sync_reviews: boolean;
   sync_interval_minutes: number;
   auto_publish_to_google: boolean;
+  email_notifications: boolean;
 }
 
 const toneOptions = [
@@ -73,6 +74,7 @@ const AISettingsPage = () => {
     auto_sync_reviews: true,
     sync_interval_minutes: 30,
     auto_publish_to_google: false,
+    email_notifications: true,
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -106,6 +108,7 @@ const AISettingsPage = () => {
           auto_sync_reviews: data.auto_sync_reviews ?? true,
           sync_interval_minutes: data.sync_interval_minutes ?? 30,
           auto_publish_to_google: data.auto_publish_to_google ?? false,
+          email_notifications: data.email_notifications ?? true,
         });
       }
       setLoading(false);
@@ -422,6 +425,29 @@ const AISettingsPage = () => {
                 </p>
               </div>
             )}
+          </div>
+        </div>
+
+        {/* Email Notifications */}
+        <div className="bg-card rounded-2xl border border-border/50 overflow-hidden shadow-sm">
+          <div className="p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center">
+                  <Bell className="w-4 h-4 text-red-500" />
+                </div>
+                <div>
+                  <span className="font-medium text-sm text-foreground block">Notifications email</span>
+                  <span className="text-xs text-muted-foreground">Nouveaux avis</span>
+                </div>
+              </div>
+              <Switch
+                checked={settings.email_notifications}
+                onCheckedChange={(email_notifications) =>
+                  setSettings({ ...settings, email_notifications })
+                }
+              />
+            </div>
           </div>
         </div>
 

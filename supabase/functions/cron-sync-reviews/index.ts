@@ -296,6 +296,47 @@ serve(async (req) => {
                   message: `${review.author} a laissé un avis ${review.rating} étoile${review.rating > 1 ? 's' : ''}.`,
                   review_id: review.id,
                 });
+
+              // Send email notification if enabled
+              const { data: userProfile } = await supabase
+                .from("profiles")
+                .select("email")
+                .eq("id", userSettings.user_id)
+                .single();
+
+              const { data: emailSettings } = await supabase
+                .from("ai_settings")
+                .select("email_notifications")
+                .eq("user_id", userSettings.user_id)
+                .single();
+
+              if (userProfile?.email && emailSettings?.email_notifications !== false) {
+                try {
+                  await fetch(`${supabaseUrl}/functions/v1/send-email-notification`, {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                      "Authorization": `Bearer ${supabaseServiceKey}`,
+                    },
+                    body: JSON.stringify({
+                      to: userProfile.email,
+                      subject: `Nouvel avis ${review.rating}⭐ de ${review.author}`,
+                      html: `
+                        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+                          <h2 style="color: #333;">Nouvel avis reçu</h2>
+                          <p><strong>${review.author}</strong> a laissé un avis ${review.rating} étoile${review.rating > 1 ? 's' : ''}.</p>
+                          ${review.comment ? `<blockquote style="border-left: 3px solid #ddd; padding-left: 12px; color: #666;">${review.comment}</blockquote>` : ''}
+                          <p><a href="https://starlinko.lovable.app/reviews" style="color: #2563eb;">Voir et répondre à l'avis</a></p>
+                          <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
+                          <p style="color: #888; font-size: 12px;">Starlinko - Gérez vos avis Google en automatique</p>
+                        </div>
+                      `,
+                    }),
+                  });
+                } catch (emailError) {
+                  console.error("Failed to send email notification:", emailError);
+                }
+              }
             }
           }
         }
@@ -304,6 +345,22 @@ serve(async (req) => {
       } catch (userError) {
         console.error(`Error processing user ${userSettings.user_id}:`, userError);
         errors.push(`User ${userSettings.user_id}: ${userError instanceof Error ? userError.message : 'Unknown error'}`);
+      }
+    }
+
+    // After syncing, trigger auto-respond if there are new reviews
+    if (totalNewReviews > 0) {
+      try {
+        console.log("Triggering auto-respond-reviews for new reviews...");
+        await fetch(`${supabaseUrl}/functions/v1/auto-respond-reviews`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${supabaseServiceKey}`,
+          },
+        });
+      } catch (autoRespondError) {
+        console.error("Failed to trigger auto-respond:", autoRespondError);
       }
     }
 
