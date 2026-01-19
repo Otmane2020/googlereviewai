@@ -23,7 +23,10 @@ import {
   Building2,
   Filter,
   Send,
-  CheckCheck
+  CheckCheck,
+  ChevronLeft,
+  ChevronRight,
+  MessageCircle
 } from "lucide-react";
 import { AddTestReviewDialog } from "@/components/AddTestReviewDialog";
 import { useSyncGoogleReviews } from "@/hooks/useSyncGoogleReviews";
@@ -47,6 +50,7 @@ interface Review {
   ai_response: string | null;
   published_to_google: boolean | null;
   published_at: string | null;
+  google_reply?: string | null;
 }
 
 interface Business {
@@ -54,6 +58,9 @@ interface Business {
   name: string;
   google_place_id: string | null;
 }
+
+const REVIEWS_PER_PAGE = 10;
+
 
 const Reviews = () => {
   const { user } = useAuth();
@@ -64,6 +71,8 @@ const Reviews = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterRating, setFilterRating] = useState<number | null>(null);
   const [filterBusiness, setFilterBusiness] = useState<string>("all");
+  const [filterNoResponse, setFilterNoResponse] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
   const [generatingId, setGeneratingId] = useState<number | null>(null);
   const [publishingId, setPublishingId] = useState<number | null>(null);
   const { syncReviews, isSyncing } = useSyncGoogleReviews();
@@ -244,8 +253,21 @@ const Reviews = () => {
     const matchesRating = filterRating === null || review.rating === filterRating;
     const matchesBusiness = filterBusiness === "all" || review.location_id === filterBusiness || 
       businesses.find(b => b.id === filterBusiness)?.google_place_id === review.location_id;
-    return matchesSearch && matchesRating && matchesBusiness;
+    const matchesNoResponse = !filterNoResponse || (!review.ai_response && !review.replied);
+    return matchesSearch && matchesRating && matchesBusiness && matchesNoResponse;
   });
+
+  // Pagination
+  const totalPages = Math.ceil(filteredReviews.length / REVIEWS_PER_PAGE);
+  const paginatedReviews = filteredReviews.slice(
+    (currentPage - 1) * REVIEWS_PER_PAGE,
+    currentPage * REVIEWS_PER_PAGE
+  );
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, filterRating, filterBusiness, filterNoResponse]);
 
   const renderStars = (rating: number) => {
     return (
@@ -382,7 +404,27 @@ const Reviews = () => {
                   )}
                 </Button>
               ))}
+              <Button
+                variant={filterNoResponse ? "default" : "outline"}
+                size="sm"
+                onClick={() => setFilterNoResponse(!filterNoResponse)}
+                className="gap-1"
+              >
+                <MessageCircle className="w-3 h-3" />
+                Sans réponse
+              </Button>
             </div>
+          </div>
+
+          {/* Results count and pagination info */}
+          <div className="flex items-center justify-between text-sm text-muted-foreground">
+            <span>
+              {filteredReviews.length} avis trouvé{filteredReviews.length > 1 ? 's' : ''}
+              {filterNoResponse && ' sans réponse'}
+            </span>
+            {totalPages > 1 && (
+              <span>Page {currentPage} sur {totalPages}</span>
+            )}
           </div>
         </div>
 
@@ -404,7 +446,7 @@ const Reviews = () => {
           </div>
         ) : (
           <div className="space-y-4">
-            {filteredReviews.map((review) => (
+            {paginatedReviews.map((review) => (
               <div
                 key={review.id}
                 className="bg-card rounded-2xl border border-border p-6 hover:shadow-lg transition-shadow"
@@ -518,6 +560,57 @@ const Reviews = () => {
                 </div>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-center gap-2 pt-4">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+            >
+              <ChevronLeft className="w-4 h-4" />
+              Précédent
+            </Button>
+            
+            <div className="flex items-center gap-1">
+              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                let pageNum;
+                if (totalPages <= 5) {
+                  pageNum = i + 1;
+                } else if (currentPage <= 3) {
+                  pageNum = i + 1;
+                } else if (currentPage >= totalPages - 2) {
+                  pageNum = totalPages - 4 + i;
+                } else {
+                  pageNum = currentPage - 2 + i;
+                }
+                return (
+                  <Button
+                    key={pageNum}
+                    variant={currentPage === pageNum ? "default" : "outline"}
+                    size="sm"
+                    className="w-10"
+                    onClick={() => setCurrentPage(pageNum)}
+                  >
+                    {pageNum}
+                  </Button>
+                );
+              })}
+            </div>
+            
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+            >
+              Suivant
+              <ChevronRight className="w-4 h-4" />
+            </Button>
           </div>
         )}
       </main>
