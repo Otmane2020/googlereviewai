@@ -7,7 +7,7 @@ import { useSyncGoogleReviews } from "@/hooks/useSyncGoogleReviews";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { ConnectGMBDialog } from "@/components/ConnectGMBDialog";
-import { ReconnectGoogleBanner } from "@/components/ReconnectGoogleBanner";
+
 import { Button } from "@/components/ui/button";
 import { 
   Star, 
@@ -187,8 +187,6 @@ const Dashboard = () => {
       <DashboardHeader />
 
       <main className="max-w-6xl mx-auto px-4 py-5 space-y-4">
-        {/* Google Reconnection Banner */}
-        <ReconnectGoogleBanner className="mb-4" />
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm text-muted-foreground">Bienvenue,</p>
