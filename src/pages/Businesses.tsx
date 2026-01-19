@@ -344,12 +344,21 @@ const BusinessesPage = () => {
 
                   {/* Stats */}
                   <div className="flex items-center gap-4 mb-3">
-                    {business.rating ? (
-                      <div className="flex items-center gap-1">
-                        <Star className="w-4 h-4 text-accent fill-accent" />
-                        <span className="font-medium">{business.rating}</span>
+                    <div className="flex items-center gap-1.5">
+                      <div className="flex items-center">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <Star 
+                            key={star} 
+                            className={`w-3.5 h-3.5 ${
+                              star <= Math.round(business.rating || 0) 
+                                ? "text-yellow-500 fill-yellow-500" 
+                                : "text-muted-foreground/30"
+                            }`} 
+                          />
+                        ))}
                       </div>
-                    ) : null}
+                      <span className="font-semibold text-sm">{business.rating?.toFixed(1) || "–"}</span>
+                    </div>
                     <div className="flex items-center gap-1 text-muted-foreground">
                       <MessageSquare className="w-4 h-4" />
                       <span className="text-sm">{reviewCount} avis</span>
