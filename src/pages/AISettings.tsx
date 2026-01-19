@@ -20,7 +20,13 @@ import {
   RefreshCw,
   Send,
   Bell,
-  ChevronRight
+  Briefcase,
+  Heart,
+  Smile,
+  Sun,
+  PenLine,
+  ThumbsUp,
+  Upload
 } from "lucide-react";
 
 interface AISettings {
@@ -39,10 +45,10 @@ interface AISettings {
 }
 
 const toneOptions = [
-  { value: "professional", label: "Professionnel", icon: "💼" },
-  { value: "friendly", label: "Amical", icon: "😊" },
-  { value: "humorous", label: "Humoristique", icon: "😄" },
-  { value: "warm", label: "Chaleureux", icon: "💛" },
+  { value: "professional", label: "Professionnel", icon: Briefcase },
+  { value: "friendly", label: "Amical", icon: Smile },
+  { value: "humorous", label: "Humoristique", icon: Sun },
+  { value: "warm", label: "Chaleureux", icon: Heart },
 ];
 
 const lengthOptions = [
@@ -223,7 +229,7 @@ const AISettingsPage = () => {
                     : "bg-muted/50 text-foreground hover:bg-muted"
                 }`}
               >
-                <span className="text-lg">{option.icon}</span>
+                <option.icon className={`w-4 h-4 ${settings.tone === option.value ? "text-primary-foreground" : "text-muted-foreground"}`} />
                 <span className="font-medium text-sm">{option.label}</span>
               </button>
             ))}
@@ -261,7 +267,7 @@ const AISettingsPage = () => {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                  <span className="text-sm">✍️</span>
+                  <PenLine className="w-4 h-4 text-blue-500" />
                 </div>
                 <span className="font-medium text-sm text-foreground">Signature</span>
               </div>
@@ -312,7 +318,7 @@ const AISettingsPage = () => {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center">
-                  <span className="text-sm">👍</span>
+                  <ThumbsUp className="w-4 h-4 text-green-500" />
                 </div>
                 <span className="font-medium text-sm text-foreground">Avis positifs seulement</span>
               </div>
@@ -393,8 +399,8 @@ const AISettingsPage = () => {
           <div className="p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center">
-                  <Send className="w-4 h-4 text-red-500" />
+                <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+                  <Upload className="w-4 h-4 text-emerald-500" />
                 </div>
                 <div>
                   <span className="font-medium text-sm text-foreground block">Auto-publish</span>
