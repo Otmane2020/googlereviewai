@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
-import { usePushNotifications } from "@/hooks/usePushNotifications";
+import { useWebPushNotifications } from "@/hooks/useWebPushNotifications";
 import { Button } from "@/components/ui/button";
 import { X, Bell, BellRing } from "lucide-react";
+import { toast } from "sonner";
 
 export const NotificationPrompt = () => {
-  const { permission, isSupported, requestPermission } = usePushNotifications();
+  const { permission, isSupported, isSubscribed, isLoading, subscribe } = useWebPushNotifications();
   const [dismissed, setDismissed] = useState(false);
-  const [isRequesting, setIsRequesting] = useState(false);
 
   // Check if already dismissed
   useEffect(() => {
@@ -26,22 +26,22 @@ export const NotificationPrompt = () => {
   };
 
   const handleRequestPermission = async () => {
-    setIsRequesting(true);
-    const granted = await requestPermission();
-    setIsRequesting(false);
+    const success = await subscribe();
     
-    if (granted) {
-      // Show a test notification
-      new Notification("Notifications activées ! 🎉", {
-        body: "Vous recevrez maintenant les alertes pour vos nouveaux avis.",
-        icon: "/icon-512x512.png",
+    if (success) {
+      toast.success("Notifications activées ! 🎉", {
+        description: "Vous recevrez les alertes même quand l'app est fermée.",
       });
       handleDismiss();
+    } else if (permission === "denied") {
+      toast.error("Notifications bloquées", {
+        description: "Activez-les dans les paramètres de votre navigateur.",
+      });
     }
   };
 
-  // Don't show if not supported, already granted/denied, or dismissed
-  if (!isSupported || permission !== "default" || dismissed) {
+  // Don't show if not supported, already subscribed, permission denied, or dismissed
+  if (!isSupported || isSubscribed || permission === "denied" || permission === "granted" || dismissed) {
     return null;
   }
 
@@ -55,17 +55,17 @@ export const NotificationPrompt = () => {
           <div className="flex-1 min-w-0">
             <h3 className="font-semibold text-sm mb-1">Activer les notifications</h3>
             <p className="text-xs text-muted-foreground mb-3">
-              Soyez alerté dès qu'un nouvel avis est publié
+              Soyez alerté dès qu'un nouvel avis est publié, même hors de l'app
             </p>
             <div className="flex gap-2">
               <Button 
                 size="sm" 
                 onClick={handleRequestPermission}
-                disabled={isRequesting}
+                disabled={isLoading}
                 className="flex-1 h-9 bg-accent hover:bg-accent/90 text-accent-foreground"
               >
                 <Bell className="w-4 h-4 mr-1.5" />
-                {isRequesting ? "..." : "Activer"}
+                {isLoading ? "..." : "Activer"}
               </Button>
               <Button size="sm" variant="ghost" onClick={handleDismiss} className="h-9 px-3">
                 <X className="w-4 h-4" />
