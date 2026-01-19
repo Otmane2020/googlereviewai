@@ -205,132 +205,149 @@ serve(async (req) => {
 
           try {
             // CORRECT API ENDPOINT: accounts/{accountId}/locations/{locationId}/reviews
-            const reviewsUrl = `https://mybusiness.googleapis.com/v4/accounts/${accountId}/locations/${locationId}/reviews`;
-            console.log(`Calling: ${reviewsUrl}`);
+            // Use pagination to fetch ALL reviews (Google returns max 50 per page)
+            let nextPageToken: string | null = null;
+            let pageCount = 0;
+            const MAX_PAGES = 10; // Safety limit to prevent infinite loops
             
-            const reviewsResponse = await fetch(reviewsUrl, {
-              headers: {
-                Authorization: `Bearer ${provider_token}`,
-              },
-            });
-
-            if (!reviewsResponse.ok) {
-              const errorText = await reviewsResponse.text();
-              console.error(`Failed to fetch reviews for ${locationTitle}:`, reviewsResponse.status, errorText);
-              
-              // Parse error for better messages
-              let parsedError: any = {};
-              try {
-                parsedError = JSON.parse(errorText);
-              } catch {}
-              
-              const isServiceDisabled = parsedError?.error?.status === "PERMISSION_DENIED" && 
-                (errorText.includes("SERVICE_DISABLED") || errorText.includes("mybusiness.googleapis.com"));
-              
-              if (reviewsResponse.status === 429) {
-                errors.push(`${locationTitle}: Quota exceeded - try again later`);
-              } else if (reviewsResponse.status === 403 && isServiceDisabled) {
-                errors.push(`API_DISABLED: Google My Business API is disabled. Enable it in Google Cloud Console and reconnect.`);
-              } else if (reviewsResponse.status === 403) {
-                errors.push(`${locationTitle}: Access denied - reconnect Google with correct permissions`);
-              } else if (reviewsResponse.status === 404) {
-                errors.push(`${locationTitle}: No reviews endpoint (might be a new listing)`);
-              } else {
-                errors.push(`${locationTitle}: Error ${reviewsResponse.status}`);
+            do {
+              pageCount++;
+              let reviewsUrl = `https://mybusiness.googleapis.com/v4/accounts/${accountId}/locations/${locationId}/reviews?pageSize=50`;
+              if (nextPageToken) {
+                reviewsUrl += `&pageToken=${encodeURIComponent(nextPageToken)}`;
               }
-              continue;
-            }
+              
+              console.log(`Calling (page ${pageCount}): ${reviewsUrl}`);
+              
+              const reviewsResponse = await fetch(reviewsUrl, {
+                headers: {
+                  Authorization: `Bearer ${provider_token}`,
+                },
+              });
 
-            const reviewsData = await reviewsResponse.json();
-            const reviews = reviewsData.reviews || [];
+              if (!reviewsResponse.ok) {
+                const errorText = await reviewsResponse.text();
+                console.error(`Failed to fetch reviews for ${locationTitle}:`, reviewsResponse.status, errorText);
+                
+                // Parse error for better messages
+                let parsedError: any = {};
+                try {
+                  parsedError = JSON.parse(errorText);
+                } catch {}
+                
+                const isServiceDisabled = parsedError?.error?.status === "PERMISSION_DENIED" && 
+                  (errorText.includes("SERVICE_DISABLED") || errorText.includes("mybusiness.googleapis.com"));
+                
+                if (reviewsResponse.status === 429) {
+                  errors.push(`${locationTitle}: Quota exceeded - try again later`);
+                } else if (reviewsResponse.status === 403 && isServiceDisabled) {
+                  errors.push(`API_DISABLED: Google My Business API is disabled. Enable it in Google Cloud Console and reconnect.`);
+                } else if (reviewsResponse.status === 403) {
+                  errors.push(`${locationTitle}: Access denied - reconnect Google with correct permissions`);
+                } else if (reviewsResponse.status === 404) {
+                  errors.push(`${locationTitle}: No reviews endpoint (might be a new listing)`);
+                } else {
+                  errors.push(`${locationTitle}: Error ${reviewsResponse.status}`);
+                }
+                break; // Exit pagination loop on error
+              }
+
+              const reviewsData = await reviewsResponse.json();
+              const reviews = reviewsData.reviews || [];
+              nextPageToken = reviewsData.nextPageToken || null;
+              
+              console.log(`Found ${reviews.length} reviews on page ${pageCount} for ${locationTitle}${nextPageToken ? ' (more pages available)' : ''}`);
+
+              // Process and save each review
+              for (const review of reviews) {
+                // Use review.name as the full ID, but extract the unique review part
+                // Format: accounts/xxx/locations/xxx/reviews/UNIQUE_REVIEW_ID
+                const fullReviewId = review.name || review.reviewId;
+                
+                if (!fullReviewId) {
+                  console.error("Review has no ID:", review);
+                  continue;
+                }
+
+                // Extract the unique review ID (the last part after /reviews/)
+                const reviewIdParts = fullReviewId.split("/reviews/");
+                const uniqueReviewId = reviewIdParts.length > 1 ? reviewIdParts[1] : fullReviewId;
+                
+                // Create a canonical review_id without the account prefix to avoid duplicates
+                // Use format: locations/{locationId}/reviews/{uniqueReviewId}
+                const canonicalReviewId = `locations/${locationId}/reviews/${uniqueReviewId}`;
+
+                // Convert star rating
+                const starMapping: Record<string, number> = {
+                  "ONE": 1, "TWO": 2, "THREE": 3, "FOUR": 4, "FIVE": 5,
+                  "STAR_RATING_UNSPECIFIED": 0
+                };
+                
+                let rating = 5;
+                if (typeof review.starRating === "string") {
+                  rating = starMapping[review.starRating] || 5;
+                } else if (typeof review.starRating === "number") {
+                  rating = review.starRating;
+                }
+
+                const reviewData = {
+                  user_id: user.id,
+                  review_id: canonicalReviewId,
+                  location_id: locationId,
+                  author: review.reviewer?.displayName || "Anonyme",
+                  rating: rating,
+                  comment: review.comment || "",
+                  review_date: review.createTime || new Date().toISOString(),
+                  replied: !!review.reviewReply,
+                  ai_response: review.reviewReply?.comment || null,
+                };
+
+                console.log(`Processing review: ${canonicalReviewId} from ${reviewData.author} (${rating} stars)`);
+
+                // Check for existing review by canonical review_id OR by user_id + location_id + unique part
+                const { data: existingReview } = await supabaseAdmin
+                  .from("reviews")
+                  .select("id")
+                  .eq("user_id", user.id)
+                  .eq("review_id", canonicalReviewId)
+                  .maybeSingle();
+
+                let result;
+                if (existingReview) {
+                  console.log(`Updating existing review ${existingReview.id}`);
+                  result = await supabaseAdmin
+                    .from("reviews")
+                    .update({
+                      author: reviewData.author,
+                      rating: reviewData.rating,
+                      comment: reviewData.comment,
+                      replied: reviewData.replied,
+                      ai_response: reviewData.ai_response,
+                      updated_at: new Date().toISOString(),
+                    })
+                    .eq("id", existingReview.id)
+                    .select()
+                    .single();
+                } else {
+                  console.log(`Inserting new review`);
+                  result = await supabaseAdmin
+                    .from("reviews")
+                    .insert(reviewData)
+                    .select()
+                    .single();
+                }
+
+                if (result.data) {
+                  allReviews.push(result.data);
+                } else if (result.error) {
+                  console.error("Error saving review:", result.error);
+                  errors.push(`Failed to save review from ${reviewData.author}: ${result.error.message}`);
+                }
+              }
+            } while (nextPageToken && pageCount < MAX_PAGES);
             
-            console.log(`Found ${reviews.length} reviews for ${locationTitle}`);
-
-            // Process and save each review
-            for (const review of reviews) {
-              // Use review.name as the full ID, but extract the unique review part
-              // Format: accounts/xxx/locations/xxx/reviews/UNIQUE_REVIEW_ID
-              const fullReviewId = review.name || review.reviewId;
-              
-              if (!fullReviewId) {
-                console.error("Review has no ID:", review);
-                continue;
-              }
-
-              // Extract the unique review ID (the last part after /reviews/)
-              const reviewIdParts = fullReviewId.split("/reviews/");
-              const uniqueReviewId = reviewIdParts.length > 1 ? reviewIdParts[1] : fullReviewId;
-              
-              // Create a canonical review_id without the account prefix to avoid duplicates
-              // Use format: locations/{locationId}/reviews/{uniqueReviewId}
-              const canonicalReviewId = `locations/${locationId}/reviews/${uniqueReviewId}`;
-
-              // Convert star rating
-              const starMapping: Record<string, number> = {
-                "ONE": 1, "TWO": 2, "THREE": 3, "FOUR": 4, "FIVE": 5,
-                "STAR_RATING_UNSPECIFIED": 0
-              };
-              
-              let rating = 5;
-              if (typeof review.starRating === "string") {
-                rating = starMapping[review.starRating] || 5;
-              } else if (typeof review.starRating === "number") {
-                rating = review.starRating;
-              }
-
-              const reviewData = {
-                user_id: user.id,
-                review_id: canonicalReviewId,
-                location_id: locationId,
-                author: review.reviewer?.displayName || "Anonyme",
-                rating: rating,
-                comment: review.comment || "",
-                review_date: review.createTime || new Date().toISOString(),
-                replied: !!review.reviewReply,
-                ai_response: review.reviewReply?.comment || null,
-              };
-
-              console.log(`Processing review: ${canonicalReviewId} from ${reviewData.author} (${rating} stars)`);
-
-              // Check for existing review by canonical review_id OR by user_id + location_id + unique part
-              const { data: existingReview } = await supabaseAdmin
-                .from("reviews")
-                .select("id")
-                .eq("user_id", user.id)
-                .eq("review_id", canonicalReviewId)
-                .maybeSingle();
-
-              let result;
-              if (existingReview) {
-                console.log(`Updating existing review ${existingReview.id}`);
-                result = await supabaseAdmin
-                  .from("reviews")
-                  .update({
-                    author: reviewData.author,
-                    rating: reviewData.rating,
-                    comment: reviewData.comment,
-                    replied: reviewData.replied,
-                    ai_response: reviewData.ai_response,
-                    updated_at: new Date().toISOString(),
-                  })
-                  .eq("id", existingReview.id)
-                  .select()
-                  .single();
-              } else {
-                console.log(`Inserting new review`);
-                result = await supabaseAdmin
-                  .from("reviews")
-                  .insert(reviewData)
-                  .select()
-                  .single();
-              }
-
-              if (result.data) {
-                allReviews.push(result.data);
-              } else if (result.error) {
-                console.error("Error saving review:", result.error);
-                errors.push(`Failed to save review from ${reviewData.author}: ${result.error.message}`);
-              }
+            if (pageCount >= MAX_PAGES && nextPageToken) {
+              console.warn(`Reached max page limit (${MAX_PAGES}) for ${locationTitle}, some reviews may not be synced`);
             }
           } catch (error) {
             console.error(`Error fetching reviews for ${locationTitle}:`, error);
