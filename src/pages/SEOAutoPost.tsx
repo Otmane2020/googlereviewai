@@ -5,60 +5,56 @@ import { supabase } from "@/integrations/supabase/client";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
 import { 
   FileText, 
   Sparkles, 
-  Globe, 
-  MapPin, 
   Loader2, 
-  Plus, 
-  Eye, 
-  Trash2,
-  Copy,
-  X
+  Calendar,
+  Check,
+  Clock,
+  AlertCircle,
+  RefreshCw,
+  Eye,
+  Building2
 } from "lucide-react";
+import { format, addDays, startOfToday, isSameDay } from "date-fns";
+import { fr } from "date-fns/locale";
 
 interface Business {
   id: string;
   name: string;
   address: string | null;
+  description: string | null;
+  categories: string[] | null;
+  auto_keywords: string[] | null;
 }
 
-interface Article {
+interface ScheduledContent {
   id: string;
-  title: string;
-  slug: string;
-  content: string;
-  meta_description: string | null;
-  keywords: string[] | null;
+  business_id: string;
+  content_type: string;
+  scheduled_date: string;
   status: string;
-  created_at: string;
-  business_id: string | null;
+  title: string | null;
+  content: string | null;
+  question: string | null;
+  answer: string | null;
+  keyword_used: string | null;
 }
 
 const SEOAutoPost = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [businesses, setBusinesses] = useState<Business[]>([]);
-  const [articles, setArticles] = useState<Article[]>([]);
+  const [scheduledContent, setScheduledContent] = useState<ScheduledContent[]>([]);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
-  const [showForm, setShowForm] = useState(false);
-  const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
-
-  // Form state
-  const [selectedBusiness, setSelectedBusiness] = useState<string>("");
-  const [businessDescription, setBusinessDescription] = useState("");
-  const [businessLocation, setBusinessLocation] = useState("");
-  const [sourceUrl, setSourceUrl] = useState("");
-  const [keywords, setKeywords] = useState("");
+  const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null);
+  const [activeTab, setActiveTab] = useState("planning");
 
   useEffect(() => {
     if (!user) {
@@ -73,107 +69,171 @@ const SEOAutoPost = () => {
     try {
       const { data: businessData } = await supabase
         .from("businesses")
-        .select("id, name, address")
+        .select("id, name, address, description, categories, auto_keywords")
         .eq("user_id", user!.id);
       
-      setBusinesses(businessData || []);
-
-      const { data: articleData } = await supabase
-        .from("seo_articles")
-        .select("*")
-        .eq("user_id", user!.id)
-        .order("created_at", { ascending: false });
+      setBusinesses((businessData as Business[]) || []);
       
-      setArticles(articleData || []);
+      if (businessData && businessData.length > 0) {
+        setSelectedBusiness(businessData[0] as Business);
+        await fetchScheduledContent(businessData[0].id);
+      }
     } catch (error) {
       console.error("Error fetching data:", error);
     }
     setLoading(false);
   };
 
-  const generateArticle = async () => {
-    if (!selectedBusiness) {
-      toast({ title: "Erreur", description: "Sélectionnez un établissement", variant: "destructive" });
-      return;
-    }
+  const fetchScheduledContent = async (businessId: string) => {
+    const { data } = await supabase
+      .from("scheduled_content")
+      .select("*")
+      .eq("business_id", businessId)
+      .eq("user_id", user!.id)
+      .order("scheduled_date", { ascending: true });
+    
+    setScheduledContent((data as ScheduledContent[]) || []);
+  };
 
-    const business = businesses.find(b => b.id === selectedBusiness);
-    if (!business) return;
-
+  const analyzeAndGeneratePlan = async () => {
+    if (!selectedBusiness) return;
+    
     setGenerating(true);
     try {
-      const { data, error } = await supabase.functions.invoke("generate-seo-content", {
+      // Generate keywords from business info using AI
+      const { data: analysisData, error: analysisError } = await supabase.functions.invoke("generate-seo-content", {
         body: {
-          type: "seo_article",
-          businessName: business.name,
-          businessDescription: businessDescription || `${business.name} - Établissement local`,
-          location: businessLocation || business.address || "France",
-          sourceUrl,
-          keywords: keywords.split(",").map(k => k.trim()).filter(Boolean),
+          type: "analyze_business",
+          businessName: selectedBusiness.name,
+          businessDescription: selectedBusiness.description || selectedBusiness.name,
+          location: selectedBusiness.address || "France",
         },
       });
 
-      if (error) throw error;
+      if (analysisError) throw analysisError;
 
-      const slug = data.title
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/^-|-$/g, "");
-
-      const { data: newArticle, error: insertError } = await supabase
-        .from("seo_articles")
-        .insert({
-          user_id: user!.id,
-          business_id: selectedBusiness,
-          title: data.title,
-          slug: slug,
-          content: data.content,
-          meta_description: data.meta_description,
-          keywords: data.keywords,
-          source_url: sourceUrl || null,
-          location: businessLocation || business.address,
-          status: "draft",
+      // Update business with auto-detected keywords
+      const keywords = analysisData?.keywords || [];
+      await supabase
+        .from("businesses")
+        .update({ 
+          auto_keywords: keywords,
+          description: analysisData?.description || selectedBusiness.description 
         })
-        .select()
-        .single();
+        .eq("id", selectedBusiness.id);
+
+      // Generate 30-day plan
+      const today = startOfToday();
+      const planItems: any[] = [];
+
+      for (let i = 0; i < 30; i++) {
+        const date = addDays(today, i);
+        const dateStr = format(date, "yyyy-MM-dd");
+        const keyword = keywords[i % keywords.length] || selectedBusiness.name;
+
+        // Add Q&A for AEO
+        planItems.push({
+          user_id: user!.id,
+          business_id: selectedBusiness.id,
+          content_type: "aeo_qa",
+          scheduled_date: dateStr,
+          status: "pending",
+          keyword_used: keyword,
+        });
+      }
+
+      // Insert all planned content
+      const { error: insertError } = await supabase
+        .from("scheduled_content")
+        .upsert(planItems, { 
+          onConflict: "user_id,business_id,content_type,scheduled_date",
+          ignoreDuplicates: true 
+        });
 
       if (insertError) throw insertError;
 
-      setArticles([newArticle, ...articles]);
-      setShowForm(false);
-      resetForm();
+      await fetchScheduledContent(selectedBusiness.id);
       
-      toast({ title: "Article généré !", description: "Votre article SEO est prêt" });
+      // Update local state
+      setSelectedBusiness({
+        ...selectedBusiness,
+        auto_keywords: keywords,
+        description: analysisData?.description || selectedBusiness.description
+      });
+
+      toast({ 
+        title: "Plan généré !", 
+        description: `30 jours de Q&A planifiés avec ${keywords.length} mots-clés détectés` 
+      });
     } catch (error: any) {
-      console.error("Error generating article:", error);
+      console.error("Error generating plan:", error);
       toast({ 
         title: "Erreur", 
-        description: error.message || "Impossible de générer l'article", 
+        description: error.message || "Impossible de générer le plan", 
         variant: "destructive" 
       });
     }
     setGenerating(false);
   };
 
-  const resetForm = () => {
-    setSelectedBusiness("");
-    setBusinessDescription("");
-    setBusinessLocation("");
-    setSourceUrl("");
-    setKeywords("");
-  };
+  const generateContentForDay = async (item: ScheduledContent) => {
+    try {
+      // Update status to generating
+      await supabase
+        .from("scheduled_content")
+        .update({ status: "generating" })
+        .eq("id", item.id);
 
-  const deleteArticle = async (id: string) => {
-    const { error } = await supabase.from("seo_articles").delete().eq("id", id);
-    if (!error) {
-      setArticles(articles.filter(a => a.id !== id));
-      toast({ title: "Article supprimé" });
+      const { data, error } = await supabase.functions.invoke("generate-seo-content", {
+        body: {
+          type: "aeo_questions",
+          businessName: selectedBusiness?.name,
+          businessDescription: selectedBusiness?.description || selectedBusiness?.name,
+          location: selectedBusiness?.address || "France",
+          keywords: [item.keyword_used],
+          singleQuestion: true,
+        },
+      });
+
+      if (error) throw error;
+
+      const qa = data?.questions?.[0];
+      
+      await supabase
+        .from("scheduled_content")
+        .update({ 
+          status: "generated",
+          question: qa?.question || null,
+          answer: qa?.answer || null,
+          title: qa?.question || null,
+        })
+        .eq("id", item.id);
+
+      await fetchScheduledContent(selectedBusiness!.id);
+      toast({ title: "Q&A généré !" });
+    } catch (error: any) {
+      await supabase
+        .from("scheduled_content")
+        .update({ status: "failed", error_message: error.message })
+        .eq("id", item.id);
+      
+      toast({ title: "Erreur", description: error.message, variant: "destructive" });
     }
   };
 
-  const copyContent = (content: string) => {
-    navigator.clipboard.writeText(content);
-    toast({ title: "Contenu copié !" });
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case "published":
+        return <Badge className="bg-secondary text-secondary-foreground"><Check className="w-3 h-3 mr-1" />Publié</Badge>;
+      case "generated":
+        return <Badge className="bg-primary text-primary-foreground"><Sparkles className="w-3 h-3 mr-1" />Prêt</Badge>;
+      case "generating":
+        return <Badge variant="outline"><Loader2 className="w-3 h-3 mr-1 animate-spin" />En cours</Badge>;
+      case "failed":
+        return <Badge variant="destructive"><AlertCircle className="w-3 h-3 mr-1" />Échec</Badge>;
+      default:
+        return <Badge variant="secondary"><Clock className="w-3 h-3 mr-1" />Planifié</Badge>;
+    }
   };
 
   if (loading) {
@@ -187,8 +247,11 @@ const SEOAutoPost = () => {
     );
   }
 
+  const today = startOfToday();
+  const next30Days = Array.from({ length: 30 }, (_, i) => addDays(today, i));
+
   return (
-    <div className="min-h-screen bg-muted/30">
+    <div className="min-h-screen bg-muted/30 pb-20 sm:pb-6">
       <DashboardHeader />
 
       {/* Page Header */}
@@ -200,196 +263,201 @@ const SEOAutoPost = () => {
                 <FileText className="w-6 h-6 text-primary" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-foreground">SEO AutoPost</h1>
-                <p className="text-sm text-muted-foreground">
-                  Générez des articles optimisés pour le référencement
+                <h1 className="text-xl sm:text-2xl font-bold text-foreground">SEO & AEO AutoPost</h1>
+                <p className="text-xs sm:text-sm text-muted-foreground">
+                  Planning automatique 30 jours
                 </p>
               </div>
             </div>
-            <Button onClick={() => setShowForm(true)}>
-              <Plus className="w-4 h-4 mr-2" />
-              Nouvel article
-            </Button>
+            {selectedBusiness && (
+              <Button onClick={analyzeAndGeneratePlan} disabled={generating}>
+                {generating ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Analyse en cours...
+                  </>
+                ) : (
+                  <>
+                    <RefreshCw className="w-4 h-4 mr-2" />
+                    Analyser & Planifier
+                  </>
+                )}
+              </Button>
+            )}
           </div>
         </div>
       </div>
 
       <main className="max-w-7xl mx-auto p-4 sm:p-6 space-y-6">
-        {/* Generation Form */}
-        {showForm && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-primary" />
-                Générer un article SEO
-              </CardTitle>
-              <CardDescription>
-                L'IA va créer un article optimisé pour le référencement local
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Établissement *</Label>
-                  <Select value={selectedBusiness} onValueChange={setSelectedBusiness}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Sélectionner un établissement" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-popover">
-                      {businesses.map((b) => (
-                        <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label>Localisation</Label>
-                  <div className="relative">
-                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <Input
-                      placeholder="Paris, France"
-                      value={businessLocation}
-                      onChange={(e) => setBusinessLocation(e.target.value)}
-                      className="pl-10"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Description de l'activité</Label>
-                <Textarea
-                  placeholder="Décrivez votre activité, vos services, votre spécialité..."
-                  value={businessDescription}
-                  onChange={(e) => setBusinessDescription(e.target.value)}
-                  rows={3}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>URL source (optionnel)</Label>
-                <div className="relative">
-                  <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input
-                    placeholder="https://votresite.com/page"
-                    value={sourceUrl}
-                    onChange={(e) => setSourceUrl(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Mots-clés (séparés par des virgules)</Label>
-                <Input
-                  placeholder="restaurant italien, pizza, livraison"
-                  value={keywords}
-                  onChange={(e) => setKeywords(e.target.value)}
-                />
-              </div>
-
-              <div className="flex gap-3 pt-4">
-                <Button variant="outline" onClick={() => { setShowForm(false); resetForm(); }}>
-                  Annuler
-                </Button>
-                <Button onClick={generateArticle} disabled={generating || !selectedBusiness}>
-                  {generating ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Génération...
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className="w-4 h-4 mr-2" />
-                      Générer l'article
-                    </>
-                  )}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Article Preview Modal */}
-        {selectedArticle && (
-          <div className="fixed inset-0 z-50 bg-foreground/60 backdrop-blur-sm flex items-center justify-center p-4">
-            <Card className="w-full max-w-3xl max-h-[80vh] overflow-hidden">
-              <CardHeader className="flex flex-row items-start justify-between">
-                <div>
-                  <CardTitle>{selectedArticle.title}</CardTitle>
-                  {selectedArticle.meta_description && (
-                    <CardDescription className="mt-2">{selectedArticle.meta_description}</CardDescription>
-                  )}
-                </div>
-                <Button variant="ghost" size="icon" onClick={() => setSelectedArticle(null)}>
-                  <X className="w-4 h-4" />
-                </Button>
-              </CardHeader>
-              <CardContent className="overflow-y-auto max-h-[60vh]">
-                <div className="prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: selectedArticle.content.replace(/\n/g, "<br/>") }} />
-              </CardContent>
-            </Card>
-          </div>
-        )}
-
-        {/* Articles List */}
-        {articles.length === 0 && !showForm ? (
+        {/* Business Selection */}
+        {businesses.length === 0 ? (
           <Card className="p-8 text-center">
-            <FileText className="w-12 h-12 mx-auto mb-4 text-muted-foreground/30" />
-            <h3 className="text-lg font-medium text-foreground mb-2">Aucun article</h3>
+            <Building2 className="w-12 h-12 mx-auto mb-4 text-muted-foreground/30" />
+            <h3 className="text-lg font-medium text-foreground mb-2">Aucun établissement</h3>
             <p className="text-sm text-muted-foreground mb-4">
-              Générez votre premier article SEO optimisé
+              Connectez d'abord votre Google My Business
             </p>
-            <Button onClick={() => setShowForm(true)}>
-              <Plus className="w-4 h-4 mr-2" />
-              Créer un article
+            <Button onClick={() => navigate("/businesses")}>
+              Ajouter un établissement
             </Button>
           </Card>
         ) : (
-          <div className="grid gap-4">
-            {articles.map((article) => (
-              <Card key={article.id} className="overflow-hidden">
-                <div className="p-4 lg:p-6">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Badge variant={article.status === "published" ? "default" : "secondary"}>
-                          {article.status === "published" ? "Publié" : "Brouillon"}
-                        </Badge>
-                        <span className="text-xs text-muted-foreground">
-                          {new Date(article.created_at).toLocaleDateString("fr-FR")}
-                        </span>
-                      </div>
-                      <h3 className="text-lg font-semibold text-foreground truncate">{article.title}</h3>
-                      {article.meta_description && (
-                        <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{article.meta_description}</p>
-                      )}
-                      {article.keywords && article.keywords.length > 0 && (
-                        <div className="flex flex-wrap gap-1 mt-2">
-                          {article.keywords.slice(0, 5).map((kw, i) => (
-                            <span key={i} className="px-2 py-0.5 bg-muted text-muted-foreground text-xs rounded-full">
-                              {kw}
-                            </span>
-                          ))}
-                        </div>
-                      )}
+          <>
+            {/* Business Info Card */}
+            {selectedBusiness && (
+              <Card>
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="text-lg">{selectedBusiness.name}</CardTitle>
+                      <CardDescription>{selectedBusiness.address}</CardDescription>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Button variant="ghost" size="icon" onClick={() => setSelectedArticle(article)}>
-                        <Eye className="w-4 h-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon" onClick={() => copyContent(article.content)}>
-                        <Copy className="w-4 h-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon" className="text-destructive" onClick={() => deleteArticle(article.id)}>
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
+                    {businesses.length > 1 && (
+                      <select 
+                        className="text-sm border rounded-md px-2 py-1"
+                        value={selectedBusiness.id}
+                        onChange={(e) => {
+                          const biz = businesses.find(b => b.id === e.target.value);
+                          if (biz) {
+                            setSelectedBusiness(biz);
+                            fetchScheduledContent(biz.id);
+                          }
+                        }}
+                      >
+                        {businesses.map(b => (
+                          <option key={b.id} value={b.id}>{b.name}</option>
+                        ))}
+                      </select>
+                    )}
                   </div>
-                </div>
+                </CardHeader>
+                <CardContent>
+                  {selectedBusiness.auto_keywords && selectedBusiness.auto_keywords.length > 0 ? (
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-2">Mots-clés détectés automatiquement :</p>
+                      <div className="flex flex-wrap gap-1">
+                        {selectedBusiness.auto_keywords.slice(0, 10).map((kw, i) => (
+                          <span key={i} className="px-2 py-0.5 bg-primary/10 text-primary text-xs rounded-full">
+                            {kw}
+                          </span>
+                        ))}
+                        {selectedBusiness.auto_keywords.length > 10 && (
+                          <span className="text-xs text-muted-foreground">
+                            +{selectedBusiness.auto_keywords.length - 10} autres
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">
+                      Cliquez sur "Analyser & Planifier" pour détecter automatiquement les mots-clés
+                    </p>
+                  )}
+                </CardContent>
               </Card>
-            ))}
-          </div>
+            )}
+
+            {/* Tabs */}
+            <Tabs value={activeTab} onValueChange={setActiveTab}>
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="planning" className="gap-2">
+                  <Calendar className="w-4 h-4" />
+                  Planning 30 jours
+                </TabsTrigger>
+                <TabsTrigger value="content" className="gap-2">
+                  <FileText className="w-4 h-4" />
+                  Contenu généré
+                </TabsTrigger>
+              </TabsList>
+
+              {/* Planning Tab */}
+              <TabsContent value="planning" className="mt-4">
+                <div className="grid grid-cols-5 sm:grid-cols-7 gap-2">
+                  {next30Days.map((date) => {
+                    const dateStr = format(date, "yyyy-MM-dd");
+                    const dayContent = scheduledContent.find(
+                      c => c.scheduled_date === dateStr && c.content_type === "aeo_qa"
+                    );
+                    const isToday = isSameDay(date, today);
+
+                    return (
+                      <div
+                        key={dateStr}
+                        className={`p-2 sm:p-3 rounded-lg border text-center transition-all ${
+                          isToday 
+                            ? "border-primary bg-primary/5 ring-2 ring-primary/20" 
+                            : "border-border bg-card hover:border-primary/50"
+                        }`}
+                      >
+                        <p className="text-[10px] sm:text-xs text-muted-foreground">
+                          {format(date, "EEE", { locale: fr })}
+                        </p>
+                        <p className={`text-sm sm:text-base font-bold ${isToday ? "text-primary" : "text-foreground"}`}>
+                          {format(date, "d")}
+                        </p>
+                        <div className="mt-1">
+                          {dayContent ? (
+                            <div 
+                              className="cursor-pointer"
+                              onClick={() => dayContent.status === "pending" && generateContentForDay(dayContent)}
+                            >
+                              {getStatusBadge(dayContent.status)}
+                            </div>
+                          ) : (
+                            <span className="text-[10px] text-muted-foreground">—</span>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </TabsContent>
+
+              {/* Content Tab */}
+              <TabsContent value="content" className="mt-4 space-y-3">
+                {scheduledContent.filter(c => c.question || c.answer).length === 0 ? (
+                  <Card className="p-6 text-center">
+                    <Sparkles className="w-10 h-10 mx-auto mb-3 text-muted-foreground/30" />
+                    <p className="text-sm text-muted-foreground">
+                      Aucun contenu généré. Cliquez sur une date planifiée pour générer.
+                    </p>
+                  </Card>
+                ) : (
+                  scheduledContent
+                    .filter(c => c.question || c.answer)
+                    .map((item) => (
+                      <Card key={item.id}>
+                        <CardContent className="p-4">
+                          <div className="flex items-start justify-between gap-3 mb-2">
+                            <div className="flex items-center gap-2">
+                              {getStatusBadge(item.status)}
+                              <span className="text-xs text-muted-foreground">
+                                {format(new Date(item.scheduled_date), "d MMM", { locale: fr })}
+                              </span>
+                            </div>
+                            {item.keyword_used && (
+                              <span className="text-xs bg-muted px-2 py-0.5 rounded-full">
+                                {item.keyword_used}
+                              </span>
+                            )}
+                          </div>
+                          {item.question && (
+                            <p className="font-medium text-foreground text-sm mb-1">
+                              Q: {item.question}
+                            </p>
+                          )}
+                          {item.answer && (
+                            <p className="text-muted-foreground text-sm">
+                              R: {item.answer}
+                            </p>
+                          )}
+                        </CardContent>
+                      </Card>
+                    ))
+                )}
+              </TabsContent>
+            </Tabs>
+          </>
         )}
       </main>
 

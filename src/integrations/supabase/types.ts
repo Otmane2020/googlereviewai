@@ -142,7 +142,10 @@ export type Database = {
       businesses: {
         Row: {
           address: string | null
+          auto_keywords: string[] | null
+          categories: string[] | null
           created_at: string | null
+          description: string | null
           google_place_id: string | null
           id: string
           is_active: boolean | null
@@ -156,7 +159,10 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          auto_keywords?: string[] | null
+          categories?: string[] | null
           created_at?: string | null
+          description?: string | null
           google_place_id?: string | null
           id?: string
           is_active?: boolean | null
@@ -170,7 +176,10 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          auto_keywords?: string[] | null
+          categories?: string[] | null
           created_at?: string | null
+          description?: string | null
           google_place_id?: string | null
           id?: string
           is_active?: boolean | null
@@ -449,6 +458,78 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "reviews_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      scheduled_content: {
+        Row: {
+          answer: string | null
+          business_id: string
+          content: string | null
+          content_type: string
+          created_at: string
+          error_message: string | null
+          google_post_id: string | null
+          id: string
+          keyword_used: string | null
+          published_at: string | null
+          question: string | null
+          scheduled_date: string
+          status: string
+          title: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          answer?: string | null
+          business_id: string
+          content?: string | null
+          content_type: string
+          created_at?: string
+          error_message?: string | null
+          google_post_id?: string | null
+          id?: string
+          keyword_used?: string | null
+          published_at?: string | null
+          question?: string | null
+          scheduled_date: string
+          status?: string
+          title?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          answer?: string | null
+          business_id?: string
+          content?: string | null
+          content_type?: string
+          created_at?: string
+          error_message?: string | null
+          google_post_id?: string | null
+          id?: string
+          keyword_used?: string | null
+          published_at?: string | null
+          question?: string | null
+          scheduled_date?: string
+          status?: string
+          title?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scheduled_content_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "scheduled_content_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"

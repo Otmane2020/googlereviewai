@@ -11,7 +11,7 @@ serve(async (req) => {
   }
 
   try {
-    const { type, businessName, businessDescription, location, sourceUrl, keywords } = await req.json();
+    const { type, businessName, businessDescription, location, sourceUrl, keywords, singleQuestion } = await req.json();
     
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
@@ -21,7 +21,29 @@ serve(async (req) => {
     let systemPrompt = "";
     let userPrompt = "";
 
-    if (type === "seo_article") {
+    if (type === "analyze_business") {
+      // Analyze business and generate keywords
+      systemPrompt = `Tu es un expert en SEO local et marketing digital. Tu analyses les profils d'entreprises pour extraire des mots-clés pertinents.`;
+
+      userPrompt = `Analyse cette entreprise et génère des mots-clés SEO pertinents:
+Nom: ${businessName}
+Description: ${businessDescription || "Non fournie"}
+Localisation: ${location}
+
+Génère exactement ce JSON:
+{
+  "description": "Description optimisée de l'entreprise en 2-3 phrases",
+  "keywords": ["mot-clé 1", "mot-clé 2", ...],
+  "categories": ["catégorie 1", "catégorie 2"]
+}
+
+Génère 30 mots-clés variés incluant:
+- Mots-clés principaux du secteur
+- Mots-clés locaux (avec la ville)
+- Questions fréquentes des clients
+- Services/produits spécifiques`;
+
+    } else if (type === "seo_article") {
       systemPrompt = `Tu es un expert en SEO et rédaction web. Tu crées des articles optimisés pour le référencement local.
       
 Règles importantes:
@@ -55,11 +77,12 @@ Tu dois créer des paires question-réponse qui:
 - Incluent le nom de l'entreprise naturellement
 - Sont optimisées pour apparaître dans les réponses des IA comme ChatGPT, Perplexity, etc.`;
 
-      userPrompt = `Génère 5 paires question-réponse AEO pour:
+      const numQuestions = singleQuestion ? 1 : 5;
+      userPrompt = `Génère ${numQuestions} paire(s) question-réponse AEO pour:
 Entreprise: ${businessName}
 Description: ${businessDescription}
 Localisation: ${location}
-${keywords?.length ? `Mots-clés: ${keywords.join(", ")}` : ""}
+${keywords?.length ? `Mot-clé principal: ${keywords[0]}` : ""}
 
 Format attendu (JSON):
 {
@@ -111,7 +134,23 @@ Catégories possibles: services, horaires, localisation, avis, prix, contact`;
     // Parse the response based on type
     let result: any = { content };
 
-    if (type === "seo_article") {
+    if (type === "analyze_business") {
+      try {
+        const jsonMatch = content.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          const parsed = JSON.parse(jsonMatch[0]);
+          result = {
+            description: parsed.description || "",
+            keywords: parsed.keywords || [],
+            categories: parsed.categories || [],
+          };
+        } else {
+          result = { description: "", keywords: [], categories: [] };
+        }
+      } catch {
+        result = { description: "", keywords: [], categories: [] };
+      }
+    } else if (type === "seo_article") {
       // Extract title and meta description
       const titleMatch = content.match(/^#\s+(.+)$/m) || content.match(/^(.+)\n/);
       const metaMatch = content.match(/Meta description:\s*(.+?)(?:\n|$)/i) || 
