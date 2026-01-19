@@ -63,8 +63,8 @@ export const useGoogleOAuth = () => {
       if (data?.auth_url) {
         // Store user_id in session storage for callback
         sessionStorage.setItem("google_oauth_user_id", user.id);
-        // Redirect to Google OAuth
-        window.location.href = data.auth_url;
+        // Open in new window to avoid iframe/webview restrictions from Google
+        window.open(data.auth_url, "_blank", "noopener,noreferrer");
       } else {
         throw new Error("Failed to get OAuth URL");
       }
