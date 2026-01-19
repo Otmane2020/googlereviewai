@@ -56,9 +56,9 @@ const plans = [
 ];
 
 const creditPacks = [
-  { credits: 10, price: "2,99€", pricePerCredit: "0,30€", emoji: "🔋" },
-  { credits: 100, price: "24,99€", pricePerCredit: "0,25€", popular: true, emoji: "⚡" },
-  { credits: 400, price: "79€", pricePerCredit: "0,20€", emoji: "🔥" },
+  { credits: 10, price: "2,99€", emoji: "🔋" },
+  { credits: 100, price: "24,99€", popular: true, emoji: "⚡" },
+  { credits: 400, price: "79€", emoji: "🔥" },
 ];
 
 export const PricingSection = () => {
@@ -169,9 +169,8 @@ export const PricingSection = () => {
                 <div className="flex items-center justify-center gap-1 mb-1">
                   <span className="text-xl sm:text-2xl font-bold text-foreground">{pack.credits}</span>
                 </div>
-                <p className="text-muted-foreground text-xs mb-1">crédits</p>
-                <p className="text-lg sm:text-xl font-bold text-foreground mb-0.5">{pack.price}</p>
-                <p className="text-[10px] text-muted-foreground mb-3">{pack.pricePerCredit}/crédit</p>
+                <p className="text-muted-foreground text-xs mb-2">crédits</p>
+                <p className="text-lg sm:text-xl font-bold text-foreground mb-3">{pack.price}</p>
                 <Button 
                   variant={pack.popular ? "default" : "outline"} 
                   className="w-full h-9 text-xs" 
