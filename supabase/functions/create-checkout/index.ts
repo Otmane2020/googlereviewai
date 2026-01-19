@@ -23,6 +23,10 @@ const PRICE_IDS = {
   seo_yearly: "price_1SrHtSEfti9t9nN9rXMfteyT",
 };
 
+// Plans that get a free trial (only Starter)
+const TRIAL_PLANS = ["starter_monthly", "starter_yearly"];
+const TRIAL_DAYS = 3;
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -64,6 +68,36 @@ serve(async (req) => {
     let customerId: string;
     if (customers.data.length > 0) {
       customerId = customers.data[0].id;
+      
+      // Check if customer already had a trial
+      const subscriptions = await stripe.subscriptions.list({
+        customer: customerId,
+        status: "all",
+        limit: 100,
+      });
+      
+      const hadTrial = subscriptions.data.some((sub: Stripe.Subscription) => sub.trial_end !== null);
+      
+      // If customer already had a trial, don't offer another one
+      if (hadTrial && TRIAL_PLANS.includes(priceKey)) {
+        // Create checkout without trial
+        const session = await stripe.checkout.sessions.create({
+          customer: customerId,
+          line_items: [{ price: priceId, quantity: 1 }],
+          mode: "subscription",
+          success_url: successUrl || `${req.headers.get("origin")}/dashboard?success=true`,
+          cancel_url: cancelUrl || `${req.headers.get("origin")}/dashboard?canceled=true`,
+          metadata: {
+            supabase_user_id: user.id,
+            price_key: priceKey,
+          },
+        });
+
+        return new Response(JSON.stringify({ url: session.url }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 200,
+        });
+      }
     } else {
       const customer = await stripe.customers.create({
         email: user.email,
@@ -74,15 +108,13 @@ serve(async (req) => {
       customerId = customer.id;
     }
 
+    // Determine if this plan gets a free trial
+    const hasTrial = TRIAL_PLANS.includes(priceKey);
+
     // Create checkout session
-    const session = await stripe.checkout.sessions.create({
+    const sessionParams: Stripe.Checkout.SessionCreateParams = {
       customer: customerId,
-      line_items: [
-        {
-          price: priceId,
-          quantity: 1,
-        },
-      ],
+      line_items: [{ price: priceId, quantity: 1 }],
       mode: "subscription",
       success_url: successUrl || `${req.headers.get("origin")}/dashboard?success=true`,
       cancel_url: cancelUrl || `${req.headers.get("origin")}/dashboard?canceled=true`,
@@ -90,7 +122,19 @@ serve(async (req) => {
         supabase_user_id: user.id,
         price_key: priceKey,
       },
-    });
+    };
+
+    // Add trial period for Starter plan only
+    if (hasTrial) {
+      sessionParams.subscription_data = {
+        trial_period_days: TRIAL_DAYS,
+        metadata: {
+          supabase_user_id: user.id,
+        },
+      };
+    }
+
+    const session = await stripe.checkout.sessions.create(sessionParams);
 
     return new Response(JSON.stringify({ url: session.url }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
