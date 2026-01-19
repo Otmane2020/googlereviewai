@@ -37,7 +37,7 @@ const navItems = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { label: "Avis", href: "/reviews", icon: Star },
   { label: "Établissements", href: "/businesses", icon: Building2 },
-  { label: "SEO Auto", href: "/seo-auto-post", icon: FileText },
+  { label: "SEO Auto", href: "/seo-autopost", icon: FileText },
   { label: "AEO Rank", href: "/aeo-rank", icon: Search },
 ];
 
