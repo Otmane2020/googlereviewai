@@ -43,27 +43,6 @@ interface Profile {
   trial_end: string | null;
 }
 
-const plans = [
-  {
-    id: "starter",
-    name: "Starter",
-    price: "2,99€",
-    features: ["1 établissement", "10 crédits/mois", "Réponses IA"],
-  },
-  {
-    id: "pro",
-    name: "Pro",
-    price: "29,99€",
-    features: ["2 établissements", "100 crédits/mois", "IA premium"],
-    popular: true,
-  },
-  {
-    id: "business",
-    name: "Business",
-    price: "99€",
-    features: ["Illimité", "400 crédits/mois", "IA premium + SEO"],
-  },
-];
 
 const SettingsPage = () => {
   const { user, session, signOut } = useAuth();
@@ -356,50 +335,13 @@ const SettingsPage = () => {
             )}
           </div>
 
-          <div className="grid md:grid-cols-3 gap-4">
-            {plans.map((plan) => (
-              <div
-                key={plan.id}
-                className={`p-4 rounded-xl border transition-all ${
-                  profile?.plan_name?.toLowerCase() === plan.id
-                    ? "border-primary bg-primary/5"
-                    : "border-border hover:border-primary/50"
-                } ${plan.popular ? "ring-2 ring-primary" : ""}`}
-              >
-                {plan.popular && (
-                  <span className="text-xs font-medium text-primary mb-2 block">
-                    Plus populaire
-                  </span>
-                )}
-                <h3 className="font-semibold text-foreground">{plan.name}</h3>
-                <p className="text-2xl font-bold text-foreground mt-1">
-                  {plan.price}
-                  <span className="text-sm font-normal text-muted-foreground">/mois</span>
-                </p>
-                <ul className="mt-3 space-y-2">
-                  {plan.features.map((feature) => (
-                    <li key={feature} className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Check className="w-4 h-4 text-secondary" />
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-                <Button
-                  variant={profile?.plan_name?.toLowerCase() === plan.id ? "secondary" : "default"}
-                  className="w-full mt-4"
-                  disabled={profile?.plan_name?.toLowerCase() === plan.id}
-                  onClick={() => setShowUpgradeDialog(true)}
-                >
-                  {profile?.plan_name?.toLowerCase() === plan.id ? "Plan actuel" : (
-                    <>
-                      <Sparkles className="w-4 h-4 mr-1" />
-                      Upgrade
-                    </>
-                  )}
-                </Button>
-              </div>
-            ))}
-          </div>
+          <Button 
+            onClick={() => setShowUpgradeDialog(true)} 
+            className="w-full gap-2"
+          >
+            <Sparkles className="w-4 h-4" />
+            Voir tous les plans
+          </Button>
         </div>
 
         {/* Integrations section */}
