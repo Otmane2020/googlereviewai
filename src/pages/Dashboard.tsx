@@ -119,12 +119,30 @@ const Dashboard = () => {
     setLoading(false);
   }, [user]);
 
+  // Check if user has a plan
   useEffect(() => {
-    if (!user) {
-      navigate("/auth");
-      return;
-    }
-    fetchData();
+    const checkSubscription = async () => {
+      if (!user) {
+        navigate("/auth");
+        return;
+      }
+      
+      const { data: profileData } = await supabase
+        .from("profiles")
+        .select("plan_name, subscription_status")
+        .eq("id", user.id)
+        .maybeSingle();
+      
+      // Redirect to plan selection if no plan or free plan
+      if (!profileData?.plan_name || profileData.plan_name === "free") {
+        navigate("/select-plan");
+        return;
+      }
+      
+      fetchData();
+    };
+    
+    checkSubscription();
   }, [user, navigate, fetchData]);
 
   useEffect(() => {

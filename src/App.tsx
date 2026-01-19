@@ -13,6 +13,7 @@ import { OnboardingScreen } from "@/components/OnboardingScreen";
 import { usePWA } from "@/hooks/usePWA";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
+import SelectPlan from "./pages/SelectPlan";
 import Dashboard from "./pages/Dashboard";
 import Reviews from "./pages/Reviews";
 import AISettings from "./pages/AISettings";
@@ -64,6 +65,7 @@ const AppContent = () => {
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/select-plan" element={<SelectPlan />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/reviews" element={<Reviews />} />

@@ -140,9 +140,9 @@ const Auth = () => {
         } else {
           toast({
             title: "Compte créé !",
-            description: "Bienvenue sur Starlinko !",
+            description: "Choisissez votre plan pour continuer.",
           });
-          navigate("/dashboard");
+          navigate("/select-plan");
         }
       } else {
         const validation = signInSchema.safeParse({ email, password });
