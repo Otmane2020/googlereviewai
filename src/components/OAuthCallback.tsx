@@ -1,30 +1,82 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "@/hooks/use-toast";
 
 export const OAuthCallback = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user } = useAuth();
   const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
     const hash = window.location.hash;
     const pathname = window.location.pathname;
+    const searchParams = new URLSearchParams(window.location.search);
     
-    // Only process if we have actual OAuth tokens in the hash
-    // Must contain access_token with a value, not just empty hash or fragment
+    // Check for custom OAuth code (from our own Google OAuth flow)
+    const oauthCode = searchParams.get('code');
+    const oauthState = searchParams.get('state'); // Contains user_id
+    
+    // Handle custom OAuth callback
+    if (oauthCode && !isProcessing) {
+      setIsProcessing(true);
+      
+      // Get user_id from state or session storage
+      const userId = oauthState || sessionStorage.getItem("google_oauth_user_id");
+      
+      if (userId) {
+        // Exchange code for tokens via edge function
+        supabase.functions.invoke("google-oauth-callback", {
+          body: { 
+            code: oauthCode,
+            user_id: userId 
+          }
+        }).then(({ data, error }) => {
+          // Clear URL params
+          window.history.replaceState(null, '', pathname);
+          sessionStorage.removeItem("google_oauth_user_id");
+          
+          if (error || !data?.success) {
+            console.error("OAuth callback error:", error || data?.error);
+            toast({
+              title: "Erreur de connexion",
+              description: data?.error || "Échec de la connexion Google Business.",
+              variant: "destructive",
+            });
+          } else {
+            toast({
+              title: "Connexion réussie",
+              description: "Votre compte Google Business est connecté pour la synchronisation automatique.",
+            });
+          }
+          
+          setIsProcessing(false);
+          navigate("/dashboard", { replace: true });
+        }).catch((err) => {
+          console.error("OAuth callback exception:", err);
+          setIsProcessing(false);
+          window.history.replaceState(null, '', pathname);
+          navigate("/dashboard", { replace: true });
+        });
+        
+        return;
+      }
+    }
+    
+    // Handle Lovable/Supabase OAuth tokens (existing flow)
     const hashParams = new URLSearchParams(hash.substring(1));
     const accessToken = hashParams.get('access_token');
     const tokenType = hashParams.get('type');
     
-    // Skip if this is a password recovery token - let ResetPassword handle it
+    // Skip if this is a password recovery token
     if (tokenType === 'recovery') {
       return;
     }
     
-    // If we're on reset-password page, don't redirect to dashboard
+    // If we're on reset-password page, don't redirect
     if (pathname === '/reset-password') {
-      // Just clean the URL, don't redirect
       if (accessToken) {
         window.history.replaceState(null, '', pathname);
       }
@@ -34,13 +86,10 @@ export const OAuthCallback = ({ children }: { children: React.ReactNode }) => {
     if (accessToken && !isProcessing) {
       setIsProcessing(true);
       
-      // Let Supabase process the tokens
       supabase.auth.getSession().then(({ data: { session } }) => {
-        // Clear the hash from URL
         window.history.replaceState(null, '', window.location.pathname);
         
         if (session) {
-          // Redirect to dashboard after successful OAuth
           navigate("/dashboard", { replace: true });
         }
         setIsProcessing(false);
@@ -48,14 +97,14 @@ export const OAuthCallback = ({ children }: { children: React.ReactNode }) => {
         setIsProcessing(false);
       });
     }
-  }, [location, navigate, isProcessing]);
+  }, [location, navigate, isProcessing, user]);
 
   if (isProcessing) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Connexion en cours...</p>
+          <p className="text-muted-foreground">Connexion Google en cours...</p>
         </div>
       </div>
     );
