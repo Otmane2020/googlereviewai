@@ -5,6 +5,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { OAuthCallback } from "@/components/OAuthCallback";
+import { InstallPrompt } from "@/components/InstallPrompt";
+import { NotificationPrompt } from "@/components/NotificationPrompt";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
@@ -46,6 +48,9 @@ const App = () => (
               <Route path="/aeo-rank" element={<AEORank />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
+            {/* Global prompts */}
+            <InstallPrompt />
+            <NotificationPrompt />
           </OAuthCallback>
         </BrowserRouter>
       </TooltipProvider>
