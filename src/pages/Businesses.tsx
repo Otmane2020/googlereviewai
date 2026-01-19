@@ -344,20 +344,16 @@ const BusinessesPage = () => {
 
                   {/* Stats */}
                   <div className="flex items-center gap-2 mb-3">
-                    <span className="font-medium text-sm text-foreground">{business.rating?.toFixed(1) || "–"}</span>
-                    <div className="flex items-center gap-0.5">
-                      {[1, 2, 3, 4, 5].map((star) => (
+                    <span className="font-semibold text-foreground">{business.rating?.toFixed(1) || "–"}</span>
+                    <div className="flex">
+                      {[...Array(5)].map((_, i) => (
                         <Star 
-                          key={star} 
-                          className={`w-3 h-3 ${
-                            star <= Math.round(business.rating || 0) 
-                              ? "text-[#FBBC04] fill-[#FBBC04]" 
-                              : "text-[#DADCE0] fill-[#DADCE0]"
-                          }`} 
+                          key={i} 
+                          className={`w-4 h-4 ${i < Math.round(business.rating || 0) ? "text-accent fill-accent" : "text-muted-foreground/30"}`} 
                         />
                       ))}
                     </div>
-                    <span className="text-sm text-muted-foreground">({reviewCount})</span>
+                    <span className="text-sm text-muted-foreground">({reviewCount} avis)</span>
                   </div>
 
                   <div className="space-y-2 text-sm">
