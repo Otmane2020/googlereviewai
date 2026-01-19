@@ -15,9 +15,9 @@ serve(async (req) => {
     const { reviewId, userId } = await req.json();
     console.log("Generating AI response for review:", reviewId, "user:", userId);
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
+    const OPENROUTER_API_KEY = Deno.env.get("OPENROUTER_API_KEY");
+    if (!OPENROUTER_API_KEY) {
+      throw new Error("OPENROUTER_API_KEY is not configured");
     }
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
@@ -106,16 +106,18 @@ ${customTemplate ? `Additional instructions: ${customTemplate}` : ""}
 ${includeSignature && signature ? `End with this signature: ${signature}` : ""}
 Do not include any greeting like "Cher client" - start directly with the response.`;
 
-    console.log("Calling Lovable AI gateway...");
+    console.log("Calling OpenRouter API...");
     
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        Authorization: `Bearer ${OPENROUTER_API_KEY}`,
         "Content-Type": "application/json",
+        "HTTP-Referer": "https://starlinko.lovable.app",
+        "X-Title": "Starlinko",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: "google/gemini-2.5-flash-preview",
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: `Generate a response for this ${review.rating}-star review from ${review.author}: "${review.comment || "No comment provided"}"` },

@@ -75,7 +75,7 @@ async function generateAIResponse(
   review: any,
   aiSettings: any,
   businessName: string,
-  LOVABLE_API_KEY: string
+  OPENROUTER_API_KEY: string
 ): Promise<string | null> {
   const tone = aiSettings?.tone || "friendly";
   const responseLength = aiSettings?.response_length || "M";
@@ -109,14 +109,16 @@ ${customTemplate ? `Additional instructions: ${customTemplate}` : ""}
 ${includeSignature && signature ? `End with this signature: ${signature}` : ""}
 Do not include any greeting like "Cher client" - start directly with the response.`;
 
-  const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+  const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${LOVABLE_API_KEY}`,
+      Authorization: `Bearer ${OPENROUTER_API_KEY}`,
       "Content-Type": "application/json",
+      "HTTP-Referer": "https://starlinko.lovable.app",
+      "X-Title": "Starlinko",
     },
     body: JSON.stringify({
-      model: "google/gemini-2.5-flash",
+      model: "google/gemini-2.5-flash-preview",
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: `Generate a response for this ${review.rating}-star review from ${review.author}: "${review.comment || "No comment provided"}"` },
@@ -177,7 +179,7 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const clientId = Deno.env.get("GOOGLE_OAUTH_CLIENT_ID");
     const clientSecret = Deno.env.get("GOOGLE_OAUTH_CLIENT_SECRET");
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    const OPENROUTER_API_KEY = Deno.env.get("OPENROUTER_API_KEY");
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
@@ -190,9 +192,9 @@ serve(async (req) => {
       );
     }
 
-    if (!LOVABLE_API_KEY) {
+    if (!OPENROUTER_API_KEY) {
       return new Response(
-        JSON.stringify({ success: false, message: "LOVABLE_API_KEY not configured" }),
+        JSON.stringify({ success: false, message: "OPENROUTER_API_KEY not configured" }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -268,7 +270,7 @@ serve(async (req) => {
             review,
             userSettings,
             businessName,
-            LOVABLE_API_KEY
+            OPENROUTER_API_KEY
           );
 
           if (!aiResponse) continue;
