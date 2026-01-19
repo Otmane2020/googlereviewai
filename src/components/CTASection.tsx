@@ -6,50 +6,54 @@ export const CTASection = () => {
   const navigate = useNavigate();
   
   return (
-    <section className="py-24 gradient-hero relative overflow-hidden">
+    <section className="py-16 sm:py-20 md:py-24 gradient-hero relative overflow-hidden">
       {/* Background decoration */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-20 -right-20 w-60 h-60 bg-card/5 rounded-full blur-3xl" />
-        <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-card/5 rounded-full blur-3xl" />
+        <div className="absolute -top-10 -right-10 sm:-top-20 sm:-right-20 w-40 sm:w-60 h-40 sm:h-60 bg-card/5 rounded-full blur-3xl" />
+        <div className="absolute -bottom-10 -left-10 sm:-bottom-20 sm:-left-20 w-52 sm:w-80 h-52 sm:h-80 bg-card/5 rounded-full blur-3xl" />
       </div>
 
-      <div className="relative container mx-auto px-4 text-center">
-        <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-card mb-6">
-          Prêt à automatiser vos réponses aux avis ?
+      <div className="relative container mx-auto px-5 sm:px-6 text-center">
+        <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-card mb-4 sm:mb-6 px-2">
+          Prêt à automatiser vos réponses ?
         </h2>
-        <p className="text-lg text-card/80 max-w-2xl mx-auto mb-8">
-          Rejoignez des centaines d'entreprises qui utilisent Starlinko pour gérer leurs avis Google 
-          avec notre IA et accès API vérifié.
+        <p className="text-sm sm:text-base md:text-lg text-card/80 max-w-2xl mx-auto mb-6 sm:mb-8 px-4">
+          Rejoignez des centaines d'entreprises qui utilisent Starlinko pour gérer leurs avis Google.
         </p>
         
-        {/* Benefits */}
-        <div className="flex flex-wrap items-center justify-center gap-6 mb-10 text-card/90">
+        {/* Benefits - Mobile optimized */}
+        <div className="flex flex-col sm:flex-row flex-wrap items-center justify-center gap-3 sm:gap-6 mb-8 sm:mb-10 text-card/90 text-sm">
           <div className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-accent-gold" />
+            <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-accent-gold" />
             <span>Réponses IA personnalisées</span>
           </div>
           <div className="flex items-center gap-2">
-            <Clock className="w-5 h-5 text-secondary" />
+            <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-secondary" />
             <span>Gain de temps x10</span>
           </div>
           <div className="flex items-center gap-2">
-            <Shield className="w-5 h-5 text-accent" />
+            <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-accent" />
             <span>API Google vérifiée</span>
           </div>
         </div>
         
-        <Button variant="hero" size="xl" className="gap-3" onClick={() => navigate("/auth")}>
+        <Button 
+          variant="hero" 
+          size="xl" 
+          className="gap-2 sm:gap-3 w-full sm:w-auto max-w-xs sm:max-w-none mx-auto text-sm sm:text-base" 
+          onClick={() => navigate("/auth")}
+        >
           <GoogleIcon />
           Démarrer mon essai gratuit
         </Button>
-        <p className="text-card/60 text-sm mt-4">14 jours gratuits • Sans carte bancaire</p>
+        <p className="text-card/60 text-xs sm:text-sm mt-3 sm:mt-4">14 jours gratuits • Sans carte bancaire</p>
       </div>
     </section>
   );
 };
 
 const GoogleIcon = () => (
-  <svg className="w-5 h-5" viewBox="0 0 24 24">
+  <svg className="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24">
     <path
       fill="#4285F4"
       d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
