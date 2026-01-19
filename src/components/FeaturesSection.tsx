@@ -104,7 +104,7 @@ const steps = [
     num: "2",
     title: "L'IA travaille",
     description: "Starlinko génère automatiquement des réponses personnalisées.",
-    icon: "🤖",
+    icon: "✨",
   },
   {
     num: "3",
