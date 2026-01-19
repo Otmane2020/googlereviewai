@@ -14,7 +14,7 @@ export const MobileStickyButton = () => {
         onClick={() => navigate("/auth")}
       >
         <Zap className="w-5 h-5" />
-        Essai gratuit 14 jours
+        Essai gratuit 3 jours
       </Button>
     </div>
   );

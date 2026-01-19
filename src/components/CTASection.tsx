@@ -87,7 +87,7 @@ export const CTASection = () => {
             <div className="flex flex-wrap items-center justify-center gap-4 mt-5 text-muted-foreground text-xs">
               <span className="flex items-center gap-1.5">
                 <Check className="w-3.5 h-3.5 text-secondary" />
-                14 jours gratuits
+                3 jours gratuits
               </span>
               <span className="flex items-center gap-1.5">
                 <Check className="w-3.5 h-3.5 text-secondary" />

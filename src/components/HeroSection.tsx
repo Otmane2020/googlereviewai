@@ -45,7 +45,7 @@ export const HeroSection = () => {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-10 animate-fade-in" style={{ animationDelay: "0.3s" }}>
             <Button variant="hero" size="xl" className="gap-2 w-full sm:w-auto" onClick={() => navigate("/auth")}>
               <Zap className="w-5 h-5" />
-              Essai gratuit 14 jours
+              Essai gratuit 3 jours
             </Button>
             <Button 
               variant="outline" 
