@@ -19,7 +19,8 @@ import {
   Loader2,
   RefreshCw,
   Send,
-  Bell
+  Bell,
+  ChevronRight
 } from "lucide-react";
 
 interface AISettings {
@@ -38,16 +39,16 @@ interface AISettings {
 }
 
 const toneOptions = [
-  { value: "professional", label: "Professionnel", description: "Ton formel et courtois" },
-  { value: "friendly", label: "Amical", description: "Ton chaleureux et accessible" },
-  { value: "humorous", label: "Humoristique", description: "Ton léger et amusant" },
-  { value: "warm", label: "Chaleureux", description: "Ton empathique et bienveillant" },
+  { value: "professional", label: "Professionnel", icon: "💼" },
+  { value: "friendly", label: "Amical", icon: "😊" },
+  { value: "humorous", label: "Humoristique", icon: "😄" },
+  { value: "warm", label: "Chaleureux", icon: "💛" },
 ];
 
 const lengthOptions = [
-  { value: "S", label: "Court", description: "2-3 phrases" },
-  { value: "M", label: "Moyen", description: "4-5 phrases" },
-  { value: "L", label: "Long", description: "6+ phrases" },
+  { value: "S", label: "Court", desc: "2-3" },
+  { value: "M", label: "Moyen", desc: "4-5" },
+  { value: "L", label: "Long", desc: "6+" },
 ];
 
 const AISettingsPage = () => {
@@ -145,176 +146,202 @@ const AISettingsPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-muted/30">
+    <div className="min-h-screen bg-gradient-to-b from-background to-muted/20 pb-24">
       <DashboardHeader />
 
-      {/* Page Header */}
-      <div className="bg-card border-b border-border">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6">
+      {/* Compact Mobile Header */}
+      <div className="sticky top-14 z-40 bg-background/80 backdrop-blur-xl border-b border-border/50">
+        <div className="px-4 py-4">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-              <Sparkles className="w-6 h-6 text-primary" />
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-lg shadow-primary/20">
+              <Sparkles className="w-5 h-5 text-primary-foreground" />
             </div>
-            <div>
-              <h1 className="text-2xl font-bold text-foreground">Paramètres IA</h1>
-              <p className="text-sm text-muted-foreground">
-                Configurez le comportement de l'IA pour vos réponses
-              </p>
+            <div className="flex-1">
+              <h1 className="text-lg font-bold text-foreground">Paramètres IA</h1>
+              <p className="text-xs text-muted-foreground">Personnalisez vos réponses</p>
             </div>
+            <Button 
+              onClick={handleSave} 
+              disabled={saving} 
+              size="sm"
+              className="rounded-xl shadow-lg shadow-primary/20"
+            >
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+            </Button>
           </div>
         </div>
       </div>
 
-      <main className="max-w-4xl mx-auto p-6 space-y-8">
-        {/* Enable/Disable */}
-        <div className="bg-card rounded-2xl border border-border p-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                <Sparkles className="w-6 h-6 text-primary" />
+      <main className="px-4 py-5 space-y-4 max-w-lg mx-auto">
+        {/* Master Toggle - Hero Card */}
+        <div className={`relative overflow-hidden rounded-3xl p-5 transition-all duration-300 ${
+          settings.enabled 
+            ? "bg-gradient-to-br from-primary via-primary to-primary/80 shadow-xl shadow-primary/30" 
+            : "bg-card border border-border"
+        }`}>
+          <div className="flex items-center justify-between relative z-10">
+            <div className="flex items-center gap-3">
+              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${
+                settings.enabled ? "bg-white/20" : "bg-muted"
+              }`}>
+                <Sparkles className={`w-6 h-6 ${settings.enabled ? "text-white" : "text-muted-foreground"}`} />
               </div>
               <div>
-                <h3 className="font-semibold text-foreground">Réponses automatiques IA</h3>
-                <p className="text-sm text-muted-foreground">
-                  Activez la génération automatique de réponses aux avis
+                <h3 className={`font-semibold ${settings.enabled ? "text-white" : "text-foreground"}`}>
+                  Réponses IA
+                </h3>
+                <p className={`text-sm ${settings.enabled ? "text-white/70" : "text-muted-foreground"}`}>
+                  {settings.enabled ? "Activé" : "Désactivé"}
                 </p>
               </div>
             </div>
             <Switch
               checked={settings.enabled}
               onCheckedChange={(enabled) => setSettings({ ...settings, enabled })}
+              className="data-[state=checked]:bg-white/30"
             />
           </div>
+          {settings.enabled && (
+            <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-white/10 rounded-full blur-xl" />
+          )}
         </div>
 
-        {/* Tone selection */}
-        <div className="bg-card rounded-2xl border border-border p-6">
-          <div className="flex items-center gap-3 mb-6">
-            <MessageSquare className="w-5 h-5 text-primary" />
-            <h3 className="font-semibold text-foreground">Ton des réponses</h3>
+        {/* Tone Selection - Pill Style */}
+        <div className="bg-card rounded-2xl border border-border/50 p-4 shadow-sm">
+          <div className="flex items-center gap-2 mb-4">
+            <MessageSquare className="w-4 h-4 text-primary" />
+            <h3 className="font-medium text-sm text-foreground">Ton</h3>
           </div>
-          <div className="grid sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-2">
             {toneOptions.map((option) => (
               <button
                 key={option.value}
                 onClick={() => setSettings({ ...settings, tone: option.value })}
-                className={`p-4 rounded-xl border text-left transition-all ${
+                className={`flex items-center gap-2 px-4 py-3 rounded-xl text-left transition-all ${
                   settings.tone === option.value
-                    ? "border-primary bg-primary/5"
-                    : "border-border hover:border-primary/50"
+                    ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
+                    : "bg-muted/50 text-foreground hover:bg-muted"
                 }`}
               >
-                <h4 className="font-medium text-foreground">{option.label}</h4>
-                <p className="text-sm text-muted-foreground mt-1">{option.description}</p>
+                <span className="text-lg">{option.icon}</span>
+                <span className="font-medium text-sm">{option.label}</span>
               </button>
             ))}
           </div>
         </div>
 
-        {/* Response length */}
-        <div className="bg-card rounded-2xl border border-border p-6">
-          <div className="flex items-center gap-3 mb-6">
-            <MessageSquare className="w-5 h-5 text-primary" />
-            <h3 className="font-semibold text-foreground">Longueur des réponses</h3>
+        {/* Response Length - Segmented Control */}
+        <div className="bg-card rounded-2xl border border-border/50 p-4 shadow-sm">
+          <div className="flex items-center gap-2 mb-4">
+            <MessageSquare className="w-4 h-4 text-primary" />
+            <h3 className="font-medium text-sm text-foreground">Longueur</h3>
           </div>
-          <div className="grid grid-cols-3 gap-4">
+          <div className="flex gap-2 p-1 bg-muted/50 rounded-xl">
             {lengthOptions.map((option) => (
               <button
                 key={option.value}
                 onClick={() => setSettings({ ...settings, response_length: option.value })}
-                className={`p-4 rounded-xl border text-center transition-all ${
+                className={`flex-1 py-3 rounded-lg text-center transition-all ${
                   settings.response_length === option.value
-                    ? "border-primary bg-primary/5"
-                    : "border-border hover:border-primary/50"
+                    ? "bg-background shadow-sm text-foreground font-medium"
+                    : "text-muted-foreground hover:text-foreground"
                 }`}
               >
-                <h4 className="font-medium text-foreground">{option.label}</h4>
-                <p className="text-sm text-muted-foreground mt-1">{option.description}</p>
+                <div className="text-sm font-medium">{option.label}</div>
+                <div className="text-[10px] opacity-70">{option.desc} phrases</div>
               </button>
             ))}
           </div>
         </div>
 
-        {/* Signature */}
-        <div className="bg-card rounded-2xl border border-border p-6">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <MessageSquare className="w-5 h-5 text-primary" />
-              <h3 className="font-semibold text-foreground">Signature</h3>
+        {/* Settings List - iOS Style */}
+        <div className="bg-card rounded-2xl border border-border/50 overflow-hidden shadow-sm">
+          {/* Signature */}
+          <div className="p-4 border-b border-border/30">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                  <span className="text-sm">✍️</span>
+                </div>
+                <span className="font-medium text-sm text-foreground">Signature</span>
+              </div>
+              <Switch
+                checked={settings.include_signature}
+                onCheckedChange={(include_signature) =>
+                  setSettings({ ...settings, include_signature })
+                }
+              />
             </div>
-            <Switch
-              checked={settings.include_signature}
-              onCheckedChange={(include_signature) =>
-                setSettings({ ...settings, include_signature })
-              }
-            />
-          </div>
-          {settings.include_signature && (
-            <div className="space-y-2">
-              <Label htmlFor="signature">Texte de signature</Label>
+            {settings.include_signature && (
               <Input
-                id="signature"
                 value={settings.signature}
                 onChange={(e) => setSettings({ ...settings, signature: e.target.value })}
                 placeholder="L'équipe {business_name}"
+                className="mt-3 rounded-xl bg-muted/50 border-0"
               />
-              <p className="text-xs text-muted-foreground">
-                Utilisez {"{business_name}"} pour insérer le nom de votre établissement
-              </p>
-            </div>
-          )}
-        </div>
-
-        {/* Auto-reply settings */}
-        <div className="bg-card rounded-2xl border border-border p-6 space-y-6">
-          <div className="flex items-center gap-3">
-            <Clock className="w-5 h-5 text-primary" />
-            <h3 className="font-semibold text-foreground">Paramètres de réponse automatique</h3>
+            )}
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="delay">Délai avant réponse (minutes)</Label>
-            <Input
-              id="delay"
-              type="number"
-              min={0}
-              max={60}
-              value={settings.auto_reply_delay}
-              onChange={(e) =>
-                setSettings({ ...settings, auto_reply_delay: parseInt(e.target.value) || 0 })
-              }
-            />
+          {/* Delay */}
+          <div className="p-4 border-b border-border/30">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-orange-500/10 flex items-center justify-center">
+                  <Clock className="w-4 h-4 text-orange-500" />
+                </div>
+                <span className="font-medium text-sm text-foreground">Délai réponse</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Input
+                  type="number"
+                  min={0}
+                  max={60}
+                  value={settings.auto_reply_delay}
+                  onChange={(e) =>
+                    setSettings({ ...settings, auto_reply_delay: parseInt(e.target.value) || 0 })
+                  }
+                  className="w-16 text-center rounded-xl bg-muted/50 border-0 h-9"
+                />
+                <span className="text-xs text-muted-foreground">min</span>
+              </div>
+            </div>
           </div>
 
-          <div className="flex items-center justify-between">
-            <div>
-              <h4 className="font-medium text-foreground">Répondre uniquement aux avis positifs</h4>
-              <p className="text-sm text-muted-foreground">
-                Ne pas répondre automatiquement aux avis négatifs
-              </p>
+          {/* Positive only */}
+          <div className="p-4 border-b border-border/30">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center">
+                  <span className="text-sm">👍</span>
+                </div>
+                <span className="font-medium text-sm text-foreground">Avis positifs seulement</span>
+              </div>
+              <Switch
+                checked={settings.only_positive_reviews}
+                onCheckedChange={(only_positive_reviews) =>
+                  setSettings({ ...settings, only_positive_reviews })
+                }
+              />
             </div>
-            <Switch
-              checked={settings.only_positive_reviews}
-              onCheckedChange={(only_positive_reviews) =>
-                setSettings({ ...settings, only_positive_reviews })
-              }
-            />
           </div>
 
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <Star className="w-4 h-4 text-accent" />
-              <Label>Note minimum pour réponse automatique</Label>
+          {/* Minimum rating */}
+          <div className="p-4">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-8 h-8 rounded-lg bg-yellow-500/10 flex items-center justify-center">
+                <Star className="w-4 h-4 text-yellow-500" />
+              </div>
+              <span className="font-medium text-sm text-foreground">Note minimum</span>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 pl-11">
               {[1, 2, 3, 4, 5].map((rating) => (
                 <button
                   key={rating}
                   onClick={() => setSettings({ ...settings, minimum_rating: rating })}
-                  className={`w-10 h-10 rounded-lg border flex items-center justify-center transition-all ${
+                  className={`w-10 h-10 rounded-xl flex items-center justify-center font-medium transition-all ${
                     settings.minimum_rating === rating
-                      ? "border-primary bg-primary text-primary-foreground"
-                      : "border-border hover:border-primary/50"
+                      ? "bg-yellow-500 text-white shadow-md shadow-yellow-500/30"
+                      : "bg-muted/50 text-muted-foreground hover:bg-muted"
                   }`}
                 >
                   {rating}
@@ -324,114 +351,104 @@ const AISettingsPage = () => {
           </div>
         </div>
 
-        {/* Auto Sync Settings */}
-        <div className="bg-card rounded-2xl border border-border p-6 space-y-6">
-          <div className="flex items-center gap-3">
-            <RefreshCw className="w-5 h-5 text-primary" />
-            <h3 className="font-semibold text-foreground">Synchronisation automatique</h3>
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div>
-              <h4 className="font-medium text-foreground">Synchroniser les avis automatiquement</h4>
-              <p className="text-sm text-muted-foreground">
-                Les nouveaux avis seront importés périodiquement depuis Google
-              </p>
+        {/* Sync Settings */}
+        <div className="bg-card rounded-2xl border border-border/50 overflow-hidden shadow-sm">
+          <div className="p-4 border-b border-border/30">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center">
+                  <RefreshCw className="w-4 h-4 text-purple-500" />
+                </div>
+                <div>
+                  <span className="font-medium text-sm text-foreground block">Auto-sync</span>
+                  <span className="text-xs text-muted-foreground">Importer les avis</span>
+                </div>
+              </div>
+              <Switch
+                checked={settings.auto_sync_reviews}
+                onCheckedChange={(auto_sync_reviews) =>
+                  setSettings({ ...settings, auto_sync_reviews })
+                }
+              />
             </div>
-            <Switch
-              checked={settings.auto_sync_reviews}
-              onCheckedChange={(auto_sync_reviews) =>
-                setSettings({ ...settings, auto_sync_reviews })
-              }
-            />
-          </div>
-
-          {settings.auto_sync_reviews && (
-            <div className="space-y-2">
-              <Label htmlFor="sync_interval">Intervalle de synchronisation (minutes)</Label>
-              <div className="flex gap-2">
+            {settings.auto_sync_reviews && (
+              <div className="flex gap-2 mt-3 pl-11 overflow-x-auto pb-1">
                 {[15, 30, 60, 120].map((interval) => (
                   <button
                     key={interval}
                     onClick={() => setSettings({ ...settings, sync_interval_minutes: interval })}
-                    className={`px-4 py-2 rounded-lg border transition-all ${
+                    className={`shrink-0 px-4 py-2 rounded-xl text-xs font-medium transition-all ${
                       settings.sync_interval_minutes === interval
-                        ? "border-primary bg-primary text-primary-foreground"
-                        : "border-border hover:border-primary/50"
+                        ? "bg-purple-500 text-white shadow-md shadow-purple-500/30"
+                        : "bg-muted/50 text-muted-foreground hover:bg-muted"
                     }`}
                   >
                     {interval < 60 ? `${interval}min` : `${interval / 60}h`}
                   </button>
                 ))}
               </div>
-            </div>
-          )}
-        </div>
-
-        {/* Auto Publish to Google */}
-        <div className="bg-card rounded-2xl border border-border p-6 space-y-6">
-          <div className="flex items-center gap-3">
-            <Send className="w-5 h-5 text-primary" />
-            <h3 className="font-semibold text-foreground">Publication automatique sur Google</h3>
+            )}
           </div>
 
-          <div className="flex items-center justify-between">
-            <div>
-              <h4 className="font-medium text-foreground">Publier automatiquement les réponses IA</h4>
-              <p className="text-sm text-muted-foreground">
-                Les réponses générées par l'IA seront publiées directement sur Google Business Profile
-              </p>
-            </div>
-            <Switch
-              checked={settings.auto_publish_to_google}
-              onCheckedChange={(auto_publish_to_google) =>
-                setSettings({ ...settings, auto_publish_to_google })
-              }
-            />
-          </div>
-
-          {settings.auto_publish_to_google && (
-            <div className="bg-accent/10 rounded-xl p-4 border border-accent/20">
-              <div className="flex items-start gap-3">
-                <Bell className="w-5 h-5 text-accent mt-0.5" />
+          <div className="p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center">
+                  <Send className="w-4 h-4 text-red-500" />
+                </div>
                 <div>
-                  <h4 className="font-medium text-foreground text-sm">Attention</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Les réponses seront publiées automatiquement après le délai configuré ({settings.auto_reply_delay} min). 
-                    Assurez-vous que vos paramètres de ton et de contenu sont correctement configurés.
-                  </p>
+                  <span className="font-medium text-sm text-foreground block">Auto-publish</span>
+                  <span className="text-xs text-muted-foreground">Vers Google</span>
                 </div>
               </div>
+              <Switch
+                checked={settings.auto_publish_to_google}
+                onCheckedChange={(auto_publish_to_google) =>
+                  setSettings({ ...settings, auto_publish_to_google })
+                }
+              />
             </div>
-          )}
+            {settings.auto_publish_to_google && (
+              <div className="mt-3 ml-11 bg-amber-500/10 rounded-xl p-3 flex items-start gap-2">
+                <Bell className="w-4 h-4 text-amber-600 mt-0.5 shrink-0" />
+                <p className="text-xs text-amber-700 dark:text-amber-400">
+                  Réponses publiées après {settings.auto_reply_delay} min
+                </p>
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* Custom template */}
-        <div className="bg-card rounded-2xl border border-border p-6">
-          <div className="flex items-center gap-3 mb-6">
-            <MessageSquare className="w-5 h-5 text-primary" />
-            <h3 className="font-semibold text-foreground">Template personnalisé (optionnel)</h3>
+        {/* Custom Template */}
+        <div className="bg-card rounded-2xl border border-border/50 p-4 shadow-sm">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center">
+              <MessageSquare className="w-4 h-4 text-indigo-500" />
+            </div>
+            <h3 className="font-medium text-sm text-foreground">Instructions personnalisées</h3>
           </div>
           <Textarea
             value={settings.custom_template}
             onChange={(e) => setSettings({ ...settings, custom_template: e.target.value })}
-            placeholder="Ajoutez des instructions personnalisées pour l'IA..."
-            rows={4}
+            placeholder="Ajoutez des instructions pour l'IA..."
+            rows={3}
+            className="rounded-xl bg-muted/50 border-0 resize-none text-sm"
           />
-          <p className="text-xs text-muted-foreground mt-2">
-            Ces instructions seront ajoutées au prompt de l'IA pour personnaliser les réponses
-          </p>
         </div>
 
-        {/* Save button */}
-        <div className="flex justify-end">
-          <Button onClick={handleSave} disabled={saving} size="lg" className="gap-2">
+        {/* Save Button - Mobile Fixed */}
+        <div className="pt-2">
+          <Button 
+            onClick={handleSave} 
+            disabled={saving} 
+            className="w-full h-12 rounded-2xl text-base font-semibold shadow-lg shadow-primary/25 gap-2"
+          >
             {saving ? (
               <Loader2 className="w-5 h-5 animate-spin" />
             ) : (
               <Save className="w-5 h-5" />
             )}
-            Sauvegarder les paramètres
+            Sauvegarder
           </Button>
         </div>
       </main>
