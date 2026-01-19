@@ -2,13 +2,14 @@ import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { useRequireSubscription } from "@/hooks/useRequireSubscription";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
 import { UpgradeDialog } from "@/components/UpgradeDialog";
-import { 
+import {
   Star, 
   Search, 
   Loader2,
@@ -143,14 +144,15 @@ const Reviews = () => {
     setLoading(false);
   }, [user]);
 
-  // Initial fetch
+  // Use subscription verification hook
+  const { loading: subscriptionLoading } = useRequireSubscription();
+
+  // Initial fetch - only after subscription verified
   useEffect(() => {
-    if (!user) {
-      navigate("/auth");
-      return;
+    if (!subscriptionLoading && user) {
+      fetchData(false);
     }
-    fetchData(false); // Only non-silent call - initial load
-  }, [user, navigate, fetchData]);
+  }, [subscriptionLoading, user, fetchData]);
 
   // 🔴 REALTIME: Supabase subscription for live updates
   // IMPORTANT: Only depends on user and fetchData - NO re-subscription during operations

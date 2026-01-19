@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { useRequireSubscription } from "@/hooks/useRequireSubscription";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { Button } from "@/components/ui/button";
@@ -61,13 +62,13 @@ const AEORank = () => {
   const [manualAnswer, setManualAnswer] = useState("");
   const [manualCategory, setManualCategory] = useState("");
 
+  // Use subscription verification hook
+  const { loading: subscriptionLoading } = useRequireSubscription();
+
   useEffect(() => {
-    if (!user) {
-      navigate("/auth");
-      return;
-    }
+    if (subscriptionLoading || !user) return;
     fetchData();
-  }, [user, navigate]);
+  }, [subscriptionLoading, user]);
 
   const fetchData = async () => {
     setLoading(true);
