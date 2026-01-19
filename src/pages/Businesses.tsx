@@ -343,17 +343,17 @@ const BusinessesPage = () => {
                   <h3 className="font-semibold text-foreground text-lg mb-2 line-clamp-2">{business.name}</h3>
 
                   {/* Stats */}
-                  <div className="flex items-center gap-2 mb-3">
-                    <span className="font-semibold text-foreground">{business.rating?.toFixed(1) || "–"}</span>
-                    <div className="flex">
+                  <div className="flex items-center gap-1 mb-3">
+                    <span className="text-sm font-medium text-[#202124] dark:text-foreground">{business.rating?.toFixed(1) || "–"}</span>
+                    <div className="flex items-center">
                       {[...Array(5)].map((_, i) => (
                         <Star 
                           key={i} 
-                          className={`w-4 h-4 ${i < Math.round(business.rating || 0) ? "text-accent fill-accent" : "text-muted-foreground/30"}`} 
+                          className={`w-3.5 h-3.5 ${i < Math.round(business.rating || 0) ? "text-[#FBBC04] fill-[#FBBC04]" : "text-[#E8EAED] fill-[#E8EAED] dark:text-[#5F6368] dark:fill-[#5F6368]"}`} 
                         />
                       ))}
                     </div>
-                    <span className="text-sm text-muted-foreground">({reviewCount} avis)</span>
+                    <span className="text-sm text-[#70757A] dark:text-muted-foreground">({reviewCount})</span>
                   </div>
 
                   <div className="space-y-2 text-sm">
