@@ -2,3 +2,9 @@ project_id = "hlruprayqfnatnldrski"
 
 [functions.generate-ai-response]
 verify_jwt = true
+
+[functions.publish-gmb-qa]
+verify_jwt = false
+
+[functions.cron-generate-daily-qa]
+verify_jwt = false

@@ -18,8 +18,8 @@ import {
   Clock,
   AlertCircle,
   RefreshCw,
-  Eye,
-  Building2
+  Building2,
+  Send
 } from "lucide-react";
 import { format, addDays, startOfToday, isSameDay } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -47,12 +47,13 @@ interface ScheduledContent {
 }
 
 const SEOAutoPost = () => {
-  const { user } = useAuth();
+  const { user, session } = useAuth();
   const navigate = useNavigate();
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [scheduledContent, setScheduledContent] = useState<ScheduledContent[]>([]);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
+  const [publishing, setPublishing] = useState<string | null>(null);
   const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null);
   const [activeTab, setActiveTab] = useState("planning");
 
@@ -221,6 +222,49 @@ const SEOAutoPost = () => {
     }
   };
 
+  const publishToGMB = async (item: ScheduledContent) => {
+    if (!item.question || !item.answer) {
+      toast({ title: "Erreur", description: "Le Q&A doit d'abord être généré", variant: "destructive" });
+      return;
+    }
+
+    const providerToken = session?.provider_token;
+    if (!providerToken) {
+      toast({ 
+        title: "Connexion requise", 
+        description: "Reconnectez-vous avec Google pour publier", 
+        variant: "destructive" 
+      });
+      return;
+    }
+
+    setPublishing(item.id);
+    try {
+      const { data, error } = await supabase.functions.invoke("publish-gmb-qa", {
+        body: {
+          content_id: item.id,
+          provider_token: providerToken,
+        },
+      });
+
+      if (error) throw error;
+
+      await fetchScheduledContent(selectedBusiness!.id);
+      toast({ 
+        title: "Publié sur Google !", 
+        description: "Le Q&A a été publié sur votre fiche Google My Business" 
+      });
+    } catch (error: any) {
+      console.error("Error publishing:", error);
+      toast({ 
+        title: "Erreur de publication", 
+        description: error.message || "Impossible de publier sur Google", 
+        variant: "destructive" 
+      });
+    }
+    setPublishing(null);
+  };
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "published":
@@ -230,6 +274,7 @@ const SEOAutoPost = () => {
       case "generating":
         return <Badge variant="outline"><Loader2 className="w-3 h-3 mr-1 animate-spin" />En cours</Badge>;
       case "failed":
+      case "error":
         return <Badge variant="destructive"><AlertCircle className="w-3 h-3 mr-1" />Échec</Badge>;
       default:
         return <Badge variant="secondary"><Clock className="w-3 h-3 mr-1" />Planifié</Badge>;
@@ -435,11 +480,30 @@ const SEOAutoPost = () => {
                                 {format(new Date(item.scheduled_date), "d MMM", { locale: fr })}
                               </span>
                             </div>
-                            {item.keyword_used && (
-                              <span className="text-xs bg-muted px-2 py-0.5 rounded-full">
-                                {item.keyword_used}
-                              </span>
-                            )}
+                            <div className="flex items-center gap-2">
+                              {item.keyword_used && (
+                                <span className="text-xs bg-muted px-2 py-0.5 rounded-full">
+                                  {item.keyword_used}
+                                </span>
+                              )}
+                              {item.status === "generated" && (
+                                <Button 
+                                  size="sm" 
+                                  variant="default"
+                                  onClick={() => publishToGMB(item)}
+                                  disabled={publishing === item.id}
+                                >
+                                  {publishing === item.id ? (
+                                    <Loader2 className="w-3 h-3 animate-spin" />
+                                  ) : (
+                                    <>
+                                      <Send className="w-3 h-3 mr-1" />
+                                      Publier
+                                    </>
+                                  )}
+                                </Button>
+                              )}
+                            </div>
                           </div>
                           {item.question && (
                             <p className="font-medium text-foreground text-sm mb-1">
