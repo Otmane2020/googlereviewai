@@ -645,12 +645,51 @@ const Reviews = () => {
 
                     {/* Google Reply (existing manual response) */}
                     {review.google_reply && !review.ai_response && (
-                      <div className="mt-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
-                        <div className="flex items-center gap-1.5 text-xs text-green-700 dark:text-green-400 font-medium mb-1">
-                          <CheckCircle className="w-3 h-3" /> Réponse :
-                        </div>
-                        <p className="text-sm text-muted-foreground line-clamp-2">{review.google_reply}</p>
-                      </div>
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <div className="mt-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800 cursor-pointer hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors">
+                            <div className="flex items-center gap-1.5 text-xs text-green-700 dark:text-green-400 font-medium mb-1">
+                              <CheckCircle className="w-3 h-3" /> Réponse
+                            </div>
+                            <p className="text-sm text-muted-foreground line-clamp-2">{review.google_reply}</p>
+                          </div>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
+                          <DialogHeader>
+                            <DialogTitle className="flex items-center gap-2">
+                              <MessageSquare className="w-5 h-5 text-green-600" />
+                              Avis de {review.author}
+                            </DialogTitle>
+                            <DialogDescription className="sr-only">
+                              Détails de l'avis et réponse existante.
+                            </DialogDescription>
+                          </DialogHeader>
+                          <div className="space-y-4 pt-2">
+                            {/* Rating section */}
+                            <div className="flex items-center gap-2">
+                              {[...Array(5)].map((_, i) => (
+                                <Star key={i} className={`w-5 h-5 ${i < review.rating ? "text-yellow-500 fill-yellow-500" : "text-muted-foreground/20"}`} />
+                              ))}
+                              <span className="text-sm font-medium">{review.rating}/5</span>
+                              <span className="text-sm text-muted-foreground">• {new Date(review.review_date).toLocaleDateString("fr-FR")}</span>
+                            </div>
+                            
+                            {/* Client comment */}
+                            <div className="p-3 bg-muted/50 rounded-lg">
+                              <p className="text-xs text-muted-foreground font-medium mb-1">Avis client :</p>
+                              <p className="text-sm text-foreground">{review.comment || "Aucun commentaire"}</p>
+                            </div>
+                            
+                            {/* Existing Google Response */}
+                            <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                              <div className="flex items-center gap-1.5 text-xs text-green-700 dark:text-green-400 font-medium mb-2">
+                                <CheckCircle className="w-3 h-3" /> Réponse existante
+                              </div>
+                              <p className="text-sm text-foreground whitespace-pre-wrap leading-relaxed">{review.google_reply}</p>
+                            </div>
+                          </div>
+                        </DialogContent>
+                      </Dialog>
                     )}
 
                     {/* AI Response */}
