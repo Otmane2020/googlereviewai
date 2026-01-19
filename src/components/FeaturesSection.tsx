@@ -1,4 +1,7 @@
-import { Sparkles, Clock, MessageSquare, Zap, FileText, Bot, TrendingUp, Search, ArrowRight } from "lucide-react";
+import { Sparkles, Clock, MessageSquare, Zap, FileText, TrendingUp, ArrowRight, MessageCircle, Eye, X, Pen, Target, Brain } from "lucide-react";
+import { useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "./ui/dialog";
+import { Button } from "./ui/button";
 
 const ChatGPTIcon = ({ className = "w-5 h-5" }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
@@ -8,25 +11,58 @@ const ChatGPTIcon = ({ className = "w-5 h-5" }: { className?: string }) => (
 
 const features = [
   {
-    icon: Bot,
-    title: "Réponses IA automatiques",
-    description: "L'IA génère des réponses personnalisées pour chaque avis en quelques secondes.",
+    icon: MessageCircle,
+    title: "Réponses aux avis par IA",
+    subtitle: "Répondez à 100 avis en 1 clic",
+    description: "L'IA génère des réponses personnalisées et professionnelles pour chaque avis client en quelques secondes.",
     badge: "Populaire",
     badgeColor: "bg-accent text-accent-foreground",
+    details: {
+      title: "Réponses aux avis par IA",
+      description: "Notre intelligence artificielle analyse le contenu et le sentiment de chaque avis pour générer des réponses personnalisées, professionnelles et authentiques.",
+      benefits: [
+        "Réponses contextuelles adaptées au contenu de l'avis",
+        "Ton personnalisable selon votre marque",
+        "Publication en 1 clic sur Google",
+        "Gain de temps : 100 avis traités en quelques minutes"
+      ]
+    }
   },
   {
-    icon: FileText,
+    icon: Pen,
     title: "SEO AutoPost",
-    description: "Articles optimisés générés automatiquement pour dominer les recherches locales.",
+    subtitle: "Articles optimisés générés",
+    description: "Articles SEO générés automatiquement pour dominer les recherches locales et attirer plus de clients.",
     badge: "Nouveau",
     badgeColor: "bg-secondary text-secondary-foreground",
+    details: {
+      title: "SEO AutoPost",
+      description: "Générez automatiquement des articles de blog optimisés pour le référencement local. Chaque article est conçu pour attirer du trafic qualifié.",
+      benefits: [
+        "Articles optimisés pour les mots-clés locaux",
+        "Contenu unique et pertinent pour votre secteur",
+        "Amélioration du positionnement Google",
+        "Publication automatique programmable"
+      ]
+    }
   },
   {
-    icon: Search,
-    title: "AEO ChatGPT Rank",
-    description: "Créez des Q&A pour apparaître dans les réponses de ChatGPT et Perplexity.",
+    icon: Eye,
+    title: "Visibilité ChatGPT",
+    subtitle: "Apparaissez dans les réponses IA",
+    description: "Créez des Q&A optimisés pour apparaître dans les réponses de ChatGPT, Perplexity et autres IA.",
     badge: "Exclusif",
     badgeColor: "bg-primary text-primary-foreground",
+    details: {
+      title: "Visibilité ChatGPT (AEO)",
+      description: "L'Answer Engine Optimization (AEO) vous permet d'être cité directement dans les réponses des IA comme ChatGPT, Perplexity ou Google AI.",
+      benefits: [
+        "Questions-réponses optimisées pour les IA",
+        "Positionnement sur les requêtes conversationnelles",
+        "Nouvelle source de trafic qualifié",
+        "Avantage concurrentiel durable"
+      ]
+    }
   },
 ];
 
@@ -79,6 +115,8 @@ const steps = [
 ];
 
 export const FeaturesSection = () => {
+  const [openDialog, setOpenDialog] = useState<number | null>(null);
+
   return (
     <section id="features" className="py-14 sm:py-20 md:py-24 bg-background">
       <div className="container mx-auto px-5 sm:px-6">
@@ -96,12 +134,13 @@ export const FeaturesSection = () => {
           </p>
         </div>
 
-        {/* Main features - Cards with badges */}
+        {/* Main features - Cards with light background */}
         <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 mb-12 sm:mb-16">
-          {features.map((feature) => (
+          {features.map((feature, index) => (
             <div
               key={feature.title}
-              className="group relative p-5 sm:p-6 bg-card rounded-2xl border border-border shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden"
+              className="group relative p-5 sm:p-6 bg-card rounded-2xl border border-border shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden cursor-pointer"
+              onClick={() => setOpenDialog(index)}
             >
               {/* Badge */}
               <span className={`absolute top-4 right-4 text-[10px] sm:text-xs font-semibold px-2.5 py-1 rounded-full ${feature.badgeColor}`}>
@@ -111,17 +150,58 @@ export const FeaturesSection = () => {
               <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/15 to-secondary/15 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                 <feature.icon className="w-6 h-6 text-primary" />
               </div>
-              <h3 className="text-lg font-bold text-foreground mb-2">{feature.title}</h3>
+              <h3 className="text-lg font-bold text-foreground mb-1">{feature.title}</h3>
+              <p className="text-xs text-primary font-medium mb-2">{feature.subtitle}</p>
               <p className="text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
               
-              {/* Hover arrow */}
-              <div className="mt-4 flex items-center gap-1 text-primary text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+              {/* Learn more button */}
+              <button className="mt-4 flex items-center gap-1 text-primary text-sm font-medium group-hover:underline transition-all">
                 <span>En savoir plus</span>
-                <ArrowRight className="w-4 h-4" />
-              </div>
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </button>
             </div>
           ))}
         </div>
+
+        {/* Feature Detail Dialogs */}
+        {features.map((feature, index) => (
+          <Dialog key={feature.title} open={openDialog === index} onOpenChange={(open) => !open && setOpenDialog(null)}>
+            <DialogContent className="sm:max-w-lg bg-card">
+              <DialogHeader>
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/15 to-secondary/15 flex items-center justify-center">
+                    <feature.icon className="w-6 h-6 text-primary" />
+                  </div>
+                  <DialogTitle className="text-xl font-bold text-foreground">{feature.details.title}</DialogTitle>
+                </div>
+                <DialogDescription className="text-muted-foreground text-sm leading-relaxed">
+                  {feature.details.description}
+                </DialogDescription>
+              </DialogHeader>
+              <div className="mt-4">
+                <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+                  <Target className="w-4 h-4 text-primary" />
+                  Avantages clés
+                </h4>
+                <ul className="space-y-2">
+                  {feature.details.benefits.map((benefit, i) => (
+                    <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
+                      <div className="w-5 h-5 rounded-full bg-secondary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <Sparkles className="w-3 h-3 text-secondary" />
+                      </div>
+                      {benefit}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className="mt-6 flex justify-end">
+                <Button onClick={() => setOpenDialog(null)}>
+                  Compris !
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        ))}
 
         {/* Capabilities with stats */}
         <div className="bg-gradient-to-br from-primary/5 via-background to-secondary/5 rounded-2xl sm:rounded-3xl p-5 sm:p-8 border border-border/50">
