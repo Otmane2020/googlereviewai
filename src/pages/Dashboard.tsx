@@ -7,6 +7,7 @@ import { useSyncGoogleReviews } from "@/hooks/useSyncGoogleReviews";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { ConnectGMBDialog } from "@/components/ConnectGMBDialog";
+import { SyncProgressOverlay } from "@/components/SyncProgressOverlay";
 
 import { Button } from "@/components/ui/button";
 import { 
@@ -52,6 +53,8 @@ const Dashboard = () => {
   const [stats, setStats] = useState({ total: 0, avgRating: 0, aiResponses: 0, pending: 0, businesses: 0, responseRate: 0 });
   const [loading, setLoading] = useState(true);
   const [showGMBDialog, setShowGMBDialog] = useState(false);
+  const [showSyncProgress, setShowSyncProgress] = useState(false);
+  const [syncStep, setSyncStep] = useState<"businesses" | "reviews" | "complete">("businesses");
   const { syncBusinesses, isSyncing: isSyncingBusinesses } = useSyncGoogleBusinesses();
   const { syncReviews, isSyncing: isSyncingReviews } = useSyncGoogleReviews();
   const hasSyncedRef = useRef(false);
@@ -149,8 +152,12 @@ const Dashboard = () => {
     const autoSync = async () => {
       if (!loading && user && session?.provider_token && !hasSyncedRef.current) {
         hasSyncedRef.current = true;
+        setShowSyncProgress(true);
+        setSyncStep("businesses");
         await syncBusinesses();
+        setSyncStep("reviews");
         await syncReviews();
+        setSyncStep("complete");
         fetchData();
       }
     };
@@ -219,7 +226,15 @@ const Dashboard = () => {
               variant="outline" 
               size="icon"
               className="rounded-xl h-12 w-12"
-              onClick={() => { syncBusinesses(); syncReviews().then(() => fetchData()); }}
+              onClick={async () => { 
+                setShowSyncProgress(true);
+                setSyncStep("businesses");
+                await syncBusinesses(); 
+                setSyncStep("reviews");
+                await syncReviews();
+                setSyncStep("complete");
+                fetchData();
+              }}
               disabled={isSyncing}
             >
               {isSyncing ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
@@ -422,7 +437,15 @@ const Dashboard = () => {
                 variant="outline" 
                 size="sm" 
                 className="mt-3 rounded-xl"
-                onClick={() => { syncBusinesses(); syncReviews(); }}
+                onClick={async () => { 
+                  setShowSyncProgress(true);
+                  setSyncStep("businesses");
+                  await syncBusinesses(); 
+                  setSyncStep("reviews");
+                  await syncReviews();
+                  setSyncStep("complete");
+                  fetchData();
+                }}
                 disabled={isSyncing}
               >
                 {isSyncing ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <RefreshCw className="w-4 h-4 mr-2" />}
@@ -437,6 +460,13 @@ const Dashboard = () => {
       
       {/* GMB Connection Dialog for email users */}
       <ConnectGMBDialog open={showGMBDialog} onOpenChange={setShowGMBDialog} />
+      
+      {/* Sync Progress Overlay */}
+      <SyncProgressOverlay 
+        isVisible={showSyncProgress} 
+        currentStep={syncStep}
+        onComplete={() => setShowSyncProgress(false)}
+      />
     </div>
   );
 };
