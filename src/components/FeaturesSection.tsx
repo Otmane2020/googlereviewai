@@ -1,4 +1,4 @@
-import { Sparkles, Clock, MessageSquare, Zap, FileText, TrendingUp, ArrowRight, MessageCircle, Eye, X, Pen, Target, Brain } from "lucide-react";
+import { Sparkles, Clock, MessageSquare, Zap, FileText, TrendingUp, ArrowRight, MessageCircle, Eye, X, Pen, Target, Brain, Link, Bot, Send } from "lucide-react";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "./ui/dialog";
 import { Button } from "./ui/button";
@@ -98,19 +98,19 @@ const steps = [
     num: "1",
     title: "Connectez-vous",
     description: "Liez votre Google My Business en un clic avec votre compte Google.",
-    icon: "🔗",
+    icon: Link,
   },
   {
     num: "2",
     title: "L'IA travaille",
     description: "Starlinko génère automatiquement des réponses personnalisées.",
-    icon: "✨",
+    icon: Bot,
   },
   {
     num: "3",
     title: "Publiez",
     description: "Validez et publiez en un clic, ou activez le mode automatique.",
-    icon: "🚀",
+    icon: Send,
   },
 ];
 
@@ -241,8 +241,8 @@ export const FeaturesSection = () => {
             {steps.map((step, index) => (
               <div key={step.num} className="flex gap-4">
                 <div className="flex flex-col items-center">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-2xl shadow-lg">
-                    {step.icon}
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-lg">
+                    <step.icon className="w-5 h-5 text-white" />
                   </div>
                   {index < steps.length - 1 && (
                     <div className="w-0.5 h-full min-h-[40px] bg-gradient-to-b from-primary/50 to-secondary/50 my-2" />
@@ -260,8 +260,8 @@ export const FeaturesSection = () => {
           <div className="hidden sm:grid sm:grid-cols-3 gap-8">
             {steps.map((step) => (
               <div key={step.num} className="text-center">
-                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center mx-auto mb-4 text-3xl shadow-lg">
-                  {step.icon}
+                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center mx-auto mb-4 shadow-lg">
+                  <step.icon className="w-7 h-7 text-white" />
                 </div>
                 <h4 className="font-bold text-foreground mb-2">{step.title}</h4>
                 <p className="text-muted-foreground text-sm">{step.description}</p>
