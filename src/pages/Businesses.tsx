@@ -349,7 +349,7 @@ const BusinessesPage = () => {
                       {[...Array(5)].map((_, i) => (
                         <Star 
                           key={i} 
-                          className={`w-3.5 h-3.5 ${i < Math.round(business.rating || 0) ? "text-[#FBBC04] fill-[#FBBC04]" : "text-[#E8EAED] fill-[#E8EAED] dark:text-[#5F6368] dark:fill-[#5F6368]"}`} 
+                          className={`w-3.5 h-3.5 text-[#FBBC04] ${i < Math.round(business.rating || 0) ? "fill-[#FBBC04]" : "fill-transparent"}`} 
                         />
                       ))}
                     </div>
