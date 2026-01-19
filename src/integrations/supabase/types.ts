@@ -348,6 +348,7 @@ export type Database = {
           current_streak: number | null
           email: string
           full_name: string | null
+          google_refresh_token: string | null
           id: string
           level: number | null
           max_businesses: number
@@ -369,6 +370,7 @@ export type Database = {
           current_streak?: number | null
           email: string
           full_name?: string | null
+          google_refresh_token?: string | null
           id: string
           level?: number | null
           max_businesses?: number
@@ -390,6 +392,7 @@ export type Database = {
           current_streak?: number | null
           email?: string
           full_name?: string | null
+          google_refresh_token?: string | null
           id?: string
           level?: number | null
           max_businesses?: number
