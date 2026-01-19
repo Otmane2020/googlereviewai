@@ -5,33 +5,29 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSyncGoogleBusinesses } from "@/hooks/useSyncGoogleBusinesses";
 import { useSyncGoogleReviews } from "@/hooks/useSyncGoogleReviews";
 import { DashboardHeader } from "@/components/DashboardHeader";
+import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 import { 
   Star, 
   Building2, 
-  MessageSquare,
   TrendingUp,
   Sparkles,
   ChevronRight,
-  ChevronLeft,
   RefreshCw,
-  Coins,
-  LayoutDashboard,
-  Loader2
+  Loader2,
+  MessageSquare,
+  Zap,
+  ArrowUpRight
 } from "lucide-react";
 
 interface Profile {
   id: string;
-  email: string;
   full_name: string | null;
   subscription_status: string;
-  plan_id: string;
-  trial_end: string | null;
-  onboarding_completed: boolean;
   credits: number;
   max_businesses: number;
   plan_name: string;
+  trial_end: string | null;
 }
 
 interface Review {
@@ -41,78 +37,47 @@ interface Review {
   comment: string | null;
   review_date: string;
   ai_response: string | null;
-  location_id: string;
 }
-
-interface StatsCard {
-  title: string;
-  value: string | number;
-  change: string;
-  icon: React.ElementType;
-  trend: "up" | "down" | "neutral";
-  color: string;
-}
-
-const REVIEWS_PER_PAGE = 10;
 
 const Dashboard = () => {
   const { user, session } = useAuth();
   const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [allReviews, setAllReviews] = useState<Review[]>([]);
-  const [businessCount, setBusinessCount] = useState(0);
-  const [reviewStats, setReviewStats] = useState({ total: 0, avgRating: 0, aiResponses: 0 });
+  const [recentReviews, setRecentReviews] = useState<Review[]>([]);
+  const [stats, setStats] = useState({ total: 0, avgRating: 0, aiResponses: 0, pending: 0, businesses: 0 });
   const [loading, setLoading] = useState(true);
-  const [loadingReviews, setLoadingReviews] = useState(true);
-  const [loadProgress, setLoadProgress] = useState(0);
-  const [currentPage, setCurrentPage] = useState(1);
   const { syncBusinesses, isSyncing: isSyncingBusinesses } = useSyncGoogleBusinesses();
   const { syncReviews, isSyncing: isSyncingReviews } = useSyncGoogleReviews();
   const hasSyncedRef = useRef(false);
 
-  const fetchAllReviews = useCallback(async () => {
+  const fetchData = useCallback(async () => {
     if (!user) return;
-    setLoadingReviews(true);
-    setLoadProgress(10);
 
-    // First get count
-    const { count } = await supabase
-      .from("reviews")
-      .select("*", { count: "exact", head: true })
-      .eq("user_id", user.id);
+    const [profileRes, reviewsRes, businessesRes] = await Promise.all([
+      supabase.from("profiles").select("*").eq("id", user.id).maybeSingle(),
+      supabase.from("reviews").select("id, author, rating, comment, review_date, ai_response").eq("user_id", user.id).order("review_date", { ascending: false }),
+      supabase.from("businesses").select("id", { count: "exact" }).eq("user_id", user.id).eq("is_active", true)
+    ]);
 
-    setLoadProgress(30);
-
-    // Fetch all reviews
-    const { data, error } = await supabase
-      .from("reviews")
-      .select("id, author, rating, comment, review_date, ai_response, location_id")
-      .eq("user_id", user.id)
-      .order("review_date", { ascending: false });
-
-    setLoadProgress(70);
-
-    if (!error && data) {
-      setAllReviews(data);
-      const total = data.length;
-      const avgRating = total > 0 ? data.reduce((sum, r) => sum + r.rating, 0) / total : 0;
-      const aiResponses = data.filter(r => r.ai_response).length;
-      setReviewStats({ total, avgRating: Number(avgRating.toFixed(1)), aiResponses });
-    }
-
-    setLoadProgress(100);
-    setTimeout(() => setLoadingReviews(false), 300);
-  }, [user]);
-
-  const fetchBusinessCount = useCallback(async () => {
-    if (!user) return;
-    const { count } = await supabase
-      .from("businesses")
-      .select("*", { count: "exact", head: true })
-      .eq("user_id", user.id)
-      .eq("is_active", true);
+    if (profileRes.data) setProfile(profileRes.data);
     
-    setBusinessCount(count || 0);
+    const reviews = reviewsRes.data || [];
+    setRecentReviews(reviews.slice(0, 5));
+    
+    const total = reviews.length;
+    const avgRating = total > 0 ? reviews.reduce((sum, r) => sum + r.rating, 0) / total : 0;
+    const aiResponses = reviews.filter(r => r.ai_response).length;
+    const pending = reviews.filter(r => !r.ai_response).length;
+    
+    setStats({
+      total,
+      avgRating: Number(avgRating.toFixed(1)),
+      aiResponses,
+      pending,
+      businesses: businessesRes.count || 0
+    });
+
+    setLoading(false);
   }, [user]);
 
   useEffect(() => {
@@ -120,342 +85,203 @@ const Dashboard = () => {
       navigate("/auth");
       return;
     }
+    fetchData();
+  }, [user, navigate, fetchData]);
 
-    const fetchProfile = async () => {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", user.id)
-        .maybeSingle();
-
-      if (error) {
-        console.error("Error fetching profile:", error);
-      } else if (data) {
-        setProfile(data);
-      }
-      setLoading(false);
-    };
-
-    fetchProfile();
-    fetchAllReviews();
-    fetchBusinessCount();
-  }, [user, navigate, fetchAllReviews, fetchBusinessCount]);
-
-  // Auto-sync Google businesses and reviews on first load if user signed in with Google
   useEffect(() => {
     const autoSync = async () => {
       if (!loading && user && session?.provider_token && !hasSyncedRef.current) {
         hasSyncedRef.current = true;
         await syncBusinesses();
         await syncReviews();
-        fetchAllReviews();
-        fetchBusinessCount();
+        fetchData();
       }
     };
     autoSync();
-  }, [loading, user, session, syncBusinesses, syncReviews, fetchAllReviews, fetchBusinessCount]);
+  }, [loading, user, session, syncBusinesses, syncReviews, fetchData]);
 
   const isSyncing = isSyncingBusinesses || isSyncingReviews;
 
-  // Pagination
-  const totalPages = Math.ceil(allReviews.length / REVIEWS_PER_PAGE);
-  const paginatedReviews = allReviews.slice(
-    (currentPage - 1) * REVIEWS_PER_PAGE,
-    currentPage * REVIEWS_PER_PAGE
-  );
-
-  const stats: StatsCard[] = [
-    { title: "Crédits", value: profile?.credits ?? 0, change: "", icon: Coins, trend: "neutral", color: "bg-accent" },
-    { title: "Note moyenne", value: reviewStats.avgRating || "-", change: "", icon: TrendingUp, trend: "neutral", color: "bg-emerald-500" },
-    { title: "Réponses IA", value: reviewStats.aiResponses, change: `/${reviewStats.total}`, icon: MessageSquare, trend: "neutral", color: "bg-blue-500" },
-    { title: "Établissements", value: businessCount, change: `/${profile?.max_businesses === -1 ? "∞" : profile?.max_businesses ?? 1}`, icon: Building2, trend: "neutral", color: "bg-violet-500" },
-  ];
-
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
-        <DashboardHeader />
-        <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-        </div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-muted/30">
+    <div className="min-h-screen bg-muted/30 pb-20 md:pb-0">
       <DashboardHeader />
 
-      {/* Page Header */}
-      <div className="bg-card border-b border-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-              <LayoutDashboard className="w-6 h-6 text-primary" />
-            </div>
+      <main className="max-w-6xl mx-auto px-4 py-6 space-y-6">
+        {/* Welcome + Credits Banner */}
+        <div className="bg-gradient-to-br from-primary via-primary to-primary/80 rounded-2xl p-6 text-primary-foreground relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2" />
+          <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2" />
+          
+          <div className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-foreground">
-                Bonjour, {profile?.full_name?.split(" ")[0] || "👋"}
-              </h1>
-              <p className="text-sm text-muted-foreground">
-                Voici vos statistiques du jour
-              </p>
+              <p className="text-primary-foreground/80 text-sm">Bienvenue,</p>
+              <h1 className="text-2xl font-bold">{profile?.full_name?.split(" ")[0] || "👋"}</h1>
+              {profile?.subscription_status === "trial" && (
+                <p className="text-sm text-primary-foreground/70 mt-1">Essai gratuit actif</p>
+              )}
             </div>
-          </div>
-        </div>
-      </div>
-
-      <main className="max-w-7xl mx-auto p-4 sm:p-6 space-y-6">
-        {/* Trial banner */}
-        {profile?.subscription_status === "trial" && (
-          <div className="gradient-hero rounded-2xl p-4 lg:p-6 text-card">
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-              <div>
-                <h3 className="text-lg font-semibold mb-1">Essai gratuit</h3>
-                <p className="text-card/80 text-sm lg:text-base">
-                  14 jours restants. Profitez de toutes les fonctionnalités !
-                </p>
+            <div className="flex items-center gap-4">
+              <div className="text-center px-4 py-2 bg-white/10 rounded-xl backdrop-blur-sm">
+                <div className="text-2xl font-bold">{profile?.credits || 0}</div>
+                <div className="text-xs text-primary-foreground/80">Crédits</div>
               </div>
-              <Button variant="hero" size="lg" className="w-full lg:w-auto">
-                Passer à Pro
-                <ChevronRight className="w-5 h-5 ml-1" />
+              <Button 
+                variant="secondary" 
+                size="sm" 
+                className="bg-white/20 hover:bg-white/30 text-primary-foreground border-0"
+                onClick={() => { syncBusinesses(); syncReviews().then(() => fetchData()); }}
+                disabled={isSyncing}
+              >
+                {isSyncing ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+                <span className="ml-2">Sync</span>
               </Button>
             </div>
           </div>
-        )}
+        </div>
 
-        {/* Stats grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-6">
-          {stats.map((stat) => (
-            <div
-              key={stat.title}
-              className="bg-card rounded-2xl p-4 lg:p-6 border border-border shadow-sm"
-            >
-              <div className="flex items-center justify-between mb-3 lg:mb-4">
-                <div className={`w-10 h-10 lg:w-12 lg:h-12 rounded-xl ${stat.color} flex items-center justify-center`}>
-                  <stat.icon className="w-5 h-5 lg:w-6 lg:h-6 text-white" />
-                </div>
-                <span
-                  className={`text-xs lg:text-sm font-medium px-2 py-1 rounded-full ${
-                    stat.trend === "up"
-                      ? "bg-secondary/10 text-secondary"
-                      : stat.trend === "down"
-                      ? "bg-destructive/10 text-destructive"
-                      : "bg-muted text-muted-foreground"
-                  }`}
-                >
-                  {stat.change}
-                </span>
+        {/* Stats Grid */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <div className="bg-card rounded-xl p-4 border border-border">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center">
+                <Star className="w-5 h-5 text-accent" />
               </div>
-              <h3 className="text-2xl lg:text-3xl font-bold text-foreground">{stat.value}</h3>
-              <p className="text-xs lg:text-sm text-muted-foreground mt-1">{stat.title}</p>
+              <div>
+                <div className="text-2xl font-bold text-foreground">{stats.avgRating || "-"}</div>
+                <div className="text-xs text-muted-foreground">Note moyenne</div>
+              </div>
             </div>
+          </div>
+          <div className="bg-card rounded-xl p-4 border border-border">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                <MessageSquare className="w-5 h-5 text-primary" />
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-foreground">{stats.total}</div>
+                <div className="text-xs text-muted-foreground">Total avis</div>
+              </div>
+            </div>
+          </div>
+          <div className="bg-card rounded-xl p-4 border border-border">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-secondary/10 flex items-center justify-center">
+                <Sparkles className="w-5 h-5 text-secondary" />
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-foreground">{stats.aiResponses}</div>
+                <div className="text-xs text-muted-foreground">Réponses IA</div>
+              </div>
+            </div>
+          </div>
+          <div className="bg-card rounded-xl p-4 border border-border">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-orange-500/10 flex items-center justify-center">
+                <Zap className="w-5 h-5 text-orange-500" />
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-foreground">{stats.pending}</div>
+                <div className="text-xs text-muted-foreground">En attente</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          {[
+            { icon: Star, label: "Avis", desc: "Gérer les avis", href: "/reviews", color: "text-accent" },
+            { icon: Building2, label: "Business", desc: `${stats.businesses} établissement${stats.businesses > 1 ? "s" : ""}`, href: "/businesses", color: "text-violet-500" },
+            { icon: Sparkles, label: "IA", desc: "Paramètres", href: "/ai-settings", color: "text-primary" },
+            { icon: TrendingUp, label: "SEO", desc: "Auto-post", href: "/seo-autopost", color: "text-secondary" },
+          ].map((action) => (
+            <Link
+              key={action.href}
+              to={action.href}
+              className="bg-card rounded-xl p-4 border border-border hover:border-primary/30 hover:shadow-md transition-all group"
+            >
+              <div className="flex items-center justify-between">
+                <action.icon className={`w-5 h-5 ${action.color}`} />
+                <ArrowUpRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+              </div>
+              <div className="mt-3">
+                <div className="font-semibold text-foreground">{action.label}</div>
+                <div className="text-xs text-muted-foreground">{action.desc}</div>
+              </div>
+            </Link>
           ))}
         </div>
 
-        {/* Quick actions */}
-        <div>
-          <h2 className="text-lg font-semibold text-foreground mb-4">Actions rapides</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            <Link
-              to="/reviews"
-              className="bg-card rounded-2xl p-5 border border-border hover:shadow-lg transition-all hover:-translate-y-1"
-            >
-              <div className="w-12 h-12 rounded-xl bg-amber-500/10 flex items-center justify-center mb-4">
-                <Star className="w-6 h-6 text-amber-500" />
-              </div>
-              <h3 className="font-semibold text-foreground mb-1">Voir les avis</h3>
-              <p className="text-sm text-muted-foreground">Consultez et répondez à vos avis</p>
-            </Link>
-            
-            <Link
-              to="/ai-settings"
-              className="bg-card rounded-2xl p-5 border border-border hover:shadow-lg transition-all hover:-translate-y-1"
-            >
-              <div className="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center mb-4">
-                <Sparkles className="w-6 h-6 text-blue-500" />
-              </div>
-              <h3 className="font-semibold text-foreground mb-1">Configurer l'IA</h3>
-              <p className="text-sm text-muted-foreground">Personnalisez vos réponses automatiques</p>
-            </Link>
-            
-            <Link
-              to="/businesses"
-              className="bg-card rounded-2xl p-5 border border-border hover:shadow-lg transition-all hover:-translate-y-1"
-            >
-              <div className="w-12 h-12 rounded-xl bg-violet-500/10 flex items-center justify-center mb-4">
-                <Building2 className="w-6 h-6 text-violet-500" />
-              </div>
-              <h3 className="font-semibold text-foreground mb-1">Ajouter un établissement</h3>
-              <p className="text-sm text-muted-foreground">Connectez un nouveau business</p>
+        {/* Recent Reviews */}
+        <div className="bg-card rounded-xl border border-border overflow-hidden">
+          <div className="p-4 border-b border-border flex items-center justify-between">
+            <h2 className="font-semibold text-foreground">Avis récents</h2>
+            <Link to="/reviews">
+              <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
+                Voir tout
+                <ChevronRight className="w-4 h-4 ml-1" />
+              </Button>
             </Link>
           </div>
-        </div>
 
-        {/* All reviews with pagination */}
-        <div className="bg-card rounded-2xl border border-border shadow-sm">
-          <div className="p-4 lg:p-6 border-b border-border flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <h2 className="text-lg font-semibold text-foreground">Tous les avis</h2>
-              <span className="text-sm text-muted-foreground">
-                ({reviewStats.total} avis)
-              </span>
+          {recentReviews.length > 0 ? (
+            <div className="divide-y divide-border">
+              {recentReviews.map((review) => (
+                <div key={review.id} className="p-4 hover:bg-muted/30 transition-colors">
+                  <div className="flex items-start gap-3">
+                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center text-sm font-semibold text-foreground flex-shrink-0">
+                      {review.author.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium text-foreground text-sm">{review.author}</span>
+                        <div className="flex">
+                          {[...Array(5)].map((_, i) => (
+                            <Star key={i} className={`w-3 h-3 ${i < review.rating ? "text-accent fill-accent" : "text-muted-foreground/20"}`} />
+                          ))}
+                        </div>
+                        {review.ai_response ? (
+                          <span className="text-[10px] bg-secondary/10 text-secondary px-1.5 py-0.5 rounded-full font-medium">IA</span>
+                        ) : (
+                          <span className="text-[10px] bg-orange-500/10 text-orange-500 px-1.5 py-0.5 rounded-full font-medium">New</span>
+                        )}
+                      </div>
+                      <p className="text-sm text-muted-foreground mt-1 line-clamp-1">
+                        {review.comment || "Aucun commentaire"}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => { syncBusinesses(); syncReviews().then(() => fetchAllReviews()); }}
+          ) : (
+            <div className="p-8 text-center">
+              <Star className="w-10 h-10 mx-auto mb-3 text-muted-foreground/20" />
+              <p className="text-sm text-muted-foreground">Aucun avis pour le moment</p>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="mt-3"
+                onClick={() => { syncBusinesses(); syncReviews(); }}
                 disabled={isSyncing}
               >
-                {isSyncing ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <RefreshCw className="w-4 h-4" />
-                )}
-                <span className="ml-2 hidden sm:inline">Synchroniser</span>
+                {isSyncing ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <RefreshCw className="w-4 h-4 mr-2" />}
+                Synchroniser
               </Button>
-              <Link to="/reviews">
-                <Button variant="ghost" size="sm">
-                  Gérer
-                  <ChevronRight className="w-4 h-4 ml-1" />
-                </Button>
-              </Link>
-            </div>
-          </div>
-
-          {/* Loading progress bar */}
-          {loadingReviews && (
-            <div className="p-4 border-b border-border">
-              <div className="flex items-center gap-3">
-                <Loader2 className="w-5 h-5 animate-spin text-primary" />
-                <div className="flex-1">
-                  <p className="text-sm text-muted-foreground mb-2">Chargement des avis...</p>
-                  <Progress value={loadProgress} className="h-2" />
-                </div>
-                <span className="text-sm font-medium text-foreground">{loadProgress}%</span>
-              </div>
             </div>
           )}
-
-          {!loadingReviews && paginatedReviews.length > 0 ? (
-            <>
-              <div className="divide-y divide-border">
-                {paginatedReviews.map((review) => (
-                  <div key={review.id} className="p-4 lg:p-6 hover:bg-muted/30 transition-colors">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="font-medium text-foreground">{review.author}</span>
-                          <div className="flex items-center">
-                            {[...Array(5)].map((_, i) => (
-                              <Star
-                                key={i}
-                                className={`w-4 h-4 ${
-                                  i < review.rating ? "text-accent fill-accent" : "text-muted-foreground/30"
-                                }`}
-                              />
-                            ))}
-                          </div>
-                        </div>
-                        <p className="text-sm text-muted-foreground line-clamp-2">
-                          {review.comment || "Aucun commentaire"}
-                        </p>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {new Date(review.review_date).toLocaleDateString("fr-FR")}
-                        </p>
-                      </div>
-                      {review.ai_response ? (
-                        <span className="text-xs bg-secondary/10 text-secondary px-2 py-1 rounded-full whitespace-nowrap">
-                          Répondu
-                        </span>
-                      ) : (
-                        <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full whitespace-nowrap">
-                          En attente
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Pagination */}
-              {totalPages > 1 && (
-                <div className="p-4 border-t border-border flex items-center justify-between">
-                  <p className="text-sm text-muted-foreground">
-                    Page {currentPage} sur {totalPages}
-                  </p>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                      disabled={currentPage === 1}
-                    >
-                      <ChevronLeft className="w-4 h-4" />
-                      Précédent
-                    </Button>
-                    <div className="hidden sm:flex items-center gap-1">
-                      {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                        let pageNum: number;
-                        if (totalPages <= 5) {
-                          pageNum = i + 1;
-                        } else if (currentPage <= 3) {
-                          pageNum = i + 1;
-                        } else if (currentPage >= totalPages - 2) {
-                          pageNum = totalPages - 4 + i;
-                        } else {
-                          pageNum = currentPage - 2 + i;
-                        }
-                        return (
-                          <Button
-                            key={pageNum}
-                            variant={currentPage === pageNum ? "default" : "ghost"}
-                            size="sm"
-                            className="w-8 h-8 p-0"
-                            onClick={() => setCurrentPage(pageNum)}
-                          >
-                            {pageNum}
-                          </Button>
-                        );
-                      })}
-                    </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                      disabled={currentPage === totalPages}
-                    >
-                      Suivant
-                      <ChevronRight className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </>
-          ) : !loadingReviews ? (
-            <div className="p-6 lg:p-8">
-              <div className="text-center py-8">
-                <Star className="w-12 h-12 mx-auto mb-4 text-muted-foreground/30" />
-                <p className="text-lg font-medium text-foreground mb-2">Aucun avis pour le moment</p>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Connectez votre compte Google My Business
-                </p>
-                <Button variant="default" onClick={() => { syncBusinesses(); syncReviews(); }} disabled={isSyncing}>
-                  {isSyncing ? (
-                    <>
-                      <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                      Synchronisation...
-                    </>
-                  ) : (
-                    "Synchroniser Google"
-                  )}
-                </Button>
-              </div>
-            </div>
-          ) : null}
         </div>
       </main>
+
+      <MobileBottomNav />
     </div>
   );
 };
