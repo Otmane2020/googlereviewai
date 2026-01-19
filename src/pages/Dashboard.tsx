@@ -1,8 +1,9 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useSyncGoogleBusinesses } from "@/hooks/useSyncGoogleBusinesses";
+import { useSyncGoogleReviews } from "@/hooks/useSyncGoogleReviews";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { Button } from "@/components/ui/button";
 import { 
@@ -30,6 +31,16 @@ interface Profile {
   plan_name: string;
 }
 
+interface Review {
+  id: number;
+  author: string;
+  rating: number;
+  comment: string | null;
+  review_date: string;
+  ai_response: string | null;
+  location_id: string;
+}
+
 interface StatsCard {
   title: string;
   value: string | number;
@@ -43,9 +54,51 @@ const Dashboard = () => {
   const { user, session } = useAuth();
   const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [recentReviews, setRecentReviews] = useState<Review[]>([]);
+  const [businessCount, setBusinessCount] = useState(0);
+  const [reviewStats, setReviewStats] = useState({ total: 0, avgRating: 0, aiResponses: 0 });
   const [loading, setLoading] = useState(true);
-  const { syncBusinesses, isSyncing } = useSyncGoogleBusinesses();
+  const { syncBusinesses, isSyncing: isSyncingBusinesses } = useSyncGoogleBusinesses();
+  const { syncReviews, isSyncing: isSyncingReviews } = useSyncGoogleReviews();
   const hasSyncedRef = useRef(false);
+
+  const fetchReviews = useCallback(async () => {
+    if (!user) return;
+    const { data, error } = await supabase
+      .from("reviews")
+      .select("id, author, rating, comment, review_date, ai_response, location_id")
+      .eq("user_id", user.id)
+      .order("review_date", { ascending: false })
+      .limit(5);
+
+    if (!error && data) {
+      setRecentReviews(data);
+    }
+
+    // Fetch stats
+    const { data: allReviews } = await supabase
+      .from("reviews")
+      .select("rating, ai_response")
+      .eq("user_id", user.id);
+
+    if (allReviews) {
+      const total = allReviews.length;
+      const avgRating = total > 0 ? allReviews.reduce((sum, r) => sum + r.rating, 0) / total : 0;
+      const aiResponses = allReviews.filter(r => r.ai_response).length;
+      setReviewStats({ total, avgRating: Number(avgRating.toFixed(1)), aiResponses });
+    }
+  }, [user]);
+
+  const fetchBusinessCount = useCallback(async () => {
+    if (!user) return;
+    const { count } = await supabase
+      .from("businesses")
+      .select("*", { count: "exact", head: true })
+      .eq("user_id", user.id)
+      .eq("is_active", true);
+    
+    setBusinessCount(count || 0);
+  }, [user]);
 
   useEffect(() => {
     if (!user) {
@@ -69,21 +122,31 @@ const Dashboard = () => {
     };
 
     fetchProfile();
-  }, [user, navigate]);
+    fetchReviews();
+    fetchBusinessCount();
+  }, [user, navigate, fetchReviews, fetchBusinessCount]);
 
-  // Auto-sync Google businesses on first load if user signed in with Google
+  // Auto-sync Google businesses and reviews on first load if user signed in with Google
   useEffect(() => {
-    if (!loading && user && session?.provider_token && !hasSyncedRef.current) {
-      hasSyncedRef.current = true;
-      syncBusinesses();
-    }
-  }, [loading, user, session, syncBusinesses]);
+    const autoSync = async () => {
+      if (!loading && user && session?.provider_token && !hasSyncedRef.current) {
+        hasSyncedRef.current = true;
+        await syncBusinesses();
+        await syncReviews();
+        fetchReviews();
+        fetchBusinessCount();
+      }
+    };
+    autoSync();
+  }, [loading, user, session, syncBusinesses, syncReviews, fetchReviews, fetchBusinessCount]);
+
+  const isSyncing = isSyncingBusinesses || isSyncingReviews;
 
   const stats: StatsCard[] = [
     { title: "Crédits", value: profile?.credits ?? 0, change: "", icon: Coins, trend: "neutral", color: "bg-accent" },
-    { title: "Note moyenne", value: "4.7", change: "+0.2", icon: TrendingUp, trend: "up", color: "bg-emerald-500" },
-    { title: "Réponses IA", value: 89, change: "+8", icon: MessageSquare, trend: "up", color: "bg-blue-500" },
-    { title: "Établissements", value: 3, change: `/${profile?.max_businesses === -1 ? "∞" : profile?.max_businesses ?? 1}`, icon: Building2, trend: "neutral", color: "bg-violet-500" },
+    { title: "Note moyenne", value: reviewStats.avgRating || "-", change: "", icon: TrendingUp, trend: "neutral", color: "bg-emerald-500" },
+    { title: "Réponses IA", value: reviewStats.aiResponses, change: `/${reviewStats.total}`, icon: MessageSquare, trend: "neutral", color: "bg-blue-500" },
+    { title: "Établissements", value: businessCount, change: `/${profile?.max_businesses === -1 ? "∞" : profile?.max_businesses ?? 1}`, icon: Building2, trend: "neutral", color: "bg-violet-500" },
   ];
 
   if (loading) {
@@ -218,25 +281,66 @@ const Dashboard = () => {
               </Button>
             </Link>
           </div>
-          <div className="p-6 lg:p-8">
-            <div className="text-center py-8">
-              <Star className="w-12 h-12 mx-auto mb-4 text-muted-foreground/30" />
-              <p className="text-lg font-medium text-foreground mb-2">Aucun avis pour le moment</p>
-              <p className="text-sm text-muted-foreground mb-4">
-                Connectez votre compte Google My Business
-              </p>
-              <Button variant="default" onClick={syncBusinesses} disabled={isSyncing}>
-                {isSyncing ? (
-                  <>
-                    <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                    Synchronisation...
-                  </>
-                ) : (
-                  "Synchroniser Google"
-                )}
-              </Button>
+          {recentReviews.length > 0 ? (
+            <div className="divide-y divide-border">
+              {recentReviews.map((review) => (
+                <div key={review.id} className="p-4 lg:p-6 hover:bg-muted/30 transition-colors">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="font-medium text-foreground">{review.author}</span>
+                        <div className="flex items-center">
+                          {[...Array(5)].map((_, i) => (
+                            <Star
+                              key={i}
+                              className={`w-4 h-4 ${
+                                i < review.rating ? "text-accent fill-accent" : "text-muted-foreground/30"
+                              }`}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                      <p className="text-sm text-muted-foreground line-clamp-2">
+                        {review.comment || "Aucun commentaire"}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {new Date(review.review_date).toLocaleDateString("fr-FR")}
+                      </p>
+                    </div>
+                    {review.ai_response ? (
+                      <span className="text-xs bg-secondary/10 text-secondary px-2 py-1 rounded-full whitespace-nowrap">
+                        Répondu
+                      </span>
+                    ) : (
+                      <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full whitespace-nowrap">
+                        En attente
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
-          </div>
+          ) : (
+            <div className="p-6 lg:p-8">
+              <div className="text-center py-8">
+                <Star className="w-12 h-12 mx-auto mb-4 text-muted-foreground/30" />
+                <p className="text-lg font-medium text-foreground mb-2">Aucun avis pour le moment</p>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Connectez votre compte Google My Business
+                </p>
+                <Button variant="default" onClick={() => { syncBusinesses(); syncReviews(); }} disabled={isSyncing}>
+                  {isSyncing ? (
+                    <>
+                      <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                      Synchronisation...
+                    </>
+                  ) : (
+                    "Synchroniser Google"
+                  )}
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       </main>
     </div>
