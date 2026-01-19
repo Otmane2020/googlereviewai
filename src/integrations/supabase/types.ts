@@ -16,7 +16,9 @@ export type Database = {
     Tables: {
       ai_settings: {
         Row: {
+          auto_publish_to_google: boolean | null
           auto_reply_delay: number | null
+          auto_sync_reviews: boolean | null
           created_at: string | null
           custom_template: string | null
           enabled: boolean | null
@@ -26,12 +28,15 @@ export type Database = {
           only_positive_reviews: boolean | null
           response_length: string | null
           signature: string | null
+          sync_interval_minutes: number | null
           tone: string | null
           updated_at: string | null
           user_id: string
         }
         Insert: {
+          auto_publish_to_google?: boolean | null
           auto_reply_delay?: number | null
+          auto_sync_reviews?: boolean | null
           created_at?: string | null
           custom_template?: string | null
           enabled?: boolean | null
@@ -41,12 +46,15 @@ export type Database = {
           only_positive_reviews?: boolean | null
           response_length?: string | null
           signature?: string | null
+          sync_interval_minutes?: number | null
           tone?: string | null
           updated_at?: string | null
           user_id: string
         }
         Update: {
+          auto_publish_to_google?: boolean | null
           auto_reply_delay?: number | null
+          auto_sync_reviews?: boolean | null
           created_at?: string | null
           custom_template?: string | null
           enabled?: boolean | null
@@ -56,6 +64,7 @@ export type Database = {
           only_positive_reviews?: boolean | null
           response_length?: string | null
           signature?: string | null
+          sync_interval_minutes?: number | null
           tone?: string | null
           updated_at?: string | null
           user_id?: string
@@ -227,8 +236,11 @@ export type Database = {
           author: string
           comment: string | null
           created_at: string | null
+          google_reply_id: string | null
           id: number
           location_id: string
+          published_at: string | null
+          published_to_google: boolean | null
           rating: number
           replied: boolean | null
           review_date: string
@@ -241,8 +253,11 @@ export type Database = {
           author: string
           comment?: string | null
           created_at?: string | null
+          google_reply_id?: string | null
           id?: number
           location_id: string
+          published_at?: string | null
+          published_to_google?: boolean | null
           rating: number
           replied?: boolean | null
           review_date: string
@@ -255,8 +270,11 @@ export type Database = {
           author?: string
           comment?: string | null
           created_at?: string | null
+          google_reply_id?: string | null
           id?: number
           location_id?: string
+          published_at?: string | null
+          published_to_google?: boolean | null
           rating?: number
           replied?: boolean | null
           review_date?: string

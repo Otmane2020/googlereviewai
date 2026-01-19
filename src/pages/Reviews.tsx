@@ -21,7 +21,9 @@ import {
   TestTube,
   RefreshCw,
   Building2,
-  Filter
+  Filter,
+  Send,
+  CheckCheck
 } from "lucide-react";
 import { AddTestReviewDialog } from "@/components/AddTestReviewDialog";
 import { useSyncGoogleReviews } from "@/hooks/useSyncGoogleReviews";
@@ -43,6 +45,8 @@ interface Review {
   review_date: string;
   replied: boolean;
   ai_response: string | null;
+  published_to_google: boolean | null;
+  published_at: string | null;
 }
 
 interface Business {
@@ -61,6 +65,7 @@ const Reviews = () => {
   const [filterRating, setFilterRating] = useState<number | null>(null);
   const [filterBusiness, setFilterBusiness] = useState<string>("all");
   const [generatingId, setGeneratingId] = useState<number | null>(null);
+  const [publishingId, setPublishingId] = useState<number | null>(null);
   const { syncReviews, isSyncing } = useSyncGoogleReviews();
 
   const fetchBusinesses = useCallback(async () => {
@@ -166,6 +171,50 @@ const Reviews = () => {
       });
     } finally {
       setGeneratingId(null);
+    }
+  };
+
+  const publishToGoogle = async (reviewId: number) => {
+    if (!user) return;
+    setPublishingId(reviewId);
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session?.provider_token) {
+        toast({
+          title: "Token Google manquant",
+          description: "Veuillez vous déconnecter et vous reconnecter avec Google.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const { data, error } = await supabase.functions.invoke("publish-google-reply", {
+        body: { review_id: reviewId, provider_token: session.provider_token },
+      });
+
+      if (error) throw error;
+
+      if (data?.error) {
+        throw new Error(data.error || data.message);
+      }
+
+      toast({
+        title: "Publié sur Google !",
+        description: "La réponse a été publiée sur Google Business Profile.",
+      });
+
+      fetchReviews();
+    } catch (error) {
+      console.error("Error publishing to Google:", error);
+      toast({
+        title: "Erreur",
+        description: error instanceof Error ? error.message : "Impossible de publier sur Google.",
+        variant: "destructive",
+      });
+    } finally {
+      setPublishingId(null);
     }
   };
 
@@ -422,7 +471,7 @@ const Reviews = () => {
                   </div>
                 )}
 
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-wrap">
                   <Button 
                     variant="default" 
                     size="sm" 
@@ -437,6 +486,31 @@ const Reviews = () => {
                     )}
                     {generatingId === review.id ? "Génération..." : "Générer une réponse"}
                   </Button>
+                  
+                  {review.ai_response && !review.published_to_google && (
+                    <Button 
+                      variant="secondary" 
+                      size="sm" 
+                      className="gap-2"
+                      onClick={() => publishToGoogle(review.id)}
+                      disabled={publishingId === review.id}
+                    >
+                      {publishingId === review.id ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Send className="w-4 h-4" />
+                      )}
+                      {publishingId === review.id ? "Publication..." : "Publier sur Google"}
+                    </Button>
+                  )}
+                  
+                  {review.published_to_google && (
+                    <span className="flex items-center gap-1 text-sm text-secondary px-3 py-1.5 bg-secondary/10 rounded-md">
+                      <CheckCheck className="w-4 h-4" />
+                      Publié sur Google
+                    </span>
+                  )}
+                  
                   <Button variant="outline" size="sm" className="gap-2">
                     <MessageSquare className="w-4 h-4" />
                     Répondre manuellement
