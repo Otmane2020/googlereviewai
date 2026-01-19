@@ -129,14 +129,12 @@ serve(async (req) => {
       }
     }
 
-    // Sync locations to database
-    const syncedBusinesses: any[] = [];
-    
-    for (const location of allLocations) {
+    // Sync locations to database using upsert to prevent duplicates
+    const businessesData = allLocations.map(location => {
       const locationId = location.name; // Format: locations/{locationId}
       const googlePlaceId = locationId.split("/").pop();
       
-      const businessData = {
+      return {
         user_id: user.id,
         name: location.title || "Unnamed Business",
         google_place_id: googlePlaceId,
@@ -151,43 +149,27 @@ serve(async (req) => {
         website: location.websiteUri || null,
         is_active: true,
       };
+    });
 
-      // Upsert: insert or update if google_place_id already exists
-      const { data: existingBusiness } = await supabaseClient
-        .from("businesses")
-        .select("id")
-        .eq("user_id", user.id)
-        .eq("google_place_id", googlePlaceId)
-        .maybeSingle();
+    // Use upsert with onConflict to handle duplicates
+    const { data: syncedBusinesses, error: upsertError } = await supabaseClient
+      .from("businesses")
+      .upsert(businessesData, { 
+        onConflict: "google_place_id,user_id",
+        ignoreDuplicates: false 
+      })
+      .select();
 
-      let result;
-      if (existingBusiness) {
-        // Update existing
-        result = await supabaseClient
-          .from("businesses")
-          .update(businessData)
-          .eq("id", existingBusiness.id)
-          .select()
-          .single();
-      } else {
-        // Insert new
-        result = await supabaseClient
-          .from("businesses")
-          .insert(businessData)
-          .select()
-          .single();
-      }
-
-      if (result.data) {
-        syncedBusinesses.push(result.data);
-      }
+    if (upsertError) {
+      console.error("Error upserting businesses:", upsertError);
+      throw new Error(upsertError.message);
     }
 
     return new Response(
       JSON.stringify({ 
         success: true, 
-        message: `Synced ${syncedBusinesses.length} businesses`,
-        businesses: syncedBusinesses 
+        message: `Synced ${syncedBusinesses?.length || 0} businesses`,
+        businesses: syncedBusinesses || [] 
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
