@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -21,7 +21,6 @@ import {
   Clock,
   MessageSquare
 } from "lucide-react";
-import { AddTestReviewDialog } from "@/components/AddTestReviewDialog";
 import { useSyncGoogleReviews } from "@/hooks/useSyncGoogleReviews";
 import {
   Select,
@@ -58,8 +57,6 @@ const Reviews = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [reviews, setReviews] = useState<Review[]>([]);
-  const [businesses, setBusinesses] = useState<Business[]>([]);
-  const [userCredits, setUserCredits] = useState<number>(0);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterRating, setFilterRating] = useState<string>("all");
@@ -72,15 +69,9 @@ const Reviews = () => {
   const fetchData = useCallback(async () => {
     if (!user) return;
     
-    const [businessesRes, reviewsRes, profileRes] = await Promise.all([
-      supabase.from("businesses").select("id, name, google_place_id").eq("user_id", user.id).eq("is_active", true),
-      supabase.from("reviews").select("*").eq("user_id", user.id).order("review_date", { ascending: false }),
-      supabase.from("profiles").select("credits").eq("id", user.id).single()
-    ]);
+    const reviewsRes = await supabase.from("reviews").select("*").eq("user_id", user.id).order("review_date", { ascending: false });
 
-    setBusinesses(businessesRes.data || []);
     setReviews(reviewsRes.data || []);
-    setUserCredits(profileRes.data?.credits || 0);
     setLoading(false);
   }, [user]);
 
@@ -169,6 +160,17 @@ const Reviews = () => {
     published: reviews.filter(r => r.published_to_google).length,
   };
 
+  // Calculate rating distribution for Google-style filter
+  const ratingDistribution = useMemo(() => {
+    const distribution = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+    reviews.forEach(r => {
+      if (r.rating >= 1 && r.rating <= 5) {
+        distribution[r.rating as keyof typeof distribution]++;
+      }
+    });
+    return distribution;
+  }, [reviews]);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
@@ -194,15 +196,10 @@ const Reviews = () => {
               <p className="text-muted-foreground text-sm mt-1">Gérez et répondez à vos avis clients</p>
             </div>
             <div className="flex items-center gap-3">
-              <Badge variant="outline" className="px-3 py-1.5">
-                <Star className="w-4 h-4 mr-1 text-accent fill-accent" />
-                {userCredits} crédits
-              </Badge>
               <Button onClick={() => syncReviews()} disabled={isSyncing} size="sm">
                 {isSyncing ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
                 <span className="ml-2 hidden sm:inline">Synchroniser</span>
               </Button>
-              {user && <AddTestReviewDialog userId={user.id} businesses={businesses} onReviewAdded={fetchData} />}
             </div>
           </div>
 
@@ -224,39 +221,72 @@ const Reviews = () => {
       </div>
 
       <main className="max-w-6xl mx-auto px-4 py-6 space-y-4">
-        {/* Filters */}
-        <div className="flex flex-col sm:flex-row gap-3">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              placeholder="Rechercher..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-9"
-            />
+        {/* Google-style Star Rating Filter */}
+        <div className="bg-card rounded-xl border border-border p-4">
+          <div className="flex flex-col sm:flex-row gap-4">
+            {/* Rating Distribution */}
+            <div className="flex-1 space-y-2">
+              {[5, 4, 3, 2, 1].map((rating) => {
+                const count = ratingDistribution[rating as keyof typeof ratingDistribution];
+                const percentage = reviews.length > 0 ? (count / reviews.length) * 100 : 0;
+                const isSelected = filterRating === rating.toString();
+                
+                return (
+                  <button
+                    key={rating}
+                    onClick={() => setFilterRating(isSelected ? "all" : rating.toString())}
+                    className={`w-full flex items-center gap-3 p-1.5 rounded-lg transition-colors ${
+                      isSelected ? "bg-primary/10" : "hover:bg-muted"
+                    }`}
+                  >
+                    <span className="text-sm font-medium w-3">{rating}</span>
+                    <Star className={`w-4 h-4 ${isSelected ? "text-accent fill-accent" : "text-accent fill-accent"}`} />
+                    <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
+                      <div 
+                        className={`h-full rounded-full transition-all ${isSelected ? "bg-primary" : "bg-accent"}`}
+                        style={{ width: `${percentage}%` }}
+                      />
+                    </div>
+                    <span className="text-xs text-muted-foreground w-8 text-right">{count}</span>
+                  </button>
+                );
+              })}
+            </div>
+            
+            {/* Search and Status Filters */}
+            <div className="sm:w-64 space-y-3">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  placeholder="Rechercher..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-9"
+                />
+              </div>
+              <Select value={filterStatus} onValueChange={setFilterStatus}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Statut" />
+                </SelectTrigger>
+                <SelectContent className="bg-popover">
+                  <SelectItem value="all">Tous les statuts</SelectItem>
+                  <SelectItem value="pending">En attente</SelectItem>
+                  <SelectItem value="ready">Prêts</SelectItem>
+                  <SelectItem value="published">Publiés</SelectItem>
+                </SelectContent>
+              </Select>
+              {filterRating !== "all" && (
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="w-full text-muted-foreground"
+                  onClick={() => setFilterRating("all")}
+                >
+                  Réinitialiser le filtre
+                </Button>
+              )}
+            </div>
           </div>
-          <Select value={filterRating} onValueChange={setFilterRating}>
-            <SelectTrigger className="w-[140px]">
-              <SelectValue placeholder="Note" />
-            </SelectTrigger>
-            <SelectContent className="bg-popover">
-              <SelectItem value="all">Toutes notes</SelectItem>
-              {[5, 4, 3, 2, 1].map((r) => (
-                <SelectItem key={r} value={r.toString()}>{r} étoiles</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Select value={filterStatus} onValueChange={setFilterStatus}>
-            <SelectTrigger className="w-[140px]">
-              <SelectValue placeholder="Statut" />
-            </SelectTrigger>
-            <SelectContent className="bg-popover">
-              <SelectItem value="all">Tous</SelectItem>
-              <SelectItem value="pending">En attente</SelectItem>
-              <SelectItem value="ready">Prêts</SelectItem>
-              <SelectItem value="published">Publiés</SelectItem>
-            </SelectContent>
-          </Select>
         </div>
 
         {/* Reviews List */}
