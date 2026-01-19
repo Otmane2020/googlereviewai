@@ -19,7 +19,8 @@ import {
   Copy,
   CheckCircle,
   Clock,
-  MessageSquare
+  MessageSquare,
+  Building2
 } from "lucide-react";
 import { useSyncGoogleReviews } from "@/hooks/useSyncGoogleReviews";
 import {
@@ -57,6 +58,8 @@ const Reviews = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [reviews, setReviews] = useState<Review[]>([]);
+  const [businesses, setBusinesses] = useState<Business[]>([]);
+  const [selectedBusinessId, setSelectedBusinessId] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterRating, setFilterRating] = useState<string>("all");
@@ -66,12 +69,48 @@ const Reviews = () => {
   const [publishingId, setPublishingId] = useState<number | null>(null);
   const { syncReviews, isSyncing } = useSyncGoogleReviews();
 
+  // Load saved business selection from localStorage
+  useEffect(() => {
+    if (user) {
+      const savedBusinessId = localStorage.getItem(`starlinko_selected_business_${user.id}`);
+      if (savedBusinessId) {
+        setSelectedBusinessId(savedBusinessId);
+      }
+    }
+  }, [user]);
+
+  // Save business selection to localStorage
+  const handleBusinessChange = (businessId: string) => {
+    setSelectedBusinessId(businessId);
+    if (user) {
+      localStorage.setItem(`starlinko_selected_business_${user.id}`, businessId);
+    }
+    setCurrentPage(1);
+  };
+
   const fetchData = useCallback(async () => {
     if (!user) return;
     
-    const reviewsRes = await supabase.from("reviews").select("*").eq("user_id", user.id).order("review_date", { ascending: false });
+    const [businessesRes, reviewsRes] = await Promise.all([
+      supabase.from("businesses").select("id, name, google_place_id").eq("user_id", user.id).eq("is_active", true),
+      supabase.from("reviews").select("*").eq("user_id", user.id).order("review_date", { ascending: false })
+    ]);
 
+    const businessesList = businessesRes.data || [];
+    setBusinesses(businessesList);
     setReviews(reviewsRes.data || []);
+    
+    // Auto-select first business if none selected or saved selection not found
+    if (businessesList.length > 0) {
+      const savedBusinessId = localStorage.getItem(`starlinko_selected_business_${user.id}`);
+      if (savedBusinessId && businessesList.some(b => b.id === savedBusinessId)) {
+        setSelectedBusinessId(savedBusinessId);
+      } else {
+        setSelectedBusinessId(businessesList[0].id);
+        localStorage.setItem(`starlinko_selected_business_${user.id}`, businessesList[0].id);
+      }
+    }
+    
     setLoading(false);
   }, [user]);
 
@@ -136,8 +175,17 @@ const Reviews = () => {
     toast({ title: "Copié !" });
   };
 
+  // Get selected business
+  const selectedBusiness = businesses.find(b => b.id === selectedBusinessId);
+
+  // Filter reviews by selected business first
+  const businessReviews = useMemo(() => {
+    if (!selectedBusinessId) return [];
+    return reviews.filter(r => r.location_id === selectedBusinessId);
+  }, [reviews, selectedBusinessId]);
+
   // Filters
-  const filteredReviews = reviews.filter((review) => {
+  const filteredReviews = businessReviews.filter((review) => {
     const matchesSearch = review.author.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (review.comment && review.comment.toLowerCase().includes(searchTerm.toLowerCase()));
     const matchesRating = filterRating === "all" || review.rating === parseInt(filterRating);
@@ -151,25 +199,25 @@ const Reviews = () => {
   const totalPages = Math.ceil(filteredReviews.length / REVIEWS_PER_PAGE);
   const paginatedReviews = filteredReviews.slice((currentPage - 1) * REVIEWS_PER_PAGE, currentPage * REVIEWS_PER_PAGE);
 
-  useEffect(() => { setCurrentPage(1); }, [searchTerm, filterRating, filterStatus]);
+  useEffect(() => { setCurrentPage(1); }, [searchTerm, filterRating, filterStatus, selectedBusinessId]);
 
   const stats = {
-    total: reviews.length,
-    pending: reviews.filter(r => !r.ai_response).length,
-    ready: reviews.filter(r => r.ai_response && !r.published_to_google).length,
-    published: reviews.filter(r => r.published_to_google).length,
+    total: businessReviews.length,
+    pending: businessReviews.filter(r => !r.ai_response).length,
+    ready: businessReviews.filter(r => r.ai_response && !r.published_to_google).length,
+    published: businessReviews.filter(r => r.published_to_google).length,
   };
 
   // Calculate rating distribution for Google-style filter
   const ratingDistribution = useMemo(() => {
     const distribution = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
-    reviews.forEach(r => {
+    businessReviews.forEach(r => {
       if (r.rating >= 1 && r.rating <= 5) {
         distribution[r.rating as keyof typeof distribution]++;
       }
     });
     return distribution;
-  }, [reviews]);
+  }, [businessReviews]);
 
   if (loading) {
     return (
@@ -221,37 +269,60 @@ const Reviews = () => {
       </div>
 
       <main className="max-w-6xl mx-auto px-4 py-6 space-y-4">
-        {/* Google-style Star Rating Filter */}
+        {/* Business Selector */}
         <div className="bg-card rounded-xl border border-border p-4">
-          <div className="flex flex-col sm:flex-row gap-4">
-            {/* Rating Distribution */}
-            <div className="flex-1 space-y-2">
-              {[5, 4, 3, 2, 1].map((rating) => {
-                const count = ratingDistribution[rating as keyof typeof ratingDistribution];
-                const percentage = reviews.length > 0 ? (count / reviews.length) * 100 : 0;
-                const isSelected = filterRating === rating.toString();
-                
-                return (
-                  <button
-                    key={rating}
-                    onClick={() => setFilterRating(isSelected ? "all" : rating.toString())}
-                    className={`w-full flex items-center gap-3 p-1.5 rounded-lg transition-colors ${
-                      isSelected ? "bg-primary/10" : "hover:bg-muted"
-                    }`}
-                  >
-                    <span className="text-sm font-medium w-3">{rating}</span>
-                    <Star className={`w-4 h-4 ${isSelected ? "text-accent fill-accent" : "text-accent fill-accent"}`} />
-                    <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
-                      <div 
-                        className={`h-full rounded-full transition-all ${isSelected ? "bg-primary" : "bg-accent"}`}
-                        style={{ width: `${percentage}%` }}
-                      />
-                    </div>
-                    <span className="text-xs text-muted-foreground w-8 text-right">{count}</span>
-                  </button>
-                );
-              })}
+          <div className="flex items-center gap-3">
+            <Building2 className="w-5 h-5 text-muted-foreground" />
+            <div className="flex-1">
+              <p className="text-xs text-muted-foreground mb-1">Établissement sélectionné</p>
+              <Select value={selectedBusinessId} onValueChange={handleBusinessChange}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Choisir un établissement" />
+                </SelectTrigger>
+                <SelectContent className="bg-popover">
+                  {businesses.map((business) => (
+                    <SelectItem key={business.id} value={business.id}>
+                      {business.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
+          </div>
+        </div>
+
+        {/* Google-style Star Rating Filter */}
+        {selectedBusinessId && (
+          <div className="bg-card rounded-xl border border-border p-4">
+            <div className="flex flex-col sm:flex-row gap-4">
+              {/* Rating Distribution */}
+              <div className="flex-1 space-y-2">
+                {[5, 4, 3, 2, 1].map((rating) => {
+                  const count = ratingDistribution[rating as keyof typeof ratingDistribution];
+                  const percentage = businessReviews.length > 0 ? (count / businessReviews.length) * 100 : 0;
+                  const isSelected = filterRating === rating.toString();
+                  
+                  return (
+                    <button
+                      key={rating}
+                      onClick={() => setFilterRating(isSelected ? "all" : rating.toString())}
+                      className={`w-full flex items-center gap-3 p-1.5 rounded-lg transition-colors ${
+                        isSelected ? "bg-primary/10" : "hover:bg-muted"
+                      }`}
+                    >
+                      <span className="text-sm font-medium w-3">{rating}</span>
+                      <Star className={`w-4 h-4 ${isSelected ? "text-accent fill-accent" : "text-accent fill-accent"}`} />
+                      <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
+                        <div 
+                          className={`h-full rounded-full transition-all ${isSelected ? "bg-primary" : "bg-accent"}`}
+                          style={{ width: `${percentage}%` }}
+                        />
+                      </div>
+                      <span className="text-xs text-muted-foreground w-8 text-right">{count}</span>
+                    </button>
+                  );
+                })}
+              </div>
             
             {/* Search and Status Filters */}
             <div className="sm:w-64 space-y-3">
@@ -288,14 +359,23 @@ const Reviews = () => {
             </div>
           </div>
         </div>
+        )}
 
         {/* Reviews List */}
-        {paginatedReviews.length === 0 ? (
+        {!selectedBusinessId ? (
+          <div className="bg-card rounded-xl border border-border p-12 text-center">
+            <Building2 className="w-12 h-12 mx-auto mb-4 text-muted-foreground/30" />
+            <h2 className="text-lg font-semibold text-foreground mb-2">Sélectionnez un établissement</h2>
+            <p className="text-muted-foreground text-sm">
+              Choisissez un établissement ci-dessus pour voir ses avis.
+            </p>
+          </div>
+        ) : paginatedReviews.length === 0 ? (
           <div className="bg-card rounded-xl border border-border p-12 text-center">
             <MessageSquare className="w-12 h-12 mx-auto mb-4 text-muted-foreground/30" />
             <h2 className="text-lg font-semibold text-foreground mb-2">Aucun avis</h2>
             <p className="text-muted-foreground text-sm">
-              {reviews.length === 0 ? "Synchronisez vos avis Google pour commencer." : "Aucun résultat pour ces filtres."}
+              {businessReviews.length === 0 ? "Synchronisez vos avis Google pour commencer." : "Aucun résultat pour ces filtres."}
             </p>
           </div>
         ) : (
