@@ -11,3 +11,21 @@ verify_jwt = false
 
 [functions.cron-engagement-notifications]
 verify_jwt = false
+
+[functions.google-oauth-callback]
+verify_jwt = false
+
+[functions.refresh-google-token]
+verify_jwt = false
+
+[functions.get-google-oauth-url]
+verify_jwt = false
+
+[functions.sync-google-reviews]
+verify_jwt = false
+
+[functions.sync-google-businesses]
+verify_jwt = false
+
+[functions.cron-sync-reviews]
+verify_jwt = false
