@@ -15,6 +15,8 @@ import Businesses from "./pages/Businesses";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import Install from "./pages/Install";
+import SEOAutoPost from "./pages/SEOAutoPost";
+import AEORank from "./pages/AEORank";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -38,6 +40,8 @@ const App = () => (
               <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route path="/terms" element={<TermsOfService />} />
               <Route path="/install" element={<Install />} />
+              <Route path="/seo-autopost" element={<SEOAutoPost />} />
+              <Route path="/aeo-rank" element={<AEORank />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </OAuthCallback>

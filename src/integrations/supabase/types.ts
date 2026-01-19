@@ -14,6 +14,66 @@ export type Database = {
   }
   public: {
     Tables: {
+      aeo_questions: {
+        Row: {
+          answer: string
+          business_id: string | null
+          category: string | null
+          created_at: string
+          id: string
+          is_featured: boolean | null
+          keywords: string[] | null
+          priority: number | null
+          question: string
+          updated_at: string
+          user_id: string
+          views_count: number | null
+        }
+        Insert: {
+          answer: string
+          business_id?: string | null
+          category?: string | null
+          created_at?: string
+          id?: string
+          is_featured?: boolean | null
+          keywords?: string[] | null
+          priority?: number | null
+          question: string
+          updated_at?: string
+          user_id: string
+          views_count?: number | null
+        }
+        Update: {
+          answer?: string
+          business_id?: string | null
+          category?: string | null
+          created_at?: string
+          id?: string
+          is_featured?: boolean | null
+          keywords?: string[] | null
+          priority?: number | null
+          question?: string
+          updated_at?: string
+          user_id?: string
+          views_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "aeo_questions_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "aeo_questions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ai_settings: {
         Row: {
           auto_publish_to_google: boolean | null
@@ -285,6 +345,75 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "reviews_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      seo_articles: {
+        Row: {
+          business_id: string | null
+          content: string
+          created_at: string
+          id: string
+          keywords: string[] | null
+          location: string | null
+          meta_description: string | null
+          published_at: string | null
+          slug: string
+          source_url: string | null
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+          views_count: number | null
+        }
+        Insert: {
+          business_id?: string | null
+          content: string
+          created_at?: string
+          id?: string
+          keywords?: string[] | null
+          location?: string | null
+          meta_description?: string | null
+          published_at?: string | null
+          slug: string
+          source_url?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+          user_id: string
+          views_count?: number | null
+        }
+        Update: {
+          business_id?: string | null
+          content?: string
+          created_at?: string
+          id?: string
+          keywords?: string[] | null
+          location?: string | null
+          meta_description?: string | null
+          published_at?: string | null
+          slug?: string
+          source_url?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+          views_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seo_articles_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "seo_articles_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
