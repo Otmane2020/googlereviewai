@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
+import { ArticlePreviewDialog } from "@/components/ArticlePreviewDialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -19,7 +20,10 @@ import {
   AlertCircle,
   RefreshCw,
   Building2,
-  Send
+  Send,
+  Lock,
+  Eye,
+  List
 } from "lucide-react";
 import { format, addDays, startOfToday, isSameDay } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -56,6 +60,9 @@ const SEOAutoPost = () => {
   const [publishing, setPublishing] = useState<string | null>(null);
   const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null);
   const [activeTab, setActiveTab] = useState("planning");
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [selectedArticle, setSelectedArticle] = useState<ScheduledContent | null>(null);
+  const [showPreviewDialog, setShowPreviewDialog] = useState(false);
 
   useEffect(() => {
     if (!user) {
@@ -63,7 +70,31 @@ const SEOAutoPost = () => {
       return;
     }
     fetchData();
+    checkSubscription();
   }, [user, navigate]);
+
+  const checkSubscription = async () => {
+    if (!user) return;
+    
+    // Check if user has SEO AutoPost subscription
+    const { data: subscription } = await supabase
+      .from("subscriptions")
+      .select("*")
+      .eq("user_id", user.id)
+      .eq("module", "seo_autopost")
+      .eq("status", "active")
+      .maybeSingle();
+    
+    // Also check if user has a paid plan (Pro or Business)
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("plan_name")
+      .eq("id", user.id)
+      .single();
+    
+    const hasPaidPlan = profile?.plan_name && ["pro", "business"].includes(profile.plan_name.toLowerCase());
+    setIsSubscribed(!!subscription || hasPaidPlan);
+  };
 
   const fetchData = async () => {
     setLoading(true);
@@ -94,6 +125,33 @@ const SEOAutoPost = () => {
       .order("scheduled_date", { ascending: true });
     
     setScheduledContent((data as ScheduledContent[]) || []);
+  };
+
+  const handleSubscribe = async () => {
+    try {
+      const { data, error } = await supabase.functions.invoke("create-checkout", {
+        body: { 
+          priceId: "price_1RVnzNP3jJGT2fKYhOMULUbz", // SEO AutoPost monthly price
+          mode: "subscription"
+        }
+      });
+      
+      if (error) throw error;
+      if (data?.url) {
+        window.location.href = data.url;
+      }
+    } catch (error: any) {
+      toast({
+        title: "Erreur",
+        description: "Impossible de créer la session de paiement",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handlePreviewArticle = (article: ScheduledContent) => {
+    setSelectedArticle(article);
+    setShowPreviewDialog(true);
   };
 
   const analyzeAndGeneratePlan = async () => {
@@ -402,16 +460,34 @@ const SEOAutoPost = () => {
               </Card>
             )}
 
+            {/* Subscription Banner for non-subscribers */}
+            {!isSubscribed && (
+              <Card className="border-primary/30 bg-primary/5">
+                <CardContent className="p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <Lock className="w-8 h-8 text-primary" />
+                    <div>
+                      <p className="font-semibold text-foreground">Module Premium</p>
+                      <p className="text-sm text-muted-foreground">Abonnez-vous pour débloquer toutes les fonctionnalités</p>
+                    </div>
+                  </div>
+                  <Button onClick={handleSubscribe}>
+                    S'abonner - 49€/mois
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+
             {/* Tabs */}
             <Tabs value={activeTab} onValueChange={setActiveTab}>
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="planning" className="gap-2">
                   <Calendar className="w-4 h-4" />
-                  Planning 30 jours
+                  Planning
                 </TabsTrigger>
-                <TabsTrigger value="content" className="gap-2">
-                  <FileText className="w-4 h-4" />
-                  Contenu généré
+                <TabsTrigger value="articles" className="gap-2">
+                  <List className="w-4 h-4" />
+                  Articles
                 </TabsTrigger>
               </TabsList>
 
@@ -458,8 +534,8 @@ const SEOAutoPost = () => {
                 </div>
               </TabsContent>
 
-              {/* Content Tab */}
-              <TabsContent value="content" className="mt-4 space-y-3">
+              {/* Articles Tab */}
+              <TabsContent value="articles" className="mt-4 space-y-3">
                 {scheduledContent.filter(c => c.question || c.answer).length === 0 ? (
                   <Card className="p-6 text-center">
                     <Sparkles className="w-10 h-10 mx-auto mb-3 text-muted-foreground/30" />
@@ -471,7 +547,11 @@ const SEOAutoPost = () => {
                   scheduledContent
                     .filter(c => c.question || c.answer)
                     .map((item) => (
-                      <Card key={item.id}>
+                      <Card 
+                        key={item.id} 
+                        className="cursor-pointer hover:border-primary/50 transition-colors"
+                        onClick={() => handlePreviewArticle(item)}
+                      >
                         <CardContent className="p-4">
                           <div className="flex items-start justify-between gap-3 mb-2">
                             <div className="flex items-center gap-2">
@@ -486,11 +566,25 @@ const SEOAutoPost = () => {
                                   {item.keyword_used}
                                 </span>
                               )}
-                              {item.status === "generated" && (
+                              <Button 
+                                size="sm" 
+                                variant="ghost"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handlePreviewArticle(item);
+                                }}
+                              >
+                                <Eye className="w-3 h-3 mr-1" />
+                                Voir
+                              </Button>
+                              {isSubscribed && item.status === "generated" && (
                                 <Button 
                                   size="sm" 
                                   variant="default"
-                                  onClick={() => publishToGMB(item)}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    publishToGMB(item);
+                                  }}
                                   disabled={publishing === item.id}
                                 >
                                   {publishing === item.id ? (
@@ -505,16 +599,14 @@ const SEOAutoPost = () => {
                               )}
                             </div>
                           </div>
-                          {item.question && (
-                            <p className="font-medium text-foreground text-sm mb-1">
-                              Q: {item.question}
-                            </p>
-                          )}
-                          {item.answer && (
-                            <p className="text-muted-foreground text-sm">
-                              R: {item.answer}
-                            </p>
-                          )}
+                          <div className="flex items-center gap-2">
+                            {!isSubscribed && <Lock className="w-4 h-4 text-muted-foreground" />}
+                            {item.question && (
+                              <p className={`font-medium text-sm ${isSubscribed ? "text-foreground" : "text-muted-foreground"} line-clamp-1`}>
+                                {isSubscribed ? item.question : "Contenu réservé aux abonnés"}
+                              </p>
+                            )}
+                          </div>
                         </CardContent>
                       </Card>
                     ))
@@ -526,6 +618,15 @@ const SEOAutoPost = () => {
       </main>
 
       <MobileBottomNav />
+
+      {/* Article Preview Dialog */}
+      <ArticlePreviewDialog
+        open={showPreviewDialog}
+        onOpenChange={setShowPreviewDialog}
+        article={selectedArticle}
+        isSubscribed={isSubscribed}
+        onSubscribe={handleSubscribe}
+      />
     </div>
   );
 };
