@@ -59,31 +59,31 @@ export const HeroSection = () => {
 
           {/* Mobile Feature Cards - Show on mobile only */}
           <div className="grid grid-cols-1 gap-3 mb-8 sm:hidden animate-fade-in" style={{ animationDelay: "0.35s" }}>
-            <div className="flex items-center gap-3 p-4 bg-card/10 backdrop-blur-sm rounded-xl border border-card/20">
+            <div className="flex items-center gap-3 p-4 bg-card rounded-xl border border-border shadow-sm">
               <div className="w-10 h-10 rounded-lg bg-accent/20 flex items-center justify-center flex-shrink-0">
                 <MessageSquare className="w-5 h-5 text-accent" />
               </div>
               <div className="text-left">
-                <p className="text-card font-semibold text-sm">Réponses IA automatiques</p>
-                <p className="text-card/70 text-xs">Répondez à 100 avis en 1 clic</p>
+                <p className="text-foreground font-semibold text-sm">Réponses aux avis par IA</p>
+                <p className="text-muted-foreground text-xs">Répondez à 100 avis en 1 clic</p>
               </div>
             </div>
-            <div className="flex items-center gap-3 p-4 bg-card/10 backdrop-blur-sm rounded-xl border border-card/20">
+            <div className="flex items-center gap-3 p-4 bg-card rounded-xl border border-border shadow-sm">
               <div className="w-10 h-10 rounded-lg bg-secondary/20 flex items-center justify-center flex-shrink-0">
                 <FileText className="w-5 h-5 text-secondary" />
               </div>
               <div className="text-left">
-                <p className="text-card font-semibold text-sm">SEO AutoPost</p>
-                <p className="text-card/70 text-xs">Articles optimisés générés</p>
+                <p className="text-foreground font-semibold text-sm">SEO AutoPost</p>
+                <p className="text-muted-foreground text-xs">Articles optimisés générés</p>
               </div>
             </div>
-            <div className="flex items-center gap-3 p-4 bg-card/10 backdrop-blur-sm rounded-xl border border-card/20">
+            <div className="flex items-center gap-3 p-4 bg-card rounded-xl border border-border shadow-sm">
               <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center flex-shrink-0">
                 <ChatGPTIcon className="w-5 h-5 text-primary" />
               </div>
               <div className="text-left">
-                <p className="text-card font-semibold text-sm">Visibilité ChatGPT</p>
-                <p className="text-card/70 text-xs">Apparaissez dans les réponses IA</p>
+                <p className="text-foreground font-semibold text-sm">Visibilité ChatGPT</p>
+                <p className="text-muted-foreground text-xs">Apparaissez dans les réponses IA</p>
               </div>
             </div>
           </div>
