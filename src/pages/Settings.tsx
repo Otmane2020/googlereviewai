@@ -10,12 +10,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { useGoogleOAuth } from "@/hooks/useGoogleOAuth";
+import { useWebPushNotifications } from "@/hooks/useWebPushNotifications";
 import { 
   User,
   Mail,
   CreditCard,
   Shield,
   Bell,
+  BellOff,
+  BellRing,
   Save,
   Loader2,
   Crown,
@@ -66,6 +69,14 @@ const SettingsPage = () => {
   const { user, session, signOut } = useAuth();
   const navigate = useNavigate();
   const { initiateOAuth, checkOAuthStatus, isConnecting } = useGoogleOAuth();
+  const { 
+    permission: pushPermission, 
+    isSupported: pushSupported, 
+    isSubscribed: pushSubscribed, 
+    isLoading: pushLoading,
+    subscribe: subscribePush,
+    unsubscribe: unsubscribePush
+  } = useWebPushNotifications();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [fullName, setFullName] = useState("");
   const [loading, setLoading] = useState(true);
@@ -519,9 +530,85 @@ const SettingsPage = () => {
             <h2 className="font-semibold text-foreground">Notifications</h2>
           </div>
           
-          <p className="text-muted-foreground text-sm">
-            Les paramètres de notifications seront bientôt disponibles.
-          </p>
+          <div className="space-y-4">
+            {/* Web Push Notifications */}
+            <div className="flex items-center justify-between p-4 bg-muted/50 rounded-xl">
+              <div className="flex items-center gap-3">
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                  pushSubscribed ? 'bg-green-500/10' : 'bg-muted'
+                }`}>
+                  {pushSubscribed ? (
+                    <BellRing className="w-5 h-5 text-green-600" />
+                  ) : (
+                    <BellOff className="w-5 h-5 text-muted-foreground" />
+                  )}
+                </div>
+                <div>
+                  <p className="font-medium text-foreground text-sm">
+                    Notifications Push
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {!pushSupported 
+                      ? "Non supporté par ce navigateur"
+                      : pushSubscribed 
+                        ? "Activées - Vous recevez les alertes même app fermée"
+                        : pushPermission === "denied"
+                          ? "Bloquées - Activez-les dans les paramètres du navigateur"
+                          : "Désactivées - Activez pour recevoir les alertes"
+                    }
+                  </p>
+                </div>
+              </div>
+              {pushSupported && pushPermission !== "denied" && (
+                <Button
+                  variant={pushSubscribed ? "outline" : "default"}
+                  size="sm"
+                  onClick={pushSubscribed ? unsubscribePush : subscribePush}
+                  disabled={pushLoading}
+                  className="rounded-xl h-9 shrink-0"
+                >
+                  {pushLoading ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : pushSubscribed ? (
+                    <>
+                      <BellOff className="w-4 h-4 mr-1.5" />
+                      Désactiver
+                    </>
+                  ) : (
+                    <>
+                      <BellRing className="w-4 h-4 mr-1.5" />
+                      Activer
+                    </>
+                  )}
+                </Button>
+              )}
+            </div>
+
+            {/* Email notifications info */}
+            <div className="flex items-center justify-between p-4 bg-muted/50 rounded-xl">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                  <Mail className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <p className="font-medium text-foreground text-sm">
+                    Notifications Email
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Configurez dans Paramètres IA
+                  </p>
+                </div>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate("/ai-settings")}
+                className="rounded-xl h-9"
+              >
+                Configurer
+              </Button>
+            </div>
+          </div>
         </div>
       </main>
 

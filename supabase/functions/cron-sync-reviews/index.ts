@@ -337,6 +337,26 @@ serve(async (req) => {
                   console.error("Failed to send email notification:", emailError);
                 }
               }
+
+              // Send Web Push notification
+              try {
+                await fetch(`${supabaseUrl}/functions/v1/send-push-notification`, {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${supabaseServiceKey}`,
+                  },
+                  body: JSON.stringify({
+                    user_id: userSettings.user_id,
+                    title: `Nouvel avis ${review.rating}⭐`,
+                    body: `${review.author} a laissé un avis${review.comment ? ': "' + review.comment.substring(0, 50) + '..."' : '.'}`,
+                    url: "/reviews",
+                    data: { review_id: review.id },
+                  }),
+                });
+              } catch (pushError) {
+                console.error("Failed to send push notification:", pushError);
+              }
             }
           }
         }
