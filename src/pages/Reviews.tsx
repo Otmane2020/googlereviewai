@@ -192,7 +192,11 @@ const Reviews = () => {
 
     try {
       const { data, error } = await supabase.functions.invoke("generate-ai-response", {
-        body: { reviewId, userId: user.id },
+        body: { 
+          reviewId, 
+          userId: user.id,
+          businessId: selectedBusinessId // Pass the selected business
+        },
       });
 
       if (error) throw error;

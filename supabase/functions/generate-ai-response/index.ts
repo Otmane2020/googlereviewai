@@ -12,8 +12,8 @@ serve(async (req) => {
   }
 
   try {
-    const { reviewId, userId } = await req.json();
-    console.log("Generating AI response for review:", reviewId, "user:", userId);
+    const { reviewId, userId, businessId } = await req.json();
+    console.log("Generating AI response for review:", reviewId, "user:", userId, "business:", businessId);
 
     const OPENROUTER_API_KEY = Deno.env.get("OPENROUTER_API_KEY");
     if (!OPENROUTER_API_KEY) {
@@ -46,7 +46,7 @@ serve(async (req) => {
       );
     }
 
-    // Fetch review
+    // Fetch review with location_id to find correct business
     const { data: review, error: reviewError } = await supabase
       .from("reviews")
       .select("*")
@@ -59,6 +59,35 @@ serve(async (req) => {
       throw new Error("Review not found");
     }
 
+    // Fetch the CORRECT business based on businessId or review's location_id
+    let business = null;
+    
+    if (businessId) {
+      // Use the explicitly provided businessId
+      const { data: businessData } = await supabase
+        .from("businesses")
+        .select("id, name, description, google_place_id")
+        .eq("id", businessId)
+        .eq("user_id", userId)
+        .single();
+      business = businessData;
+    }
+    
+    // Fallback: find business by review's location_id
+    if (!business && review.location_id) {
+      const { data: businessData } = await supabase
+        .from("businesses")
+        .select("id, name, description, google_place_id")
+        .eq("google_place_id", review.location_id)
+        .eq("user_id", userId)
+        .single();
+      business = businessData;
+    }
+
+    const businessName = business?.name || "Notre établissement";
+    const businessDescription = business?.description || "";
+    console.log("Using business:", businessName);
+
     // Fetch AI settings
     const { data: aiSettings } = await supabase
       .from("ai_settings")
@@ -66,45 +95,71 @@ serve(async (req) => {
       .eq("user_id", userId)
       .single();
 
-    // Fetch business info for signature
-    const { data: business } = await supabase
-      .from("businesses")
-      .select("name")
-      .eq("user_id", userId)
-      .limit(1)
-      .single();
-
     const tone = aiSettings?.tone || "friendly";
     const responseLength = aiSettings?.response_length || "M";
     const includeSignature = aiSettings?.include_signature ?? true;
-    const signature = aiSettings?.signature?.replace("{business_name}", business?.name || "Notre équipe") || "";
     const customTemplate = aiSettings?.custom_template || "";
+    
+    // Build signature with correct business name
+    let signature = "";
+    if (includeSignature && aiSettings?.signature) {
+      signature = aiSettings.signature
+        .replace("{business_name}", businessName)
+        .replace("{nom_etablissement}", businessName);
+    } else if (includeSignature) {
+      signature = `— L'équipe ${businessName}`;
+    }
 
+    // Length instructions in French
     const lengthMap: Record<string, string> = {
-      S: "Keep the response brief, around 2-3 sentences.",
-      M: "Write a medium-length response, around 4-5 sentences.",
-      L: "Write a detailed response, around 6-8 sentences.",
+      S: "1 à 2 phrases courtes (20-40 mots)",
+      M: "2 à 4 phrases (40-80 mots)",
+      L: "4 à 6 phrases (80-150 mots)",
     };
-    const lengthInstruction = lengthMap[responseLength] || "Write a medium-length response.";
+    const lengthInstruction = lengthMap[responseLength] || "2 à 4 phrases (40-80 mots)";
 
+    // Tone instructions in French
     const toneMap: Record<string, string> = {
-      friendly: "Use a warm, friendly, and approachable tone.",
-      professional: "Use a professional and formal tone.",
-      casual: "Use a casual and relaxed tone.",
-      empathetic: "Use an empathetic and understanding tone.",
-      humorous: "Use a light, humorous, and fun tone while remaining respectful.",
-      warm: "Use a warm, caring, and compassionate tone that shows genuine empathy.",
+      friendly: "amical et chaleureux",
+      professional: "professionnel et formel",
+      casual: "décontracté et naturel",
+      empathetic: "empathique et compréhensif",
+      humorous: "léger avec une touche d'humour tout en restant respectueux",
+      warm: "chaleureux et bienveillant",
     };
-    const toneInstruction = toneMap[tone] || "Use a friendly tone.";
+    const toneInstruction = toneMap[tone] || "amical et professionnel";
 
-    const systemPrompt = `You are an AI assistant that generates professional responses to customer reviews in French.
-${toneInstruction}
-${lengthInstruction}
-Always thank the customer and address their specific feedback.
-${review.rating >= 4 ? "This is a positive review, express gratitude." : "This is a critical review, show empathy and offer to improve."}
-${customTemplate ? `Additional instructions: ${customTemplate}` : ""}
-${includeSignature && signature ? `End with this signature: ${signature}` : ""}
-Do not include any greeting like "Cher client" - start directly with the response.`;
+    // Determine response strategy based on rating
+    let ratingStrategy = "";
+    if (review.rating >= 4) {
+      ratingStrategy = "C'est un avis positif. Exprime ta gratitude chaleureusement et encourage le client à revenir.";
+    } else if (review.rating === 3) {
+      ratingStrategy = "C'est un avis mitigé. Remercie le client, reconnais les points à améliorer et montre ta volonté de faire mieux.";
+    } else {
+      ratingStrategy = "C'est un avis négatif. Montre de l'empathie, présente des excuses sincères et propose une solution ou un geste commercial.";
+    }
+
+    // Build the prompt inspired by the user's example
+    const prompt = `Tu es un assistant professionnel qui répond aux avis Google My Business pour ${businessName}.
+${businessDescription ? `\nContexte de l'établissement : ${businessDescription}` : ""}
+
+Avis reçu :
+- Auteur : ${review.author}
+- Note : ${review.rating}/5
+- Commentaire : "${review.comment || "Aucun commentaire"}"
+
+Ta mission :
+1. Remercier le client pour son retour.
+2. ${ratingStrategy}
+3. Répondre en ${lengthInstruction}.
+4. Utiliser un ton : ${toneInstruction}.
+${customTemplate ? `5. Instructions supplémentaires : ${customTemplate}` : ""}
+${signature ? `6. Terminer par cette signature : "${signature}"` : ""}
+
+IMPORTANT :
+- NE PAS commencer par "Cher client" ou "Bonjour" - commence directement par le contenu.
+- Personnalise la réponse en mentionnant des détails spécifiques de l'avis si possible.
+- Réponds uniquement avec le texte de la réponse, sans guillemets ni balises.`;
 
     console.log("Calling OpenRouter API...");
     
@@ -119,9 +174,14 @@ Do not include any greeting like "Cher client" - start directly with the respons
       body: JSON.stringify({
         model: "google/gemini-2.5-flash",
         messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: `Generate a response for this ${review.rating}-star review from ${review.author}: "${review.comment || "No comment provided"}"` },
+          { 
+            role: "system", 
+            content: "Tu es un assistant IA expert en relation client qui rédige des réponses aux avis Google de manière professionnelle, polie et naturelle en français."
+          },
+          { role: "user", content: prompt },
         ],
+        temperature: 0.7,
+        max_tokens: 300,
       }),
     });
 
@@ -144,11 +204,16 @@ Do not include any greeting like "Cher client" - start directly with the respons
     }
 
     const data = await response.json();
-    const aiResponse = data.choices?.[0]?.message?.content;
+    let aiResponse = data.choices?.[0]?.message?.content?.trim();
     console.log("AI response generated:", aiResponse?.substring(0, 100));
 
     if (!aiResponse) {
       throw new Error("No response generated");
+    }
+
+    // Clean up response - remove quotes if AI wrapped the response
+    if (aiResponse.startsWith('"') && aiResponse.endsWith('"')) {
+      aiResponse = aiResponse.slice(1, -1);
     }
 
     // Deduct 1 credit
@@ -167,7 +232,7 @@ Do not include any greeting like "Cher client" - start directly with the respons
       user_id: userId,
       amount: -1,
       type: "usage",
-      description: `Réponse IA pour l'avis de ${review.author}`,
+      description: `Réponse IA pour l'avis de ${review.author} (${businessName})`,
     });
 
     // Update review with AI response
@@ -186,14 +251,15 @@ Do not include any greeting like "Cher client" - start directly with the respons
       user_id: userId,
       type: "ai_response",
       title: "Réponse IA générée",
-      message: `Une réponse a été générée pour l'avis de ${review.author}`,
+      message: `Une réponse a été générée pour l'avis de ${review.author} (${businessName})`,
       review_id: reviewId,
     });
 
     return new Response(JSON.stringify({ 
       success: true, 
       response: aiResponse,
-      credits_remaining: newCredits 
+      credits_remaining: newCredits,
+      business_used: businessName
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
