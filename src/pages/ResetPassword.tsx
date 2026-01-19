@@ -37,7 +37,7 @@ const ResetPassword = () => {
         if (!error) {
           setIsValidSession(true);
           // Clean URL
-          window.history.replaceState(null, '', '/auth/reset-password');
+          window.history.replaceState(null, '', '/reset-password');
         }
       } else {
         // Check existing session
