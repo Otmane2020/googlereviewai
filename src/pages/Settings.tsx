@@ -300,7 +300,7 @@ const SettingsPage = () => {
           </div>
 
           <div className="mb-6 p-4 rounded-xl bg-primary/5 border border-primary/20">
-            <div className="flex items-center justify-between mb-3">
+            <div className="flex flex-col gap-3 mb-3">
               <div className="flex items-center gap-2">
                 <Crown className="w-5 h-5 text-primary" />
                 <span className="font-semibold text-foreground">
@@ -315,7 +315,7 @@ const SettingsPage = () => {
                 size="sm"
                 onClick={handleManageSubscription}
                 disabled={openingPortal}
-                className="gap-2"
+                className="gap-2 w-full sm:w-auto"
               >
                 {openingPortal ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
