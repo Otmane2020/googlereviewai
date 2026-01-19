@@ -46,7 +46,49 @@ serve(async (req) => {
 
     console.log("User authenticated:", user.id);
 
-    // Fetch businesses to get location IDs
+    // First, get all accounts for this user using the Business Profile API
+    const accountsResponse = await fetch(
+      "https://mybusinessaccountmanagement.googleapis.com/v1/accounts",
+      {
+        headers: {
+          Authorization: `Bearer ${provider_token}`,
+        },
+      }
+    );
+
+    if (!accountsResponse.ok) {
+      const errorText = await accountsResponse.text();
+      console.error("Failed to fetch accounts:", accountsResponse.status, errorText);
+      
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          message: "Failed to fetch Google Business accounts. Make sure you have Business Profile API access.",
+          error: errorText,
+          reviews: [] 
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const accountsData = await accountsResponse.json();
+    const accounts = accountsData.accounts || [];
+    
+    console.log(`Found ${accounts.length} Google Business accounts`);
+
+    if (accounts.length === 0) {
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          message: "No Google Business accounts found",
+          reviews: [],
+          synced_count: 0
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Fetch businesses to get location IDs from database
     let businessQuery = supabaseClient
       .from("businesses")
       .select("id, name, google_place_id")
@@ -65,36 +107,18 @@ serve(async (req) => {
       throw new Error("Failed to fetch businesses");
     }
 
-    if (!businesses || businesses.length === 0) {
-      return new Response(
-        JSON.stringify({ 
-          success: true, 
-          message: "No businesses found to sync reviews",
-          reviews: [],
-          synced_count: 0
-        }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    console.log(`Found ${businesses.length} businesses to sync reviews for`);
-
     const allReviews: any[] = [];
     const errors: string[] = [];
 
-    // Fetch reviews for each business/location
-    for (const business of businesses) {
-      if (!business.google_place_id) {
-        console.log(`Skipping business ${business.name}: no google_place_id`);
-        continue;
-      }
-
-      const locationName = `locations/${business.google_place_id}`;
-      console.log(`Fetching reviews for ${locationName}`);
+    // For each account, fetch locations and their reviews
+    for (const account of accounts) {
+      const accountName = account.name; // format: accounts/123456789
+      console.log(`Processing account: ${accountName}`);
 
       try {
-        const reviewsResponse = await fetch(
-          `https://mybusiness.googleapis.com/v4/${locationName}/reviews`,
+        // Get locations for this account
+        const locationsResponse = await fetch(
+          `https://mybusinessbusinessinformation.googleapis.com/v1/${accountName}/locations?readMask=name,title,storefrontAddress`,
           {
             headers: {
               Authorization: `Bearer ${provider_token}`,
@@ -102,86 +126,93 @@ serve(async (req) => {
           }
         );
 
-        if (!reviewsResponse.ok) {
-          const errorText = await reviewsResponse.text();
-          console.error(`Failed to fetch reviews for ${business.name}:`, reviewsResponse.status, errorText);
-          
-          if (reviewsResponse.status === 429) {
-            errors.push(`${business.name}: Quota exceeded`);
-          } else if (reviewsResponse.status === 403) {
-            errors.push(`${business.name}: Access denied`);
-          } else {
-            errors.push(`${business.name}: ${reviewsResponse.status}`);
-          }
+        if (!locationsResponse.ok) {
+          const errorText = await locationsResponse.text();
+          console.error(`Failed to fetch locations for ${accountName}:`, locationsResponse.status, errorText);
           continue;
         }
 
-        const reviewsData = await reviewsResponse.json();
-        const reviews = reviewsData.reviews || [];
+        const locationsData = await locationsResponse.json();
+        const locations = locationsData.locations || [];
         
-        console.log(`Found ${reviews.length} reviews for ${business.name}`);
+        console.log(`Found ${locations.length} locations for ${accountName}`);
 
-        // Process and save each review
-        for (const review of reviews) {
-          const reviewData = {
-            user_id: user.id,
-            review_id: review.reviewId || review.name,
-            location_id: business.google_place_id,
-            author: review.reviewer?.displayName || "Anonyme",
-            rating: parseInt(review.starRating?.replace("STAR_RATING_", "") || review.starRating) || 5,
-            comment: review.comment || "",
-            review_date: review.createTime || new Date().toISOString(),
-            replied: !!review.reviewReply,
-            ai_response: review.reviewReply?.comment || null,
-          };
+        // Fetch reviews for each location
+        for (const location of locations) {
+          const locationName = location.name; // format: locations/123456789
+          const locationTitle = location.title || "Unknown Location";
+          
+          // Extract location ID for matching with database
+          const locationId = locationName.replace("locations/", "");
+          
+          console.log(`Fetching reviews for ${locationTitle} (${locationName})`);
 
-          // Convert star rating format (ONE, TWO, THREE, etc. to numbers)
-          const starMapping: Record<string, number> = {
-            "ONE": 1, "TWO": 2, "THREE": 3, "FOUR": 4, "FIVE": 5
-          };
-          if (typeof review.starRating === "string" && starMapping[review.starRating]) {
-            reviewData.rating = starMapping[review.starRating];
-          }
+          try {
+            // Use the correct API endpoint for reviews
+            const reviewsResponse = await fetch(
+              `https://mybusiness.googleapis.com/v4/${accountName}/${locationName}/reviews`,
+              {
+                headers: {
+                  Authorization: `Bearer ${provider_token}`,
+                },
+              }
+            );
 
-          // Upsert review
-          const { data: existingReview } = await supabaseClient
-            .from("reviews")
-            .select("id")
-            .eq("review_id", reviewData.review_id)
-            .maybeSingle();
+            if (!reviewsResponse.ok) {
+              const errorText = await reviewsResponse.text();
+              console.error(`Failed to fetch reviews for ${locationTitle}:`, reviewsResponse.status, errorText);
+              
+              if (reviewsResponse.status === 429) {
+                errors.push(`${locationTitle}: Quota exceeded`);
+              } else if (reviewsResponse.status === 403) {
+                errors.push(`${locationTitle}: Access denied - check API permissions`);
+              } else if (reviewsResponse.status === 404) {
+                // Try alternate API endpoint
+                console.log(`Trying alternate endpoint for ${locationTitle}`);
+                const altReviewsResponse = await fetch(
+                  `https://mybusiness.googleapis.com/v4/${locationName}/reviews`,
+                  {
+                    headers: {
+                      Authorization: `Bearer ${provider_token}`,
+                    },
+                  }
+                );
+                
+                if (altReviewsResponse.ok) {
+                  const altReviewsData = await altReviewsResponse.json();
+                  const reviews = altReviewsData.reviews || [];
+                  console.log(`Found ${reviews.length} reviews via alternate endpoint`);
+                  
+                  // Process reviews
+                  for (const review of reviews) {
+                    await processReview(supabaseClient, user.id, locationId, review, allReviews);
+                  }
+                } else {
+                  errors.push(`${locationTitle}: Location not found`);
+                }
+              } else {
+                errors.push(`${locationTitle}: Error ${reviewsResponse.status}`);
+              }
+              continue;
+            }
 
-          let result;
-          if (existingReview) {
-            result = await supabaseClient
-              .from("reviews")
-              .update({
-                author: reviewData.author,
-                rating: reviewData.rating,
-                comment: reviewData.comment,
-                replied: reviewData.replied,
-                ai_response: reviewData.ai_response,
-                updated_at: new Date().toISOString(),
-              })
-              .eq("id", existingReview.id)
-              .select()
-              .single();
-          } else {
-            result = await supabaseClient
-              .from("reviews")
-              .insert(reviewData)
-              .select()
-              .single();
-          }
+            const reviewsData = await reviewsResponse.json();
+            const reviews = reviewsData.reviews || [];
+            
+            console.log(`Found ${reviews.length} reviews for ${locationTitle}`);
 
-          if (result.data) {
-            allReviews.push(result.data);
-          } else if (result.error) {
-            console.error("Error saving review:", result.error);
+            // Process and save each review
+            for (const review of reviews) {
+              await processReview(supabaseClient, user.id, locationId, review, allReviews);
+            }
+          } catch (error) {
+            console.error(`Error fetching reviews for ${locationTitle}:`, error);
+            errors.push(`${locationTitle}: ${error instanceof Error ? error.message : "Unknown error"}`);
           }
         }
       } catch (error) {
-        console.error(`Error processing reviews for ${business.name}:`, error);
-        errors.push(`${business.name}: ${error instanceof Error ? error.message : "Unknown error"}`);
+        console.error(`Error processing account ${accountName}:`, error);
+        errors.push(`Account ${accountName}: ${error instanceof Error ? error.message : "Unknown error"}`);
       }
     }
 
@@ -214,3 +245,72 @@ serve(async (req) => {
     );
   }
 });
+
+async function processReview(
+  supabaseClient: any, 
+  userId: string, 
+  locationId: string, 
+  review: any,
+  allReviews: any[]
+) {
+  // Convert star rating format
+  const starMapping: Record<string, number> = {
+    "ONE": 1, "TWO": 2, "THREE": 3, "FOUR": 4, "FIVE": 5,
+    "STAR_RATING_UNSPECIFIED": 0
+  };
+  
+  let rating = 5;
+  if (typeof review.starRating === "string") {
+    rating = starMapping[review.starRating] || 5;
+  } else if (typeof review.starRating === "number") {
+    rating = review.starRating;
+  }
+
+  const reviewData = {
+    user_id: userId,
+    review_id: review.reviewId || review.name,
+    location_id: locationId,
+    author: review.reviewer?.displayName || "Anonyme",
+    rating: rating,
+    comment: review.comment || "",
+    review_date: review.createTime || new Date().toISOString(),
+    replied: !!review.reviewReply,
+    ai_response: review.reviewReply?.comment || null,
+  };
+
+  // Upsert review
+  const { data: existingReview } = await supabaseClient
+    .from("reviews")
+    .select("id")
+    .eq("review_id", reviewData.review_id)
+    .maybeSingle();
+
+  let result;
+  if (existingReview) {
+    result = await supabaseClient
+      .from("reviews")
+      .update({
+        author: reviewData.author,
+        rating: reviewData.rating,
+        comment: reviewData.comment,
+        replied: reviewData.replied,
+        ai_response: reviewData.ai_response,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", existingReview.id)
+      .select()
+      .single();
+  } else {
+    result = await supabaseClient
+      .from("reviews")
+      .insert(reviewData)
+      .select()
+      .single();
+  }
+
+  if (result.data) {
+    allReviews.push(result.data);
+  } else if (result.error) {
+    console.error("Error saving review:", result.error);
+  }
+}
