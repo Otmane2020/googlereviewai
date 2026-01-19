@@ -72,8 +72,13 @@ const Auth = () => {
         return;
       }
 
+      // Use published URL for password reset to ensure link works
+      const baseUrl = window.location.hostname.includes('lovableproject.com') || window.location.hostname.includes('lovable.app')
+        ? 'https://starlinko.lovable.app'
+        : window.location.origin;
+      
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
+        redirectTo: `${baseUrl}/reset-password`,
       });
 
       if (error) {
