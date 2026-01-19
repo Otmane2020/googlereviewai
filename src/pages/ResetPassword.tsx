@@ -9,6 +9,7 @@ import { toast } from "@/hooks/use-toast";
 import { Eye, EyeOff, Lock, ArrowLeft, Loader2, CheckCircle } from "lucide-react";
 
 const ResetPassword = () => {
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -16,13 +17,34 @@ const ResetPassword = () => {
   const [isSuccess, setIsSuccess] = useState(false);
   const [isValidSession, setIsValidSession] = useState(false);
   const [checkingSession, setCheckingSession] = useState(true);
+  const [resetError, setResetError] = useState<{ code?: string; description?: string } | null>(null);
+  const [resendLoading, setResendLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
+    const decodeHashParam = (value: string | null) => {
+      if (!value) return undefined;
+      // In hashes, spaces are often encoded as '+'
+      return decodeURIComponent(value.replace(/\+/g, " "));
+    };
+
+    // Handle explicit error states from the email link
+    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    const errorCode = decodeHashParam(hashParams.get("error_code"));
+    const errorDescription = decodeHashParam(hashParams.get("error_description"));
+
+    if (errorCode || errorDescription) {
+      setResetError({ code: errorCode, description: errorDescription });
+      // Clean the URL hash so refresh doesn't keep the error state
+      window.history.replaceState(null, "", window.location.pathname);
+    }
+
     const checkSession = async () => {
       // Check if user has a valid session (came from email link)
-      const { data: { session } } = await supabase.auth.getSession();
-      
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
       if (session) {
         // User is logged in - they can change their password
         setIsValidSession(true);
@@ -31,8 +53,9 @@ const ResetPassword = () => {
     };
 
     // Listen for auth state changes (when user clicks email link)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log("Auth event:", event);
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === "PASSWORD_RECOVERY" || event === "SIGNED_IN") {
         if (session) {
           setIsValidSession(true);
@@ -105,19 +128,75 @@ const ResetPassword = () => {
   }
 
   if (!isValidSession) {
+    const title = resetError?.code === "otp_expired" ? "Lien expiré" : "Lien invalide";
+    const description = resetError?.description
+      ? resetError.description
+      : "Ce lien de réinitialisation n'est plus valide. Demandez un nouveau lien.";
+
+    const resendLink = async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!email) return;
+
+      setResendLoading(true);
+      try {
+        const baseUrl =
+          window.location.hostname.includes("lovableproject.com") ||
+          window.location.hostname.includes("lovable.app")
+            ? "https://starlinko.lovable.app"
+            : window.location.origin;
+
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${baseUrl}/reset-password`,
+        });
+
+        if (error) {
+          toast({ title: "Erreur", description: error.message, variant: "destructive" });
+        } else {
+          toast({
+            title: "Email envoyé",
+            description: "Ouvrez le dernier email reçu pour réinitialiser votre mot de passe.",
+          });
+        }
+      } finally {
+        setResendLoading(false);
+      }
+    };
+
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-6">
-        <div className="w-full max-w-md text-center space-y-6">
-          <StarlinkoLogo showBadge={false} />
-          <div className="space-y-2">
-            <h1 className="text-2xl font-bold text-foreground">Lien expiré</h1>
-            <p className="text-muted-foreground">
-              Ce lien de réinitialisation n'est plus valide. Demandez un nouveau lien.
-            </p>
+        <div className="w-full max-w-md space-y-6">
+          <div className="text-center">
+            <StarlinkoLogo showBadge={false} className="mx-auto" />
           </div>
-          <Button onClick={() => navigate("/auth")} className="w-full">
-            Retour à la connexion
-          </Button>
+
+          <div className="text-center space-y-2">
+            <h1 className="text-2xl font-bold text-foreground">{title}</h1>
+            <p className="text-muted-foreground">{description}</p>
+          </div>
+
+          <form onSubmit={resendLink} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="votre@email.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="h-12"
+                required
+              />
+            </div>
+
+            <Button type="submit" className="w-full h-12" disabled={resendLoading}>
+              {resendLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Renvoyer un lien"}
+            </Button>
+
+            <Button type="button" variant="outline" className="w-full" onClick={() => navigate("/auth")}
+            >
+              Retour à la connexion
+            </Button>
+          </form>
         </div>
       </div>
     );
