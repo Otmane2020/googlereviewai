@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { StarlinkoLogo } from "@/components/StarlinkoLogo";
@@ -65,12 +65,13 @@ const REVIEWS_PER_PAGE = 10;
 const Reviews = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [reviews, setReviews] = useState<Review[]>([]);
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterRating, setFilterRating] = useState<number | null>(null);
-  const [filterBusiness, setFilterBusiness] = useState<string>("all");
+  const [filterBusiness, setFilterBusiness] = useState<string>(searchParams.get("business") || "all");
   const [filterNoResponse, setFilterNoResponse] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [generatingId, setGeneratingId] = useState<number | null>(null);

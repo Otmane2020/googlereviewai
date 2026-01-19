@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
+import { useSyncGoogleBusinesses } from "@/hooks/useSyncGoogleBusinesses";
 import { 
   ArrowLeft,
   Building2,
@@ -15,10 +16,14 @@ import {
   Phone,
   Globe,
   Star,
-  MoreVertical,
   Trash2,
   Edit,
-  Loader2
+  Loader2,
+  RefreshCw,
+  MessageSquare,
+  ExternalLink,
+  CheckCircle,
+  AlertCircle
 } from "lucide-react";
 import {
   Dialog,
@@ -37,15 +42,18 @@ interface Business {
   rating: number | null;
   total_reviews: number;
   is_active: boolean;
+  google_place_id: string | null;
 }
 
 const BusinessesPage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [businesses, setBusinesses] = useState<Business[]>([]);
+  const [reviewCounts, setReviewCounts] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [saving, setSaving] = useState(false);
+  const { syncBusinesses, isSyncing } = useSyncGoogleBusinesses();
   const [newBusiness, setNewBusiness] = useState({
     name: "",
     address: "",
@@ -75,8 +83,33 @@ const BusinessesPage = () => {
       console.error("Error fetching businesses:", error);
     } else {
       setBusinesses(data || []);
+      
+      // Fetch review counts per business
+      if (data && data.length > 0) {
+        const googlePlaceIds = data.map(b => b.google_place_id).filter(Boolean);
+        if (googlePlaceIds.length > 0) {
+          const { data: reviews } = await supabase
+            .from("reviews")
+            .select("location_id")
+            .eq("user_id", user.id)
+            .in("location_id", googlePlaceIds);
+          
+          if (reviews) {
+            const counts: Record<string, number> = {};
+            reviews.forEach(r => {
+              counts[r.location_id] = (counts[r.location_id] || 0) + 1;
+            });
+            setReviewCounts(counts);
+          }
+        }
+      }
     }
     setLoading(false);
+  };
+
+  const handleSyncBusinesses = async () => {
+    await syncBusinesses();
+    fetchBusinesses();
   };
 
   const handleAddBusiness = async () => {
@@ -169,13 +202,27 @@ const BusinessesPage = () => {
       </header>
 
       <main className="max-w-7xl mx-auto p-6 space-y-6">
-        {/* Add business button */}
-        <div className="flex justify-end">
+        {/* Action buttons */}
+        <div className="flex flex-col sm:flex-row gap-4 justify-between">
+          <Button
+            variant="outline"
+            className="gap-2"
+            onClick={handleSyncBusinesses}
+            disabled={isSyncing}
+          >
+            {isSyncing ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <RefreshCw className="w-4 h-4" />
+            )}
+            {isSyncing ? "Synchronisation..." : "Synchroniser depuis Google"}
+          </Button>
+          
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
               <Button className="gap-2">
                 <Plus className="w-5 h-5" />
-                Ajouter un établissement
+                Ajouter manuellement
               </Button>
             </DialogTrigger>
             <DialogContent>
@@ -252,81 +299,108 @@ const BusinessesPage = () => {
           </div>
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {businesses.map((business) => (
-              <div
-                key={business.id}
-                className="bg-card rounded-2xl border border-border p-6 hover:shadow-lg transition-shadow"
-              >
-                <div className="flex items-start justify-between mb-4">
-                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                    <Building2 className="w-6 h-6 text-primary" />
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 text-muted-foreground hover:text-foreground"
-                    >
-                      <Edit className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                      onClick={() => handleDeleteBusiness(business.id, business.name)}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </div>
-
-                <h3 className="font-semibold text-foreground text-lg mb-2">{business.name}</h3>
-
-                {business.rating && (
-                  <div className="flex items-center gap-2 mb-3">
-                    <Star className="w-4 h-4 text-accent fill-accent" />
-                    <span className="font-medium">{business.rating}</span>
-                    <span className="text-muted-foreground text-sm">
-                      ({business.total_reviews} avis)
-                    </span>
-                  </div>
-                )}
-
-                <div className="space-y-2 text-sm">
-                  {business.address && (
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <MapPin className="w-4 h-4 flex-shrink-0" />
-                      <span className="truncate">{business.address}</span>
+            {businesses.map((business) => {
+              const reviewCount = business.google_place_id ? (reviewCounts[business.google_place_id] || 0) : 0;
+              const isGoogleConnected = !!business.google_place_id;
+              
+              return (
+                <div
+                  key={business.id}
+                  className="bg-card rounded-2xl border border-border p-6 hover:shadow-lg transition-all hover:-translate-y-1"
+                >
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                      <Building2 className="w-6 h-6 text-primary" />
                     </div>
-                  )}
-                  {business.phone && (
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <Phone className="w-4 h-4 flex-shrink-0" />
-                      <span>{business.phone}</span>
-                    </div>
-                  )}
-                  {business.website && (
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <Globe className="w-4 h-4 flex-shrink-0" />
-                      <a 
-                        href={business.website} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="truncate hover:text-primary"
+                    <div className="flex items-center gap-1">
+                      {isGoogleConnected ? (
+                        <span className="flex items-center gap-1 text-xs text-secondary bg-secondary/10 px-2 py-1 rounded-full">
+                          <CheckCircle className="w-3 h-3" />
+                          Google
+                        </span>
+                      ) : (
+                        <span className="flex items-center gap-1 text-xs text-muted-foreground bg-muted px-2 py-1 rounded-full">
+                          <AlertCircle className="w-3 h-3" />
+                          Manuel
+                        </span>
+                      )}
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-muted-foreground hover:text-foreground"
                       >
-                        {business.website}
-                      </a>
+                        <Edit className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                        onClick={() => handleDeleteBusiness(business.id, business.name)}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
                     </div>
-                  )}
-                </div>
+                  </div>
 
-                <div className="mt-4 pt-4 border-t border-border">
-                  <Button variant="outline" className="w-full" size="sm">
-                    Voir les avis
-                  </Button>
+                  <h3 className="font-semibold text-foreground text-lg mb-2 line-clamp-2">{business.name}</h3>
+
+                  {/* Stats */}
+                  <div className="flex items-center gap-4 mb-3">
+                    {business.rating ? (
+                      <div className="flex items-center gap-1">
+                        <Star className="w-4 h-4 text-accent fill-accent" />
+                        <span className="font-medium">{business.rating}</span>
+                      </div>
+                    ) : null}
+                    <div className="flex items-center gap-1 text-muted-foreground">
+                      <MessageSquare className="w-4 h-4" />
+                      <span className="text-sm">{reviewCount} avis</span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2 text-sm">
+                    {business.address && (
+                      <div className="flex items-start gap-2 text-muted-foreground">
+                        <MapPin className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                        <span className="line-clamp-2">{business.address}</span>
+                      </div>
+                    )}
+                    {business.phone && (
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <Phone className="w-4 h-4 flex-shrink-0" />
+                        <span>{business.phone}</span>
+                      </div>
+                    )}
+                    {business.website && (
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <Globe className="w-4 h-4 flex-shrink-0" />
+                        <a 
+                          href={business.website} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="truncate hover:text-primary flex items-center gap-1"
+                        >
+                          {new URL(business.website).hostname}
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="mt-4 pt-4 border-t border-border flex gap-2">
+                    <Button 
+                      variant="default" 
+                      className="flex-1 gap-2" 
+                      size="sm"
+                      onClick={() => navigate(`/reviews?business=${business.id}`)}
+                    >
+                      <MessageSquare className="w-4 h-4" />
+                      Voir les avis
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </main>

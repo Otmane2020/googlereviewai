@@ -1,7 +1,10 @@
+import { useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
-import { Shield, Check, Rocket } from "lucide-react";
+import { Shield, Check, Rocket, Star, MessageSquare, TrendingUp } from "lucide-react";
 
 export const HeroSection = () => {
+  const navigate = useNavigate();
+  
   return (
     <section className="relative min-h-screen gradient-hero overflow-hidden">
       {/* Background decoration */}
@@ -35,10 +38,38 @@ export const HeroSection = () => {
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12 animate-fade-in" style={{ animationDelay: "0.3s" }}>
-            <Button variant="hero" size="xl" className="gap-3">
+            <Button variant="hero" size="xl" className="gap-3" onClick={() => navigate("/auth")}>
               <GoogleIcon />
-              S'authentifier avec Google
+              Commencer gratuitement
             </Button>
+            <Button variant="outline" size="xl" className="gap-2 bg-card/10 border-card/30 text-card hover:bg-card/20" onClick={() => document.getElementById("features")?.scrollIntoView({ behavior: "smooth" })}>
+              En savoir plus
+            </Button>
+          </div>
+
+          {/* Stats */}
+          <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto mb-12 animate-fade-in" style={{ animationDelay: "0.35s" }}>
+            <div className="text-center">
+              <div className="flex items-center justify-center gap-2 text-3xl font-bold text-card mb-1">
+                <Star className="w-6 h-6 text-accent-gold fill-accent-gold" />
+                4.9
+              </div>
+              <p className="text-card/70 text-sm">Note moyenne</p>
+            </div>
+            <div className="text-center border-x border-card/20">
+              <div className="flex items-center justify-center gap-2 text-3xl font-bold text-card mb-1">
+                <MessageSquare className="w-6 h-6 text-secondary" />
+                10k+
+              </div>
+              <p className="text-card/70 text-sm">Avis gérés</p>
+            </div>
+            <div className="text-center">
+              <div className="flex items-center justify-center gap-2 text-3xl font-bold text-card mb-1">
+                <TrendingUp className="w-6 h-6 text-accent" />
+                98%
+              </div>
+              <p className="text-card/70 text-sm">Satisfaction</p>
+            </div>
           </div>
 
           {/* Trust badges */}
