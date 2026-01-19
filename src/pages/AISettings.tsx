@@ -1,12 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
@@ -15,10 +13,8 @@ import {
   MessageSquare,
   Clock,
   Star,
-  Save,
   Loader2,
   RefreshCw,
-  Send,
   Bell,
   Briefcase,
   Heart,
@@ -26,7 +22,8 @@ import {
   Sun,
   PenLine,
   ThumbsUp,
-  Upload
+  Upload,
+  Check
 } from "lucide-react";
 
 interface AISettings {
@@ -78,6 +75,9 @@ const AISettingsPage = () => {
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isInitialLoad = useRef(true);
 
   useEffect(() => {
     if (!user) {
@@ -117,31 +117,46 @@ const AISettingsPage = () => {
     fetchSettings();
   }, [user, navigate]);
 
-  const handleSave = async () => {
+  const saveSettings = useCallback(async (newSettings: AISettings) => {
     if (!user) return;
     setSaving(true);
+    setSaved(false);
 
     const { error } = await supabase
       .from("ai_settings")
       .upsert({
         user_id: user.id,
-        ...settings,
+        ...newSettings,
       });
 
-    if (error) {
-      toast({
-        title: "Erreur",
-        description: "Impossible de sauvegarder les paramètres.",
-        variant: "destructive",
-      });
-    } else {
-      toast({
-        title: "Paramètres sauvegardés",
-        description: "Vos paramètres IA ont été mis à jour.",
-      });
-    }
     setSaving(false);
-  };
+    if (!error) {
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    }
+  }, [user]);
+
+  // Auto-save with debounce
+  useEffect(() => {
+    if (isInitialLoad.current) {
+      isInitialLoad.current = false;
+      return;
+    }
+
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
+
+    saveTimeoutRef.current = setTimeout(() => {
+      saveSettings(settings);
+    }, 800);
+
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+    };
+  }, [settings, saveSettings]);
 
   if (loading) {
     return (
@@ -169,14 +184,10 @@ const AISettingsPage = () => {
               <h1 className="text-lg font-bold text-foreground">Paramètres IA</h1>
               <p className="text-xs text-muted-foreground">Personnalisez vos réponses</p>
             </div>
-            <Button 
-              onClick={handleSave} 
-              disabled={saving} 
-              size="sm"
-              className="rounded-xl shadow-lg shadow-primary/20"
-            >
-              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-            </Button>
+            <div className="flex items-center gap-2 h-8">
+              {saving && <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />}
+              {saved && <Check className="w-4 h-4 text-green-500" />}
+            </div>
           </div>
         </div>
       </div>
@@ -468,21 +479,23 @@ const AISettingsPage = () => {
           />
         </div>
 
-        {/* Save Button - Mobile Fixed */}
-        <div className="pt-2">
-          <Button 
-            onClick={handleSave} 
-            disabled={saving} 
-            className="w-full h-12 rounded-2xl text-base font-semibold shadow-lg shadow-primary/25 gap-2"
-          >
-            {saving ? (
-              <Loader2 className="w-5 h-5 animate-spin" />
-            ) : (
-              <Save className="w-5 h-5" />
+        {/* Auto-save indicator */}
+        {(saving || saved) && (
+          <div className="flex items-center justify-center gap-2 py-3 text-sm text-muted-foreground">
+            {saving && (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>Enregistrement...</span>
+              </>
             )}
-            Sauvegarder
-          </Button>
-        </div>
+            {saved && !saving && (
+              <>
+                <Check className="w-4 h-4 text-green-500" />
+                <span className="text-green-600">Enregistré</span>
+              </>
+            )}
+          </div>
+        )}
       </main>
 
       <MobileBottomNav />
