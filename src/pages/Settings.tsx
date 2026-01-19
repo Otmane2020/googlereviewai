@@ -435,7 +435,8 @@ const SettingsPage = () => {
             
             {/* Action Buttons - Full width on mobile */}
             <div className="flex flex-col sm:flex-row gap-2">
-              {isGoogleConnected && hasRefreshToken && (
+              {/* Disconnect button - Always visible when Google connected */}
+              {isGoogleConnected && (
                 <Button 
                   variant="outline" 
                   size="sm"
@@ -446,6 +447,7 @@ const SettingsPage = () => {
                   Déconnecter Google
                 </Button>
               )}
+              {/* Reconnect button - When connected but no refresh token */}
               {isGoogleConnected && !hasRefreshToken && (
                 <Button 
                   size="sm"
@@ -461,6 +463,7 @@ const SettingsPage = () => {
                   Reconnecter Google
                 </Button>
               )}
+              {/* Connect button - When not connected */}
               {!isGoogleConnected && (
                 <Button 
                   size="sm"
