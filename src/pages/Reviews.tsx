@@ -18,13 +18,25 @@ import {
   Loader2,
   Copy,
   ExternalLink,
-  TestTube
+  TestTube,
+  RefreshCw,
+  Building2,
+  Filter
 } from "lucide-react";
 import { AddTestReviewDialog } from "@/components/AddTestReviewDialog";
+import { useSyncGoogleReviews } from "@/hooks/useSyncGoogleReviews";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface Review {
   id: number;
   review_id: string;
+  location_id: string;
   author: string;
   rating: number;
   comment: string;
@@ -33,14 +45,38 @@ interface Review {
   ai_response: string | null;
 }
 
+interface Business {
+  id: string;
+  name: string;
+  google_place_id: string | null;
+}
+
 const Reviews = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [reviews, setReviews] = useState<Review[]>([]);
+  const [businesses, setBusinesses] = useState<Business[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterRating, setFilterRating] = useState<number | null>(null);
+  const [filterBusiness, setFilterBusiness] = useState<string>("all");
   const [generatingId, setGeneratingId] = useState<number | null>(null);
+  const { syncReviews, isSyncing } = useSyncGoogleReviews();
+
+  const fetchBusinesses = useCallback(async () => {
+    if (!user) return;
+    const { data, error } = await supabase
+      .from("businesses")
+      .select("id, name, google_place_id")
+      .eq("user_id", user.id)
+      .eq("is_active", true);
+
+    if (error) {
+      console.error("Error fetching businesses:", error);
+    } else {
+      setBusinesses(data || []);
+    }
+  }, [user]);
 
   const fetchReviews = useCallback(async () => {
     if (!user) return;
@@ -64,6 +100,7 @@ const Reviews = () => {
       return;
     }
     fetchReviews();
+    fetchBusinesses();
 
     // Subscribe to realtime updates
     const channel = supabase
@@ -85,7 +122,19 @@ const Reviews = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user, navigate, fetchReviews]);
+  }, [user, navigate, fetchReviews, fetchBusinesses]);
+
+  const handleSyncReviews = async () => {
+    const businessId = filterBusiness === "all" ? undefined : filterBusiness;
+    await syncReviews(businessId);
+    fetchReviews();
+  };
+
+  // Helper to get business name from location_id
+  const getBusinessName = (locationId: string) => {
+    const business = businesses.find(b => b.google_place_id === locationId);
+    return business?.name || locationId;
+  };
 
   const generateAIResponse = async (reviewId: number) => {
     if (!user) return;
@@ -142,9 +191,11 @@ const Reviews = () => {
 
   const filteredReviews = reviews.filter((review) => {
     const matchesSearch = review.author.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      review.comment.toLowerCase().includes(searchTerm.toLowerCase());
+      (review.comment && review.comment.toLowerCase().includes(searchTerm.toLowerCase()));
     const matchesRating = filterRating === null || review.rating === filterRating;
-    return matchesSearch && matchesRating;
+    const matchesBusiness = filterBusiness === "all" || review.location_id === filterBusiness || 
+      businesses.find(b => b.id === filterBusiness)?.google_place_id === review.location_id;
+    return matchesSearch && matchesRating && matchesBusiness;
   });
 
   const renderStars = (rating: number) => {
@@ -214,34 +265,75 @@ const Reviews = () => {
       </div>
 
       <main className="max-w-7xl mx-auto p-6 space-y-6">
-        {/* Filters */}
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-            <Input
-              placeholder="Rechercher un avis..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-          <div className="flex gap-2">
-            {[null, 5, 4, 3, 2, 1].map((rating) => (
+        {/* Sync and Filters */}
+        <div className="flex flex-col gap-4">
+          {/* Sync button and business filter */}
+          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+            <div className="flex items-center gap-3">
               <Button
-                key={rating ?? "all"}
-                variant={filterRating === rating ? "default" : "outline"}
+                variant="default"
                 size="sm"
-                onClick={() => setFilterRating(rating)}
+                className="gap-2"
+                onClick={handleSyncReviews}
+                disabled={isSyncing}
               >
-                {rating === null ? (
-                  "Tous"
+                {isSyncing ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
                 ) : (
-                  <span className="flex items-center gap-1">
-                    {rating} <Star className="w-3 h-3 fill-current" />
-                  </span>
+                  <RefreshCw className="w-4 h-4" />
                 )}
+                {isSyncing ? "Synchronisation..." : "Synchroniser les avis Google"}
               </Button>
-            ))}
+            </div>
+            
+            {/* Business filter */}
+            <div className="flex items-center gap-2">
+              <Building2 className="w-4 h-4 text-muted-foreground" />
+              <Select value={filterBusiness} onValueChange={setFilterBusiness}>
+                <SelectTrigger className="w-[220px]">
+                  <SelectValue placeholder="Tous les établissements" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tous les établissements</SelectItem>
+                  {businesses.map((business) => (
+                    <SelectItem key={business.id} value={business.id}>
+                      {business.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* Search and rating filters */}
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+              <Input
+                placeholder="Rechercher un avis..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <div className="flex gap-2 flex-wrap">
+              {[null, 5, 4, 3, 2, 1].map((rating) => (
+                <Button
+                  key={rating ?? "all"}
+                  variant={filterRating === rating ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setFilterRating(rating)}
+                >
+                  {rating === null ? (
+                    "Tous"
+                  ) : (
+                    <span className="flex items-center gap-1">
+                      {rating} <Star className="w-3 h-3 fill-current" />
+                    </span>
+                  )}
+                </Button>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -277,11 +369,15 @@ const Reviews = () => {
                     </div>
                     <div>
                       <h3 className="font-semibold text-foreground">{review.author}</h3>
-                      <div className="flex items-center gap-3 mt-1">
+                      <div className="flex items-center gap-3 mt-1 flex-wrap">
                         {renderStars(review.rating)}
                         <span className="text-sm text-muted-foreground flex items-center gap-1">
                           <Clock className="w-3 h-3" />
                           {new Date(review.review_date).toLocaleDateString("fr-FR")}
+                        </span>
+                        <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full flex items-center gap-1">
+                          <Building2 className="w-3 h-3" />
+                          {getBusinessName(review.location_id)}
                         </span>
                       </div>
                     </div>
