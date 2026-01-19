@@ -161,7 +161,7 @@ IMPORTANT :
 - Personnalise la réponse en mentionnant des détails spécifiques de l'avis si possible.
 - Réponds uniquement avec le texte de la réponse, sans guillemets ni balises.`;
 
-    console.log("Calling OpenRouter API...");
+    console.log("Calling OpenRouter API with GPT...");
     
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
@@ -172,7 +172,7 @@ IMPORTANT :
         "X-Title": "Starlinko",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: "openai/gpt-4o-mini",
         messages: [
           { 
             role: "system", 
@@ -180,8 +180,8 @@ IMPORTANT :
           },
           { role: "user", content: prompt },
         ],
-        temperature: 0.7,
-        max_tokens: 300,
+        temperature: 0.8,
+        max_tokens: 250,
       }),
     });
 
