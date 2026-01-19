@@ -76,7 +76,8 @@ const Reviews = () => {
   const [generatingId, setGeneratingId] = useState<number | null>(null);
   const [publishingId, setPublishingId] = useState<number | null>(null);
   const [businessDialogOpen, setBusinessDialogOpen] = useState(false);
-  const { syncReviews, isSyncing } = useSyncGoogleReviews();
+  const { syncReviews, isSyncing, lastSyncResult } = useSyncGoogleReviews();
+  const [lastSyncTime, setLastSyncTime] = useState<Date | null>(null);
 
   // Load saved business selection from localStorage
   useEffect(() => {
@@ -238,6 +239,10 @@ const Reviews = () => {
   // Handle sync with automatic token refresh
   const handleSync = async () => {
     const result = await syncReviews();
+    if (result?.success) {
+      setLastSyncTime(new Date());
+      fetchData(); // Refresh data after sync
+    }
     if (result?.requires_reconnect) {
       toast({
         title: "Reconnexion requise",
@@ -245,6 +250,17 @@ const Reviews = () => {
         variant: "destructive",
       });
     }
+  };
+
+  // Format time ago
+  const formatTimeAgo = (date: Date) => {
+    const seconds = Math.floor((new Date().getTime() - date.getTime()) / 1000);
+    if (seconds < 60) return "à l'instant";
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `il y a ${minutes}min`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `il y a ${hours}h`;
+    return `il y a ${Math.floor(hours / 24)}j`;
   };
 
   if (loading) {
@@ -336,17 +352,54 @@ const Reviews = () => {
             
             {/* Rating row below title - left aligned */}
             {selectedBusiness && stats.total > 0 && (
-              <div className="flex items-center gap-2 pl-10">
-                <span className="font-semibold text-foreground">{averageRating.toFixed(1)}</span>
-                <div className="flex">
-                  {[...Array(5)].map((_, i) => (
-                    <Star 
-                      key={i} 
-                      className={`w-4 h-4 ${i < Math.round(averageRating) ? "text-accent fill-accent" : "text-muted-foreground/30"}`} 
-                    />
-                  ))}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 pl-10">
+                  <span className="font-semibold text-foreground">{averageRating.toFixed(1)}</span>
+                  <div className="flex">
+                    {[...Array(5)].map((_, i) => (
+                      <Star 
+                        key={i} 
+                        className={`w-4 h-4 ${i < Math.round(averageRating) ? "text-accent fill-accent" : "text-muted-foreground/30"}`} 
+                      />
+                    ))}
+                  </div>
+                  <span className="text-sm text-muted-foreground">({stats.total} avis)</span>
                 </div>
-                <span className="text-sm text-muted-foreground">({stats.total} avis)</span>
+                
+                {/* Sync button and status */}
+                <div className="flex items-center gap-2">
+                  {lastSyncTime && (
+                    <span className="text-xs text-muted-foreground hidden sm:inline">
+                      Sync {formatTimeAgo(lastSyncTime)}
+                    </span>
+                  )}
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={handleSync}
+                    disabled={isSyncing}
+                    className="gap-1.5"
+                  >
+                    <RefreshCw className={`w-4 h-4 ${isSyncing ? "animate-spin" : ""}`} />
+                    <span className="hidden sm:inline">Actualiser</span>
+                  </Button>
+                </div>
+              </div>
+            )}
+            
+            {/* Show sync button even when no reviews */}
+            {selectedBusiness && stats.total === 0 && (
+              <div className="flex items-center justify-end pl-10 mt-2">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={handleSync}
+                  disabled={isSyncing}
+                  className="gap-1.5"
+                >
+                  <RefreshCw className={`w-4 h-4 ${isSyncing ? "animate-spin" : ""}`} />
+                  Actualiser les avis
+                </Button>
               </div>
             )}
           </div>
