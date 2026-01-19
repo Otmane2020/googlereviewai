@@ -5,12 +5,13 @@ import { ComplianceSection } from "@/components/ComplianceSection";
 import { PricingSection } from "@/components/PricingSection";
 import { CTASection } from "@/components/CTASection";
 import { Footer } from "@/components/Footer";
+import { MobileStickyButton } from "@/components/MobileStickyButton";
 
 const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <main>
+      <main className="pb-20 sm:pb-0">
         <HeroSection />
         <FeaturesSection />
         <ComplianceSection />
@@ -18,6 +19,7 @@ const Index = () => {
         <CTASection />
       </main>
       <Footer />
+      <MobileStickyButton />
     </div>
   );
 };
