@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { StarlinkoLogo } from "./StarlinkoLogo";
 
 const footerLinks = {
@@ -65,12 +66,21 @@ export const Footer = () => {
               <ul className="space-y-3">
                 {section.links.map((link) => (
                   <li key={link.label}>
-                    <a
-                      href={link.href}
-                      className="text-sm text-card/60 hover:text-card transition-colors"
-                    >
-                      {link.label}
-                    </a>
+                    {link.href.startsWith("/") ? (
+                      <Link
+                        to={link.href}
+                        className="text-sm text-card/60 hover:text-card transition-colors"
+                      >
+                        {link.label}
+                      </Link>
+                    ) : (
+                      <a
+                        href={link.href}
+                        className="text-sm text-card/60 hover:text-card transition-colors"
+                      >
+                        {link.label}
+                      </a>
+                    )}
                   </li>
                 ))}
               </ul>
