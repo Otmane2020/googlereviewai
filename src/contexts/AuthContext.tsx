@@ -64,14 +64,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const signInWithGoogle = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
+    // Use Supabase OAuth with provider_token persistence
+    // This will authenticate the user AND request GMB access
+    const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
         redirectTo: `${window.location.origin}/auth`,
-        scopes: "https://www.googleapis.com/auth/business.manage",
+        scopes: "https://www.googleapis.com/auth/business.manage https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile",
         queryParams: {
           access_type: "offline",
-          prompt: "consent",
+          prompt: "consent", // Force consent to get refresh_token
         },
       },
     });
