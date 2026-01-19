@@ -11,10 +11,10 @@ import {
   Settings, 
   Sparkles,
   LogOut,
-  Coins,
   Bell,
   FileText,
-  Search
+  Search,
+  Plus
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -27,6 +27,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 const navItems = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -127,13 +132,43 @@ export const DashboardHeader = () => {
 
           {/* Right side actions */}
           <div className="flex items-center gap-3">
-            {/* Credits display */}
+            {/* Credits display with popup */}
             {profile && (
-              <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-accent/10 rounded-full border border-accent/20">
-                <Coins className="w-4 h-4 text-accent" />
-                <span className="text-sm font-semibold text-foreground">{profile.credits}</span>
-                <span className="text-xs text-muted-foreground">crédits</span>
-              </div>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button className="flex items-center gap-2 px-3 py-1.5 bg-accent/10 rounded-full border border-accent/20 hover:bg-accent/20 transition-colors cursor-pointer">
+                    <Star className="w-4 h-4 text-accent fill-accent" />
+                    <span className="text-sm font-semibold text-foreground">{profile.credits}</span>
+                    <span className="text-xs text-muted-foreground hidden sm:inline">crédits</span>
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-64" align="end">
+                  <div className="space-y-4">
+                    <div>
+                      <p className="text-sm font-medium text-foreground">Solde de crédits</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Star className="w-5 h-5 text-accent fill-accent" />
+                        <span className="text-2xl font-bold text-foreground">{profile.credits}</span>
+                        <span className="text-muted-foreground text-sm">crédits</span>
+                      </div>
+                      {profile.plan_name && (
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Plan {profile.plan_name.charAt(0).toUpperCase() + profile.plan_name.slice(1)}
+                        </p>
+                      )}
+                    </div>
+                    <div className="pt-2 border-t border-border">
+                      <p className="text-xs text-muted-foreground mb-2">
+                        1 crédit = 1 réponse IA
+                      </p>
+                      <Button size="sm" className="w-full gap-2" onClick={() => navigate("/settings?tab=credits")}>
+                        <Plus className="w-4 h-4" />
+                        Recharger
+                      </Button>
+                    </div>
+                  </div>
+                </PopoverContent>
+              </Popover>
             )}
 
             {/* Notifications */}
@@ -256,14 +291,6 @@ export const DashboardHeader = () => {
         {/* Mobile Menu */}
         {mobileMenuOpen && (
           <div className="lg:hidden bg-card border-t border-border py-4 animate-fade-in">
-            {/* Mobile credits */}
-            {profile && (
-              <div className="flex items-center gap-2 px-4 py-3 mb-2 bg-accent/10 mx-4 rounded-lg">
-                <Coins className="w-5 h-5 text-accent" />
-                <span className="font-semibold">{profile.credits}</span>
-                <span className="text-sm text-muted-foreground">crédits disponibles</span>
-              </div>
-            )}
             
             <div className="flex flex-col gap-1 px-4">
               {navItems.map((item) => {
