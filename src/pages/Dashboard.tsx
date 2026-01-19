@@ -6,6 +6,7 @@ import { useSyncGoogleBusinesses } from "@/hooks/useSyncGoogleBusinesses";
 import { useSyncGoogleReviews } from "@/hooks/useSyncGoogleReviews";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
+import { ConnectGMBDialog } from "@/components/ConnectGMBDialog";
 import { Button } from "@/components/ui/button";
 import { 
   Star, 
@@ -46,9 +47,11 @@ const Dashboard = () => {
   const [recentReviews, setRecentReviews] = useState<Review[]>([]);
   const [stats, setStats] = useState({ total: 0, avgRating: 0, aiResponses: 0, pending: 0, businesses: 0 });
   const [loading, setLoading] = useState(true);
+  const [showGMBDialog, setShowGMBDialog] = useState(false);
   const { syncBusinesses, isSyncing: isSyncingBusinesses } = useSyncGoogleBusinesses();
   const { syncReviews, isSyncing: isSyncingReviews } = useSyncGoogleReviews();
   const hasSyncedRef = useRef(false);
+  const hasCheckedGMBRef = useRef(false);
 
   const fetchData = useCallback(async () => {
     if (!user) return;
@@ -99,6 +102,23 @@ const Dashboard = () => {
     };
     autoSync();
   }, [loading, user, session, syncBusinesses, syncReviews, fetchData]);
+
+  // Check if user signed up with email (no Google provider) and show GMB dialog
+  useEffect(() => {
+    if (!loading && user && !hasCheckedGMBRef.current) {
+      hasCheckedGMBRef.current = true;
+      const isGoogleUser = user.app_metadata?.provider === "google" || session?.provider_token;
+      const hasSeenGMBPrompt = localStorage.getItem(`gmb_prompt_${user.id}`);
+      
+      if (!isGoogleUser && !hasSeenGMBPrompt) {
+        // Delay dialog to let page load
+        setTimeout(() => {
+          setShowGMBDialog(true);
+          localStorage.setItem(`gmb_prompt_${user.id}`, "true");
+        }, 1500);
+      }
+    }
+  }, [loading, user, session]);
 
   const isSyncing = isSyncingBusinesses || isSyncingReviews;
 
@@ -282,6 +302,9 @@ const Dashboard = () => {
       </main>
 
       <MobileBottomNav />
+      
+      {/* GMB Connection Dialog for email users */}
+      <ConnectGMBDialog open={showGMBDialog} onOpenChange={setShowGMBDialog} />
     </div>
   );
 };
