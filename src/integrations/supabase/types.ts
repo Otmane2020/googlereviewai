@@ -192,6 +192,41 @@ export type Database = {
           },
         ]
       }
+      credits_history: {
+        Row: {
+          amount: number
+          created_at: string
+          description: string | null
+          id: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "credits_history_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notifications: {
         Row: {
           created_at: string
@@ -238,6 +273,7 @@ export type Database = {
           avatar_url: string | null
           billing_cycle: string | null
           created_at: string | null
+          credits: number
           current_period_end: string | null
           current_period_start: string | null
           current_streak: number | null
@@ -245,8 +281,10 @@ export type Database = {
           full_name: string | null
           id: string
           level: number | null
+          max_businesses: number
           onboarding_completed: boolean | null
           plan_id: string | null
+          plan_name: string | null
           subscription_status: string | null
           total_points: number | null
           trial_end: string | null
@@ -256,6 +294,7 @@ export type Database = {
           avatar_url?: string | null
           billing_cycle?: string | null
           created_at?: string | null
+          credits?: number
           current_period_end?: string | null
           current_period_start?: string | null
           current_streak?: number | null
@@ -263,8 +302,10 @@ export type Database = {
           full_name?: string | null
           id: string
           level?: number | null
+          max_businesses?: number
           onboarding_completed?: boolean | null
           plan_id?: string | null
+          plan_name?: string | null
           subscription_status?: string | null
           total_points?: number | null
           trial_end?: string | null
@@ -274,6 +315,7 @@ export type Database = {
           avatar_url?: string | null
           billing_cycle?: string | null
           created_at?: string | null
+          credits?: number
           current_period_end?: string | null
           current_period_start?: string | null
           current_streak?: number | null
@@ -281,8 +323,10 @@ export type Database = {
           full_name?: string | null
           id?: string
           level?: number | null
+          max_businesses?: number
           onboarding_completed?: boolean | null
           plan_id?: string | null
+          plan_name?: string | null
           subscription_status?: string | null
           total_points?: number | null
           trial_end?: string | null

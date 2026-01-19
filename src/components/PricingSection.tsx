@@ -1,111 +1,81 @@
 import { Button } from "./ui/button";
-import { Check, Star, Shield, Lock, FileCheck, Zap, Target, Sparkles } from "lucide-react";
-import { useState } from "react";
+import { Check, Zap, Building2, Coins, Sparkles } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const plans = [
   {
     name: "Starter",
-    subtitle: "Découverte",
-    monthlyPrice: "9,90€",
-    yearlyPrice: "7,90€",
+    price: "2,99€",
+    credits: 10,
+    maxBusinesses: 1,
     features: [
-      "1 établissement Google My Business",
-      "50 avis/réponses automatiques par mois",
-      "Réponses IA basiques (GPT-4)",
-      "Alertes email sur nouveaux avis",
-      "Tableau de bord basique",
-      "Accès API Google My Business vérifié",
+      "10 crédits (réponses IA)",
+      "1 établissement",
+      "Réponses IA personnalisées",
+      "Tableau de bord",
+      "Historique des avis",
     ],
     popular: false,
+    planId: "starter",
   },
   {
     name: "Pro",
-    subtitle: "Visibilité",
-    monthlyPrice: "29,90€",
-    yearlyPrice: "23,90€",
+    price: "29,99€",
+    credits: 100,
+    maxBusinesses: 2,
     features: [
-      "Jusqu'à 3 établissements Google My Business",
-      "300 avis/réponses automatiques par mois",
-      "Réponses IA premium (GPT-4.1)",
-      "Notifications temps réel",
-      "Statistiques avancées",
+      "100 crédits (réponses IA)",
+      "2 établissements",
+      "Réponses IA premium",
+      "SEO AutoPost inclus",
       "Support prioritaire",
-      "API Google My Business complète",
+      "Statistiques avancées",
     ],
     popular: true,
+    planId: "pro",
   },
   {
     name: "Business",
-    subtitle: "Performance",
-    monthlyPrice: "79,90€",
-    yearlyPrice: "63,90€",
+    price: "99€",
+    credits: 400,
+    maxBusinesses: -1, // unlimited
     features: [
-      "Établissements Google My Business illimités",
-      "1000 avis/réponses automatiques par mois",
-      "IA premium + posts automatiques",
-      "API & webhooks avancés",
+      "400 crédits (réponses IA)",
+      "Établissements illimités",
+      "IA premium + AEO",
+      "API & webhooks",
       "Manager dédié",
-      "Rapports personnalisés",
-      "Accès API Business Profile complet",
+      "Publication auto Google",
     ],
     popular: false,
+    planId: "business",
   },
 ];
 
-const securityBadges = [
-  { icon: Check, label: "Application vérifiée Google" },
-  { icon: Lock, label: "Données chiffrées OAuth 2.0" },
-  { icon: FileCheck, label: "Conforme aux politiques API" },
-  { icon: Zap, label: "Accès API Business Profile" },
-  { icon: Sparkles, label: "Synchronisation temps réel" },
-  { icon: Target, label: "Scopes d'accès limités" },
+const creditPacks = [
+  { credits: 10, price: "2,99€", pricePerCredit: "0,30€" },
+  { credits: 100, price: "24,99€", pricePerCredit: "0,25€", popular: true },
+  { credits: 400, price: "79€", pricePerCredit: "0,20€" },
 ];
 
 export const PricingSection = () => {
-  const [isYearly, setIsYearly] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <section id="pricing" className="py-24 bg-background">
       <div className="container mx-auto px-4">
         {/* Section header */}
         <div className="text-center max-w-3xl mx-auto mb-12">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full mb-6">
+            <Coins className="w-4 h-4 text-primary" />
+            <span className="text-primary text-sm font-medium">Tarification simple</span>
+          </div>
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Tarifs avec accès API vérifié
+            Payez uniquement ce que vous utilisez
           </h2>
-          <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-muted-foreground mb-8">
-            <span className="flex items-center gap-1">
-              <Check className="w-4 h-4 text-secondary" /> Application vérifiée Google
-            </span>
-            <span className="flex items-center gap-1">
-              <Shield className="w-4 h-4 text-secondary" /> Conforme aux politiques
-            </span>
-            <span className="flex items-center gap-1">
-              <Zap className="w-4 h-4 text-secondary" /> 14 jours d'essai gratuit
-            </span>
-          </div>
-          
-          {/* Billing toggle */}
-          <div className="inline-flex items-center gap-4 bg-muted rounded-full p-1.5">
-            <button
-              onClick={() => setIsYearly(false)}
-              className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${
-                !isYearly ? "bg-card shadow-md text-foreground" : "text-muted-foreground"
-              }`}
-            >
-              Mensuel
-            </button>
-            <button
-              onClick={() => setIsYearly(true)}
-              className={`px-6 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-2 ${
-                isYearly ? "bg-card shadow-md text-foreground" : "text-muted-foreground"
-              }`}
-            >
-              Annuel
-              <span className="px-2 py-0.5 bg-secondary text-secondary-foreground text-xs rounded-full">
-                -20%
-              </span>
-            </button>
-          </div>
+          <p className="text-lg text-muted-foreground">
+            1 crédit = 1 réponse IA générée. Rechargez à tout moment, même si vous n'avez pas épuisé vos crédits.
+          </p>
         </div>
 
         {/* Pricing cards */}
@@ -122,29 +92,35 @@ export const PricingSection = () => {
               {plan.popular && (
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2">
                   <span className="inline-flex items-center gap-1 px-4 py-1.5 bg-primary text-primary-foreground text-sm font-medium rounded-full shadow-lg">
-                    <Star className="w-4 h-4 fill-current" /> Plus populaire
+                    <Sparkles className="w-4 h-4" /> Recommandé
                   </span>
                 </div>
               )}
 
               <div className="text-center mb-8">
                 <h3 className="text-2xl font-bold text-foreground">{plan.name}</h3>
-                <p className="text-muted-foreground text-sm">{plan.subtitle}</p>
                 <div className="mt-4">
-                  <span className="text-4xl font-bold text-foreground">
-                    {isYearly ? plan.yearlyPrice : plan.monthlyPrice}
-                  </span>
-                  <span className="text-muted-foreground">/mois</span>
+                  <span className="text-4xl font-bold text-foreground">{plan.price}</span>
                 </div>
-                <p className="text-xs text-secondary mt-2">Accès API Google vérifié</p>
+                <div className="mt-3 flex items-center justify-center gap-4">
+                  <span className="flex items-center gap-1 text-sm text-muted-foreground">
+                    <Coins className="w-4 h-4 text-accent" />
+                    {plan.credits} crédits
+                  </span>
+                  <span className="flex items-center gap-1 text-sm text-muted-foreground">
+                    <Building2 className="w-4 h-4 text-secondary" />
+                    {plan.maxBusinesses === -1 ? "∞" : plan.maxBusinesses} établ.
+                  </span>
+                </div>
               </div>
 
               <Button
                 variant={plan.popular ? "default" : "outline"}
                 className="w-full mb-8"
                 size="lg"
+                onClick={() => navigate("/auth")}
               >
-                Essayer gratuitement
+                Commencer
               </Button>
 
               <ul className="space-y-4">
@@ -159,19 +135,41 @@ export const PricingSection = () => {
           ))}
         </div>
 
-        {/* Security badges */}
-        <div className="bg-muted/50 rounded-2xl p-8">
-          <h3 className="text-lg font-semibold text-foreground text-center mb-6">
-            🛡️ Conformité et Sécurité
-          </h3>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            {securityBadges.map((badge) => (
+        {/* Recharge section */}
+        <div className="bg-gradient-to-br from-primary/5 to-secondary/5 rounded-3xl p-8 md:p-12">
+          <div className="text-center mb-8">
+            <h3 className="text-2xl font-bold text-foreground mb-2">
+              <Zap className="inline w-6 h-6 text-accent mr-2" />
+              Rechargez vos crédits à tout moment
+            </h3>
+            <p className="text-muted-foreground">
+              Comme sur Lovable, rechargez quand vous voulez, même si votre solde n'est pas à zéro
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-6">
+            {creditPacks.map((pack) => (
               <div
-                key={badge.label}
-                className="flex flex-col items-center gap-2 p-4 bg-card rounded-xl border border-border text-center"
+                key={pack.credits}
+                className={`bg-card p-6 rounded-2xl border text-center transition-all hover:shadow-lg ${
+                  pack.popular ? "border-primary shadow-md" : "border-border"
+                }`}
               >
-                <badge.icon className="w-6 h-6 text-secondary" />
-                <span className="text-xs text-muted-foreground">{badge.label}</span>
+                {pack.popular && (
+                  <span className="inline-block px-3 py-1 bg-primary/10 text-primary text-xs font-medium rounded-full mb-3">
+                    Meilleur rapport
+                  </span>
+                )}
+                <div className="flex items-center justify-center gap-2 mb-2">
+                  <Coins className="w-6 h-6 text-accent" />
+                  <span className="text-3xl font-bold text-foreground">{pack.credits}</span>
+                </div>
+                <p className="text-muted-foreground text-sm mb-1">crédits</p>
+                <p className="text-2xl font-bold text-foreground mb-1">{pack.price}</p>
+                <p className="text-xs text-muted-foreground mb-4">{pack.pricePerCredit}/crédit</p>
+                <Button variant={pack.popular ? "default" : "outline"} className="w-full" onClick={() => navigate("/auth")}>
+                  Acheter
+                </Button>
               </div>
             ))}
           </div>

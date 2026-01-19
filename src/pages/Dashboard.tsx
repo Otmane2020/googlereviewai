@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSyncGoogleBusinesses } from "@/hooks/useSyncGoogleBusinesses";
 import { StarlinkoLogo } from "@/components/StarlinkoLogo";
 import { Button } from "@/components/ui/button";
+import { CreditsDisplay } from "@/components/CreditsDisplay";
 import { 
   LayoutDashboard, 
   Star, 
@@ -20,7 +21,8 @@ import {
   ChevronRight,
   Home,
   User,
-  RefreshCw
+  RefreshCw,
+  Coins
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
@@ -32,6 +34,9 @@ interface Profile {
   plan_id: string;
   trial_end: string | null;
   onboarding_completed: boolean;
+  credits: number;
+  max_businesses: number;
+  plan_name: string;
 }
 
 interface StatsCard {
@@ -95,10 +100,10 @@ const Dashboard = () => {
   };
 
   const stats: StatsCard[] = [
-    { title: "Avis totaux", value: 156, change: "+12%", icon: Star, trend: "up", color: "bg-amber-500" },
+    { title: "Crédits", value: profile?.credits ?? 0, change: "", icon: Coins, trend: "neutral", color: "bg-accent" },
     { title: "Note moyenne", value: "4.7", change: "+0.2", icon: TrendingUp, trend: "up", color: "bg-emerald-500" },
     { title: "Réponses IA", value: 89, change: "+8", icon: MessageSquare, trend: "up", color: "bg-blue-500" },
-    { title: "Établissements", value: 3, change: "0", icon: Building2, trend: "neutral", color: "bg-violet-500" },
+    { title: "Établissements", value: 3, change: `/${profile?.max_businesses === -1 ? "∞" : profile?.max_businesses ?? 1}`, icon: Building2, trend: "neutral", color: "bg-violet-500" },
   ];
 
   const navItems = [
@@ -267,6 +272,11 @@ const Dashboard = () => {
             </p>
           </div>
           <div className="flex items-center gap-3">
+            <CreditsDisplay 
+              credits={profile?.credits ?? 0} 
+              planName={profile?.plan_name} 
+              compact 
+            />
             <Button variant="ghost" size="icon" className="relative">
               <Bell className="w-5 h-5" />
               <span className="absolute top-1 right-1 w-2 h-2 bg-destructive rounded-full" />
