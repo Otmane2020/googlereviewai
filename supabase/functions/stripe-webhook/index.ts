@@ -56,19 +56,25 @@ serve(async (req) => {
           const config = PLAN_CONFIG[priceId];
 
           if (config) {
+            const isTrial = subscription.status === "trialing";
+            const trialEnd = subscription.trial_end 
+              ? new Date(subscription.trial_end * 1000).toISOString() 
+              : null;
+
             // Update user profile
             await supabaseAdmin.from("profiles").update({
               plan_name: config.planName,
               plan_id: priceId,
-              credits: config.credits,
+              credits: config.credits, // Give credits even during trial
               max_businesses: config.maxBusinesses,
-              subscription_status: "active",
+              subscription_status: isTrial ? "trial" : "active",
+              trial_end: trialEnd,
               current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
               current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
               billing_cycle: subscription.items.data[0]?.price.recurring?.interval || "month",
             }).eq("id", userId);
 
-            console.log(`Updated profile for user ${userId} with plan ${config.planName}`);
+            console.log(`Updated profile for user ${userId} with plan ${config.planName}${isTrial ? " (trial)" : ""}`);
           }
         }
         break;
@@ -89,10 +95,16 @@ serve(async (req) => {
         const config = PLAN_CONFIG[priceId];
 
         if (config) {
+          const isTrial = subscription.status === "trialing";
+          const trialEnd = subscription.trial_end 
+            ? new Date(subscription.trial_end * 1000).toISOString() 
+            : null;
+
           await supabaseAdmin.from("profiles").update({
             plan_name: config.planName,
             plan_id: priceId,
-            subscription_status: subscription.status,
+            subscription_status: isTrial ? "trial" : subscription.status,
+            trial_end: trialEnd,
             current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
             current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
           }).eq("id", userId);

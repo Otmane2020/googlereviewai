@@ -30,6 +30,8 @@ interface Plan {
   features: string[];
   popular?: boolean;
   color: string;
+  hasTrial?: boolean;
+  trialDays?: number;
 }
 
 const plans: Plan[] = [
@@ -42,6 +44,8 @@ const plans: Plan[] = [
     businesses: "1",
     features: ["Réponses IA", "Sync automatique", "Support email"],
     color: "from-blue-500 to-blue-600",
+    hasTrial: true,
+    trialDays: 3,
   },
   {
     id: "pro",
@@ -173,7 +177,15 @@ export const UpgradeDialog = ({ open, onOpenChange, currentPlan }: UpgradeDialog
                       : "border-border bg-card hover:border-primary/50"
                   } ${isCurrentPlan ? "opacity-60" : ""}`}
                 >
-                  {plan.popular && (
+                  {plan.hasTrial && (
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                      <Badge className="bg-green-500 text-white shadow-lg">
+                        🎁 {plan.trialDays} jours gratuits
+                      </Badge>
+                    </div>
+                  )}
+                  
+                  {plan.popular && !plan.hasTrial && (
                     <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                       <Badge className="bg-primary text-primary-foreground shadow-lg">
                         <Sparkles className="w-3 h-3 mr-1" />
@@ -184,13 +196,23 @@ export const UpgradeDialog = ({ open, onOpenChange, currentPlan }: UpgradeDialog
 
                   <div className="text-center mb-4">
                     <h3 className="font-bold text-lg text-foreground">{plan.name}</h3>
+                    {plan.hasTrial && (
+                      <p className="text-xs text-green-600 font-medium mt-1">
+                        0€ aujourd'hui
+                      </p>
+                    )}
                     <div className="mt-2">
-                      <span className="text-3xl font-bold text-foreground">
+                      <span className={`text-3xl font-bold ${plan.hasTrial ? "text-muted-foreground" : "text-foreground"}`}>
                         {price.toFixed(2).replace(".", ",")}€
                       </span>
                       <span className="text-muted-foreground text-sm">/mois</span>
                     </div>
-                    {isYearly && (
+                    {plan.hasTrial && (
+                      <p className="text-[10px] text-muted-foreground mt-1">
+                        Après {plan.trialDays} jours d'essai
+                      </p>
+                    )}
+                    {isYearly && !plan.hasTrial && (
                       <p className="text-xs text-muted-foreground mt-1">
                         Facturé {plan.priceYearly.toFixed(2).replace(".", ",")}€/an
                       </p>
@@ -235,6 +257,11 @@ export const UpgradeDialog = ({ open, onOpenChange, currentPlan }: UpgradeDialog
                       <Loader2 className="w-4 h-4 animate-spin" />
                     ) : isCurrentPlan ? (
                       "Plan actuel"
+                    ) : plan.hasTrial ? (
+                      <>
+                        Essayer gratuitement
+                        <ArrowRight className="w-4 h-4 ml-1" />
+                      </>
                     ) : (
                       <>
                         Choisir
