@@ -218,10 +218,21 @@ serve(async (req) => {
               const errorText = await reviewsResponse.text();
               console.error(`Failed to fetch reviews for ${locationTitle}:`, reviewsResponse.status, errorText);
               
+              // Parse error for better messages
+              let parsedError: any = {};
+              try {
+                parsedError = JSON.parse(errorText);
+              } catch {}
+              
+              const isServiceDisabled = parsedError?.error?.status === "PERMISSION_DENIED" && 
+                (errorText.includes("SERVICE_DISABLED") || errorText.includes("mybusiness.googleapis.com"));
+              
               if (reviewsResponse.status === 429) {
                 errors.push(`${locationTitle}: Quota exceeded - try again later`);
+              } else if (reviewsResponse.status === 403 && isServiceDisabled) {
+                errors.push(`API_DISABLED: Google My Business API is disabled. Enable it in Google Cloud Console and reconnect.`);
               } else if (reviewsResponse.status === 403) {
-                errors.push(`${locationTitle}: Access denied - check permissions`);
+                errors.push(`${locationTitle}: Access denied - reconnect Google with correct permissions`);
               } else if (reviewsResponse.status === 404) {
                 errors.push(`${locationTitle}: No reviews endpoint (might be a new listing)`);
               } else {
@@ -322,9 +333,22 @@ serve(async (req) => {
       }
     }
 
-    const message = errors.length > 0 
-      ? `Synced ${allReviews.length} reviews with ${errors.length} errors`
-      : `Successfully synced ${allReviews.length} reviews`;
+    // Determine if this is a real success or failure
+    const hasApiDisabledError = errors.some(e => e.startsWith("API_DISABLED:"));
+    const isSuccess = allReviews.length > 0 || (errors.length === 0);
+    
+    let message: string;
+    if (hasApiDisabledError) {
+      message = "Google My Business API désactivée. Activez-la dans Google Cloud Console puis reconnectez-vous.";
+    } else if (errors.length > 0 && allReviews.length === 0) {
+      message = `Échec de la synchronisation: ${errors.length} erreur(s)`;
+    } else if (errors.length > 0) {
+      message = `${allReviews.length} avis synchronisés avec ${errors.length} erreur(s)`;
+    } else if (allReviews.length === 0) {
+      message = "Aucun nouvel avis à synchroniser";
+    } else {
+      message = `${allReviews.length} avis synchronisés avec succès`;
+    }
 
     console.log(message);
     if (errors.length > 0) {
@@ -333,11 +357,12 @@ serve(async (req) => {
 
     return new Response(
       JSON.stringify({ 
-        success: true, 
+        success: isSuccess, 
         message,
         reviews: allReviews,
         synced_count: allReviews.length,
-        errors: errors.length > 0 ? errors : undefined
+        errors: errors.length > 0 ? errors : undefined,
+        requires_reconnect: hasApiDisabledError
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
