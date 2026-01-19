@@ -129,7 +129,7 @@ export const FeaturesSection = () => {
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-4">
             Devancez vos concurrents
           </h2>
-          <p className="text-muted-foreground text-sm sm:text-base md:text-lg">
+          <p className="text-muted-foreground text-sm sm:text-base">
             Visibilité Google, ChatGPT, et satisfaction client. Tout en un.
           </p>
         </div>
@@ -150,9 +150,9 @@ export const FeaturesSection = () => {
               <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/15 to-secondary/15 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                 <feature.icon className="w-6 h-6 text-primary" />
               </div>
-              <h3 className="text-lg font-bold text-foreground mb-1">{feature.title}</h3>
+              <h3 className="text-base sm:text-lg font-bold text-foreground mb-1">{feature.title}</h3>
               <p className="text-xs text-primary font-medium mb-2">{feature.subtitle}</p>
-              <p className="text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
+              <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
               
               {/* Learn more button */}
               <button className="mt-4 flex items-center gap-1 text-primary text-sm font-medium group-hover:underline transition-all">
@@ -206,8 +206,8 @@ export const FeaturesSection = () => {
         {/* Capabilities with stats */}
         <div className="bg-gradient-to-br from-primary/5 via-background to-secondary/5 rounded-2xl sm:rounded-3xl p-5 sm:p-8 border border-border/50">
           <div className="text-center mb-6 sm:mb-8">
-            <h3 className="text-xl sm:text-2xl font-bold text-foreground mb-2">Pourquoi Starlinko ?</h3>
-            <p className="text-muted-foreground text-sm">Les avantages qui font la différence</p>
+            <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-foreground mb-2">Pourquoi Starlinko ?</h3>
+            <p className="text-muted-foreground text-xs sm:text-sm">Les avantages qui font la différence</p>
           </div>
           
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
@@ -232,8 +232,8 @@ export const FeaturesSection = () => {
         {/* How it works - Timeline style for mobile */}
         <div className="mt-12 sm:mt-16">
           <div className="text-center mb-8">
-            <h3 className="text-xl sm:text-2xl font-bold text-foreground mb-2">Comment ça marche ?</h3>
-            <p className="text-muted-foreground text-sm">3 étapes simples pour démarrer</p>
+            <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-foreground mb-2">Comment ça marche ?</h3>
+            <p className="text-muted-foreground text-xs sm:text-sm">3 étapes simples pour démarrer</p>
           </div>
           
           {/* Mobile: Vertical timeline */}

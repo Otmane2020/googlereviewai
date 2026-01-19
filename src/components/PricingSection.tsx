@@ -101,10 +101,10 @@ export const PricingSection = () => {
               )}
 
               <div className="text-center mb-5">
-                <span className="text-3xl mb-2 block">{plan.emoji}</span>
-                <h3 className="text-xl font-bold text-foreground">{plan.name}</h3>
+                <span className="text-2xl sm:text-3xl mb-2 block">{plan.emoji}</span>
+                <h3 className="text-lg sm:text-xl font-bold text-foreground">{plan.name}</h3>
                 <div className="mt-3">
-                  <span className="text-3xl sm:text-4xl font-bold text-foreground">{plan.price}</span>
+                  <span className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground">{plan.price}</span>
                 </div>
                 <div className="mt-2 flex items-center justify-center gap-3">
                   <span className="flex items-center gap-1 text-xs text-muted-foreground bg-muted px-2 py-1 rounded-full">
@@ -160,17 +160,17 @@ export const PricingSection = () => {
                   pack.popular ? "border-primary shadow-md ring-1 ring-primary/20" : "border-border"
                 }`}
               >
-                <span className="text-2xl mb-2 block">{pack.emoji}</span>
+                <span className="text-xl sm:text-2xl mb-2 block">{pack.emoji}</span>
                 {pack.popular && (
                   <span className="inline-block px-2 py-0.5 bg-primary/10 text-primary text-[10px] font-bold rounded-full mb-2">
                     -17%
                   </span>
                 )}
                 <div className="flex items-center justify-center gap-1 mb-1">
-                  <span className="text-xl sm:text-2xl font-bold text-foreground">{pack.credits}</span>
+                  <span className="text-lg sm:text-2xl font-bold text-foreground">{pack.credits}</span>
                 </div>
                 <p className="text-muted-foreground text-xs mb-2">crédits</p>
-                <p className="text-lg sm:text-xl font-bold text-foreground mb-3">{pack.price}</p>
+                <p className="text-base sm:text-xl font-bold text-foreground mb-3">{pack.price}</p>
                 <Button 
                   variant={pack.popular ? "default" : "outline"} 
                   className="w-full h-9 text-xs" 
