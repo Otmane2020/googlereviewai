@@ -24,6 +24,28 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
+    // Check user credits
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("credits, plan_name")
+      .eq("id", userId)
+      .single();
+
+    if (profileError) {
+      console.error("Profile fetch error:", profileError);
+      throw new Error("User profile not found");
+    }
+
+    if (!profile || profile.credits < 1) {
+      return new Response(
+        JSON.stringify({ 
+          error: "Crédits insuffisants. Rechargez votre compte pour continuer.", 
+          credits: profile?.credits || 0 
+        }),
+        { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     // Fetch review
     const { data: review, error: reviewError } = await supabase
       .from("reviews")
@@ -123,6 +145,25 @@ Do not include any greeting like "Cher client" - start directly with the respons
       throw new Error("No response generated");
     }
 
+    // Deduct 1 credit
+    const newCredits = profile.credits - 1;
+    const { error: creditError } = await supabase
+      .from("profiles")
+      .update({ credits: newCredits })
+      .eq("id", userId);
+
+    if (creditError) {
+      console.error("Credit deduction error:", creditError);
+    }
+
+    // Log credit usage
+    await supabase.from("credits_history").insert({
+      user_id: userId,
+      amount: -1,
+      type: "usage",
+      description: `Réponse IA pour l'avis de ${review.author}`,
+    });
+
     // Update review with AI response
     const { error: updateError } = await supabase
       .from("reviews")
@@ -143,7 +184,11 @@ Do not include any greeting like "Cher client" - start directly with the respons
       review_id: reviewId,
     });
 
-    return new Response(JSON.stringify({ success: true, response: aiResponse }), {
+    return new Response(JSON.stringify({ 
+      success: true, 
+      response: aiResponse,
+      credits_remaining: newCredits 
+    }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error) {

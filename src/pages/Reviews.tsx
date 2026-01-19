@@ -179,12 +179,22 @@ const Reviews = () => {
       if (error) throw error;
 
       if (data?.error) {
-        throw new Error(data.error);
+        // Handle credits error specifically
+        if (data.credits !== undefined && data.credits < 1) {
+          toast({
+            title: "Crédits insuffisants",
+            description: "Rechargez votre compte pour continuer à générer des réponses.",
+            variant: "destructive",
+          });
+        } else {
+          throw new Error(data.error);
+        }
+        return;
       }
 
       toast({
         title: "Réponse générée !",
-        description: "La réponse IA a été créée avec succès.",
+        description: `La réponse IA a été créée. Crédits restants: ${data.credits_remaining}`,
       });
 
       fetchReviews();
