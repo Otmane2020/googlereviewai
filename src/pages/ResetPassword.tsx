@@ -19,45 +19,29 @@ const ResetPassword = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Parse URL hash for recovery token
-    const hash = window.location.hash;
-    const params = new URLSearchParams(hash.replace('#', ''));
-    const accessToken = params.get('access_token');
-    const refreshToken = params.get('refresh_token');
-    const type = params.get('type');
-
-    const handleRecovery = async () => {
-      // If we have tokens in URL, set the session
-      if (accessToken && type === 'recovery') {
-        const { error } = await supabase.auth.setSession({
-          access_token: accessToken,
-          refresh_token: refreshToken || '',
-        });
-        
-        if (!error) {
-          setIsValidSession(true);
-          // Clean URL
-          window.history.replaceState(null, '', '/reset-password');
-        }
-      } else {
-        // Check existing session
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session) {
-          setIsValidSession(true);
-        }
+    const checkSession = async () => {
+      // Check if user has a valid session (came from email link)
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (session) {
+        // User is logged in - they can change their password
+        setIsValidSession(true);
       }
       setCheckingSession(false);
     };
 
-    handleRecovery();
-
-    // Listen for auth state changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "PASSWORD_RECOVERY") {
-        setIsValidSession(true);
-        setCheckingSession(false);
+    // Listen for auth state changes (when user clicks email link)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log("Auth event:", event);
+      if (event === "PASSWORD_RECOVERY" || event === "SIGNED_IN") {
+        if (session) {
+          setIsValidSession(true);
+          setCheckingSession(false);
+        }
       }
     });
+
+    checkSession();
 
     return () => subscription.unsubscribe();
   }, []);

@@ -9,6 +9,7 @@ export const OAuthCallback = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     const hash = window.location.hash;
+    const pathname = window.location.pathname;
     
     // Only process if we have actual OAuth tokens in the hash
     // Must contain access_token with a value, not just empty hash or fragment
@@ -18,6 +19,15 @@ export const OAuthCallback = ({ children }: { children: React.ReactNode }) => {
     
     // Skip if this is a password recovery token - let ResetPassword handle it
     if (tokenType === 'recovery') {
+      return;
+    }
+    
+    // If we're on reset-password page, don't redirect to dashboard
+    if (pathname === '/reset-password') {
+      // Just clean the URL, don't redirect
+      if (accessToken) {
+        window.history.replaceState(null, '', pathname);
+      }
       return;
     }
     
