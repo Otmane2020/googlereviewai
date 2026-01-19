@@ -26,6 +26,7 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -217,17 +218,36 @@ const Reviews = () => {
 
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.provider_token) {
-        toast({ title: "Token Google manquant", description: "Reconnectez-vous avec Google.", variant: "destructive" });
-        return;
+      let providerToken = session?.provider_token;
+
+      // If user is logged in with email, provider_token is usually missing.
+      // Use our backend token refresh (requires a Google refresh_token stored in profile).
+      if (!providerToken) {
+        const { data: refreshData, error: refreshError } = await supabase.functions.invoke("refresh-google-token", {
+          body: { user_id: user.id },
+        });
+
+        if (refreshError) throw refreshError;
+
+        if (!refreshData?.success || refreshData?.requires_reconnect || !refreshData?.access_token) {
+          toast({
+            title: "Reconnexion requise",
+            description: "Allez dans Paramètres → Connecter Google pour reconnecter votre compte.",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        providerToken = refreshData.access_token;
       }
 
       const { data, error } = await supabase.functions.invoke("publish-google-reply", {
-        body: { review_id: reviewId, provider_token: session.provider_token },
+        body: { review_id: reviewId, provider_token: providerToken },
       });
 
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
+      if (data?.success === false) throw new Error(data.message || "Impossible de publier.");
 
       toast({ title: "Publié sur Google !" });
       // No need to fetchData - Realtime handles it
@@ -638,6 +658,9 @@ const Reviews = () => {
                               <Sparkles className="w-5 h-5 text-primary" />
                               Réponse IA pour {review.author}
                             </DialogTitle>
+                            <DialogDescription className="sr-only">
+                              Lecture de la réponse IA complète.
+                            </DialogDescription>
                           </DialogHeader>
                           <div className="space-y-4 pt-2">
                             <div className="flex items-center gap-2">
