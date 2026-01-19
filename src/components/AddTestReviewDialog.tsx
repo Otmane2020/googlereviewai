@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -11,21 +11,59 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Star, Plus, TestTube } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Star, Plus, TestTube, Building2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
+interface BusinessOption {
+  id: string;
+  name: string;
+  google_place_id: string | null;
+}
+
 interface AddTestReviewDialogProps {
   userId: string;
+  businesses?: BusinessOption[];
+  defaultLocationId?: string;
   onReviewAdded: () => void;
 }
 
-export const AddTestReviewDialog = ({ userId, onReviewAdded }: AddTestReviewDialogProps) => {
+export const AddTestReviewDialog = ({
+  userId,
+  businesses = [],
+  defaultLocationId,
+  onReviewAdded,
+}: AddTestReviewDialogProps) => {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [author, setAuthor] = useState("");
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState("");
+  const [locationId, setLocationId] = useState<string>("test_location");
+
+  const businessOptions = useMemo(
+    () => businesses.filter((b) => !!b.google_place_id) as Array<Required<BusinessOption>>,
+    [businesses]
+  );
+
+  useEffect(() => {
+    if (!open) return;
+
+    // If user is currently filtering a location, preselect it
+    if (defaultLocationId && defaultLocationId !== "all") {
+      setLocationId(defaultLocationId);
+      return;
+    }
+
+    setLocationId("test_location");
+  }, [open, defaultLocationId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,7 +84,7 @@ export const AddTestReviewDialog = ({ userId, onReviewAdded }: AddTestReviewDial
         rating,
         comment: comment.trim() || null,
         review_id: `test_${Date.now()}`,
-        location_id: "test_location",
+        location_id: locationId,
         review_date: new Date().toISOString(),
         replied: false,
       });
@@ -93,7 +131,30 @@ export const AddTestReviewDialog = ({ userId, onReviewAdded }: AddTestReviewDial
             Créez un avis fictif pour tester la génération de réponses IA.
           </DialogDescription>
         </DialogHeader>
+
         <form onSubmit={handleSubmit} className="space-y-4">
+          {businessOptions.length > 0 && (
+            <div className="space-y-2">
+              <Label>Établissement</Label>
+              <Select value={locationId} onValueChange={setLocationId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Choisir un établissement" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="test_location">Avis de test (global)</SelectItem>
+                  {businessOptions.map((b) => (
+                    <SelectItem key={b.id} value={b.google_place_id!}>
+                      <span className="flex items-center gap-2">
+                        <Building2 className="w-4 h-4 text-muted-foreground" />
+                        {b.name}
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
           <div className="space-y-2">
             <Label htmlFor="author">Nom du client</Label>
             <Input
@@ -139,11 +200,7 @@ export const AddTestReviewDialog = ({ userId, onReviewAdded }: AddTestReviewDial
           </div>
 
           <div className="flex gap-2 justify-end">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setOpen(false)}
-            >
+            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
               Annuler
             </Button>
             <Button type="submit" disabled={loading}>
