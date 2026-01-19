@@ -70,6 +70,7 @@ const SettingsPage = () => {
   const [isGoogleConnected, setIsGoogleConnected] = useState(false);
   const [connectingGoogle, setConnectingGoogle] = useState(false);
   const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
+  const [openingPortal, setOpeningPortal] = useState(false);
 
   useEffect(() => {
     if (!user) {
@@ -187,6 +188,34 @@ const SettingsPage = () => {
     }
   };
 
+  const handleManageSubscription = async () => {
+    setOpeningPortal(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("create-portal-session", {
+        body: { returnUrl: window.location.href },
+      });
+
+      if (error) throw error;
+
+      if (data?.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error("No portal URL returned");
+      }
+    } catch (error: any) {
+      console.error("Portal error:", error);
+      toast({
+        title: "Erreur",
+        description: error.message === "No customer found" 
+          ? "Aucun abonnement trouvé. Souscrivez d'abord à un plan."
+          : "Impossible d'ouvrir le portail de gestion",
+        variant: "destructive",
+      });
+    } finally {
+      setOpeningPortal(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
@@ -280,6 +309,20 @@ const SettingsPage = () => {
                   <Badge variant="secondary">Essai gratuit</Badge>
                 )}
               </div>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={handleManageSubscription}
+                disabled={openingPortal}
+                className="gap-2"
+              >
+                {openingPortal ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <CreditCard className="w-4 h-4" />
+                )}
+                Gérer l'abonnement
+              </Button>
             </div>
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
