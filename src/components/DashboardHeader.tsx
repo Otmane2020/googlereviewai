@@ -14,7 +14,9 @@ import {
   Bell,
   FileText,
   Search,
-  Plus
+  Plus,
+  CreditCard,
+  ChevronRight
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -28,10 +30,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 const navItems = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -39,6 +43,11 @@ const navItems = [
   { label: "Établissements", href: "/businesses", icon: Building2 },
   { label: "SEO Auto", href: "/seo-autopost", icon: FileText },
   { label: "AEO Rank", href: "/aeo-rank", icon: Search },
+];
+
+const menuItems = [
+  { label: "Paramètres IA", href: "/ai-settings", icon: Sparkles },
+  { label: "Paramètres", href: "/settings", icon: Settings },
 ];
 
 interface UserProfile {
@@ -100,9 +109,9 @@ export const DashboardHeader = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-card border-b border-border shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        <nav className="flex items-center justify-between h-16">
+    <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/50">
+      <div className="max-w-7xl mx-auto px-4">
+        <nav className="flex items-center justify-between h-14">
           {/* Logo */}
           <Link to="/dashboard" className="flex-shrink-0">
             <StarlinkoLogo showBadge={false} />
@@ -117,9 +126,9 @@ export const DashboardHeader = () => {
                 <Link
                   key={item.href}
                   to={item.href}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${
                     isActive 
-                      ? "bg-primary/10 text-primary" 
+                      ? "bg-primary text-primary-foreground shadow-md shadow-primary/25" 
                       : "text-muted-foreground hover:text-foreground hover:bg-muted"
                   }`}
                 >
@@ -130,95 +139,65 @@ export const DashboardHeader = () => {
             })}
           </div>
 
-          {/* Right side actions */}
-          <div className="flex items-center gap-3">
-            {/* Credits display with popup */}
-            {profile && (
-              <Popover>
-                <PopoverTrigger asChild>
-                  <button className="flex items-center gap-2 px-3 py-1.5 bg-accent/10 rounded-full border border-accent/20 hover:bg-accent/20 transition-colors cursor-pointer">
-                    <Star className="w-4 h-4 text-accent fill-accent" />
-                    <span className="text-sm font-semibold text-foreground">{profile.credits}</span>
-                    <span className="text-xs text-muted-foreground hidden sm:inline">crédits</span>
-                  </button>
-                </PopoverTrigger>
-                <PopoverContent className="w-64" align="end">
-                  <div className="space-y-4">
-                    <div>
-                      <p className="text-sm font-medium text-foreground">Solde de crédits</p>
-                      <div className="flex items-center gap-2 mt-1">
-                        <Star className="w-5 h-5 text-accent fill-accent" />
-                        <span className="text-2xl font-bold text-foreground">{profile.credits}</span>
-                        <span className="text-muted-foreground text-sm">crédits</span>
-                      </div>
-                      {profile.plan_name && (
-                        <p className="text-xs text-muted-foreground mt-1">
-                          Plan {profile.plan_name.charAt(0).toUpperCase() + profile.plan_name.slice(1)}
-                        </p>
-                      )}
-                    </div>
-                    <div className="pt-2 border-t border-border">
-                      <p className="text-xs text-muted-foreground mb-2">
-                        1 crédit = 1 réponse IA
-                      </p>
-                      <Button size="sm" className="w-full gap-2" onClick={() => navigate("/settings?tab=credits")}>
-                        <Plus className="w-4 h-4" />
-                        Recharger
-                      </Button>
-                    </div>
-                  </div>
-                </PopoverContent>
-              </Popover>
-            )}
-
-            {/* Notifications */}
+          {/* Right side actions - Mobile optimized */}
+          <div className="flex items-center gap-2">
+            {/* Notifications - Always visible with counter */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="relative">
+                <Button variant="ghost" size="icon" className="relative h-10 w-10 rounded-xl">
                   <Bell className="w-5 h-5" />
                   {unreadCount > 0 && (
-                    <Badge 
-                      variant="destructive" 
-                      className="absolute -top-1 -right-1 w-5 h-5 p-0 flex items-center justify-center text-xs"
-                    >
-                      {unreadCount > 9 ? "9+" : unreadCount}
-                    </Badge>
+                    <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1 shadow-lg">
+                      {unreadCount > 99 ? "99+" : unreadCount}
+                    </span>
                   )}
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-80 bg-popover">
-                <div className="flex items-center justify-between px-3 py-2 border-b border-border">
+              <DropdownMenuContent align="end" className="w-80 bg-popover/95 backdrop-blur-xl border-border/50">
+                <div className="flex items-center justify-between px-3 py-2 border-b border-border/50">
                   <span className="font-semibold text-sm">Notifications</span>
                   {unreadCount > 0 && (
-                    <Button variant="ghost" size="sm" className="text-xs h-7" onClick={markAllAsRead}>
-                      Tout marquer lu
+                    <Button variant="ghost" size="sm" className="text-xs h-7 text-primary" onClick={markAllAsRead}>
+                      Tout lire
                     </Button>
                   )}
                 </div>
-                <div className="max-h-72 overflow-y-auto">
+                <div className="max-h-80 overflow-y-auto">
                   {notifications.length === 0 ? (
-                    <div className="p-4 text-center text-sm text-muted-foreground">
-                      Aucune notification
+                    <div className="p-6 text-center">
+                      <Bell className="w-8 h-8 mx-auto mb-2 text-muted-foreground/30" />
+                      <p className="text-sm text-muted-foreground">Aucune notification</p>
                     </div>
                   ) : (
                     notifications.slice(0, 10).map((notification) => (
                       <DropdownMenuItem
                         key={notification.id}
-                        className={`flex flex-col items-start gap-1 p-3 cursor-pointer ${
+                        className={`flex flex-col items-start gap-1 p-3 cursor-pointer border-b border-border/30 last:border-0 ${
                           !notification.read ? "bg-primary/5" : ""
                         }`}
                         onClick={() => {
                           markAsRead(notification.id);
-                          if (notification.review_id) {
+                          if (notification.type === "pending_reviews" || notification.review_id) {
                             navigate("/reviews");
+                          } else if (notification.type === "seo_reminder" || notification.type === "seo_promo") {
+                            navigate("/seo-autopost");
+                          } else if (notification.type === "aeo_reminder" || notification.type === "aeo_promo") {
+                            navigate("/aeo-rank");
+                          } else if (notification.type === "ai_tip") {
+                            navigate("/ai-settings");
                           }
                         }}
                       >
-                        <span className="font-medium text-sm">{notification.title}</span>
-                        <span className="text-xs text-muted-foreground line-clamp-2">
+                        <div className="flex items-center gap-2 w-full">
+                          {!notification.read && (
+                            <span className="w-2 h-2 rounded-full bg-primary shrink-0" />
+                          )}
+                          <span className="font-medium text-sm flex-1">{notification.title}</span>
+                        </div>
+                        <span className="text-xs text-muted-foreground line-clamp-2 pl-4">
                           {notification.message}
                         </span>
-                        <span className="text-xs text-muted-foreground/60">
+                        <span className="text-[10px] text-muted-foreground/60 pl-4">
                           {new Date(notification.created_at).toLocaleDateString("fr-FR", {
                             day: "numeric",
                             month: "short",
@@ -233,88 +212,128 @@ export const DashboardHeader = () => {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            {/* Settings & Profile */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                    <span className="text-sm font-semibold text-primary">
-                      {profile?.full_name?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || "U"}
-                    </span>
-                  </div>
+            {/* Hamburger Menu - Contains credits, profile, settings */}
+            <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl">
+                  <Menu className="h-5 w-5" />
                 </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56 bg-popover">
-                <div className="px-3 py-2">
-                  <p className="font-medium text-sm truncate">{profile?.full_name || "Utilisateur"}</p>
-                  <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
-                  {profile?.plan_name && (
-                    <Badge variant="secondary" className="mt-1 text-xs">
-                      {profile.plan_name}
-                    </Badge>
-                  )}
-                </div>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link to="/ai-settings" className="flex items-center gap-2 cursor-pointer">
-                    <Sparkles className="w-4 h-4" />
-                    Paramètres IA
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link to="/settings" className="flex items-center gap-2 cursor-pointer">
-                    <Settings className="w-4 h-4" />
-                    Paramètres
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem 
-                  className="text-destructive focus:text-destructive cursor-pointer"
-                  onClick={handleSignOut}
-                >
-                  <LogOut className="w-4 h-4 mr-2" />
-                  Déconnexion
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-[300px] p-0 bg-background/95 backdrop-blur-xl">
+                <SheetHeader className="p-4 border-b border-border/50">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-lg shadow-primary/25">
+                      <span className="text-lg font-bold text-primary-foreground">
+                        {profile?.full_name?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || "U"}
+                      </span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <SheetTitle className="text-left text-base truncate">
+                        {profile?.full_name || "Utilisateur"}
+                      </SheetTitle>
+                      <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+                    </div>
+                  </div>
+                </SheetHeader>
 
-            {/* Mobile Menu Button */}
-            <button
-              className="lg:hidden p-2 text-foreground"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            >
-              {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-            </button>
+                {/* Credits Card */}
+                <div className="p-4 border-b border-border/50">
+                  <div className="bg-gradient-to-br from-accent/10 to-accent/5 rounded-2xl p-4 border border-accent/20">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <Star className="w-5 h-5 text-accent fill-accent" />
+                        <span className="text-sm font-medium text-foreground">Crédits</span>
+                      </div>
+                      {profile?.plan_name && (
+                        <Badge variant="secondary" className="text-[10px]">
+                          {profile.plan_name}
+                        </Badge>
+                      )}
+                    </div>
+                    <div className="text-3xl font-bold text-foreground mb-3">
+                      {profile?.credits || 0}
+                    </div>
+                    <Button 
+                      size="sm" 
+                      className="w-full rounded-xl gap-2 shadow-md"
+                      onClick={() => {
+                        setMobileMenuOpen(false);
+                        navigate("/settings");
+                      }}
+                    >
+                      <Plus className="w-4 h-4" />
+                      Recharger
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Navigation */}
+                <div className="p-4 space-y-1">
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2 px-2">
+                    Navigation
+                  </p>
+                  {navItems.map((item) => {
+                    const Icon = item.icon;
+                    const isActive = location.pathname === item.href;
+                    return (
+                      <Link
+                        key={item.href}
+                        to={item.href}
+                        className={`flex items-center gap-3 px-3 py-3 rounded-xl font-medium transition-all ${
+                          isActive 
+                            ? "bg-primary text-primary-foreground shadow-md" 
+                            : "text-foreground hover:bg-muted"
+                        }`}
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        <Icon className="w-5 h-5" />
+                        <span className="flex-1">{item.label}</span>
+                        <ChevronRight className={`w-4 h-4 ${isActive ? "text-primary-foreground/70" : "text-muted-foreground"}`} />
+                      </Link>
+                    );
+                  })}
+                </div>
+
+                {/* Settings */}
+                <div className="p-4 space-y-1 border-t border-border/50">
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2 px-2">
+                    Paramètres
+                  </p>
+                  {menuItems.map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <Link
+                        key={item.href}
+                        to={item.href}
+                        className="flex items-center gap-3 px-3 py-3 rounded-xl font-medium text-foreground hover:bg-muted transition-all"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        <Icon className="w-5 h-5 text-muted-foreground" />
+                        <span className="flex-1">{item.label}</span>
+                        <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                      </Link>
+                    );
+                  })}
+                </div>
+
+                {/* Sign Out */}
+                <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-border/50 bg-background">
+                  <Button 
+                    variant="outline" 
+                    className="w-full rounded-xl h-11 text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive/20"
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      handleSignOut();
+                    }}
+                  >
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Déconnexion
+                  </Button>
+                </div>
+              </SheetContent>
+            </Sheet>
           </div>
         </nav>
-
-        {/* Mobile Menu */}
-        {mobileMenuOpen && (
-          <div className="lg:hidden bg-card border-t border-border py-4 animate-fade-in">
-            
-            <div className="flex flex-col gap-1 px-4">
-              {navItems.map((item) => {
-                const Icon = item.icon;
-                const isActive = location.pathname === item.href;
-                return (
-                  <Link
-                    key={item.href}
-                    to={item.href}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-colors ${
-                      isActive 
-                        ? "bg-primary/10 text-primary" 
-                        : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                    }`}
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    <Icon className="w-5 h-5" />
-                    {item.label}
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-        )}
       </div>
     </header>
   );
