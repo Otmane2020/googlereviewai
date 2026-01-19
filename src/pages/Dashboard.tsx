@@ -6,6 +6,7 @@ import { useSyncGoogleBusinesses } from "@/hooks/useSyncGoogleBusinesses";
 import { useSyncGoogleReviews } from "@/hooks/useSyncGoogleReviews";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 import { 
   Star, 
   Building2, 
@@ -13,9 +14,11 @@ import {
   TrendingUp,
   Sparkles,
   ChevronRight,
+  ChevronLeft,
   RefreshCw,
   Coins,
-  LayoutDashboard
+  LayoutDashboard,
+  Loader2
 } from "lucide-react";
 
 interface Profile {
@@ -50,43 +53,55 @@ interface StatsCard {
   color: string;
 }
 
+const REVIEWS_PER_PAGE = 10;
+
 const Dashboard = () => {
   const { user, session } = useAuth();
   const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [recentReviews, setRecentReviews] = useState<Review[]>([]);
+  const [allReviews, setAllReviews] = useState<Review[]>([]);
   const [businessCount, setBusinessCount] = useState(0);
   const [reviewStats, setReviewStats] = useState({ total: 0, avgRating: 0, aiResponses: 0 });
   const [loading, setLoading] = useState(true);
+  const [loadingReviews, setLoadingReviews] = useState(true);
+  const [loadProgress, setLoadProgress] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
   const { syncBusinesses, isSyncing: isSyncingBusinesses } = useSyncGoogleBusinesses();
   const { syncReviews, isSyncing: isSyncingReviews } = useSyncGoogleReviews();
   const hasSyncedRef = useRef(false);
 
-  const fetchReviews = useCallback(async () => {
+  const fetchAllReviews = useCallback(async () => {
     if (!user) return;
+    setLoadingReviews(true);
+    setLoadProgress(10);
+
+    // First get count
+    const { count } = await supabase
+      .from("reviews")
+      .select("*", { count: "exact", head: true })
+      .eq("user_id", user.id);
+
+    setLoadProgress(30);
+
+    // Fetch all reviews
     const { data, error } = await supabase
       .from("reviews")
       .select("id, author, rating, comment, review_date, ai_response, location_id")
       .eq("user_id", user.id)
-      .order("review_date", { ascending: false })
-      .limit(5);
+      .order("review_date", { ascending: false });
+
+    setLoadProgress(70);
 
     if (!error && data) {
-      setRecentReviews(data);
-    }
-
-    // Fetch stats
-    const { data: allReviews } = await supabase
-      .from("reviews")
-      .select("rating, ai_response")
-      .eq("user_id", user.id);
-
-    if (allReviews) {
-      const total = allReviews.length;
-      const avgRating = total > 0 ? allReviews.reduce((sum, r) => sum + r.rating, 0) / total : 0;
-      const aiResponses = allReviews.filter(r => r.ai_response).length;
+      setAllReviews(data);
+      const total = data.length;
+      const avgRating = total > 0 ? data.reduce((sum, r) => sum + r.rating, 0) / total : 0;
+      const aiResponses = data.filter(r => r.ai_response).length;
       setReviewStats({ total, avgRating: Number(avgRating.toFixed(1)), aiResponses });
     }
+
+    setLoadProgress(100);
+    setTimeout(() => setLoadingReviews(false), 300);
   }, [user]);
 
   const fetchBusinessCount = useCallback(async () => {
@@ -122,9 +137,9 @@ const Dashboard = () => {
     };
 
     fetchProfile();
-    fetchReviews();
+    fetchAllReviews();
     fetchBusinessCount();
-  }, [user, navigate, fetchReviews, fetchBusinessCount]);
+  }, [user, navigate, fetchAllReviews, fetchBusinessCount]);
 
   // Auto-sync Google businesses and reviews on first load if user signed in with Google
   useEffect(() => {
@@ -133,14 +148,21 @@ const Dashboard = () => {
         hasSyncedRef.current = true;
         await syncBusinesses();
         await syncReviews();
-        fetchReviews();
+        fetchAllReviews();
         fetchBusinessCount();
       }
     };
     autoSync();
-  }, [loading, user, session, syncBusinesses, syncReviews, fetchReviews, fetchBusinessCount]);
+  }, [loading, user, session, syncBusinesses, syncReviews, fetchAllReviews, fetchBusinessCount]);
 
   const isSyncing = isSyncingBusinesses || isSyncingReviews;
+
+  // Pagination
+  const totalPages = Math.ceil(allReviews.length / REVIEWS_PER_PAGE);
+  const paginatedReviews = allReviews.slice(
+    (currentPage - 1) * REVIEWS_PER_PAGE,
+    currentPage * REVIEWS_PER_PAGE
+  );
 
   const stats: StatsCard[] = [
     { title: "Crédits", value: profile?.credits ?? 0, change: "", icon: Coins, trend: "neutral", color: "bg-accent" },
@@ -270,57 +292,148 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Recent reviews */}
+        {/* All reviews with pagination */}
         <div className="bg-card rounded-2xl border border-border shadow-sm">
           <div className="p-4 lg:p-6 border-b border-border flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-foreground">Avis récents</h2>
-            <Link to="/reviews">
-              <Button variant="ghost" size="sm">
-                Voir tous
-                <ChevronRight className="w-4 h-4 ml-1" />
+            <div className="flex items-center gap-3">
+              <h2 className="text-lg font-semibold text-foreground">Tous les avis</h2>
+              <span className="text-sm text-muted-foreground">
+                ({reviewStats.total} avis)
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => { syncBusinesses(); syncReviews().then(() => fetchAllReviews()); }}
+                disabled={isSyncing}
+              >
+                {isSyncing ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <RefreshCw className="w-4 h-4" />
+                )}
+                <span className="ml-2 hidden sm:inline">Synchroniser</span>
               </Button>
-            </Link>
+              <Link to="/reviews">
+                <Button variant="ghost" size="sm">
+                  Gérer
+                  <ChevronRight className="w-4 h-4 ml-1" />
+                </Button>
+              </Link>
+            </div>
           </div>
-          {recentReviews.length > 0 ? (
-            <div className="divide-y divide-border">
-              {recentReviews.map((review) => (
-                <div key={review.id} className="p-4 lg:p-6 hover:bg-muted/30 transition-colors">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="font-medium text-foreground">{review.author}</span>
-                        <div className="flex items-center">
-                          {[...Array(5)].map((_, i) => (
-                            <Star
-                              key={i}
-                              className={`w-4 h-4 ${
-                                i < review.rating ? "text-accent fill-accent" : "text-muted-foreground/30"
-                              }`}
-                            />
-                          ))}
+
+          {/* Loading progress bar */}
+          {loadingReviews && (
+            <div className="p-4 border-b border-border">
+              <div className="flex items-center gap-3">
+                <Loader2 className="w-5 h-5 animate-spin text-primary" />
+                <div className="flex-1">
+                  <p className="text-sm text-muted-foreground mb-2">Chargement des avis...</p>
+                  <Progress value={loadProgress} className="h-2" />
+                </div>
+                <span className="text-sm font-medium text-foreground">{loadProgress}%</span>
+              </div>
+            </div>
+          )}
+
+          {!loadingReviews && paginatedReviews.length > 0 ? (
+            <>
+              <div className="divide-y divide-border">
+                {paginatedReviews.map((review) => (
+                  <div key={review.id} className="p-4 lg:p-6 hover:bg-muted/30 transition-colors">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="font-medium text-foreground">{review.author}</span>
+                          <div className="flex items-center">
+                            {[...Array(5)].map((_, i) => (
+                              <Star
+                                key={i}
+                                className={`w-4 h-4 ${
+                                  i < review.rating ? "text-accent fill-accent" : "text-muted-foreground/30"
+                                }`}
+                              />
+                            ))}
+                          </div>
                         </div>
+                        <p className="text-sm text-muted-foreground line-clamp-2">
+                          {review.comment || "Aucun commentaire"}
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {new Date(review.review_date).toLocaleDateString("fr-FR")}
+                        </p>
                       </div>
-                      <p className="text-sm text-muted-foreground line-clamp-2">
-                        {review.comment || "Aucun commentaire"}
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {new Date(review.review_date).toLocaleDateString("fr-FR")}
-                      </p>
+                      {review.ai_response ? (
+                        <span className="text-xs bg-secondary/10 text-secondary px-2 py-1 rounded-full whitespace-nowrap">
+                          Répondu
+                        </span>
+                      ) : (
+                        <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full whitespace-nowrap">
+                          En attente
+                        </span>
+                      )}
                     </div>
-                    {review.ai_response ? (
-                      <span className="text-xs bg-secondary/10 text-secondary px-2 py-1 rounded-full whitespace-nowrap">
-                        Répondu
-                      </span>
-                    ) : (
-                      <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full whitespace-nowrap">
-                        En attente
-                      </span>
-                    )}
+                  </div>
+                ))}
+              </div>
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="p-4 border-t border-border flex items-center justify-between">
+                  <p className="text-sm text-muted-foreground">
+                    Page {currentPage} sur {totalPages}
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                      disabled={currentPage === 1}
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                      Précédent
+                    </Button>
+                    <div className="hidden sm:flex items-center gap-1">
+                      {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                        let pageNum: number;
+                        if (totalPages <= 5) {
+                          pageNum = i + 1;
+                        } else if (currentPage <= 3) {
+                          pageNum = i + 1;
+                        } else if (currentPage >= totalPages - 2) {
+                          pageNum = totalPages - 4 + i;
+                        } else {
+                          pageNum = currentPage - 2 + i;
+                        }
+                        return (
+                          <Button
+                            key={pageNum}
+                            variant={currentPage === pageNum ? "default" : "ghost"}
+                            size="sm"
+                            className="w-8 h-8 p-0"
+                            onClick={() => setCurrentPage(pageNum)}
+                          >
+                            {pageNum}
+                          </Button>
+                        );
+                      })}
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                      disabled={currentPage === totalPages}
+                    >
+                      Suivant
+                      <ChevronRight className="w-4 h-4" />
+                    </Button>
                   </div>
                 </div>
-              ))}
-            </div>
-          ) : (
+              )}
+            </>
+          ) : !loadingReviews ? (
             <div className="p-6 lg:p-8">
               <div className="text-center py-8">
                 <Star className="w-12 h-12 mx-auto mb-4 text-muted-foreground/30" />
@@ -340,7 +453,7 @@ const Dashboard = () => {
                 </Button>
               </div>
             </div>
-          )}
+          ) : null}
         </div>
       </main>
     </div>
