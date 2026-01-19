@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
+import { useGoogleOAuth } from "@/hooks/useGoogleOAuth";
 import { 
   User,
   Mail,
@@ -22,7 +23,8 @@ import {
   Settings as SettingsIcon,
   Link2,
   Unlink,
-  Sparkles
+  Sparkles,
+  RefreshCw
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
@@ -61,14 +63,15 @@ const plans = [
 ];
 
 const SettingsPage = () => {
-  const { user, session, signOut, signInWithGoogle } = useAuth();
+  const { user, session, signOut } = useAuth();
   const navigate = useNavigate();
+  const { initiateOAuth, checkOAuthStatus, isConnecting } = useGoogleOAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [fullName, setFullName] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [isGoogleConnected, setIsGoogleConnected] = useState(false);
-  const [connectingGoogle, setConnectingGoogle] = useState(false);
+  const [hasRefreshToken, setHasRefreshToken] = useState(false);
   const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
   const [openingPortal, setOpeningPortal] = useState(false);
 
@@ -92,26 +95,31 @@ const SettingsPage = () => {
         setFullName(data.full_name || "");
       }
       
-      // Check if Google is connected by looking at active businesses
-      const { data: businesses } = await supabase
-        .from("businesses")
-        .select("id")
-        .eq("user_id", user.id)
-        .eq("is_active", true)
-        .limit(1);
-      
+      // Check if Google is connected by looking at active businesses AND refresh token
+      const [businessesResult, oauthStatus] = await Promise.all([
+        supabase
+          .from("businesses")
+          .select("id")
+          .eq("user_id", user.id)
+          .eq("is_active", true)
+          .limit(1),
+        checkOAuthStatus()
+      ]);
+
+      const businesses = businessesResult.data;
       const hasBusinesses = businesses && businesses.length > 0;
       const hasGoogleProvider = user.app_metadata?.provider === "google" || 
         user.app_metadata?.providers?.includes("google") ||
         !!session?.provider_token;
       
       setIsGoogleConnected(hasBusinesses || hasGoogleProvider);
+      setHasRefreshToken(oauthStatus.isConnected);
       
       setLoading(false);
     };
 
     fetchProfile();
-  }, [user, session, navigate]);
+  }, [user, session, navigate, checkOAuthStatus]);
 
   const handleSaveProfile = async () => {
     if (!user) return;
@@ -143,42 +151,35 @@ const SettingsPage = () => {
   };
 
   const handleConnectGoogle = async () => {
-    setConnectingGoogle(true);
-    try {
-      const { error } = await signInWithGoogle();
-      if (error) {
-        toast({
-          title: "Erreur",
-          description: error.message,
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
-      toast({
-        title: "Erreur",
-        description: "Impossible de connecter Google",
-        variant: "destructive",
-      });
-    }
-    setConnectingGoogle(false);
+    // Use the custom OAuth flow that stores refresh_token in database
+    await initiateOAuth();
   };
 
   const handleDisconnectGoogle = async () => {
-    // Note: Supabase doesn't have a direct "unlink provider" method
-    // We'll clear the businesses and show a message
     try {
-      // Deactivate all businesses (soft delete)
-      await supabase
-        .from("businesses")
-        .update({ is_active: false })
-        .eq("user_id", user!.id);
+      // Deactivate all businesses and clear tokens
+      await Promise.all([
+        supabase
+          .from("businesses")
+          .update({ is_active: false })
+          .eq("user_id", user!.id),
+        supabase
+          .from("profiles")
+          .update({ 
+            google_refresh_token: null,
+            google_access_token: null,
+            google_token_expires_at: null 
+          })
+          .eq("id", user!.id)
+      ]);
       
       toast({
         title: "Google déconnecté",
-        description: "Vos établissements ont été désactivés. Reconnectez Google pour les réactiver.",
+        description: "Vos établissements et tokens ont été supprimés. Reconnectez Google pour les réactiver.",
       });
       
       setIsGoogleConnected(false);
+      setHasRefreshToken(false);
     } catch (error) {
       toast({
         title: "Erreur",
@@ -410,22 +411,31 @@ const SettingsPage = () => {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
                   <p className="font-medium text-foreground text-sm">Google My Business</p>
-                  {isGoogleConnected && (
+                  {isGoogleConnected && hasRefreshToken && (
                     <Badge className="bg-green-500/10 text-green-600 border-green-500/20 text-[10px] px-2 py-0.5">
                       <Check className="w-2.5 h-2.5 mr-0.5" />
                       Connecté
                     </Badge>
                   )}
+                  {isGoogleConnected && !hasRefreshToken && (
+                    <Badge className="bg-orange-500/10 text-orange-600 border-orange-500/20 text-[10px] px-2 py-0.5">
+                      <RefreshCw className="w-2.5 h-2.5 mr-0.5" />
+                      Reconnexion requise
+                    </Badge>
+                  )}
                 </div>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Sync avis & établissements
+                  {isGoogleConnected && !hasRefreshToken 
+                    ? "Cliquez sur 'Reconnecter' pour permettre la sync automatique"
+                    : "Sync avis & établissements"
+                  }
                 </p>
               </div>
             </div>
             
             {/* Action Buttons - Full width on mobile */}
             <div className="flex flex-col sm:flex-row gap-2">
-              {isGoogleConnected ? (
+              {isGoogleConnected && hasRefreshToken && (
                 <Button 
                   variant="outline" 
                   size="sm"
@@ -435,14 +445,30 @@ const SettingsPage = () => {
                   <Unlink className="w-4 h-4 mr-2" />
                   Déconnecter Google
                 </Button>
-              ) : (
+              )}
+              {isGoogleConnected && !hasRefreshToken && (
                 <Button 
                   size="sm"
                   onClick={handleConnectGoogle}
-                  disabled={connectingGoogle}
+                  disabled={isConnecting}
                   className="w-full sm:w-auto rounded-xl h-10 shadow-md shadow-primary/20"
                 >
-                  {connectingGoogle ? (
+                  {isConnecting ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <RefreshCw className="w-4 h-4 mr-2" />
+                  )}
+                  Reconnecter Google
+                </Button>
+              )}
+              {!isGoogleConnected && (
+                <Button 
+                  size="sm"
+                  onClick={handleConnectGoogle}
+                  disabled={isConnecting}
+                  className="w-full sm:w-auto rounded-xl h-10 shadow-md shadow-primary/20"
+                >
+                  {isConnecting ? (
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                   ) : (
                     <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24">
