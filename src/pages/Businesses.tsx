@@ -16,15 +16,17 @@ import {
   Phone,
   Globe,
   Star,
-  Trash2,
   Edit,
   Loader2,
   RefreshCw,
   MessageSquare,
   ExternalLink,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
+  FileText,
+  PlusCircle
 } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
   DialogContent,
@@ -43,6 +45,7 @@ interface Business {
   total_reviews: number;
   is_active: boolean;
   google_place_id: string | null;
+  description: string | null;
 }
 
 const BusinessesPage = () => {
@@ -52,6 +55,9 @@ const BusinessesPage = () => {
   const [reviewCounts, setReviewCounts] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [editingBusiness, setEditingBusiness] = useState<Business | null>(null);
+  const [editDescription, setEditDescription] = useState("");
   const [saving, setSaving] = useState(false);
   const { syncBusinesses, isSyncing } = useSyncGoogleBusinesses();
   const [newBusiness, setNewBusiness] = useState({
@@ -165,6 +171,33 @@ const BusinessesPage = () => {
       });
       fetchBusinesses();
     }
+  };
+
+  const handleUpdateDescription = async () => {
+    if (!editingBusiness) return;
+    setSaving(true);
+
+    const { error } = await supabase
+      .from("businesses")
+      .update({ description: editDescription })
+      .eq("id", editingBusiness.id);
+
+    if (error) {
+      toast({
+        title: "Erreur",
+        description: "Impossible de mettre à jour la description.",
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Description mise à jour",
+        description: "La description a été enregistrée.",
+      });
+      setEditDialogOpen(false);
+      setEditingBusiness(null);
+      fetchBusinesses();
+    }
+    setSaving(false);
   };
 
   if (loading) {
@@ -326,16 +359,13 @@ const BusinessesPage = () => {
                         variant="ghost"
                         size="icon"
                         className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                        onClick={() => {
+                          setEditingBusiness(business);
+                          setEditDescription(business.description || "");
+                          setEditDialogOpen(true);
+                        }}
                       >
                         <Edit className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                        onClick={() => handleDeleteBusiness(business.id, business.name)}
-                      >
-                        <Trash2 className="w-4 h-4" />
                       </Button>
                     </div>
                   </div>
@@ -385,6 +415,28 @@ const BusinessesPage = () => {
                     )}
                   </div>
 
+                  {/* Description */}
+                  {business.description && (
+                    <div className="mt-3 p-3 bg-muted/50 rounded-xl">
+                      <p className="text-sm text-muted-foreground line-clamp-2">{business.description}</p>
+                    </div>
+                  )}
+
+                  {/* Posts Section */}
+                  <div className="mt-4 pt-4 border-t border-border">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <FileText className="w-4 h-4 text-muted-foreground" />
+                        <span className="text-sm font-medium text-foreground">Posts</span>
+                      </div>
+                      <Button variant="ghost" size="sm" className="h-7 gap-1 text-xs">
+                        <PlusCircle className="w-3 h-3" />
+                        Ajouter
+                      </Button>
+                    </div>
+                    <p className="text-xs text-muted-foreground">Aucun post pour le moment</p>
+                  </div>
+
                   <div className="mt-4 pt-4 border-t border-border flex gap-2">
                     <Button
                       variant="default"
@@ -406,6 +458,40 @@ const BusinessesPage = () => {
           </div>
         )}
       </main>
+
+      {/* Edit Description Dialog */}
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Modifier la description</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Établissement</Label>
+              <p className="text-sm font-medium text-foreground">{editingBusiness?.name}</p>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="description">Description</Label>
+              <Textarea
+                id="description"
+                value={editDescription}
+                onChange={(e) => setEditDescription(e.target.value)}
+                placeholder="Décrivez votre établissement..."
+                rows={4}
+                className="resize-none"
+              />
+            </div>
+            <Button 
+              onClick={handleUpdateDescription} 
+              disabled={saving}
+              className="w-full"
+            >
+              {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+              Enregistrer
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <MobileBottomNav />
     </div>
