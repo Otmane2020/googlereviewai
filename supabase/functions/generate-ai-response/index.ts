@@ -78,6 +78,7 @@ serve(async (req) => {
     const responseLength = aiSettings?.response_length || "M";
     const includeSignature = aiSettings?.include_signature ?? true;
     const signature = aiSettings?.signature?.replace("{business_name}", business?.name || "Notre équipe") || "";
+    const customTemplate = aiSettings?.custom_template || "";
 
     const lengthMap: Record<string, string> = {
       S: "Keep the response brief, around 2-3 sentences.",
@@ -91,6 +92,8 @@ serve(async (req) => {
       professional: "Use a professional and formal tone.",
       casual: "Use a casual and relaxed tone.",
       empathetic: "Use an empathetic and understanding tone.",
+      humorous: "Use a light, humorous, and fun tone while remaining respectful.",
+      warm: "Use a warm, caring, and compassionate tone that shows genuine empathy.",
     };
     const toneInstruction = toneMap[tone] || "Use a friendly tone.";
 
@@ -99,6 +102,7 @@ ${toneInstruction}
 ${lengthInstruction}
 Always thank the customer and address their specific feedback.
 ${review.rating >= 4 ? "This is a positive review, express gratitude." : "This is a critical review, show empathy and offer to improve."}
+${customTemplate ? `Additional instructions: ${customTemplate}` : ""}
 ${includeSignature && signature ? `End with this signature: ${signature}` : ""}
 Do not include any greeting like "Cher client" - start directly with the response.`;
 
