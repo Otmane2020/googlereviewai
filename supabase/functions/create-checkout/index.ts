@@ -66,37 +66,44 @@ serve(async (req) => {
     });
 
     let customerId: string;
+    let skipTrial = false;
+
     if (customers.data.length > 0) {
-      customerId = customers.data[0].id;
+      const existingCustomer = customers.data[0];
       
-      // Check if customer already had a trial
+      // Check customer's currency from existing subscriptions/invoices
       const subscriptions = await stripe.subscriptions.list({
-        customer: customerId,
+        customer: existingCustomer.id,
         status: "all",
-        limit: 100,
+        limit: 10,
       });
-      
-      const hadTrial = subscriptions.data.some((sub: Stripe.Subscription) => sub.trial_end !== null);
-      
-      // If customer already had a trial, don't offer another one
-      if (hadTrial && TRIAL_PLANS.includes(priceKey)) {
-        // Create checkout without trial
-        const session = await stripe.checkout.sessions.create({
-          customer: customerId,
-          line_items: [{ price: priceId, quantity: 1 }],
-          mode: "subscription",
-          success_url: successUrl || `${req.headers.get("origin")}/dashboard?success=true`,
-          cancel_url: cancelUrl || `${req.headers.get("origin")}/dashboard?canceled=true`,
+
+      // Check if customer has subscriptions with different currency (USD vs EUR)
+      const hasUsdSubscriptions = subscriptions.data.some((sub: Stripe.Subscription) => 
+        sub.currency === "usd"
+      );
+
+      // If customer has USD subscriptions and we're trying to use EUR prices, create new customer
+      if (hasUsdSubscriptions) {
+        console.log("Customer has USD subscriptions, creating new customer for EUR prices");
+        const newCustomer = await stripe.customers.create({
+          email: user.email,
           metadata: {
             supabase_user_id: user.id,
-            price_key: priceKey,
+            currency: "eur",
           },
         });
-
-        return new Response(JSON.stringify({ url: session.url }), {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-          status: 200,
-        });
+        customerId = newCustomer.id;
+      } else {
+        customerId = existingCustomer.id;
+        
+        // Check if customer already had a trial
+        const hadTrial = subscriptions.data.some((sub: Stripe.Subscription) => sub.trial_end !== null);
+        
+        // If customer already had a trial, don't offer another one
+        if (hadTrial && TRIAL_PLANS.includes(priceKey)) {
+          skipTrial = true;
+        }
       }
     } else {
       const customer = await stripe.customers.create({
@@ -124,8 +131,8 @@ serve(async (req) => {
       },
     };
 
-    // Add trial period for Starter plan only
-    if (hasTrial) {
+    // Add trial period for Starter plan only (if not skipped)
+    if (hasTrial && !skipTrial) {
       sessionParams.subscription_data = {
         trial_period_days: TRIAL_DAYS,
         metadata: {
