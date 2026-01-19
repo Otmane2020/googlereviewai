@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -78,6 +78,9 @@ const Reviews = () => {
   const [businessDialogOpen, setBusinessDialogOpen] = useState(false);
   const { syncReviews, isSyncing, lastSyncResult } = useSyncGoogleReviews();
   const [lastSyncTime, setLastSyncTime] = useState<Date | null>(null);
+  const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
+  const [isLive, setIsLive] = useState(false);
+  const realtimeRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
 
   // Load saved business selection from localStorage
   useEffect(() => {
@@ -98,8 +101,10 @@ const Reviews = () => {
     setCurrentPage(1);
   };
 
-  const fetchData = useCallback(async () => {
+  const fetchData = useCallback(async (silent = false) => {
     if (!user) return;
+    
+    if (!silent) setLoading(true);
     
     const [businessesRes, reviewsRes] = await Promise.all([
       supabase.from("businesses").select("id, name, google_place_id").eq("user_id", user.id).eq("is_active", true),
@@ -109,6 +114,7 @@ const Reviews = () => {
     const businessesList = businessesRes.data || [];
     setBusinesses(businessesList);
     setReviews(reviewsRes.data || []);
+    setLastUpdate(new Date());
     
     // Auto-select first business if none selected or saved selection not found
     if (businessesList.length > 0) {
@@ -124,6 +130,7 @@ const Reviews = () => {
     setLoading(false);
   }, [user]);
 
+  // Initial fetch
   useEffect(() => {
     if (!user) {
       navigate("/auth");
@@ -131,6 +138,55 @@ const Reviews = () => {
     }
     fetchData();
   }, [user, navigate, fetchData]);
+
+  // 🔴 REALTIME: Supabase subscription for live updates
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel("reviews-realtime")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "reviews",
+          filter: `user_id=eq.${user.id}`,
+        },
+        (payload) => {
+          // Skip refresh during active operations
+          if (generatingId || publishingId || isSyncing) return;
+          
+          console.log("⚡ Realtime update:", payload.eventType);
+          fetchData(true); // Silent refresh
+        }
+      )
+      .subscribe((status) => {
+        setIsLive(status === "SUBSCRIBED");
+        console.log("Realtime status:", status);
+      });
+
+    realtimeRef.current = channel;
+
+    return () => {
+      if (realtimeRef.current) {
+        supabase.removeChannel(realtimeRef.current);
+      }
+    };
+  }, [user, fetchData, generatingId, publishingId, isSyncing]);
+
+  // 🔄 FALLBACK: Polling every 30s as backup
+  useEffect(() => {
+    if (!user) return;
+
+    const interval = setInterval(() => {
+      if (!generatingId && !publishingId && !isSyncing) {
+        fetchData(true); // Silent refresh
+      }
+    }, 30000);
+
+    return () => clearInterval(interval);
+  }, [user, fetchData, generatingId, publishingId, isSyncing]);
 
   const generateAIResponse = async (reviewId: number) => {
     if (!user) return;
@@ -366,11 +422,19 @@ const Reviews = () => {
                   <span className="text-sm text-muted-foreground">({stats.total} avis)</span>
                 </div>
                 
-                {/* Sync button and status */}
+                {/* Live indicator + Sync button */}
                 <div className="flex items-center gap-2">
+                  {/* Live Badge */}
+                  {isLive && lastUpdate && (
+                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                      <span className="hidden sm:inline">Live</span>
+                    </div>
+                  )}
+                  
                   {lastSyncTime && (
                     <span className="text-xs text-muted-foreground hidden sm:inline">
-                      Sync {formatTimeAgo(lastSyncTime)}
+                      · Sync {formatTimeAgo(lastSyncTime)}
                     </span>
                   )}
                   <Button 
