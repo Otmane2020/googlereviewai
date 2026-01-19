@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.cron-generate-daily-qa]
 verify_jwt = false
+
+[functions.cron-engagement-notifications]
+verify_jwt = false
