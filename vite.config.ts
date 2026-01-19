@@ -15,27 +15,27 @@ export default defineConfig(({ mode }) => ({
     mode === "development" && componentTagger(),
     VitePWA({
       registerType: "autoUpdate",
-      includeAssets: ["favicon.ico", "robots.txt", "icon-512x512.png", "splash.png"],
+      includeAssets: ["favicon.ico", "robots.txt", "icon-512x512.png", "splash.png", "pwa-192x192.png"],
       manifest: {
         name: "Starlinko - Gestion des avis Google",
         short_name: "Starlinko",
         description: "Gérez et répondez automatiquement à vos avis Google My Business",
-        theme_color: "#0f172a",
-        background_color: "#0f172a",
+        theme_color: "#ffffff",
+        background_color: "#ffffff",
         display: "standalone",
         orientation: "portrait",
         scope: "/",
         start_url: "/",
         icons: [
           {
-            src: "/icon-512x512.png",
-            sizes: "512x512",
+            src: "/pwa-192x192.png",
+            sizes: "192x192",
             type: "image/png",
-            purpose: "any maskable"
+            purpose: "any"
           },
           {
             src: "/icon-512x512.png",
-            sizes: "192x192",
+            sizes: "512x512",
             type: "image/png",
             purpose: "any maskable"
           }
