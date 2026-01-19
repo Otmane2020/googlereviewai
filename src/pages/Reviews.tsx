@@ -336,7 +336,7 @@ const Reviews = () => {
             
             {/* Rating row below title */}
             {selectedBusiness && stats.total > 0 && (
-              <div className="flex items-center gap-2 ml-13 pl-[52px]">
+              <div className="flex items-center justify-center gap-2">
                 <span className="font-semibold text-lg text-foreground">{averageRating.toFixed(1)}</span>
                 <div className="flex">
                   {[...Array(5)].map((_, i) => (
