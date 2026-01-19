@@ -1,4 +1,4 @@
-import { Star, Quote } from "lucide-react";
+import { Star, Quote, Utensils, Leaf, Building2 } from "lucide-react";
 
 const GoogleIcon = ({ className = "w-5 h-5" }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24">
@@ -10,36 +10,45 @@ const GoogleIcon = ({ className = "w-5 h-5" }: { className?: string }) => (
 );
 
 const ChatGPTIcon = ({ className = "w-5 h-5" }: { className?: string }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+  <svg className={className} viewBox="0 0 24 24" fill="#10a37f">
     <path d="M22.282 9.821a5.985 5.985 0 0 0-.516-4.91 6.046 6.046 0 0 0-6.51-2.9A6.065 6.065 0 0 0 4.981 4.18a5.985 5.985 0 0 0-3.998 2.9 6.046 6.046 0 0 0 .743 7.097 5.98 5.98 0 0 0 .51 4.911 6.051 6.051 0 0 0 6.515 2.9A5.985 5.985 0 0 0 13.26 24a6.056 6.056 0 0 0 5.772-4.206 5.99 5.99 0 0 0 3.997-2.9 6.056 6.056 0 0 0-.747-7.073zM13.26 22.43a4.476 4.476 0 0 1-2.876-1.04l.141-.081 4.779-2.758a.795.795 0 0 0 .392-.681v-6.737l2.02 1.168a.071.071 0 0 1 .038.052v5.583a4.504 4.504 0 0 1-4.494 4.494zM3.6 18.304a4.47 4.47 0 0 1-.535-3.014l.142.085 4.783 2.759a.771.771 0 0 0 .78 0l5.843-3.369v2.332a.08.08 0 0 1-.033.062L9.74 19.95a4.5 4.5 0 0 1-6.14-1.646zM2.34 7.896a4.485 4.485 0 0 1 2.366-1.973V11.6a.766.766 0 0 0 .388.676l5.815 3.355-2.02 1.168a.076.076 0 0 1-.071 0l-4.83-2.786A4.504 4.504 0 0 1 2.34 7.872zm16.597 3.855l-5.833-3.387L15.119 7.2a.076.076 0 0 1 .071 0l4.83 2.791a4.494 4.494 0 0 1-.676 8.105v-5.678a.79.79 0 0 0-.407-.667zm2.01-3.023l-.141-.085-4.774-2.782a.776.776 0 0 0-.785 0L9.409 9.23V6.897a.066.066 0 0 1 .028-.061l4.83-2.787a4.5 4.5 0 0 1 6.68 4.66zm-12.64 4.135l-2.02-1.164a.08.08 0 0 1-.038-.057V6.075a4.5 4.5 0 0 1 7.375-3.453l-.142.08L8.704 5.46a.795.795 0 0 0-.393.681zm1.097-2.365l2.602-1.5 2.607 1.5v2.999l-2.597 1.5-2.607-1.5z"/>
   </svg>
 );
 
-// Fictional company logos as SVG components
+// Professional company logos with icons
 const CompanyLogo1 = () => (
   <div className="flex items-center gap-2">
-    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
-      <span className="text-white font-bold text-sm">B</span>
+    <div className="w-7 h-7 rounded-md bg-gradient-to-br from-rose-500 to-pink-600 flex items-center justify-center shadow-sm">
+      <Utensils className="w-3.5 h-3.5 text-white" />
     </div>
-    <span className="font-semibold text-foreground text-sm">BellaVista</span>
+    <div className="flex flex-col">
+      <span className="font-bold text-foreground text-xs leading-tight">La Bella Vista</span>
+      <span className="text-[10px] text-muted-foreground">Restaurant Italien</span>
+    </div>
   </div>
 );
 
 const CompanyLogo2 = () => (
   <div className="flex items-center gap-2">
-    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
-      <span className="text-white font-bold text-sm">G</span>
+    <div className="w-7 h-7 rounded-md bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center shadow-sm">
+      <Leaf className="w-3.5 h-3.5 text-white" />
     </div>
-    <span className="font-semibold text-foreground text-sm">GreenLeaf</span>
+    <div className="flex flex-col">
+      <span className="font-bold text-foreground text-xs leading-tight">GreenLeaf Bio</span>
+      <span className="text-[10px] text-muted-foreground">Épicerie Bio</span>
+    </div>
   </div>
 );
 
 const CompanyLogo3 = () => (
   <div className="flex items-center gap-2">
-    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center">
-      <span className="text-white font-bold text-sm">S</span>
+    <div className="w-7 h-7 rounded-md bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-sm">
+      <Building2 className="w-3.5 h-3.5 text-white" />
     </div>
-    <span className="font-semibold text-foreground text-sm">SavorBistro</span>
+    <div className="flex flex-col">
+      <span className="font-bold text-foreground text-xs leading-tight">Immobilier Plus</span>
+      <span className="text-[10px] text-muted-foreground">Agence Immobilière</span>
+    </div>
   </div>
 );
 
@@ -64,18 +73,13 @@ const testimonials = [
   },
   {
     name: "Sophie Martin",
-    role: "Propriétaire",
+    role: "Directrice",
     company: CompanyLogo3,
     avatar: "SM",
     rating: 5,
     text: "Les articles SEO générés automatiquement nous ont fait passer en première page Google sur 12 mots-clés locaux.",
     highlight: "#1 sur Google",
   },
-];
-
-const trustedBy = [
-  { name: "Google", icon: GoogleIcon },
-  { name: "ChatGPT", icon: ChatGPTIcon },
 ];
 
 export const TestimonialsSection = () => {
@@ -97,14 +101,14 @@ export const TestimonialsSection = () => {
         </div>
 
         {/* Trusted platforms */}
-        <div className="flex items-center justify-center gap-8 mb-10">
+        <div className="flex items-center justify-center gap-4 sm:gap-8 mb-10">
           <div className="flex items-center gap-2 px-4 py-2 bg-card rounded-xl border border-border shadow-sm">
             <GoogleIcon className="w-5 h-5" />
-            <span className="text-sm font-medium text-foreground">Google</span>
+            <span className="text-xs sm:text-sm font-medium text-foreground">Google</span>
           </div>
           <div className="flex items-center gap-2 px-4 py-2 bg-card rounded-xl border border-border shadow-sm">
-            <ChatGPTIcon className="w-5 h-5 text-[#10a37f]" />
-            <span className="text-sm font-medium text-foreground">ChatGPT</span>
+            <ChatGPTIcon className="w-5 h-5" />
+            <span className="text-xs sm:text-sm font-medium text-foreground">ChatGPT</span>
           </div>
         </div>
 
@@ -118,7 +122,7 @@ export const TestimonialsSection = () => {
               {/* Header */}
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-semibold">
+                  <div className="w-11 h-11 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-semibold text-sm">
                     {testimonial.avatar}
                   </div>
                   <div>
@@ -141,7 +145,7 @@ export const TestimonialsSection = () => {
               {/* Company & highlight */}
               <div className="flex items-center justify-between pt-4 border-t border-border">
                 <testimonial.company />
-                <span className="text-xs font-semibold text-primary bg-primary/10 px-2.5 py-1 rounded-full">
+                <span className="text-[10px] sm:text-xs font-semibold text-secondary bg-secondary/10 px-2 py-1 rounded-full">
                   {testimonial.highlight}
                 </span>
               </div>
@@ -150,16 +154,16 @@ export const TestimonialsSection = () => {
         </div>
 
         {/* Stats bar */}
-        <div className="mt-10 sm:mt-12 grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div className="mt-10 sm:mt-12 grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
           {[
             { value: "+500", label: "Entreprises" },
             { value: "50K+", label: "Avis traités" },
             { value: "4.9/5", label: "Satisfaction" },
             { value: "2min", label: "Temps setup" },
           ].map((stat) => (
-            <div key={stat.label} className="text-center p-4 bg-card rounded-xl border border-border">
-              <p className="text-xl sm:text-2xl font-bold text-primary">{stat.value}</p>
-              <p className="text-xs text-muted-foreground">{stat.label}</p>
+            <div key={stat.label} className="text-center p-3 sm:p-4 bg-card rounded-xl border border-border">
+              <p className="text-lg sm:text-2xl font-bold text-primary">{stat.value}</p>
+              <p className="text-[10px] sm:text-xs text-muted-foreground">{stat.label}</p>
             </div>
           ))}
         </div>
