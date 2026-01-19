@@ -259,6 +259,9 @@ serve(async (req) => {
               
               console.log(`Found ${reviews.length} reviews on page ${pageCount} for ${locationTitle}${nextPageToken ? ' (more pages available)' : ''}`);
 
+              // Batch process reviews for this page
+              const reviewsToUpsert: any[] = [];
+              
               for (const review of reviews) {
                 const fullReviewId = review.name || review.reviewId;
                 
@@ -283,7 +286,7 @@ serve(async (req) => {
                   rating = review.starRating;
                 }
 
-                const reviewData = {
+                reviewsToUpsert.push({
                   user_id: user.id,
                   review_id: canonicalReviewId,
                   location_id: locationId,
@@ -293,47 +296,26 @@ serve(async (req) => {
                   review_date: review.createTime || new Date().toISOString(),
                   replied: !!review.reviewReply,
                   google_reply: review.reviewReply?.comment || null,
-                };
-
-                console.log(`Processing review: ${canonicalReviewId} from ${reviewData.author} (${rating} stars)`);
-
-                const { data: existingReview } = await supabaseAdmin
+                });
+              }
+              
+              // Batch upsert all reviews from this page in one query
+              if (reviewsToUpsert.length > 0) {
+                console.log(`Batch upserting ${reviewsToUpsert.length} reviews for ${locationTitle}`);
+                
+                const { data: upsertedReviews, error: upsertError } = await supabaseAdmin
                   .from("reviews")
-                  .select("id")
-                  .eq("user_id", user.id)
-                  .eq("review_id", canonicalReviewId)
-                  .maybeSingle();
-
-                let result;
-                if (existingReview) {
-                  console.log(`Updating existing review ${existingReview.id}`);
-                  result = await supabaseAdmin
-                    .from("reviews")
-                    .update({
-                      author: reviewData.author,
-                      rating: reviewData.rating,
-                      comment: reviewData.comment,
-                      replied: reviewData.replied,
-                      google_reply: reviewData.google_reply,
-                      updated_at: new Date().toISOString(),
-                    })
-                    .eq("id", existingReview.id)
-                    .select()
-                    .single();
-                } else {
-                  console.log(`Inserting new review`);
-                  result = await supabaseAdmin
-                    .from("reviews")
-                    .insert(reviewData)
-                    .select()
-                    .single();
-                }
-
-                if (result.data) {
-                  allReviews.push(result.data);
-                } else if (result.error) {
-                  console.error("Error saving review:", result.error);
-                  errors.push(`Failed to save review from ${reviewData.author}: ${result.error.message}`);
+                  .upsert(reviewsToUpsert, { 
+                    onConflict: "review_id,user_id",
+                    ignoreDuplicates: false 
+                  })
+                  .select();
+                
+                if (upsertError) {
+                  console.error("Batch upsert error:", upsertError);
+                  errors.push(`${locationTitle}: ${upsertError.message}`);
+                } else if (upsertedReviews) {
+                  allReviews.push(...upsertedReviews);
                 }
               }
             } while (nextPageToken && pageCount < MAX_PAGES);
