@@ -191,7 +191,7 @@ const Auth = () => {
   };
 
   const benefits = [
-    "14 jours d'essai gratuit",
+    "3 jours d'essai gratuit",
     "Réponses IA illimitées",
     "Synchronisation Google My Business",
     "Support prioritaire",
@@ -270,7 +270,7 @@ const Auth = () => {
               </h2>
               <p className="text-muted-foreground mt-2">
                 {mode === "signup"
-                  ? "Commencez votre essai gratuit de 14 jours"
+                  ? "Commencez votre essai gratuit de 3 jours"
                   : mode === "forgot"
                     ? "Entrez votre email pour recevoir un lien de réinitialisation"
                     : "Accédez à votre tableau de bord"}

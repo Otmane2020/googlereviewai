@@ -42,21 +42,25 @@ serve(async (req) => {
       });
     }
 
-    // Get active subscriptions
+    // Get all subscriptions (active and trialing)
     const subscriptions = await stripe.subscriptions.list({
       customer: customers.data[0].id,
-      status: "active",
       limit: 10,
     });
 
-    const activeSubscriptions = subscriptions.data.map((sub: Stripe.Subscription) => ({
-      id: sub.id,
-      status: sub.status,
-      priceId: sub.items.data[0]?.price.id,
-      productId: sub.items.data[0]?.price.product,
-      currentPeriodEnd: new Date(sub.current_period_end * 1000).toISOString(),
-      cancelAtPeriodEnd: sub.cancel_at_period_end,
-    }));
+    const activeSubscriptions = subscriptions.data
+      .filter((sub: Stripe.Subscription) => ["active", "trialing"].includes(sub.status))
+      .map((sub: Stripe.Subscription) => ({
+        id: sub.id,
+        status: sub.status,
+        priceId: sub.items.data[0]?.price.id,
+        productId: sub.items.data[0]?.price.product,
+        currentPeriodEnd: new Date(sub.current_period_end * 1000).toISOString(),
+        currentPeriodStart: new Date(sub.current_period_start * 1000).toISOString(),
+        cancelAtPeriodEnd: sub.cancel_at_period_end,
+        trialEnd: sub.trial_end ? new Date(sub.trial_end * 1000).toISOString() : null,
+        isTrialing: sub.status === "trialing",
+      }));
 
     return new Response(JSON.stringify({ subscriptions: activeSubscriptions }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
