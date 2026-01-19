@@ -156,10 +156,12 @@ export async function getGoogleAccessToken(
  * The backend determines the redirect_uri based on the request origin.
  */
 export const REDIRECT_URI_MAP: Record<string, string> = {
+  // Production domains
   "https://starlinko.lovable.app": "https://starlinko.lovable.app/dashboard",
   "https://www.starlinko.com": "https://www.starlinko.com/dashboard",
-  // Preview URLs for development
+  // Preview URLs for development (lovable.app and lovableproject.com)
   "https://id-preview--d71841d0-79b3-46a5-a592-aa582a40bd48.lovable.app": "https://id-preview--d71841d0-79b3-46a5-a592-aa582a40bd48.lovable.app/dashboard",
+  "https://d71841d0-79b3-46a5-a592-aa582a40bd48.lovableproject.com": "https://d71841d0-79b3-46a5-a592-aa582a40bd48.lovableproject.com/dashboard",
 };
 
 /**
