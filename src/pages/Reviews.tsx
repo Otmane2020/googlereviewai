@@ -178,11 +178,11 @@ const Reviews = () => {
   // Get selected business
   const selectedBusiness = businesses.find(b => b.id === selectedBusinessId);
 
-  // Filter reviews by selected business first
+  // Filter reviews by selected business's google_place_id
   const businessReviews = useMemo(() => {
-    if (!selectedBusinessId) return [];
-    return reviews.filter(r => r.location_id === selectedBusinessId);
-  }, [reviews, selectedBusinessId]);
+    if (!selectedBusiness?.google_place_id) return [];
+    return reviews.filter(r => r.location_id === selectedBusiness.google_place_id);
+  }, [reviews, selectedBusiness]);
 
   // Filters
   const filteredReviews = businessReviews.filter((review) => {
