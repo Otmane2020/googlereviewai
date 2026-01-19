@@ -175,11 +175,14 @@ const SettingsPage = () => {
       
       toast({
         title: "Google déconnecté",
-        description: "Vos établissements et tokens ont été supprimés. Reconnectez Google pour les réactiver.",
+        description: "Reconnectez Google pour réactiver vos établissements.",
       });
       
       setIsGoogleConnected(false);
       setHasRefreshToken(false);
+      
+      // Force page reload to refresh all state
+      window.location.reload();
     } catch (error) {
       toast({
         title: "Erreur",
