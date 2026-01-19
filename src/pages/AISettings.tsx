@@ -2,6 +2,7 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { useRequireSubscription } from "@/hooks/useRequireSubscription";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { Input } from "@/components/ui/input";
@@ -79,11 +80,11 @@ const AISettingsPage = () => {
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isInitialLoad = useRef(true);
 
+  // Use subscription verification hook
+  const { loading: subscriptionLoading } = useRequireSubscription();
+
   useEffect(() => {
-    if (!user) {
-      navigate("/auth");
-      return;
-    }
+    if (subscriptionLoading || !user) return;
 
     const fetchSettings = async () => {
       const { data, error } = await supabase

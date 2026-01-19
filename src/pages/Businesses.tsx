@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { useRequireSubscription } from "@/hooks/useRequireSubscription";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { Button } from "@/components/ui/button";
@@ -69,14 +70,14 @@ const BusinessesPage = () => {
     website: "",
   });
 
-  useEffect(() => {
-    if (!user) {
-      navigate("/auth");
-      return;
-    }
+  // Use subscription verification hook
+  const { loading: subscriptionLoading } = useRequireSubscription();
 
-    fetchBusinesses();
-  }, [user, navigate]);
+  useEffect(() => {
+    if (!subscriptionLoading && user) {
+      fetchBusinesses();
+    }
+  }, [subscriptionLoading, user]);
 
   const fetchBusinesses = async () => {
     if (!user) return;

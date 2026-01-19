@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useSyncGoogleBusinesses } from "@/hooks/useSyncGoogleBusinesses";
 import { useSyncGoogleReviews } from "@/hooks/useSyncGoogleReviews";
+import { useRequireSubscription } from "@/hooks/useRequireSubscription";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { ConnectGMBDialog } from "@/components/ConnectGMBDialog";
@@ -122,31 +123,15 @@ const Dashboard = () => {
     setLoading(false);
   }, [user]);
 
-  // Check if user has a plan
+  // Use subscription verification hook
+  const { loading: subscriptionLoading } = useRequireSubscription();
+
+  // Fetch data when subscription is verified
   useEffect(() => {
-    const checkSubscription = async () => {
-      if (!user) {
-        navigate("/auth");
-        return;
-      }
-      
-      const { data: profileData } = await supabase
-        .from("profiles")
-        .select("plan_name, subscription_status")
-        .eq("id", user.id)
-        .maybeSingle();
-      
-      // Redirect to plan selection if no plan or free plan
-      if (!profileData?.plan_name || profileData.plan_name === "free") {
-        navigate("/select-plan");
-        return;
-      }
-      
+    if (!subscriptionLoading && user) {
       fetchData();
-    };
-    
-    checkSubscription();
-  }, [user, navigate, fetchData]);
+    }
+  }, [subscriptionLoading, user, fetchData]);
 
   useEffect(() => {
     const autoSync = async () => {

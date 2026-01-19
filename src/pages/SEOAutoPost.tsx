@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { useRequireSubscription } from "@/hooks/useRequireSubscription";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { ArticlePreviewDialog } from "@/components/ArticlePreviewDialog";
@@ -64,14 +65,14 @@ const SEOAutoPost = () => {
   const [selectedArticle, setSelectedArticle] = useState<ScheduledContent | null>(null);
   const [showPreviewDialog, setShowPreviewDialog] = useState(false);
 
+  // Use subscription verification hook
+  const { loading: subscriptionLoading } = useRequireSubscription();
+
   useEffect(() => {
-    if (!user) {
-      navigate("/auth");
-      return;
-    }
+    if (subscriptionLoading || !user) return;
     fetchData();
     checkSubscription();
-  }, [user, navigate]);
+  }, [subscriptionLoading, user]);
 
   const checkSubscription = async () => {
     if (!user) return;
