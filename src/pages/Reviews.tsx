@@ -140,11 +140,12 @@ const Reviews = () => {
   }, [user, navigate, fetchData]);
 
   // 🔴 REALTIME: Supabase subscription for live updates
+  // IMPORTANT: Only depends on user and fetchData - NO re-subscription during operations
   useEffect(() => {
     if (!user) return;
 
     const channel = supabase
-      .channel("reviews-realtime")
+      .channel(`reviews-realtime-${user.id}`)
       .on(
         "postgres_changes",
         {
@@ -154,9 +155,7 @@ const Reviews = () => {
           filter: `user_id=eq.${user.id}`,
         },
         (payload) => {
-          // Skip refresh during active operations
-          if (generatingId || publishingId || isSyncing) return;
-          
+          // Always listen - DB is source of truth
           console.log("⚡ Realtime update:", payload.eventType);
           fetchData(true); // Silent refresh
         }
@@ -169,19 +168,18 @@ const Reviews = () => {
     realtimeRef.current = channel;
 
     return () => {
-      if (realtimeRef.current) {
-        supabase.removeChannel(realtimeRef.current);
-      }
+      supabase.removeChannel(channel);
     };
-  }, [user, fetchData, generatingId, publishingId, isSyncing]);
+  }, [user, fetchData]); // Only user and fetchData - stable dependencies
 
-  // 🔄 FALLBACK: Polling every 30s as backup
+  // 🔄 FALLBACK: Polling every 30s as backup (only when not doing operations)
   useEffect(() => {
     if (!user) return;
 
     const interval = setInterval(() => {
+      // Fallback can skip during operations (Realtime handles it anyway)
       if (!generatingId && !publishingId && !isSyncing) {
-        fetchData(true); // Silent refresh
+        fetchData(true);
       }
     }, 30000);
 
@@ -201,7 +199,7 @@ const Reviews = () => {
       if (data?.error) throw new Error(data.error);
 
       toast({ title: "Réponse générée !", description: `Crédits restants: ${data.credits_remaining}` });
-      fetchData();
+      // No need to fetchData - Realtime handles it
     } catch (error) {
       toast({ title: "Erreur", description: error instanceof Error ? error.message : "Impossible de générer la réponse.", variant: "destructive" });
     } finally {
@@ -228,7 +226,7 @@ const Reviews = () => {
       if (data?.error) throw new Error(data.error);
 
       toast({ title: "Publié sur Google !" });
-      fetchData();
+      // No need to fetchData - Realtime handles it
     } catch (error) {
       toast({ title: "Erreur", description: error instanceof Error ? error.message : "Impossible de publier.", variant: "destructive" });
     } finally {
