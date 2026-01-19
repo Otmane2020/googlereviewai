@@ -72,16 +72,64 @@ serve(async (req) => {
     }
 
     // Build the Google API URL for updating the review reply
-    const locationName = `locations/${review.location_id}`;
-    const reviewName = review.review_id.startsWith("accounts/") 
-      ? review.review_id 
-      : `${locationName}/reviews/${review.review_id}`;
+    // review_id is stored as "locations/{locationId}/reviews/{reviewId}"
+    // We need the format "accounts/{accountId}/locations/{locationId}/reviews/{reviewId}"
+    // But we don't store accountId, so we need to find it first
+    
+    console.log(`Review ID format: ${review.review_id}`);
+    console.log(`Location ID: ${review.location_id}`);
+    
+    // First, get the account ID by listing accounts
+    const accountsResponse = await fetch(
+      "https://mybusinessaccountmanagement.googleapis.com/v1/accounts",
+      {
+        headers: {
+          Authorization: `Bearer ${provider_token}`,
+        },
+      }
+    );
 
-    console.log(`Publishing reply to: ${reviewName}`);
+    if (!accountsResponse.ok) {
+      const errorText = await accountsResponse.text();
+      console.error("Failed to fetch accounts:", accountsResponse.status, errorText);
+      
+      if (accountsResponse.status === 401) {
+        return new Response(
+          JSON.stringify({ 
+            success: false, 
+            requires_reconnect: true,
+            message: "Session Google expirée. Reconnectez votre compte Google."
+          }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      
+      throw new Error(`Failed to fetch Google accounts: ${accountsResponse.status}`);
+    }
+
+    const accountsData = await accountsResponse.json();
+    const accounts = accountsData.accounts || [];
+    
+    if (accounts.length === 0) {
+      throw new Error("No Google Business accounts found");
+    }
+
+    // Use the first account (most common case)
+    const accountId = accounts[0].name.split("/")[1];
+    
+    // Extract the review unique ID from our stored review_id
+    // Format: "locations/{locationId}/reviews/{uniqueReviewId}"
+    const reviewIdParts = review.review_id.split("/reviews/");
+    const uniqueReviewId = reviewIdParts.length > 1 ? reviewIdParts[1] : review.review_id;
+    
+    // Build full path: accounts/{accountId}/locations/{locationId}/reviews/{uniqueReviewId}
+    const fullReviewPath = `accounts/${accountId}/locations/${review.location_id}/reviews/${uniqueReviewId}`;
+    
+    console.log(`Publishing reply to: ${fullReviewPath}`);
 
     // Call Google My Business API to update the review reply
     const googleResponse = await fetch(
-      `https://mybusiness.googleapis.com/v4/${reviewName}/reply`,
+      `https://mybusiness.googleapis.com/v4/${fullReviewPath}/reply`,
       {
         method: "PUT",
         headers: {
