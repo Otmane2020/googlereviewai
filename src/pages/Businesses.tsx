@@ -388,11 +388,15 @@ const BusinessesPage = () => {
                   </div>
 
                   <div className="mt-4 pt-4 border-t border-border flex gap-2">
-                    <Button 
-                      variant="default" 
-                      className="flex-1 gap-2" 
+                    <Button
+                      variant="default"
+                      className="flex-1 gap-2"
                       size="sm"
-                      onClick={() => navigate(`/reviews?business=${business.id}`)}
+                      onClick={() =>
+                        navigate(
+                          `/reviews?business=${business.google_place_id ?? business.id}`
+                        )
+                      }
                     >
                       <MessageSquare className="w-4 h-4" />
                       Voir les avis

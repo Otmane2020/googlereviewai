@@ -139,16 +139,32 @@ const Reviews = () => {
     };
   }, [user, navigate, fetchReviews, fetchBusinesses]);
 
+  // If /reviews?business=... was passed as a business UUID, convert it to the location_id (google_place_id)
+  useEffect(() => {
+    if (filterBusiness === "all" || filterBusiness === "test_location") return;
+    if (businesses.length === 0) return;
+
+    const byId = businesses.find((b) => b.id === filterBusiness);
+    if (byId?.google_place_id) {
+      setFilterBusiness(byId.google_place_id);
+    }
+  }, [businesses, filterBusiness]);
+
   const handleSyncReviews = async () => {
-    const businessId = filterBusiness === "all" ? undefined : filterBusiness;
+    const businessId =
+      filterBusiness === "all" || filterBusiness === "test_location"
+        ? undefined
+        : businesses.find((b) => b.google_place_id === filterBusiness)?.id;
+
     await syncReviews(businessId);
     fetchReviews();
   };
 
   // Helper to get business name from location_id
   const getBusinessName = (locationId: string) => {
-    const business = businesses.find(b => b.google_place_id === locationId);
-    return business?.name || locationId;
+    if (locationId === "test_location") return "Avis de test";
+    const business = businesses.find((b) => b.google_place_id === locationId);
+    return business?.name || "Établissement";
   };
 
   const generateAIResponse = async (reviewId: number) => {
@@ -249,11 +265,14 @@ const Reviews = () => {
   };
 
   const filteredReviews = reviews.filter((review) => {
-    const matchesSearch = review.author.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    const matchesSearch =
+      review.author.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (review.comment && review.comment.toLowerCase().includes(searchTerm.toLowerCase()));
     const matchesRating = filterRating === null || review.rating === filterRating;
-    const matchesBusiness = filterBusiness === "all" || review.location_id === filterBusiness || 
-      businesses.find(b => b.id === filterBusiness)?.google_place_id === review.location_id;
+
+    // filterBusiness stores a location_id value (google_place_id) or 'all'/'test_location'
+    const matchesBusiness = filterBusiness === "all" || review.location_id === filterBusiness;
+
     const matchesNoResponse = !filterNoResponse || (!review.ai_response && !review.replied);
     return matchesSearch && matchesRating && matchesBusiness && matchesNoResponse;
   });
@@ -327,7 +346,14 @@ const Reviews = () => {
             </span>
           </div>
           <div className="flex gap-2">
-            {user && <AddTestReviewDialog userId={user.id} onReviewAdded={fetchReviews} />}
+            {user && (
+              <AddTestReviewDialog
+                userId={user.id}
+                businesses={businesses}
+                defaultLocationId={filterBusiness !== "all" ? filterBusiness : undefined}
+                onReviewAdded={fetchReviews}
+              />
+            )}
             <Button variant="outline" size="sm" className="gap-2" onClick={openGoogleReviews}>
               <ExternalLink className="w-4 h-4" />
               Ouvrir Google Avis
@@ -362,16 +388,19 @@ const Reviews = () => {
             <div className="flex items-center gap-2">
               <Building2 className="w-4 h-4 text-muted-foreground" />
               <Select value={filterBusiness} onValueChange={setFilterBusiness}>
-                <SelectTrigger className="w-[220px]">
+                <SelectTrigger className="w-[260px]">
                   <SelectValue placeholder="Tous les établissements" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Tous les établissements</SelectItem>
-                  {businesses.map((business) => (
-                    <SelectItem key={business.id} value={business.id}>
-                      {business.name}
-                    </SelectItem>
-                  ))}
+                  <SelectItem value="test_location">Avis de test</SelectItem>
+                  {businesses
+                    .filter((b) => !!b.google_place_id)
+                    .map((business) => (
+                      <SelectItem key={business.id} value={business.google_place_id!}>
+                        {business.name}
+                      </SelectItem>
+                    ))}
                 </SelectContent>
               </Select>
             </div>
