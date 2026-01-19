@@ -40,9 +40,27 @@ const Auth = () => {
     const hasTokens = hash.includes('access_token') || hash.includes('refresh_token');
     
     if (hasTokens) {
-      // OAuth callback - let Supabase process tokens, then redirect
-      supabase.auth.getSession().then(({ data: { session } }) => {
+      // OAuth callback - let Supabase process tokens, then store GMB refresh token
+      supabase.auth.getSession().then(async ({ data: { session } }) => {
         if (session) {
+          // If we have a provider_refresh_token from Google, store it for GMB access
+          const providerRefreshToken = session.provider_refresh_token;
+          if (providerRefreshToken && session.user) {
+            try {
+              await supabase
+                .from("profiles")
+                .update({
+                  google_refresh_token: providerRefreshToken,
+                  google_access_token: null,
+                  google_token_expires_at: null,
+                  updated_at: new Date().toISOString(),
+                })
+                .eq("id", session.user.id);
+              console.log("[Auth] Stored Google refresh token for GMB access");
+            } catch (err) {
+              console.error("[Auth] Failed to store Google refresh token:", err);
+            }
+          }
           window.history.replaceState(null, '', '/auth');
           navigate("/dashboard", { replace: true });
         }
