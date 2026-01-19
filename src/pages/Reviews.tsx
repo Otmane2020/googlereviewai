@@ -294,12 +294,7 @@ const Reviews = () => {
                 )}
               </div>
             </div>
-            <div className="flex items-center gap-3">
-              <Button onClick={handleSync} disabled={isSyncing} size="sm">
-                {isSyncing ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
-                <span className="ml-2 hidden sm:inline">Synchroniser</span>
-              </Button>
-            </div>
+            {/* Sync button removed - cron runs every 60 seconds */}
           </div>
 
           {/* Stats */}
