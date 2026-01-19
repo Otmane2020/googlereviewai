@@ -20,8 +20,16 @@ import {
   CheckCircle,
   Clock,
   MessageSquare,
-  Building2
+  Building2,
+  Settings
 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { useSyncGoogleReviews } from "@/hooks/useSyncGoogleReviews";
 import {
   Select,
@@ -67,6 +75,7 @@ const Reviews = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [generatingId, setGeneratingId] = useState<number | null>(null);
   const [publishingId, setPublishingId] = useState<number | null>(null);
+  const [businessDialogOpen, setBusinessDialogOpen] = useState(false);
   const { syncReviews, isSyncing } = useSyncGoogleReviews();
 
   // Load saved business selection from localStorage
@@ -294,7 +303,43 @@ const Reviews = () => {
                 )}
               </div>
             </div>
-            {/* Sync button removed - cron runs every 60 seconds */}
+            {/* Business Selector Gear */}
+            <Dialog open={businessDialogOpen} onOpenChange={setBusinessDialogOpen}>
+              <DialogTrigger asChild>
+                <button className="p-2 rounded-lg hover:bg-muted transition-colors">
+                  <Settings className="w-5 h-5 text-muted-foreground" />
+                </button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                  <DialogTitle className="flex items-center gap-2">
+                    <Building2 className="w-5 h-5" />
+                    Choisir un établissement
+                  </DialogTitle>
+                </DialogHeader>
+                <div className="space-y-2 mt-4">
+                  {businesses.map((business) => (
+                    <button
+                      key={business.id}
+                      onClick={() => {
+                        handleBusinessChange(business.id);
+                        setBusinessDialogOpen(false);
+                      }}
+                      className={`w-full text-left p-3 rounded-lg border transition-all ${
+                        selectedBusinessId === business.id
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-border hover:border-muted-foreground/50 hover:bg-muted/50"
+                      }`}
+                    >
+                      <div className="font-medium">{business.name}</div>
+                      {business.google_place_id && (
+                        <div className="text-xs text-muted-foreground mt-1">Connecté à Google</div>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
 
           {/* Stats - Clickable Filters */}
@@ -323,27 +368,6 @@ const Reviews = () => {
       </div>
 
       <main className="max-w-6xl mx-auto px-4 py-6 space-y-4">
-        {/* Business Selector */}
-        <div className="bg-card rounded-xl border border-border p-4">
-          <div className="flex items-center gap-3">
-            <Building2 className="w-5 h-5 text-muted-foreground" />
-            <div className="flex-1">
-              <p className="text-xs text-muted-foreground mb-1">Établissement sélectionné</p>
-              <Select value={selectedBusinessId} onValueChange={handleBusinessChange}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Choisir un établissement" />
-                </SelectTrigger>
-                <SelectContent className="bg-popover">
-                  {businesses.map((business) => (
-                    <SelectItem key={business.id} value={business.id}>
-                      {business.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </div>
 
         {/* Google-style Star Rating Filter */}
         {selectedBusinessId && (
