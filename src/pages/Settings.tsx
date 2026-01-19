@@ -108,11 +108,11 @@ const SettingsPage = () => {
 
       const businesses = businessesResult.data;
       const hasBusinesses = businesses && businesses.length > 0;
-      const hasGoogleProvider = user.app_metadata?.provider === "google" || 
-        user.app_metadata?.providers?.includes("google") ||
-        !!session?.provider_token;
-      
-      setIsGoogleConnected(hasBusinesses || hasGoogleProvider);
+
+      // IMPORTANT:
+      // Being logged in with Google (app_metadata) does NOT mean the Google Business integration is connected.
+      // We consider it connected only if we have active businesses OR a stored refresh token.
+      setIsGoogleConnected(hasBusinesses || oauthStatus.isConnected);
       setHasRefreshToken(oauthStatus.isConnected);
       
       setLoading(false);
