@@ -101,7 +101,7 @@ const Reviews = () => {
     setCurrentPage(1);
   };
 
-  const fetchData = useCallback(async (silent = false) => {
+  const fetchData = useCallback(async (silent = true) => {
     if (!user) return;
     
     if (!silent) setLoading(true);
@@ -136,7 +136,7 @@ const Reviews = () => {
       navigate("/auth");
       return;
     }
-    fetchData();
+    fetchData(false); // Only non-silent call - initial load
   }, [user, navigate, fetchData]);
 
   // 🔴 REALTIME: Supabase subscription for live updates
