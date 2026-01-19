@@ -1,7 +1,7 @@
 import { StarlinkoLogo } from "./StarlinkoLogo";
 import { Button } from "./ui/button";
 import { Menu, X } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 
 const navLinks = [
@@ -12,28 +12,15 @@ const navLinks = [
 
 export const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   return (
     <header 
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled 
-          ? "bg-background/95 backdrop-blur-lg border-b border-border shadow-sm" 
-          : "bg-transparent"
-      }`}
+      className="fixed top-0 left-0 right-0 z-50 bg-card border-b border-border shadow-sm"
     >
       <div className="container mx-auto px-4 sm:px-6">
-        <nav className="flex items-center justify-between h-16 sm:h-20">
+        <nav className="flex items-center justify-between h-14">
           <Link to="/" className="flex-shrink-0">
-            <StarlinkoLogo className={`${scrolled ? "text-foreground" : "text-card"} scale-90 sm:scale-100`} />
+            <StarlinkoLogo className="text-foreground scale-90 sm:scale-100" />
           </Link>
           
           {/* Desktop Navigation */}
@@ -42,33 +29,21 @@ export const Header = () => {
               <a
                 key={link.href}
                 href={link.href}
-                className={`font-medium transition-colors text-sm lg:text-base ${
-                  scrolled 
-                    ? "text-muted-foreground hover:text-foreground" 
-                    : "text-card/80 hover:text-card"
-                }`}
+                className="font-medium transition-colors text-sm text-muted-foreground hover:text-foreground"
               >
                 {link.label}
               </a>
             ))}
           </div>
           
-          <div className="hidden md:flex items-center gap-2 lg:gap-3">
+          <div className="hidden md:flex items-center gap-2">
             <Link to="/auth">
-              <Button 
-                variant={scrolled ? "outline" : "heroOutline"} 
-                size="default"
-                className="text-sm px-4"
-              >
+              <Button variant="outline" size="sm">
                 Se connecter
               </Button>
             </Link>
             <Link to="/auth">
-              <Button 
-                variant={scrolled ? "default" : "hero"} 
-                size="default"
-                className="text-sm px-4"
-              >
+              <Button size="sm">
                 Créer un compte
               </Button>
             </Link>
@@ -76,13 +51,11 @@ export const Header = () => {
 
           {/* Mobile Menu Button */}
           <button
-            className={`md:hidden p-2 rounded-lg transition-colors ${
-              scrolled ? "text-foreground hover:bg-muted" : "text-card hover:bg-card/10"
-            }`}
+            className="md:hidden p-2 rounded-lg text-foreground hover:bg-muted"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-label="Menu"
           >
-            {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
         </nav>
 

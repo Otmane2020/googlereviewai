@@ -14,7 +14,7 @@ export const HeroSection = () => {
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] md:w-[800px] h-[400px] md:h-[800px] bg-card/5 rounded-full blur-3xl" />
       </div>
 
-      <div className="relative container mx-auto px-5 sm:px-6 pt-24 sm:pt-28 md:pt-32 pb-16 md:pb-20">
+      <div className="relative container mx-auto px-5 sm:px-6 pt-20 sm:pt-24 md:pt-28 pb-16 md:pb-20">
         <div className="max-w-4xl mx-auto text-center">
           {/* Badge with Google */}
           <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-card/10 backdrop-blur-sm rounded-full border border-card/20 mb-6 sm:mb-8 animate-fade-in">
