@@ -618,12 +618,52 @@ const Reviews = () => {
 
                     {/* AI Response */}
                     {review.ai_response && (
-                      <div className="mt-3 p-3 bg-primary/5 rounded-lg border border-primary/10">
-                        <div className="flex items-center gap-1.5 text-xs text-primary font-medium mb-1">
-                          <Sparkles className="w-3 h-3" /> Réponse IA
-                        </div>
-                        <p className="text-sm text-muted-foreground line-clamp-2">{review.ai_response}</p>
-                      </div>
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <div className="mt-3 p-3 bg-primary/5 rounded-lg border border-primary/10 cursor-pointer hover:bg-primary/10 transition-colors">
+                            <div className="flex items-center gap-1.5 text-xs text-primary font-medium mb-1">
+                              <Sparkles className="w-3 h-3" /> Réponse IA
+                              <span className="ml-auto text-muted-foreground text-[10px]">Cliquer pour lire</span>
+                            </div>
+                            <p className="text-sm text-muted-foreground line-clamp-2">{review.ai_response}</p>
+                          </div>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
+                          <DialogHeader>
+                            <DialogTitle className="flex items-center gap-2">
+                              <Sparkles className="w-5 h-5 text-primary" />
+                              Réponse IA pour {review.author}
+                            </DialogTitle>
+                          </DialogHeader>
+                          <div className="space-y-4 pt-2">
+                            <div className="flex items-center gap-2">
+                              {[...Array(5)].map((_, i) => (
+                                <Star key={i} className={`w-4 h-4 ${i < review.rating ? "text-yellow-500 fill-yellow-500" : "text-muted-foreground/20"}`} />
+                              ))}
+                              <span className="text-sm text-muted-foreground">• {new Date(review.review_date).toLocaleDateString("fr-FR")}</span>
+                            </div>
+                            {review.comment && (
+                              <div className="p-3 bg-muted/50 rounded-lg">
+                                <p className="text-sm italic text-muted-foreground">"{review.comment}"</p>
+                              </div>
+                            )}
+                            <div className="p-4 bg-primary/5 rounded-lg border border-primary/20">
+                              <p className="text-sm text-foreground whitespace-pre-wrap leading-relaxed">{review.ai_response}</p>
+                            </div>
+                            <div className="flex gap-2">
+                              <Button size="sm" variant="outline" className="flex-1" onClick={() => copyToClipboard(review.ai_response!)}>
+                                <Copy className="w-4 h-4 mr-2" /> Copier
+                              </Button>
+                              {!review.published_to_google && (
+                                <Button size="sm" className="flex-1" onClick={() => publishToGoogle(review.id)} disabled={publishingId === review.id}>
+                                  {publishingId === review.id ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Send className="w-4 h-4 mr-2" />}
+                                  Publier sur Google
+                                </Button>
+                              )}
+                            </div>
+                          </div>
+                        </DialogContent>
+                      </Dialog>
                     )}
 
                     {/* Actions */}
