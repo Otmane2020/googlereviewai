@@ -629,11 +629,11 @@ const Reviews = () => {
                       </span>
                       {/* Status Badge */}
                       {review.published_to_google ? (
-                        <Badge variant="secondary" className="text-xs gap-1"><CheckCircle className="w-3 h-3" /> Publié via Starlinko</Badge>
+                        <Badge variant="secondary" className="text-xs gap-1"><CheckCircle className="w-3 h-3" /> Publié</Badge>
                       ) : review.google_reply ? (
-                        <Badge variant="secondary" className="text-xs gap-1 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"><CheckCircle className="w-3 h-3" /> Répondu manuellement</Badge>
+                        <Badge variant="secondary" className="text-xs gap-1 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"><CheckCircle className="w-3 h-3" /> Répondu</Badge>
                       ) : review.ai_response ? (
-                        <Badge className="text-xs gap-1 bg-primary/10 text-primary hover:bg-primary/20"><Sparkles className="w-3 h-3" /> Réponse IA prête</Badge>
+                        <Badge className="text-xs gap-1 bg-primary/10 text-primary hover:bg-primary/20"><Sparkles className="w-3 h-3" /> IA</Badge>
                       ) : (
                         <Badge variant="outline" className="text-xs gap-1"><Clock className="w-3 h-3" /> En attente</Badge>
                       )}
@@ -647,7 +647,7 @@ const Reviews = () => {
                     {review.google_reply && !review.ai_response && (
                       <div className="mt-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
                         <div className="flex items-center gap-1.5 text-xs text-green-700 dark:text-green-400 font-medium mb-1">
-                          <CheckCircle className="w-3 h-3" /> Réponse existante (Google)
+                          <CheckCircle className="w-3 h-3" /> Réponse :
                         </div>
                         <p className="text-sm text-muted-foreground line-clamp-2">{review.google_reply}</p>
                       </div>
@@ -712,7 +712,7 @@ const Reviews = () => {
                       {review.google_reply && !review.ai_response ? (
                         <Button size="sm" variant="outline" onClick={() => generateAIResponse(review.id)} disabled={generatingId === review.id}>
                           {generatingId === review.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-                          <span className="ml-1.5">Générer une nouvelle réponse IA</span>
+                          <span className="ml-1.5">IA Réponse</span>
                         </Button>
                       ) : !review.ai_response ? (
                         <Button size="sm" onClick={() => generateAIResponse(review.id)} disabled={generatingId === review.id}>
