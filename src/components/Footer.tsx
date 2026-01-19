@@ -79,8 +79,8 @@ export const Footer = () => {
             © {new Date().getFullYear()} Starlinko. Tous droits réservés.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-xs sm:text-sm text-card/60">
-            <span>🔒 App vérifiée Google</span>
-            <span>✅ Conforme API</span>
+            <span>🤖 IA + SEO + AEO</span>
+            <span>🚀 Devancez vos concurrents</span>
           </div>
         </div>
       </div>
