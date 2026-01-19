@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
-import { Shield, Check, Rocket, Star, MessageSquare, TrendingUp } from "lucide-react";
+import { Check, Sparkles, Star, Clock, TrendingUp, Zap } from "lucide-react";
 
 export const HeroSection = () => {
   const navigate = useNavigate();
@@ -18,32 +18,32 @@ export const HeroSection = () => {
         <div className="max-w-4xl mx-auto text-center">
           {/* Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-card/10 backdrop-blur-sm rounded-full border border-card/20 mb-8 animate-fade-in">
-            <Shield className="w-4 h-4 text-card" />
+            <Sparkles className="w-4 h-4 text-accent" />
             <span className="text-card text-sm font-medium">
-              Application vérifiée Google API • Conforme aux politiques
+              Réponses automatiques par IA • Gagnez 10h/semaine
             </span>
           </div>
 
           {/* Main headline */}
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-card leading-tight mb-4 animate-fade-in" style={{ animationDelay: "0.1s" }}>
-            Connectez vos avis Google My Business
-            <span className="block text-accent-gold mt-2">avec accès API vérifié</span>
+            Transformez vos avis Google
+            <span className="block text-accent-gold mt-2">en avantage concurrentiel</span>
           </h1>
 
           {/* Subtitle */}
           <p className="text-lg md:text-xl text-card/80 max-w-2xl mx-auto mb-10 animate-fade-in" style={{ animationDelay: "0.2s" }}>
-            Starlinko est une application vérifiée avec accès complet à l'API Google My Business. 
-            Gérez et répondez automatiquement à vos avis en toute conformité.
+            Répondez automatiquement à tous vos avis Google My Business grâce à l'IA. 
+            Améliorez votre réputation, fidélisez vos clients et boostez votre SEO local.
           </p>
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12 animate-fade-in" style={{ animationDelay: "0.3s" }}>
             <Button variant="hero" size="xl" className="gap-3" onClick={() => navigate("/auth")}>
-              <GoogleIcon />
-              Commencer gratuitement
+              <Zap className="w-5 h-5" />
+              Essai gratuit 14 jours
             </Button>
             <Button variant="outline" size="xl" className="gap-2 bg-card/10 border-card/30 text-card hover:bg-card/20" onClick={() => document.getElementById("features")?.scrollIntoView({ behavior: "smooth" })}>
-              En savoir plus
+              Voir les fonctionnalités
             </Button>
           </div>
 
@@ -51,24 +51,24 @@ export const HeroSection = () => {
           <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto mb-12 animate-fade-in" style={{ animationDelay: "0.35s" }}>
             <div className="text-center">
               <div className="flex items-center justify-center gap-2 text-3xl font-bold text-card mb-1">
-                <Star className="w-6 h-6 text-accent-gold fill-accent-gold" />
-                4.9
+                <Clock className="w-6 h-6 text-accent" />
+                -90%
               </div>
-              <p className="text-card/70 text-sm">Note moyenne</p>
+              <p className="text-card/70 text-sm">Temps de réponse</p>
             </div>
             <div className="text-center border-x border-card/20">
               <div className="flex items-center justify-center gap-2 text-3xl font-bold text-card mb-1">
-                <MessageSquare className="w-6 h-6 text-secondary" />
-                10k+
+                <Star className="w-6 h-6 text-accent-gold fill-accent-gold" />
+                +0.5
               </div>
-              <p className="text-card/70 text-sm">Avis gérés</p>
+              <p className="text-card/70 text-sm">Note moyenne</p>
             </div>
             <div className="text-center">
               <div className="flex items-center justify-center gap-2 text-3xl font-bold text-card mb-1">
-                <TrendingUp className="w-6 h-6 text-accent" />
-                98%
+                <TrendingUp className="w-6 h-6 text-secondary" />
+                +40%
               </div>
-              <p className="text-card/70 text-sm">Satisfaction</p>
+              <p className="text-card/70 text-sm">Visibilité locale</p>
             </div>
           </div>
 
@@ -76,15 +76,48 @@ export const HeroSection = () => {
           <div className="flex flex-wrap items-center justify-center gap-6 text-card/80 text-sm animate-fade-in" style={{ animationDelay: "0.4s" }}>
             <div className="flex items-center gap-2">
               <Check className="w-5 h-5 text-secondary" />
-              <span>Application vérifiée</span>
+              <span>Sans engagement</span>
             </div>
             <div className="flex items-center gap-2">
-              <Shield className="w-5 h-5 text-secondary" />
-              <span>Conforme aux politiques Google</span>
+              <Check className="w-5 h-5 text-secondary" />
+              <span>Configuration en 2 min</span>
             </div>
             <div className="flex items-center gap-2">
-              <Rocket className="w-5 h-5 text-secondary" />
-              <span>14 jours d'essai gratuit</span>
+              <Check className="w-5 h-5 text-secondary" />
+              <span>+500 entreprises</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Demo Preview */}
+        <div className="mt-16 max-w-4xl mx-auto animate-fade-in" style={{ animationDelay: "0.5s" }}>
+          <div className="bg-card/10 backdrop-blur-lg rounded-2xl border border-card/20 p-4 shadow-2xl">
+            <div className="bg-card rounded-xl p-6 shadow-lg">
+              <div className="flex items-start gap-4 mb-4">
+                <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                  <span className="text-lg">👤</span>
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="font-semibold text-foreground">Marie D.</span>
+                    <div className="flex">
+                      {[1,2,3,4,5].map(i => <Star key={i} className="w-4 h-4 text-accent fill-accent" />)}
+                    </div>
+                  </div>
+                  <p className="text-muted-foreground text-sm">
+                    "Service impeccable ! L'équipe est très professionnelle et à l'écoute. Je recommande vivement."
+                  </p>
+                </div>
+              </div>
+              <div className="ml-14 p-4 bg-primary/5 rounded-xl border-l-4 border-primary">
+                <div className="flex items-center gap-2 mb-2">
+                  <Sparkles className="w-4 h-4 text-primary" />
+                  <span className="text-xs font-medium text-primary">Réponse générée par IA</span>
+                </div>
+                <p className="text-sm text-foreground">
+                  "Merci beaucoup Marie pour ce retour chaleureux ! 🙏 Nous sommes ravis que notre service ait été à la hauteur de vos attentes. Votre satisfaction est notre priorité. À très bientôt !"
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -102,24 +135,3 @@ export const HeroSection = () => {
     </section>
   );
 };
-
-const GoogleIcon = () => (
-  <svg className="w-5 h-5" viewBox="0 0 24 24">
-    <path
-      fill="#4285F4"
-      d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-    />
-    <path
-      fill="#34A853"
-      d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-    />
-    <path
-      fill="#FBBC05"
-      d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-    />
-    <path
-      fill="#EA4335"
-      d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-    />
-  </svg>
-);

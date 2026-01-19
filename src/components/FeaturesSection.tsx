@@ -1,28 +1,28 @@
-import { Shield, Lock, Zap, BookOpen, MessageSquare, BarChart3, Building2, TrendingUp } from "lucide-react";
+import { Sparkles, Clock, MessageSquare, BarChart3, Globe, Zap, Star, FileText, Bot } from "lucide-react";
 
 const features = [
   {
-    icon: Shield,
-    title: "Application vérifiée",
-    description: "Notre application a été examinée et approuvée par Google pour l'accès à l'API Google My Business, garantissant sécurité et conformité.",
+    icon: Bot,
+    title: "Réponses IA personnalisées",
+    description: "L'IA analyse chaque avis et génère une réponse unique, personnalisée au ton de votre marque. Plus de copier-coller !",
   },
   {
-    icon: Lock,
-    title: "Données sécurisées",
-    description: "Conformité OAuth 2.0 avec des scopes d'accès limités. Vos données sont chiffrées et protégées selon les standards de l'industrie.",
+    icon: Clock,
+    title: "Gain de temps x10",
+    description: "Répondez à 100 avis en quelques clics. Ce qui prenait des heures ne prend plus que quelques minutes.",
   },
   {
-    icon: Zap,
-    title: "Intégration native",
-    description: "Accès direct à l'API Business Profile de Google pour une synchronisation en temps réel et des fonctionnalités complètes.",
+    icon: Star,
+    title: "Améliorez votre note",
+    description: "Les clients qui reçoivent une réponse sont 2x plus susceptibles de modifier leur avis positivement.",
   },
 ];
 
-const apiScopes = [
-  { icon: BookOpen, title: "Lecture des avis", description: "Accès en lecture seule à vos avis Google" },
-  { icon: MessageSquare, title: "Réponse aux avis", description: "Publication de réponses aux avis clients" },
-  { icon: Building2, title: "Gestion du profil", description: "Accès aux informations de votre établissement" },
-  { icon: TrendingUp, title: "Métriques business", description: "Accès aux statistiques de performance" },
+const capabilities = [
+  { icon: MessageSquare, title: "Multi-établissements", description: "Gérez tous vos points de vente depuis un seul tableau de bord" },
+  { icon: Sparkles, title: "Ton personnalisable", description: "Formel, décontracté, professionnel... Adaptez le style à votre image" },
+  { icon: Globe, title: "SEO AutoPost", description: "Générez des articles optimisés pour améliorer votre référencement local" },
+  { icon: FileText, title: "ChatGPT Rank (AEO)", description: "Créez des Q&A pour apparaître dans les réponses des IA comme ChatGPT" },
 ];
 
 export const FeaturesSection = () => {
@@ -31,11 +31,15 @@ export const FeaturesSection = () => {
       <div className="container mx-auto px-4">
         {/* Section header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full mb-6">
+            <Zap className="w-4 h-4 text-primary" />
+            <span className="text-primary text-sm font-medium">Fonctionnalités</span>
+          </div>
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Accès API Google My Business vérifié
+            Tout ce qu'il faut pour gérer vos avis
           </h2>
           <p className="text-lg text-muted-foreground">
-            Starlinko dispose d'un accès vérifié à l'API Google My Business, garantissant une intégration sécurisée et conforme aux politiques de Google.
+            Une solution complète pour transformer la gestion de votre réputation en ligne en avantage concurrentiel.
           </p>
         </div>
 
@@ -45,9 +49,8 @@ export const FeaturesSection = () => {
             <div
               key={feature.title}
               className="group p-8 bg-card rounded-2xl border border-border shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
-              style={{ animationDelay: `${index * 0.1}s` }}
             >
-              <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mb-6 group-hover:bg-primary/20 transition-colors">
+              <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                 <feature.icon className="w-7 h-7 text-primary" />
               </div>
               <h3 className="text-xl font-semibold text-foreground mb-3">{feature.title}</h3>
@@ -56,22 +59,51 @@ export const FeaturesSection = () => {
           ))}
         </div>
 
-        {/* API Scopes */}
+        {/* Capabilities */}
         <div className="bg-gradient-to-br from-primary/5 to-secondary/5 rounded-3xl p-8 md:p-12">
-          <h3 className="text-2xl font-bold text-foreground mb-8 text-center">Scopes d'accès API</h3>
+          <h3 className="text-2xl font-bold text-foreground mb-2 text-center">Et bien plus encore...</h3>
+          <p className="text-muted-foreground text-center mb-8">Des outils avancés pour maximiser votre visibilité</p>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {apiScopes.map((scope, index) => (
+            {capabilities.map((item) => (
               <div
-                key={scope.title}
-                className="bg-card p-6 rounded-xl border border-border shadow-sm hover:shadow-md transition-all"
+                key={item.title}
+                className="bg-card p-6 rounded-xl border border-border shadow-sm hover:shadow-md transition-all hover:border-primary/30"
               >
                 <div className="w-12 h-12 rounded-lg bg-secondary/10 flex items-center justify-center mb-4">
-                  <scope.icon className="w-6 h-6 text-secondary" />
+                  <item.icon className="w-6 h-6 text-secondary" />
                 </div>
-                <h4 className="font-semibold text-foreground mb-2">{scope.title}</h4>
-                <p className="text-sm text-muted-foreground">{scope.description}</p>
+                <h4 className="font-semibold text-foreground mb-2">{item.title}</h4>
+                <p className="text-sm text-muted-foreground">{item.description}</p>
               </div>
             ))}
+          </div>
+        </div>
+
+        {/* How it works */}
+        <div className="mt-20">
+          <h3 className="text-2xl font-bold text-foreground mb-8 text-center">Comment ça marche ?</h3>
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="text-center">
+              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl font-bold text-primary">1</span>
+              </div>
+              <h4 className="font-semibold text-foreground mb-2">Connectez votre compte</h4>
+              <p className="text-muted-foreground text-sm">Liez votre Google My Business en un clic. Vos établissements sont importés automatiquement.</p>
+            </div>
+            <div className="text-center">
+              <div className="w-16 h-16 rounded-full bg-secondary/10 flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl font-bold text-secondary">2</span>
+              </div>
+              <h4 className="font-semibold text-foreground mb-2">L'IA génère les réponses</h4>
+              <p className="text-muted-foreground text-sm">Pour chaque avis, une réponse personnalisée est créée selon votre ton et vos préférences.</p>
+            </div>
+            <div className="text-center">
+              <div className="w-16 h-16 rounded-full bg-accent/20 flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl font-bold text-accent-foreground">3</span>
+              </div>
+              <h4 className="font-semibold text-foreground mb-2">Publiez en un clic</h4>
+              <p className="text-muted-foreground text-sm">Validez et publiez directement sur Google, ou activez la publication automatique.</p>
+            </div>
           </div>
         </div>
       </div>
