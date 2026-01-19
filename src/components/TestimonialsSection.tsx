@@ -57,7 +57,8 @@ const testimonials = [
     name: "Marie Dupont",
     role: "Gérante",
     company: CompanyLogo1,
-    avatar: "MD",
+    icon: Utensils,
+    iconBg: "from-rose-500 to-pink-600",
     rating: 5,
     text: "Starlinko a révolutionné notre gestion des avis. On répond à 50 avis par semaine en 5 minutes au lieu de 2 heures !",
     highlight: "+85% de réponses",
@@ -66,7 +67,8 @@ const testimonials = [
     name: "Thomas Bernard",
     role: "Directeur Marketing",
     company: CompanyLogo2,
-    avatar: "TB",
+    icon: Leaf,
+    iconBg: "from-emerald-500 to-green-600",
     rating: 5,
     text: "Grâce à l'AEO, nous apparaissons maintenant dans les réponses de ChatGPT. Nos demandes de devis ont explosé.",
     highlight: "+120% de leads",
@@ -75,7 +77,8 @@ const testimonials = [
     name: "Sophie Martin",
     role: "Directrice",
     company: CompanyLogo3,
-    avatar: "SM",
+    icon: Building2,
+    iconBg: "from-amber-500 to-orange-600",
     rating: 5,
     text: "Les articles SEO générés automatiquement nous ont fait passer en première page Google sur 12 mots-clés locaux.",
     highlight: "#1 sur Google",
@@ -122,8 +125,8 @@ export const TestimonialsSection = () => {
               {/* Header */}
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-11 h-11 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-semibold text-sm">
-                    {testimonial.avatar}
+                  <div className={`w-11 h-11 rounded-full bg-gradient-to-br ${testimonial.iconBg} flex items-center justify-center shadow-lg`}>
+                    <testimonial.icon className="w-5 h-5 text-white" />
                   </div>
                   <div>
                     <p className="font-semibold text-foreground text-sm">{testimonial.name}</p>
