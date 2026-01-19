@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
-import { useNavigate, Link, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { StarlinkoLogo } from "@/components/StarlinkoLogo";
+import { DashboardHeader } from "@/components/DashboardHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -12,7 +12,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
 import { 
-  MessageCircle, 
   Sparkles, 
   Loader2, 
   Plus, 
@@ -20,15 +19,6 @@ import {
   Trash2,
   Copy,
   Star as StarIcon,
-  Home,
-  Star,
-  FileText,
-  Settings,
-  Menu,
-  X,
-  LogOut,
-  User,
-  Bell,
   HelpCircle,
   TrendingUp
 } from "lucide-react";
@@ -51,10 +41,8 @@ interface Question {
 }
 
 const AEORank = () => {
-  const { user, signOut } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
-  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(true);
@@ -127,7 +115,6 @@ const AEORank = () => {
       if (error) throw error;
 
       if (data.questions && data.questions.length > 0) {
-        // Save questions to database
         const questionsToInsert = data.questions.map((q: any) => ({
           user_id: user!.id,
           business_id: selectedBusiness,
@@ -253,383 +240,249 @@ const AEORank = () => {
     setManualCategory(q.category || "");
   };
 
-  const navItems = [
-    { label: "Accueil", icon: Home, href: "/dashboard" },
-    { label: "Avis", icon: Star, href: "/reviews" },
-    { label: "SEO", icon: FileText, href: "/seo-autopost" },
-    { label: "AEO", icon: Sparkles, href: "/aeo-rank" },
-    { label: "Paramètres", icon: Settings, href: "/settings" },
-  ];
-
-  const isActive = (href: string) => location.pathname === href;
-
   const categories = ["services", "horaires", "localisation", "avis", "prix", "contact"];
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <div className="min-h-screen bg-background">
+        <DashboardHeader />
+        <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-muted/30 flex flex-col pb-20 lg:pb-0">
-      {/* Mobile Header */}
-      <header className="sticky top-0 z-40 bg-card border-b border-border px-4 py-3 lg:hidden">
-        <div className="flex items-center justify-between">
-          <StarlinkoLogo showBadge={false} />
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" className="relative">
-              <Bell className="w-5 h-5" />
-            </Button>
-            <Button variant="ghost" size="icon" onClick={() => setMobileNavOpen(true)}>
-              <Menu className="w-5 h-5" />
-            </Button>
-          </div>
-        </div>
-      </header>
+    <div className="min-h-screen bg-muted/30">
+      <DashboardHeader />
 
-      {/* Mobile Side Drawer */}
-      {mobileNavOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden">
-          <div className="absolute inset-0 bg-foreground/60 backdrop-blur-sm" onClick={() => setMobileNavOpen(false)} />
-          <aside className="absolute right-0 top-0 bottom-0 w-80 max-w-[85vw] bg-card shadow-2xl animate-slide-in-right">
-            <div className="p-4 border-b border-border flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                  <User className="w-5 h-5 text-primary" />
-                </div>
-                <p className="font-medium text-foreground truncate max-w-[180px]">{user?.email}</p>
+      {/* Page Header */}
+      <div className="bg-card border-b border-border">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                <HelpCircle className="w-6 h-6 text-primary" />
               </div>
-              <Button variant="ghost" size="icon" onClick={() => setMobileNavOpen(false)}>
-                <X className="w-5 h-5" />
-              </Button>
-            </div>
-            <nav className="p-4 space-y-1">
-              {navItems.map((item) => (
-                <Link
-                  key={item.href}
-                  to={item.href}
-                  onClick={() => setMobileNavOpen(false)}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
-                    isActive(item.href) ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"
-                  }`}
-                >
-                  <item.icon className="w-5 h-5" />
-                  <span className="font-medium">{item.label}</span>
-                </Link>
-              ))}
-            </nav>
-            <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-border">
-              <Button variant="ghost" className="w-full justify-start text-destructive" onClick={signOut}>
-                <LogOut className="w-5 h-5 mr-3" />
-                Déconnexion
-              </Button>
-            </div>
-          </aside>
-        </div>
-      )}
-
-      {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex lg:flex-col lg:w-64 lg:fixed lg:inset-y-0 bg-card border-r border-border">
-        <div className="p-6 border-b border-border">
-          <StarlinkoLogo showBadge={false} />
-        </div>
-        <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-          {navItems.map((item) => (
-            <Link
-              key={item.href}
-              to={item.href}
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
-                isActive(item.href) ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25" : "text-muted-foreground hover:bg-muted"
-              }`}
-            >
-              <item.icon className="w-5 h-5" />
-              <span className="font-medium">{item.label}</span>
-            </Link>
-          ))}
-        </nav>
-        <div className="p-4 border-t border-border">
-          <Button variant="ghost" className="w-full justify-start text-muted-foreground hover:text-destructive" onClick={signOut}>
-            <LogOut className="w-5 h-5 mr-3" />
-            Déconnexion
-          </Button>
-        </div>
-      </aside>
-
-      {/* Main Content */}
-      <main className="flex-1 lg:ml-64">
-        <header className="hidden lg:flex sticky top-0 z-40 bg-card/80 backdrop-blur-lg border-b border-border px-6 py-4 items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
-              ChatGPT Rank
-              <Badge variant="secondary" className="text-xs">AEO</Badge>
-            </h1>
-            <p className="text-sm text-muted-foreground">Optimisez votre visibilité sur les IA (ChatGPT, Perplexity...)</p>
-          </div>
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={() => { setEditingQuestion(null); setManualQuestion(""); setManualAnswer(""); setManualCategory(""); }}>
-              <Plus className="w-4 h-4 mr-2" />
-              Ajouter Q&A
-            </Button>
-            <Button onClick={() => setShowForm(true)}>
-              <Sparkles className="w-4 h-4 mr-2" />
-              Générer avec IA
-            </Button>
-          </div>
-        </header>
-
-        <div className="p-4 lg:p-6 space-y-6">
-          {/* Mobile Header */}
-          <div className="lg:hidden">
-            <div className="flex items-center justify-between mb-4">
               <div>
-                <h1 className="text-xl font-bold text-foreground">ChatGPT Rank</h1>
-                <p className="text-sm text-muted-foreground">Questions & Réponses AEO</p>
-              </div>
-              <div className="flex gap-2">
-                <Button size="sm" variant="outline" onClick={() => { setEditingQuestion(null); setManualQuestion(""); setManualAnswer(""); }}>
-                  <Plus className="w-4 h-4" />
-                </Button>
-                <Button size="sm" onClick={() => setShowForm(true)}>
-                  <Sparkles className="w-4 h-4" />
-                </Button>
+                <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
+                  ChatGPT Rank
+                  <Badge variant="secondary" className="text-xs">AEO</Badge>
+                </h1>
+                <p className="text-sm text-muted-foreground">
+                  Optimisez votre visibilité sur les IA (ChatGPT, Perplexity...)
+                </p>
               </div>
             </div>
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={() => { setEditingQuestion(null); setManualQuestion(""); setManualAnswer(""); setManualCategory(""); }}>
+                <Plus className="w-4 h-4 mr-2" />
+                Ajouter Q&A
+              </Button>
+              <Button onClick={() => setShowForm(true)}>
+                <Sparkles className="w-4 h-4 mr-2" />
+                Générer avec IA
+              </Button>
+            </div>
           </div>
+        </div>
+      </div>
 
-          {/* Info Card */}
-          <Card className="bg-gradient-to-br from-primary/5 to-secondary/5 border-primary/20">
-            <CardContent className="p-4 lg:p-6">
-              <div className="flex items-start gap-4">
-                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <TrendingUp className="w-5 h-5 text-primary" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-foreground mb-1">Qu'est-ce que l'AEO ?</h3>
-                  <p className="text-sm text-muted-foreground">
-                    L'Answer Engine Optimization optimise votre contenu pour apparaître dans les réponses des IA comme ChatGPT, Perplexity ou Google AI. 
-                    Créez des Q&A pertinentes pour que votre entreprise soit citée par ces assistants.
-                  </p>
-                </div>
+      <main className="max-w-7xl mx-auto p-4 sm:p-6 space-y-6">
+        {/* Info Card */}
+        <Card className="bg-gradient-to-br from-primary/5 to-secondary/5 border-primary/20">
+          <CardContent className="p-4 lg:p-6">
+            <div className="flex items-start gap-4">
+              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <TrendingUp className="w-5 h-5 text-primary" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-foreground mb-1">Qu'est-ce que l'AEO ?</h3>
+                <p className="text-sm text-muted-foreground">
+                  L'Answer Engine Optimization optimise votre contenu pour apparaître dans les réponses des IA comme ChatGPT, Perplexity ou Google AI. 
+                  Créez des Q&A pertinentes pour que votre entreprise soit citée par ces assistants.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* AI Generation Form */}
+        {showForm && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-primary" />
+                Générer des Q&A avec l'IA
+              </CardTitle>
+              <CardDescription>
+                L'IA va créer des paires question-réponse optimisées pour les moteurs de réponse
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label>Établissement *</Label>
+                <Select value={selectedBusiness} onValueChange={setSelectedBusiness}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Sélectionner un établissement" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-popover">
+                    {businesses.map((b) => (
+                      <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Description de l'activité</Label>
+                <Textarea
+                  placeholder="Décrivez votre activité, vos services principaux..."
+                  value={businessDescription}
+                  onChange={(e) => setBusinessDescription(e.target.value)}
+                  rows={3}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Mots-clés (séparés par des virgules)</Label>
+                <Input
+                  placeholder="restaurant, cuisine française, réservation"
+                  value={keywords}
+                  onChange={(e) => setKeywords(e.target.value)}
+                />
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <Button variant="outline" onClick={() => { setShowForm(false); resetForm(); }}>
+                  Annuler
+                </Button>
+                <Button onClick={generateQuestions} disabled={generating || !selectedBusiness}>
+                  {generating ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Génération...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-4 h-4 mr-2" />
+                      Générer les Q&A
+                    </>
+                  )}
+                </Button>
               </div>
             </CardContent>
           </Card>
+        )}
 
-          {/* AI Generation Form */}
-          {showForm && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-primary" />
-                  Générer des Q&A avec l'IA
-                </CardTitle>
-                <CardDescription>
-                  L'IA va créer des paires question-réponse optimisées pour les moteurs de réponse
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label>Établissement *</Label>
-                  <Select value={selectedBusiness} onValueChange={setSelectedBusiness}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Sélectionner un établissement" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {businesses.map((b) => (
-                        <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Description de l'activité</Label>
-                  <Textarea
-                    placeholder="Décrivez votre activité, vos services principaux..."
-                    value={businessDescription}
-                    onChange={(e) => setBusinessDescription(e.target.value)}
-                    rows={3}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Mots-clés (séparés par des virgules)</Label>
-                  <Input
-                    placeholder="restaurant, cuisine française, réservation"
-                    value={keywords}
-                    onChange={(e) => setKeywords(e.target.value)}
-                  />
-                </div>
-
-                <div className="flex gap-3 pt-4">
-                  <Button variant="outline" onClick={() => { setShowForm(false); resetForm(); }}>
-                    Annuler
-                  </Button>
-                  <Button onClick={generateQuestions} disabled={generating || !selectedBusiness}>
-                    {generating ? (
-                      <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Génération...
-                      </>
-                    ) : (
-                      <>
-                        <Sparkles className="w-4 h-4 mr-2" />
-                        Générer 5 Q&A
-                      </>
-                    )}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Manual Q&A Form */}
-          {(manualQuestion !== "" || manualAnswer !== "" || editingQuestion) && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <HelpCircle className="w-5 h-5 text-primary" />
-                  {editingQuestion ? "Modifier la Q&A" : "Ajouter une Q&A manuellement"}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label>Question *</Label>
-                  <Input
-                    placeholder="Quels sont les horaires d'ouverture ?"
-                    value={manualQuestion}
-                    onChange={(e) => setManualQuestion(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Réponse *</Label>
-                  <Textarea
-                    placeholder="Notre établissement est ouvert du lundi au samedi de 9h à 19h..."
-                    value={manualAnswer}
-                    onChange={(e) => setManualAnswer(e.target.value)}
-                    rows={3}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Catégorie</Label>
-                  <Select value={manualCategory} onValueChange={setManualCategory}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Sélectionner une catégorie" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {categories.map((cat) => (
-                        <SelectItem key={cat} value={cat}>{cat.charAt(0).toUpperCase() + cat.slice(1)}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="flex gap-3 pt-4">
-                  <Button variant="outline" onClick={() => { setEditingQuestion(null); setManualQuestion(""); setManualAnswer(""); setManualCategory(""); }}>
-                    Annuler
-                  </Button>
-                  <Button onClick={saveManualQuestion}>
-                    {editingQuestion ? "Mettre à jour" : "Ajouter"}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Questions List */}
-          {questions.length === 0 && !showForm ? (
-            <Card className="p-8 text-center">
-              <MessageCircle className="w-12 h-12 mx-auto mb-4 text-muted-foreground/30" />
-              <h3 className="text-lg font-medium text-foreground mb-2">Aucune Q&A</h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                Créez des questions-réponses pour optimiser votre visibilité sur ChatGPT
-              </p>
-              <Button onClick={() => setShowForm(true)}>
-                <Sparkles className="w-4 h-4 mr-2" />
-                Générer avec l'IA
-              </Button>
-            </Card>
-          ) : (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold text-foreground">
-                  {questions.length} Question{questions.length > 1 ? "s" : ""} & Réponse{questions.length > 1 ? "s" : ""}
-                </h2>
+        {/* Manual Q&A Form */}
+        {(manualQuestion !== "" || manualAnswer !== "" || editingQuestion) && (
+          <Card>
+            <CardHeader>
+              <CardTitle>{editingQuestion ? "Modifier la question" : "Ajouter une Q&A"}</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label>Question *</Label>
+                <Input
+                  placeholder="Quels sont vos horaires d'ouverture ?"
+                  value={manualQuestion}
+                  onChange={(e) => setManualQuestion(e.target.value)}
+                />
               </div>
-              <div className="grid gap-4">
-                {questions.map((q) => (
-                  <Card key={q.id} className={q.is_featured ? "border-primary/50 bg-primary/5" : ""}>
-                    <CardContent className="p-4 lg:p-6">
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-2 flex-wrap">
-                            {q.is_featured && (
-                              <Badge variant="default" className="bg-primary">
-                                <StarIcon className="w-3 h-3 mr-1" />
-                                Vedette
-                              </Badge>
-                            )}
-                            {q.category && (
-                              <Badge variant="secondary">{q.category}</Badge>
-                            )}
-                            <span className="text-xs text-muted-foreground">
-                              {new Date(q.created_at).toLocaleDateString("fr-FR")}
-                            </span>
-                          </div>
-                          <h3 className="font-semibold text-foreground mb-2">
-                            <span className="text-primary">Q:</span> {q.question}
-                          </h3>
-                          <p className="text-sm text-muted-foreground">
-                            <span className="text-secondary font-medium">R:</span> {q.answer}
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-1 flex-shrink-0">
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            onClick={() => toggleFeatured(q.id, q.is_featured)}
-                            className={q.is_featured ? "text-primary" : ""}
-                          >
-                            <StarIcon className="w-4 h-4" />
-                          </Button>
-                          <Button variant="ghost" size="icon" onClick={() => startEdit(q)}>
-                            <Edit2 className="w-4 h-4" />
-                          </Button>
-                          <Button variant="ghost" size="icon" onClick={() => copyQA(q)}>
-                            <Copy className="w-4 h-4" />
-                          </Button>
-                          <Button variant="ghost" size="icon" className="text-destructive" onClick={() => deleteQuestion(q.id)}>
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
+              <div className="space-y-2">
+                <Label>Réponse *</Label>
+                <Textarea
+                  placeholder="Nous sommes ouverts du lundi au samedi de 9h à 19h..."
+                  value={manualAnswer}
+                  onChange={(e) => setManualAnswer(e.target.value)}
+                  rows={3}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Catégorie</Label>
+                <Select value={manualCategory} onValueChange={setManualCategory}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Sélectionner une catégorie" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-popover">
+                    {categories.map((cat) => (
+                      <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex gap-3 pt-4">
+                <Button variant="outline" onClick={() => { setEditingQuestion(null); setManualQuestion(""); setManualAnswer(""); setManualCategory(""); }}>
+                  Annuler
+                </Button>
+                <Button onClick={saveManualQuestion}>
+                  {editingQuestion ? "Mettre à jour" : "Ajouter"}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Questions List */}
+        {questions.length === 0 && !showForm ? (
+          <Card className="p-8 text-center">
+            <HelpCircle className="w-12 h-12 mx-auto mb-4 text-muted-foreground/30" />
+            <h3 className="text-lg font-medium text-foreground mb-2">Aucune question</h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              Générez vos premières Q&A pour optimiser votre visibilité IA
+            </p>
+            <Button onClick={() => setShowForm(true)}>
+              <Sparkles className="w-4 h-4 mr-2" />
+              Générer avec l'IA
+            </Button>
+          </Card>
+        ) : (
+          <div className="grid gap-4">
+            {questions.map((q) => (
+              <Card key={q.id} className={q.is_featured ? "border-primary/50 bg-primary/5" : ""}>
+                <CardContent className="p-4 lg:p-6">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-2 flex-wrap">
+                        {q.is_featured && (
+                          <Badge variant="default" className="gap-1">
+                            <StarIcon className="w-3 h-3" />
+                            Featured
+                          </Badge>
+                        )}
+                        {q.category && (
+                          <Badge variant="secondary">{q.category}</Badge>
+                        )}
+                        <span className="text-xs text-muted-foreground">
+                          {new Date(q.created_at).toLocaleDateString("fr-FR")}
+                        </span>
                       </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
+                      <h4 className="font-medium text-foreground mb-2">{q.question}</h4>
+                      <p className="text-sm text-muted-foreground">{q.answer}</p>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Button variant="ghost" size="icon" onClick={() => toggleFeatured(q.id, q.is_featured)}>
+                        <StarIcon className={`w-4 h-4 ${q.is_featured ? "fill-primary text-primary" : ""}`} />
+                      </Button>
+                      <Button variant="ghost" size="icon" onClick={() => copyQA(q)}>
+                        <Copy className="w-4 h-4" />
+                      </Button>
+                      <Button variant="ghost" size="icon" onClick={() => startEdit(q)}>
+                        <Edit2 className="w-4 h-4" />
+                      </Button>
+                      <Button variant="ghost" size="icon" className="text-destructive" onClick={() => deleteQuestion(q.id)}>
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
       </main>
-
-      {/* Mobile Bottom Navigation */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-card border-t border-border px-2 py-2 safe-area-inset-bottom">
-        <div className="flex items-center justify-around">
-          {navItems.map((item) => (
-            <Link
-              key={item.href}
-              to={item.href}
-              className={`flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all ${
-                isActive(item.href) ? "text-primary" : "text-muted-foreground"
-              }`}
-            >
-              <item.icon className="w-5 h-5" />
-              <span className="text-[10px] font-medium">{item.label}</span>
-            </Link>
-          ))}
-        </div>
-      </nav>
     </div>
   );
 };
