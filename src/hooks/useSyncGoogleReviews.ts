@@ -2,12 +2,13 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
-interface SyncReviewsResult {
+export interface SyncReviewsResult {
   success: boolean;
   message: string;
   reviews: any[];
   synced_count: number;
   errors?: string[];
+  requires_reconnect?: boolean;
 }
 
 export const useSyncGoogleReviews = () => {

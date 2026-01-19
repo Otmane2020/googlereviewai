@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 import { AddTestReviewDialog } from "@/components/AddTestReviewDialog";
 import { useSyncGoogleReviews } from "@/hooks/useSyncGoogleReviews";
+import { SyncStatusCard } from "@/components/SyncStatusCard";
 import {
   Select,
   SelectContent,
@@ -76,7 +77,7 @@ const Reviews = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [generatingId, setGeneratingId] = useState<number | null>(null);
   const [publishingId, setPublishingId] = useState<number | null>(null);
-  const { syncReviews, isSyncing } = useSyncGoogleReviews();
+  const { syncReviews, isSyncing, lastSyncResult } = useSyncGoogleReviews();
 
   const fetchBusinesses = useCallback(async () => {
     if (!user) return;
@@ -373,6 +374,9 @@ const Reviews = () => {
       </div>
 
       <main className="max-w-7xl mx-auto p-6 space-y-6">
+        {/* Sync Status */}
+        <SyncStatusCard lastSyncResult={lastSyncResult} />
+
         {/* Sync and Filters */}
         <div className="flex flex-col gap-4">
           {/* Sync button and business filter */}
