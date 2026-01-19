@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { StarlinkoLogo } from "@/components/StarlinkoLogo";
+import { DashboardHeader } from "@/components/DashboardHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,7 +10,6 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
 import { 
-  ArrowLeft,
   Sparkles,
   MessageSquare,
   Clock,
@@ -135,25 +134,26 @@ const AISettingsPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      <div className="min-h-screen bg-background">
+        <DashboardHeader />
+        <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        </div>
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-muted/30">
-      {/* Header */}
-      <header className="bg-card border-b border-border px-6 py-4">
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate("/dashboard")}
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
+      <DashboardHeader />
+
+      {/* Page Header */}
+      <div className="bg-card border-b border-border">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+              <Sparkles className="w-6 h-6 text-primary" />
+            </div>
             <div>
               <h1 className="text-2xl font-bold text-foreground">Paramètres IA</h1>
               <p className="text-sm text-muted-foreground">
@@ -161,9 +161,8 @@ const AISettingsPage = () => {
               </p>
             </div>
           </div>
-          <StarlinkoLogo showBadge={false} />
         </div>
-      </header>
+      </div>
 
       <main className="max-w-4xl mx-auto p-6 space-y-8">
         {/* Enable/Disable */}
