@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { StarlinkoLogo } from "./StarlinkoLogo";
+import { UpgradeDialog } from "./UpgradeDialog";
 import { Button } from "./ui/button";
 import { 
   Menu, 
@@ -61,6 +62,7 @@ export const DashboardHeader = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [upgradeDialogOpen, setUpgradeDialogOpen] = useState(false);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
 
@@ -258,11 +260,11 @@ export const DashboardHeader = () => {
                       className="w-full rounded-xl gap-2 shadow-md"
                       onClick={() => {
                         setMobileMenuOpen(false);
-                        navigate("/settings");
+                        setUpgradeDialogOpen(true);
                       }}
                     >
                       <Plus className="w-4 h-4" />
-                      Recharger
+                      Upgrade
                     </Button>
                   </div>
                 </div>
@@ -335,6 +337,8 @@ export const DashboardHeader = () => {
           </div>
         </nav>
       </div>
+
+      <UpgradeDialog open={upgradeDialogOpen} onOpenChange={setUpgradeDialogOpen} />
     </header>
   );
 };
