@@ -1,7 +1,7 @@
-import { AlertCircle, CheckCircle2, RefreshCw, LogIn } from "lucide-react";
+import { AlertCircle, CheckCircle2, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SyncReviewsResult } from "@/hooks/useSyncGoogleReviews";
-import { useAuth } from "@/contexts/AuthContext";
+import { useGoogleOAuth } from "@/hooks/useGoogleOAuth";
 
 interface SyncStatusCardProps {
   lastSyncResult: SyncReviewsResult | null;
@@ -9,7 +9,7 @@ interface SyncStatusCardProps {
 }
 
 export const SyncStatusCard = ({ lastSyncResult, onReconnect }: SyncStatusCardProps) => {
-  const { signInWithGoogle } = useAuth();
+  const { initiateOAuth, isConnecting } = useGoogleOAuth();
 
   if (!lastSyncResult) return null;
 
@@ -20,7 +20,8 @@ export const SyncStatusCard = ({ lastSyncResult, onReconnect }: SyncStatusCardPr
     if (onReconnect) {
       onReconnect();
     } else {
-      await signInWithGoogle();
+      // Use custom OAuth flow that stores refresh_token
+      await initiateOAuth();
     }
   };
 
@@ -79,9 +80,10 @@ export const SyncStatusCard = ({ lastSyncResult, onReconnect }: SyncStatusCardPr
               variant="outline" 
               className="gap-2 mt-2"
               onClick={handleReconnect}
+              disabled={isConnecting}
             >
               <LogIn className="w-4 h-4" />
-              Reconnecter Google
+              {isConnecting ? "Connexion..." : "Reconnecter Google"}
             </Button>
           )}
         </div>

@@ -6,6 +6,103 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Helper function to get a valid Google access token server-side
+async function getValidAccessToken(supabaseAdmin: any, userId: string): Promise<{ token: string | null; error: string | null }> {
+  const clientId = Deno.env.get("GOOGLE_OAUTH_CLIENT_ID");
+  const clientSecret = Deno.env.get("GOOGLE_OAUTH_CLIENT_SECRET");
+
+  if (!clientId || !clientSecret) {
+    console.error("Missing Google OAuth credentials");
+    return { token: null, error: "Configuration error: Missing Google OAuth credentials" };
+  }
+
+  // Get user profile with tokens
+  const { data: profile, error: profileError } = await supabaseAdmin
+    .from("profiles")
+    .select("google_access_token, google_refresh_token, google_token_expires_at")
+    .eq("id", userId)
+    .single();
+
+  if (profileError || !profile) {
+    console.error("Error fetching profile:", profileError);
+    return { token: null, error: "User profile not found" };
+  }
+
+  if (!profile.google_refresh_token) {
+    console.log("No refresh token available for user", userId);
+    return { token: null, error: "requires_reconnect" };
+  }
+
+  // Check if current token is still valid (with 5 min buffer)
+  const expiresAt = profile.google_token_expires_at ? new Date(profile.google_token_expires_at) : null;
+  const now = new Date();
+  const bufferMs = 5 * 60 * 1000; // 5 minutes
+
+  if (profile.google_access_token && expiresAt && (expiresAt.getTime() - bufferMs) > now.getTime()) {
+    console.log("Using existing valid access token");
+    return { token: profile.google_access_token, error: null };
+  }
+
+  // Need to refresh the token
+  console.log("Refreshing access token...");
+  try {
+    const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        client_id: clientId,
+        client_secret: clientSecret,
+        refresh_token: profile.google_refresh_token,
+        grant_type: "refresh_token",
+      }),
+    });
+
+    if (!tokenResponse.ok) {
+      const errorText = await tokenResponse.text();
+      console.error("Token refresh failed:", tokenResponse.status, errorText);
+      
+      // Check if refresh token is revoked
+      if (errorText.includes("invalid_grant") || errorText.includes("Token has been revoked")) {
+        // Clear invalid tokens
+        await supabaseAdmin
+          .from("profiles")
+          .update({
+            google_access_token: null,
+            google_refresh_token: null,
+            google_token_expires_at: null,
+          })
+          .eq("id", userId);
+        
+        return { token: null, error: "requires_reconnect" };
+      }
+      
+      return { token: null, error: `Token refresh failed: ${tokenResponse.status}` };
+    }
+
+    const tokenData = await tokenResponse.json();
+    const newAccessToken = tokenData.access_token;
+    const expiresIn = tokenData.expires_in || 3600;
+    const newExpiresAt = new Date(Date.now() + expiresIn * 1000).toISOString();
+
+    // Update profile with new token
+    await supabaseAdmin
+      .from("profiles")
+      .update({
+        google_access_token: newAccessToken,
+        google_token_expires_at: newExpiresAt,
+        // Update refresh token if a new one was provided
+        ...(tokenData.refresh_token && { google_refresh_token: tokenData.refresh_token }),
+      })
+      .eq("id", userId);
+
+    console.log("Successfully refreshed access token");
+    return { token: newAccessToken, error: null };
+  } catch (error) {
+    console.error("Error refreshing token:", error);
+    return { token: null, error: error instanceof Error ? error.message : "Unknown error" };
+  }
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -23,16 +120,13 @@ serve(async (req) => {
       throw new Error("review_id is required");
     }
 
-    if (!provider_token) {
-      return new Response(
-        JSON.stringify({ 
-          success: false, 
-          message: "No Google access token. Please sign out and sign in again with Google."
-        }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
+    // Create admin client for server-side operations
+    const supabaseAdmin = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+    );
 
+    // Create user client for auth check
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_ANON_KEY") ?? "",
@@ -45,8 +139,41 @@ serve(async (req) => {
       throw new Error("User not authenticated");
     }
 
+    console.log("User authenticated:", user.id);
+
+    // Get access token - prefer server-side refresh, fallback to provider_token
+    let accessToken: string | null = null;
+    
+    // Try to get token server-side first
+    const { token: serverToken, error: tokenError } = await getValidAccessToken(supabaseAdmin, user.id);
+    
+    if (serverToken) {
+      accessToken = serverToken;
+      console.log("Using server-side access token");
+    } else if (provider_token) {
+      accessToken = provider_token;
+      console.log("Falling back to client provider_token");
+    } else if (tokenError === "requires_reconnect") {
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          requires_reconnect: true,
+          message: "Reconnectez votre compte Google Business pour publier des réponses."
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    } else {
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          message: tokenError || "Impossible d'obtenir un token Google valide."
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     // Fetch the review with AI response
-    const { data: review, error: reviewError } = await supabaseClient
+    const { data: review, error: reviewError } = await supabaseAdmin
       .from("reviews")
       .select("*")
       .eq("id", review_id)
@@ -71,11 +198,6 @@ serve(async (req) => {
       );
     }
 
-    // Build the Google API URL for updating the review reply
-    // review_id is stored as "locations/{locationId}/reviews/{reviewId}"
-    // We need the format "accounts/{accountId}/locations/{locationId}/reviews/{reviewId}"
-    // But we don't store accountId, so we need to find it first
-    
     console.log(`Review ID format: ${review.review_id}`);
     console.log(`Location ID: ${review.location_id}`);
     
@@ -84,7 +206,7 @@ serve(async (req) => {
       "https://mybusinessaccountmanagement.googleapis.com/v1/accounts",
       {
         headers: {
-          Authorization: `Bearer ${provider_token}`,
+          Authorization: `Bearer ${accessToken}`,
         },
       }
     );
@@ -94,6 +216,15 @@ serve(async (req) => {
       console.error("Failed to fetch accounts:", accountsResponse.status, errorText);
       
       if (accountsResponse.status === 401) {
+        // Token might be expired, clear it and ask for reconnect
+        await supabaseAdmin
+          .from("profiles")
+          .update({
+            google_access_token: null,
+            google_token_expires_at: null,
+          })
+          .eq("id", user.id);
+        
         return new Response(
           JSON.stringify({ 
             success: false, 
@@ -133,7 +264,7 @@ serve(async (req) => {
       {
         method: "PUT",
         headers: {
-          Authorization: `Bearer ${provider_token}`,
+          Authorization: `Bearer ${accessToken}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
@@ -145,6 +276,17 @@ serve(async (req) => {
     if (!googleResponse.ok) {
       const errorText = await googleResponse.text();
       console.error("Google API error:", googleResponse.status, errorText);
+      
+      if (googleResponse.status === 401) {
+        return new Response(
+          JSON.stringify({ 
+            success: false, 
+            requires_reconnect: true,
+            message: "Session Google expirée. Reconnectez votre compte Google."
+          }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
       
       if (googleResponse.status === 429) {
         return new Response(
@@ -174,7 +316,7 @@ serve(async (req) => {
     const replyData = await googleResponse.json();
 
     // Update the review in database
-    const { error: updateError } = await supabaseClient
+    const { error: updateError } = await supabaseAdmin
       .from("reviews")
       .update({
         replied: true,
@@ -189,7 +331,7 @@ serve(async (req) => {
     }
 
     // Create notification
-    await supabaseClient
+    await supabaseAdmin
       .from("notifications")
       .insert({
         user_id: user.id,
