@@ -53,37 +53,35 @@ const AppContent = () => {
     localStorage.setItem("starlinko_onboarding_completed", "true");
   };
 
-  if (showSplash) {
-    return <SplashScreen onComplete={handleSplashComplete} />;
-  }
-
-  if (showOnboarding) {
-    return <OnboardingScreen onComplete={handleOnboardingComplete} />;
-  }
-
   return (
     <BrowserRouter>
-      <OAuthCallback>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/auth" element={<Auth />} />
-          <Route path="/auth/reset-password" element={<ResetPassword />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/reviews" element={<Reviews />} />
-          <Route path="/ai-settings" element={<AISettings />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/businesses" element={<Businesses />} />
-          <Route path="/privacy" element={<PrivacyPolicy />} />
-          <Route path="/terms" element={<TermsOfService />} />
-          <Route path="/install" element={<Install />} />
-          <Route path="/seo-autopost" element={<SEOAutoPost />} />
-          <Route path="/aeo-rank" element={<AEORank />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-        {/* Global prompts */}
-        <InstallPrompt />
-        <NotificationPrompt />
-      </OAuthCallback>
+      {showSplash ? (
+        <SplashScreen onComplete={handleSplashComplete} />
+      ) : showOnboarding ? (
+        <OnboardingScreen onComplete={handleOnboardingComplete} />
+      ) : (
+        <OAuthCallback>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/auth/reset-password" element={<ResetPassword />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/reviews" element={<Reviews />} />
+            <Route path="/ai-settings" element={<AISettings />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="/businesses" element={<Businesses />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/terms" element={<TermsOfService />} />
+            <Route path="/install" element={<Install />} />
+            <Route path="/seo-autopost" element={<SEOAutoPost />} />
+            <Route path="/aeo-rank" element={<AEORank />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+          {/* Global prompts */}
+          <InstallPrompt />
+          <NotificationPrompt />
+        </OAuthCallback>
+      )}
     </BrowserRouter>
   );
 };
