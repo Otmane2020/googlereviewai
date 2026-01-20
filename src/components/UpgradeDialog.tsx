@@ -7,18 +7,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Crown, 
-  Check, 
-  Sparkles, 
-  Zap, 
-  Building2, 
-  MessageSquare,
-  Loader2,
-  ArrowRight
-} from "lucide-react";
+import { Crown, Check, Shield, Sparkles } from "lucide-react";
+import { PlanCard } from "@/components/PlanCard";
 
 interface Plan {
   id: string;
@@ -29,7 +20,6 @@ interface Plan {
   businesses: string;
   features: string[];
   popular?: boolean;
-  color: string;
   hasTrial?: boolean;
   trialDays?: number;
 }
@@ -43,7 +33,6 @@ const plans: Plan[] = [
     credits: 10,
     businesses: "1",
     features: ["Réponses IA", "Sync automatique", "Support email"],
-    color: "from-blue-500 to-blue-600",
     hasTrial: true,
     trialDays: 3,
   },
@@ -56,7 +45,6 @@ const plans: Plan[] = [
     businesses: "2",
     features: ["Tout Starter +", "IA premium", "Priorité réponses", "Analytics"],
     popular: true,
-    color: "from-primary to-primary/80",
   },
   {
     id: "business",
@@ -66,7 +54,6 @@ const plans: Plan[] = [
     credits: 400,
     businesses: "Illimité",
     features: ["Tout Pro +", "SEO AutoPost", "API access", "Support prioritaire"],
-    color: "from-violet-500 to-violet-600",
   },
 ];
 
@@ -115,37 +102,37 @@ export const UpgradeDialog = ({ open, onOpenChange, currentPlan }: UpgradeDialog
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl p-0 overflow-hidden bg-gradient-to-b from-background to-muted/30 max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-lg p-0 overflow-hidden bg-gradient-to-b from-background to-muted/30 max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="relative px-6 pt-8 pb-6 text-center bg-gradient-to-br from-primary/10 via-primary/5 to-transparent">
           <div className="absolute inset-0 bg-grid-white/5" />
           <div className="relative">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center mx-auto mb-4 shadow-xl shadow-primary/30">
-              <Crown className="w-8 h-8 text-primary-foreground" />
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center mx-auto mb-3 shadow-xl shadow-primary/30">
+              <Crown className="w-7 h-7 text-primary-foreground" />
             </div>
             <DialogHeader>
-              <DialogTitle className="text-2xl font-bold text-foreground">
-                Passez au niveau supérieur
+              <DialogTitle className="text-xl font-bold text-foreground">
+                Choisissez <span className="text-primary">votre plan</span>
               </DialogTitle>
             </DialogHeader>
-            <p className="text-muted-foreground mt-2">
-              Débloquez toute la puissance de l'IA pour vos avis
+            <p className="text-sm text-muted-foreground mt-1">
+              Débloquez toute la puissance de l'IA
             </p>
 
             {/* Billing Toggle */}
-            <div className="flex items-center justify-center gap-3 mt-6">
+            <div className="flex items-center justify-center gap-3 mt-5">
               <span className={`text-sm font-medium ${!isYearly ? "text-foreground" : "text-muted-foreground"}`}>
                 Mensuel
               </span>
               <button
                 onClick={() => setIsYearly(!isYearly)}
-                className={`relative w-14 h-7 rounded-full transition-colors ${
+                className={`relative w-12 h-6 rounded-full transition-colors ${
                   isYearly ? "bg-primary" : "bg-muted"
                 }`}
               >
                 <div
-                  className={`absolute top-1 w-5 h-5 rounded-full bg-white shadow-md transition-transform ${
-                    isYearly ? "translate-x-8" : "translate-x-1"
+                  className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow-md transition-transform ${
+                    isYearly ? "translate-x-7" : "translate-x-1"
                   }`}
                 />
               </button>
@@ -153,7 +140,7 @@ export const UpgradeDialog = ({ open, onOpenChange, currentPlan }: UpgradeDialog
                 Annuel
               </span>
               {isYearly && (
-                <Badge className="bg-green-500/10 text-green-600 border-green-500/20">
+                <Badge className="bg-green-500/10 text-green-600 border-green-500/20 text-xs">
                   -20%
                 </Badge>
               )}
@@ -161,133 +148,28 @@ export const UpgradeDialog = ({ open, onOpenChange, currentPlan }: UpgradeDialog
           </div>
         </div>
 
-        {/* Plans Grid */}
-        <div className="px-6 pb-8 pt-2">
-          <div className="grid md:grid-cols-3 gap-4">
-            {plans.map((plan) => {
-              const isCurrentPlan = currentPlan?.toLowerCase() === plan.id;
-              const price = isYearly ? plan.priceYearly / 12 : plan.priceMonthly;
-              
-              return (
-                <div
-                  key={plan.id}
-                  className={`relative rounded-2xl border-2 p-5 transition-all ${
-                    plan.popular
-                      ? "border-primary bg-primary/5 shadow-lg shadow-primary/10"
-                      : "border-border bg-card hover:border-primary/50"
-                  } ${isCurrentPlan ? "opacity-60" : ""}`}
-                >
-                  {plan.hasTrial && (
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                      <Badge className="bg-green-500 text-white shadow-lg">
-                        🎁 {plan.trialDays} jours gratuits
-                      </Badge>
-                    </div>
-                  )}
-                  
-                  {plan.popular && !plan.hasTrial && (
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                      <Badge className="bg-primary text-primary-foreground shadow-lg">
-                        <Sparkles className="w-3 h-3 mr-1" />
-                        Populaire
-                      </Badge>
-                    </div>
-                  )}
+        {/* Plans Stack */}
+        <div className="px-4 pb-6 pt-2 space-y-5">
+          {plans.map((plan) => {
+            const isCurrentPlan = currentPlan?.toLowerCase() === plan.id;
+            
+            return (
+              <PlanCard
+                key={plan.id}
+                plan={plan}
+                isYearly={isYearly}
+                isLoading={loadingPlan === plan.id}
+                isCurrentPlan={isCurrentPlan}
+                onSelect={() => handleSelectPlan(plan)}
+              />
+            );
+          })}
 
-                  <div className="text-center mb-4">
-                    <h3 className="font-bold text-lg text-foreground">{plan.name}</h3>
-                    {plan.hasTrial && (
-                      <p className="text-xs text-green-600 font-medium mt-1">
-                        0€ aujourd'hui
-                      </p>
-                    )}
-                    <div className="mt-2">
-                      <span className={`text-3xl font-bold ${plan.hasTrial ? "text-muted-foreground" : "text-foreground"}`}>
-                        {price.toFixed(2).replace(".", ",")}€
-                      </span>
-                      <span className="text-muted-foreground text-sm">/mois</span>
-                    </div>
-                    {plan.hasTrial && (
-                      <p className="text-[10px] text-muted-foreground mt-1">
-                        Après {plan.trialDays} jours d'essai
-                      </p>
-                    )}
-                    {isYearly && !plan.hasTrial && (
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Facturé {plan.priceYearly.toFixed(2).replace(".", ",")}€/an
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Key Stats */}
-                  <div className="grid grid-cols-2 gap-2 mb-4">
-                    <div className="bg-muted/50 rounded-xl p-3 text-center">
-                      <Zap className="w-4 h-4 text-yellow-500 mx-auto mb-1" />
-                      <p className="text-sm font-bold text-foreground">{plan.credits}</p>
-                      <p className="text-[10px] text-muted-foreground">crédits</p>
-                    </div>
-                    <div className="bg-muted/50 rounded-xl p-3 text-center">
-                      <Building2 className="w-4 h-4 text-violet-500 mx-auto mb-1" />
-                      <p className="text-sm font-bold text-foreground">{plan.businesses}</p>
-                      <p className="text-[10px] text-muted-foreground">business</p>
-                    </div>
-                  </div>
-
-                  {/* Features */}
-                  <ul className="space-y-2 mb-5">
-                    {plan.features.map((feature) => (
-                      <li key={feature} className="flex items-center gap-2 text-sm">
-                        <Check className="w-4 h-4 text-green-500 shrink-0" />
-                        <span className="text-muted-foreground">{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-
-                  <Button
-                    onClick={() => handleSelectPlan(plan)}
-                    disabled={isCurrentPlan || loadingPlan === plan.id}
-                    className={`w-full rounded-xl h-11 font-semibold transition-all ${
-                      plan.popular
-                        ? "bg-primary hover:bg-primary/90 shadow-lg shadow-primary/25"
-                        : ""
-                    }`}
-                    variant={plan.popular ? "default" : "outline"}
-                  >
-                    {loadingPlan === plan.id ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : isCurrentPlan ? (
-                      "Plan actuel"
-                    ) : plan.hasTrial ? (
-                      <>
-                        Essayer gratuitement
-                        <ArrowRight className="w-4 h-4 ml-1" />
-                      </>
-                    ) : (
-                      <>
-                        Choisir
-                        <ArrowRight className="w-4 h-4 ml-1" />
-                      </>
-                    )}
-                  </Button>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Trust badges */}
-          <div className="flex items-center justify-center gap-6 mt-6 text-xs text-muted-foreground">
-            <div className="flex items-center gap-1">
-              <Check className="w-3 h-3 text-green-500" />
-              Annuler à tout moment
-            </div>
-            <div className="flex items-center gap-1">
-              <Check className="w-3 h-3 text-green-500" />
-              Paiement sécurisé
-            </div>
-            <div className="flex items-center gap-1">
-              <Check className="w-3 h-3 text-green-500" />
-              Support 24/7
-            </div>
+          {/* Trust badge */}
+          <div className="flex items-center justify-center gap-2 pt-2 text-xs text-muted-foreground">
+            <Sparkles className="w-3 h-3 text-primary" />
+            <span>Paiement 100% sécurisé</span>
+            <Shield className="w-3 h-3 text-green-500" />
           </div>
         </div>
       </DialogContent>
