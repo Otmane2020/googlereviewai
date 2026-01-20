@@ -7,6 +7,9 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Cache for Google account ID (valid for the duration of the function instance)
+let cachedAccountId: string | null = null;
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -24,54 +27,31 @@ serve(async (req) => {
       throw new Error("review_id is required");
     }
 
-    // Create admin client for server-side operations
     const supabaseAdmin = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
-    // Create user client for auth check
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_ANON_KEY") ?? "",
       { global: { headers: { Authorization: authHeader } } }
     );
 
-    // Get the current user
-    const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+    // Parallel: auth check + review fetch + token fetch
+    const [userResult, reviewResult] = await Promise.all([
+      supabaseClient.auth.getUser(),
+      supabaseAdmin.from("reviews").select("*").eq("id", review_id).single(),
+    ]);
+
+    const { data: { user }, error: userError } = userResult;
     if (userError || !user) {
       throw new Error("User not authenticated");
     }
 
-    console.log("User authenticated:", user.id);
-
-    // Get access token using shared helper
-    const tokenResult = await getGoogleAccessToken(supabaseAdmin, user.id);
-    
-    if (!tokenResult.token) {
-      return new Response(
-        JSON.stringify({ 
-          success: false, 
-          requires_reconnect: tokenResult.requires_reconnect,
-          message: tokenResult.requires_reconnect 
-            ? "Reconnectez votre compte Google Business pour publier des réponses."
-            : (tokenResult.error || "Impossible d'obtenir un token Google valide.")
-        }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    const accessToken = tokenResult.token;
-
-    // Fetch the review with AI response
-    const { data: review, error: reviewError } = await supabaseAdmin
-      .from("reviews")
-      .select("*")
-      .eq("id", review_id)
-      .eq("user_id", user.id)
-      .single();
-
-    if (reviewError || !review) {
+    // Verify review belongs to user
+    const review = reviewResult.data;
+    if (reviewResult.error || !review || review.user_id !== user.id) {
       throw new Error("Review not found");
     }
 
@@ -81,68 +61,66 @@ serve(async (req) => {
 
     if (review.published_to_google) {
       return new Response(
+        JSON.stringify({ success: false, message: "Déjà publié sur Google" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Get access token
+    const tokenResult = await getGoogleAccessToken(supabaseAdmin, user.id);
+    
+    if (!tokenResult.token) {
+      return new Response(
         JSON.stringify({ 
           success: false, 
-          message: "Response already published to Google"
+          requires_reconnect: tokenResult.requires_reconnect,
+          message: tokenResult.requires_reconnect 
+            ? "Reconnectez votre compte Google Business."
+            : (tokenResult.error || "Token Google invalide.")
         }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    console.log(`Review ID format: ${review.review_id}`);
-    console.log(`Location ID: ${review.location_id}`);
-    
-    // First, get the account ID by listing accounts
-    const accountsResponse = await fetch(
-      "https://mybusinessaccountmanagement.googleapis.com/v1/accounts",
-      {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      }
-    );
+    const accessToken = tokenResult.token;
 
-    if (!accountsResponse.ok) {
-      const errorText = await accountsResponse.text();
-      console.error("Failed to fetch accounts:", accountsResponse.status, errorText);
-      
-      const requiresReconnect = accountsResponse.status === 401 || tokenResult.requires_reconnect;
-      
-      if (accountsResponse.status === 401) {
-        return new Response(
-          JSON.stringify({ 
-            success: false, 
-            requires_reconnect: true,
-            message: "Session Google expirée. Reconnectez votre compte Google."
-          }),
-          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
+    // Get account ID (use cache if available)
+    let accountId = cachedAccountId;
+    
+    if (!accountId) {
+      const accountsResponse = await fetch(
+        "https://mybusinessaccountmanagement.googleapis.com/v1/accounts",
+        { headers: { Authorization: `Bearer ${accessToken}` } }
+      );
+
+      if (!accountsResponse.ok) {
+        if (accountsResponse.status === 401) {
+          return new Response(
+            JSON.stringify({ success: false, requires_reconnect: true, message: "Session Google expirée." }),
+            { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+        throw new Error(`Failed to fetch accounts: ${accountsResponse.status}`);
       }
+
+      const accountsData = await accountsResponse.json();
+      const accounts = accountsData.accounts || [];
       
-      throw new Error(`Failed to fetch Google accounts: ${accountsResponse.status}`);
+      if (accounts.length === 0) {
+        throw new Error("No Google Business accounts found");
+      }
+
+      accountId = accounts[0].name.split("/")[1];
+      cachedAccountId = accountId;
     }
 
-    const accountsData = await accountsResponse.json();
-    const accounts = accountsData.accounts || [];
-    
-    if (accounts.length === 0) {
-      throw new Error("No Google Business accounts found");
-    }
-
-    // Use the first account (most common case)
-    const accountId = accounts[0].name.split("/")[1];
-    
-    // Extract the review unique ID from our stored review_id
-    // Format: "locations/{locationId}/reviews/{uniqueReviewId}"
+    // Build review path and publish
     const reviewIdParts = review.review_id.split("/reviews/");
     const uniqueReviewId = reviewIdParts.length > 1 ? reviewIdParts[1] : review.review_id;
-    
-    // Build full path: accounts/{accountId}/locations/{locationId}/reviews/{uniqueReviewId}
     const fullReviewPath = `accounts/${accountId}/locations/${review.location_id}/reviews/${uniqueReviewId}`;
     
-    console.log(`Publishing reply to: ${fullReviewPath}`);
+    console.log(`Publishing to: ${fullReviewPath}`);
 
-    // Call Google My Business API to update the review reply
     const googleResponse = await fetch(
       `https://mybusiness.googleapis.com/v4/${fullReviewPath}/reply`,
       {
@@ -151,9 +129,7 @@ serve(async (req) => {
           Authorization: `Bearer ${accessToken}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          comment: review.ai_response,
-        }),
+        body: JSON.stringify({ comment: review.ai_response }),
       }
     );
 
@@ -161,42 +137,24 @@ serve(async (req) => {
       const errorText = await googleResponse.text();
       console.error("Google API error:", googleResponse.status, errorText);
       
-      // Enhanced requires_reconnect logic
-      const requiresReconnect = 
-        tokenResult.requires_reconnect || 
-        googleResponse.status === 401 ||
-        (googleResponse.status === 403 && errorText.includes("SERVICE_DISABLED"));
-      
       if (googleResponse.status === 401) {
+        cachedAccountId = null; // Invalidate cache
         return new Response(
-          JSON.stringify({ 
-            success: false, 
-            requires_reconnect: true,
-            message: "Session Google expirée. Reconnectez votre compte Google."
-          }),
+          JSON.stringify({ success: false, requires_reconnect: true, message: "Session Google expirée." }),
           { headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
       
       if (googleResponse.status === 429) {
         return new Response(
-          JSON.stringify({ 
-            success: false, 
-            error_code: "QUOTA_EXCEEDED",
-            message: "Quota API dépassé. Réessayez plus tard."
-          }),
+          JSON.stringify({ success: false, message: "Quota API dépassé. Réessayez plus tard." }),
           { headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
       
       if (googleResponse.status === 403) {
         return new Response(
-          JSON.stringify({ 
-            success: false, 
-            error_code: "ACCESS_DENIED",
-            message: "Accès refusé. Vérifiez les autorisations de votre compte Google.",
-            requires_reconnect: requiresReconnect
-          }),
+          JSON.stringify({ success: false, requires_reconnect: true, message: "Accès refusé. Reconnectez Google." }),
           { headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
@@ -206,37 +164,25 @@ serve(async (req) => {
 
     const replyData = await googleResponse.json();
 
-    // Update the review in database
-    const { error: updateError } = await supabaseAdmin
-      .from("reviews")
-      .update({
+    // Parallel: update review + create notification
+    await Promise.all([
+      supabaseAdmin.from("reviews").update({
         replied: true,
         published_to_google: true,
         published_at: new Date().toISOString(),
         google_reply_id: replyData.name || null,
-      })
-      .eq("id", review_id);
-
-    if (updateError) {
-      console.error("Error updating review:", updateError);
-    }
-
-    // Create notification
-    await supabaseAdmin
-      .from("notifications")
-      .insert({
+      }).eq("id", review_id),
+      supabaseAdmin.from("notifications").insert({
         user_id: user.id,
         type: "reply_published",
-        title: "Réponse publiée sur Google",
-        message: `Votre réponse à l'avis de ${review.author} a été publiée sur Google.`,
+        title: "Réponse publiée",
+        message: `Réponse à ${review.author} publiée sur Google.`,
         review_id: review.id,
-      });
+      }),
+    ]);
 
     return new Response(
-      JSON.stringify({ 
-        success: true, 
-        message: "Reply published to Google successfully"
-      }),
+      JSON.stringify({ success: true, message: "Publié sur Google !" }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
 
@@ -244,10 +190,7 @@ serve(async (req) => {
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
     console.error("Error publishing reply:", error);
     return new Response(
-      JSON.stringify({ 
-        success: false, 
-        error: errorMessage
-      }),
+      JSON.stringify({ success: false, error: errorMessage }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
