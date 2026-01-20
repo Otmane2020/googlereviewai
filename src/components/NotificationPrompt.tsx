@@ -1,12 +1,15 @@
 import { useState, useEffect } from "react";
 import { useWebPushNotifications } from "@/hooks/useWebPushNotifications";
+import { usePWA } from "@/hooks/usePWA";
 import { Button } from "@/components/ui/button";
 import { X, Bell, BellRing } from "lucide-react";
 import { toast } from "sonner";
 
 export const NotificationPrompt = () => {
   const { permission, isSupported, isSubscribed, isLoading, subscribe } = useWebPushNotifications();
+  const { isInstalled, isStandalone, isIOS, canInstall } = usePWA();
   const [dismissed, setDismissed] = useState(false);
+  const [showDelayed, setShowDelayed] = useState(false);
 
   // Check if already dismissed
   useEffect(() => {
@@ -19,6 +22,43 @@ export const NotificationPrompt = () => {
       }
     }
   }, []);
+
+  // Delay showing this prompt if the install prompt might be visible
+  useEffect(() => {
+    const installPromptDismissed = localStorage.getItem("install-prompt-dismissed");
+    const isInstallPromptActive = !isInstalled && !isStandalone && (canInstall || isIOS);
+    
+    // Check if install prompt was recently dismissed (within last 24h)
+    const wasInstallDismissedRecently = installPromptDismissed && 
+      (Date.now() - parseInt(installPromptDismissed, 10) < 24 * 60 * 60 * 1000);
+
+    if (isInstallPromptActive && !wasInstallDismissedRecently) {
+      // Install prompt is likely visible, wait for it to be dismissed
+      // Check every second if install prompt got dismissed
+      const interval = setInterval(() => {
+        const currentDismissed = localStorage.getItem("install-prompt-dismissed");
+        if (currentDismissed) {
+          setShowDelayed(true);
+          clearInterval(interval);
+        }
+      }, 1000);
+
+      // Also show after 30 seconds regardless (in case user ignores install prompt)
+      const timeout = setTimeout(() => {
+        setShowDelayed(true);
+        clearInterval(interval);
+      }, 30000);
+
+      return () => {
+        clearInterval(interval);
+        clearTimeout(timeout);
+      };
+    } else {
+      // No install prompt conflict, show immediately after small delay
+      const timeout = setTimeout(() => setShowDelayed(true), 2000);
+      return () => clearTimeout(timeout);
+    }
+  }, [isInstalled, isStandalone, canInstall, isIOS]);
 
   const handleDismiss = () => {
     setDismissed(true);
@@ -42,6 +82,11 @@ export const NotificationPrompt = () => {
 
   // Don't show if not supported, already subscribed, permission denied, or dismissed
   if (!isSupported || isSubscribed || permission === "denied" || permission === "granted" || dismissed) {
+    return null;
+  }
+
+  // Don't show until delayed show is triggered
+  if (!showDelayed) {
     return null;
   }
 
