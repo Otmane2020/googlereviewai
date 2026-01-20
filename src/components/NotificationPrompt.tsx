@@ -68,7 +68,9 @@ export const NotificationPrompt = () => {
   };
 
   const handleRequestPermission = async () => {
+    console.log("[NotificationPrompt] Requesting permission...");
     const success = await subscribe();
+    console.log("[NotificationPrompt] Subscribe result:", success);
     
     if (success) {
       toast.success("Notifications activées ! 🎉", {
@@ -79,11 +81,21 @@ export const NotificationPrompt = () => {
       toast.error("Notifications bloquées", {
         description: "Activez-les dans les paramètres de votre navigateur.",
       });
+    } else {
+      toast.error("Échec de l'activation", {
+        description: "Vérifiez que vous êtes sur la version installée de l'app (PWA).",
+      });
     }
   };
 
-  // Don't show if not supported, already subscribed, permission denied, dismissed, or not logged in
-  if (!isSupported || isSubscribed || permission === "denied" || permission === "granted" || dismissed || !user) {
+  // Don't show if:
+  // - Push not supported
+  // - Already subscribed  
+  // - Permission denied
+  // - User dismissed the prompt
+  // - No user logged in
+  // Note: We MUST show if permission === "granted" but NOT subscribed (token not registered)
+  if (!isSupported || isSubscribed || permission === "denied" || dismissed || !user) {
     return null;
   }
 
