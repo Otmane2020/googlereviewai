@@ -15,7 +15,8 @@ import {
   Loader2,
   ArrowRight,
   Shield,
-  HeadphonesIcon
+  HeadphonesIcon,
+  LogOut
 } from "lucide-react";
 
 interface Plan {
@@ -69,10 +70,23 @@ const plans: Plan[] = [
 ];
 
 const SelectPlan = () => {
-  const { user, loading } = useAuth();
+  const { user, loading, signOut } = useAuth();
   const navigate = useNavigate();
   const [isYearly, setIsYearly] = useState(false);
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+  const [loadingLogout, setLoadingLogout] = useState(false);
+
+  const handleLogout = async () => {
+    setLoadingLogout(true);
+    try {
+      await signOut();
+      navigate("/auth");
+    } catch (error) {
+      console.error("Logout error:", error);
+    } finally {
+      setLoadingLogout(false);
+    }
+  };
 
   // Redirect to auth if not logged in
   if (!loading && !user) {
@@ -125,10 +139,26 @@ const SelectPlan = () => {
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/30">
       {/* Header */}
       <header className="border-b border-border bg-background/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-center">
+        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <Link to="/">
             <StarlinkoLogo showBadge={false} />
           </Link>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleLogout}
+            disabled={loadingLogout}
+            className="text-muted-foreground hover:text-foreground"
+          >
+            {loadingLogout ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <>
+                <LogOut className="w-4 h-4 mr-2" />
+                Déconnexion
+              </>
+            )}
+          </Button>
         </div>
       </header>
 
