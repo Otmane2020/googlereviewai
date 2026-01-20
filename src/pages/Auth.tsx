@@ -33,6 +33,32 @@ const Auth = () => {
   const { signUp, signIn, signInWithGoogle, user, loading } = useAuth();
   const navigate = useNavigate();
 
+  // Helper function to check subscription and redirect accordingly
+  const checkSubscriptionAndRedirect = async (userId: string) => {
+    try {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("plan_name, subscription_status")
+        .eq("id", userId)
+        .maybeSingle();
+      
+      const validStatuses = ["active", "trial", "trialing"];
+      const hasValidPlan = profile?.plan_name && 
+        profile.plan_name !== "free" &&
+        validStatuses.includes(profile.subscription_status || "");
+      
+      if (hasValidPlan) {
+        navigate("/dashboard", { replace: true });
+      } else {
+        navigate("/select-plan", { replace: true });
+      }
+    } catch (error) {
+      console.error("[Auth] Error checking subscription:", error);
+      // On error, redirect to select-plan for safety
+      navigate("/select-plan", { replace: true });
+    }
+  };
+
   // Handle OAuth callback and regular auth redirect
   useEffect(() => {
     // Check URL for OAuth callback tokens
@@ -62,7 +88,8 @@ const Auth = () => {
             }
           }
           window.history.replaceState(null, '', '/auth');
-          navigate("/dashboard", { replace: true });
+          // Check subscription before redirecting
+          await checkSubscriptionAndRedirect(session.user.id);
         }
       });
       return;
@@ -70,7 +97,7 @@ const Auth = () => {
     
     // Regular auth check - redirect if already logged in
     if (!loading && user) {
-      navigate("/dashboard", { replace: true });
+      checkSubscriptionAndRedirect(user.id);
     }
   }, [user, loading, navigate]);
 
@@ -194,7 +221,8 @@ const Auth = () => {
             title: "Connexion réussie !",
             description: "Bon retour !",
           });
-          navigate("/dashboard");
+          // Check subscription before redirecting - useEffect will handle it
+          // The auth state change will trigger the redirect logic
         }
       }
     } catch (error) {

@@ -89,13 +89,9 @@ export const useRequireSubscription = () => {
 
       } catch (error) {
         console.error("Error verifying subscription:", error);
-        // On error, let user continue but log the issue
-        setState({
-          loading: false,
-          valid: true,
-          plan: null,
-          status: null,
-        });
+        // SECURITY: On error, block access and redirect to select-plan
+        navigate("/select-plan");
+        return;
       }
     };
 
