@@ -145,76 +145,20 @@ export const DashboardHeader = () => {
 
           {/* Right side actions - Mobile optimized */}
           <div className="flex items-center gap-2">
-            {/* Notifications - Always visible with counter */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="relative h-10 w-10 rounded-xl">
-                  <Bell className="w-5 h-5" />
-                  {unreadCount > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1 shadow-lg">
-                      {unreadCount > 99 ? "99+" : unreadCount}
-                    </span>
-                  )}
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-80 bg-popover/95 backdrop-blur-xl border-border/50">
-                <div className="flex items-center justify-between px-3 py-2 border-b border-border/50">
-                  <span className="font-semibold text-sm">Notifications</span>
-                  {unreadCount > 0 && (
-                    <Button variant="ghost" size="sm" className="text-xs h-7 text-primary" onClick={markAllAsRead}>
-                      Tout lire
-                    </Button>
-                  )}
-                </div>
-                <div className="max-h-80 overflow-y-auto">
-                  {notifications.length === 0 ? (
-                    <div className="p-6 text-center">
-                      <Bell className="w-8 h-8 mx-auto mb-2 text-muted-foreground/30" />
-                      <p className="text-sm text-muted-foreground">Aucune notification</p>
-                    </div>
-                  ) : (
-                    notifications.slice(0, 10).map((notification) => (
-                      <DropdownMenuItem
-                        key={notification.id}
-                        className={`flex flex-col items-start gap-1 p-3 cursor-pointer border-b border-border/30 last:border-0 ${
-                          !notification.read ? "bg-primary/5" : ""
-                        }`}
-                        onClick={() => {
-                          markAsRead(notification.id);
-                          if (notification.type === "pending_reviews" || notification.review_id) {
-                            navigate("/reviews");
-                          } else if (notification.type === "seo_reminder" || notification.type === "seo_promo") {
-                            navigate("/seo-autopost");
-                          } else if (notification.type === "aeo_reminder" || notification.type === "aeo_promo") {
-                            navigate("/aeo-rank");
-                          } else if (notification.type === "ai_tip") {
-                            navigate("/ai-settings");
-                          }
-                        }}
-                      >
-                        <div className="flex items-center gap-2 w-full">
-                          {!notification.read && (
-                            <span className="w-2 h-2 rounded-full bg-primary shrink-0" />
-                          )}
-                          <span className="font-medium text-sm flex-1">{notification.title}</span>
-                        </div>
-                        <span className="text-xs text-muted-foreground line-clamp-2 pl-4">
-                          {notification.message}
-                        </span>
-                        <span className="text-[10px] text-muted-foreground/60 pl-4">
-                          {new Date(notification.created_at).toLocaleDateString("fr-FR", {
-                            day: "numeric",
-                            month: "short",
-                            hour: "2-digit",
-                            minute: "2-digit"
-                          })}
-                        </span>
-                      </DropdownMenuItem>
-                    ))
-                  )}
-                </div>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            {/* Notifications - Navigate to full page */}
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="relative h-10 w-10 rounded-xl"
+              onClick={() => navigate("/notifications")}
+            >
+              <Bell className="w-5 h-5" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full flex items-center justify-center px-1 shadow-lg">
+                  {unreadCount > 99 ? "99+" : unreadCount}
+                </span>
+              )}
+            </Button>
 
             {/* Hamburger Menu - Contains credits, profile, settings */}
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
