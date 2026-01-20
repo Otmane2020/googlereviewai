@@ -59,6 +59,8 @@ const Auth = () => {
     }
   };
 
+  const [isRedirecting, setIsRedirecting] = useState(false);
+
   // Handle OAuth callback and regular auth redirect
   useEffect(() => {
     // Check URL for OAuth callback tokens
@@ -66,6 +68,7 @@ const Auth = () => {
     const hasTokens = hash.includes('access_token') || hash.includes('refresh_token');
     
     if (hasTokens) {
+      setIsRedirecting(true);
       // OAuth callback - let Supabase process tokens, then store GMB refresh token
       supabase.auth.getSession().then(async ({ data: { session } }) => {
         if (session) {
@@ -97,12 +100,22 @@ const Auth = () => {
     
     // Regular auth check - redirect if already logged in
     if (!loading && user) {
+      setIsRedirecting(true);
       checkSubscriptionAndRedirect(user.id);
     }
   }, [user, loading, navigate]);
 
-  // Show loader while checking authentication
-  if (loading) {
+  // Show loader while checking authentication OR while redirecting
+  if (loading || isRedirecting) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  // If user is already logged in but not yet redirecting, show loader too
+  if (user) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
