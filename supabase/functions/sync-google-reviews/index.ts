@@ -160,6 +160,7 @@ serve(async (req) => {
     console.log("Business map:", Object.fromEntries(businessMap));
 
     const allReviews: any[] = [];
+    const allGoogleReviewIds: string[] = []; // Track all review IDs from Google
     const errors: string[] = [];
     let hasApiDisabledError = false;
 
@@ -297,6 +298,9 @@ serve(async (req) => {
                   replied: !!review.reviewReply,
                   google_reply: review.reviewReply?.comment || null,
                 });
+                
+                // Track this review ID from Google
+                allGoogleReviewIds.push(canonicalReviewId);
               }
               
               // Batch upsert all reviews from this page in one query
@@ -334,14 +338,51 @@ serve(async (req) => {
       }
     }
 
+    // Delete reviews that no longer exist on Google
+    let deletedCount = 0;
+    if (allGoogleReviewIds.length > 0) {
+      console.log(`Checking for deleted reviews. Found ${allGoogleReviewIds.length} reviews on Google.`);
+      
+      // Get all review IDs currently in the database for this user
+      const { data: dbReviews, error: dbReviewsError } = await supabaseAdmin
+        .from("reviews")
+        .select("id, review_id")
+        .eq("user_id", user.id);
+      
+      if (!dbReviewsError && dbReviews) {
+        // Find reviews in DB that are not in Google anymore
+        const googleReviewIdSet = new Set(allGoogleReviewIds);
+        const reviewsToDelete = dbReviews.filter(r => !googleReviewIdSet.has(r.review_id));
+        
+        if (reviewsToDelete.length > 0) {
+          console.log(`Found ${reviewsToDelete.length} reviews to delete (no longer on Google)`);
+          
+          const idsToDelete = reviewsToDelete.map(r => r.id);
+          const { error: deleteError } = await supabaseAdmin
+            .from("reviews")
+            .delete()
+            .in("id", idsToDelete);
+          
+          if (deleteError) {
+            console.error("Error deleting old reviews:", deleteError);
+            errors.push(`Failed to delete ${reviewsToDelete.length} removed reviews`);
+          } else {
+            deletedCount = reviewsToDelete.length;
+            console.log(`Successfully deleted ${deletedCount} reviews that were removed from Google`);
+          }
+        }
+      }
+    }
+
     // Determine requires_reconnect based on all error types
     const requiresReconnect = tokenResult.requires_reconnect || hasApiDisabledError;
 
     const response = {
       success: true,
-      message: `Synced ${allReviews.length} reviews`,
+      message: `Synced ${allReviews.length} reviews${deletedCount > 0 ? `, deleted ${deletedCount} removed reviews` : ''}`,
       reviews: allReviews,
       synced_count: allReviews.length,
+      deleted_count: deletedCount,
       errors: errors.length > 0 ? errors : undefined,
       requires_reconnect: requiresReconnect
     };
