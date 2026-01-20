@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from "react";
-import { useRegisterSW } from "virtual:pwa-register/react";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -12,50 +11,66 @@ export const usePWA = () => {
   const [isStandalone, setIsStandalone] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
   const [canInstall, setCanInstall] = useState(false);
-
-  // Register service worker with auto-update
-  const {
-    needRefresh: [needRefresh, setNeedRefresh],
-    updateServiceWorker,
-  } = useRegisterSW({
-    onRegisteredSW(swUrl, registration) {
-      console.log("SW registered:", swUrl);
-      // Check for updates every 60 seconds
-      if (registration) {
-        setInterval(() => {
-          registration.update();
-        }, 60 * 1000);
-      }
-    },
-    onRegisterError(error) {
-      console.error("SW registration error:", error);
-    },
-    onNeedRefresh() {
-      console.log("New content available, updating...");
-      // Auto-update immediately when new content is available
-      updateServiceWorker(true);
-    },
-  });
+  const [needRefresh, setNeedRefresh] = useState(false);
 
   // Force update when app becomes visible (user opens the PWA)
   useEffect(() => {
     const handleVisibilityChange = () => {
-      if (document.visibilityState === "visible") {
-        // Force check for updates when app becomes visible
-        if ("serviceWorker" in navigator) {
-          navigator.serviceWorker.getRegistration().then((registration) => {
-            if (registration) {
-              registration.update();
-            }
-          });
-        }
+      if (document.visibilityState === "visible" && "serviceWorker" in navigator) {
+        navigator.serviceWorker.getRegistration().then((registration) => {
+          if (registration) {
+            registration.update().catch(console.error);
+          }
+        });
       }
     };
 
     document.addEventListener("visibilitychange", handleVisibilityChange);
+    
+    // Also check on mount
+    handleVisibilityChange();
+
     return () => {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
+  }, []);
+
+  // Register and manage service worker updates
+  useEffect(() => {
+    if (!("serviceWorker" in navigator)) return;
+
+    const registerSW = async () => {
+      try {
+        const registration = await navigator.serviceWorker.getRegistration();
+        
+        if (registration) {
+          // Check for updates every 60 seconds
+          const intervalId = setInterval(() => {
+            registration.update().catch(console.error);
+          }, 60 * 1000);
+
+          // Listen for new service worker
+          registration.addEventListener("updatefound", () => {
+            const newWorker = registration.installing;
+            if (newWorker) {
+              newWorker.addEventListener("statechange", () => {
+                if (newWorker.state === "installed" && navigator.serviceWorker.controller) {
+                  // New content available, auto-refresh
+                  setNeedRefresh(true);
+                  window.location.reload();
+                }
+              });
+            }
+          });
+
+          return () => clearInterval(intervalId);
+        }
+      } catch (error) {
+        console.error("SW registration error:", error);
+      }
+    };
+
+    registerSW();
   }, []);
 
   useEffect(() => {
@@ -118,8 +133,15 @@ export const usePWA = () => {
   }, [deferredPrompt]);
 
   const forceUpdate = useCallback(() => {
-    updateServiceWorker(true);
-  }, [updateServiceWorker]);
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.getRegistration().then((registration) => {
+        if (registration?.waiting) {
+          registration.waiting.postMessage({ type: "SKIP_WAITING" });
+          window.location.reload();
+        }
+      });
+    }
+  }, []);
 
   return {
     isInstalled,
