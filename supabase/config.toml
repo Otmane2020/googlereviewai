@@ -38,3 +38,6 @@ verify_jwt = false
 
 [functions.auto-respond-reviews]
 verify_jwt = false
+
+[functions.check-maps-ranking]
+verify_jwt = false
