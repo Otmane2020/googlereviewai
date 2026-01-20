@@ -27,8 +27,15 @@ export const SplashScreen = ({ onComplete }: SplashScreenProps) => {
       }}
     >
       <div className="flex flex-col items-center gap-4 animate-fade-in">
-        {/* Logo étoile jaune */}
-        <Star className="w-14 h-14 text-accent fill-accent drop-shadow-lg" />
+        {/* Logo étoile jaune avec contour */}
+        <div className="relative">
+          <Star 
+            className="w-14 h-14 drop-shadow-lg" 
+            fill="#F5B800" 
+            stroke="#E5A800" 
+            strokeWidth={1.5}
+          />
+        </div>
         
         {/* Brand avec Google G */}
         <div className="flex items-center gap-2">
