@@ -1,12 +1,14 @@
 import { useState, useEffect } from "react";
-import { useWebPushNotifications } from "@/hooks/useWebPushNotifications";
+import { useFirebasePush } from "@/hooks/useFirebasePush";
 import { usePWA } from "@/hooks/usePWA";
 import { Button } from "@/components/ui/button";
 import { X, Bell, BellRing } from "lucide-react";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
 
 export const NotificationPrompt = () => {
-  const { permission, isSupported, isSubscribed, isLoading, subscribe } = useWebPushNotifications();
+  const { user } = useAuth();
+  const { permission, isSupported, isSubscribed, isLoading, subscribe } = useFirebasePush();
   const { isInstalled, isStandalone, isIOS, canInstall } = usePWA();
   const [dismissed, setDismissed] = useState(false);
   const [showDelayed, setShowDelayed] = useState(false);
@@ -80,8 +82,8 @@ export const NotificationPrompt = () => {
     }
   };
 
-  // Don't show if not supported, already subscribed, permission denied, or dismissed
-  if (!isSupported || isSubscribed || permission === "denied" || permission === "granted" || dismissed) {
+  // Don't show if not supported, already subscribed, permission denied, dismissed, or not logged in
+  if (!isSupported || isSubscribed || permission === "denied" || permission === "granted" || dismissed || !user) {
     return null;
   }
 
