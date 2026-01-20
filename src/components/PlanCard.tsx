@@ -64,12 +64,12 @@ export const PlanCard = ({
       };
     }
     return {
-      border: "border-violet-500/50",
-      bg: "bg-violet-500/5",
-      iconBg: "bg-violet-500/20",
-      iconColor: "text-violet-500",
-      buttonBg: "bg-violet-500 hover:bg-violet-600",
-      badgeBg: "bg-violet-500",
+      border: "border-secondary/50",
+      bg: "bg-secondary/5",
+      iconBg: "bg-secondary/20",
+      iconColor: "text-secondary",
+      buttonBg: "bg-secondary hover:bg-secondary/90",
+      badgeBg: "bg-secondary",
       Icon: Zap,
     };
   };
