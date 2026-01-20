@@ -32,20 +32,30 @@ export const useFirebasePush = (): UseFirebasePushReturn => {
         "PushManager" in window &&
         "Notification" in window;
 
+      console.log("[useFirebasePush] Checking support:", { supported });
       setIsSupported(supported);
 
       if (supported) {
-        setPermission(Notification.permission as PushPermissionState);
+        const currentPermission = Notification.permission as PushPermissionState;
+        console.log("[useFirebasePush] Permission status:", currentPermission);
+        setPermission(currentPermission);
         
         // Check if user has FCM token in database
         if (user) {
-          const { data } = await supabase
+          console.log("[useFirebasePush] Checking subscription for user:", user.id);
+          const { data, error } = await supabase
             .from("push_subscriptions")
-            .select("id")
+            .select("id, endpoint")
             .eq("user_id", user.id)
             .limit(1);
           
-          setIsSubscribed(data && data.length > 0);
+          if (error) {
+            console.error("[useFirebasePush] Error checking subscription:", error);
+          }
+          
+          const hasSubscription = data && data.length > 0;
+          console.log("[useFirebasePush] Has subscription:", hasSubscription, data);
+          setIsSubscribed(hasSubscription);
         }
       } else {
         setPermission("unsupported");

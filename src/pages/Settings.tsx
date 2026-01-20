@@ -212,18 +212,31 @@ const SettingsPage = () => {
 
   // Handle push notification subscribe with feedback
   const handleSubscribePush = async () => {
+    console.log("[Settings] handleSubscribePush called");
+    console.log("[Settings] Push state:", { pushSupported, pushSubscribed, pushPermission, pushLoading });
+    
     const success = await subscribePush();
+    console.log("[Settings] Subscribe result:", success);
+    
     if (success) {
       toast({
         title: "Notifications activées",
         description: "Vous recevrez les alertes push même quand l'app est fermée.",
       });
     } else {
+      // More detailed error message
+      let errorMessage = "Impossible d'activer les notifications.";
+      if (pushPermission === "denied") {
+        errorMessage = "Les notifications sont bloquées. Activez-les dans les paramètres de votre navigateur.";
+      } else if (pushPermission === "unsupported") {
+        errorMessage = "Les notifications push ne sont pas supportées par ce navigateur.";
+      } else {
+        errorMessage = "Échec de l'activation. Installez l'app (PWA) pour recevoir les notifications push.";
+      }
+      
       toast({
         title: "Erreur",
-        description: pushPermission === "denied" 
-          ? "Les notifications sont bloquées. Activez-les dans les paramètres de votre navigateur."
-          : "Impossible d'activer les notifications. Vérifiez que vous avez autorisé les notifications.",
+        description: errorMessage,
         variant: "destructive",
       });
     }
