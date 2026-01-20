@@ -111,38 +111,80 @@ async function searchPlaces(
   }
 }
 
-// Get place details to find center coordinates
-async function getPlaceDetails(
-  placeId: string,
+// Geocode address to get coordinates
+async function geocodeAddress(
+  address: string,
   apiKey: string
 ): Promise<{ lat: number; lng: number } | null> {
   try {
+    const encodedAddress = encodeURIComponent(address);
     const response = await fetch(
-      `https://places.googleapis.com/v1/places/${placeId}`,
-      {
-        method: "GET",
-        headers: {
-          "X-Goog-Api-Key": apiKey,
-          "X-Goog-FieldMask": "location",
-        },
-      }
+      `https://maps.googleapis.com/maps/api/geocode/json?address=${encodedAddress}&key=${apiKey}`
     );
 
     if (!response.ok) {
-      console.error("Place details error:", response.status);
+      console.error("Geocoding error:", response.status);
       return null;
     }
 
     const data = await response.json();
-    if (data.location) {
+    if (data.status === "OK" && data.results && data.results.length > 0) {
+      const location = data.results[0].geometry.location;
       return {
-        lat: data.location.latitude,
-        lng: data.location.longitude,
+        lat: location.lat,
+        lng: location.lng,
+      };
+    }
+    console.error("Geocoding no results:", data.status);
+    return null;
+  } catch (error) {
+    console.error("Geocoding error:", error);
+    return null;
+  }
+}
+
+// Search for business by name and address to get its Places API id
+async function findBusinessPlaceId(
+  businessName: string,
+  address: string,
+  apiKey: string
+): Promise<{ placeId: string; lat: number; lng: number } | null> {
+  try {
+    const query = `${businessName} ${address}`;
+    const response = await fetch(
+      "https://places.googleapis.com/v1/places:searchText",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Goog-Api-Key": apiKey,
+          "X-Goog-FieldMask": "places.id,places.displayName,places.formattedAddress,places.location",
+        },
+        body: JSON.stringify({
+          textQuery: query,
+          maxResultCount: 5,
+          languageCode: "fr",
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      console.error("Find business error:", response.status);
+      return null;
+    }
+
+    const data = await response.json();
+    if (data.places && data.places.length > 0) {
+      const place = data.places[0];
+      return {
+        placeId: place.id,
+        lat: place.location.latitude,
+        lng: place.location.longitude,
       };
     }
     return null;
   } catch (error) {
-    console.error("Place details error:", error);
+    console.error("Find business error:", error);
     return null;
   }
 }
@@ -204,23 +246,38 @@ serve(async (req) => {
       throw new Error("Business not found or access denied");
     }
 
-    if (!business.google_place_id) {
-      throw new Error("Business n'a pas de google_place_id. Reconnectez-le à Google.");
-    }
+    logStep("Business found", { name: business.name, address: business.address, placeId: business.google_place_id });
 
-    logStep("Business found", { name: business.name, placeId: business.google_place_id });
-
-    // Get center coordinates from Google Place ID
+    // Get center coordinates and Places API place_id
     let centerLat: number;
     let centerLng: number;
+    let placesApiPlaceId: string | null = null;
 
-    const placeDetails = await getPlaceDetails(business.google_place_id, apiKey);
-    if (placeDetails) {
-      centerLat = placeDetails.lat;
-      centerLng = placeDetails.lng;
-      logStep("Got center from place details", { centerLat, centerLng });
-    } else {
-      throw new Error("Impossible de récupérer les coordonnées de l'établissement");
+    // First, try to find the business in Places API using name + address
+    if (business.name && business.address) {
+      const businessInfo = await findBusinessPlaceId(business.name, business.address, apiKey);
+      if (businessInfo) {
+        centerLat = businessInfo.lat;
+        centerLng = businessInfo.lng;
+        placesApiPlaceId = businessInfo.placeId;
+        logStep("Found business via Places search", { centerLat, centerLng, placesApiPlaceId });
+      }
+    }
+
+    // Fallback to geocoding the address
+    if (!placesApiPlaceId && business.address) {
+      const geocoded = await geocodeAddress(business.address, apiKey);
+      if (geocoded) {
+        centerLat = geocoded.lat;
+        centerLng = geocoded.lng;
+        logStep("Got center from geocoding", { centerLat, centerLng });
+      } else {
+        throw new Error("Impossible de géolocaliser l'adresse de l'établissement. Vérifiez l'adresse.");
+      }
+    }
+
+    if (!centerLat! || !centerLng!) {
+      throw new Error("Impossible de récupérer les coordonnées. L'établissement doit avoir une adresse valide.");
     }
 
     // Create scan record
@@ -266,20 +323,31 @@ serve(async (req) => {
         break;
       }
 
-      // Find our business in results
+      // Find our business in results - match by Places API id if we have it
       let rankPosition: number | null = null;
       const competitors: Competitor[] = [];
 
       for (let i = 0; i < places.length; i++) {
         const place = places[i];
-        const placeIdMatch = place.id === business.google_place_id;
         
-        if (placeIdMatch && rankPosition === null) {
+        // Match using Places API place_id if available, otherwise match by name
+        let isOurBusiness = false;
+        if (placesApiPlaceId) {
+          isOurBusiness = place.id === placesApiPlaceId;
+        } else {
+          // Fallback: fuzzy match by name
+          const placeName = (place.displayName?.text || "").toLowerCase();
+          const businessName = business.name.toLowerCase();
+          isOurBusiness = placeName.includes(businessName) || businessName.includes(placeName);
+        }
+        
+        if (isOurBusiness && rankPosition === null) {
           rankPosition = i + 1;
+          logStep(`Found business at rank ${rankPosition}`, { placeName: place.displayName?.text });
         }
 
         // Store top 5 competitors (excluding our business)
-        if (!placeIdMatch && competitors.length < 5) {
+        if (!isOurBusiness && competitors.length < 5) {
           competitors.push({
             name: place.displayName?.text || "Unknown",
             placeId: place.id,
