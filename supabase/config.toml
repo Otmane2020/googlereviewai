@@ -50,3 +50,6 @@ verify_jwt = false
 
 [functions.send-engagement-email]
 verify_jwt = false
+
+[functions.notify-new-review]
+verify_jwt = false

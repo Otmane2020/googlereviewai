@@ -161,90 +161,17 @@ serve(async (req) => {
           errors.push(...result.errors);
         }
 
-        // Check for new reviews that need notifications
-        const { data: newReviews } = await supabase
+        // Count new reviews (reviews that weren't in existingReviewIds)
+        const { data: currentReviews } = await supabase
           .from("reviews")
-          .select("*")
-          .eq("user_id", userSettings.user_id)
-          .is("ai_response", null)
-          .gte("rating", userSettings.minimum_rating || 1);
+          .select("review_id")
+          .eq("user_id", userSettings.user_id);
 
-        if (newReviews) {
-          for (const review of newReviews) {
+        if (currentReviews) {
+          for (const review of currentReviews) {
             if (!existingReviewIds.has(review.review_id)) {
               totalNewReviews++;
-              
-              // Create notification for new review
-              await supabase
-                .from("notifications")
-                .insert({
-                  user_id: userSettings.user_id,
-                  type: "new_review",
-                  title: "Nouvel avis reçu",
-                  message: `${review.author} a laissé un avis ${review.rating} étoile${review.rating > 1 ? 's' : ''}.`,
-                  review_id: review.id,
-                });
-
-              // Send email notification if enabled
-              const { data: userProfile } = await supabase
-                .from("profiles")
-                .select("email")
-                .eq("id", userSettings.user_id)
-                .single();
-
-              const { data: emailSettings } = await supabase
-                .from("ai_settings")
-                .select("email_notifications")
-                .eq("user_id", userSettings.user_id)
-                .single();
-
-              if (userProfile?.email && emailSettings?.email_notifications !== false) {
-                try {
-                  await fetch(`${supabaseUrl}/functions/v1/send-email-notification`, {
-                    method: "POST",
-                    headers: {
-                      "Content-Type": "application/json",
-                      "Authorization": `Bearer ${supabaseServiceKey}`,
-                    },
-                    body: JSON.stringify({
-                      to: userProfile.email,
-                      subject: `Nouvel avis ${review.rating}⭐ de ${review.author}`,
-                      html: `
-                        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
-                          <h2 style="color: #333;">Nouvel avis reçu</h2>
-                          <p><strong>${review.author}</strong> a laissé un avis ${review.rating} étoile${review.rating > 1 ? 's' : ''}.</p>
-                          ${review.comment ? `<blockquote style="border-left: 3px solid #ddd; padding-left: 12px; color: #666;">${review.comment}</blockquote>` : ''}
-                          <p><a href="https://starlinko.lovable.app/reviews" style="color: #2563eb;">Voir et répondre à l'avis</a></p>
-                          <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
-                          <p style="color: #888; font-size: 12px;">Starlinko - Gérez vos avis Google en automatique</p>
-                        </div>
-                      `,
-                    }),
-                  });
-                } catch (emailError) {
-                  console.error("[CRON] Failed to send email notification:", emailError);
-                }
-              }
-
-              // Send Web Push notification
-              try {
-                await fetch(`${supabaseUrl}/functions/v1/send-push-notification`, {
-                  method: "POST",
-                  headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${supabaseServiceKey}`,
-                  },
-                  body: JSON.stringify({
-                    user_id: userSettings.user_id,
-                    title: `Nouvel avis ${review.rating}⭐`,
-                    body: `${review.author} a laissé un avis${review.comment ? ': "' + review.comment.substring(0, 50) + '..."' : '.'}`,
-                    url: "/reviews",
-                    data: { review_id: review.id },
-                  }),
-                });
-              } catch (pushError) {
-                console.error("[CRON] Failed to send push notification:", pushError);
-              }
+              // Note: Notifications are now handled by the on_review_insert trigger
             }
           }
         }
