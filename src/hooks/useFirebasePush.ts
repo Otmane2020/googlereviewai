@@ -13,8 +13,8 @@ interface UseFirebasePushReturn {
   unsubscribe: () => Promise<boolean>;
 }
 
-// VAPID key for FCM - get from Firebase Console > Project Settings > Cloud Messaging
-const VAPID_KEY = "BLBx-hf5WrFDz3D3hEq3bAJwFhVRpK6cPj8pQqbTqhNJxTOJz8z_qxQrHw8QjqyGvh0xQKjvkK8rFqpJdvqFqZM";
+// VAPID key for FCM - from Firebase Console > Project Settings > Cloud Messaging
+const VAPID_KEY = "BGQFbt1RdpEVn504DOoxkQ32sRJM6AL15bsBn7KSFipkO_qvDeSOXiNNv8-zIHCunTZj4RBM7JQmE_-CiEel3HA";
 
 export const useFirebasePush = (): UseFirebasePushReturn => {
   const { user } = useAuth();
