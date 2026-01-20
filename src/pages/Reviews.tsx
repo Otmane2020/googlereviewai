@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
 import { UpgradeDialog } from "@/components/UpgradeDialog";
+import { ResponsePreviewDialog } from "@/components/ResponsePreviewDialog";
 import {
   Star, 
   Search, 
@@ -92,6 +93,8 @@ const Reviews = () => {
   const [upgradeDialogOpen, setUpgradeDialogOpen] = useState(false);
   const [userCredits, setUserCredits] = useState<number>(0);
   const [currentPlan, setCurrentPlan] = useState<string | null>(null);
+  const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
+  const [previewReview, setPreviewReview] = useState<Review | null>(null);
 
   // Load saved business selection from localStorage
   useEffect(() => {
@@ -230,8 +233,20 @@ const Reviews = () => {
 
       // Update local credits count
       setUserCredits(data.credits_remaining || 0);
+      
+      // Fetch the updated review to show in preview dialog
+      const { data: updatedReview } = await supabase
+        .from("reviews")
+        .select("*")
+        .eq("id", reviewId)
+        .single();
+      
+      if (updatedReview) {
+        setPreviewReview(updatedReview);
+        setPreviewDialogOpen(true);
+      }
+      
       toast({ title: "Réponse générée !", description: `Crédits restants: ${data.credits_remaining}` });
-      // No need to fetchData - Realtime handles it
     } catch (error) {
       toast({ title: "Erreur", description: error instanceof Error ? error.message : "Impossible de générer la réponse.", variant: "destructive" });
     } finally {
@@ -299,14 +314,14 @@ const Reviews = () => {
     return reviews.filter(r => r.location_id === selectedBusiness.google_place_id);
   }, [reviews, selectedBusiness]);
 
-  // Filters
+  // Filters - A review is pending if NOT published to Google AND no google_reply
   const filteredReviews = businessReviews.filter((review) => {
     const matchesSearch = review.author.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (review.comment && review.comment.toLowerCase().includes(searchTerm.toLowerCase()));
     const matchesRating = filterRating === "all" || review.rating === parseInt(filterRating);
     const matchesStatus = filterStatus === "all" || 
-      (filterStatus === "pending" && !review.ai_response && !review.google_reply) ||
-      (filterStatus === "ready" && review.ai_response && !review.published_to_google) ||
+      (filterStatus === "pending" && !review.published_to_google && !review.google_reply) ||
+      (filterStatus === "ready" && review.ai_response && !review.published_to_google && !review.google_reply) ||
       (filterStatus === "published" && (review.published_to_google || review.google_reply));
     return matchesSearch && matchesRating && matchesStatus;
   });
@@ -316,10 +331,12 @@ const Reviews = () => {
 
   useEffect(() => { setCurrentPage(1); }, [searchTerm, filterRating, filterStatus, selectedBusinessId]);
 
+  // A review is considered "replied" ONLY if published_to_google OR has google_reply (manual response)
+  // Having just ai_response does NOT count as replied
   const stats = {
     total: businessReviews.length,
-    pending: businessReviews.filter(r => !r.ai_response && !r.google_reply).length,
-    ready: businessReviews.filter(r => r.ai_response && !r.published_to_google).length,
+    pending: businessReviews.filter(r => !r.published_to_google && !r.google_reply).length,
+    ready: businessReviews.filter(r => r.ai_response && !r.published_to_google && !r.google_reply).length,
     published: businessReviews.filter(r => r.published_to_google || r.google_reply).length,
   };
 
@@ -842,6 +859,15 @@ const Reviews = () => {
         open={upgradeDialogOpen} 
         onOpenChange={setUpgradeDialogOpen}
         currentPlan={currentPlan || undefined}
+      />
+      
+      {/* Response Preview Dialog - after AI generation */}
+      <ResponsePreviewDialog
+        open={previewDialogOpen}
+        onOpenChange={setPreviewDialogOpen}
+        review={previewReview}
+        onPublish={publishToGoogle}
+        publishingId={publishingId}
       />
     </div>
   );
