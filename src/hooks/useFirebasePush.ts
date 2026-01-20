@@ -72,6 +72,17 @@ export const useFirebasePush = (): UseFirebasePushReturn => {
     setIsLoading(true);
 
     try {
+      // First, request notification permission explicitly
+      console.log("[useFirebasePush] Requesting notification permission...");
+      const permissionResult = await Notification.requestPermission();
+      console.log("[useFirebasePush] Permission result:", permissionResult);
+      setPermission(permissionResult as PushPermissionState);
+      
+      if (permissionResult !== "granted") {
+        console.error("[useFirebasePush] Permission denied by user");
+        return false;
+      }
+
       console.log("[useFirebasePush] Importing firebase...");
       const { getFCMToken } = await import("@/lib/firebase");
       
@@ -79,7 +90,7 @@ export const useFirebasePush = (): UseFirebasePushReturn => {
       const fcmToken = await getFCMToken(VAPID_KEY);
       
       if (!fcmToken) {
-        console.error("[useFirebasePush] Failed to get FCM token");
+        console.error("[useFirebasePush] Failed to get FCM token - check browser console for details");
         return false;
       }
 
@@ -114,7 +125,6 @@ export const useFirebasePush = (): UseFirebasePushReturn => {
 
       console.log("[useFirebasePush] FCM token stored successfully");
       setIsSubscribed(true);
-      setPermission("granted");
       
       return true;
     } catch (error) {
