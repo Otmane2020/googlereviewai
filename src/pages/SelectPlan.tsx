@@ -188,7 +188,7 @@ const SelectPlan = () => {
               Annuel
             </span>
             {isYearly && (
-              <Badge className="bg-green-500/10 text-green-600 border-green-500/20 text-xs">
+              <Badge className="bg-secondary/10 text-secondary border-secondary/20 text-xs">
                 -20%
               </Badge>
             )}
@@ -212,7 +212,7 @@ const SelectPlan = () => {
         <div className="flex items-center justify-center gap-2 mt-6 text-xs text-muted-foreground">
           <Sparkles className="w-3 h-3 text-primary" />
           <span>Paiement 100% sécurisé</span>
-          <Shield className="w-3 h-3 text-green-500" />
+          <Shield className="w-3 h-3 text-secondary" />
         </div>
 
         {/* Legal links */}
