@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { StarlinkoLogo } from "@/components/StarlinkoLogo";
+import { AppLoadingBar } from "@/components/AppLoadingBar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -105,22 +106,14 @@ const Auth = () => {
     }
   }, [user, loading, navigate]);
 
-  // Show loader while checking authentication OR while redirecting
+  // Show professional loading bar while checking authentication OR while redirecting
   if (loading || isRedirecting) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
-    );
+    return <AppLoadingBar message="Connexion en cours..." />;
   }
 
   // If user is already logged in but not yet redirecting, show loader too
   if (user) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
-    );
+    return <AppLoadingBar message="Redirection..." />;
   }
 
   const handleForgotPassword = async (e: React.FormEvent) => {
