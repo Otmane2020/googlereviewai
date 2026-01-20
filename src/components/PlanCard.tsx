@@ -43,33 +43,33 @@ export const PlanCard = ({
   const getCardStyle = () => {
     if (plan.hasTrial) {
       return {
-        border: "border-primary",
-        bg: "bg-primary/5",
-        iconBg: "bg-primary",
-        iconColor: "text-primary-foreground",
-        buttonBg: "bg-primary hover:bg-primary/90",
-        badgeBg: "bg-primary",
+        border: "border-foreground/20",
+        bg: "bg-foreground/5",
+        iconBg: "bg-foreground/10",
+        iconColor: "text-foreground",
+        buttonBg: "bg-foreground hover:bg-foreground/90 text-background",
+        badgeBg: "bg-foreground text-background",
         Icon: Gift,
       };
     }
     if (plan.popular) {
       return {
-        border: "border-destructive/50",
-        bg: "bg-destructive/5",
-        iconBg: "bg-destructive/20",
-        iconColor: "text-destructive",
-        buttonBg: "bg-destructive hover:bg-destructive/90",
-        badgeBg: "bg-destructive",
+        border: "border-foreground/30",
+        bg: "bg-foreground/5",
+        iconBg: "bg-foreground/15",
+        iconColor: "text-foreground",
+        buttonBg: "bg-foreground hover:bg-foreground/90 text-background",
+        badgeBg: "bg-foreground text-background",
         Icon: Star,
       };
     }
     return {
-      border: "border-secondary/50",
-      bg: "bg-secondary/5",
-      iconBg: "bg-secondary/20",
-      iconColor: "text-secondary",
-      buttonBg: "bg-secondary hover:bg-secondary/90",
-      badgeBg: "bg-secondary",
+      border: "border-muted-foreground/30",
+      bg: "bg-muted/50",
+      iconBg: "bg-muted-foreground/15",
+      iconColor: "text-muted-foreground",
+      buttonBg: "bg-muted-foreground hover:bg-muted-foreground/90 text-background",
+      badgeBg: "bg-muted-foreground text-background",
       Icon: Zap,
     };
   };
@@ -85,7 +85,7 @@ export const PlanCard = ({
     >
       {/* Badge */}
       <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-        <Badge className={`${style.badgeBg} text-white shadow-lg px-3 py-1 text-xs font-semibold`}>
+        <Badge className={`${style.badgeBg} shadow-lg px-3 py-1 text-xs font-semibold`}>
           {plan.hasTrial ? (
             <>
               <Gift className="w-3 h-3 mr-1" />

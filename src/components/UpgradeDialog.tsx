@@ -124,23 +124,23 @@ export const UpgradeDialog = ({ open, onOpenChange, currentPlan }: UpgradeDialog
               <span className={`text-sm font-medium ${!isYearly ? "text-foreground" : "text-muted-foreground"}`}>
                 Mensuel
               </span>
-              <button
-                onClick={() => setIsYearly(!isYearly)}
-                className={`relative w-12 h-6 rounded-full transition-colors ${
-                  isYearly ? "bg-primary" : "bg-muted"
+            <button
+              onClick={() => setIsYearly(!isYearly)}
+              className={`relative w-12 h-6 rounded-full transition-colors border ${
+                isYearly ? "bg-foreground border-foreground" : "bg-muted border-border"
+              }`}
+            >
+              <div
+                className={`absolute top-0.5 w-5 h-5 rounded-full shadow-md transition-transform ${
+                  isYearly ? "translate-x-6 bg-background" : "translate-x-0.5 bg-foreground"
                 }`}
-              >
-                <div
-                  className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow-md transition-transform ${
-                    isYearly ? "translate-x-7" : "translate-x-1"
-                  }`}
-                />
-              </button>
+              />
+            </button>
               <span className={`text-sm font-medium ${isYearly ? "text-foreground" : "text-muted-foreground"}`}>
                 Annuel
               </span>
               {isYearly && (
-                <Badge className="bg-secondary/10 text-secondary border-secondary/20 text-xs">
+                <Badge className="bg-foreground/10 text-foreground border-foreground/20 text-xs">
                   -20%
                 </Badge>
               )}
@@ -167,9 +167,9 @@ export const UpgradeDialog = ({ open, onOpenChange, currentPlan }: UpgradeDialog
 
           {/* Trust badge */}
           <div className="flex items-center justify-center gap-2 pt-2 text-xs text-muted-foreground">
-            <Sparkles className="w-3 h-3 text-primary" />
+            <Sparkles className="w-3 h-3 text-foreground" />
             <span>Paiement 100% sécurisé</span>
-            <Shield className="w-3 h-3 text-secondary" />
+            <Shield className="w-3 h-3 text-foreground" />
           </div>
         </div>
       </DialogContent>
