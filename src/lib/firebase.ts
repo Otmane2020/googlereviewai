@@ -3,13 +3,13 @@
 
 // Firebase configuration (public keys - safe to expose)
 export const firebaseConfig = {
-  apiKey: "AIzaSyCzCHN8FPR3cjU36G6nAGOIY-HOhVU-u9I",
-  authDomain: "starlinko-db94e.firebaseapp.com",
-  projectId: "starlinko-db94e",
-  storageBucket: "starlinko-db94e.firebasestorage.app",
-  messagingSenderId: "37013451864",
-  appId: "1:37013451864:web:4448ba2fceaab93bd9062d",
-  measurementId: "G-3VQ00QKBLN"
+  apiKey: "AIzaSyB8_ReuGYylRKMKu9L9leSRFB0nKCqRT64",
+  authDomain: "starlinkoapp.firebaseapp.com",
+  projectId: "starlinkoapp",
+  storageBucket: "starlinkoapp.firebasestorage.app",
+  messagingSenderId: "361474350795",
+  appId: "1:361474350795:web:c9f170e0dc04201149454e",
+  measurementId: "G-TG4JK5XTG3"
 };
 
 // Lazy-loaded Firebase instances
