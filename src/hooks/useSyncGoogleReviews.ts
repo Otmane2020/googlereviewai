@@ -114,10 +114,7 @@ export const useSyncGoogleReviews = () => {
         setLastSyncResult(data);
         
         if (data.success) {
-          toast({
-            title: "Synchronisation réussie",
-            description: data.message,
-          });
+          // Silent success - no toast
         } else if (data.requires_reconnect) {
           toast({
             title: "Reconnexion requise",

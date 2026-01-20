@@ -36,12 +36,8 @@ export const useSyncGoogleBusinesses = () => {
       const result = response.data;
 
       if (result.success) {
-        if (result.businesses.length > 0) {
-          toast({
-            title: "Synchronisation réussie",
-            description: `${result.businesses.length} établissement(s) synchronisé(s)`,
-          });
-        } else {
+        // Silent success - no toast for sync
+        if (result.businesses.length === 0) {
           toast({
             title: "Aucun établissement trouvé",
             description: result.message,

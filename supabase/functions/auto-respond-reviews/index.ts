@@ -7,13 +7,18 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Generate AI response
+// Generate AI response using Lovable AI Gateway
 async function generateAIResponse(
   review: any,
   aiSettings: any,
-  businessName: string,
-  OPENROUTER_API_KEY: string
+  businessName: string
 ): Promise<string | null> {
+  const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+  if (!LOVABLE_API_KEY) {
+    console.error("[AutoRespond] LOVABLE_API_KEY not configured");
+    return null;
+  }
+
   const tone = aiSettings?.tone || "friendly";
   const responseLength = aiSettings?.response_length || "M";
   const includeSignature = aiSettings?.include_signature ?? true;
@@ -46,16 +51,14 @@ ${customTemplate ? `Additional instructions: ${customTemplate}` : ""}
 ${includeSignature && signature ? `End with this signature: ${signature}` : ""}
 Do not include any greeting like "Cher client" - start directly with the response.`;
 
-  const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+  const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${OPENROUTER_API_KEY}`,
+      Authorization: `Bearer ${LOVABLE_API_KEY}`,
       "Content-Type": "application/json",
-      "HTTP-Referer": "https://starlinko.lovable.app",
-      "X-Title": "Starlinko",
     },
     body: JSON.stringify({
-      model: "google/gemini-2.5-flash-preview",
+      model: "google/gemini-3-flash-preview",
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: `Generate a response for this ${review.rating}-star review from ${review.author}: "${review.comment || "No comment provided"}"` },
@@ -64,7 +67,8 @@ Do not include any greeting like "Cher client" - start directly with the respons
   });
 
   if (!response.ok) {
-    console.error("[AutoRespond] AI gateway error:", response.status);
+    const errorText = await response.text();
+    console.error("[AutoRespond] AI gateway error:", response.status, errorText);
     return null;
   }
 
@@ -114,19 +118,11 @@ serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const OPENROUTER_API_KEY = Deno.env.get("OPENROUTER_API_KEY");
 
     // CRON uses SERVICE_ROLE only - no user session
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     console.log("[AutoRespond] Starting auto-respond-reviews job...");
-
-    if (!OPENROUTER_API_KEY) {
-      return new Response(
-        JSON.stringify({ success: false, message: "OPENROUTER_API_KEY not configured" }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
 
     // Get users with AI enabled
     const { data: settings } = await supabase
@@ -194,12 +190,11 @@ serve(async (req) => {
             continue;
           }
 
-          // Generate AI response
+          // Generate AI response using Lovable AI Gateway
           const aiResponse = await generateAIResponse(
             review,
             userSettings,
-            businessName,
-            OPENROUTER_API_KEY
+            businessName
           );
 
           if (!aiResponse) continue;
