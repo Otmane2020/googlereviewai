@@ -34,26 +34,45 @@ const AppContent = () => {
   const { isStandalone } = usePWA();
   const [showSplash, setShowSplash] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
-    // Check if this is first launch in standalone mode
+    // Always show splash in standalone PWA mode on app launch
     if (isStandalone) {
       const hasSeenOnboarding = localStorage.getItem("starlinko_onboarding_completed");
+      
+      // Show splash on every app open in PWA mode
+      setShowSplash(true);
+      
+      // After splash, show onboarding only if first time
       if (!hasSeenOnboarding) {
-        setShowSplash(true);
+        // Will show onboarding after splash
       }
+    } else {
+      setIsInitialized(true);
     }
   }, [isStandalone]);
 
   const handleSplashComplete = () => {
     setShowSplash(false);
-    setShowOnboarding(true);
+    const hasSeenOnboarding = localStorage.getItem("starlinko_onboarding_completed");
+    if (!hasSeenOnboarding) {
+      setShowOnboarding(true);
+    } else {
+      setIsInitialized(true);
+    }
   };
 
   const handleOnboardingComplete = () => {
     setShowOnboarding(false);
+    setIsInitialized(true);
     localStorage.setItem("starlinko_onboarding_completed", "true");
   };
+
+  // Show loading state while initializing in non-PWA mode
+  if (!isStandalone && !isInitialized) {
+    return null;
+  }
 
   return (
     <BrowserRouter>
