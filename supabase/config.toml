@@ -41,3 +41,12 @@ verify_jwt = false
 
 [functions.check-maps-ranking]
 verify_jwt = false
+
+[functions.send-email-notification]
+verify_jwt = false
+
+[functions.send-welcome-email]
+verify_jwt = false
+
+[functions.send-engagement-email]
+verify_jwt = false
