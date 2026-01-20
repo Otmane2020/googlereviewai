@@ -234,7 +234,6 @@ serve(async (req) => {
       );
     }
 
-    const resend = new Resend(RESEND_API_KEY);
     const { email, name, type, data }: EngagementEmailRequest = await req.json();
 
     if (!email || !type) {
@@ -257,25 +256,34 @@ serve(async (req) => {
 
     console.log(`Sending ${type} email to ${email}`);
 
-    const { data: emailData, error } = await resend.emails.send({
-      from: "Starlinko <notifications@starlinko.com>",
-      to: [email],
-      subject,
-      html,
+    const res = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${RESEND_API_KEY}`,
+      },
+      body: JSON.stringify({
+        from: "Starlinko <notifications@starlinko.com>",
+        to: [email],
+        subject,
+        html,
+      }),
     });
 
-    if (error) {
-      console.error("Resend API error:", error);
+    const resData = await res.json();
+
+    if (!res.ok) {
+      console.error("Resend API error:", resData);
       return new Response(
-        JSON.stringify({ success: false, error }),
+        JSON.stringify({ success: false, error: resData }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    console.log("Engagement email sent successfully:", emailData?.id);
+    console.log("Engagement email sent successfully:", resData?.id);
 
     return new Response(
-      JSON.stringify({ success: true, id: emailData?.id }),
+      JSON.stringify({ success: true, id: resData?.id }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
 
