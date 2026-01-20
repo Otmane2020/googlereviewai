@@ -75,7 +75,11 @@ const Reviews = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterRating, setFilterRating] = useState<string>("all");
-  const [filterStatus, setFilterStatus] = useState<string>("all");
+  const [filterStatus, setFilterStatus] = useState<string>(() => {
+    // Initialize from URL params if present
+    const statusParam = new URLSearchParams(window.location.search).get("status");
+    return statusParam || "all";
+  });
   const [currentPage, setCurrentPage] = useState(1);
   const [generatingId, setGeneratingId] = useState<number | null>(null);
   const [publishingId, setPublishingId] = useState<number | null>(null);

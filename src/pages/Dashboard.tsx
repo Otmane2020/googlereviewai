@@ -139,16 +139,29 @@ const Dashboard = () => {
     }
   }, [subscriptionLoading, user, fetchData]);
 
+  // Auto-sync on first login only (silent after first time)
   useEffect(() => {
     const autoSync = async () => {
       if (!loading && user && session?.provider_token && !hasSyncedRef.current) {
         hasSyncedRef.current = true;
-        setShowSyncProgress(true);
-        setSyncStep("businesses");
-        await syncBusinesses();
-        setSyncStep("reviews");
-        await syncReviews();
-        setSyncStep("complete");
+        
+        // Check if this is the first sync ever for this user
+        const hasInitialSynced = localStorage.getItem(`starlinko_initial_sync_${user.id}`);
+        
+        if (!hasInitialSynced) {
+          // First time: show animation
+          setShowSyncProgress(true);
+          setSyncStep("businesses");
+          await syncBusinesses();
+          setSyncStep("reviews");
+          await syncReviews();
+          setSyncStep("complete");
+          localStorage.setItem(`starlinko_initial_sync_${user.id}`, "true");
+        } else {
+          // Silent sync in background
+          await syncBusinesses();
+          await syncReviews();
+        }
         fetchData();
       }
     };
@@ -254,7 +267,7 @@ const Dashboard = () => {
         )}
 
         {/* Urgency Card - Non répondu */}
-        <Link to="/reviews" className="block">
+        <Link to="/reviews?status=pending" className="block">
           <div className={`relative overflow-hidden rounded-2xl p-5 transition-all ${
             urgencyLevel === "red" 
               ? "bg-gradient-to-br from-red-500 to-red-600 shadow-lg shadow-red-500/30" 
