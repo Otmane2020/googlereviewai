@@ -70,16 +70,22 @@ export const useFirebasePush = (): UseFirebasePushReturn => {
         return false;
       }
 
+      console.log("FCM Token to store:", fcmToken.substring(0, 20) + "...");
+
+      // Delete old subscriptions first to avoid conflicts
+      await supabase
+        .from("push_subscriptions")
+        .delete()
+        .eq("user_id", user.id);
+
       // Store FCM token in database
       const { error } = await supabase
         .from("push_subscriptions")
-        .upsert({
+        .insert({
           user_id: user.id,
           endpoint: fcmToken, // Store FCM token as endpoint
           p256dh: "fcm", // Marker to identify FCM tokens
           auth: "fcm",
-        }, {
-          onConflict: "user_id",
         });
 
       if (error) {
@@ -87,6 +93,7 @@ export const useFirebasePush = (): UseFirebasePushReturn => {
         return false;
       }
 
+      console.log("FCM token stored successfully");
       setIsSubscribed(true);
       setPermission("granted");
       
