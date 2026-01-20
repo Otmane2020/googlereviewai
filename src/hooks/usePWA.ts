@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { useRegisterSW } from "virtual:pwa-register/react";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -11,6 +12,51 @@ export const usePWA = () => {
   const [isStandalone, setIsStandalone] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
   const [canInstall, setCanInstall] = useState(false);
+
+  // Register service worker with auto-update
+  const {
+    needRefresh: [needRefresh, setNeedRefresh],
+    updateServiceWorker,
+  } = useRegisterSW({
+    onRegisteredSW(swUrl, registration) {
+      console.log("SW registered:", swUrl);
+      // Check for updates every 60 seconds
+      if (registration) {
+        setInterval(() => {
+          registration.update();
+        }, 60 * 1000);
+      }
+    },
+    onRegisterError(error) {
+      console.error("SW registration error:", error);
+    },
+    onNeedRefresh() {
+      console.log("New content available, updating...");
+      // Auto-update immediately when new content is available
+      updateServiceWorker(true);
+    },
+  });
+
+  // Force update when app becomes visible (user opens the PWA)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        // Force check for updates when app becomes visible
+        if ("serviceWorker" in navigator) {
+          navigator.serviceWorker.getRegistration().then((registration) => {
+            if (registration) {
+              registration.update();
+            }
+          });
+        }
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, []);
 
   useEffect(() => {
     // Check if running in standalone mode (already installed)
@@ -71,11 +117,17 @@ export const usePWA = () => {
     return outcome === "accepted";
   }, [deferredPrompt]);
 
+  const forceUpdate = useCallback(() => {
+    updateServiceWorker(true);
+  }, [updateServiceWorker]);
+
   return {
     isInstalled,
     isStandalone,
     isIOS,
     canInstall,
     promptInstall,
+    needRefresh,
+    forceUpdate,
   };
 };
