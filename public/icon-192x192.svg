@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" fill="none">
   <rect width="192" height="192" fill="white"/>
-  <path d="M96 30L111.5 77.5H161L121.5 107.5L137 155L96 125L55 155L70.5 107.5L31 77.5H80.5L96 30Z" fill="#F5B800"/>
-  <circle cx="155" cy="50" r="20" fill="#22C55E"/>
+  <polygon points="96,24 112,72 164,72 122,104 138,152 96,120 54,152 70,104 28,72 80,72" fill="#FACC15"/>
+  <circle cx="148" cy="52" r="18" fill="#22C55E"/>
 </svg>
