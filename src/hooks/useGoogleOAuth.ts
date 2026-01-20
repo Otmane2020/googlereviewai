@@ -1,6 +1,5 @@
 import { useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 
 interface OAuthStatus {
@@ -15,11 +14,7 @@ export const useGoogleOAuth = () => {
 
   const initiateOAuth = useCallback(async () => {
     if (!user) {
-      toast({
-        title: "Non connecté",
-        description: "Veuillez vous connecter d'abord.",
-        variant: "destructive",
-      });
+      console.error("User not logged in for OAuth");
       return;
     }
 
@@ -43,11 +38,6 @@ export const useGoogleOAuth = () => {
       }
     } catch (error) {
       console.error("OAuth initiation error:", error);
-      toast({
-        title: "Erreur",
-        description: error instanceof Error ? error.message : "Impossible d'initier la connexion Google.",
-        variant: "destructive",
-      });
       setIsConnecting(false);
     }
   }, [user]);
@@ -68,21 +58,12 @@ export const useGoogleOAuth = () => {
       if (error) throw error;
 
       if (data?.success) {
-        toast({
-          title: "Connexion réussie",
-          description: "Votre compte Google Business est maintenant connecté.",
-        });
         return true;
       } else {
         throw new Error(data?.error || "OAuth callback failed");
       }
     } catch (error) {
       console.error("OAuth callback error:", error);
-      toast({
-        title: "Erreur de connexion",
-        description: error instanceof Error ? error.message : "Échec de la connexion Google.",
-        variant: "destructive",
-      });
       return false;
     } finally {
       setIsConnecting(false);

@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/hooks/use-toast";
 
 export interface SyncReviewsResult {
   success: boolean;
@@ -62,11 +61,7 @@ export const useSyncGoogleReviews = () => {
       const { data: { session } } = await supabase.auth.getSession();
       
       if (!session) {
-        toast({
-          title: "Non connecté",
-          description: "Veuillez vous connecter pour synchroniser les avis.",
-          variant: "destructive",
-        });
+        console.error("No session for sync");
         return null;
       }
 
@@ -87,11 +82,6 @@ export const useSyncGoogleReviews = () => {
             requires_reconnect: true,
           };
           setLastSyncResult(result);
-          toast({
-            title: "Reconnexion requise",
-            description: "Allez dans Paramètres → Connecter Google pour reconnecter votre compte.",
-            variant: "destructive",
-          });
           return result;
         }
         
@@ -112,34 +102,12 @@ export const useSyncGoogleReviews = () => {
 
       if (data) {
         setLastSyncResult(data);
-        
-        if (data.success) {
-          // Silent success - no toast
-        } else if (data.requires_reconnect) {
-          toast({
-            title: "Reconnexion requise",
-            description: "Allez dans Paramètres → Connecter Google pour reconnecter votre compte.",
-            variant: "destructive",
-          });
-        } else {
-          toast({
-            title: "Erreur de synchronisation",
-            description: data.message || "Une erreur est survenue.",
-            variant: "destructive",
-          });
-        }
-        
         return data;
       }
       
       return null;
     } catch (error) {
       console.error("Error syncing reviews:", error);
-      toast({
-        title: "Erreur",
-        description: error instanceof Error ? error.message : "Impossible de synchroniser les avis.",
-        variant: "destructive",
-      });
       return null;
     } finally {
       setIsSyncing(false);

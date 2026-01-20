@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { toast } from "@/hooks/use-toast";
 
 type PushPermissionState = "default" | "granted" | "denied" | "unsupported";
 
@@ -56,35 +55,6 @@ export const useFirebasePush = (): UseFirebasePushReturn => {
     checkSupport();
   }, [user]);
 
-  // Setup foreground message listener
-  useEffect(() => {
-    if (!isSupported) return;
-
-    let unsubscribeFn: (() => void) | null = null;
-
-    const setupListener = async () => {
-      try {
-        const { setupForegroundMessageListener } = await import("@/lib/firebase");
-        unsubscribeFn = await setupForegroundMessageListener((payload) => {
-          toast({
-            title: payload.notification?.title || "Nouvelle notification",
-            description: payload.notification?.body,
-          });
-        });
-      } catch (error) {
-        console.error("Error setting up message listener:", error);
-      }
-    };
-
-    setupListener();
-
-    return () => {
-      if (unsubscribeFn) {
-        unsubscribeFn();
-      }
-    };
-  }, [isSupported]);
-
   // Subscribe to FCM
   const subscribe = useCallback(async (): Promise<boolean> => {
     if (!isSupported || !user) return false;
@@ -97,11 +67,6 @@ export const useFirebasePush = (): UseFirebasePushReturn => {
       
       if (!fcmToken) {
         console.error("Failed to get FCM token");
-        toast({
-          title: "Erreur",
-          description: "Impossible d'activer les notifications. Vérifiez les permissions.",
-          variant: "destructive",
-        });
         return false;
       }
 
@@ -119,30 +84,15 @@ export const useFirebasePush = (): UseFirebasePushReturn => {
 
       if (error) {
         console.error("Error storing FCM token:", error);
-        toast({
-          title: "Erreur",
-          description: "Impossible d'enregistrer les notifications.",
-          variant: "destructive",
-        });
         return false;
       }
 
       setIsSubscribed(true);
       setPermission("granted");
       
-      toast({
-        title: "Notifications activées",
-        description: "Vous recevrez des alertes même lorsque l'app est fermée.",
-      });
-      
       return true;
     } catch (error) {
       console.error("Error subscribing to FCM:", error);
-      toast({
-        title: "Erreur",
-        description: "Une erreur est survenue lors de l'activation.",
-        variant: "destructive",
-      });
       return false;
     } finally {
       setIsLoading(false);
@@ -168,11 +118,6 @@ export const useFirebasePush = (): UseFirebasePushReturn => {
       }
 
       setIsSubscribed(false);
-      
-      toast({
-        title: "Notifications désactivées",
-        description: "Vous ne recevrez plus d'alertes push.",
-      });
       
       return true;
     } catch (error) {
