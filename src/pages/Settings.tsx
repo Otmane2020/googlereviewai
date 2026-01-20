@@ -210,6 +210,42 @@ const SettingsPage = () => {
     }
   };
 
+  // Handle push notification subscribe with feedback
+  const handleSubscribePush = async () => {
+    const success = await subscribePush();
+    if (success) {
+      toast({
+        title: "Notifications activées",
+        description: "Vous recevrez les alertes push même quand l'app est fermée.",
+      });
+    } else {
+      toast({
+        title: "Erreur",
+        description: pushPermission === "denied" 
+          ? "Les notifications sont bloquées. Activez-les dans les paramètres de votre navigateur."
+          : "Impossible d'activer les notifications. Vérifiez que vous avez autorisé les notifications.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Handle push notification unsubscribe with feedback
+  const handleUnsubscribePush = async () => {
+    const success = await unsubscribePush();
+    if (success) {
+      toast({
+        title: "Notifications désactivées",
+        description: "Vous ne recevrez plus les alertes push.",
+      });
+    } else {
+      toast({
+        title: "Erreur",
+        description: "Impossible de désactiver les notifications.",
+        variant: "destructive",
+      });
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
@@ -505,7 +541,7 @@ const SettingsPage = () => {
                 <Button
                   variant={pushSubscribed ? "outline" : "default"}
                   size="sm"
-                  onClick={pushSubscribed ? unsubscribePush : subscribePush}
+                  onClick={pushSubscribed ? handleUnsubscribePush : handleSubscribePush}
                   disabled={pushLoading}
                   className="rounded-xl h-9 shrink-0"
                 >
