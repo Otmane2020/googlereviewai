@@ -25,6 +25,7 @@ import Install from "./pages/Install";
 import SEOAutoPost from "./pages/SEOAutoPost";
 import AEORank from "./pages/AEORank";
 import MapsRank from "./pages/MapsRank";
+import Notifications from "./pages/Notifications";
 import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
 
@@ -98,6 +99,7 @@ const AppContent = () => {
             <Route path="/seo-autopost" element={<SEOAutoPost />} />
             <Route path="/aeo-rank" element={<AEORank />} />
             <Route path="/maps-rank" element={<MapsRank />} />
+            <Route path="/notifications" element={<Notifications />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
           {/* Global prompts */}
