@@ -91,14 +91,21 @@ const Notifications = () => {
   const handleNotificationClick = (notification: typeof notifications[0]) => {
     markAsRead(notification.id);
     
-    if (notification.type === "pending_reviews" || notification.review_id) {
-      navigate("/reviews");
+    // Navigate to reviews with review_id filter if available
+    if (notification.type === "new_review" && notification.review_id) {
+      navigate(`/reviews?review_id=${notification.review_id}`);
+    } else if (notification.type === "pending_reviews" || notification.review_id) {
+      navigate(notification.review_id ? `/reviews?review_id=${notification.review_id}` : "/reviews?status=pending");
     } else if (notification.type === "seo_reminder" || notification.type === "seo_promo") {
       navigate("/seo-autopost");
     } else if (notification.type === "aeo_reminder" || notification.type === "aeo_promo") {
       navigate("/aeo-rank");
     } else if (notification.type === "ai_tip") {
       navigate("/ai-settings");
+    } else if (notification.type === "ai_response" && notification.review_id) {
+      navigate(`/reviews?review_id=${notification.review_id}`);
+    } else {
+      navigate("/reviews");
     }
   };
 

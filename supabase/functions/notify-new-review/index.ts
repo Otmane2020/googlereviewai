@@ -38,6 +38,10 @@ serve(async (req) => {
       );
     }
 
+    // URL with review_id filter to navigate directly to this review
+    const reviewUrl = `/reviews?review_id=${review_id}`;
+    const fullReviewUrl = `https://starlinko.lovable.app/reviews?review_id=${review_id}`;
+
     // Get user settings and profile
     const [settingsResult, profileResult] = await Promise.all([
       supabase.from("ai_settings").select("email_notifications").eq("user_id", user_id).single(),
@@ -93,7 +97,7 @@ serve(async (req) => {
                   ${comment ? `<p style="font-style: italic; color: #555;">"${comment}"</p>` : ''}
                 </div>
                 <p>Connectez-vous à Starlinko pour répondre à cet avis.</p>
-                <a href="https://starlinko.lovable.app/reviews" style="display: inline-block; background: #7c3aed; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; margin-top: 10px;">Voir l'avis</a>
+                <a href="${fullReviewUrl}" style="display: inline-block; background: #7c3aed; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; margin-top: 10px;">Voir l'avis</a>
                 <p style="color: #888; font-size: 12px; margin-top: 30px;">Starlinko - Gérez vos avis Google facilement</p>
               </div>
             `,
@@ -112,7 +116,7 @@ serve(async (req) => {
       }
     }
 
-    // 3. Send push notification
+    // 3. Send push notification with review_id in URL
     try {
       const pushResponse = await fetch(`${supabaseUrl}/functions/v1/send-push-notification`, {
         method: "POST",
@@ -124,7 +128,8 @@ serve(async (req) => {
           user_id,
           title: notificationTitle,
           body: notificationMessage,
-          url: "/reviews",
+          url: reviewUrl, // URL with review_id filter
+          data: { review_id },
         }),
       });
 
