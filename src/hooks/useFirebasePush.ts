@@ -57,28 +57,47 @@ export const useFirebasePush = (): UseFirebasePushReturn => {
 
   // Subscribe to FCM
   const subscribe = useCallback(async (): Promise<boolean> => {
-    if (!isSupported || !user) return false;
+    console.log("[useFirebasePush] subscribe called", { isSupported, user: !!user });
+    
+    if (!isSupported) {
+      console.error("[useFirebasePush] Push not supported");
+      return false;
+    }
+    
+    if (!user) {
+      console.error("[useFirebasePush] No user");
+      return false;
+    }
 
     setIsLoading(true);
 
     try {
+      console.log("[useFirebasePush] Importing firebase...");
       const { getFCMToken } = await import("@/lib/firebase");
+      
+      console.log("[useFirebasePush] Getting FCM token with VAPID key...");
       const fcmToken = await getFCMToken(VAPID_KEY);
       
       if (!fcmToken) {
-        console.error("Failed to get FCM token");
+        console.error("[useFirebasePush] Failed to get FCM token");
         return false;
       }
 
-      console.log("FCM Token to store:", fcmToken.substring(0, 20) + "...");
+      console.log("[useFirebasePush] FCM Token obtained:", fcmToken.substring(0, 30) + "...");
 
       // Delete old subscriptions first to avoid conflicts
-      await supabase
+      console.log("[useFirebasePush] Deleting old subscriptions...");
+      const { error: deleteError } = await supabase
         .from("push_subscriptions")
         .delete()
         .eq("user_id", user.id);
+      
+      if (deleteError) {
+        console.error("[useFirebasePush] Delete error:", deleteError);
+      }
 
       // Store FCM token in database
+      console.log("[useFirebasePush] Inserting new subscription...");
       const { error } = await supabase
         .from("push_subscriptions")
         .insert({
@@ -89,17 +108,17 @@ export const useFirebasePush = (): UseFirebasePushReturn => {
         });
 
       if (error) {
-        console.error("Error storing FCM token:", error);
+        console.error("[useFirebasePush] Insert error:", error);
         return false;
       }
 
-      console.log("FCM token stored successfully");
+      console.log("[useFirebasePush] FCM token stored successfully");
       setIsSubscribed(true);
       setPermission("granted");
       
       return true;
     } catch (error) {
-      console.error("Error subscribing to FCM:", error);
+      console.error("[useFirebasePush] Error subscribing to FCM:", error);
       return false;
     } finally {
       setIsLoading(false);
