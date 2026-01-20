@@ -354,8 +354,11 @@ const MapsRank = () => {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="500">500 mètres</SelectItem>
-                    <SelectItem value="1000">1 kilomètre</SelectItem>
-                    <SelectItem value="2000">2 kilomètres</SelectItem>
+                    <SelectItem value="1000">1 km</SelectItem>
+                    <SelectItem value="2000">2 km</SelectItem>
+                    <SelectItem value="3000">3 km</SelectItem>
+                    <SelectItem value="5000">5 km</SelectItem>
+                    <SelectItem value="10000">10 km</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

@@ -61,8 +61,10 @@ async function searchPlaces(
   lat: number,
   lng: number,
   apiKey: string,
-  radiusM: number = 2000
+  spacingM: number = 1000
 ): Promise<{ places: any[]; error?: string }> {
+  // Use a radius that covers the area between points but not too large
+  const radiusM = Math.max(spacingM * 1.5, 5000);
   try {
     const response = await fetch(
       "https://places.googleapis.com/v1/places:searchText",
@@ -255,7 +257,7 @@ serve(async (req) => {
     for (const point of gridPoints) {
       logStep(`Processing point ${point.label}`, { lat: point.lat, lng: point.lng });
 
-      const { places, error } = await searchPlaces(keyword, point.lat, point.lng, apiKey);
+      const { places, error } = await searchPlaces(keyword, point.lat, point.lng, apiKey, spacing_m);
 
       if (error) {
         hasError = true;
