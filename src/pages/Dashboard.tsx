@@ -44,6 +44,8 @@ interface Review {
   comment: string | null;
   review_date: string;
   ai_response: string | null;
+  google_reply: string | null;
+  published_to_google: boolean | null;
 }
 
 const Dashboard = () => {
@@ -73,7 +75,7 @@ const Dashboard = () => {
     while (hasMore) {
       const { data, error } = await supabase
         .from("reviews")
-        .select("id, author, rating, comment, review_date, ai_response")
+        .select("id, author, rating, comment, review_date, ai_response, google_reply, published_to_google")
         .eq("user_id", user.id)
         .order("review_date", { ascending: false })
         .range(page * pageSize, (page + 1) * pageSize - 1);
@@ -94,11 +96,13 @@ const Dashboard = () => {
 
     if (profileRes.data) setProfile(profileRes.data);
     
-    // Sort by pending first, then by date
+    // Sort by pending first (no AI response AND no Google reply), then by date
     const sortedReviews = allReviews.sort((a, b) => {
-      // Pending reviews first
-      if (!a.ai_response && b.ai_response) return -1;
-      if (a.ai_response && !b.ai_response) return 1;
+      // Pending reviews first (neither AI response nor Google reply)
+      const aPending = !a.ai_response && !a.google_reply;
+      const bPending = !b.ai_response && !b.google_reply;
+      if (aPending && !bPending) return -1;
+      if (!aPending && bPending) return 1;
       // Then by date
       return new Date(b.review_date).getTime() - new Date(a.review_date).getTime();
     });
@@ -107,14 +111,16 @@ const Dashboard = () => {
     
     const total = allReviews.length;
     const avgRating = total > 0 ? allReviews.reduce((sum, r) => sum + r.rating, 0) / total : 0;
-    const aiResponses = allReviews.filter(r => r.ai_response).length;
-    const pending = allReviews.filter(r => !r.ai_response).length;
-    const responseRate = total > 0 ? Math.round((aiResponses / total) * 100) : 0;
+    // Count responses: either AI response OR existing Google reply
+    const responded = allReviews.filter(r => r.ai_response || r.google_reply).length;
+    // Pending = no AI response AND no Google reply
+    const pending = allReviews.filter(r => !r.ai_response && !r.google_reply).length;
+    const responseRate = total > 0 ? Math.round((responded / total) * 100) : 0;
     
     setStats({
       total,
       avgRating: Number(avgRating.toFixed(1)),
-      aiResponses,
+      aiResponses: responded,
       pending,
       businesses: businessesRes.count || 0,
       responseRate
@@ -380,7 +386,7 @@ const Dashboard = () => {
                 }`}>
                   <div className="flex items-start gap-3">
                     <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold flex-shrink-0 ${
-                      !review.ai_response 
+                      !review.ai_response && !review.google_reply
                         ? "bg-orange-500/20 text-orange-600" 
                         : "bg-gradient-to-br from-primary/20 to-secondary/20 text-foreground"
                     }`}>
@@ -394,10 +400,10 @@ const Dashboard = () => {
                             <Star key={i} className={`w-3 h-3 ${i < review.rating ? "text-yellow-500 fill-yellow-500" : "text-muted-foreground/20"}`} />
                           ))}
                         </div>
-                        {review.ai_response ? (
+                        {review.ai_response || review.google_reply ? (
                           <span className="text-[10px] bg-green-500/10 text-green-600 px-2 py-0.5 rounded-full font-medium flex items-center gap-1">
                             <CheckCircle2 className="w-2.5 h-2.5" />
-                            Répondu
+                            {review.google_reply ? "Répondu" : "IA prête"}
                           </span>
                         ) : (
                           <span className="text-[10px] bg-orange-500/10 text-orange-600 px-2 py-0.5 rounded-full font-medium flex items-center gap-1 animate-pulse">
