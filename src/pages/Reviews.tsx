@@ -69,7 +69,7 @@ const REVIEWS_PER_PAGE = 10;
 const Reviews = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [reviews, setReviews] = useState<Review[]>([]);
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [selectedBusinessId, setSelectedBusinessId] = useState<string>("");
@@ -80,6 +80,10 @@ const Reviews = () => {
     // Initialize from URL params if present
     const statusParam = new URLSearchParams(window.location.search).get("status");
     return statusParam || "all";
+  });
+  // Filter by specific review_id from URL (from notifications)
+  const [filterReviewId, setFilterReviewId] = useState<string | null>(() => {
+    return new URLSearchParams(window.location.search).get("review_id");
   });
   const [currentPage, setCurrentPage] = useState(1);
   const [generatingId, setGeneratingId] = useState<number | null>(null);
@@ -95,6 +99,21 @@ const Reviews = () => {
   const [currentPlan, setCurrentPlan] = useState<string | null>(null);
   const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
   const [previewReview, setPreviewReview] = useState<Review | null>(null);
+
+  // Sync URL params with state
+  useEffect(() => {
+    const statusParam = searchParams.get("status");
+    const reviewIdParam = searchParams.get("review_id");
+    
+    if (statusParam) {
+      setFilterStatus(statusParam);
+    }
+    if (reviewIdParam) {
+      setFilterReviewId(reviewIdParam);
+      // Clear status filter when filtering by specific review
+      setFilterStatus("all");
+    }
+  }, [searchParams]);
 
   // Load saved business selection from localStorage
   useEffect(() => {
@@ -315,21 +334,36 @@ const Reviews = () => {
   }, [reviews, selectedBusiness]);
 
   // Filters - A review is pending if NOT published to Google AND no google_reply
-  const filteredReviews = businessReviews.filter((review) => {
-    const matchesSearch = review.author.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (review.comment && review.comment.toLowerCase().includes(searchTerm.toLowerCase()));
-    const matchesRating = filterRating === "all" || review.rating === parseInt(filterRating);
-    const matchesStatus = filterStatus === "all" || 
-      (filterStatus === "pending" && !review.published_to_google && !review.google_reply) ||
-      (filterStatus === "ready" && review.ai_response && !review.published_to_google && !review.google_reply) ||
-      (filterStatus === "published" && (review.published_to_google || review.google_reply));
-    return matchesSearch && matchesRating && matchesStatus;
-  });
+  // Also supports filtering by specific review_id from URL (notifications)
+  const filteredReviews = useMemo(() => {
+    // If filtering by specific review_id, find in all reviews (ignore business filter)
+    if (filterReviewId) {
+      const reviewById = reviews.find(r => r.id.toString() === filterReviewId);
+      return reviewById ? [reviewById] : [];
+    }
+
+    return businessReviews.filter((review) => {
+      const matchesSearch = review.author.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (review.comment && review.comment.toLowerCase().includes(searchTerm.toLowerCase()));
+      const matchesRating = filterRating === "all" || review.rating === parseInt(filterRating);
+      const matchesStatus = filterStatus === "all" || 
+        (filterStatus === "pending" && !review.published_to_google && !review.google_reply) ||
+        (filterStatus === "ready" && review.ai_response && !review.published_to_google && !review.google_reply) ||
+        (filterStatus === "published" && (review.published_to_google || review.google_reply));
+      return matchesSearch && matchesRating && matchesStatus;
+    });
+  }, [businessReviews, reviews, filterReviewId, searchTerm, filterRating, filterStatus]);
 
   const totalPages = Math.ceil(filteredReviews.length / REVIEWS_PER_PAGE);
   const paginatedReviews = filteredReviews.slice((currentPage - 1) * REVIEWS_PER_PAGE, currentPage * REVIEWS_PER_PAGE);
 
-  useEffect(() => { setCurrentPage(1); }, [searchTerm, filterRating, filterStatus, selectedBusinessId]);
+  // Clear review_id filter function
+  const clearReviewIdFilter = () => {
+    setFilterReviewId(null);
+    setSearchParams({});
+  };
+
+  useEffect(() => { setCurrentPage(1); }, [searchTerm, filterRating, filterStatus, selectedBusinessId, filterReviewId]);
 
   // A review is considered "replied" ONLY if published_to_google OR has google_reply (manual response)
   // Having just ai_response does NOT count as replied
@@ -561,8 +595,28 @@ const Reviews = () => {
 
       <main className="max-w-6xl mx-auto px-4 py-6 space-y-4">
 
+        {/* Single review filter banner (when coming from notification) */}
+        {filterReviewId && (
+          <div className="bg-accent/10 border border-accent/30 rounded-xl p-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Star className="w-5 h-5 text-accent" />
+              <span className="text-sm font-medium">
+                Affichage d'un avis spécifique depuis une notification
+              </span>
+            </div>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={clearReviewIdFilter}
+              className="gap-1.5"
+            >
+              Voir tous les avis
+            </Button>
+          </div>
+        )}
+
         {/* Google-style Star Rating Filter */}
-        {selectedBusinessId && (
+        {selectedBusinessId && !filterReviewId && (
           <div className="bg-card rounded-xl border border-border p-4">
             <div className="flex flex-col sm:flex-row gap-4">
               {/* Rating Distribution */}
