@@ -174,13 +174,17 @@ const SelectPlan = () => {
             </span>
             <button
               onClick={() => setIsYearly(!isYearly)}
-              className={`relative w-12 h-6 rounded-full transition-colors border ${
-                isYearly ? "bg-foreground border-foreground" : "bg-muted border-border"
+              className={`relative w-14 h-7 rounded-full transition-colors border-2 ${
+                isYearly 
+                  ? "bg-primary border-primary" 
+                  : "bg-muted border-border"
               }`}
             >
               <div
-                className={`absolute top-0.5 w-5 h-5 rounded-full shadow-md transition-transform ${
-                  isYearly ? "translate-x-6 bg-background" : "translate-x-0.5 bg-foreground"
+                className={`absolute top-0.5 w-5 h-5 rounded-full shadow-lg transition-transform ${
+                  isYearly 
+                    ? "translate-x-7 bg-primary-foreground" 
+                    : "translate-x-1 bg-primary"
                 }`}
               />
             </button>
