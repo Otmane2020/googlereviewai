@@ -299,6 +299,117 @@ export type Database = {
           },
         ]
       }
+      maps_rank_scan_points: {
+        Row: {
+          competitors: Json | null
+          created_at: string
+          id: string
+          label: string
+          lat: number
+          lng: number
+          rank_position: number | null
+          scan_id: string
+          total_results: number | null
+          user_id: string
+        }
+        Insert: {
+          competitors?: Json | null
+          created_at?: string
+          id?: string
+          label: string
+          lat: number
+          lng: number
+          rank_position?: number | null
+          scan_id: string
+          total_results?: number | null
+          user_id: string
+        }
+        Update: {
+          competitors?: Json | null
+          created_at?: string
+          id?: string
+          label?: string
+          lat?: number
+          lng?: number
+          rank_position?: number | null
+          scan_id?: string
+          total_results?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "maps_rank_scan_points_scan_id_fkey"
+            columns: ["scan_id"]
+            isOneToOne: false
+            referencedRelation: "maps_rank_scans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "maps_rank_scan_points_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      maps_rank_scans: {
+        Row: {
+          business_id: string
+          center_lat: number | null
+          center_lng: number | null
+          created_at: string
+          error_message: string | null
+          grid_size: number
+          id: string
+          keyword: string
+          spacing_m: number
+          status: string
+          user_id: string
+        }
+        Insert: {
+          business_id: string
+          center_lat?: number | null
+          center_lng?: number | null
+          created_at?: string
+          error_message?: string | null
+          grid_size: number
+          id?: string
+          keyword: string
+          spacing_m: number
+          status?: string
+          user_id: string
+        }
+        Update: {
+          business_id?: string
+          center_lat?: number | null
+          center_lng?: number | null
+          created_at?: string
+          error_message?: string | null
+          grid_size?: number
+          id?: string
+          keyword?: string
+          spacing_m?: number
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "maps_rank_scans_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "maps_rank_scans_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notifications: {
         Row: {
           created_at: string

@@ -4,14 +4,14 @@ import {
   Star, 
   Building2, 
   Settings,
-  Sparkles
+  Target
 } from "lucide-react";
 
 const navItems = [
   { icon: LayoutGrid, label: "Accueil", href: "/dashboard" },
   { icon: Star, label: "Avis", href: "/reviews" },
   { icon: Building2, label: "Business", href: "/businesses" },
-  { icon: Sparkles, label: "IA", href: "/ai-settings" },
+  { icon: Target, label: "Maps", href: "/maps-rank" },
   { icon: Settings, label: "Réglages", href: "/settings" },
 ];
 

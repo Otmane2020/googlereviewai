@@ -17,7 +17,8 @@ import {
   Search,
   Plus,
   CreditCard,
-  ChevronRight
+  ChevronRight,
+  Target
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -44,6 +45,7 @@ const navItems = [
   { label: "Établissements", href: "/businesses", icon: Building2 },
   { label: "SEO Auto", href: "/seo-autopost", icon: FileText },
   { label: "AEO Rank", href: "/aeo-rank", icon: Search },
+  { label: "Maps Rank", href: "/maps-rank", icon: Target },
 ];
 
 const menuItems = [
