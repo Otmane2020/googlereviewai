@@ -602,7 +602,7 @@ const BusinessesPage = () => {
 
                   {/* Action buttons row with popups */}
                   <div className="flex flex-wrap gap-2 mb-4">
-                    {/* URL Popup */}
+                    {/* URL Popup with edit functionality */}
                     <Sheet>
                       <SheetTrigger asChild>
                         <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs">
@@ -610,7 +610,7 @@ const BusinessesPage = () => {
                           Liens
                         </Button>
                       </SheetTrigger>
-                      <SheetContent side="bottom" className="max-h-[60vh]">
+                      <SheetContent side="bottom" className="max-h-[70vh] overflow-y-auto">
                         <SheetHeader>
                           <SheetTitle className="flex items-center gap-2">
                             <Link className="w-5 h-5" />
@@ -618,22 +618,99 @@ const BusinessesPage = () => {
                           </SheetTitle>
                         </SheetHeader>
                         <div className="space-y-4 py-4">
-                          {business.website && (
-                            <div className="flex items-center justify-between p-3 bg-muted/50 rounded-xl">
-                              <div className="flex items-center gap-3">
-                                <Globe className="w-5 h-5 text-primary" />
-                                <div>
-                                  <p className="text-sm font-medium">Site web</p>
-                                  <p className="text-xs text-muted-foreground truncate max-w-[200px]">{business.website}</p>
-                                </div>
-                              </div>
-                              <Button size="sm" variant="outline" asChild>
-                                <a href={business.website} target="_blank" rel="noopener noreferrer">
-                                  <ExternalLink className="w-4 h-4" />
-                                </a>
+                          {/* Editable Website URL */}
+                          <div className="space-y-2">
+                            <Label className="flex items-center gap-2 text-sm font-medium">
+                              <Globe className="w-4 h-4 text-primary" />
+                              URL du site web
+                            </Label>
+                            <div className="flex gap-2">
+                              <Input
+                                type="url"
+                                placeholder="https://www.monsite.fr"
+                                defaultValue={business.website || ""}
+                                id={`website-input-${business.id}`}
+                                className="flex-1"
+                              />
+                              <Button
+                                size="sm"
+                                onClick={async () => {
+                                  const input = document.getElementById(`website-input-${business.id}`) as HTMLInputElement;
+                                  const newUrl = input?.value?.trim() || null;
+                                  
+                                  const { error } = await supabase
+                                    .from("businesses")
+                                    .update({ website: newUrl, updated_at: new Date().toISOString() })
+                                    .eq("id", business.id);
+                                  
+                                  if (!error) {
+                                    setBusinesses(prev => prev.map(b => 
+                                      b.id === business.id ? { ...b, website: newUrl } : b
+                                    ));
+                                    toast({ title: "URL enregistrée ✓" });
+                                  }
+                                }}
+                              >
+                                <CheckCircle className="w-4 h-4" />
                               </Button>
                             </div>
-                          )}
+                            <p className="text-xs text-muted-foreground">
+                              Cette URL sera analysée par l'IA pour enrichir vos mots-clés
+                            </p>
+                          </div>
+
+                          {/* Analyze with AI button */}
+                          <Button
+                            className="w-full gap-2"
+                            disabled={analyzingId === business.id || !business.website}
+                            onClick={async () => {
+                              setAnalyzingId(business.id);
+                              try {
+                                const { data, error } = await supabase.functions.invoke('analyze-business-website', {
+                                  body: { 
+                                    businessId: business.id,
+                                    website: business.website,
+                                    generateContent: true
+                                  }
+                                });
+                                
+                                if (error) throw error;
+                                
+                                setBusinesses(prev => prev.map(b => 
+                                  b.id === business.id ? { 
+                                    ...b, 
+                                    description: data?.description || b.description,
+                                    auto_keywords: data?.keywords || b.auto_keywords 
+                                  } : b
+                                ));
+                                
+                                toast({
+                                  title: "Analyse terminée ✨",
+                                  description: `${data?.keywords?.length || 0} mots-clés + ${data?.aeo_questions?.length || 0} questions AEO générées`,
+                                });
+                              } catch (err) {
+                                console.error('Error analyzing:', err);
+                                toast({
+                                  title: "Erreur",
+                                  description: "Impossible d'analyser le site",
+                                  variant: "destructive"
+                                });
+                              } finally {
+                                setAnalyzingId(null);
+                              }
+                            }}
+                          >
+                            {analyzingId === business.id ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <Sparkles className="w-4 h-4" />
+                            )}
+                            {analyzingId === business.id 
+                              ? "Analyse en cours..." 
+                              : "Analyser avec Firecrawl + IA"}
+                          </Button>
+
+                          {/* Google Maps link */}
                           {business.maps_url && (
                             <div className="flex items-center justify-between p-3 bg-muted/50 rounded-xl">
                               <div className="flex items-center gap-3">
@@ -650,8 +727,15 @@ const BusinessesPage = () => {
                               </Button>
                             </div>
                           )}
-                          {!business.website && !business.maps_url && (
-                            <p className="text-sm text-muted-foreground text-center py-4">Aucun lien disponible</p>
+
+                          {/* Open website button */}
+                          {business.website && (
+                            <Button variant="outline" className="w-full gap-2" asChild>
+                              <a href={business.website} target="_blank" rel="noopener noreferrer">
+                                <ExternalLink className="w-4 h-4" />
+                                Ouvrir le site web
+                              </a>
+                            </Button>
                           )}
                         </div>
                       </SheetContent>

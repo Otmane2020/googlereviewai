@@ -33,23 +33,38 @@ serve(async (req) => {
       throw new Error("User not authenticated");
     }
 
-    const { businessId, website, gmbDescription } = await req.json();
+    const { businessId, website: providedWebsite, generateContent } = await req.json();
 
     if (!businessId) {
       throw new Error("businessId is required");
     }
 
-    console.log(`[ANALYZE] Starting analysis for business ${businessId}`);
+    // Get business info from DB
+    const { data: business, error: bizError } = await supabaseAdmin
+      .from("businesses")
+      .select("*")
+      .eq("id", businessId)
+      .eq("user_id", user.id)
+      .single();
+
+    if (bizError || !business) {
+      throw new Error("Business not found");
+    }
+
+    const website = providedWebsite || business.website;
+    const gmbDescription = business.description;
+
+    console.log(`[ANALYZE] Starting analysis for: ${business.name}`);
     console.log(`[ANALYZE] Website: ${website || "none"}`);
-    console.log(`[ANALYZE] GMB Description: ${gmbDescription?.substring(0, 100) || "none"}...`);
+    console.log(`[ANALYZE] Generate content: ${generateContent ? "YES" : "NO"}`);
 
     const firecrawlApiKey = Deno.env.get("FIRECRAWL_API_KEY");
     const lovableApiKey = Deno.env.get("LOVABLE_API_KEY");
 
     let websiteContent = "";
-    let extractedKeywords: string[] = [];
+    let websiteMetadata: any = null;
 
-    // Step 1: Scrape website with Firecrawl if available
+    // Step 1: Scrape website with Firecrawl
     if (website && firecrawlApiKey) {
       try {
         let formattedUrl = website.trim();
@@ -67,58 +82,76 @@ serve(async (req) => {
           },
           body: JSON.stringify({
             url: formattedUrl,
-            formats: ["markdown"],
+            formats: ["markdown", "links"],
             onlyMainContent: true,
-            waitFor: 2000,
+            waitFor: 3000,
           }),
         });
 
         if (scrapeResponse.ok) {
           const scrapeData = await scrapeResponse.json();
           websiteContent = scrapeData.data?.markdown || scrapeData.markdown || "";
+          websiteMetadata = scrapeData.data?.metadata || scrapeData.metadata || null;
           console.log(`[ANALYZE] Firecrawl scraped ${websiteContent.length} chars`);
         } else {
-          console.error(`[ANALYZE] Firecrawl error: ${scrapeResponse.status}`);
+          const errorText = await scrapeResponse.text();
+          console.error(`[ANALYZE] Firecrawl error: ${scrapeResponse.status}`, errorText);
         }
       } catch (e) {
         console.error(`[ANALYZE] Firecrawl scrape failed:`, e);
       }
     }
 
-    // Step 2: Combine website content + GMB description for analysis
+    // Step 2: Combine content for analysis
     const fullContent = [
-      websiteContent ? `CONTENU DU SITE WEB:\n${websiteContent.substring(0, 5000)}` : "",
+      websiteContent ? `CONTENU DU SITE WEB:\n${websiteContent.substring(0, 8000)}` : "",
       gmbDescription ? `DESCRIPTION GOOGLE MY BUSINESS:\n${gmbDescription}` : "",
+      business.categories?.length ? `CATÉGORIES: ${business.categories.join(", ")}` : "",
+      business.address ? `ADRESSE: ${business.address}` : "",
     ].filter(Boolean).join("\n\n");
 
     if (!fullContent) {
       console.log("[ANALYZE] No content to analyze");
       return new Response(
-        JSON.stringify({ success: true, keywords: [], message: "No content to analyze" }),
+        JSON.stringify({ success: true, keywords: [], message: "Aucun contenu à analyser. Ajoutez un site web." }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    // Step 3: Use AI to extract keywords
+    let extractedKeywords: string[] = [];
+    let generatedDescription = "";
+    let aeoContent: any[] = [];
+    let seoContent: any[] = [];
+
+    // Step 3: AI Analysis - Keywords + Description + Optional AEO/SEO
     if (lovableApiKey) {
       try {
-        console.log(`[ANALYZE] Extracting keywords with AI from ${fullContent.length} chars`);
+        console.log(`[ANALYZE] AI analysis on ${fullContent.length} chars`);
 
-        const prompt = `Analyse ce contenu et extrais les mots-clés SEO les plus pertinents pour améliorer la visibilité de cette entreprise.
+        const prompt = `Tu es un expert SEO local français. Analyse ce contenu d'entreprise et génère:
 
-${fullContent.substring(0, 6000)}
+ENTREPRISE: ${business.name}
+${fullContent.substring(0, 10000)}
+
+GÉNÈRE CE JSON (sans markdown, juste le JSON):
+{
+  "keywords": ["15 mots-clés SEO pertinents pour cette entreprise locale"],
+  "description": "Description marketing de 150-200 mots optimisée SEO, professionnelle et engageante",
+  "aeo_questions": [
+    {"question": "Question que les clients posent à ChatGPT/Google", "answer": "Réponse optimisée 100-150 mots"},
+    {"question": "...", "answer": "..."},
+    {"question": "...", "answer": "..."}
+  ],
+  "seo_titles": [
+    "5 idées de titres d'articles de blog SEO pour cette entreprise"
+  ]
+}
 
 RÈGLES:
-1. Extrais 10-15 mots-clés/expressions pertinents
-2. Focus sur: services, produits, localisation, spécialités
-3. Inclus des expressions longue traîne (2-4 mots)
-4. Priorise les termes que les clients rechercheraient
-5. Évite les mots trop génériques (qualité, service, professionnel...)
-
-Réponds UNIQUEMENT avec ce JSON:
-{
-  "keywords": ["mot-clé 1", "expression clé 2", "service spécifique", ...]
-}`;
+- Keywords: expressions 2-4 mots que les clients locaux recherchent
+- Description: ton professionnel, mentionner la localisation, services principaux
+- AEO: 3 questions fréquentes avec réponses complètes pour l'AI Engine Optimization
+- SEO titles: titres d'articles captivants avec mots-clés locaux`;
 
         const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
           method: "POST",
@@ -127,10 +160,10 @@ Réponds UNIQUEMENT avec ce JSON:
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            model: "google/gemini-2.5-flash-lite",
+            model: "google/gemini-2.5-flash",
             messages: [{ role: "user", content: prompt }],
-            temperature: 0.3,
-            max_tokens: 500,
+            temperature: 0.4,
+            max_tokens: 2000,
           }),
         });
 
@@ -142,41 +175,95 @@ Réponds UNIQUEMENT avec ce JSON:
           const jsonMatch = content.match(/\{[\s\S]*\}/);
           if (jsonMatch) {
             const parsed = JSON.parse(jsonMatch[0]);
+            
             if (Array.isArray(parsed.keywords)) {
               extractedKeywords = parsed.keywords
                 .filter((k: any) => typeof k === "string" && k.length > 2)
                 .slice(0, 15);
-              console.log(`[ANALYZE] AI extracted ${extractedKeywords.length} keywords:`, extractedKeywords);
+              console.log(`[ANALYZE] Extracted ${extractedKeywords.length} keywords`);
+            }
+
+            if (parsed.description && typeof parsed.description === "string") {
+              generatedDescription = parsed.description;
+              console.log(`[ANALYZE] Generated description: ${generatedDescription.length} chars`);
+            }
+
+            if (Array.isArray(parsed.aeo_questions)) {
+              aeoContent = parsed.aeo_questions.slice(0, 5);
+              console.log(`[ANALYZE] Generated ${aeoContent.length} AEO questions`);
+            }
+
+            if (Array.isArray(parsed.seo_titles)) {
+              seoContent = parsed.seo_titles.slice(0, 5);
+              console.log(`[ANALYZE] Generated ${seoContent.length} SEO titles`);
             }
           }
+        } else {
+          const errText = await aiResponse.text();
+          console.error(`[ANALYZE] AI error: ${aiResponse.status}`, errText);
         }
       } catch (e) {
-        console.error(`[ANALYZE] AI keyword extraction failed:`, e);
+        console.error(`[ANALYZE] AI analysis failed:`, e);
       }
     }
 
-    // Step 4: Update business with keywords
+    // Step 4: Update business with keywords and description
+    const updateData: any = {
+      updated_at: new Date().toISOString(),
+    };
+
     if (extractedKeywords.length > 0) {
+      updateData.auto_keywords = extractedKeywords;
+    }
+
+    if (generatedDescription && !business.description) {
+      // Only update description if it was empty
+      updateData.description = generatedDescription;
+    }
+
+    if (Object.keys(updateData).length > 1) {
       const { error: updateError } = await supabaseAdmin
         .from("businesses")
-        .update({ 
-          auto_keywords: extractedKeywords,
-          updated_at: new Date().toISOString(),
-        })
+        .update(updateData)
         .eq("id", businessId)
         .eq("user_id", user.id);
 
       if (updateError) {
         console.error(`[ANALYZE] Failed to update business:`, updateError);
       } else {
-        console.log(`[ANALYZE] Updated business with ${extractedKeywords.length} keywords`);
+        console.log(`[ANALYZE] Updated business with keywords and description`);
       }
+    }
+
+    // Step 5: Save AEO questions if generated and requested
+    if (generateContent && aeoContent.length > 0) {
+      for (const qa of aeoContent) {
+        if (qa.question && qa.answer) {
+          const { error: aeoError } = await supabaseAdmin
+            .from("aeo_questions")
+            .insert({
+              user_id: user.id,
+              business_id: businessId,
+              question: qa.question,
+              answer: qa.answer,
+              keywords: extractedKeywords.slice(0, 5),
+            });
+
+          if (aeoError) {
+            console.error(`[ANALYZE] Failed to save AEO question:`, aeoError);
+          }
+        }
+      }
+      console.log(`[ANALYZE] Saved ${aeoContent.length} AEO questions`);
     }
 
     return new Response(
       JSON.stringify({
         success: true,
         keywords: extractedKeywords,
+        description: generatedDescription || business.description,
+        aeo_questions: aeoContent,
+        seo_titles: seoContent,
         websiteAnalyzed: !!websiteContent,
         gmbAnalyzed: !!gmbDescription,
       }),
