@@ -1,6 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -27,6 +26,18 @@ const PRICE_IDS = {
 const TRIAL_PLANS = ["starter_monthly", "starter_yearly"];
 const TRIAL_DAYS = 3;
 
+// Decode JWT payload without verification (verification done by Supabase)
+function decodeJwtPayload(token: string): { sub: string; email: string } | null {
+  try {
+    const parts = token.split(".");
+    if (parts.length !== 3) return null;
+    const payload = JSON.parse(atob(parts[1]));
+    return payload;
+  } catch {
+    return null;
+  }
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -36,51 +47,35 @@ serve(async (req) => {
     console.log("[create-embedded-checkout] Function started");
     
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
-    const supabaseUrl = Deno.env.get("SUPABASE_URL");
-    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
     
-    console.log("[create-embedded-checkout] Env check:", {
-      hasStripeKey: !!stripeKey,
-      hasSupabaseUrl: !!supabaseUrl,
-      hasServiceRoleKey: !!serviceRoleKey,
-    });
+    if (!stripeKey) {
+      throw new Error("STRIPE_SECRET_KEY not configured");
+    }
 
-    const stripe = new Stripe(stripeKey || "", {
+    const stripe = new Stripe(stripeKey, {
       apiVersion: "2025-08-27.basil",
     });
 
     // Get auth header
     const authHeader = req.headers.get("Authorization");
-    console.log("[create-embedded-checkout] Auth header present:", !!authHeader);
     
     if (!authHeader?.startsWith("Bearer ")) {
       console.error("[create-embedded-checkout] No valid auth header");
       throw new Error("Unauthorized");
     }
 
-    const supabaseClient = createClient(
-      supabaseUrl ?? "",
-      serviceRoleKey ?? "",
-      { auth: { persistSession: false } }
-    );
-
     const token = authHeader.replace("Bearer ", "");
-    console.log("[create-embedded-checkout] Validating token...");
+    const payload = decodeJwtPayload(token);
     
-    const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
-
-    if (userError) {
-      console.error("[create-embedded-checkout] Auth error:", userError.message);
-      throw new Error("Unauthorized");
-    }
-    
-    if (!userData.user) {
-      console.error("[create-embedded-checkout] No user found");
+    if (!payload || !payload.sub || !payload.email) {
+      console.error("[create-embedded-checkout] Invalid token payload");
       throw new Error("Unauthorized");
     }
 
-    const user = userData.user;
-    console.log("[create-embedded-checkout] User authenticated:", user.id);
+    const userId = payload.sub;
+    const userEmail = payload.email;
+    
+    console.log("[create-embedded-checkout] User from JWT:", userId, userEmail);
 
     const { priceKey } = await req.json();
 
@@ -93,7 +88,7 @@ serve(async (req) => {
 
     // Check if customer already exists
     const customers = await stripe.customers.list({
-      email: user.email,
+      email: userEmail,
       limit: 1,
     });
 
@@ -119,9 +114,9 @@ serve(async (req) => {
       if (hasUsdSubscriptions) {
         console.log("Customer has USD subscriptions, creating new customer for EUR prices");
         const newCustomer = await stripe.customers.create({
-          email: user.email,
+          email: userEmail,
           metadata: {
-            supabase_user_id: user.id,
+            supabase_user_id: userId,
             currency: "eur",
           },
         });
@@ -139,9 +134,9 @@ serve(async (req) => {
       }
     } else {
       const customer = await stripe.customers.create({
-        email: user.email,
+        email: userEmail,
         metadata: {
-          supabase_user_id: user.id,
+          supabase_user_id: userId,
         },
       });
       customerId = customer.id;
@@ -158,7 +153,7 @@ serve(async (req) => {
       ui_mode: "embedded",
       return_url: `${origin}/dashboard?session_id={CHECKOUT_SESSION_ID}`,
       metadata: {
-        supabase_user_id: user.id,
+        supabase_user_id: userId,
         price_key: priceKey,
       },
     };
@@ -168,7 +163,7 @@ serve(async (req) => {
       sessionParams.subscription_data = {
         trial_period_days: TRIAL_DAYS,
         metadata: {
-          supabase_user_id: user.id,
+          supabase_user_id: userId,
         },
       };
     }
