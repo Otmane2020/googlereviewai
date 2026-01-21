@@ -262,6 +262,7 @@ serve(async (req) => {
 
               // Batch process reviews for this page
               const reviewsToUpsert: any[] = [];
+              const reviewIdsInPage: string[] = [];
               
               for (const review of reviews) {
                 const fullReviewId = review.name || review.reviewId;
@@ -287,6 +288,10 @@ serve(async (req) => {
                   rating = review.starRating;
                 }
 
+                reviewIdsInPage.push(canonicalReviewId);
+                
+                // For existing reviews, we preserve notified status by setting it to true
+                // This prevents re-triggering notifications for old reviews
                 reviewsToUpsert.push({
                   user_id: user.id,
                   review_id: canonicalReviewId,
@@ -303,13 +308,28 @@ serve(async (req) => {
                 allGoogleReviewIds.push(canonicalReviewId);
               }
               
-              // Batch upsert all reviews from this page in one query
+              // Check which reviews already exist in DB
               if (reviewsToUpsert.length > 0) {
-                console.log(`Batch upserting ${reviewsToUpsert.length} reviews for ${locationTitle}`);
+                const { data: existingReviews } = await supabaseAdmin
+                  .from("reviews")
+                  .select("review_id")
+                  .eq("user_id", user.id)
+                  .in("review_id", reviewIdsInPage);
+                
+                const existingReviewIds = new Set((existingReviews || []).map(r => r.review_id));
+                
+                // For existing reviews, mark as notified to prevent re-notification
+                // For new reviews, let the trigger handle notification (notified will be false/null)
+                const reviewsWithNotified = reviewsToUpsert.map(r => ({
+                  ...r,
+                  notified: existingReviewIds.has(r.review_id) ? true : false
+                }));
+                
+                console.log(`Batch upserting ${reviewsWithNotified.length} reviews (${existingReviewIds.size} existing, ${reviewsWithNotified.length - existingReviewIds.size} new) for ${locationTitle}`);
                 
                 const { data: upsertedReviews, error: upsertError } = await supabaseAdmin
                   .from("reviews")
-                  .upsert(reviewsToUpsert, { 
+                  .upsert(reviewsWithNotified, { 
                     onConflict: "review_id,user_id",
                     ignoreDuplicates: false 
                   })
