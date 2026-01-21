@@ -486,16 +486,103 @@ const BusinessesPage = () => {
                     <span className="text-xs text-muted-foreground">({reviewCount} avis)</span>
                   </div>
 
-                  {/* Description visible */}
-                  {business.description ? (
-                    <div className="mb-3 p-3 bg-muted/50 rounded-xl">
-                      <p className="text-sm text-muted-foreground line-clamp-3">{business.description}</p>
-                    </div>
-                  ) : (
-                    <div className="mb-3 p-3 bg-muted/30 rounded-xl border border-dashed border-muted-foreground/20">
-                      <p className="text-xs text-muted-foreground italic">Aucune description. Cliquez sur ✏️ pour en ajouter une.</p>
-                    </div>
-                  )}
+                  {/* Description with popup preview */}
+                  <Sheet>
+                    <SheetTrigger asChild>
+                      {business.description ? (
+                        <div className="mb-3 p-3 bg-muted/50 rounded-xl cursor-pointer hover:bg-muted/70 transition-colors">
+                          <p className="text-sm text-muted-foreground line-clamp-3">{business.description}</p>
+                          <p className="text-xs text-primary mt-1">Voir plus →</p>
+                        </div>
+                      ) : (
+                        <div className="mb-3 p-3 bg-muted/30 rounded-xl border border-dashed border-muted-foreground/20 cursor-pointer hover:bg-muted/40 transition-colors">
+                          <p className="text-xs text-muted-foreground italic">Aucune description. Appuyez pour en générer une avec l'IA.</p>
+                        </div>
+                      )}
+                    </SheetTrigger>
+                    <SheetContent side="bottom" className="max-h-[80vh] overflow-y-auto">
+                      <SheetHeader>
+                        <SheetTitle className="flex items-center gap-2">
+                          <FileText className="w-5 h-5" />
+                          Description de {business.name}
+                        </SheetTitle>
+                      </SheetHeader>
+                      <div className="py-4 space-y-4">
+                        {business.description ? (
+                          <div className="p-4 bg-muted/50 rounded-xl">
+                            <p className="text-sm text-foreground whitespace-pre-wrap leading-relaxed">{business.description}</p>
+                          </div>
+                        ) : (
+                          <div className="p-4 bg-muted/30 rounded-xl border border-dashed border-muted-foreground/20">
+                            <p className="text-sm text-muted-foreground italic text-center">Aucune description disponible</p>
+                          </div>
+                        )}
+                        
+                        {/* Action buttons */}
+                        <div className="flex gap-2">
+                          <Button 
+                            variant="outline" 
+                            className="flex-1 gap-2"
+                            onClick={() => {
+                              setEditingBusiness(business);
+                              setEditDescription(business.description || "");
+                              setEditDialogOpen(true);
+                            }}
+                          >
+                            <Edit className="w-4 h-4" />
+                            Modifier
+                          </Button>
+                          <Button 
+                            className="flex-1 gap-2 bg-primary hover:bg-primary/90 text-primary-foreground"
+                            disabled={analyzingId === business.id}
+                            onClick={async () => {
+                              setAnalyzingId(business.id);
+                              try {
+                                const { data, error } = await supabase.functions.invoke('analyze-business-website', {
+                                  body: { businessId: business.id }
+                                });
+                                
+                                if (error) throw error;
+                                
+                                if (data?.description) {
+                                  // Update local state
+                                  setBusinesses(prev => prev.map(b => 
+                                    b.id === business.id ? { ...b, description: data.description, auto_keywords: data.keywords || b.auto_keywords } : b
+                                  ));
+                                  toast({
+                                    title: "Description générée ✨",
+                                    description: "La description a été créée avec l'IA",
+                                  });
+                                } else {
+                                  toast({
+                                    title: "Génération terminée",
+                                    description: data?.message || "Vérifiez les informations du business",
+                                    variant: "destructive"
+                                  });
+                                }
+                              } catch (err) {
+                                console.error('Error generating description:', err);
+                                toast({
+                                  title: "Erreur",
+                                  description: "Impossible de générer la description",
+                                  variant: "destructive"
+                                });
+                              } finally {
+                                setAnalyzingId(null);
+                              }
+                            }}
+                          >
+                            {analyzingId === business.id ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <Sparkles className="w-4 h-4" />
+                            )}
+                            {analyzingId === business.id ? "Génération..." : "Régénérer avec IA"}
+                          </Button>
+                        </div>
+                      </div>
+                    </SheetContent>
+                  </Sheet>
 
                   {/* Quick info: Address + Phone */}
                   <div className="space-y-1 text-sm mb-4">
