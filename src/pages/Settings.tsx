@@ -148,7 +148,7 @@ const SettingsPage = () => {
   const handleDisconnectGoogle = async () => {
     try {
       // Deactivate all businesses and clear tokens
-      await Promise.all([
+      const [businessResult, profileResult] = await Promise.all([
         supabase
           .from("businesses")
           .update({ is_active: false })
@@ -162,18 +162,25 @@ const SettingsPage = () => {
           })
           .eq("id", user!.id)
       ]);
+
+      if (businessResult.error) {
+        console.error("Error deactivating businesses:", businessResult.error);
+      }
+      if (profileResult.error) {
+        console.error("Error clearing tokens:", profileResult.error);
+      }
       
       toast({
         title: "Google déconnecté",
-        description: "Reconnectez Google pour réactiver vos établissements.",
+        description: "Cliquez sur 'Connecter Google' pour reconnecter.",
       });
       
+      // Update state immediately - don't rely on reload
       setIsGoogleConnected(false);
       setHasRefreshToken(false);
       
-      // Force page reload to refresh all state
-      window.location.reload();
     } catch (error) {
+      console.error("Disconnect error:", error);
       toast({
         title: "Erreur",
         description: "Impossible de déconnecter Google",
