@@ -55,7 +55,7 @@ function generateGrid(
   return points;
 }
 
-// Search Google Places for ranking
+// Search Google Places for ranking - using classic API with fallback to new API
 async function searchPlaces(
   keyword: string,
   lat: number,
@@ -63,9 +63,50 @@ async function searchPlaces(
   apiKey: string,
   spacingM: number = 1000
 ): Promise<{ places: any[]; error?: string }> {
-  // Use a radius that covers the area between points but not too large
   const radiusM = Math.max(spacingM * 1.5, 5000);
+  
+  // Try classic Places API (Nearby Search) first
   try {
+    const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=${radiusM}&keyword=${encodeURIComponent(keyword)}&key=${apiKey}&language=fr`;
+    const response = await fetch(url);
+    
+    if (response.ok) {
+      const data = await response.json();
+      if (data.status === "OK" && data.results) {
+        // Transform to common format
+        const places = data.results.map((p: any) => ({
+          id: p.place_id,
+          displayName: { text: p.name },
+          formattedAddress: p.vicinity || p.formatted_address,
+          rating: p.rating,
+          location: {
+            latitude: p.geometry.location.lat,
+            longitude: p.geometry.location.lng,
+          },
+        }));
+        console.log(`[Places Classic] Found ${places.length} results for "${keyword}"`);
+        return { places };
+      }
+      
+      if (data.status === "ZERO_RESULTS") {
+        console.log(`[Places Classic] Zero results for "${keyword}"`);
+        return { places: [] };
+      }
+      
+      if (data.status === "REQUEST_DENIED") {
+        console.error("[Places Classic] Request denied:", data.error_message);
+        // Fall through to try new API
+      } else {
+        console.log("[Places Classic] Status:", data.status);
+      }
+    }
+  } catch (error) {
+    console.error("[Places Classic] Error:", error);
+  }
+
+  // Fallback to Places API (New)
+  try {
+    console.log("[Places New] Trying new API as fallback...");
     const response = await fetch(
       "https://places.googleapis.com/v1/places:searchText",
       {
@@ -91,10 +132,10 @@ async function searchPlaces(
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("Places API error:", response.status, errorText);
+      console.error("Places API (New) error:", response.status, errorText);
       
       if (response.status === 403) {
-        return { places: [], error: "API key non autorisée. Vérifiez que Places API (New) est activée." };
+        return { places: [], error: "API key non autorisée. Activez 'Places API' dans la console Google Cloud." };
       }
       if (response.status === 429) {
         return { places: [], error: "Quota dépassé. Réessayez plus tard." };
@@ -111,13 +152,34 @@ async function searchPlaces(
   }
 }
 
-// Geocode address using Places API (New) instead of Geocoding API
+// Geocode address using Geocoding API (classic) as primary method
 async function geocodeAddress(
   address: string,
   apiKey: string
 ): Promise<{ lat: number; lng: number } | null> {
+  // Try classic Geocoding API first (more reliable)
   try {
-    // Use Places API textSearch to geocode the address
+    const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${apiKey}&language=fr`;
+    const response = await fetch(url);
+    
+    if (response.ok) {
+      const data = await response.json();
+      if (data.status === "OK" && data.results && data.results.length > 0) {
+        const location = data.results[0].geometry.location;
+        console.log("Geocoded address via Geocoding API:", { lat: location.lat, lng: location.lng });
+        return {
+          lat: location.lat,
+          lng: location.lng,
+        };
+      }
+      console.log("Geocoding API status:", data.status);
+    }
+  } catch (error) {
+    console.error("Geocoding API error:", error);
+  }
+
+  // Fallback to Places API (New)
+  try {
     const response = await fetch(
       "https://places.googleapis.com/v1/places:searchText",
       {
@@ -137,6 +199,8 @@ async function geocodeAddress(
 
     if (!response.ok) {
       console.error("Geocoding via Places API error:", response.status);
+      const text = await response.text();
+      console.error("Places API response:", text);
       return null;
     }
 
@@ -163,6 +227,30 @@ async function findBusinessPlaceId(
   address: string,
   apiKey: string
 ): Promise<{ placeId: string; lat: number; lng: number } | null> {
+  // Try classic Places API (Text Search) first
+  try {
+    const query = `${businessName} ${address}`;
+    const url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query)}&key=${apiKey}&language=fr`;
+    const response = await fetch(url);
+    
+    if (response.ok) {
+      const data = await response.json();
+      if (data.status === "OK" && data.results && data.results.length > 0) {
+        const place = data.results[0];
+        console.log("Found business via Places (classic):", { placeId: place.place_id, name: place.name });
+        return {
+          placeId: place.place_id,
+          lat: place.geometry.location.lat,
+          lng: place.geometry.location.lng,
+        };
+      }
+      console.log("Places (classic) status:", data.status);
+    }
+  } catch (error) {
+    console.error("Places (classic) error:", error);
+  }
+
+  // Fallback to Places API (New)
   try {
     const query = `${businessName} ${address}`;
     const response = await fetch(
@@ -183,7 +271,9 @@ async function findBusinessPlaceId(
     );
 
     if (!response.ok) {
-      console.error("Find business error:", response.status);
+      console.error("Find business (new API) error:", response.status);
+      const text = await response.text();
+      console.error("Response:", text);
       return null;
     }
 
