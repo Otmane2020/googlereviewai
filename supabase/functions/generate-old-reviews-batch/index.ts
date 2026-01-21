@@ -117,14 +117,19 @@ serve(async (req) => {
       throw new Error("Profile not found");
     }
 
-    // Get old reviews (before AI was enabled, without AI response)
+    // Get old reviews (before AI was enabled, without AI response AND without Google reply)
+    // This ensures we don't generate responses for already-replied reviews
     const { data: oldReviews } = await supabase
       .from("reviews")
       .select("*")
       .eq("user_id", userId)
       .is("ai_response", null)
+      .is("google_reply", null) // Skip reviews that already have a Google reply
+      .eq("replied", false) // Skip reviews marked as replied
       .lt("created_at", enabledAt.toISOString())
       .order("created_at", { ascending: false });
+
+    console.log(`[OldReviewsBatch] Found ${oldReviews?.length || 0} old reviews without any response`);
 
     if (!oldReviews || oldReviews.length === 0) {
       return new Response(
