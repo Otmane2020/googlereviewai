@@ -11,7 +11,7 @@ import { useAuth } from "@/contexts/AuthContext";
 const ALLOWED_ROUTES = ["/dashboard", "/reviews", "/ai-settings", "/settings", "/businesses", "/seo-autopost", "/aeo-rank", "/maps-rank", "/notifications"];
 
 export const NotificationPrompt = () => {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const location = useLocation();
   const { permission, isSupported, isSubscribed, isLoading, subscribe } = useFirebasePush();
   const { isInstalled, isStandalone, isIOS, canInstall } = usePWA();
@@ -127,6 +127,12 @@ export const NotificationPrompt = () => {
     });
   }, [isSupported, isSubscribed, dismissed, showDelayed, user, permission]);
 
+  // Wait for auth to load before deciding
+  if (authLoading) {
+    console.log("[NotificationPrompt] Waiting for auth to load...");
+    return null;
+  }
+
   // Don't show if: not supported, already subscribed, user dismissed, no user, or not on allowed route
   if (!isSupported || isSubscribed || dismissed || !user || !isAllowedRoute) {
     console.log("[NotificationPrompt] Not showing because:", {
@@ -136,6 +142,7 @@ export const NotificationPrompt = () => {
       hasUser: !!user,
       isAllowedRoute,
       currentPath: location.pathname,
+      authLoading,
     });
     return null;
   }
