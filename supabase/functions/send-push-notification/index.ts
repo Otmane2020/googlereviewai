@@ -149,26 +149,41 @@ serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    
+    // Support two ways to configure Firebase:
+    // 1. FIREBASE_SERVICE_ACCOUNT as full JSON
+    // 2. FIREBASE_CLIENT_EMAIL + FIREBASE_PRIVATE_KEY as separate secrets
+    let serviceAccount: { client_email: string; private_key: string; project_id?: string };
+    
     const serviceAccountJson = Deno.env.get("FIREBASE_SERVICE_ACCOUNT");
-
-    if (!serviceAccountJson) {
-      console.error("FIREBASE_SERVICE_ACCOUNT not configured");
+    const clientEmail = Deno.env.get("FIREBASE_CLIENT_EMAIL");
+    const privateKey = Deno.env.get("FIREBASE_PRIVATE_KEY");
+    
+    if (clientEmail && privateKey) {
+      // Use separate secrets (preferred - avoids JSON parsing issues)
+      console.log("Using separate Firebase secrets");
+      serviceAccount = {
+        client_email: clientEmail,
+        private_key: privateKey.replace(/\\n/g, '\n'), // Handle escaped newlines
+        project_id: "starlinkoapp",
+      };
+    } else if (serviceAccountJson) {
+      // Try to parse full JSON
+      try {
+        serviceAccount = JSON.parse(serviceAccountJson);
+        console.log("Service account parsed successfully, project:", serviceAccount.project_id);
+      } catch (parseError) {
+        console.error("Invalid FIREBASE_SERVICE_ACCOUNT JSON - Parse error:", parseError);
+        console.error("JSON length:", serviceAccountJson.length);
+        return new Response(
+          JSON.stringify({ error: "Invalid Firebase service account configuration" }),
+          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+    } else {
+      console.error("Firebase not configured - need either FIREBASE_SERVICE_ACCOUNT or FIREBASE_CLIENT_EMAIL + FIREBASE_PRIVATE_KEY");
       return new Response(
         JSON.stringify({ error: "Firebase service account not configured" }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    let serviceAccount;
-    try {
-      serviceAccount = JSON.parse(serviceAccountJson);
-      console.log("Service account parsed successfully, project:", serviceAccount.project_id);
-    } catch (parseError) {
-      console.error("Invalid FIREBASE_SERVICE_ACCOUNT JSON - Parse error:", parseError);
-      console.error("JSON preview (first 100 chars):", serviceAccountJson.substring(0, 100));
-      console.error("JSON length:", serviceAccountJson.length);
-      return new Response(
-        JSON.stringify({ error: "Invalid Firebase service account configuration", details: String(parseError) }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
