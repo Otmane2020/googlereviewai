@@ -363,7 +363,7 @@ serve(async (req) => {
               if (reviewsToUpsert.length > 0) {
                 const { data: existingReviews } = await supabaseAdmin
                   .from("reviews")
-                  .select("id, review_id, comment, ai_response")
+                  .select("id, review_id, comment, ai_response, needs_new_response, edit_count, last_edited_at")
                   .eq("user_id", user.id)
                   .in("review_id", reviewIdsInPage);
                 
@@ -389,32 +389,49 @@ serve(async (req) => {
                     // Check if comment was actually edited by comparing normalized versions
                     const existingNormalized = normalizeComment(existing.comment);
                     const newNormalized = normalizeComment(r.comment);
-                    const wasEdited = existingNormalized !== newNormalized && newNormalized !== "";
                     
-                    if (wasEdited) {
-                      console.log(`[Sync] Review ${r.review_id} was edited by customer`);
+                    // Only consider it an edit if:
+                    // 1. The normalized content actually changed (not just whitespace)
+                    // 2. The review wasn't already flagged as needing response (to prevent duplicate notifications)
+                    const contentChanged = existingNormalized !== newNormalized && newNormalized !== "";
+                    const alreadyFlagged = existing.needs_new_response === true;
+                    const isNewEdit = contentChanged && !alreadyFlagged;
+                    
+                    if (isNewEdit) {
+                      console.log(`[Sync] Review ${r.review_id} was edited by customer (first detection)`);
                       console.log(`[Sync] Old: "${existingNormalized.substring(0, 50)}..." -> New: "${newNormalized.substring(0, 50)}..."`);
                       return {
                         ...r,
                         notified: true,
                         last_edited_at: new Date().toISOString(),
                         edit_count: (existing as any).edit_count ? (existing as any).edit_count + 1 : 1,
-                        needs_new_response: existing.ai_response ? true : false, // Flag for re-generation
+                        needs_new_response: existing.ai_response ? true : false,
+                        _isNewEdit: true, // Marker for notification
                       };
                     }
-                    return { ...r, notified: true };
+                    // Keep existing state for already-flagged reviews
+                    return { 
+                      ...r, 
+                      notified: true,
+                      needs_new_response: existing.needs_new_response || false,
+                      edit_count: existing.edit_count || 0,
+                      last_edited_at: existing.last_edited_at || null,
+                    };
                   }
                   return { ...r, notified: false };
                 });
                 
-                // Count edited reviews for notification
-                const editedReviews = reviewsWithNotified.filter((r: any) => r.needs_new_response);
+                // Only count NEWLY detected edited reviews for notification (not already flagged ones)
+                const newlyEditedReviews = reviewsWithNotified.filter((r: any) => r._isNewEdit);
                 
-                console.log(`Batch upserting ${reviewsWithNotified.length} reviews (${existingReviewMap.size} existing, ${reviewsWithNotified.length - existingReviewMap.size} new, ${editedReviews.length} edited) for ${locationTitle}`);
+                console.log(`Batch upserting ${reviewsWithNotified.length} reviews (${existingReviewMap.size} existing, ${reviewsWithNotified.length - existingReviewMap.size} new, ${newlyEditedReviews.length} newly edited) for ${locationTitle}`);
+                
+                // Remove the internal marker before upserting
+                const reviewsToSave = reviewsWithNotified.map(({ _isNewEdit, ...rest }) => rest);
                 
                 const { data: upsertedReviews, error: upsertError } = await supabaseAdmin
                   .from("reviews")
-                  .upsert(reviewsWithNotified, { 
+                  .upsert(reviewsToSave, { 
                     onConflict: "review_id,user_id",
                     ignoreDuplicates: false 
                   })
@@ -426,8 +443,8 @@ serve(async (req) => {
                 } else if (upsertedReviews) {
                   allReviews.push(...upsertedReviews);
                   
-                  // Create notifications for edited reviews
-                  for (const editedReview of editedReviews) {
+                  // Create notifications ONLY for newly detected edited reviews
+                  for (const editedReview of newlyEditedReviews) {
                     await supabaseAdmin.from("notifications").insert({
                       user_id: user.id,
                       type: "review_edited",
