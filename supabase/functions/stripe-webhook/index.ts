@@ -21,6 +21,25 @@ const PLAN_CONFIG: Record<string, { credits: number; maxBusinesses: number; plan
   "price_1SrHtQEfti9t9nN9GKvr4NSt": { credits: 400, maxBusinesses: 999, planName: "Business Annuel" },
 };
 
+// Helper function to safely convert Unix timestamp to ISO string
+const safeTimestampToISO = (timestamp: number | null | undefined): string | null => {
+  if (timestamp === null || timestamp === undefined || isNaN(timestamp)) {
+    console.log("[Webhook] Invalid timestamp:", timestamp);
+    return null;
+  }
+  try {
+    const date = new Date(timestamp * 1000);
+    if (isNaN(date.getTime())) {
+      console.log("[Webhook] Invalid date from timestamp:", timestamp);
+      return null;
+    }
+    return date.toISOString();
+  } catch (e) {
+    console.log("[Webhook] Error converting timestamp:", e);
+    return null;
+  }
+};
+
 serve(async (req) => {
   const signature = req.headers.get("Stripe-Signature");
   const body = await req.text();
@@ -49,33 +68,52 @@ serve(async (req) => {
         const userId = session.metadata?.supabase_user_id;
         const subscriptionId = session.subscription as string;
 
+        console.log("[checkout.session.completed] Processing", { userId, subscriptionId });
+
         if (userId && subscriptionId) {
           // Get subscription details
           const subscription = await stripe.subscriptions.retrieve(subscriptionId);
           const priceId = subscription.items.data[0]?.price.id;
           const config = PLAN_CONFIG[priceId];
 
+          console.log("[checkout.session.completed] Subscription details", {
+            status: subscription.status,
+            priceId,
+            trial_end: subscription.trial_end,
+            current_period_start: subscription.current_period_start,
+            current_period_end: subscription.current_period_end,
+          });
+
           if (config) {
             const isTrial = subscription.status === "trialing";
-            const trialEnd = subscription.trial_end 
-              ? new Date(subscription.trial_end * 1000).toISOString() 
-              : null;
-
-            // Update user profile
-            await supabaseAdmin.from("profiles").update({
+            
+            const updateData = {
               plan_name: config.planName,
               plan_id: priceId,
-              credits: config.credits, // Give credits even during trial
+              credits: config.credits,
               max_businesses: config.maxBusinesses,
               subscription_status: isTrial ? "trial" : "active",
-              trial_end: trialEnd,
-              current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
-              current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+              trial_end: safeTimestampToISO(subscription.trial_end),
+              current_period_start: safeTimestampToISO(subscription.current_period_start),
+              current_period_end: safeTimestampToISO(subscription.current_period_end),
               billing_cycle: subscription.items.data[0]?.price.recurring?.interval || "month",
-            }).eq("id", userId);
+            };
 
-            console.log(`Updated profile for user ${userId} with plan ${config.planName}${isTrial ? " (trial)" : ""}`);
+            console.log("[checkout.session.completed] Updating profile with:", updateData);
+
+            const { error } = await supabaseAdmin.from("profiles").update(updateData).eq("id", userId);
+
+            if (error) {
+              console.error("[checkout.session.completed] Database error:", error);
+              throw error;
+            }
+
+            console.log(`[checkout.session.completed] ✅ Updated profile for user ${userId} with plan ${config.planName}${isTrial ? " (trial)" : ""}`);
+          } else {
+            console.warn("[checkout.session.completed] No config found for priceId:", priceId);
           }
+        } else {
+          console.warn("[checkout.session.completed] Missing userId or subscriptionId", { userId, subscriptionId });
         }
         break;
       }
@@ -84,30 +122,38 @@ serve(async (req) => {
         const subscription = event.data.object as Stripe.Subscription;
         const customerId = subscription.customer as string;
 
+        console.log("[customer.subscription.updated] Processing", { customerId });
+
         // Get customer to find user
         const customer = await stripe.customers.retrieve(customerId);
         if (customer.deleted) break;
 
         const userId = customer.metadata?.supabase_user_id;
-        if (!userId) break;
+        if (!userId) {
+          console.log("[customer.subscription.updated] No userId in customer metadata");
+          break;
+        }
 
         const priceId = subscription.items.data[0]?.price.id;
         const config = PLAN_CONFIG[priceId];
 
         if (config) {
           const isTrial = subscription.status === "trialing";
-          const trialEnd = subscription.trial_end 
-            ? new Date(subscription.trial_end * 1000).toISOString() 
-            : null;
 
-          await supabaseAdmin.from("profiles").update({
+          const updateData = {
             plan_name: config.planName,
             plan_id: priceId,
             subscription_status: isTrial ? "trial" : subscription.status,
-            trial_end: trialEnd,
-            current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
-            current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
-          }).eq("id", userId);
+            trial_end: safeTimestampToISO(subscription.trial_end),
+            current_period_start: safeTimestampToISO(subscription.current_period_start),
+            current_period_end: safeTimestampToISO(subscription.current_period_end),
+          };
+
+          console.log("[customer.subscription.updated] Updating profile with:", updateData);
+
+          await supabaseAdmin.from("profiles").update(updateData).eq("id", userId);
+          
+          console.log(`[customer.subscription.updated] ✅ Updated for user ${userId}`);
         }
         break;
       }
@@ -131,13 +177,18 @@ serve(async (req) => {
           max_businesses: 1,
         }).eq("id", userId);
 
-        console.log(`Subscription canceled for user ${userId}`);
+        console.log(`[customer.subscription.deleted] ✅ Subscription canceled for user ${userId}`);
         break;
       }
 
       case "invoice.payment_succeeded": {
         const invoice = event.data.object as Stripe.Invoice;
         const subscriptionId = invoice.subscription as string;
+        
+        console.log("[invoice.payment_succeeded] Processing", { 
+          subscriptionId, 
+          billing_reason: invoice.billing_reason 
+        });
         
         if (subscriptionId && invoice.billing_reason === "subscription_cycle") {
           // Renew credits on successful payment
@@ -151,13 +202,15 @@ serve(async (req) => {
             const config = PLAN_CONFIG[priceId];
 
             if (userId && config) {
-              await supabaseAdmin.from("profiles").update({
+              const updateData = {
                 credits: config.credits,
-                current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
-                current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
-              }).eq("id", userId);
+                current_period_start: safeTimestampToISO(subscription.current_period_start),
+                current_period_end: safeTimestampToISO(subscription.current_period_end),
+              };
 
-              console.log(`Renewed credits for user ${userId}`);
+              await supabaseAdmin.from("profiles").update(updateData).eq("id", userId);
+
+              console.log(`[invoice.payment_succeeded] ✅ Renewed credits for user ${userId}`);
             }
           }
         }
