@@ -9,6 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
+import { UpgradeDialog } from "@/components/UpgradeDialog";
 import { 
   Sparkles,
   MessageSquare,
@@ -24,7 +26,9 @@ import {
   PenLine,
   ThumbsUp,
   Upload,
-  Check
+  Check,
+  History,
+  Coins
 } from "lucide-react";
 
 interface AISettings {
@@ -43,6 +47,11 @@ interface AISettings {
   email_notifications: boolean;
 }
 
+interface PendingReviewsStats {
+  oldReviews: number; // Reviews without AI response that are older than enabled_at
+  newReviews: number; // Reviews without AI response that are newer than enabled_at
+}
+
 const toneOptions = [
   { value: "professional", label: "Professionnel", icon: Briefcase },
   { value: "friendly", label: "Amical", icon: Smile },
@@ -55,6 +64,116 @@ const lengthOptions = [
   { value: "M", label: "Moyen", desc: "4-5" },
   { value: "L", label: "Long", desc: "6+" },
 ];
+
+// Subcomponent for old reviews
+const OldReviewsSection = ({ 
+  oldReviewsCount, 
+  userId,
+  onComplete 
+}: { 
+  oldReviewsCount: number; 
+  userId: string;
+  onComplete: () => void;
+}) => {
+  const [loading, setLoading] = useState(false);
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
+  const creditsNeeded = oldReviewsCount;
+
+  const handleGenerateOldReviews = async () => {
+    setLoading(true);
+    try {
+      // Check if user has enough credits
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("credits")
+        .eq("id", userId)
+        .single();
+
+      if (!profile || profile.credits < creditsNeeded) {
+        toast({
+          title: "Crédits insuffisants",
+          description: `Vous avez ${profile?.credits || 0} crédits. Il vous faut ${creditsNeeded} crédits pour traiter tous les anciens avis.`,
+          variant: "destructive",
+        });
+        setUpgradeOpen(true);
+        setLoading(false);
+        return;
+      }
+
+      // Call edge function to process old reviews
+      const { error } = await supabase.functions.invoke("generate-old-reviews-batch", {
+        body: { userId }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Traitement lancé",
+        description: `Génération des réponses pour ${oldReviewsCount} anciens avis en cours...`,
+      });
+      
+      onComplete();
+    } catch (error) {
+      console.error("Error generating old reviews:", error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de lancer le traitement des anciens avis.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <>
+      <div className="bg-gradient-to-br from-amber-500/10 to-orange-500/10 rounded-2xl border border-amber-500/30 p-4 shadow-sm">
+        <div className="flex items-center gap-3 mb-3">
+          <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center">
+            <History className="w-5 h-5 text-amber-600" />
+          </div>
+          <div className="flex-1">
+            <h3 className="font-semibold text-sm text-foreground">Anciens avis sans réponse</h3>
+            <p className="text-xs text-muted-foreground">Avis reçus avant l'activation de l'IA</p>
+          </div>
+        </div>
+        
+        <div className="bg-background/50 rounded-xl p-3 mb-3">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm text-muted-foreground">Avis à traiter</span>
+            <span className="font-bold text-lg text-foreground">{oldReviewsCount}</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-muted-foreground flex items-center gap-1">
+              <Coins className="w-3.5 h-3.5" /> Crédits nécessaires
+            </span>
+            <span className="font-bold text-lg text-primary">{creditsNeeded}</span>
+          </div>
+        </div>
+        
+        <Button
+          onClick={handleGenerateOldReviews}
+          disabled={loading}
+          className="w-full rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white"
+        >
+          {loading ? (
+            <>
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              Traitement...
+            </>
+          ) : (
+            <>
+              <Sparkles className="w-4 h-4 mr-2" />
+              Générer les réponses ({creditsNeeded} crédits)
+            </>
+          )}
+        </Button>
+      </div>
+      
+      <UpgradeDialog open={upgradeOpen} onOpenChange={setUpgradeOpen} />
+    </>
+  );
+};
 
 const AISettingsPage = () => {
   const { user } = useAuth();
@@ -71,12 +190,14 @@ const AISettingsPage = () => {
     minimum_rating: 3,
     auto_sync_reviews: true,
     sync_interval_minutes: 30,
-    auto_publish_to_google: false,
+    auto_publish_to_google: true, // Default to true now
     email_notifications: true,
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [pendingStats, setPendingStats] = useState<PendingReviewsStats>({ oldReviews: 0, newReviews: 0 });
+  const [generatingOld, setGeneratingOld] = useState(false);
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isInitialLoad = useRef(true);
 
@@ -87,36 +208,61 @@ const AISettingsPage = () => {
     if (subscriptionLoading || !user) return;
 
     const fetchSettings = async () => {
-      const { data, error } = await supabase
-        .from("ai_settings")
-        .select("*")
-        .eq("user_id", user.id)
-        .maybeSingle();
+      // Fetch settings and pending reviews count in parallel
+      const [settingsRes, reviewsRes, aiSettingsDateRes] = await Promise.all([
+        supabase
+          .from("ai_settings")
+          .select("*")
+          .eq("user_id", user.id)
+          .maybeSingle(),
+        supabase
+          .from("reviews")
+          .select("id, created_at, ai_response")
+          .eq("user_id", user.id)
+          .is("ai_response", null),
+        supabase
+          .from("ai_settings")
+          .select("created_at")
+          .eq("user_id", user.id)
+          .maybeSingle()
+      ]);
 
-      if (error) {
-        console.error("Error fetching AI settings:", error);
-      } else if (data) {
+      if (settingsRes.error) {
+        console.error("Error fetching AI settings:", settingsRes.error);
+      } else if (settingsRes.data) {
         setSettings({
-          enabled: data.enabled ?? true,
-          tone: data.tone ?? "friendly",
-          response_length: data.response_length ?? "M",
-          include_signature: data.include_signature ?? true,
-          signature: data.signature ?? "L'équipe {business_name}",
-          custom_template: data.custom_template || "",
-          auto_reply_delay: data.auto_reply_delay ?? 5,
-          only_positive_reviews: data.only_positive_reviews ?? false,
-          minimum_rating: data.minimum_rating ?? 3,
-          auto_sync_reviews: data.auto_sync_reviews ?? true,
-          sync_interval_minutes: data.sync_interval_minutes ?? 30,
-          auto_publish_to_google: data.auto_publish_to_google ?? false,
-          email_notifications: data.email_notifications ?? true,
+          enabled: settingsRes.data.enabled ?? true,
+          tone: settingsRes.data.tone ?? "friendly",
+          response_length: settingsRes.data.response_length ?? "M",
+          include_signature: settingsRes.data.include_signature ?? true,
+          signature: settingsRes.data.signature ?? "L'équipe {business_name}",
+          custom_template: settingsRes.data.custom_template || "",
+          auto_reply_delay: settingsRes.data.auto_reply_delay ?? 5,
+          only_positive_reviews: settingsRes.data.only_positive_reviews ?? false,
+          minimum_rating: settingsRes.data.minimum_rating ?? 3,
+          auto_sync_reviews: settingsRes.data.auto_sync_reviews ?? true,
+          sync_interval_minutes: settingsRes.data.sync_interval_minutes ?? 30,
+          auto_publish_to_google: settingsRes.data.auto_publish_to_google ?? true,
+          email_notifications: settingsRes.data.email_notifications ?? true,
         });
       }
+
+      // Calculate old vs new reviews
+      if (reviewsRes.data && aiSettingsDateRes.data?.created_at) {
+        const enabledAt = new Date(aiSettingsDateRes.data.created_at);
+        const oldReviews = reviewsRes.data.filter(r => new Date(r.created_at) < enabledAt).length;
+        const newReviews = reviewsRes.data.filter(r => new Date(r.created_at) >= enabledAt).length;
+        setPendingStats({ oldReviews, newReviews });
+      } else if (reviewsRes.data) {
+        // If no settings date, consider all as new
+        setPendingStats({ oldReviews: reviewsRes.data.length, newReviews: 0 });
+      }
+
       setLoading(false);
     };
 
     fetchSettings();
-  }, [user, navigate]);
+  }, [user, subscriptionLoading]);
 
   const saveSettings = useCallback(async (newSettings: AISettings) => {
     if (!user) return;
@@ -479,6 +625,15 @@ const AISettingsPage = () => {
             className="rounded-xl bg-muted/50 border-0 resize-none text-sm"
           />
         </div>
+
+        {/* Old Reviews Section */}
+        {pendingStats.oldReviews > 0 && (
+          <OldReviewsSection 
+            oldReviewsCount={pendingStats.oldReviews}
+            userId={user?.id || ""}
+            onComplete={() => setPendingStats(prev => ({ ...prev, oldReviews: 0 }))}
+          />
+        )}
 
         {/* Auto-save indicator */}
         {(saving || saved) && (
