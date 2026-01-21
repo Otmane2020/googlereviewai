@@ -186,11 +186,11 @@ const AISettingsPage = () => {
     signature: "L'équipe {business_name}",
     custom_template: "",
     auto_reply_delay: 5,
-    only_positive_reviews: false,
+    only_positive_reviews: true, // Default to true - only respond to positive reviews
     minimum_rating: 3,
     auto_sync_reviews: true,
     sync_interval_minutes: 30,
-    auto_publish_to_google: true, // Default to true now
+    auto_publish_to_google: true,
     email_notifications: true,
   });
   const [loading, setLoading] = useState(true);
@@ -198,6 +198,7 @@ const AISettingsPage = () => {
   const [pendingStats, setPendingStats] = useState<PendingReviewsStats>({ oldReviews: 0, newReviews: 0 });
   const [generatingOld, setGeneratingOld] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
+  const [settingsId, setSettingsId] = useState<string | null>(null);
   const initialSettingsRef = useRef<AISettings | null>(null);
 
   // Use subscription verification hook
@@ -229,6 +230,7 @@ const AISettingsPage = () => {
       if (settingsRes.error) {
         console.error("Error fetching AI settings:", settingsRes.error);
       } else if (settingsRes.data) {
+        setSettingsId(settingsRes.data.id);
         setSettings({
           enabled: settingsRes.data.enabled ?? true,
           tone: settingsRes.data.tone ?? "friendly",
@@ -237,7 +239,7 @@ const AISettingsPage = () => {
           signature: settingsRes.data.signature ?? "L'équipe {business_name}",
           custom_template: settingsRes.data.custom_template || "",
           auto_reply_delay: settingsRes.data.auto_reply_delay ?? 5,
-          only_positive_reviews: settingsRes.data.only_positive_reviews ?? false,
+          only_positive_reviews: settingsRes.data.only_positive_reviews ?? true,
           minimum_rating: settingsRes.data.minimum_rating ?? 3,
           auto_sync_reviews: settingsRes.data.auto_sync_reviews ?? true,
           sync_interval_minutes: settingsRes.data.sync_interval_minutes ?? 30,
@@ -267,15 +269,33 @@ const AISettingsPage = () => {
     if (!user) return;
     setSaving(true);
 
-    const { error } = await supabase
-      .from("ai_settings")
-      .upsert({
-        user_id: user.id,
-        ...settings,
-      });
+    let error;
+    if (settingsId) {
+      // Update existing record
+      const result = await supabase
+        .from("ai_settings")
+        .update(settings)
+        .eq("id", settingsId);
+      error = result.error;
+    } else {
+      // Insert new record
+      const result = await supabase
+        .from("ai_settings")
+        .insert({
+          user_id: user.id,
+          ...settings,
+        })
+        .select("id")
+        .single();
+      error = result.error;
+      if (!error && result.data) {
+        setSettingsId(result.data.id);
+      }
+    }
 
     setSaving(false);
     if (error) {
+      console.error("Error saving AI settings:", error);
       toast({
         title: "Erreur",
         description: "Impossible de sauvegarder les paramètres.",
