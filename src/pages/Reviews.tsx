@@ -324,8 +324,10 @@ const Reviews = () => {
     toast({ title: "Copié !" });
   };
 
-  // Get selected business
-  const selectedBusiness = businesses.find(b => b.id === selectedBusinessId);
+  // Get selected business - use useMemo to ensure it updates when businesses or selectedBusinessId changes
+  const selectedBusiness = useMemo(() => {
+    return businesses.find(b => b.id === selectedBusinessId);
+  }, [businesses, selectedBusinessId]);
 
   // Filter reviews by selected business's google_place_id
   const businessReviews = useMemo(() => {
