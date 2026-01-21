@@ -168,110 +168,112 @@ export const DashboardHeader = () => {
                 </Button>
               </SheetTrigger>
               <SheetContent side="right" className="w-[300px] p-0 bg-background/95 backdrop-blur-xl flex flex-col">
-                <SheetHeader className="p-4 border-b border-border/50 flex-shrink-0">
+                <SheetHeader className="p-3 border-b border-border/50 flex-shrink-0">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-lg shadow-primary/25">
-                      <span className="text-lg font-bold text-primary-foreground">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-lg shadow-primary/25">
+                      <span className="text-base font-bold text-primary-foreground">
                         {profile?.full_name?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || "U"}
                       </span>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <SheetTitle className="text-left text-base truncate">
+                      <SheetTitle className="text-left text-sm truncate">
                         {profile?.full_name || "Utilisateur"}
                       </SheetTitle>
-                      <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+                      <p className="text-[11px] text-muted-foreground truncate">{user?.email}</p>
                     </div>
                   </div>
                 </SheetHeader>
 
-                {/* Scrollable content */}
-                <div className="flex-1 overflow-y-auto">
-                  {/* Credits Card */}
-                  <div className="p-4 border-b border-border/50">
-                    <div className="bg-gradient-to-br from-accent/10 to-accent/5 rounded-2xl p-4 border border-accent/20">
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center gap-2">
-                          <Star className="w-5 h-5 text-accent fill-accent" />
-                          <span className="text-sm font-medium text-foreground">Crédits</span>
-                        </div>
-                        {profile?.plan_name && (
-                          <Badge variant="secondary" className="text-[10px]">
-                            {profile.plan_name}
-                          </Badge>
-                        )}
+                {/* Credits Card - Compact */}
+                <div className="p-3 border-b border-border/50">
+                  <div className="bg-gradient-to-br from-accent/10 to-accent/5 rounded-xl p-3 border border-accent/20">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <Star className="w-4 h-4 text-accent fill-accent" />
+                        <span className="text-xs font-medium text-foreground">Crédits</span>
                       </div>
-                      <div className="text-3xl font-bold text-foreground mb-3">
+                      {profile?.plan_name && (
+                        <Badge variant="secondary" className="text-[9px] px-1.5 py-0">
+                          {profile.plan_name}
+                        </Badge>
+                      )}
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-2xl font-bold text-foreground">
                         {profile?.credits || 0}
-                      </div>
+                      </span>
                       <Button 
                         size="sm" 
-                        className="w-full rounded-xl gap-2 shadow-md"
+                        className="h-8 rounded-lg gap-1.5 text-xs shadow-md"
                         onClick={() => {
                           setMobileMenuOpen(false);
                           setUpgradeDialogOpen(true);
                         }}
                       >
-                        <Plus className="w-4 h-4" />
+                        <Plus className="w-3.5 h-3.5" />
                         Upgrade
                       </Button>
                     </div>
                   </div>
-
-                  {/* Navigation */}
-                  <div className="p-4 space-y-1">
-                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2 px-2">
-                      Navigation
-                    </p>
-                    {navItems.map((item) => {
-                      const Icon = item.icon;
-                      const isActive = location.pathname === item.href;
-                      return (
-                        <Link
-                          key={item.href}
-                          to={item.href}
-                          className={`flex items-center gap-3 px-3 py-3 rounded-xl font-medium transition-all ${
-                            isActive 
-                              ? "bg-primary text-primary-foreground shadow-md" 
-                              : "text-foreground hover:bg-muted"
-                          }`}
-                          onClick={() => setMobileMenuOpen(false)}
-                        >
-                          <Icon className="w-5 h-5" />
-                          <span className="flex-1">{item.label}</span>
-                          <ChevronRight className={`w-4 h-4 ${isActive ? "text-primary-foreground/70" : "text-muted-foreground"}`} />
-                        </Link>
-                      );
-                    })}
-                  </div>
-
-                  {/* Settings */}
-                  <div className="p-4 space-y-1 border-t border-border/50">
-                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2 px-2">
-                      Paramètres
-                    </p>
-                    {menuItems.map((item) => {
-                      const Icon = item.icon;
-                      return (
-                        <Link
-                          key={item.href}
-                          to={item.href}
-                          className="flex items-center gap-3 px-3 py-3 rounded-xl font-medium text-foreground hover:bg-muted transition-all"
-                          onClick={() => setMobileMenuOpen(false)}
-                        >
-                          <Icon className="w-5 h-5 text-muted-foreground" />
-                          <span className="flex-1">{item.label}</span>
-                          <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                        </Link>
-                      );
-                    })}
-                  </div>
                 </div>
 
+                {/* Navigation - Compact */}
+                <div className="px-3 py-2 space-y-0.5">
+                  <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-1.5 px-2">
+                    Navigation
+                  </p>
+                  {navItems.map((item) => {
+                    const Icon = item.icon;
+                    const isActive = location.pathname === item.href;
+                    return (
+                      <Link
+                        key={item.href}
+                        to={item.href}
+                        className={`flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm font-medium transition-all ${
+                          isActive 
+                            ? "bg-primary text-primary-foreground shadow-md" 
+                            : "text-foreground hover:bg-muted"
+                        }`}
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        <Icon className="w-4 h-4" />
+                        <span className="flex-1">{item.label}</span>
+                        <ChevronRight className={`w-3.5 h-3.5 ${isActive ? "text-primary-foreground/70" : "text-muted-foreground"}`} />
+                      </Link>
+                    );
+                  })}
+                </div>
+
+                {/* Settings - Compact */}
+                <div className="px-3 py-2 space-y-0.5 border-t border-border/50">
+                  <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-1.5 px-2">
+                    Paramètres
+                  </p>
+                  {menuItems.map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <Link
+                        key={item.href}
+                        to={item.href}
+                        className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm font-medium text-foreground hover:bg-muted transition-all"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        <Icon className="w-4 h-4 text-muted-foreground" />
+                        <span className="flex-1">{item.label}</span>
+                        <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
+                      </Link>
+                    );
+                  })}
+                </div>
+
+                {/* Spacer */}
+                <div className="flex-1" />
+
                 {/* Sign Out - Fixed at bottom */}
-                <div className="flex-shrink-0 p-4 border-t border-border/50 bg-background">
+                <div className="flex-shrink-0 p-3 border-t border-border/50 bg-background">
                   <Button 
                     variant="outline" 
-                    className="w-full rounded-xl h-11 text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive/20"
+                    className="w-full rounded-lg h-10 text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive/20"
                     onClick={() => {
                       setMobileMenuOpen(false);
                       handleSignOut();
