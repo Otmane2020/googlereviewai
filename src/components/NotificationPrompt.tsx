@@ -36,7 +36,6 @@ export const NotificationPrompt = () => {
 
     if (isInstallPromptActive && !wasInstallDismissedRecently) {
       // Install prompt is likely visible, wait for it to be dismissed
-      // Check every second if install prompt got dismissed
       const interval = setInterval(() => {
         const currentDismissed = localStorage.getItem("install-prompt-dismissed");
         if (currentDismissed) {
@@ -45,7 +44,7 @@ export const NotificationPrompt = () => {
         }
       }, 1000);
 
-      // Also show after 30 seconds regardless (in case user ignores install prompt)
+      // Also show after 30 seconds regardless
       const timeout = setTimeout(() => {
         setShowDelayed(true);
         clearInterval(interval);
@@ -67,15 +66,10 @@ export const NotificationPrompt = () => {
     localStorage.setItem("notification-prompt-dismissed", Date.now().toString());
   };
 
-  const handleRequestPermission = async () => {
-    console.log("[NotificationPrompt] Starting activation...");
-    console.log("[NotificationPrompt] Initial permission state:", permission);
-    console.log("[NotificationPrompt] Notification API available:", "Notification" in window);
-    console.log("[NotificationPrompt] Current Notification.permission:", typeof Notification !== "undefined" ? Notification.permission : "N/A");
+  const handleActivate = async () => {
+    console.log("[NotificationPrompt] Activating Firebase Push...");
     
-    // Always try to subscribe - it will handle permission request internally
     const success = await subscribe();
-    console.log("[NotificationPrompt] Subscribe result:", success);
     
     if (success) {
       toast.success("Notifications activées ! 🎉", {
@@ -94,14 +88,13 @@ export const NotificationPrompt = () => {
         });
       } else {
         toast.error("Échec de l'activation", {
-          description: "Erreur technique. Consultez la console pour plus de détails.",
+          description: "Erreur technique. Consultez la console (F12) pour plus de détails.",
           duration: 8000,
         });
       }
     }
   };
 
-  // Show prompt even if denied - we'll show instructions when clicked
   // Don't show if: not supported, already subscribed, user dismissed, no user
   if (!isSupported || isSubscribed || dismissed || !user) {
     return null;
@@ -127,12 +120,12 @@ export const NotificationPrompt = () => {
             <div className="flex gap-2">
               <Button 
                 size="sm" 
-                onClick={handleRequestPermission}
+                onClick={handleActivate}
                 disabled={isLoading}
                 className="flex-1 h-9 bg-accent hover:bg-accent/90 text-accent-foreground"
               >
                 <Bell className="w-4 h-4 mr-1.5" />
-                {isLoading ? "..." : "Activer"}
+                {isLoading ? "Activation..." : "Activer"}
               </Button>
               <Button size="sm" variant="ghost" onClick={handleDismiss} className="h-9 px-3">
                 <X className="w-4 h-4" />
