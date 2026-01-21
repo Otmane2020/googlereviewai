@@ -9,6 +9,7 @@ import { DashboardHeader } from "@/components/DashboardHeader";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { ConnectGMBDialog } from "@/components/ConnectGMBDialog";
 import { SyncProgressOverlay } from "@/components/SyncProgressOverlay";
+import { SelectBusinessesDialog } from "@/components/SelectBusinessesDialog";
 
 import { Button } from "@/components/ui/button";
 import { 
@@ -62,6 +63,11 @@ const Dashboard = () => {
   const { syncReviews, isSyncing: isSyncingReviews } = useSyncGoogleReviews();
   const hasSyncedRef = useRef(false);
   const hasCheckedGMBRef = useRef(false);
+  
+  // Business selection dialog state
+  const [showSelectBusinessesDialog, setShowSelectBusinessesDialog] = useState(false);
+  const [googleBusinessesForSelection, setGoogleBusinessesForSelection] = useState<any[]>([]);
+  const [maxBusinessesLimit, setMaxBusinessesLimit] = useState(1);
 
   const fetchData = useCallback(async () => {
     if (!user) return;
@@ -152,14 +158,35 @@ const Dashboard = () => {
           // First time: show animation
           setShowSyncProgress(true);
           setSyncStep("businesses");
-          await syncBusinesses();
+          const businessResult = await syncBusinesses();
+          
+          // Check if user needs to select businesses (has more than plan allows)
+          if (businessResult?.requires_selection) {
+            setShowSyncProgress(false);
+            setGoogleBusinessesForSelection(businessResult.google_businesses || []);
+            setMaxBusinessesLimit(businessResult.max_businesses || 1);
+            setShowSelectBusinessesDialog(true);
+            // Don't mark as synced yet - wait for selection
+            hasSyncedRef.current = false;
+            return;
+          }
+          
           setSyncStep("reviews");
           await syncReviews();
           setSyncStep("complete");
           localStorage.setItem(`starlinko_initial_sync_${user.id}`, "true");
         } else {
           // Silent sync in background
-          await syncBusinesses();
+          const businessResult = await syncBusinesses();
+          
+          // Check if user needs to select businesses
+          if (businessResult?.requires_selection) {
+            setGoogleBusinessesForSelection(businessResult.google_businesses || []);
+            setMaxBusinessesLimit(businessResult.max_businesses || 1);
+            setShowSelectBusinessesDialog(true);
+            return;
+          }
+          
           await syncReviews();
         }
         fetchData();
@@ -167,6 +194,22 @@ const Dashboard = () => {
     };
     autoSync();
   }, [loading, user, session, syncBusinesses, syncReviews, fetchData]);
+  
+  // Handle successful business selection
+  const handleBusinessSelectionSuccess = async () => {
+    // Now sync reviews for the selected businesses
+    setShowSyncProgress(true);
+    setSyncStep("reviews");
+    await syncReviews();
+    setSyncStep("complete");
+    
+    // Mark initial sync as complete
+    if (user) {
+      localStorage.setItem(`starlinko_initial_sync_${user.id}`, "true");
+    }
+    
+    fetchData();
+  };
 
   // Check if user signed up with email (no Google provider) and show GMB dialog
   useEffect(() => {
@@ -471,6 +514,18 @@ const Dashboard = () => {
         currentStep={syncStep}
         onComplete={() => setShowSyncProgress(false)}
       />
+      
+      {/* Business Selection Dialog */}
+      {user && (
+        <SelectBusinessesDialog
+          open={showSelectBusinessesDialog}
+          onOpenChange={setShowSelectBusinessesDialog}
+          businesses={googleBusinessesForSelection}
+          maxBusinesses={maxBusinessesLimit}
+          userId={user.id}
+          onSuccess={handleBusinessSelectionSuccess}
+        />
+      )}
     </div>
   );
 };

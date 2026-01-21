@@ -187,6 +187,38 @@ serve(async (req) => {
     
     console.log(`Deduped ${allLocations.length} locations to ${businessesData.length} unique businesses`);
 
+    // Get user's plan limit
+    const { data: profile, error: profileError } = await supabaseAdmin
+      .from("profiles")
+      .select("max_businesses")
+      .eq("id", user.id)
+      .single();
+
+    const maxBusinesses = profile?.max_businesses || 1;
+
+    // If user has more Google businesses than their plan allows, return them for selection
+    if (businessesData.length > maxBusinesses) {
+      console.log(`User has ${businessesData.length} businesses but plan allows ${maxBusinesses}. Returning for selection.`);
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          requires_selection: true,
+          message: `Vous avez ${businessesData.length} établissements Google mais votre plan permet ${maxBusinesses} établissement${maxBusinesses > 1 ? "s" : ""}.`,
+          google_businesses: businessesData.map(b => ({
+            name: b.name,
+            google_place_id: b.google_place_id,
+            address: b.address,
+            phone: b.phone,
+            website: b.website,
+          })),
+          max_businesses: maxBusinesses,
+          businesses: [] 
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // If within limit, auto-save all businesses
     // Use upsert with onConflict to handle duplicates
     const { data: syncedBusinesses, error: upsertError } = await supabaseAdmin
       .from("businesses")
@@ -204,6 +236,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         success: true, 
+        requires_selection: false,
         message: `Synced ${syncedBusinesses?.length || 0} businesses`,
         businesses: syncedBusinesses || [] 
       }),

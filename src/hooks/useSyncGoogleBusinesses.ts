@@ -1,10 +1,28 @@
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
+interface GoogleBusiness {
+  name: string;
+  google_place_id: string;
+  address: string | null;
+  phone: string | null;
+  website: string | null;
+}
+
+interface SyncResult {
+  success: boolean;
+  businesses: any[];
+  requires_reconnect?: boolean;
+  requires_selection?: boolean;
+  google_businesses?: GoogleBusiness[];
+  max_businesses?: number;
+  message?: string;
+}
+
 export const useSyncGoogleBusinesses = () => {
   const [isSyncing, setIsSyncing] = useState(false);
 
-  const syncBusinesses = async () => {
+  const syncBusinesses = async (): Promise<SyncResult> => {
     setIsSyncing(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
