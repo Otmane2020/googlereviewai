@@ -829,7 +829,40 @@ const Reviews = () => {
                     </div>
 
                     {review.comment && (
-                      <p className="text-sm text-muted-foreground mt-2 line-clamp-2">{review.comment}</p>
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <p className="text-sm text-muted-foreground mt-2 line-clamp-2 cursor-pointer hover:text-foreground transition-colors">
+                            {review.comment}
+                          </p>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
+                          <DialogHeader>
+                            <DialogTitle className="flex items-center gap-2">
+                              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold">
+                                {review.author.charAt(0).toUpperCase()}
+                              </div>
+                              <div>
+                                <span>{review.author}</span>
+                                <div className="flex mt-0.5">
+                                  {[...Array(5)].map((_, i) => (
+                                    <Star key={i} className={`w-3.5 h-3.5 ${i < review.rating ? "text-accent fill-accent" : "text-muted-foreground/30"}`} />
+                                  ))}
+                                </div>
+                              </div>
+                            </DialogTitle>
+                          </DialogHeader>
+                          <div className="mt-2">
+                            <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">{review.comment}</p>
+                            <p className="text-xs text-muted-foreground/60 mt-3">
+                              {new Date(review.review_date).toLocaleDateString("fr-FR", {
+                                day: "numeric",
+                                month: "long",
+                                year: "numeric"
+                              })}
+                            </p>
+                          </div>
+                        </DialogContent>
+                      </Dialog>
                     )}
 
                     {/* Review Photos */}
