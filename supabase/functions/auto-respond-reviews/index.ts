@@ -127,7 +127,7 @@ serve(async (req) => {
     // Get users with AI enabled
     const { data: settings } = await supabase
       .from("ai_settings")
-      .select("user_id, auto_sync_reviews, auto_publish_to_google, minimum_rating, auto_reply_delay, tone, response_length, include_signature, signature, custom_template")
+      .select("user_id, auto_sync_reviews, auto_publish_to_google, minimum_rating, auto_reply_delay, tone, response_length, include_signature, signature, custom_template, only_positive_reviews, created_at")
       .eq("enabled", true);
 
     if (!settings || settings.length === 0) {
@@ -216,17 +216,38 @@ serve(async (req) => {
           continue;
         }
 
-        // Get reviews without AI response
-        const { data: reviews } = await supabase
+        // Get AI settings creation date to only process NEW reviews (after AI was enabled)
+        const aiEnabledAt = userSettings.created_at;
+        
+        // Determine minimum rating based on only_positive_reviews setting
+        const minRating = userSettings.only_positive_reviews ? 4 : (userSettings.minimum_rating || 1);
+
+        // Get reviews without AI response - ONLY reviews created AFTER AI was enabled
+        // This prevents processing old reviews that were synced in bulk
+        let reviewsQuery = supabase
           .from("reviews")
           .select("*")
           .eq("user_id", userSettings.user_id)
           .is("ai_response", null)
-          .gte("rating", userSettings.minimum_rating || 1)
-          .order("created_at", { ascending: false })
+          .is("google_reply", null) // Skip reviews already replied on Google
+          .eq("replied", false) // Skip reviews marked as replied
+          .gte("rating", minRating)
+          .order("created_at", { ascending: true }) // Process oldest NEW reviews first
           .limit(5);
+        
+        // Only add the date filter if we have a valid AI enabled date
+        if (aiEnabledAt) {
+          reviewsQuery = reviewsQuery.gte("review_date", aiEnabledAt);
+        }
 
-        if (!reviews || reviews.length === 0) continue;
+        const { data: reviews } = await reviewsQuery;
+
+        if (!reviews || reviews.length === 0) {
+          console.log(`[AutoRespond] No pending reviews for user ${userSettings.user_id}`);
+          continue;
+        }
+
+        console.log(`[AutoRespond] Found ${reviews.length} pending reviews for user ${userSettings.user_id}`);
 
         // Get business name
         const { data: business } = await supabase
