@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -67,6 +67,29 @@ const SelectPlan = () => {
   const [isYearly, setIsYearly] = useState(false);
   const [loadingLogout, setLoadingLogout] = useState(false);
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+  const [currentPlanName, setCurrentPlanName] = useState<string | null>(null);
+  const [subscriptionStatus, setSubscriptionStatus] = useState<string | null>(null);
+
+  // Fetch current plan on mount
+  useEffect(() => {
+    const fetchCurrentPlan = async () => {
+      if (!user) return;
+      
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("plan_name, subscription_status")
+        .eq("id", user.id)
+        .single();
+      
+      if (profile) {
+        setCurrentPlanName(profile.plan_name?.toLowerCase() || null);
+        setSubscriptionStatus(profile.subscription_status);
+        console.log("[SelectPlan] Current plan:", profile.plan_name, "Status:", profile.subscription_status);
+      }
+    };
+
+    fetchCurrentPlan();
+  }, [user]);
 
   const handleLogout = async () => {
     setLoadingLogout(true);
@@ -202,12 +225,15 @@ const SelectPlan = () => {
         <div className="space-y-5">
           {plans.map((plan) => {
             const priceKey = `${plan.id}_${isYearly ? "yearly" : "monthly"}`;
+            const isCurrentPlan = currentPlanName === plan.id.toLowerCase() && 
+              (subscriptionStatus === "active" || subscriptionStatus === "trialing");
             return (
               <PlanCard
                 key={plan.id}
                 plan={plan}
                 isYearly={isYearly}
                 isLoading={loadingPlan === priceKey}
+                isCurrentPlan={isCurrentPlan}
                 onSelect={() => handleSelectPlan(plan)}
               />
             );
