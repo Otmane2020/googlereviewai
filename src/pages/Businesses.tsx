@@ -469,21 +469,20 @@ const BusinessesPage = () => {
                         </Button>
                       </div>
                       <h3 className="font-semibold text-foreground text-base leading-tight line-clamp-2">{business.name}</h3>
+                      {/* Rating & Reviews - aligned under name */}
+                      <div className="flex items-center gap-1.5 mt-1">
+                        <span className="text-sm font-semibold text-foreground">{calculatedRating?.toFixed(1) || "–"}</span>
+                        <div className="flex items-center">
+                          {[...Array(5)].map((_, i) => (
+                            <Star 
+                              key={i} 
+                              className={`w-3.5 h-3.5 ${i < Math.round(calculatedRating || 0) ? "text-amber-400 fill-amber-400" : "text-muted-foreground/30"}`} 
+                            />
+                          ))}
+                        </div>
+                        <span className="text-xs text-muted-foreground">({reviewCount} avis)</span>
+                      </div>
                     </div>
-                  </div>
-
-                  {/* Rating & Reviews */}
-                  <div className="flex items-center gap-1.5 mb-3">
-                    <span className="text-sm font-semibold text-foreground">{calculatedRating?.toFixed(1) || "–"}</span>
-                    <div className="flex items-center">
-                      {[...Array(5)].map((_, i) => (
-                        <Star 
-                          key={i} 
-                          className={`w-3.5 h-3.5 ${i < Math.round(calculatedRating || 0) ? "text-amber-400 fill-amber-400" : "text-muted-foreground/30"}`} 
-                        />
-                      ))}
-                    </div>
-                    <span className="text-xs text-muted-foreground">({reviewCount} avis)</span>
                   </div>
 
                   {/* Description with popup preview */}
