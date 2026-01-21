@@ -132,14 +132,11 @@ const AEORank = () => {
 
   const handleSubscribe = async (annual: boolean = false) => {
     try {
-      const priceId = annual 
-        ? "price_1SrHtSEfti9t9nN9t5NgA002" // AEO Annual
-        : "price_1SrHtHEfti9t9nN9Me70ucqf"; // AEO Monthly
+      const priceKey = annual ? "aeo_yearly" : "aeo_monthly";
       
       const { data, error } = await supabase.functions.invoke("create-checkout", {
         body: { 
-          priceId,
-          mode: "subscription"
+          priceKey,
         }
       });
       

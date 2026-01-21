@@ -132,8 +132,7 @@ const SEOAutoPost = () => {
     try {
       const { data, error } = await supabase.functions.invoke("create-checkout", {
         body: { 
-          priceId: "price_1RVnzNP3jJGT2fKYhOMULUbz", // SEO AutoPost monthly price
-          mode: "subscription"
+          priceKey: "seo_monthly",
         }
       });
       
