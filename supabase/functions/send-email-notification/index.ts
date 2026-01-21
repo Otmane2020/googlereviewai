@@ -46,7 +46,7 @@ serve(async (req) => {
         Authorization: `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: `${from_name} <notifications@starlinko.com>`,
+        from: `${from_name} <support@starlinko.app>`,
         to: [to],
         subject,
         html,
