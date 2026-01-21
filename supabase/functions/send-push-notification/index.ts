@@ -162,9 +162,20 @@ serve(async (req) => {
     if (clientEmail && privateKey) {
       // Use separate secrets (preferred - avoids JSON parsing issues)
       console.log("Using separate Firebase secrets");
+      console.log("Client email:", clientEmail);
+      console.log("Private key length:", privateKey.length);
+      console.log("Private key starts with:", privateKey.substring(0, 50));
+      console.log("Private key ends with:", privateKey.substring(privateKey.length - 50));
+      
+      // Properly handle the private key - it should have literal \n characters
+      let processedKey = privateKey;
+      if (privateKey.includes('\\n')) {
+        processedKey = privateKey.replace(/\\n/g, '\n');
+      }
+      
       serviceAccount = {
         client_email: clientEmail,
-        private_key: privateKey.replace(/\\n/g, '\n'), // Handle escaped newlines
+        private_key: processedKey,
         project_id: "starlinkoapp",
       };
     } else if (serviceAccountJson) {
