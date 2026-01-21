@@ -76,34 +76,73 @@ Do not include any greeting like "Cher client" - start directly with the respons
   return data.choices?.[0]?.message?.content || null;
 }
 
+// Cache for Google account ID per user
+const accountIdCache: Record<string, string> = {};
+
+// Get Google account ID
+async function getGoogleAccountId(accessToken: string, userId: string): Promise<string | null> {
+  // Check cache first
+  if (accountIdCache[userId]) {
+    return accountIdCache[userId];
+  }
+
+  try {
+    const accountsResponse = await fetch(
+      "https://mybusinessaccountmanagement.googleapis.com/v1/accounts",
+      { headers: { Authorization: `Bearer ${accessToken}` } }
+    );
+
+    if (!accountsResponse.ok) {
+      console.error(`[AutoRespond] Failed to fetch accounts: ${accountsResponse.status}`);
+      return null;
+    }
+
+    const accountsData = await accountsResponse.json();
+    const accounts = accountsData.accounts || [];
+    
+    if (accounts.length === 0) {
+      console.error("[AutoRespond] No Google Business accounts found");
+      return null;
+    }
+
+    const accountId = accounts[0].name.split("/")[1];
+    accountIdCache[userId] = accountId;
+    console.log(`[AutoRespond] Got account ID for user ${userId}: ${accountId}`);
+    return accountId;
+  } catch (error) {
+    console.error("[AutoRespond] Error fetching account ID:", error);
+    return null;
+  }
+}
+
 // Publish reply to Google
 async function publishToGoogle(
   accessToken: string,
   review: any,
-  aiResponse: string
+  aiResponse: string,
+  userId: string
 ): Promise<boolean> {
-  // review_id can be in multiple formats:
-  // 1. Full path: "accounts/xxx/locations/xxx/reviews/AbFv..."
-  // 2. Location path: "locations/xxx/reviews/AbFv..."
-  // 3. Just the review ID: "AbFv..."
-  
-  let reviewName = review.review_id;
-  
-  // Check if review_id already contains the full path format
-  // It should contain "/reviews/" in the path for valid formats
-  if (reviewName.includes("/reviews/")) {
-    // Already has full path format, use as-is
-    console.log(`[AutoRespond] Using existing review path: ${reviewName}`);
-  } else {
-    // Just the review ID, construct the full path
-    reviewName = `locations/${review.location_id}/reviews/${reviewName}`;
-    console.log(`[AutoRespond] Constructed review path: ${reviewName}`);
+  // First, get the Google account ID
+  const accountId = await getGoogleAccountId(accessToken, userId);
+  if (!accountId) {
+    console.error("[AutoRespond] Cannot publish without account ID");
+    return false;
   }
 
-  console.log(`[AutoRespond] Publishing to Google: ${reviewName}`);
+  // Extract the unique review ID from whatever format we have
+  // review_id can be: "locations/xxx/reviews/AbFv...", "AbFv...", or full path
+  let uniqueReviewId = review.review_id;
+  if (uniqueReviewId.includes("/reviews/")) {
+    uniqueReviewId = uniqueReviewId.split("/reviews/").pop();
+  }
+
+  // Build full path: accounts/xxx/locations/xxx/reviews/xxx
+  const fullReviewPath = `accounts/${accountId}/locations/${review.location_id}/reviews/${uniqueReviewId}`;
+  
+  console.log(`[AutoRespond] Publishing to Google: ${fullReviewPath}`);
 
   const googleResponse = await fetch(
-    `https://mybusiness.googleapis.com/v4/${reviewName}/reply`,
+    `https://mybusiness.googleapis.com/v4/${fullReviewPath}/reply`,
     {
       method: "PUT",
       headers: {
@@ -120,6 +159,7 @@ async function publishToGoogle(
     return false;
   }
 
+  console.log(`[AutoRespond] Successfully published to Google!`);
   return true;
 }
 
@@ -340,7 +380,7 @@ serve(async (req) => {
             const tokenResult = await getGoogleAccessToken(supabase, userSettings.user_id);
 
             if (tokenResult.token) {
-              const published = await publishToGoogle(tokenResult.token, review, aiResponse);
+              const published = await publishToGoogle(tokenResult.token, review, aiResponse, userSettings.user_id);
               
               if (published) {
                 await supabase
