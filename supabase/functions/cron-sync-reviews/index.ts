@@ -7,11 +7,67 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Helper function to sync reviews for a single business
-// Helper function to sync reviews for a single business
-// Returns new review IDs for notification
-async function syncBusinessReviews(
+// Star rating mapping from Google API format
+const starMapping: Record<string, number> = {
+  "ONE": 1, "TWO": 2, "THREE": 3, "FOUR": 4, "FIVE": 5,
+  "STAR_RATING_UNSPECIFIED": 0
+};
+
+// Parse star rating from Google API response
+function parseStarRating(starRating: string | number | undefined): number {
+  if (typeof starRating === "number") return starRating;
+  if (typeof starRating === "string") return starMapping[starRating] || 5;
+  return 5;
+}
+
+// Fetch all GMB accounts for a user
+async function fetchGMBAccounts(accessToken: string): Promise<{ accounts: any[]; error?: string }> {
+  try {
+    const response = await fetch(
+      "https://mybusinessaccountmanagement.googleapis.com/v1/accounts",
+      { headers: { Authorization: `Bearer ${accessToken}` } }
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("[CRON] Failed to fetch GMB accounts:", response.status, errorText);
+      return { accounts: [], error: `Failed to fetch accounts: ${response.status}` };
+    }
+
+    const data = await response.json();
+    return { accounts: data.accounts || [] };
+  } catch (error) {
+    console.error("[CRON] Exception fetching GMB accounts:", error);
+    return { accounts: [], error: error instanceof Error ? error.message : "Unknown error" };
+  }
+}
+
+// Fetch locations for a GMB account
+async function fetchGMBLocations(accessToken: string, accountName: string): Promise<{ locations: any[]; error?: string }> {
+  try {
+    const response = await fetch(
+      `https://mybusinessbusinessinformation.googleapis.com/v1/${accountName}/locations?readMask=name,title`,
+      { headers: { Authorization: `Bearer ${accessToken}` } }
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`[CRON] Failed to fetch locations for ${accountName}:`, response.status);
+      return { locations: [], error: `Failed to fetch locations: ${response.status}` };
+    }
+
+    const data = await response.json();
+    return { locations: data.locations || [] };
+  } catch (error) {
+    console.error(`[CRON] Exception fetching locations for ${accountName}:`, error);
+    return { locations: [], error: error instanceof Error ? error.message : "Unknown error" };
+  }
+}
+
+// Sync reviews for a specific location
+async function syncLocationReviews(
   accessToken: string,
+  accountId: string,
   locationId: string,
   userId: string,
   supabase: any
@@ -29,38 +85,61 @@ async function syncBusinessReviews(
       .eq("location_id", locationId);
     
     const existingReviewIds = new Set(existingReviews?.map((r: any) => r.review_id) || []);
+    console.log(`[CRON] Location ${locationId}: ${existingReviewIds.size} existing reviews in DB`);
 
-    // Fetch reviews from Google
-    const reviewsUrl = `https://mybusiness.googleapis.com/v4/${locationId}/reviews`;
+    // CORRECT URL FORMAT: /v4/accounts/{accountId}/locations/{locationId}/reviews
+    const reviewsUrl = `https://mybusiness.googleapis.com/v4/accounts/${accountId}/locations/${locationId}/reviews?pageSize=50`;
+    console.log(`[CRON] Fetching reviews from: ${reviewsUrl}`);
+    
     const response = await fetch(reviewsUrl, {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error(`Failed to fetch reviews for ${locationId}:`, errorText);
-      errors.push(`Location ${locationId}: ${response.status}`);
+      console.error(`[CRON] Failed to fetch reviews for location ${locationId}:`, response.status, errorText);
+      
+      if (response.status === 404) {
+        errors.push(`Location ${locationId}: No reviews endpoint (might be new listing)`);
+      } else if (response.status === 403) {
+        errors.push(`Location ${locationId}: Permission denied`);
+      } else {
+        errors.push(`Location ${locationId}: Error ${response.status}`);
+      }
       return { synced, newReviewIds, errors };
     }
 
     const data = await response.json();
     const reviews = data.reviews || [];
+    console.log(`[CRON] Found ${reviews.length} reviews for location ${locationId}`);
 
     for (const review of reviews) {
-      const reviewId = review.reviewId || review.name?.split("/").pop();
-      const reviewer = review.reviewer || {};
-      const isNewReview = !existingReviewIds.has(reviewId);
-      
+      const fullReviewId = review.name || review.reviewId;
+      if (!fullReviewId) {
+        console.error("[CRON] Review has no ID:", review);
+        continue;
+      }
+
+      // Build canonical review ID
+      const reviewIdParts = fullReviewId.split("/reviews/");
+      const uniqueReviewId = reviewIdParts.length > 1 ? reviewIdParts[1] : fullReviewId;
+      const canonicalReviewId = `locations/${locationId}/reviews/${uniqueReviewId}`;
+
+      const isNewReview = !existingReviewIds.has(canonicalReviewId);
+      const rating = parseStarRating(review.starRating);
+
       const reviewData = {
-        review_id: reviewId,
+        review_id: canonicalReviewId,
         user_id: userId,
         location_id: locationId,
-        author: reviewer.displayName || "Anonyme",
-        rating: review.starRating ? parseInt(review.starRating.replace("STAR_", "").replace("_", "")) || 5 : 5,
-        comment: review.comment || null,
+        author: review.reviewer?.displayName || "Anonyme",
+        rating: rating,
+        comment: review.comment || "",
         review_date: review.createTime || new Date().toISOString(),
-        // Mark as not notified if it's a new review - trigger will handle notification
-        notified: isNewReview ? false : true,
+        replied: !!review.reviewReply,
+        google_reply: review.reviewReply?.comment || null,
+        // Mark as NOT notified if it's truly new - trigger will handle notification
+        notified: !isNewReview,
       };
 
       // Upsert review - trigger will fire and send notification for new reviews
@@ -72,17 +151,17 @@ async function syncBusinessReviews(
         });
 
       if (upsertError) {
-        console.error(`Error upserting review ${reviewId}:`, upsertError);
+        console.error(`[CRON] Error upserting review ${canonicalReviewId}:`, upsertError);
       } else {
         synced++;
         if (isNewReview) {
-          newReviewIds.push(reviewId);
-          console.log(`[CRON] New review detected: ${reviewId} by ${reviewData.author}`);
+          newReviewIds.push(canonicalReviewId);
+          console.log(`[CRON] 🆕 NEW REVIEW DETECTED: ${canonicalReviewId} by ${reviewData.author} (${rating}⭐)`);
         }
       }
     }
   } catch (error) {
-    console.error(`Exception syncing ${locationId}:`, error);
+    console.error(`[CRON] Exception syncing location ${locationId}:`, error);
     errors.push(`Location ${locationId}: ${error instanceof Error ? error.message : "Unknown error"}`);
   }
 
@@ -101,9 +180,11 @@ serve(async (req) => {
     // CRON uses SERVICE_ROLE only - no user session
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
+    console.log("[CRON] ========================================");
     console.log("[CRON] Starting autonomous sync reviews job...");
+    console.log("[CRON] ========================================");
 
-    // Get all users with auto_sync_reviews enabled AND a refresh token
+    // Get all users with auto_sync_reviews enabled
     const { data: settings, error: settingsError } = await supabase
       .from("ai_settings")
       .select("user_id, auto_sync_reviews, auto_publish_to_google, minimum_rating")
@@ -140,7 +221,7 @@ serve(async (req) => {
         const tokenResult = await getGoogleAccessToken(supabase, userSettings.user_id);
 
         if (!tokenResult.token) {
-          console.log(`[CRON] User ${userSettings.user_id}: ${tokenResult.error || 'No token'}`);
+          console.log(`[CRON] User ${userSettings.user_id}: ${tokenResult.error || 'No refresh token available'}`);
           usersSkipped++;
           
           // Update sync status for this user
@@ -149,42 +230,86 @@ serve(async (req) => {
             .update({
               last_sync_at: new Date().toISOString(),
               last_sync_status: "error",
-              last_sync_error: tokenResult.error || "No token available",
+              last_sync_error: tokenResult.error || "No refresh token available",
             })
             .eq("user_id", userSettings.user_id);
           continue;
         }
 
         const accessToken = tokenResult.token;
+        console.log(`[CRON] ✅ Got access token for user ${userSettings.user_id}`);
 
-        // Get user's businesses
-        const { data: businesses, error: businessError } = await supabase
+        // Step 1: Fetch ALL GMB accounts for this user
+        const { accounts, error: accountsError } = await fetchGMBAccounts(accessToken);
+        
+        if (accountsError || accounts.length === 0) {
+          console.log(`[CRON] User ${userSettings.user_id}: No GMB accounts found`);
+          userErrors.push(accountsError || "No GMB accounts");
+          
+          await supabase
+            .from("ai_settings")
+            .update({
+              last_sync_at: new Date().toISOString(),
+              last_sync_status: "error",
+              last_sync_error: accountsError || "No GMB accounts found",
+            })
+            .eq("user_id", userSettings.user_id);
+          continue;
+        }
+
+        console.log(`[CRON] Found ${accounts.length} GMB accounts for user ${userSettings.user_id}`);
+
+        // Get user's saved businesses (to match locations)
+        const { data: businesses } = await supabase
           .from("businesses")
           .select("id, name, google_place_id")
           .eq("user_id", userSettings.user_id)
           .eq("is_active", true);
 
-        if (businessError || !businesses || businesses.length === 0) {
-          console.log(`[CRON] No businesses for user ${userSettings.user_id}`);
-          continue;
-        }
+        const savedLocationIds = new Set((businesses || []).map((b: any) => b.google_place_id).filter(Boolean));
+        console.log(`[CRON] User has ${savedLocationIds.size} active businesses in DB`);
 
-        console.log(`[CRON] Syncing ${businesses.length} businesses for user ${userSettings.user_id}`);
+        // Step 2: For each account, get locations and sync reviews
+        for (const account of accounts) {
+          const accountName = account.name; // e.g., "accounts/123456789"
+          const accountId = accountName.split("/")[1];
+          console.log(`[CRON] Processing account: ${accountName}`);
 
-        // Sync each business - notifications are handled by the trigger
-        for (const business of businesses) {
-          if (!business.google_place_id) continue;
+          // Fetch locations for this account
+          const { locations, error: locationsError } = await fetchGMBLocations(accessToken, accountName);
+          
+          if (locationsError) {
+            userErrors.push(`Account ${accountId}: ${locationsError}`);
+            continue;
+          }
 
-          const result = await syncBusinessReviews(
-            accessToken,
-            business.google_place_id,
-            userSettings.user_id,
-            supabase
-          );
+          console.log(`[CRON] Found ${locations.length} locations in account ${accountId}`);
 
-          userSynced += result.synced;
-          userNewReviews += result.newReviewIds.length;
-          userErrors.push(...result.errors);
+          // Step 3: Sync reviews for each location that matches user's businesses
+          for (const location of locations) {
+            const locationName = location.name; // e.g., "locations/15834486420159917356"
+            const locationId = locationName.split("/")[1];
+
+            // Only sync if this location is in user's saved businesses
+            if (!savedLocationIds.has(locationId)) {
+              console.log(`[CRON] Skipping location ${locationId} - not in user's businesses`);
+              continue;
+            }
+
+            console.log(`[CRON] 📍 Syncing reviews for location: ${location.title || locationId}`);
+
+            const result = await syncLocationReviews(
+              accessToken,
+              accountId,
+              locationId,
+              userSettings.user_id,
+              supabase
+            );
+
+            userSynced += result.synced;
+            userNewReviews += result.newReviewIds.length;
+            userErrors.push(...result.errors);
+          }
         }
 
         totalSynced += userSynced;
@@ -202,7 +327,7 @@ serve(async (req) => {
           })
           .eq("user_id", userSettings.user_id);
 
-        console.log(`[CRON] User ${userSettings.user_id}: synced ${userSynced} reviews, ${userNewReviews} new`);
+        console.log(`[CRON] User ${userSettings.user_id}: synced ${userSynced} reviews, ${userNewReviews} NEW`);
         usersProcessed++;
       } catch (userError) {
         console.error(`[CRON] Error processing user ${userSettings.user_id}:`, userError);
@@ -224,7 +349,7 @@ serve(async (req) => {
     // After syncing, trigger auto-respond if there are new reviews
     if (totalNewReviews > 0) {
       try {
-        console.log("[CRON] Triggering auto-respond-reviews for new reviews...");
+        console.log(`[CRON] 🚀 Triggering auto-respond-reviews for ${totalNewReviews} new reviews...`);
         await fetch(`${supabaseUrl}/functions/v1/auto-respond-reviews`, {
           method: "POST",
           headers: {
@@ -237,8 +362,10 @@ serve(async (req) => {
       }
     }
 
-    const message = `[CRON] Autonomous sync completed. Processed ${usersProcessed} users (${usersSkipped} skipped), synced ${totalSynced} reviews, ${totalNewReviews} new reviews detected.`;
-    console.log(message);
+    const message = `Processed ${usersProcessed} users (${usersSkipped} skipped), synced ${totalSynced} reviews, ${totalNewReviews} NEW reviews detected.`;
+    console.log(`[CRON] ========================================`);
+    console.log(`[CRON] ✅ ${message}`);
+    console.log(`[CRON] ========================================`);
 
     return new Response(
       JSON.stringify({ 
@@ -255,7 +382,7 @@ serve(async (req) => {
 
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
-    console.error("[CRON] Sync error:", error);
+    console.error("[CRON] ❌ Sync error:", error);
     return new Response(
       JSON.stringify({ success: false, error: errorMessage }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
