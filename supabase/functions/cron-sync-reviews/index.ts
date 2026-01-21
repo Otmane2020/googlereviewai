@@ -249,8 +249,17 @@ async function syncLocationReviews(
         const isNewReview = !existingReviewIds.has(canonicalReviewId);
         const rating = parseStarRating(review.starRating);
 
-        // Use originalComment to get the review in its original language (not Google-translated)
-        const originalComment = review.originalComment || review.comment || "";
+        // Extract original comment - prefer originalComment, otherwise parse from translated format
+        let originalComment = review.originalComment || review.comment || "";
+        
+        // If comment contains "(Original)" pattern, extract only the original text
+        // Format: "(Translated by Google) translated text (Original) original text"
+        if (!review.originalComment && originalComment.includes("(Original)")) {
+          const originalMatch = originalComment.match(/\(Original\)\s*(.*)$/s);
+          if (originalMatch && originalMatch[1]) {
+            originalComment = originalMatch[1].trim();
+          }
+        }
         
         reviewsToUpsert.push({
           review_id: canonicalReviewId,
