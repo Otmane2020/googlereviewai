@@ -489,62 +489,44 @@ const SEOAutoPost = () => {
                 </TabsTrigger>
               </TabsList>
 
-              {/* Planning Tab - Horizontal Scroll Mobile */}
+              {/* Planning Tab */}
               <TabsContent value="planning" className="mt-3">
-                <div className="overflow-x-auto -mx-4 px-4 pb-2">
-                  <div className="flex gap-2 min-w-max">
-                    {next30Days.map((date) => {
-                      const dateStr = format(date, "yyyy-MM-dd");
-                      const dayContent = scheduledContent.find(
-                        c => c.scheduled_date === dateStr && c.content_type === "aeo_qa"
-                      );
-                      const isToday = isSameDay(date, today);
+                <div className="grid grid-cols-5 sm:grid-cols-7 gap-2">
+                  {next30Days.map((date) => {
+                    const dateStr = format(date, "yyyy-MM-dd");
+                    const dayContent = scheduledContent.find(
+                      c => c.scheduled_date === dateStr && c.content_type === "aeo_qa"
+                    );
+                    const isToday = isSameDay(date, today);
 
-                      return (
-                        <div
-                          key={dateStr}
-                          className={`w-14 flex-shrink-0 p-2 rounded-xl border text-center transition-all ${
-                            isToday 
-                              ? "border-primary bg-primary/10 ring-2 ring-primary/30" 
-                              : "border-border bg-card active:bg-muted"
-                          }`}
-                          onClick={() => dayContent?.status === "pending" && generateContentForDay(dayContent)}
-                        >
-                          <p className="text-[10px] text-muted-foreground uppercase">
-                            {format(date, "EEE", { locale: fr }).slice(0, 3)}
-                          </p>
-                          <p className={`text-base font-bold ${isToday ? "text-primary" : "text-foreground"}`}>
-                            {format(date, "d")}
-                          </p>
-                          <div className="mt-1 h-5 flex items-center justify-center">
-                            {dayContent ? (
-                              <>
-                                {dayContent.status === "published" && <Check className="w-4 h-4 text-secondary" />}
-                                {dayContent.status === "generated" && <Sparkles className="w-4 h-4 text-primary" />}
-                                {dayContent.status === "pending" && <Clock className="w-4 h-4 text-muted-foreground" />}
-                                {dayContent.status === "generating" && <Loader2 className="w-4 h-4 text-primary animate-spin" />}
-                                {(dayContent.status === "failed" || dayContent.status === "error") && <AlertCircle className="w-4 h-4 text-destructive" />}
-                              </>
-                            ) : (
-                              <span className="text-[10px] text-muted-foreground">—</span>
-                            )}
-                          </div>
+                    return (
+                      <div
+                        key={dateStr}
+                        className={`p-2 rounded-lg border text-center transition-all ${
+                          isToday 
+                            ? "border-primary bg-primary/5 ring-2 ring-primary/20" 
+                            : "border-border bg-card"
+                        }`}
+                        onClick={() => dayContent?.status === "pending" && generateContentForDay(dayContent)}
+                      >
+                        <p className="text-[10px] text-muted-foreground">
+                          {format(date, "EEE", { locale: fr })}
+                        </p>
+                        <p className={`text-sm font-bold ${isToday ? "text-primary" : "text-foreground"}`}>
+                          {format(date, "d")}
+                        </p>
+                        <div className="mt-1">
+                          {dayContent ? (
+                            <div className="cursor-pointer">
+                              {getStatusBadge(dayContent.status)}
+                            </div>
+                          ) : (
+                            <span className="text-[10px] text-muted-foreground">—</span>
+                          )}
                         </div>
-                      );
-                    })}
-                  </div>
-                </div>
-                {/* Legend */}
-                <div className="flex flex-wrap gap-3 mt-3 text-[10px] text-muted-foreground">
-                  <div className="flex items-center gap-1">
-                    <Clock className="w-3 h-3" /> Planifié
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Sparkles className="w-3 h-3 text-primary" /> Prêt
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Check className="w-3 h-3 text-secondary" /> Publié
-                  </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </TabsContent>
 

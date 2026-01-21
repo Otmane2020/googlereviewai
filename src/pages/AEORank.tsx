@@ -517,54 +517,52 @@ const AEORank = () => {
                 </TabsTrigger>
               </TabsList>
 
-              {/* Planning Tab - Horizontal Scroll Mobile */}
+              {/* Planning Tab */}
               <TabsContent value="planning" className="mt-3">
-                <div className="overflow-x-auto -mx-4 px-4 pb-2">
-                  <div className="flex gap-2 min-w-max">
-                    {next30Days.map((day) => {
-                      const dateStr = format(day, "yyyy-MM-dd");
-                      const dayContent = scheduledContent.find(c => c.scheduled_date === dateStr);
-                      const isToday = isSameDay(day, today);
-                      
-                      return (
-                        <div 
-                          key={dateStr}
-                          className={`w-14 flex-shrink-0 p-2 rounded-xl border text-center transition-all ${
-                            isToday ? "border-primary bg-primary/10 ring-2 ring-primary/30" : "border-border bg-card"
-                          } ${dayContent?.status === "published" ? "bg-secondary/10" : ""} active:bg-muted`}
-                          onClick={() => {
-                            if (dayContent) {
-                              handlePreviewArticle(dayContent);
-                            }
-                          }}
-                        >
+                <div className="grid grid-cols-5 sm:grid-cols-7 gap-2">
+                  {next30Days.map((day) => {
+                    const dateStr = format(day, "yyyy-MM-dd");
+                    const dayContent = scheduledContent.find(c => c.scheduled_date === dateStr);
+                    const isToday = isSameDay(day, today);
+                    
+                    return (
+                      <Card 
+                        key={dateStr}
+                        className={`p-2 cursor-pointer transition-all ${
+                          isToday ? "ring-2 ring-primary" : ""
+                        } ${dayContent?.status === "published" ? "bg-secondary/20" : ""}`}
+                        onClick={() => {
+                          if (dayContent) {
+                            handlePreviewArticle(dayContent);
+                          }
+                        }}
+                      >
+                        <div className="text-center">
                           <p className="text-[10px] text-muted-foreground uppercase">
-                            {format(day, "EEE", { locale: fr }).slice(0, 3)}
+                            {format(day, "EEE", { locale: fr })}
                           </p>
-                          <p className={`text-base font-bold ${isToday ? "text-primary" : "text-foreground"}`}>
+                          <p className={`text-lg font-bold ${isToday ? "text-primary" : "text-foreground"}`}>
                             {format(day, "d")}
                           </p>
-                          <div className="mt-1 h-5 flex items-center justify-center">
-                            {dayContent ? (
-                              <>
-                                {dayContent.status === "published" && <Check className="w-4 h-4 text-secondary" />}
-                                {dayContent.status === "generated" && <Sparkles className="w-4 h-4 text-primary" />}
-                                {dayContent.status === "pending" && <Clock className="w-4 h-4 text-muted-foreground" />}
-                                {dayContent.status === "generating" && <Loader2 className="w-4 h-4 text-primary animate-spin" />}
-                                {(dayContent.status === "failed" || dayContent.status === "error") && <AlertCircle className="w-4 h-4 text-destructive" />}
-                              </>
-                            ) : (
-                              <span className="text-[10px] text-muted-foreground">—</span>
-                            )}
-                          </div>
+                          {dayContent ? (
+                            <div className="mt-1">
+                              {dayContent.status === "published" && <Check className="w-4 h-4 mx-auto text-secondary" />}
+                              {dayContent.status === "generated" && <Sparkles className="w-4 h-4 mx-auto text-primary" />}
+                              {dayContent.status === "pending" && <Clock className="w-4 h-4 mx-auto text-muted-foreground" />}
+                              {dayContent.status === "generating" && <Loader2 className="w-4 h-4 mx-auto text-primary animate-spin" />}
+                              {(dayContent.status === "failed" || dayContent.status === "error") && <AlertCircle className="w-4 h-4 mx-auto text-destructive" />}
+                            </div>
+                          ) : (
+                            <div className="mt-1 h-4" />
+                          )}
                         </div>
-                      );
-                    })}
-                  </div>
+                      </Card>
+                    );
+                  })}
                 </div>
 
                 {/* Legend */}
-                <div className="flex flex-wrap gap-3 mt-3 text-[10px] text-muted-foreground">
+                <div className="flex flex-wrap gap-4 mt-4 text-xs text-muted-foreground">
                   <div className="flex items-center gap-1">
                     <Clock className="w-3 h-3" /> Planifié
                   </div>
