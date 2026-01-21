@@ -308,24 +308,42 @@ serve(async (req) => {
                 allGoogleReviewIds.push(canonicalReviewId);
               }
               
-              // Check which reviews already exist in DB
+              // Check which reviews already exist in DB and detect edits
               if (reviewsToUpsert.length > 0) {
                 const { data: existingReviews } = await supabaseAdmin
                   .from("reviews")
-                  .select("review_id")
+                  .select("id, review_id, comment, ai_response")
                   .eq("user_id", user.id)
                   .in("review_id", reviewIdsInPage);
                 
-                const existingReviewIds = new Set((existingReviews || []).map(r => r.review_id));
+                const existingReviewMap = new Map((existingReviews || []).map(r => [r.review_id, r]));
                 
-                // For existing reviews, mark as notified to prevent re-notification
+                // For existing reviews, mark as notified and detect edits
                 // For new reviews, let the trigger handle notification (notified will be false/null)
-                const reviewsWithNotified = reviewsToUpsert.map(r => ({
-                  ...r,
-                  notified: existingReviewIds.has(r.review_id) ? true : false
-                }));
+                const reviewsWithNotified = reviewsToUpsert.map(r => {
+                  const existing = existingReviewMap.get(r.review_id);
+                  if (existing) {
+                    // Check if comment was edited
+                    const wasEdited = existing.comment !== r.comment && r.comment !== "";
+                    if (wasEdited) {
+                      console.log(`[Sync] Review ${r.review_id} was edited by customer`);
+                      return {
+                        ...r,
+                        notified: true,
+                        last_edited_at: new Date().toISOString(),
+                        edit_count: (existing as any).edit_count ? (existing as any).edit_count + 1 : 1,
+                        needs_new_response: existing.ai_response ? true : false, // Flag for re-generation
+                      };
+                    }
+                    return { ...r, notified: true };
+                  }
+                  return { ...r, notified: false };
+                });
                 
-                console.log(`Batch upserting ${reviewsWithNotified.length} reviews (${existingReviewIds.size} existing, ${reviewsWithNotified.length - existingReviewIds.size} new) for ${locationTitle}`);
+                // Count edited reviews for notification
+                const editedReviews = reviewsWithNotified.filter((r: any) => r.needs_new_response);
+                
+                console.log(`Batch upserting ${reviewsWithNotified.length} reviews (${existingReviewMap.size} existing, ${reviewsWithNotified.length - existingReviewMap.size} new, ${editedReviews.length} edited) for ${locationTitle}`);
                 
                 const { data: upsertedReviews, error: upsertError } = await supabaseAdmin
                   .from("reviews")
@@ -340,6 +358,17 @@ serve(async (req) => {
                   errors.push(`${locationTitle}: ${upsertError.message}`);
                 } else if (upsertedReviews) {
                   allReviews.push(...upsertedReviews);
+                  
+                  // Create notifications for edited reviews
+                  for (const editedReview of editedReviews) {
+                    await supabaseAdmin.from("notifications").insert({
+                      user_id: user.id,
+                      type: "review_edited",
+                      title: "✏️ Avis modifié",
+                      message: `${editedReview.author} a modifié son avis ${editedReview.rating} étoiles`,
+                      review_id: upsertedReviews.find((r: any) => r.review_id === editedReview.review_id)?.id || null,
+                    });
+                  }
                 }
               }
             } while (nextPageToken && pageCount < MAX_PAGES);
@@ -366,7 +395,7 @@ serve(async (req) => {
       // Get all review IDs currently in the database for this user
       const { data: dbReviews, error: dbReviewsError } = await supabaseAdmin
         .from("reviews")
-        .select("id, review_id")
+        .select("id, review_id, author, rating")
         .eq("user_id", user.id);
       
       if (!dbReviewsError && dbReviews) {
@@ -376,6 +405,17 @@ serve(async (req) => {
         
         if (reviewsToDelete.length > 0) {
           console.log(`Found ${reviewsToDelete.length} reviews to delete (no longer on Google)`);
+          
+          // Create notifications for deleted reviews BEFORE deleting them
+          for (const deletedReview of reviewsToDelete) {
+            await supabaseAdmin.from("notifications").insert({
+              user_id: user.id,
+              type: "review_deleted",
+              title: "🗑️ Avis supprimé",
+              message: `L'avis de ${deletedReview.author} (${deletedReview.rating} étoiles) a été supprimé de Google`,
+              review_id: null, // Review will be deleted so no link
+            });
+          }
           
           const idsToDelete = reviewsToDelete.map(r => r.id);
           const { error: deleteError } = await supabaseAdmin
