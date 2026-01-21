@@ -109,6 +109,44 @@ serve(async (req) => {
             }
 
             console.log(`[checkout.session.completed] ✅ Updated profile for user ${userId} with plan ${config.planName}${isTrial ? " (trial)" : ""}`);
+
+            // Send welcome/subscription confirmation email
+            try {
+              const { data: profile } = await supabaseAdmin
+                .from("profiles")
+                .select("email, full_name")
+                .eq("id", userId)
+                .single();
+
+              if (profile?.email) {
+                console.log("[checkout.session.completed] Sending welcome email to:", profile.email);
+                
+                const emailResponse = await fetch(
+                  `${Deno.env.get("SUPABASE_URL")}/functions/v1/send-welcome-email`,
+                  {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                      "Authorization": `Bearer ${Deno.env.get("SUPABASE_ANON_KEY")}`,
+                    },
+                    body: JSON.stringify({
+                      email: profile.email,
+                      name: profile.full_name,
+                    }),
+                  }
+                );
+
+                if (emailResponse.ok) {
+                  console.log("[checkout.session.completed] ✅ Welcome email sent successfully");
+                } else {
+                  const emailError = await emailResponse.text();
+                  console.error("[checkout.session.completed] Email error:", emailError);
+                }
+              }
+            } catch (emailErr) {
+              console.error("[checkout.session.completed] Error sending welcome email:", emailErr);
+              // Don't throw - email failure shouldn't break the subscription flow
+            }
           } else {
             console.warn("[checkout.session.completed] No config found for priceId:", priceId);
           }
