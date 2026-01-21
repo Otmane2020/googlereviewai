@@ -1,16 +1,18 @@
 import { useEffect, useState, useRef, useCallback } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useSyncGoogleBusinesses } from "@/hooks/useSyncGoogleBusinesses";
 import { useSyncGoogleReviews } from "@/hooks/useSyncGoogleReviews";
 import { useRequireSubscription } from "@/hooks/useRequireSubscription";
+import { useGoogleOAuth } from "@/hooks/useGoogleOAuth";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { ConnectGMBDialog } from "@/components/ConnectGMBDialog";
 import { SyncProgressOverlay } from "@/components/SyncProgressOverlay";
 import { SelectBusinessesDialog } from "@/components/SelectBusinessesDialog";
 import { LowCreditsBanner } from "@/components/LowCreditsBanner";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { 
@@ -60,6 +62,8 @@ interface SyncStatus {
 const Dashboard = () => {
   const { user, session } = useAuth();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { handleOAuthCallback } = useGoogleOAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [recentReviews, setRecentReviews] = useState<Review[]>([]);
   const [stats, setStats] = useState({ total: 0, avgRating: 0, aiResponses: 0, pending: 0, businesses: 0, responseRate: 0 });
@@ -72,11 +76,60 @@ const Dashboard = () => {
   const { syncReviews, isSyncing: isSyncingReviews } = useSyncGoogleReviews();
   const hasSyncedRef = useRef(false);
   const hasCheckedGMBRef = useRef(false);
+  const hasHandledOAuthRef = useRef(false);
   
   // Business selection dialog state
   const [showSelectBusinessesDialog, setShowSelectBusinessesDialog] = useState(false);
   const [googleBusinessesForSelection, setGoogleBusinessesForSelection] = useState<any[]>([]);
   const [maxBusinessesLimit, setMaxBusinessesLimit] = useState(1);
+
+  // Handle Google OAuth callback - when user returns from Google with a code
+  useEffect(() => {
+    const handleGoogleCallback = async () => {
+      const code = searchParams.get("code");
+      const state = searchParams.get("state"); // Contains user_id
+      
+      if (code && user && !hasHandledOAuthRef.current) {
+        hasHandledOAuthRef.current = true;
+        console.log("[Dashboard] Handling Google OAuth callback with code");
+        
+        // Clear URL params immediately
+        setSearchParams({});
+        
+        try {
+          const success = await handleOAuthCallback(code);
+          
+          if (success) {
+            toast.success("Google Business connecté avec succès !");
+            // Trigger sync after successful connection
+            setShowSyncProgress(true);
+            setSyncStep("businesses");
+            const businessResult = await syncBusinesses();
+            
+            if (businessResult?.requires_selection) {
+              setShowSyncProgress(false);
+              setGoogleBusinessesForSelection(businessResult.google_businesses || []);
+              setMaxBusinessesLimit(businessResult.max_businesses || 1);
+              setShowSelectBusinessesDialog(true);
+            } else {
+              setSyncStep("reviews");
+              await syncReviews();
+              setSyncStep("complete");
+              // Refresh data after sync - will be triggered by next effect
+              setLoading(false);
+            }
+          } else {
+            toast.error("Échec de la connexion Google. Veuillez réessayer.");
+          }
+        } catch (error) {
+          console.error("[Dashboard] OAuth callback error:", error);
+          toast.error("Erreur lors de la connexion Google");
+        }
+      }
+    };
+    
+    handleGoogleCallback();
+  }, [searchParams, user, handleOAuthCallback, setSearchParams, syncBusinesses, syncReviews]);
 
   const fetchData = useCallback(async () => {
     if (!user) return;
