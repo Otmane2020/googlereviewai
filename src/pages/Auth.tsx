@@ -87,6 +87,32 @@ const Auth = () => {
                 })
                 .eq("id", session.user.id);
               console.log("[Auth] Stored Google refresh token for GMB access");
+              
+              // Immediately trigger business sync with fresh provider_token
+              // This happens BEFORE redirect so the popup can show instantly on Dashboard
+              if (session.provider_token) {
+                console.log("[Auth] Triggering immediate business sync...");
+                try {
+                  const syncResponse = await supabase.functions.invoke("sync-google-businesses", {
+                    body: { provider_token: session.provider_token },
+                  });
+                  
+                  if (syncResponse.data?.requires_selection) {
+                    // Store selection data for immediate retrieval on Dashboard
+                    sessionStorage.setItem("pending_business_selection", JSON.stringify({
+                      businesses: syncResponse.data.google_businesses,
+                      maxBusinesses: syncResponse.data.max_businesses,
+                    }));
+                    console.log("[Auth] Stored pending business selection for Dashboard");
+                  } else if (syncResponse.data?.success) {
+                    // Mark initial sync as done
+                    localStorage.setItem(`starlinko_initial_sync_${session.user.id}`, "true");
+                    console.log("[Auth] Business sync complete, no selection needed");
+                  }
+                } catch (syncErr) {
+                  console.error("[Auth] Business sync failed:", syncErr);
+                }
+              }
             } catch (err) {
               console.error("[Auth] Failed to store Google refresh token:", err);
             }
