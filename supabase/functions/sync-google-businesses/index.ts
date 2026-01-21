@@ -132,6 +132,7 @@ serve(async (req) => {
     }
 
     const allLocations: any[] = [];
+    const accountMap: Record<string, string> = {}; // locationId -> accountName
 
     // Fetch locations for each account
     for (const account of accounts) {
@@ -149,9 +150,54 @@ serve(async (req) => {
       if (locationsResponse.ok) {
         const locationsData = await locationsResponse.json();
         const locations = locationsData.locations || [];
-        allLocations.push(...locations);
+        locations.forEach((loc: any) => {
+          allLocations.push(loc);
+          accountMap[loc.name] = accountName;
+        });
       } else {
         console.error(`Failed to fetch locations for ${accountName}:`, await locationsResponse.text());
+      }
+    }
+
+    // Fetch media (profile photo) for each location
+    const mediaMap: Record<string, string> = {}; // google_place_id -> profile_image_url
+    
+    for (const location of allLocations) {
+      const googlePlaceId = location.name.split("/").pop();
+      const accountName = accountMap[location.name];
+      
+      if (accountName) {
+        try {
+          const mediaResponse = await fetch(
+            `https://mybusiness.googleapis.com/v4/${accountName}/locations/${googlePlaceId}/media`,
+            {
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+              },
+            }
+          );
+          
+          if (mediaResponse.ok) {
+            const mediaData = await mediaResponse.json();
+            const mediaItems = mediaData.mediaItems || [];
+            
+            // Find profile photo (PROFILE category) or use first photo
+            const profilePhoto = mediaItems.find((m: any) => 
+              m.locationAssociation?.category === "PROFILE"
+            ) || mediaItems.find((m: any) => 
+              m.locationAssociation?.category === "COVER"
+            ) || mediaItems[0];
+            
+            if (profilePhoto?.googleUrl) {
+              mediaMap[googlePlaceId] = profilePhoto.googleUrl;
+              console.log(`Found profile image for ${googlePlaceId}`);
+            }
+          } else {
+            console.log(`No media found for ${googlePlaceId}`);
+          }
+        } catch (e) {
+          console.error(`Failed to fetch media for ${googlePlaceId}:`, e);
+        }
       }
     }
 
@@ -180,6 +226,7 @@ serve(async (req) => {
           website: location.websiteUri || null,
           description: location.profile?.description || null,
           maps_url: location.metadata?.mapsUri || null,
+          profile_image_url: mediaMap[googlePlaceId] || null,
           is_active: true,
         });
       }

@@ -155,6 +155,7 @@ export type Database = {
           maps_url: string | null
           name: string
           phone: string | null
+          profile_image_url: string | null
           rating: number | null
           total_reviews: number | null
           updated_at: string | null
@@ -173,6 +174,7 @@ export type Database = {
           maps_url?: string | null
           name: string
           phone?: string | null
+          profile_image_url?: string | null
           rating?: number | null
           total_reviews?: number | null
           updated_at?: string | null
@@ -191,6 +193,7 @@ export type Database = {
           maps_url?: string | null
           name?: string
           phone?: string | null
+          profile_image_url?: string | null
           rating?: number | null
           total_reviews?: number | null
           updated_at?: string | null
