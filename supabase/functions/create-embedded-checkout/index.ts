@@ -151,6 +151,7 @@ serve(async (req) => {
       line_items: [{ price: priceId, quantity: 1 }],
       mode: "subscription",
       ui_mode: "embedded",
+      locale: "fr",
       return_url: `${origin}/dashboard?session_id={CHECKOUT_SESSION_ID}`,
       metadata: {
         supabase_user_id: userId,
