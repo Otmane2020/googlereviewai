@@ -15,6 +15,7 @@ interface PublishRequest {
   cta_url?: string;
   media_url?: string;
   post_id?: string; // If provided, update existing scheduled post
+  user_id?: string; // For cron/admin calls
 }
 
 serve(async (req) => {
@@ -29,23 +30,34 @@ serve(async (req) => {
 
     const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Authenticate user
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
-      throw new Error("No authorization header");
-    }
-
-    const supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
-      global: { headers: { Authorization: authHeader } },
-    });
-
-    const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
-    if (userError || !user) {
-      throw new Error("User not authenticated");
-    }
-
     const body: PublishRequest = await req.json();
-    const { business_id, summary, topic_type = "STANDARD", cta_type, cta_url, media_url, post_id } = body;
+    const { business_id, summary, topic_type = "STANDARD", cta_type, cta_url, media_url, post_id, user_id: cronUserId } = body;
+
+    let userId: string;
+
+    // Check if this is a cron call (user_id provided) or user call (auth header)
+    if (cronUserId) {
+      // Cron job call - use provided user_id
+      userId = cronUserId;
+      console.log("[publish-gmb-post] Cron call for user:", userId);
+    } else {
+      // User call - verify auth
+      const authHeader = req.headers.get("Authorization");
+      if (!authHeader) {
+        throw new Error("No authorization header");
+      }
+
+      const supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
+        global: { headers: { Authorization: authHeader } },
+      });
+
+      const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+      if (userError || !user) {
+        throw new Error("User not authenticated");
+      }
+      userId = user.id;
+      console.log("[publish-gmb-post] User call:", userId);
+    }
 
     if (!business_id || !summary) {
       throw new Error("business_id and summary are required");
@@ -58,7 +70,7 @@ serve(async (req) => {
       .from("businesses")
       .select("id, name, google_place_id")
       .eq("id", business_id)
-      .eq("user_id", user.id)
+      .eq("user_id", userId)
       .single();
 
     if (bizError || !business) {
@@ -70,7 +82,7 @@ serve(async (req) => {
     }
 
     // Get Google access token
-    const tokenResult = await getGoogleAccessToken(supabaseAdmin, user.id);
+    const tokenResult = await getGoogleAccessToken(supabaseAdmin, userId);
     if (!tokenResult.token) {
       return new Response(
         JSON.stringify({
@@ -174,7 +186,7 @@ serve(async (req) => {
 
     // Save to database
     const postData = {
-      user_id: user.id,
+      user_id: userId,
       business_id: business_id,
       google_post_id: publishedPost.name,
       topic_type: topic_type,
@@ -195,7 +207,7 @@ serve(async (req) => {
           scheduled_for: null,
         })
         .eq("id", post_id)
-        .eq("user_id", user.id);
+        .eq("user_id", userId);
     } else {
       // Insert new post
       await supabaseAdmin.from("gmb_posts").insert(postData);
