@@ -111,31 +111,45 @@ async function searchPlaces(
   }
 }
 
-// Geocode address to get coordinates
+// Geocode address using Places API (New) instead of Geocoding API
 async function geocodeAddress(
   address: string,
   apiKey: string
 ): Promise<{ lat: number; lng: number } | null> {
   try {
-    const encodedAddress = encodeURIComponent(address);
+    // Use Places API textSearch to geocode the address
     const response = await fetch(
-      `https://maps.googleapis.com/maps/api/geocode/json?address=${encodedAddress}&key=${apiKey}`
+      "https://places.googleapis.com/v1/places:searchText",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Goog-Api-Key": apiKey,
+          "X-Goog-FieldMask": "places.location",
+        },
+        body: JSON.stringify({
+          textQuery: address,
+          maxResultCount: 1,
+          languageCode: "fr",
+        }),
+      }
     );
 
     if (!response.ok) {
-      console.error("Geocoding error:", response.status);
+      console.error("Geocoding via Places API error:", response.status);
       return null;
     }
 
     const data = await response.json();
-    if (data.status === "OK" && data.results && data.results.length > 0) {
-      const location = data.results[0].geometry.location;
+    if (data.places && data.places.length > 0 && data.places[0].location) {
+      const location = data.places[0].location;
+      console.log("Geocoded address via Places API:", { lat: location.latitude, lng: location.longitude });
       return {
-        lat: location.lat,
-        lng: location.lng,
+        lat: location.latitude,
+        lng: location.longitude,
       };
     }
-    console.error("Geocoding no results:", data.status);
+    console.error("Geocoding via Places API: no results found");
     return null;
   } catch (error) {
     console.error("Geocoding error:", error);
