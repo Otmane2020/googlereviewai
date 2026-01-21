@@ -267,7 +267,7 @@ export const DashboardHeader = () => {
                 </div>
 
                 {/* Sign Out */}
-                <div className="p-3 border-t border-border/50 mt-auto">
+                <div className="p-3 border-t border-border/50">
                   <Button
                     variant="outline" 
                     className="w-full rounded-lg h-10 text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive/20"
