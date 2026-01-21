@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { StarlinkoLogo } from "./StarlinkoLogo";
 import { UpgradeDialog } from "./UpgradeDialog";
+import { SupportDialog } from "./SupportDialog";
 import { Button } from "./ui/button";
 import { 
   Menu, 
@@ -57,6 +58,7 @@ interface UserProfile {
   credits: number;
   plan_name: string | null;
   full_name: string | null;
+  email?: string;
 }
 
 export const DashboardHeader = () => {
@@ -74,7 +76,7 @@ export const DashboardHeader = () => {
     const fetchProfile = async () => {
       const { data } = await supabase
         .from("profiles")
-        .select("credits, plan_name, full_name")
+        .select("credits, plan_name, full_name, email")
         .eq("id", user.id)
         .single();
       
@@ -268,17 +270,23 @@ export const DashboardHeader = () => {
 
                 {/* Sign Out - Sticky Bottom */}
                 <div className="sticky bottom-0 p-3 border-t border-border/50 bg-background/95 backdrop-blur-sm">
-                  <Button
-                    variant="outline" 
-                    className="w-full rounded-lg h-10 text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive/20"
-                    onClick={() => {
-                      setMobileMenuOpen(false);
-                      handleSignOut();
-                    }}
-                  >
-                    <LogOut className="w-4 h-4 mr-2" />
-                    Déconnexion
-                  </Button>
+                  <div className="flex gap-2">
+                    <SupportDialog 
+                      userEmail={profile?.email} 
+                      triggerClassName="flex-1 rounded-lg h-10"
+                    />
+                    <Button
+                      variant="outline" 
+                      className="flex-1 rounded-lg h-10 text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive/20"
+                      onClick={() => {
+                        setMobileMenuOpen(false);
+                        handleSignOut();
+                      }}
+                    >
+                      <LogOut className="w-4 h-4 mr-2" />
+                      Déconnexion
+                    </Button>
+                  </div>
                 </div>
               </SheetContent>
             </Sheet>
