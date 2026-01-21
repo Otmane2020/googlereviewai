@@ -3,10 +3,10 @@ interface StarlinkoLogoProps {
   showBadge?: boolean;
 }
 
-// Custom 5-pointed star icon matching brand guidelines
+// Custom 5-pointed star icon matching PWA icons (same geometry)
 const FivePointedStar = ({ className = "w-8 h-8" }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-    <path d="M12 2l2.939 6.243L22 9.18l-5 5.15L18.18 22 12 18.26 5.82 22 7 14.33l-5-5.15 7.061-.937L12 2z" />
+    <polygon points="12,2 14.5,9 22,9 16,14 18,22 12,17 6,22 8,14 2,9 9.5,9" />
   </svg>
 );
 
