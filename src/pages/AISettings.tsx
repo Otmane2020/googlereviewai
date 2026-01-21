@@ -617,23 +617,7 @@ const AISettingsPage = () => {
                 }
               />
             </div>
-            {settings.auto_sync_reviews && (
-              <div className="flex gap-2 mt-3 pl-11 overflow-x-auto pb-1">
-                {[15, 30, 60, 120].map((interval) => (
-                  <button
-                    key={interval}
-                    onClick={() => updateSettings({ sync_interval_minutes: interval })}
-                    className={`shrink-0 px-4 py-2 rounded-xl text-xs font-medium transition-all ${
-                      settings.sync_interval_minutes === interval
-                        ? "bg-purple-500 text-white shadow-md shadow-purple-500/30"
-                        : "bg-muted/50 text-muted-foreground hover:bg-muted"
-                    }`}
-                  >
-                    {interval < 60 ? `${interval}min` : `${interval / 60}h`}
-                  </button>
-                ))}
-              </div>
-            )}
+            {/* Interval selector hidden - default is 30 seconds via cron */}
           </div>
 
           <div className="p-4">
