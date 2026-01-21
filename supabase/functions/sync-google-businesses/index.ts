@@ -159,14 +159,16 @@ serve(async (req) => {
       }
     }
 
-    // Fetch media (profile photo) for each location
+    // Fetch media (profile photo) and posts for each location
     const mediaMap: Record<string, string> = {}; // google_place_id -> profile_image_url
+    const postsMap: Record<string, any[]> = {}; // google_place_id -> posts[]
     
     for (const location of allLocations) {
       const googlePlaceId = location.name.split("/").pop();
       const accountName = accountMap[location.name];
       
       if (accountName) {
+        // Fetch profile photo
         try {
           const mediaResponse = await fetch(
             `https://mybusiness.googleapis.com/v4/${accountName}/locations/${googlePlaceId}/media`,
@@ -181,7 +183,6 @@ serve(async (req) => {
             const mediaData = await mediaResponse.json();
             const mediaItems = mediaData.mediaItems || [];
             
-            // Find profile photo (PROFILE category) or use first photo
             const profilePhoto = mediaItems.find((m: any) => 
               m.locationAssociation?.category === "PROFILE"
             ) || mediaItems.find((m: any) => 
@@ -192,11 +193,32 @@ serve(async (req) => {
               mediaMap[googlePlaceId] = profilePhoto.googleUrl;
               console.log(`Found profile image for ${googlePlaceId}`);
             }
-          } else {
-            console.log(`No media found for ${googlePlaceId}`);
           }
         } catch (e) {
           console.error(`Failed to fetch media for ${googlePlaceId}:`, e);
+        }
+
+        // Fetch existing GMB posts
+        try {
+          const postsResponse = await fetch(
+            `https://mybusiness.googleapis.com/v4/${accountName}/locations/${googlePlaceId}/localPosts`,
+            {
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+              },
+            }
+          );
+          
+          if (postsResponse.ok) {
+            const postsData = await postsResponse.json();
+            const posts = postsData.localPosts || [];
+            postsMap[googlePlaceId] = posts;
+            console.log(`Found ${posts.length} posts for ${googlePlaceId}`);
+          } else {
+            console.log(`No posts found for ${googlePlaceId}: ${postsResponse.status}`);
+          }
+        } catch (e) {
+          console.error(`Failed to fetch posts for ${googlePlaceId}:`, e);
         }
       }
     }
@@ -283,6 +305,43 @@ serve(async (req) => {
       throw new Error(upsertError.message);
     }
 
+    // Import existing GMB posts for each synced business
+    let totalPostsImported = 0;
+    if (syncedBusinesses && syncedBusinesses.length > 0) {
+      for (const business of syncedBusinesses) {
+        const posts = postsMap[business.google_place_id] || [];
+        if (posts.length > 0) {
+          const postsToInsert = posts.map((post: any) => ({
+            user_id: user.id,
+            business_id: business.id,
+            google_post_id: post.name?.split("/").pop() || null,
+            topic_type: post.topicType || "STANDARD",
+            summary: post.summary || post.event?.title || "",
+            cta_type: post.callToAction?.actionType || null,
+            cta_url: post.callToAction?.url || null,
+            media_url: post.media?.[0]?.googleUrl || post.media?.[0]?.sourceUrl || null,
+            status: "synced",
+            posted_at: post.createTime || null,
+            synced_at: new Date().toISOString(),
+          }));
+
+          const { error: postsError } = await supabaseAdmin
+            .from("gmb_posts")
+            .upsert(postsToInsert, { 
+              onConflict: "google_post_id",
+              ignoreDuplicates: true 
+            });
+
+          if (postsError) {
+            console.error(`Error upserting posts for ${business.id}:`, postsError);
+          } else {
+            totalPostsImported += posts.length;
+            console.log(`Imported ${posts.length} posts for ${business.name}`);
+          }
+        }
+      }
+    }
+
     // Trigger background analysis for each business with website or description
     const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
     
@@ -312,8 +371,9 @@ serve(async (req) => {
       JSON.stringify({ 
         success: true, 
         requires_selection: false,
-        message: `Synced ${syncedBusinesses?.length || 0} businesses`,
-        businesses: syncedBusinesses || [] 
+        message: `Synced ${syncedBusinesses?.length || 0} businesses and ${totalPostsImported} posts`,
+        businesses: syncedBusinesses || [],
+        posts_imported: totalPostsImported
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
