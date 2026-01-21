@@ -12,6 +12,7 @@ import { ConnectGMBDialog } from "@/components/ConnectGMBDialog";
 import { SyncProgressOverlay } from "@/components/SyncProgressOverlay";
 import { SelectBusinessesDialog } from "@/components/SelectBusinessesDialog";
 import { LowCreditsBanner } from "@/components/LowCreditsBanner";
+import { UTMBuilderDialog } from "@/components/UTMBuilderDialog";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -28,7 +29,8 @@ import {
   CheckCircle2,
   Clock,
   ArrowUpRight,
-  Percent
+  Percent,
+  Link2
 } from "lucide-react";
 
 interface Profile {
@@ -544,18 +546,34 @@ const Dashboard = () => {
               { icon: Building2, label: "Business", desc: `${stats.businesses} actif${stats.businesses > 1 ? "s" : ""}`, href: "/businesses", color: "bg-violet-500" },
               { icon: Sparkles, label: "IA", desc: "Paramètres", href: "/ai-settings", color: "bg-primary" },
               { icon: TrendingUp, label: "SEO", desc: "Auto-post", href: "/seo-autopost", color: "bg-green-500" },
+              { icon: Link2, label: "UTM", desc: "Facebook Ads", href: "#utm", color: "bg-blue-500", isUtm: true },
             ].map((action) => (
-              <Link
-                key={action.href}
-                to={action.href}
-                className="bg-card rounded-2xl p-4 border border-border hover:border-primary/30 hover:shadow-md transition-all min-w-[140px]"
-              >
-                <div className={`w-10 h-10 rounded-xl ${action.color} flex items-center justify-center mb-3`}>
-                  <action.icon className="w-5 h-5 text-white" />
-                </div>
-                <div className="font-semibold text-foreground text-sm">{action.label}</div>
-                <div className="text-xs text-muted-foreground">{action.desc}</div>
-              </Link>
+              action.isUtm ? (
+                <UTMBuilderDialog
+                  key={action.href}
+                  trigger={
+                    <button className="bg-card rounded-2xl p-4 border border-border hover:border-primary/30 hover:shadow-md transition-all min-w-[140px] text-left">
+                      <div className={`w-10 h-10 rounded-xl ${action.color} flex items-center justify-center mb-3`}>
+                        <action.icon className="w-5 h-5 text-white" />
+                      </div>
+                      <div className="font-semibold text-foreground text-sm">{action.label}</div>
+                      <div className="text-xs text-muted-foreground">{action.desc}</div>
+                    </button>
+                  }
+                />
+              ) : (
+                <Link
+                  key={action.href}
+                  to={action.href}
+                  className="bg-card rounded-2xl p-4 border border-border hover:border-primary/30 hover:shadow-md transition-all min-w-[140px]"
+                >
+                  <div className={`w-10 h-10 rounded-xl ${action.color} flex items-center justify-center mb-3`}>
+                    <action.icon className="w-5 h-5 text-white" />
+                  </div>
+                  <div className="font-semibold text-foreground text-sm">{action.label}</div>
+                  <div className="text-xs text-muted-foreground">{action.desc}</div>
+                </Link>
+              )
             ))}
           </div>
         </div>
