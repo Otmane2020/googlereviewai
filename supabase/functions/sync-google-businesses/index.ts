@@ -271,9 +271,19 @@ serve(async (req) => {
 
     const maxBusinesses = profile?.max_businesses || 1;
 
-    // If user has more Google businesses than their plan allows, return them for selection
-    if (businessesData.length > maxBusinesses) {
-      console.log(`User has ${businessesData.length} businesses but plan allows ${maxBusinesses}. Returning for selection.`);
+    // Check if user already has active businesses selected
+    const { data: existingBusinesses } = await supabaseAdmin
+      .from("businesses")
+      .select("google_place_id")
+      .eq("user_id", user.id)
+      .eq("is_active", true);
+
+    const existingPlaceIds = new Set((existingBusinesses || []).map(b => b.google_place_id));
+    const hasSelectedBusinesses = existingPlaceIds.size > 0;
+
+    // If user has more Google businesses than their plan allows AND hasn't selected yet
+    if (businessesData.length > maxBusinesses && !hasSelectedBusinesses) {
+      console.log(`User has ${businessesData.length} businesses but plan allows ${maxBusinesses}. No selection made yet. Returning for selection.`);
       return new Response(
         JSON.stringify({ 
           success: true, 
@@ -294,11 +304,19 @@ serve(async (req) => {
       );
     }
 
-    // If within limit, auto-save all businesses
+    // If user already has selections, only update those businesses (don't override with new ones)
+    let businessesToSync = businessesData;
+    if (hasSelectedBusinesses && businessesData.length > maxBusinesses) {
+      // Filter to only sync businesses that were previously selected
+      businessesToSync = businessesData.filter(b => existingPlaceIds.has(b.google_place_id));
+      console.log(`User already has ${existingPlaceIds.size} selected. Syncing only those.`);
+    }
+
+    // Save businesses (either all if within limit, or only selected ones)
     // Use upsert with onConflict to handle duplicates
     const { data: syncedBusinesses, error: upsertError } = await supabaseAdmin
       .from("businesses")
-      .upsert(businessesData, { 
+      .upsert(businessesToSync, { 
         onConflict: "google_place_id,user_id",
         ignoreDuplicates: false 
       })
