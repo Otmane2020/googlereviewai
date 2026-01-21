@@ -1,7 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { usePushNotifications } from "./usePushNotifications";
 
 export interface Notification {
   id: string;
@@ -17,18 +16,6 @@ export const useNotifications = () => {
   const { user } = useAuth();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
-  const { isGranted, sendNotification } = usePushNotifications();
-
-  // Send push notification when a new notification arrives
-  const triggerPushNotification = useCallback((notification: Notification) => {
-    if (isGranted && document.hidden) {
-      sendNotification(notification.title, {
-        body: notification.message,
-        tag: notification.id,
-        data: { reviewId: notification.review_id },
-      });
-    }
-  }, [isGranted, sendNotification]);
 
   useEffect(() => {
     if (!user) return;
@@ -66,8 +53,8 @@ export const useNotifications = () => {
           setNotifications((prev) => [newNotification, ...prev]);
           setUnreadCount((prev) => prev + 1);
           
-          // Trigger push notification for new notifications
-          triggerPushNotification(newNotification);
+          // NOTE: Push notifications are handled by Firebase FCM + Service Worker
+          // No need to trigger browser notifications here
         }
       )
       .subscribe();
@@ -75,7 +62,7 @@ export const useNotifications = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user, triggerPushNotification]);
+  }, [user]);
 
   const markAsRead = async (id: string) => {
     await supabase.from("notifications").update({ read: true }).eq("id", id);
