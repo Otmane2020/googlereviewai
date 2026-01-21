@@ -198,8 +198,8 @@ const AISettingsPage = () => {
   const [saved, setSaved] = useState(false);
   const [pendingStats, setPendingStats] = useState<PendingReviewsStats>({ oldReviews: 0, newReviews: 0 });
   const [generatingOld, setGeneratingOld] = useState(false);
+  const [hasLoadedSettings, setHasLoadedSettings] = useState(false);
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const isInitialLoad = useRef(true);
 
   // Use subscription verification hook
   const { loading: subscriptionLoading } = useRequireSubscription();
@@ -259,6 +259,8 @@ const AISettingsPage = () => {
       }
 
       setLoading(false);
+      // Mark settings as loaded AFTER setting the state
+      setTimeout(() => setHasLoadedSettings(true), 100);
     };
 
     fetchSettings();
@@ -283,10 +285,10 @@ const AISettingsPage = () => {
     }
   }, [user]);
 
-  // Auto-save with debounce
+  // Auto-save with debounce - only after settings have been loaded
   useEffect(() => {
-    if (isInitialLoad.current) {
-      isInitialLoad.current = false;
+    // Don't save until settings have been loaded from DB
+    if (!hasLoadedSettings) {
       return;
     }
 
@@ -303,7 +305,7 @@ const AISettingsPage = () => {
         clearTimeout(saveTimeoutRef.current);
       }
     };
-  }, [settings, saveSettings]);
+  }, [settings, saveSettings, hasLoadedSettings]);
 
   if (loading) {
     return (
