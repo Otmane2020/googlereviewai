@@ -162,10 +162,13 @@ serve(async (req) => {
     let serviceAccount;
     try {
       serviceAccount = JSON.parse(serviceAccountJson);
-    } catch {
-      console.error("Invalid FIREBASE_SERVICE_ACCOUNT JSON");
+      console.log("Service account parsed successfully, project:", serviceAccount.project_id);
+    } catch (parseError) {
+      console.error("Invalid FIREBASE_SERVICE_ACCOUNT JSON - Parse error:", parseError);
+      console.error("JSON preview (first 100 chars):", serviceAccountJson.substring(0, 100));
+      console.error("JSON length:", serviceAccountJson.length);
       return new Response(
-        JSON.stringify({ error: "Invalid Firebase service account configuration" }),
+        JSON.stringify({ error: "Invalid Firebase service account configuration", details: String(parseError) }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
