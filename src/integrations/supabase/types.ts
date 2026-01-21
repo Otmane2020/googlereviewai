@@ -152,6 +152,7 @@ export type Database = {
           google_place_id: string | null
           id: string
           is_active: boolean | null
+          maps_url: string | null
           name: string
           phone: string | null
           rating: number | null
@@ -169,6 +170,7 @@ export type Database = {
           google_place_id?: string | null
           id?: string
           is_active?: boolean | null
+          maps_url?: string | null
           name: string
           phone?: string | null
           rating?: number | null
@@ -186,6 +188,7 @@ export type Database = {
           google_place_id?: string | null
           id?: string
           is_active?: boolean | null
+          maps_url?: string | null
           name?: string
           phone?: string | null
           rating?: number | null
@@ -235,6 +238,68 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      gmb_posts: {
+        Row: {
+          business_id: string
+          created_at: string
+          cta_type: string | null
+          cta_url: string | null
+          google_post_id: string | null
+          id: string
+          media_url: string | null
+          posted_at: string | null
+          scheduled_for: string | null
+          status: string
+          summary: string
+          synced_at: string | null
+          topic_type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          cta_type?: string | null
+          cta_url?: string | null
+          google_post_id?: string | null
+          id?: string
+          media_url?: string | null
+          posted_at?: string | null
+          scheduled_for?: string | null
+          status?: string
+          summary: string
+          synced_at?: string | null
+          topic_type?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          cta_type?: string | null
+          cta_url?: string | null
+          google_post_id?: string | null
+          id?: string
+          media_url?: string | null
+          posted_at?: string | null
+          scheduled_for?: string | null
+          status?: string
+          summary?: string
+          synced_at?: string | null
+          topic_type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gmb_posts_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
             referencedColumns: ["id"]
           },
         ]
