@@ -276,15 +276,21 @@ serve(async (req) => {
           if (profile.credits < 1) break;
 
           // Check if review is old enough based on auto_reply_delay
-          const reviewDate = new Date(review.created_at);
+          // Use the SYNC time (created_at) not the Google review date
+          // This ensures we wait X minutes after WE discovered the review
+          const syncedAt = new Date(review.created_at);
           const delayMinutes = userSettings.auto_reply_delay || 5;
           const now = new Date();
-          const timeDiff = (now.getTime() - reviewDate.getTime()) / (1000 * 60);
+          const timeSinceSyncMinutes = (now.getTime() - syncedAt.getTime()) / (1000 * 60);
 
-          if (timeDiff < delayMinutes) {
-            console.log(`[AutoRespond] Review ${review.id} is too recent, waiting ${delayMinutes - timeDiff} more minutes`);
+          console.log(`[AutoRespond] Review ${review.id} from ${review.author}: synced ${timeSinceSyncMinutes.toFixed(1)} min ago, delay required: ${delayMinutes} min`);
+
+          if (timeSinceSyncMinutes < delayMinutes) {
+            console.log(`[AutoRespond] Review ${review.id} is too recent, waiting ${(delayMinutes - timeSinceSyncMinutes).toFixed(1)} more minutes`);
             continue;
           }
+
+          console.log(`[AutoRespond] Review ${review.id} passed delay check, proceeding with AI response generation`);
 
           // Generate AI response using Lovable AI Gateway
           const aiResponse = await generateAIResponse(
