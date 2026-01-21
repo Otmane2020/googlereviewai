@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
 import { UpgradeDialog } from "@/components/UpgradeDialog";
 import { ResponsePreviewDialog } from "@/components/ResponsePreviewDialog";
+import { SelectBusinessesDialog } from "@/components/SelectBusinessesDialog";
 import {
   Star, 
   Search, 
@@ -35,6 +36,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { useSyncGoogleReviews } from "@/hooks/useSyncGoogleReviews";
+import { useSyncGoogleBusinesses } from "@/hooks/useSyncGoogleBusinesses";
 import {
   Select,
   SelectContent,
@@ -99,6 +101,12 @@ const Reviews = () => {
   const [currentPlan, setCurrentPlan] = useState<string | null>(null);
   const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
   const [previewReview, setPreviewReview] = useState<Review | null>(null);
+  
+  // Business selection dialog states
+  const [showSelectBusinessesDialog, setShowSelectBusinessesDialog] = useState(false);
+  const [googleBusinessesForSelection, setGoogleBusinessesForSelection] = useState<any[]>([]);
+  const [maxBusinessesLimit, setMaxBusinessesLimit] = useState(1);
+  const { syncBusinesses, isSyncing: isSyncingBusinesses } = useSyncGoogleBusinesses();
 
   // Sync URL params with state
   useEffect(() => {
@@ -410,6 +418,26 @@ const Reviews = () => {
     }
   };
 
+  // Handle selecting a business when none are active
+  const handleSelectBusiness = async () => {
+    if (!user) return;
+    
+    const result = await syncBusinesses();
+    if (result?.requires_selection) {
+      setGoogleBusinessesForSelection(result.google_businesses || []);
+      setMaxBusinessesLimit(result.max_businesses || 1);
+      setShowSelectBusinessesDialog(true);
+    } else if (result?.success) {
+      fetchData(false);
+    }
+  };
+
+  const handleBusinessSelectionSuccess = () => {
+    setShowSelectBusinessesDialog(false);
+    fetchData(false);
+    toast({ title: "Établissement sélectionné !", description: "Vos avis vont être synchronisés." });
+  };
+
   // Format time ago
   const formatTimeAgo = (date: Date) => {
     const seconds = Math.floor((new Date().getTime() - date.getTime()) / 1000);
@@ -700,7 +728,28 @@ const Reviews = () => {
         )}
 
         {/* Reviews List */}
-        {!selectedBusinessId ? (
+        {businesses.length === 0 ? (
+          <div className="bg-card rounded-xl border border-border p-12 text-center">
+            <Building2 className="w-12 h-12 mx-auto mb-4 text-muted-foreground/30" />
+            <h2 className="text-lg font-semibold text-foreground mb-2">Aucun établissement sélectionné</h2>
+            <p className="text-muted-foreground text-sm mb-6">
+              Sélectionnez un établissement pour voir vos avis Google.
+            </p>
+            <Button onClick={handleSelectBusiness} disabled={isSyncingBusinesses}>
+              {isSyncingBusinesses ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Chargement...
+                </>
+              ) : (
+                <>
+                  <Building2 className="w-4 h-4 mr-2" />
+                  Sélectionner un établissement
+                </>
+              )}
+            </Button>
+          </div>
+        ) : !selectedBusinessId ? (
           <div className="bg-card rounded-xl border border-border p-12 text-center">
             <Building2 className="w-12 h-12 mx-auto mb-4 text-muted-foreground/30" />
             <h2 className="text-lg font-semibold text-foreground mb-2">Sélectionnez un établissement</h2>
@@ -936,6 +985,16 @@ const Reviews = () => {
         review={previewReview}
         onPublish={publishToGoogle}
         publishingId={publishingId}
+      />
+      
+      {/* Business Selection Dialog */}
+      <SelectBusinessesDialog
+        open={showSelectBusinessesDialog}
+        onOpenChange={setShowSelectBusinessesDialog}
+        businesses={googleBusinessesForSelection}
+        maxBusinesses={maxBusinessesLimit}
+        userId={user?.id || ""}
+        onSuccess={handleBusinessSelectionSuccess}
       />
     </div>
   );
