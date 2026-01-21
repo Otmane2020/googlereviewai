@@ -389,7 +389,7 @@ serve(async (req) => {
       }
     }
 
-    // Always return google_businesses for potential re-selection via "Modifier" button
+    // ALWAYS return google_businesses for potential re-selection via "Modifier" button
     return new Response(
       JSON.stringify({ 
         success: true, 
@@ -397,15 +397,15 @@ serve(async (req) => {
         message: `Synced ${syncedBusinesses?.length || 0} businesses and ${totalPostsImported} posts`,
         businesses: syncedBusinesses || [],
         posts_imported: totalPostsImported,
-        // Always include all available Google businesses for UI re-selection
-        google_businesses: businessesData.length > maxBusinesses ? businessesData.map(b => ({
+        // Always include ALL available Google businesses for UI re-selection
+        google_businesses: businessesData.map(b => ({
           name: b.name,
           google_place_id: b.google_place_id,
           address: b.address,
           phone: b.phone,
           website: b.website,
           description: b.description,
-        })) : [],
+        })),
         max_businesses: maxBusinesses,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
