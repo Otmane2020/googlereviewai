@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useRequireSubscription } from "@/hooks/useRequireSubscription";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
+import { SelectBusinessesDialog } from "@/components/SelectBusinessesDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -25,9 +26,11 @@ import {
   CheckCircle,
   AlertCircle,
   FileText,
-  PlusCircle
+  PlusCircle,
+  Crown
 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
@@ -69,6 +72,11 @@ const BusinessesPage = () => {
     phone: "",
     website: "",
   });
+  
+  // Plan limit state
+  const [maxBusinesses, setMaxBusinesses] = useState(1);
+  const [showSelectDialog, setShowSelectDialog] = useState(false);
+  const [googleBusinessesForSelection, setGoogleBusinessesForSelection] = useState<any[]>([]);
 
   // Use subscription verification hook
   const { loading: subscriptionLoading } = useRequireSubscription();
@@ -76,16 +84,31 @@ const BusinessesPage = () => {
   useEffect(() => {
     if (!subscriptionLoading && user) {
       fetchBusinesses();
+      fetchMaxBusinesses();
     }
   }, [subscriptionLoading, user]);
+
+  const fetchMaxBusinesses = async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from("profiles")
+      .select("max_businesses")
+      .eq("id", user.id)
+      .single();
+    if (data) {
+      setMaxBusinesses(data.max_businesses || 1);
+    }
+  };
 
   const fetchBusinesses = async () => {
     if (!user) return;
     
+    // Only fetch ACTIVE businesses
     const { data, error } = await supabase
       .from("businesses")
       .select("*")
       .eq("user_id", user.id)
+      .eq("is_active", true)
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -148,8 +171,25 @@ const BusinessesPage = () => {
   };
 
   const handleSyncBusinesses = async () => {
-    await syncBusinesses();
+    const result = await syncBusinesses();
+    
+    // Check if selection is required
+    if (result?.requires_selection) {
+      setGoogleBusinessesForSelection(result.google_businesses || []);
+      setMaxBusinesses(result.max_businesses || 1);
+      setShowSelectDialog(true);
+      return;
+    }
+    
     fetchBusinesses();
+  };
+
+  const handleBusinessSelectionSuccess = () => {
+    fetchBusinesses();
+    toast({
+      title: "Établissements mis à jour",
+      description: "Vos établissements ont été synchronisés.",
+    });
   };
 
   const handleAddBusiness = async () => {
@@ -252,15 +292,36 @@ const BusinessesPage = () => {
       {/* Page Header */}
       <div className="bg-card border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-              <Building2 className="w-6 h-6 text-primary" />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                <Building2 className="w-6 h-6 text-primary" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-foreground">Établissements</h1>
+                <p className="text-sm text-muted-foreground">
+                  Gérez vos établissements Google My Business
+                </p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-2xl font-bold text-foreground">Établissements</h1>
-              <p className="text-sm text-muted-foreground">
-                Gérez vos établissements Google My Business
-              </p>
+            <div className="flex items-center gap-3">
+              <Badge variant="secondary" className="gap-1">
+                <Crown className="w-3 h-3" />
+                {businesses.filter(b => b.is_active).length}/{maxBusinesses} établissement{maxBusinesses > 1 ? "s" : ""}
+              </Badge>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleSyncBusinesses}
+                disabled={isSyncing}
+              >
+                {isSyncing ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                )}
+                {isSyncing ? "Sync..." : "Changer"}
+              </Button>
             </div>
           </div>
         </div>
@@ -463,6 +524,18 @@ const BusinessesPage = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Business Selection Dialog */}
+      {user && (
+        <SelectBusinessesDialog
+          open={showSelectDialog}
+          onOpenChange={setShowSelectDialog}
+          businesses={googleBusinessesForSelection}
+          maxBusinesses={maxBusinesses}
+          userId={user.id}
+          onSuccess={handleBusinessSelectionSuccess}
+        />
+      )}
 
       <MobileBottomNav />
     </div>
