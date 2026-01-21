@@ -11,6 +11,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { 
   HelpCircle, 
   Sparkles, 
@@ -25,7 +32,9 @@ import {
   Lock,
   Eye,
   List,
-  TrendingUp
+  TrendingUp,
+  ChevronDown,
+  CheckCircle
 } from "lucide-react";
 import { format, addDays, startOfToday, isSameDay } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -65,6 +74,7 @@ const AEORank = () => {
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [selectedArticle, setSelectedArticle] = useState<ScheduledContent | null>(null);
   const [showPreviewDialog, setShowPreviewDialog] = useState(false);
+  const [businessDialogOpen, setBusinessDialogOpen] = useState(false);
 
   // Use subscription verification hook
   const { loading: subscriptionLoading } = useRequireSubscription();
@@ -432,35 +442,78 @@ const AEORank = () => {
           </Card>
         ) : (
           <>
-            {/* Business Info Card - Compact Mobile */}
+            {/* Business Selector - Google Style like Reviews */}
             {selectedBusiness && (
               <Card className="overflow-hidden">
                 <CardContent className="p-3">
-                  <div className="flex items-center justify-between gap-2 mb-2">
-                    <div className="min-w-0 flex-1">
-                      <p className="font-semibold text-sm text-foreground truncate">{selectedBusiness.name}</p>
-                      <p className="text-xs text-muted-foreground truncate">{selectedBusiness.address}</p>
+                  <div className="flex items-center gap-3">
+                    {/* Google Logo */}
+                    <div className="w-9 h-9 rounded-lg bg-white border border-border flex items-center justify-center shadow-sm flex-shrink-0">
+                      <svg viewBox="0 0 24 24" className="w-4 h-4">
+                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                      </svg>
                     </div>
-                    {businesses.length > 1 && (
-                      <select 
-                        className="text-xs border rounded-md px-2 py-1.5 bg-background flex-shrink-0"
-                        value={selectedBusiness.id}
-                        onChange={(e) => {
-                          const biz = businesses.find(b => b.id === e.target.value);
-                          if (biz) {
-                            setSelectedBusiness(biz);
-                            fetchScheduledContent(biz.id);
-                          }
-                        }}
-                      >
-                        {businesses.map(b => (
-                          <option key={b.id} value={b.id}>{b.name}</option>
-                        ))}
-                      </select>
-                    )}
+                    
+                    {/* Business name with dropdown dialog */}
+                    <Dialog open={businessDialogOpen} onOpenChange={setBusinessDialogOpen}>
+                      <DialogTrigger asChild>
+                        <button className="flex items-center gap-1.5 hover:bg-muted rounded-lg px-2 py-1.5 transition-colors border border-transparent hover:border-border flex-1 min-w-0">
+                          <span className="text-sm font-medium text-foreground truncate">
+                            {selectedBusiness.name}
+                          </span>
+                          {businesses.length > 1 && <ChevronDown className="w-4 h-4 text-muted-foreground flex-shrink-0" />}
+                        </button>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-md">
+                        <DialogHeader>
+                          <DialogTitle>Vos établissements</DialogTitle>
+                        </DialogHeader>
+                        <div className="space-y-1 mt-4">
+                          {businesses.map((business) => {
+                            const isSelected = selectedBusiness?.id === business.id;
+                            const bgColor = `hsl(${business.name.charCodeAt(0) * 15 % 360}, 60%, 50%)`;
+                            
+                            return (
+                              <button
+                                key={business.id}
+                                onClick={() => {
+                                  setSelectedBusiness(business);
+                                  fetchScheduledContent(business.id);
+                                  setBusinessDialogOpen(false);
+                                }}
+                                className={`w-full flex items-center gap-3 p-3 rounded-lg transition-all ${
+                                  isSelected ? "bg-muted" : "hover:bg-muted/50"
+                                }`}
+                              >
+                                <div 
+                                  className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-lg flex-shrink-0"
+                                  style={{ backgroundColor: bgColor }}
+                                >
+                                  {business.name.charAt(0).toUpperCase()}
+                                </div>
+                                <div className="flex-1 text-left min-w-0">
+                                  <div className="font-medium truncate text-sm">{business.name}</div>
+                                  {business.address && (
+                                    <div className="text-xs text-muted-foreground truncate">{business.address}</div>
+                                  )}
+                                </div>
+                                {isSelected && (
+                                  <CheckCircle className="w-5 h-5 text-primary flex-shrink-0" />
+                                )}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </DialogContent>
+                    </Dialog>
                   </div>
-                  {selectedBusiness.auto_keywords && selectedBusiness.auto_keywords.length > 0 ? (
-                    <div className="flex flex-wrap gap-1">
+                  
+                  {/* Keywords section */}
+                  {selectedBusiness.auto_keywords && selectedBusiness.auto_keywords.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-3 pt-3 border-t border-border">
                       {selectedBusiness.auto_keywords.slice(0, 6).map((kw, i) => (
                         <span key={i} className="px-2 py-0.5 bg-primary/10 text-primary text-[10px] rounded-full">
                           {kw}
@@ -472,10 +525,6 @@ const AEORank = () => {
                         </span>
                       )}
                     </div>
-                  ) : (
-                    <p className="text-xs text-muted-foreground">
-                      Cliquez sur "Analyser & Planifier" pour détecter les mots-clés
-                    </p>
                   )}
                 </CardContent>
               </Card>
