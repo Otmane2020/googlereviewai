@@ -68,17 +68,12 @@ export const NotificationPrompt = () => {
   };
 
   const handleRequestPermission = async () => {
-    console.log("[NotificationPrompt] Requesting permission, current state:", permission);
+    console.log("[NotificationPrompt] Starting activation...");
+    console.log("[NotificationPrompt] Initial permission state:", permission);
+    console.log("[NotificationPrompt] Notification API available:", "Notification" in window);
+    console.log("[NotificationPrompt] Current Notification.permission:", typeof Notification !== "undefined" ? Notification.permission : "N/A");
     
-    // If permission is denied, show instructions
-    if (permission === "denied") {
-      toast.error("Notifications bloquées par le navigateur", {
-        description: "Cliquez sur 🔒 dans la barre d'adresse → Notifications → Autoriser, puis rechargez la page.",
-        duration: 10000,
-      });
-      return;
-    }
-    
+    // Always try to subscribe - it will handle permission request internally
     const success = await subscribe();
     console.log("[NotificationPrompt] Subscribe result:", success);
     
@@ -88,16 +83,19 @@ export const NotificationPrompt = () => {
       });
       handleDismiss();
     } else {
-      // Check if permission was just denied
-      const currentPermission = Notification.permission;
+      // Check current permission after attempt
+      const currentPermission = typeof Notification !== "undefined" ? Notification.permission : "unsupported";
+      console.log("[NotificationPrompt] Permission after attempt:", currentPermission);
+      
       if (currentPermission === "denied") {
-        toast.error("Notifications refusées", {
-          description: "Cliquez sur 🔒 → Notifications → Autoriser pour réactiver.",
-          duration: 8000,
+        toast.error("Notifications bloquées", {
+          description: "Cliquez sur 🔒 dans la barre d'adresse → Notifications → Autoriser, puis rechargez.",
+          duration: 10000,
         });
       } else {
         toast.error("Échec de l'activation", {
-          description: "Vérifiez que vous êtes sur la version installée de l'app (PWA).",
+          description: "Erreur technique. Consultez la console pour plus de détails.",
+          duration: 8000,
         });
       }
     }
