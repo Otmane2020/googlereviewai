@@ -18,7 +18,7 @@ interface ArticlePreviewDialogProps {
     keyword_used: string | null;
   } | null;
   isSubscribed: boolean;
-  onSubscribe: () => void;
+  onSubscribe: (annual?: boolean) => void;
 }
 
 export const ArticlePreviewDialog = ({
@@ -88,7 +88,7 @@ export const ArticlePreviewDialog = ({
             <p className="text-sm text-muted-foreground mb-4">
               Abonnez-vous au module SEO AutoPost pour accéder à ce contenu et débloquer toutes les fonctionnalités.
             </p>
-            <Button onClick={onSubscribe} className="gap-2">
+            <Button onClick={() => onSubscribe(false)} className="gap-2">
               <ExternalLink className="w-4 h-4" />
               S'abonner maintenant
             </Button>
