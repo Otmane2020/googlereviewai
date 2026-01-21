@@ -560,9 +560,9 @@ const Reviews = () => {
                               {business.name.charAt(0).toUpperCase()}
                             </div>
                             <div className="flex-1 text-left min-w-0">
-                              <div className="font-medium truncate">{business.name}</div>
+                              <div className="font-medium break-words">{business.name}</div>
                               {business.google_place_id && (
-                                <div className="text-xs text-muted-foreground truncate">Connecté à Google</div>
+                                <div className="text-xs text-muted-foreground">Connecté à Google</div>
                               )}
                             </div>
                             {isSelected && (
