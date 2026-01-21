@@ -48,10 +48,15 @@ serve(async (req) => {
 </head>
 <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7fa;">
   <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
-    <!-- Header -->
-    <div style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); padding: 40px 30px; text-align: center;">
+    <!-- Header with brand colors -->
+    <div style="background-color: #2563eb; padding: 40px 30px; text-align: center;">
+      <div style="display: inline-block; margin-bottom: 8px;">
+        <!-- Star logo representation -->
+        <span style="font-size: 42px; color: #facc15;">★</span>
+        <span style="display: inline-block; width: 8px; height: 8px; background-color: #22c55e; border-radius: 50%; margin-left: -12px; margin-bottom: 24px;"></span>
+      </div>
       <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 700;">
-        ⭐ Starlinko
+        Starlinko
       </h1>
       <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0; font-size: 16px;">
         Gérez vos avis Google automatiquement
@@ -68,8 +73,8 @@ serve(async (req) => {
         Merci de rejoindre Starlinko ! Vous avez fait le premier pas vers une gestion simplifiée de votre réputation en ligne.
       </p>
       
-      <!-- Credits Box -->
-      <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: 12px; padding: 25px; margin: 25px 0; text-align: center;">
+      <!-- Credits Box with brand yellow -->
+      <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: 12px; padding: 25px; margin: 25px 0; text-align: center; border-left: 4px solid #facc15;">
         <p style="margin: 0 0 8px 0; color: #92400e; font-size: 14px; font-weight: 600;">CADEAU DE BIENVENUE</p>
         <p style="margin: 0; color: #78350f; font-size: 36px; font-weight: 700;">10 crédits gratuits</p>
         <p style="margin: 8px 0 0 0; color: #92400e; font-size: 14px;">pour générer vos premières réponses IA</p>
@@ -81,31 +86,45 @@ serve(async (req) => {
       </h3>
       
       <div style="margin: 0 0 25px 0;">
-        <div style="display: flex; align-items: center; margin: 12px 0;">
-          <span style="background: #10b981; color: white; border-radius: 50%; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; margin-right: 12px;">✓</span>
-          <span style="color: #374151; font-size: 15px;"><strong>Connecter Google My Business</strong> - Synchronisez tous vos avis</span>
-        </div>
-        <div style="display: flex; align-items: center; margin: 12px 0;">
-          <span style="background: #10b981; color: white; border-radius: 50%; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; margin-right: 12px;">✓</span>
-          <span style="color: #374151; font-size: 15px;"><strong>Générer des réponses IA</strong> - Personnalisées et professionnelles</span>
-        </div>
-        <div style="display: flex; align-items: center; margin: 12px 0;">
-          <span style="background: #10b981; color: white; border-radius: 50%; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; margin-right: 12px;">✓</span>
-          <span style="color: #374151; font-size: 15px;"><strong>Publier en 1 clic</strong> - Directement sur Google</span>
-        </div>
+        <table style="width: 100%; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 12px 0; vertical-align: top; width: 32px;">
+              <span style="background: #22c55e; color: white; border-radius: 50%; width: 24px; height: 24px; display: inline-block; text-align: center; line-height: 24px; font-size: 14px;">✓</span>
+            </td>
+            <td style="padding: 12px 0; padding-left: 12px; color: #374151; font-size: 15px;">
+              <strong>Connecter Google My Business</strong> - Synchronisez tous vos avis
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 12px 0; vertical-align: top; width: 32px;">
+              <span style="background: #22c55e; color: white; border-radius: 50%; width: 24px; height: 24px; display: inline-block; text-align: center; line-height: 24px; font-size: 14px;">✓</span>
+            </td>
+            <td style="padding: 12px 0; padding-left: 12px; color: #374151; font-size: 15px;">
+              <strong>Générer des réponses IA</strong> - Personnalisées et professionnelles
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 12px 0; vertical-align: top; width: 32px;">
+              <span style="background: #22c55e; color: white; border-radius: 50%; width: 24px; height: 24px; display: inline-block; text-align: center; line-height: 24px; font-size: 14px;">✓</span>
+            </td>
+            <td style="padding: 12px 0; padding-left: 12px; color: #374151; font-size: 15px;">
+              <strong>Publier en 1 clic</strong> - Directement sur Google
+            </td>
+          </tr>
+        </table>
       </div>
       
-      <!-- CTA Button -->
+      <!-- CTA Button with brand blue -->
       <div style="text-align: center; margin: 35px 0;">
         <a href="https://starlinko.lovable.app/dashboard" 
-           style="display: inline-block; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 8px; font-size: 16px; font-weight: 600;">
+           style="display: inline-block; background-color: #2563eb; color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 8px; font-size: 16px; font-weight: 600;">
           🚀 Commencer maintenant
         </a>
       </div>
       
       <!-- Tips -->
-      <div style="background-color: #f3f4f6; border-radius: 12px; padding: 20px; margin: 25px 0;">
-        <p style="margin: 0 0 10px 0; color: #6366f1; font-size: 14px; font-weight: 600;">💡 CONSEIL PRO</p>
+      <div style="background-color: #eff6ff; border-radius: 12px; padding: 20px; margin: 25px 0; border-left: 4px solid #2563eb;">
+        <p style="margin: 0 0 10px 0; color: #2563eb; font-size: 14px; font-weight: 600;">💡 CONSEIL PRO</p>
         <p style="margin: 0; color: #4b5563; font-size: 14px; line-height: 1.5;">
           Activez les <strong>réponses automatiques</strong> dans les paramètres IA pour ne plus jamais manquer un avis. 
           Starlinko répondra automatiquement à vos nouveaux avis 24h/24 !
@@ -113,14 +132,17 @@ serve(async (req) => {
       </div>
     </div>
     
-    <!-- Footer -->
-    <div style="background-color: #1f2937; padding: 30px; text-align: center;">
+    <!-- Footer with dark background -->
+    <div style="background-color: #1e293b; padding: 30px; text-align: center;">
+      <div style="margin-bottom: 15px;">
+        <span style="font-size: 24px; color: #facc15;">★</span>
+      </div>
       <p style="color: #9ca3af; margin: 0 0 10px 0; font-size: 14px;">
         Des questions ? Répondez simplement à cet email.
       </p>
       <p style="color: #6b7280; margin: 0; font-size: 12px;">
         Starlinko - Gérez vos avis Google en automatique<br>
-        <a href="https://starlinko.lovable.app" style="color: #8b5cf6; text-decoration: none;">starlinko.lovable.app</a>
+        <a href="https://starlinko.lovable.app" style="color: #60a5fa; text-decoration: none;">starlinko.lovable.app</a>
       </p>
     </div>
   </div>
@@ -135,7 +157,7 @@ serve(async (req) => {
         Authorization: `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: "Starlinko <onboarding@resend.dev>",
+        from: "Starlinko <support@starlinko.app>",
         to: [email],
         subject: "🎉 Bienvenue sur Starlinko - Vos 10 crédits gratuits vous attendent !",
         html: htmlContent,
