@@ -209,10 +209,10 @@ const AISettingsPage = () => {
               </div>
               <div>
                 <h3 className={`font-semibold ${settings.enabled ? "text-white" : "text-foreground"}`}>
-                  Réponses IA
+                  Réponses IA automatiques
                 </h3>
                 <p className={`text-sm ${settings.enabled ? "text-white/70" : "text-muted-foreground"}`}>
-                  {settings.enabled ? "Activé" : "Désactivé"}
+                  {settings.enabled ? "Génère une réponse 5 min après chaque avis" : "Désactivé"}
                 </p>
               </div>
             </div>
