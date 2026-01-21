@@ -334,81 +334,86 @@ const BusinessesPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-muted/30">
+    <div className="min-h-screen bg-muted/30 pb-20">
       <DashboardHeader />
 
-      {/* Page Header */}
+      {/* Mobile-First Page Header */}
       <div className="bg-card border-b border-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                <Building2 className="w-6 h-6 text-primary" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-foreground">Établissements</h1>
-                <p className="text-sm text-muted-foreground">
-                  Gérez vos établissements Google My Business
-                </p>
-              </div>
+        <div className="px-4 py-4">
+          {/* Top row: Title + Badge */}
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <Building2 className="w-5 h-5 text-primary" />
             </div>
-            <div className="flex items-center gap-3">
-              <Badge variant="secondary" className="gap-1">
-                <Crown className="w-3 h-3" />
-                {businesses.filter(b => b.is_active).length}/{maxBusinesses} établissement{maxBusinesses > 1 ? "s" : ""}
-              </Badge>
-              {businesses.length < maxBusinesses && (
-                <Button
-                  variant="default"
-                  size="sm"
-                  onClick={handleSyncBusinesses}
-                  disabled={isSyncing}
-                >
-                  {isSyncing ? (
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  ) : (
-                    <PlusCircle className="w-4 h-4 mr-2" />
-                  )}
-                  Ajouter
-                </Button>
-              )}
+            <div className="min-w-0 flex-1">
+              <h1 className="text-lg font-bold text-foreground">Établissements</h1>
+              <p className="text-xs text-muted-foreground">
+                Gérez vos fiches Google
+              </p>
+            </div>
+            <Badge variant="outline" className="gap-1 flex-shrink-0 bg-gradient-to-r from-primary/10 to-secondary/10 border-primary/30">
+              <Crown className="w-3 h-3 text-primary" />
+              <span className="font-semibold">{businesses.filter(b => b.is_active).length}/{maxBusinesses}</span>
+            </Badge>
+          </div>
+          
+          {/* Action buttons - stacked on mobile */}
+          <div className="flex gap-2">
+            {businesses.length < maxBusinesses && (
               <Button
-                variant="outline"
+                variant="default"
                 size="sm"
                 onClick={handleSyncBusinesses}
                 disabled={isSyncing}
+                className="flex-1"
               >
                 {isSyncing ? (
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                 ) : (
-                  <RefreshCw className="w-4 h-4 mr-2" />
+                  <PlusCircle className="w-4 h-4 mr-2" />
                 )}
-                {isSyncing ? "Sync..." : "Changer"}
+                Ajouter
               </Button>
-            </div>
+            )}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleSyncBusinesses}
+              disabled={isSyncing}
+              className={`gap-2 ${businesses.length >= maxBusinesses ? "flex-1" : ""}`}
+            >
+              {isSyncing ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <RefreshCw className="w-4 h-4" />
+              )}
+              <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent font-semibold">
+                {isSyncing ? "Sync..." : "Modifier"}
+              </span>
+            </Button>
           </div>
         </div>
       </div>
 
-      <main className="max-w-7xl mx-auto p-6 space-y-6">
+      <main className="px-4 py-4 space-y-4">
 
         {/* Businesses grid */}
         {businesses.length === 0 ? (
-          <div className="bg-card rounded-2xl border border-border p-12 text-center">
-            <Building2 className="w-16 h-16 mx-auto mb-4 text-muted-foreground/30" />
-            <h2 className="text-xl font-semibold text-foreground mb-2">
+          <div className="bg-card rounded-2xl border border-border p-8 text-center">
+            <Building2 className="w-12 h-12 mx-auto mb-3 text-muted-foreground/30" />
+            <h2 className="text-lg font-semibold text-foreground mb-2">
               Aucun établissement
             </h2>
-            <p className="text-muted-foreground mb-6">
-              Ajoutez votre premier établissement pour commencer à gérer vos avis.
+            <p className="text-sm text-muted-foreground mb-4">
+              Connectez votre premier établissement Google
             </p>
-            <Button onClick={() => setDialogOpen(true)}>
-              <Plus className="w-5 h-5 mr-2" />
-              Ajouter un établissement
+            <Button onClick={handleSyncBusinesses} disabled={isSyncing} size="sm">
+              {isSyncing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Plus className="w-4 h-4 mr-2" />}
+              Connecter Google
             </Button>
           </div>
         ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {businesses.map((business) => {
               const reviewCount = business.google_place_id ? (reviewCounts[business.google_place_id] || 0) : 0;
               const calculatedRating = business.google_place_id ? (reviewRatings[business.google_place_id] || business.rating) : business.rating;
@@ -418,12 +423,12 @@ const BusinessesPage = () => {
               return (
                 <div
                   key={business.id}
-                  className="bg-card rounded-2xl border border-border p-5 hover:shadow-lg transition-all hover:-translate-y-1"
+                  className="bg-card rounded-xl border border-border p-4 hover:shadow-md transition-all active:scale-[0.98]"
                 >
                   {/* Header: Logo + Name + Badge */}
                   <div className="flex items-start gap-3 mb-3">
                     {/* Logo / Photo */}
-                    <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center flex-shrink-0 border border-primary/20 overflow-hidden">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center flex-shrink-0 border border-primary/20 overflow-hidden">
                       {business.profile_image_url ? (
                         <img 
                           src={business.profile_image_url}
