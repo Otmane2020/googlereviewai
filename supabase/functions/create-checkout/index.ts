@@ -8,7 +8,7 @@ const corsHeaders = {
 };
 
 // Price IDs mapping
-const PRICE_IDS = {
+const PRICE_IDS: Record<string, string> = {
   // Monthly plans
   starter_monthly: "price_1SrHtCEfti9t9nN9L8Fytsni",
   pro_monthly: "price_1SrHtDEfti9t9nN96yIPGiOo",
@@ -21,6 +21,29 @@ const PRICE_IDS = {
   business_yearly: "price_1SrHtQEfti9t9nN9GKvr4NSt",
   aeo_yearly: "price_1SrHtSEfti9t9nN9t5NgA002",
   seo_yearly: "price_1SrHtSEfti9t9nN9rXMfteyT",
+  // Credit packs (one-time purchases)
+  credits_100: "price_credits_100",
+  credits_1000: "price_credits_1000",
+  credits_3500: "price_credits_3500",
+  credits_7000: "price_credits_7000",
+  credits_10000: "price_credits_10000",
+  credits_17000: "price_credits_17000",
+  credits_35000: "price_credits_35000",
+  credits_70000: "price_credits_70000",
+  credits_100000: "price_credits_100000",
+};
+
+// Credit amounts for each pack
+const CREDIT_AMOUNTS: Record<string, number> = {
+  credits_100: 100,
+  credits_1000: 1000,
+  credits_3500: 3500,
+  credits_7000: 7000,
+  credits_10000: 10000,
+  credits_17000: 17000,
+  credits_35000: 35000,
+  credits_70000: 70000,
+  credits_100000: 100000,
 };
 
 // Plans that get a free trial (only Starter)
@@ -51,13 +74,15 @@ serve(async (req) => {
       throw new Error("Unauthorized");
     }
 
-    const { priceKey, successUrl, cancelUrl } = await req.json();
+    const { priceKey, successUrl, cancelUrl, mode } = await req.json();
 
-    if (!priceKey || !PRICE_IDS[priceKey as keyof typeof PRICE_IDS]) {
+    if (!priceKey || !PRICE_IDS[priceKey]) {
       throw new Error("Invalid price key");
     }
 
-    const priceId = PRICE_IDS[priceKey as keyof typeof PRICE_IDS];
+    const priceId = PRICE_IDS[priceKey];
+    const isCreditsPackage = priceKey.startsWith("credits_");
+    const checkoutMode = isCreditsPackage || mode === "payment" ? "payment" : "subscription";
 
     // Check if customer already exists
     const customers = await stripe.customers.list({
@@ -122,17 +147,18 @@ serve(async (req) => {
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
       customer: customerId,
       line_items: [{ price: priceId, quantity: 1 }],
-      mode: "subscription",
+      mode: checkoutMode,
       success_url: successUrl || `${req.headers.get("origin")}/dashboard?success=true`,
       cancel_url: cancelUrl || `${req.headers.get("origin")}/dashboard?canceled=true`,
       metadata: {
         supabase_user_id: user.id,
         price_key: priceKey,
+        ...(isCreditsPackage && { credits_amount: String(CREDIT_AMOUNTS[priceKey] || 0) }),
       },
     };
 
-    // Add trial period for Starter plan only (if not skipped)
-    if (hasTrial && !skipTrial) {
+    // Add trial period for Starter plan only (if not skipped) - only for subscriptions
+    if (checkoutMode === "subscription" && hasTrial && !skipTrial) {
       sessionParams.subscription_data = {
         trial_period_days: TRIAL_DAYS,
         metadata: {

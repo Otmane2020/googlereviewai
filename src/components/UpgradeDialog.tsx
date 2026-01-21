@@ -8,8 +8,15 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Crown, Check, Shield, Sparkles } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Crown, Shield, Sparkles, Coins, ChevronDown, Loader2 } from "lucide-react";
 import { PlanCard } from "@/components/PlanCard";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface Plan {
   id: string;
@@ -22,6 +29,12 @@ interface Plan {
   popular?: boolean;
   hasTrial?: boolean;
   trialDays?: number;
+}
+
+interface CreditPack {
+  price: number;
+  credits: number;
+  priceKey: string;
 }
 
 const plans: Plan[] = [
@@ -57,6 +70,19 @@ const plans: Plan[] = [
   },
 ];
 
+// Credit packs with ~0.03€ per credit pricing
+const creditPacks: CreditPack[] = [
+  { price: 2.99, credits: 100, priceKey: "credits_100" },
+  { price: 29, credits: 1000, priceKey: "credits_1000" },
+  { price: 99, credits: 3500, priceKey: "credits_3500" },
+  { price: 199, credits: 7000, priceKey: "credits_7000" },
+  { price: 299, credits: 10000, priceKey: "credits_10000" },
+  { price: 499, credits: 17000, priceKey: "credits_17000" },
+  { price: 999, credits: 35000, priceKey: "credits_35000" },
+  { price: 1999, credits: 70000, priceKey: "credits_70000" },
+  { price: 2999, credits: 100000, priceKey: "credits_100000" },
+];
+
 interface UpgradeDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -66,6 +92,7 @@ interface UpgradeDialogProps {
 export const UpgradeDialog = ({ open, onOpenChange, currentPlan }: UpgradeDialogProps) => {
   const [isYearly, setIsYearly] = useState(false);
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+  const [loadingCredits, setLoadingCredits] = useState(false);
 
   const handleSelectPlan = async (plan: Plan) => {
     setLoadingPlan(plan.id);
@@ -97,6 +124,38 @@ export const UpgradeDialog = ({ open, onOpenChange, currentPlan }: UpgradeDialog
       });
     } finally {
       setLoadingPlan(null);
+    }
+  };
+
+  const handleBuyCredits = async (pack: CreditPack) => {
+    setLoadingCredits(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke("create-checkout", {
+        body: {
+          priceKey: pack.priceKey,
+          mode: "payment",
+          successUrl: `${window.location.origin}/dashboard?credits_success=true`,
+          cancelUrl: `${window.location.origin}/settings?canceled=true`,
+        },
+      });
+
+      if (error) throw error;
+
+      if (data?.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error("No checkout URL returned");
+      }
+    } catch (error) {
+      console.error("Credits checkout error:", error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de créer la session de paiement.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoadingCredits(false);
     }
   };
 
@@ -153,7 +212,7 @@ export const UpgradeDialog = ({ open, onOpenChange, currentPlan }: UpgradeDialog
         </div>
 
         {/* Plans Stack */}
-        <div className="px-4 pb-6 pt-2 space-y-5">
+        <div className="px-4 pb-4 pt-2 space-y-5">
           {plans.map((plan) => {
             const isCurrentPlan = currentPlan?.toLowerCase() === plan.id;
             
@@ -168,13 +227,69 @@ export const UpgradeDialog = ({ open, onOpenChange, currentPlan }: UpgradeDialog
               />
             );
           })}
+        </div>
 
-          {/* Trust badge */}
-          <div className="flex items-center justify-center gap-2 pt-2 text-xs text-muted-foreground">
-            <Sparkles className="w-3 h-3 text-foreground" />
-            <span>Paiement 100% sécurisé</span>
-            <Shield className="w-3 h-3 text-foreground" />
+        {/* Credit Packs Section */}
+        <div className="px-4 pb-6 border-t border-border/50 pt-4">
+          <div className="flex items-center gap-2 mb-3">
+            <Coins className="w-4 h-4 text-primary" />
+            <span className="font-medium text-sm text-foreground">Recharger des crédits</span>
+            <Badge variant="outline" className="text-[10px] ml-auto">~0.03€/crédit</Badge>
           </div>
+          
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button 
+                variant="outline" 
+                className="w-full justify-between rounded-xl h-12"
+                disabled={loadingCredits}
+              >
+                {loadingCredits ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                    Chargement...
+                  </>
+                ) : (
+                  <>
+                    <span className="flex items-center gap-2">
+                      <Coins className="w-4 h-4 text-primary" />
+                      Choisir un pack de crédits
+                    </span>
+                    <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                  </>
+                )}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-[calc(100vw-2rem)] max-w-[400px]" align="center">
+              {creditPacks.map((pack) => (
+                <DropdownMenuItem 
+                  key={pack.priceKey}
+                  onClick={() => handleBuyCredits(pack)}
+                  className="flex items-center justify-between py-3 cursor-pointer"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                      <Coins className="w-4 h-4 text-primary" />
+                    </div>
+                    <div>
+                      <span className="font-semibold text-foreground">{pack.credits.toLocaleString()} crédits</span>
+                      <span className="text-xs text-muted-foreground ml-2">
+                        ({(pack.price / pack.credits * 100).toFixed(1)}¢/crédit)
+                      </span>
+                    </div>
+                  </div>
+                  <Badge className="bg-primary text-primary-foreground">{pack.price}€</Badge>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+
+        {/* Trust badge */}
+        <div className="flex items-center justify-center gap-2 pb-4 text-xs text-muted-foreground">
+          <Sparkles className="w-3 h-3 text-foreground" />
+          <span>Paiement 100% sécurisé</span>
+          <Shield className="w-3 h-3 text-foreground" />
         </div>
       </DialogContent>
     </Dialog>

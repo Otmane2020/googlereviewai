@@ -65,3 +65,6 @@ verify_jwt = false
 
 [functions.analyze-business-website]
 verify_jwt = false
+
+[functions.generate-old-reviews-batch]
+verify_jwt = false
