@@ -266,8 +266,8 @@ export const DashboardHeader = () => {
                   })}
                 </div>
 
-                {/* Sign Out */}
-                <div className="p-3 border-t border-border/50">
+                {/* Sign Out - Sticky Bottom */}
+                <div className="sticky bottom-0 p-3 border-t border-border/50 bg-background/95 backdrop-blur-sm">
                   <Button
                     variant="outline" 
                     className="w-full rounded-lg h-10 text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive/20"
