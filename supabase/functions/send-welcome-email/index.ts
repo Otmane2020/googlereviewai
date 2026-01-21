@@ -135,7 +135,7 @@ serve(async (req) => {
         Authorization: `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: "Starlinko <notifications@starlinko.com>",
+        from: "Starlinko <onboarding@resend.dev>",
         to: [email],
         subject: "🎉 Bienvenue sur Starlinko - Vos 10 crédits gratuits vous attendent !",
         html: htmlContent,
