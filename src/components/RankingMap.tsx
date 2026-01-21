@@ -160,85 +160,108 @@ export const RankingMap = ({
         className="w-full h-full"
         scrollWheelZoom={true}
       >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        <MapContent 
+          center={center}
+          points={points}
+          totalRadius={totalRadius}
+          selectedPoint={selectedPoint}
+          onPointSelect={onPointSelect}
+          businessName={businessName}
         />
-        
-        <MapRecenter center={center} />
-        
-        {/* Coverage radius circle */}
-        <Circle
-          center={[center.lat, center.lng]}
-          radius={totalRadius}
-          pathOptions={{
-            color: "#3b82f6",
-            fillColor: "#3b82f6",
-            fillOpacity: 0.08,
-            weight: 2,
-            dashArray: "8, 8",
+      </MapContainer>
+    </div>
+  );
+};
+
+// Separate component to avoid context consumer issues
+const MapContent = ({
+  center,
+  points,
+  totalRadius,
+  selectedPoint,
+  onPointSelect,
+  businessName,
+}: {
+  center: { lat: number; lng: number };
+  points: ScanPoint[];
+  totalRadius: number;
+  selectedPoint: ScanPoint | null;
+  onPointSelect: (point: ScanPoint) => void;
+  businessName?: string;
+}) => {
+  return (
+    <>
+      <TileLayer
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+      />
+      <MapRecenter center={center} />
+      <Circle
+        center={[center.lat, center.lng]}
+        radius={totalRadius}
+        pathOptions={{
+          color: "#3b82f6",
+          fillColor: "#3b82f6",
+          fillOpacity: 0.08,
+          weight: 2,
+          dashArray: "8, 8",
+        }}
+      />
+      <Marker 
+        position={[center.lat, center.lng]} 
+        icon={createBusinessIcon()}
+        zIndexOffset={1000}
+      >
+        <Popup>
+          <div className="text-center">
+            <strong>{businessName || "Votre établissement"}</strong>
+            <p className="text-xs text-muted-foreground mt-1">Centre du scan</p>
+          </div>
+        </Popup>
+      </Marker>
+      {points.map((point) => (
+        <Marker
+          key={point.label}
+          position={[point.lat, point.lng]}
+          icon={createRankIcon(point.rank_position, selectedPoint?.label === point.label)}
+          eventHandlers={{
+            click: () => onPointSelect(point),
           }}
-        />
-        
-        {/* Business center marker */}
-        <Marker 
-          position={[center.lat, center.lng]} 
-          icon={createBusinessIcon()}
-          zIndexOffset={1000}
         >
           <Popup>
-            <div className="text-center">
-              <strong>{businessName || "Votre établissement"}</strong>
-              <p className="text-xs text-muted-foreground mt-1">Centre du scan</p>
+            <div className="min-w-[180px]">
+              <div className="flex items-center justify-between mb-2">
+                <strong>Point {point.label}</strong>
+                <span className={`
+                  px-2 py-0.5 rounded text-xs font-bold text-white
+                  ${point.rank_position === null ? "bg-gray-400" : 
+                    point.rank_position <= 3 ? "bg-green-500" :
+                    point.rank_position <= 7 ? "bg-yellow-500" :
+                    point.rank_position <= 10 ? "bg-orange-500" : "bg-red-500"}
+                `}>
+                  {point.rank_position ? `#${point.rank_position}` : "N/A"}
+                </span>
+              </div>
+              <p className="text-xs text-muted-foreground mb-2">
+                {point.total_results} résultats dans cette zone
+              </p>
+              {point.competitors.length > 0 && (
+                <div className="border-t pt-2">
+                  <p className="text-xs font-medium mb-1">Top 3:</p>
+                  <ul className="text-xs space-y-1">
+                    {point.competitors.slice(0, 3).map((comp, i) => (
+                      <li key={comp.placeId} className="flex items-start gap-1">
+                        <span className="text-muted-foreground">{i + 1}.</span>
+                        <span className="truncate">{comp.name}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
           </Popup>
         </Marker>
-        
-        {/* Scan point markers */}
-        {points.map((point) => (
-          <Marker
-            key={point.label}
-            position={[point.lat, point.lng]}
-            icon={createRankIcon(point.rank_position, selectedPoint?.label === point.label)}
-            eventHandlers={{
-              click: () => onPointSelect(point),
-            }}
-          >
-            <Popup>
-              <div className="min-w-[180px]">
-                <div className="flex items-center justify-between mb-2">
-                  <strong>Point {point.label}</strong>
-                  <span className={`
-                    px-2 py-0.5 rounded text-xs font-bold text-white
-                    ${point.rank_position === null ? "bg-gray-400" : 
-                      point.rank_position <= 3 ? "bg-green-500" :
-                      point.rank_position <= 7 ? "bg-yellow-500" :
-                      point.rank_position <= 10 ? "bg-orange-500" : "bg-red-500"}
-                  `}>
-                    {point.rank_position ? `#${point.rank_position}` : "N/A"}
-                  </span>
-                </div>
-                <p className="text-xs text-muted-foreground mb-2">
-                  {point.total_results} résultats dans cette zone
-                </p>
-                {point.competitors.length > 0 && (
-                  <div className="border-t pt-2">
-                    <p className="text-xs font-medium mb-1">Top 3:</p>
-                    <ul className="text-xs space-y-1">
-                      {point.competitors.slice(0, 3).map((comp, i) => (
-                        <li key={comp.placeId} className="flex items-start gap-1">
-                          <span className="text-muted-foreground">{i + 1}.</span>
-                          <span className="truncate">{comp.name}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
-            </Popup>
-          </Marker>
-        ))}
-      </MapContainer>
-    </div>
+      ))}
+    </>
   );
 };
