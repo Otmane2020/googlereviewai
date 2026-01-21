@@ -346,9 +346,20 @@ const Dashboard = () => {
                       ? "Sync partielle"
                       : "Sync automatique active"}
                   </p>
-                  <p className="text-[10px] text-muted-foreground">
-                    Sync toutes les 30 secondes
-                  </p>
+                  {syncStatus.last_sync_at && (
+                    <p className="text-[10px] text-muted-foreground">
+                      Dernière sync: {(() => {
+                        const diff = Date.now() - new Date(syncStatus.last_sync_at).getTime();
+                        const secs = Math.floor(diff / 1000);
+                        if (secs < 60) return "à l'instant";
+                        const mins = Math.floor(secs / 60);
+                        if (mins < 60) return `il y a ${mins} min`;
+                        const hours = Math.floor(mins / 60);
+                        if (hours < 24) return `il y a ${hours}h`;
+                        return `il y a ${Math.floor(hours / 24)}j`;
+                      })()}
+                    </p>
+                  )}
                 </div>
               </div>
               {syncStatus.last_sync_status === "error" && syncStatus.last_sync_error && (
