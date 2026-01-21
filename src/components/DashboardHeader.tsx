@@ -266,12 +266,9 @@ export const DashboardHeader = () => {
                   })}
                 </div>
 
-                {/* Spacer */}
-                <div className="flex-1" />
-
-                {/* Sign Out - Fixed at bottom */}
-                <div className="flex-shrink-0 p-3 border-t border-border/50 bg-background">
-                  <Button 
+                {/* Sign Out */}
+                <div className="p-3 border-t border-border/50 mt-auto">
+                  <Button
                     variant="outline" 
                     className="w-full rounded-lg h-10 text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive/20"
                     onClick={() => {
