@@ -336,7 +336,23 @@ const AEORank = () => {
     setPublishing(null);
   };
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status: string, iconOnly: boolean = false) => {
+    if (iconOnly) {
+      switch (status) {
+        case "published":
+          return <Check className="w-4 h-4 text-secondary" />;
+        case "generated":
+          return <Sparkles className="w-4 h-4 text-primary" />;
+        case "generating":
+          return <Loader2 className="w-4 h-4 text-primary animate-spin" />;
+        case "failed":
+        case "error":
+          return <AlertCircle className="w-4 h-4 text-destructive" />;
+        default:
+          return <Clock className="w-4 h-4 text-muted-foreground" />;
+      }
+    }
+    
     switch (status) {
       case "published":
         return <Badge className="bg-secondary text-secondary-foreground"><Check className="w-3 h-3 mr-1" />Publié</Badge>;

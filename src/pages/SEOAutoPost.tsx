@@ -333,7 +333,23 @@ const SEOAutoPost = () => {
     setPublishing(null);
   };
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status: string, iconOnly: boolean = false) => {
+    if (iconOnly) {
+      switch (status) {
+        case "published":
+          return <Check className="w-4 h-4 text-secondary" />;
+        case "generated":
+          return <Sparkles className="w-4 h-4 text-primary" />;
+        case "generating":
+          return <Loader2 className="w-4 h-4 text-primary animate-spin" />;
+        case "failed":
+        case "error":
+          return <AlertCircle className="w-4 h-4 text-destructive" />;
+        default:
+          return <Clock className="w-4 h-4 text-muted-foreground" />;
+      }
+    }
+    
     switch (status) {
       case "published":
         return <Badge className="bg-secondary text-secondary-foreground"><Check className="w-3 h-3 mr-1" />Publié</Badge>;
@@ -564,10 +580,10 @@ const SEOAutoPost = () => {
                         <p className={`text-sm font-bold ${isToday ? "text-primary" : "text-foreground"}`}>
                           {format(date, "d")}
                         </p>
-                        <div className="mt-1">
+                        <div className="mt-1 h-5 flex items-center justify-center">
                           {dayContent ? (
                             <div className="cursor-pointer">
-                              {getStatusBadge(dayContent.status)}
+                              {getStatusBadge(dayContent.status, true)}
                             </div>
                           ) : (
                             <span className="text-[10px] text-muted-foreground">—</span>
