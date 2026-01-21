@@ -82,10 +82,18 @@ async function publishToGoogle(
   review: any,
   aiResponse: string
 ): Promise<boolean> {
-  const locationName = `locations/${review.location_id}`;
-  const reviewName = review.review_id.startsWith("accounts/")
-    ? review.review_id
-    : `${locationName}/reviews/${review.review_id}`;
+  // review_id can be in multiple formats:
+  // 1. Full path: "accounts/xxx/locations/xxx/reviews/AbFv..."
+  // 2. Location path: "locations/xxx/reviews/AbFv..."
+  // 3. Just the ID: "AbFv..."
+  
+  let reviewName = review.review_id;
+  
+  // If it starts with "accounts/" or "locations/", use as-is
+  // Otherwise, construct the full path
+  if (!reviewName.startsWith("accounts/") && !reviewName.startsWith("locations/")) {
+    reviewName = `locations/${review.location_id}/reviews/${review.review_id}`;
+  }
 
   console.log(`[AutoRespond] Publishing to Google: ${reviewName}`);
 
