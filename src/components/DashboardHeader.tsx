@@ -215,32 +215,7 @@ export const DashboardHeader = () => {
                   </div>
                 </div>
 
-                {/* Navigation */}
-                <div className="p-4 space-y-1">
-                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2 px-2">
-                    Navigation
-                  </p>
-                  {navItems.map((item) => {
-                    const Icon = item.icon;
-                    const isActive = location.pathname === item.href;
-                    return (
-                      <Link
-                        key={item.href}
-                        to={item.href}
-                        className={`flex items-center gap-3 px-3 py-3 rounded-xl font-medium transition-all ${
-                          isActive 
-                            ? "bg-primary text-primary-foreground shadow-md" 
-                            : "text-foreground hover:bg-muted"
-                        }`}
-                        onClick={() => setMobileMenuOpen(false)}
-                      >
-                        <Icon className="w-5 h-5" />
-                        <span className="flex-1">{item.label}</span>
-                        <ChevronRight className={`w-4 h-4 ${isActive ? "text-primary-foreground/70" : "text-muted-foreground"}`} />
-                      </Link>
-                    );
-                  })}
-                </div>
+                {/* Navigation is hidden here - available in MobileBottomNav */}
 
                 {/* Settings */}
                 <div className="p-4 space-y-1 border-t border-border/50">
