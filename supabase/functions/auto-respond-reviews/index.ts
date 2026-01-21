@@ -85,14 +85,19 @@ async function publishToGoogle(
   // review_id can be in multiple formats:
   // 1. Full path: "accounts/xxx/locations/xxx/reviews/AbFv..."
   // 2. Location path: "locations/xxx/reviews/AbFv..."
-  // 3. Just the ID: "AbFv..."
+  // 3. Just the review ID: "AbFv..."
   
   let reviewName = review.review_id;
   
-  // If it starts with "accounts/" or "locations/", use as-is
-  // Otherwise, construct the full path
-  if (!reviewName.startsWith("accounts/") && !reviewName.startsWith("locations/")) {
-    reviewName = `locations/${review.location_id}/reviews/${review.review_id}`;
+  // Check if review_id already contains the full path format
+  // It should contain "/reviews/" in the path for valid formats
+  if (reviewName.includes("/reviews/")) {
+    // Already has full path format, use as-is
+    console.log(`[AutoRespond] Using existing review path: ${reviewName}`);
+  } else {
+    // Just the review ID, construct the full path
+    reviewName = `locations/${review.location_id}/reviews/${reviewName}`;
+    console.log(`[AutoRespond] Constructed review path: ${reviewName}`);
   }
 
   console.log(`[AutoRespond] Publishing to Google: ${reviewName}`);
