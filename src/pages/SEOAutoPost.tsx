@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useRequireSubscription } from "@/hooks/useRequireSubscription";
 import { DashboardHeader } from "@/components/DashboardHeader";
+import { BusinessSubscriptionSelector } from "@/components/BusinessSubscriptionSelector";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { ArticlePreviewDialog } from "@/components/ArticlePreviewDialog";
 import { Button } from "@/components/ui/button";
@@ -138,16 +139,17 @@ const SEOAutoPost = () => {
     setScheduledContent((data as ScheduledContent[]) || []);
   };
 
-  const handleSubscribe = async (annual: boolean = false) => {
+  const handleSubscribe = async (selectedBusinessIds: string[], annual: boolean = false) => {
     try {
       const priceKey = annual ? "seo_yearly" : "seo_monthly";
-      // Quantity = number of active businesses (minimum 1)
-      const quantity = Math.max(1, businesses.length);
+      // Quantity = number of selected businesses (minimum 1)
+      const quantity = Math.max(1, selectedBusinessIds.length);
       
       const { data, error } = await supabase.functions.invoke("create-checkout", {
         body: { 
           priceKey,
           quantity,
+          selectedBusinessIds,
         }
       });
       
@@ -549,29 +551,13 @@ const SEOAutoPost = () => {
               </Card>
             )}
 
-            {/* Subscription Banner - Compact Mobile */}
+            {/* Subscription Banner with Business Selector */}
             {!isSubscribed && (
-              <Card className="border-primary/30 bg-primary/5">
-                <CardContent className="p-3">
-                  <div className="flex items-center gap-3 mb-3">
-                    <Lock className="w-6 h-6 text-primary flex-shrink-0" />
-                    <div className="min-w-0">
-                      <p className="font-semibold text-sm text-foreground">Module Premium SEO</p>
-                      <p className="text-xs text-muted-foreground">
-                        49€/mois par établissement ({businesses.length} établissement{businesses.length > 1 ? 's' : ''} = {49 * Math.max(1, businesses.length)}€/mois)
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button onClick={() => handleSubscribe(false)} size="sm" className="flex-1">
-                      Mensuel - {49 * Math.max(1, businesses.length)}€
-                    </Button>
-                    <Button variant="outline" onClick={() => handleSubscribe(true)} size="sm" className="flex-1">
-                      Annuel - {Math.round(39.20 * Math.max(1, businesses.length))}€/mois
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+              <BusinessSubscriptionSelector
+                businesses={businesses}
+                moduleType="seo"
+                onSubscribe={handleSubscribe}
+              />
             )}
 
             {/* Tabs - Mobile optimized */}
@@ -734,7 +720,7 @@ const SEOAutoPost = () => {
         onOpenChange={setShowPreviewDialog}
         article={selectedArticle}
         isSubscribed={isSubscribed}
-        onSubscribe={handleSubscribe}
+        onSubscribe={(annual) => handleSubscribe(businesses.map(b => b.id), annual)}
       />
     </div>
   );
