@@ -22,7 +22,7 @@ interface SyncResult {
 export const useSyncGoogleBusinesses = () => {
   const [isSyncing, setIsSyncing] = useState(false);
 
-  const syncBusinesses = async (): Promise<SyncResult> => {
+  const syncBusinesses = async (forceShowSelection = false): Promise<SyncResult> => {
     setIsSyncing(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
@@ -46,7 +46,17 @@ export const useSyncGoogleBusinesses = () => {
         throw new Error(response.error.message);
       }
 
-      return response.data;
+      const result = response.data as SyncResult;
+      
+      // If forceShowSelection is true and we have google_businesses, force selection mode
+      if (forceShowSelection && result.google_businesses && result.google_businesses.length > 0) {
+        return {
+          ...result,
+          requires_selection: true, // Force selection dialog to open
+        };
+      }
+
+      return result;
     } catch (error: any) {
       console.error("Sync error:", error);
       return { success: false, businesses: [] };

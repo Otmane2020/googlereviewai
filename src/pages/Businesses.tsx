@@ -202,23 +202,21 @@ const BusinessesPage = () => {
 
   // Force show selection dialog for "Modifier" button
   const handleChangeBusinesses = async () => {
-    const result = await syncBusinesses();
+    // Pass true to force selection mode
+    const result = await syncBusinesses(true);
     
     if (result?.google_businesses && result.google_businesses.length > 0) {
       // Always show selection dialog when user wants to change businesses
       setGoogleBusinessesForSelection(result.google_businesses);
       setMaxBusinesses(result.max_businesses || maxBusinesses);
       setShowSelectDialog(true);
-    } else if (result?.requires_selection) {
-      setGoogleBusinessesForSelection(result.google_businesses || []);
-      setMaxBusinesses(result.max_businesses || 1);
-      setShowSelectDialog(true);
     } else {
-      // No businesses from Google, just refresh
+      // No businesses from Google
       fetchBusinesses();
       toast({
         title: "Synchronisation",
-        description: "Aucun nouvel établissement trouvé.",
+        description: "Aucun établissement Google trouvé sur votre compte.",
+        variant: "destructive",
       });
     }
   };
