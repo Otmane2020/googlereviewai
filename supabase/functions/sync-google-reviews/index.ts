@@ -371,13 +371,29 @@ serve(async (req) => {
                 
                 // For existing reviews, mark as notified and detect edits
                 // For new reviews, let the trigger handle notification (notified will be false/null)
+                
+                // Helper to normalize comments for comparison (extract original text)
+                const normalizeComment = (comment: string | null): string => {
+                  if (!comment) return "";
+                  // Remove Google translation prefix to compare actual content
+                  if (comment.includes("(Original)")) {
+                    const match = comment.match(/\(Original\)\s*(.*)$/s);
+                    return match?.[1]?.trim() || comment;
+                  }
+                  return comment.trim();
+                };
+                
                 const reviewsWithNotified = reviewsToUpsert.map(r => {
                   const existing = existingReviewMap.get(r.review_id);
                   if (existing) {
-                    // Check if comment was edited
-                    const wasEdited = existing.comment !== r.comment && r.comment !== "";
+                    // Check if comment was actually edited by comparing normalized versions
+                    const existingNormalized = normalizeComment(existing.comment);
+                    const newNormalized = normalizeComment(r.comment);
+                    const wasEdited = existingNormalized !== newNormalized && newNormalized !== "";
+                    
                     if (wasEdited) {
                       console.log(`[Sync] Review ${r.review_id} was edited by customer`);
+                      console.log(`[Sync] Old: "${existingNormalized.substring(0, 50)}..." -> New: "${newNormalized.substring(0, 50)}..."`);
                       return {
                         ...r,
                         notified: true,
