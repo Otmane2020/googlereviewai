@@ -3,8 +3,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Copy, Check, Link2, ExternalLink } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Copy, Check, Link2, ChevronDown, Info } from "lucide-react";
 import { toast } from "sonner";
 
 interface UTMBuilderDialogProps {
@@ -13,28 +13,96 @@ interface UTMBuilderDialogProps {
   onOpenChange?: (open: boolean) => void;
 }
 
-const FACEBOOK_SOURCES = [
-  { value: "facebook", label: "Facebook" },
-  { value: "instagram", label: "Instagram" },
-  { value: "messenger", label: "Messenger" },
-  { value: "audience_network", label: "Audience Network" },
-];
+const DYNAMIC_PARAMS = {
+  campaign: [
+    { value: "{{campaign.id}}", label: "ID de campagne" },
+    { value: "{{campaign.name}}", label: "Nom de campagne" },
+  ],
+  adset: [
+    { value: "{{adset.id}}", label: "ID d'ensemble" },
+    { value: "{{adset.name}}", label: "Nom d'ensemble" },
+  ],
+  ad: [
+    { value: "{{ad.id}}", label: "ID de publicité" },
+    { value: "{{ad.name}}", label: "Nom de publicité" },
+  ],
+  placement: [
+    { value: "{{placement}}", label: "Placement" },
+    { value: "{{site_source_name}}", label: "Source (fb/ig/msg/an)" },
+  ],
+};
 
-const MEDIUMS = [
-  { value: "cpc", label: "CPC (Coût par clic)" },
-  { value: "cpm", label: "CPM (Coût par mille)" },
-  { value: "paid_social", label: "Paid Social" },
-  { value: "retargeting", label: "Retargeting" },
-  { value: "display", label: "Display" },
-];
+const FieldWithDynamic = ({ 
+  label, 
+  description, 
+  value, 
+  onChange, 
+  placeholder,
+  dynamicOptions 
+}: { 
+  label: string;
+  description: string;
+  value: string;
+  onChange: (val: string) => void;
+  placeholder: string;
+  dynamicOptions?: { value: string; label: string }[];
+}) => {
+  const [open, setOpen] = useState(false);
+
+  const insertDynamic = (param: string) => {
+    onChange(value ? `${value}_${param}` : param);
+    setOpen(false);
+  };
+
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between">
+        <Label className="text-sm font-medium text-foreground">{label}</Label>
+        <span className="text-[10px] text-muted-foreground bg-muted px-2 py-0.5 rounded">Campaign parameters</span>
+      </div>
+      <div className="flex gap-2">
+        <Input
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+          className="flex-1 font-mono text-sm"
+        />
+        {dynamicOptions && (
+          <Popover open={open} onOpenChange={setOpen}>
+            <PopoverTrigger asChild>
+              <Button variant="outline" size="icon" className="shrink-0">
+                <ChevronDown className="w-4 h-4" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-56 p-1 bg-popover border" align="end">
+              <div className="text-xs font-medium text-muted-foreground px-2 py-1.5">
+                Paramètres dynamiques
+              </div>
+              {dynamicOptions.map((opt) => (
+                <button
+                  key={opt.value}
+                  onClick={() => insertDynamic(opt.value)}
+                  className="w-full text-left px-2 py-1.5 text-sm hover:bg-muted rounded-sm flex items-center justify-between"
+                >
+                  <span className="text-foreground">{opt.label}</span>
+                  <code className="text-xs text-muted-foreground">{opt.value}</code>
+                </button>
+              ))}
+            </PopoverContent>
+          </Popover>
+        )}
+      </div>
+      <p className="text-xs text-muted-foreground">{description}</p>
+    </div>
+  );
+};
 
 export const UTMBuilderDialog = ({ trigger, open, onOpenChange }: UTMBuilderDialogProps) => {
   const [baseUrl, setBaseUrl] = useState("");
-  const [utmSource, setUtmSource] = useState("facebook");
-  const [utmMedium, setUtmMedium] = useState("cpc");
+  const [utmSource, setUtmSource] = useState("");
+  const [utmMedium, setUtmMedium] = useState("");
   const [utmCampaign, setUtmCampaign] = useState("");
   const [utmContent, setUtmContent] = useState("");
-  const [utmTerm, setUtmTerm] = useState("");
   const [copied, setCopied] = useState(false);
 
   const generateUrl = () => {
@@ -45,9 +113,8 @@ export const UTMBuilderDialog = ({ trigger, open, onOpenChange }: UTMBuilderDial
       
       if (utmSource) url.searchParams.set("utm_source", utmSource);
       if (utmMedium) url.searchParams.set("utm_medium", utmMedium);
-      if (utmCampaign) url.searchParams.set("utm_campaign", utmCampaign.toLowerCase().replace(/\s+/g, "_"));
-      if (utmContent) url.searchParams.set("utm_content", utmContent.toLowerCase().replace(/\s+/g, "_"));
-      if (utmTerm) url.searchParams.set("utm_term", utmTerm.toLowerCase().replace(/\s+/g, "_"));
+      if (utmCampaign) url.searchParams.set("utm_campaign", utmCampaign);
+      if (utmContent) url.searchParams.set("utm_content", utmContent);
       
       return url.toString();
     } catch {
@@ -75,11 +142,10 @@ export const UTMBuilderDialog = ({ trigger, open, onOpenChange }: UTMBuilderDial
 
   const handleReset = () => {
     setBaseUrl("");
-    setUtmSource("facebook");
-    setUtmMedium("cpc");
+    setUtmSource("");
+    setUtmMedium("");
     setUtmCampaign("");
     setUtmContent("");
-    setUtmTerm("");
   };
 
   return (
@@ -89,113 +155,88 @@ export const UTMBuilderDialog = ({ trigger, open, onOpenChange }: UTMBuilderDial
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Link2 className="w-5 h-5 text-primary" />
-            Générateur URL Facebook Ads
+            Build a URL parameter
           </DialogTitle>
+          <p className="text-sm text-muted-foreground">
+            Fill out the fields in the form below to add parameters to your website URL. 
+            Click <ChevronDown className="w-3 h-3 inline" /> to select dynamic parameters.
+          </p>
         </DialogHeader>
 
-        <div className="space-y-4 py-2">
+        <div className="space-y-5 py-2">
           {/* Base URL */}
           <div className="space-y-2">
-            <Label htmlFor="baseUrl">URL de destination *</Label>
+            <Label className="text-sm font-medium">Website URL</Label>
             <Input
-              id="baseUrl"
-              placeholder="https://votresite.com/page"
+              placeholder="https://www.example.com/page"
               value={baseUrl}
               onChange={(e) => setBaseUrl(e.target.value)}
+              className="font-mono text-sm"
             />
           </div>
 
-          {/* UTM Source */}
-          <div className="space-y-2">
-            <Label>Source (utm_source)</Label>
-            <Select value={utmSource} onValueChange={setUtmSource}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {FACEBOOK_SOURCES.map((source) => (
-                  <SelectItem key={source.value} value={source.value}>
-                    {source.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <p className="text-xs text-muted-foreground">
-              Plateforme d'origine du trafic
-            </p>
-          </div>
+          <div className="h-px bg-border" />
 
-          {/* UTM Medium */}
-          <div className="space-y-2">
-            <Label>Medium (utm_medium)</Label>
-            <Select value={utmMedium} onValueChange={setUtmMedium}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {MEDIUMS.map((medium) => (
-                  <SelectItem key={medium.value} value={medium.value}>
-                    {medium.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <p className="text-xs text-muted-foreground">
-              Type de campagne publicitaire
-            </p>
-          </div>
+          {/* Campaign Source */}
+          <FieldWithDynamic
+            label="Campaign source"
+            description="To identify the source of traffic. For example: Facebook, Instagram, a search engine or other source."
+            value={utmSource}
+            onChange={setUtmSource}
+            placeholder="facebook"
+            dynamicOptions={DYNAMIC_PARAMS.placement}
+          />
 
-          {/* UTM Campaign */}
-          <div className="space-y-2">
-            <Label htmlFor="campaign">Campagne (utm_campaign) *</Label>
-            <Input
-              id="campaign"
-              placeholder="ex: soldes_ete_2025"
-              value={utmCampaign}
-              onChange={(e) => setUtmCampaign(e.target.value)}
-            />
-            <p className="text-xs text-muted-foreground">
-              Nom de votre campagne publicitaire
-            </p>
-          </div>
+          {/* Campaign Medium */}
+          <FieldWithDynamic
+            label="Campaign medium"
+            description="To identify the advertising medium. For example: banner, email, Facebook_Feed or Instagram_Story."
+            value={utmMedium}
+            onChange={setUtmMedium}
+            placeholder="cpc"
+            dynamicOptions={[
+              { value: "{{placement}}", label: "Placement (Feed, Story...)" },
+              { value: "cpc", label: "CPC" },
+              { value: "cpm", label: "CPM" },
+            ]}
+          />
 
-          {/* UTM Content */}
-          <div className="space-y-2">
-            <Label htmlFor="content">Contenu (utm_content)</Label>
-            <Input
-              id="content"
-              placeholder="ex: video_1, image_carousel"
-              value={utmContent}
-              onChange={(e) => setUtmContent(e.target.value)}
-            />
-            <p className="text-xs text-muted-foreground">
-              Variante de la pub (A/B test, format)
-            </p>
-          </div>
+          {/* Campaign Name */}
+          <FieldWithDynamic
+            label="Campaign name"
+            description="To identify a specific promotion or strategic campaign. For example: summer_sale."
+            value={utmCampaign}
+            onChange={setUtmCampaign}
+            placeholder="{{campaign.name}}"
+            dynamicOptions={DYNAMIC_PARAMS.campaign}
+          />
 
-          {/* UTM Term */}
-          <div className="space-y-2">
-            <Label htmlFor="term">Terme (utm_term)</Label>
-            <Input
-              id="term"
-              placeholder="ex: promo_50_pourcent"
-              value={utmTerm}
-              onChange={(e) => setUtmTerm(e.target.value)}
-            />
-            <p className="text-xs text-muted-foreground">
-              Mot-clé ciblé ou audience
-            </p>
-          </div>
+          {/* Campaign Content */}
+          <FieldWithDynamic
+            label="Campaign content"
+            description="To differentiate ads or links that point to the same URL. For example: white_logo, black_logo."
+            value={utmContent}
+            onChange={setUtmContent}
+            placeholder="{{ad.name}}"
+            dynamicOptions={[...DYNAMIC_PARAMS.ad, ...DYNAMIC_PARAMS.adset]}
+          />
 
-          {/* Generated URL Preview */}
-          {generatedUrl && (
-            <div className="space-y-2 pt-2 border-t">
-              <Label>URL générée</Label>
-              <div className="p-3 bg-muted rounded-lg break-all text-sm font-mono">
-                {generatedUrl}
-              </div>
+          <div className="h-px bg-border" />
+
+          {/* Parameter Preview */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <Label className="text-sm font-medium">Parameter preview</Label>
+              <Info className="w-3.5 h-3.5 text-muted-foreground" />
             </div>
-          )}
+            <div className="p-3 bg-muted rounded-lg min-h-[60px]">
+              {generatedUrl ? (
+                <p className="text-sm font-mono break-all text-foreground">{generatedUrl}</p>
+              ) : (
+                <p className="text-sm text-muted-foreground italic">Preview text</p>
+              )}
+            </div>
+          </div>
 
           {/* Actions */}
           <div className="flex gap-2 pt-2">
@@ -204,7 +245,7 @@ export const UTMBuilderDialog = ({ trigger, open, onOpenChange }: UTMBuilderDial
               className="flex-1"
               onClick={handleReset}
             >
-              Réinitialiser
+              Reset
             </Button>
             <Button
               className="flex-1 gap-2"
@@ -214,25 +255,15 @@ export const UTMBuilderDialog = ({ trigger, open, onOpenChange }: UTMBuilderDial
               {copied ? (
                 <>
                   <Check className="w-4 h-4" />
-                  Copié !
+                  Copied!
                 </>
               ) : (
                 <>
                   <Copy className="w-4 h-4" />
-                  Copier l'URL
+                  Copy URL
                 </>
               )}
             </Button>
-          </div>
-
-          {/* Tips */}
-          <div className="bg-muted/50 rounded-lg p-3 text-xs text-muted-foreground space-y-1">
-            <p className="font-medium text-foreground">💡 Conseils :</p>
-            <ul className="list-disc list-inside space-y-0.5">
-              <li>Utilisez cette URL dans le champ "URL du site web" de votre pub Facebook</li>
-              <li>Les espaces sont automatiquement convertis en underscores</li>
-              <li>Vérifiez vos conversions dans Google Analytics &gt; Acquisition</li>
-            </ul>
           </div>
         </div>
       </DialogContent>
