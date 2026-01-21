@@ -29,8 +29,18 @@ import {
   PlusCircle,
   Crown,
   Sparkles,
-  Tag
+  Tag,
+  Link,
+  Map,
+  X
 } from "lucide-react";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -53,6 +63,7 @@ interface Business {
   google_place_id: string | null;
   description: string | null;
   auto_keywords: string[] | null;
+  maps_url: string | null;
 }
 
 const BusinessesPage = () => {
@@ -406,179 +417,293 @@ const BusinessesPage = () => {
               return (
                 <div
                   key={business.id}
-                  className="bg-card rounded-2xl border border-border p-6 hover:shadow-lg transition-all hover:-translate-y-1"
+                  className="bg-card rounded-2xl border border-border p-5 hover:shadow-lg transition-all hover:-translate-y-1"
                 >
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                      <Building2 className="w-6 h-6 text-primary" />
-                    </div>
-                    <div className="flex items-center gap-1">
+                  {/* Header: Logo + Name + Badge */}
+                  <div className="flex items-start gap-3 mb-3">
+                    {/* Logo / Initials */}
+                    <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center flex-shrink-0 border border-primary/20">
                       {isGoogleConnected ? (
-                        <span className="flex items-center gap-1 text-xs text-secondary bg-secondary/10 px-2 py-1 rounded-full">
-                          <CheckCircle className="w-3 h-3" />
-                          Google
-                        </span>
+                        <img 
+                          src="https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png"
+                          alt="Google"
+                          className="w-7 h-7"
+                        />
                       ) : (
-                        <span className="flex items-center gap-1 text-xs text-muted-foreground bg-muted px-2 py-1 rounded-full">
-                          <AlertCircle className="w-3 h-3" />
-                          Manuel
+                        <span className="text-xl font-bold text-primary">
+                          {business.name.charAt(0).toUpperCase()}
                         </span>
                       )}
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-muted-foreground hover:text-foreground"
-                        onClick={() => {
-                          setEditingBusiness(business);
-                          setEditDescription(business.description || "");
-                          setEditDialogOpen(true);
-                        }}
-                      >
-                        <Edit className="w-4 h-4" />
-                      </Button>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        {isGoogleConnected ? (
+                          <span className="flex items-center gap-1 text-xs text-secondary bg-secondary/10 px-2 py-0.5 rounded-full">
+                            <CheckCircle className="w-3 h-3" />
+                            Google
+                          </span>
+                        ) : (
+                          <span className="flex items-center gap-1 text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+                            <AlertCircle className="w-3 h-3" />
+                            Manuel
+                          </span>
+                        )}
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6 text-muted-foreground hover:text-foreground ml-auto"
+                          onClick={() => {
+                            setEditingBusiness(business);
+                            setEditDescription(business.description || "");
+                            setEditDialogOpen(true);
+                          }}
+                        >
+                          <Edit className="w-3.5 h-3.5" />
+                        </Button>
+                      </div>
+                      <h3 className="font-semibold text-foreground text-base leading-tight line-clamp-2">{business.name}</h3>
                     </div>
                   </div>
 
-                  <h3 className="font-semibold text-foreground text-lg mb-2 line-clamp-2">{business.name}</h3>
-
-                  {/* Stats */}
-                  <div className="flex items-center gap-1 mb-3">
-                    <span className="text-sm font-medium text-[#202124] dark:text-foreground">{calculatedRating?.toFixed(1) || "–"}</span>
+                  {/* Rating & Reviews */}
+                  <div className="flex items-center gap-1.5 mb-3">
+                    <span className="text-sm font-semibold text-foreground">{calculatedRating?.toFixed(1) || "–"}</span>
                     <div className="flex items-center">
                       {[...Array(5)].map((_, i) => (
                         <Star 
                           key={i} 
-                          className={`w-3.5 h-3.5 text-[#FBBC04] ${i < Math.round(calculatedRating || 0) ? "fill-[#FBBC04]" : "fill-transparent"}`} 
+                          className={`w-3.5 h-3.5 ${i < Math.round(calculatedRating || 0) ? "text-amber-400 fill-amber-400" : "text-muted-foreground/30"}`} 
                         />
                       ))}
                     </div>
-                    <span className="text-sm text-[#70757A] dark:text-muted-foreground">({reviewCount} avis)</span>
+                    <span className="text-xs text-muted-foreground">({reviewCount} avis)</span>
                   </div>
 
-                  <div className="space-y-2 text-sm">
+                  {/* Description visible */}
+                  {business.description ? (
+                    <div className="mb-3 p-3 bg-muted/50 rounded-xl">
+                      <p className="text-sm text-muted-foreground line-clamp-3">{business.description}</p>
+                    </div>
+                  ) : (
+                    <div className="mb-3 p-3 bg-muted/30 rounded-xl border border-dashed border-muted-foreground/20">
+                      <p className="text-xs text-muted-foreground italic">Aucune description. Cliquez sur ✏️ pour en ajouter une.</p>
+                    </div>
+                  )}
+
+                  {/* Quick info: Address + Phone */}
+                  <div className="space-y-1 text-sm mb-4">
                     {business.address && (
                       <div className="flex items-start gap-2 text-muted-foreground">
-                        <MapPin className="w-4 h-4 flex-shrink-0 mt-0.5" />
-                        <span className="line-clamp-2">{business.address}</span>
+                        <MapPin className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
+                        <span className="line-clamp-1 text-xs">{business.address}</span>
                       </div>
                     )}
                     {business.phone && (
                       <div className="flex items-center gap-2 text-muted-foreground">
-                        <Phone className="w-4 h-4 flex-shrink-0" />
-                        <span>{business.phone}</span>
-                      </div>
-                    )}
-                    {business.website && (
-                      <div className="flex items-center gap-2 text-muted-foreground">
-                        <Globe className="w-4 h-4 flex-shrink-0" />
-                        <a 
-                          href={business.website} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="truncate hover:text-primary flex items-center gap-1"
-                        >
-                          {new URL(business.website).hostname}
-                          <ExternalLink className="w-3 h-3" />
-                        </a>
+                        <Phone className="w-3.5 h-3.5 flex-shrink-0" />
+                        <span className="text-xs">{business.phone}</span>
                       </div>
                     )}
                   </div>
 
-                  {/* Description */}
-                  {business.description && (
-                    <div className="mt-3 p-3 bg-muted/50 rounded-xl">
-                      <p className="text-sm text-muted-foreground line-clamp-2">{business.description}</p>
-                    </div>
-                  )}
+                  {/* Action buttons row with popups */}
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {/* URL Popup */}
+                    <Sheet>
+                      <SheetTrigger asChild>
+                        <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs">
+                          <Link className="w-3.5 h-3.5" />
+                          Liens
+                        </Button>
+                      </SheetTrigger>
+                      <SheetContent side="bottom" className="max-h-[60vh]">
+                        <SheetHeader>
+                          <SheetTitle className="flex items-center gap-2">
+                            <Link className="w-5 h-5" />
+                            Liens de {business.name}
+                          </SheetTitle>
+                        </SheetHeader>
+                        <div className="space-y-4 py-4">
+                          {business.website && (
+                            <div className="flex items-center justify-between p-3 bg-muted/50 rounded-xl">
+                              <div className="flex items-center gap-3">
+                                <Globe className="w-5 h-5 text-primary" />
+                                <div>
+                                  <p className="text-sm font-medium">Site web</p>
+                                  <p className="text-xs text-muted-foreground truncate max-w-[200px]">{business.website}</p>
+                                </div>
+                              </div>
+                              <Button size="sm" variant="outline" asChild>
+                                <a href={business.website} target="_blank" rel="noopener noreferrer">
+                                  <ExternalLink className="w-4 h-4" />
+                                </a>
+                              </Button>
+                            </div>
+                          )}
+                          {business.maps_url && (
+                            <div className="flex items-center justify-between p-3 bg-muted/50 rounded-xl">
+                              <div className="flex items-center gap-3">
+                                <Map className="w-5 h-5 text-destructive" />
+                                <div>
+                                  <p className="text-sm font-medium">Google Maps</p>
+                                  <p className="text-xs text-muted-foreground">Voir sur la carte</p>
+                                </div>
+                              </div>
+                              <Button size="sm" variant="outline" asChild>
+                                <a href={business.maps_url} target="_blank" rel="noopener noreferrer">
+                                  <ExternalLink className="w-4 h-4" />
+                                </a>
+                              </Button>
+                            </div>
+                          )}
+                          {!business.website && !business.maps_url && (
+                            <p className="text-sm text-muted-foreground text-center py-4">Aucun lien disponible</p>
+                          )}
+                        </div>
+                      </SheetContent>
+                    </Sheet>
 
-                  {/* Keywords Section */}
-                  <div className="mt-4 pt-4 border-t border-border">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <Tag className="w-4 h-4 text-muted-foreground" />
-                        <span className="text-sm font-medium text-foreground">Mots-clés</span>
-                      </div>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="h-7 gap-1 text-xs"
-                        onClick={() => handleAnalyzeBusiness(business)}
-                        disabled={analyzingId === business.id || (!business.website && !business.description)}
-                      >
-                        {analyzingId === business.id ? (
-                          <Loader2 className="w-3 h-3 animate-spin" />
-                        ) : (
-                          <Sparkles className="w-3 h-3" />
-                        )}
-                        {analyzingId === business.id ? "Analyse..." : "Analyser"}
-                      </Button>
-                    </div>
-                    {business.auto_keywords && business.auto_keywords.length > 0 ? (
-                      <div className="flex flex-wrap gap-1">
-                        {business.auto_keywords.slice(0, 6).map((keyword, idx) => (
-                          <Badge key={idx} variant="secondary" className="text-xs px-2 py-0.5">
-                            {keyword}
-                          </Badge>
-                        ))}
-                        {business.auto_keywords.length > 6 && (
-                          <Badge variant="outline" className="text-xs px-2 py-0.5">
-                            +{business.auto_keywords.length - 6}
-                          </Badge>
-                        )}
-                      </div>
-                    ) : (
-                      <p className="text-xs text-muted-foreground">
-                        {business.website || business.description 
-                          ? "Cliquez sur Analyser pour extraire les mots-clés" 
-                          : "Ajoutez un site web ou une description"}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Posts Section */}
-                  <div className="mt-4 pt-4 border-t border-border">
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center gap-2">
-                        <FileText className="w-4 h-4 text-muted-foreground" />
-                        <span className="text-sm font-medium text-foreground">Posts ({posts.length})</span>
-                      </div>
-                      <Button variant="ghost" size="sm" className="h-7 gap-1 text-xs">
-                        <PlusCircle className="w-3 h-3" />
-                        Ajouter
-                      </Button>
-                    </div>
-                    {posts.length > 0 ? (
-                      <div className="space-y-2">
-                        {posts.slice(0, 2).map((post) => (
-                          <div key={post.id} className="p-2 bg-muted/50 rounded-lg">
-                            <p className="text-xs font-medium text-foreground line-clamp-1">{post.title || post.question || "Post"}</p>
-                            <p className="text-xs text-muted-foreground">{post.status}</p>
+                    {/* Keywords Popup */}
+                    <Sheet>
+                      <SheetTrigger asChild>
+                        <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs">
+                          <Tag className="w-3.5 h-3.5" />
+                          Mots-clés
+                          {business.auto_keywords && business.auto_keywords.length > 0 && (
+                            <Badge variant="secondary" className="ml-1 h-4 px-1.5 text-[10px]">
+                              {business.auto_keywords.length}
+                            </Badge>
+                          )}
+                        </Button>
+                      </SheetTrigger>
+                      <SheetContent side="bottom" className="max-h-[70vh]">
+                        <SheetHeader>
+                          <SheetTitle className="flex items-center gap-2">
+                            <Tag className="w-5 h-5" />
+                            Mots-clés de {business.name}
+                          </SheetTitle>
+                        </SheetHeader>
+                        <div className="py-4">
+                          <div className="flex items-center justify-between mb-4">
+                            <p className="text-sm text-muted-foreground">
+                              {business.auto_keywords?.length || 0} mots-clés détectés
+                            </p>
+                            <Button 
+                              variant="default" 
+                              size="sm" 
+                              className="gap-1.5"
+                              onClick={() => handleAnalyzeBusiness(business)}
+                              disabled={analyzingId === business.id || (!business.website && !business.description)}
+                            >
+                              {analyzingId === business.id ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                              ) : (
+                                <Sparkles className="w-4 h-4" />
+                              )}
+                              {analyzingId === business.id ? "Analyse..." : "Analyser"}
+                            </Button>
                           </div>
-                        ))}
-                        {posts.length > 2 && (
-                          <p className="text-xs text-primary cursor-pointer hover:underline">+{posts.length - 2} autres posts</p>
-                        )}
-                      </div>
-                    ) : (
-                      <p className="text-xs text-muted-foreground">Aucun post pour le moment</p>
-                    )}
+                          {business.auto_keywords && business.auto_keywords.length > 0 ? (
+                            <div className="flex flex-wrap gap-2">
+                              {business.auto_keywords.map((keyword, idx) => (
+                                <Badge key={idx} variant="secondary" className="text-sm px-3 py-1">
+                                  {keyword}
+                                </Badge>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="text-center py-8">
+                              <Sparkles className="w-12 h-12 mx-auto mb-3 text-muted-foreground/30" />
+                              <p className="text-sm text-muted-foreground">
+                                {business.website || business.description 
+                                  ? "Cliquez sur Analyser pour extraire les mots-clés automatiquement" 
+                                  : "Ajoutez un site web ou une description pour détecter les mots-clés"}
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      </SheetContent>
+                    </Sheet>
+
+                    {/* Posts Popup */}
+                    <Sheet>
+                      <SheetTrigger asChild>
+                        <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs">
+                          <FileText className="w-3.5 h-3.5" />
+                          Posts
+                          {posts.length > 0 && (
+                            <Badge variant="secondary" className="ml-1 h-4 px-1.5 text-[10px]">
+                              {posts.length}
+                            </Badge>
+                          )}
+                        </Button>
+                      </SheetTrigger>
+                      <SheetContent side="bottom" className="max-h-[70vh]">
+                        <SheetHeader>
+                          <SheetTitle className="flex items-center gap-2">
+                            <FileText className="w-5 h-5" />
+                            Posts de {business.name}
+                          </SheetTitle>
+                        </SheetHeader>
+                        <div className="py-4">
+                          <div className="flex items-center justify-between mb-4">
+                            <p className="text-sm text-muted-foreground">{posts.length} posts</p>
+                            <Button variant="default" size="sm" className="gap-1.5">
+                              <PlusCircle className="w-4 h-4" />
+                              Nouveau post
+                            </Button>
+                          </div>
+                          {posts.length > 0 ? (
+                            <div className="space-y-3 max-h-[40vh] overflow-y-auto">
+                              {posts.map((post) => (
+                                <div key={post.id} className="p-3 bg-muted/50 rounded-xl">
+                                  <div className="flex items-start justify-between mb-1">
+                                    <p className="text-sm font-medium text-foreground line-clamp-2">
+                                      {post.title || post.question || "Post sans titre"}
+                                    </p>
+                                    <Badge 
+                                      variant={post.status === "published" ? "default" : "secondary"}
+                                      className="text-[10px] ml-2 flex-shrink-0"
+                                    >
+                                      {post.status}
+                                    </Badge>
+                                  </div>
+                                  {post.content || post.answer ? (
+                                    <p className="text-xs text-muted-foreground line-clamp-2 mt-1">
+                                      {post.content || post.answer}
+                                    </p>
+                                  ) : null}
+                                  <p className="text-[10px] text-muted-foreground mt-2">
+                                    {new Date(post.scheduled_date || post.created_at).toLocaleDateString("fr-FR")}
+                                  </p>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="text-center py-8">
+                              <FileText className="w-12 h-12 mx-auto mb-3 text-muted-foreground/30" />
+                              <p className="text-sm text-muted-foreground">Aucun post pour le moment</p>
+                            </div>
+                          )}
+                        </div>
+                      </SheetContent>
+                    </Sheet>
                   </div>
 
-                  <div className="mt-4 pt-4 border-t border-border flex gap-2">
-                    <Button
-                      variant="default"
-                      className="flex-1 gap-2"
-                      size="sm"
-                      onClick={() =>
-                        navigate(
-                          `/reviews?business=${business.google_place_id ?? business.id}`
-                        )
-                      }
-                    >
-                      <MessageSquare className="w-4 h-4" />
-                      Voir les avis
-                    </Button>
-                  </div>
+                  {/* Main action button */}
+                  <Button
+                    variant="default"
+                    className="w-full gap-2"
+                    size="sm"
+                    onClick={() =>
+                      navigate(
+                        `/reviews?business=${business.google_place_id ?? business.id}`
+                      )
+                    }
+                  >
+                    <MessageSquare className="w-4 h-4" />
+                    Voir les avis
+                  </Button>
                 </div>
               );
             })}
