@@ -10,6 +10,7 @@ import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { ConnectGMBDialog } from "@/components/ConnectGMBDialog";
 import { SyncProgressOverlay } from "@/components/SyncProgressOverlay";
 import { SelectBusinessesDialog } from "@/components/SelectBusinessesDialog";
+import { LowCreditsBanner } from "@/components/LowCreditsBanner";
 
 import { Button } from "@/components/ui/button";
 import { 
@@ -319,6 +320,9 @@ const Dashboard = () => {
             </div>
           </div>
         )}
+
+        {/* Low Credits Banner - show when credits are 0 */}
+        <LowCreditsBanner credits={profile?.credits || 0} pendingReviews={stats.pending} />
 
         {/* Sync Status Card */}
         {syncStatus && (
