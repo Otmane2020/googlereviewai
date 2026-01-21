@@ -49,31 +49,79 @@ export const getMessagingInstance = async () => {
 
 // Get FCM token for push notifications
 export const getFCMToken = async (vapidKey: string): Promise<string | null> => {
+  console.log("[firebase.ts] getFCMToken called");
+  
   const messaging = await getMessagingInstance();
-  if (!messaging) return null;
+  if (!messaging) {
+    console.error("[firebase.ts] Messaging instance is null");
+    return null;
+  }
+  console.log("[firebase.ts] Messaging instance obtained");
 
   try {
     // Request notification permission
+    console.log("[firebase.ts] Checking notification permission...");
     const permission = await Notification.requestPermission();
+    console.log("[firebase.ts] Permission result:", permission);
+    
     if (permission !== "granted") {
-      console.log("Notification permission denied");
+      console.log("[firebase.ts] Notification permission denied");
       return null;
     }
 
-    // Get registration for the firebase messaging service worker
-    const registration = await navigator.serviceWorker.register("/firebase-messaging-sw.js");
+    // Get or register service worker
+    console.log("[firebase.ts] Getting/registering service worker...");
+    let registration: ServiceWorkerRegistration;
+    
+    try {
+      // Try to get existing registration first
+      const existingReg = await navigator.serviceWorker.getRegistration("/firebase-messaging-sw.js");
+      if (existingReg) {
+        console.log("[firebase.ts] Using existing SW registration:", existingReg.scope);
+        registration = existingReg;
+      } else {
+        console.log("[firebase.ts] Registering new SW...");
+        registration = await navigator.serviceWorker.register("/firebase-messaging-sw.js");
+        console.log("[firebase.ts] SW registered:", registration.scope);
+      }
+      
+      // Wait for SW to be ready
+      await navigator.serviceWorker.ready;
+      console.log("[firebase.ts] Service worker ready");
+    } catch (swError) {
+      console.error("[firebase.ts] Service worker error:", swError);
+      throw swError;
+    }
     
     // Get FCM token
+    console.log("[firebase.ts] Getting FCM token with VAPID key...");
     const { getToken } = await import("firebase/messaging");
+    
     const token = await getToken(messaging, {
       vapidKey,
       serviceWorkerRegistration: registration,
     });
 
-    console.log("FCM Token obtained:", token ? "Success" : "Failed");
+    if (token) {
+      console.log("[firebase.ts] ✅ FCM Token obtained successfully!");
+      console.log("[firebase.ts] Token length:", token.length);
+    } else {
+      console.error("[firebase.ts] ❌ getToken returned null/empty");
+    }
+    
     return token;
   } catch (error) {
-    console.error("Error getting FCM token:", error);
+    console.error("[firebase.ts] Error getting FCM token:", error);
+    if (error instanceof Error) {
+      console.error("[firebase.ts] Error name:", error.name);
+      console.error("[firebase.ts] Error message:", error.message);
+      if (error.message.includes("messaging/permission-blocked")) {
+        console.error("[firebase.ts] Notifications are blocked in browser settings");
+      }
+      if (error.message.includes("messaging/token-subscribe-failed")) {
+        console.error("[firebase.ts] FCM subscription failed - check VAPID key");
+      }
+    }
     return null;
   }
 };

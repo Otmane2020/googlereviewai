@@ -86,8 +86,27 @@ export const useFirebasePush = (): UseFirebasePushReturn => {
     setIsLoading(true);
 
     try {
-      // Request permission using our service
-      console.log("[useFirebasePush] Requesting permission...");
+      // Step 1: Check if service worker is registered
+      console.log("[useFirebasePush] Step 1: Checking service worker...");
+      let swRegistration: ServiceWorkerRegistration | null = null;
+      
+      try {
+        swRegistration = await navigator.serviceWorker.getRegistration("/firebase-messaging-sw.js");
+        console.log("[useFirebasePush] SW already registered:", !!swRegistration);
+        
+        if (!swRegistration) {
+          console.log("[useFirebasePush] Registering firebase SW...");
+          swRegistration = await navigator.serviceWorker.register("/firebase-messaging-sw.js");
+          console.log("[useFirebasePush] Firebase SW registered:", swRegistration.scope);
+        }
+      } catch (swError) {
+        console.error("[useFirebasePush] Service worker error:", swError);
+      }
+
+      // Step 2: Request permission
+      console.log("[useFirebasePush] Step 2: Requesting permission...");
+      console.log("[useFirebasePush] Current Notification.permission:", Notification.permission);
+      
       const permissionResult = await BrowserNotificationService.requestPermission();
       console.log("[useFirebasePush] Permission result:", permissionResult);
       setPermission(permissionResult as PushPermissionState);
@@ -97,31 +116,42 @@ export const useFirebasePush = (): UseFirebasePushReturn => {
         return false;
       }
 
-      // Get FCM token
-      console.log("[useFirebasePush] Getting FCM token...");
+      // Step 3: Get FCM token
+      console.log("[useFirebasePush] Step 3: Getting FCM token...");
+      console.log("[useFirebasePush] VAPID key:", VAPID_KEY.substring(0, 20) + "...");
+      
       const { getFCMToken } = await import("@/lib/firebase");
       const fcmToken = await getFCMToken(VAPID_KEY);
       
       if (!fcmToken) {
-        console.error("[useFirebasePush] Failed to get FCM token");
+        console.error("[useFirebasePush] Failed to get FCM token - this usually means:");
+        console.error("  1. The VAPID key doesn't match Firebase console");
+        console.error("  2. The service worker failed to register");
+        console.error("  3. Firebase is blocked by the browser");
+        
         // Show test notification to confirm browser notifications work
-        BrowserNotificationService.showNotification("Test de notification", {
-          body: "Les notifications navigateur fonctionnent, mais FCM a échoué.",
+        BrowserNotificationService.showNotification("Configuration en cours...", {
+          body: "Les notifications navigateur fonctionnent. Configuration FCM en cours...",
         });
         return false;
       }
 
-      console.log("[useFirebasePush] FCM Token obtained:", fcmToken.substring(0, 30) + "...");
+      console.log("[useFirebasePush] FCM Token obtained successfully!");
+      console.log("[useFirebasePush] Token preview:", fcmToken.substring(0, 50) + "...");
 
-      // Delete old subscriptions first
-      console.log("[useFirebasePush] Cleaning old subscriptions...");
-      await supabase
+      // Step 4: Delete old subscriptions
+      console.log("[useFirebasePush] Step 4: Cleaning old subscriptions...");
+      const { error: deleteError } = await supabase
         .from("push_subscriptions")
         .delete()
         .eq("user_id", user.id);
+      
+      if (deleteError) {
+        console.warn("[useFirebasePush] Delete warning (non-critical):", deleteError);
+      }
 
-      // Store FCM token in database
-      console.log("[useFirebasePush] Saving new subscription...");
+      // Step 5: Store new FCM token
+      console.log("[useFirebasePush] Step 5: Saving new subscription...");
       const { error } = await supabase
         .from("push_subscriptions")
         .insert({
@@ -133,10 +163,11 @@ export const useFirebasePush = (): UseFirebasePushReturn => {
 
       if (error) {
         console.error("[useFirebasePush] Database error:", error);
+        console.error("[useFirebasePush] Error details:", JSON.stringify(error, null, 2));
         return false;
       }
 
-      console.log("[useFirebasePush] ✅ Subscription saved successfully");
+      console.log("[useFirebasePush] ✅ Subscription saved successfully!");
       setIsSubscribed(true);
       
       // Show confirmation notification
@@ -146,7 +177,12 @@ export const useFirebasePush = (): UseFirebasePushReturn => {
       
       return true;
     } catch (error) {
-      console.error("[useFirebasePush] Error:", error);
+      console.error("[useFirebasePush] Unexpected error:", error);
+      console.error("[useFirebasePush] Error details:", {
+        name: error instanceof Error ? error.name : "Unknown",
+        message: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+      });
       return false;
     } finally {
       setIsLoading(false);
