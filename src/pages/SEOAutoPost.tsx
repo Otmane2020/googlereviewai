@@ -191,7 +191,23 @@ const SEOAutoPost = () => {
         })
         .eq("id", selectedBusiness.id);
 
-      // Generate 30-day plan
+      // Generate 30 article titles
+      const { data: titlesData, error: titlesError } = await supabase.functions.invoke("generate-seo-content", {
+        body: {
+          type: "article_titles",
+          businessName: selectedBusiness.name,
+          businessDescription: analysisData?.description || selectedBusiness.description || selectedBusiness.name,
+          location: selectedBusiness.address || "France",
+          keywords: keywords,
+          count: 30,
+        },
+      });
+
+      if (titlesError) throw titlesError;
+
+      const titles = titlesData?.titles || [];
+
+      // Generate 30-day plan with titles
       const today = startOfToday();
       const planItems: any[] = [];
 
@@ -199,15 +215,17 @@ const SEOAutoPost = () => {
         const date = addDays(today, i);
         const dateStr = format(date, "yyyy-MM-dd");
         const keyword = keywords[i % keywords.length] || selectedBusiness.name;
+        const title = titles[i] || `Article SEO ${i + 1}`;
 
-        // Add Q&A for AEO
+        // Add SEO article
         planItems.push({
           user_id: user!.id,
           business_id: selectedBusiness.id,
-          content_type: "aeo_qa",
+          content_type: "seo_article",
           scheduled_date: dateStr,
           status: "pending",
           keyword_used: keyword,
+          title: title,
         });
       }
 
@@ -232,7 +250,7 @@ const SEOAutoPost = () => {
 
       toast({ 
         title: "Plan généré !", 
-        description: `30 jours de Q&A planifiés avec ${keywords.length} mots-clés détectés` 
+        description: `30 titres d'articles planifiés avec ${keywords.length} mots-clés détectés` 
       });
     } catch (error: any) {
       console.error("Error generating plan:", error);
@@ -253,46 +271,49 @@ const SEOAutoPost = () => {
         .update({ status: "generating" })
         .eq("id", item.id);
 
+      // Refresh UI
+      await fetchScheduledContent(selectedBusiness!.id);
+
       const { data, error } = await supabase.functions.invoke("generate-seo-content", {
         body: {
-          type: "aeo_questions",
+          type: "seo_article",
           businessName: selectedBusiness?.name,
           businessDescription: selectedBusiness?.description || selectedBusiness?.name,
           location: selectedBusiness?.address || "France",
           keywords: [item.keyword_used],
-          singleQuestion: true,
+          title: item.title,
         },
       });
 
       if (error) throw error;
 
-      const qa = data?.questions?.[0];
+      const article = data?.article;
       
       await supabase
         .from("scheduled_content")
         .update({ 
           status: "generated",
-          question: qa?.question || null,
-          answer: qa?.answer || null,
-          title: qa?.question || null,
+          content: article?.content || null,
+          title: article?.title || item.title,
         })
         .eq("id", item.id);
 
       await fetchScheduledContent(selectedBusiness!.id);
-      toast({ title: "Q&A généré !" });
+      toast({ title: "Article généré !" });
     } catch (error: any) {
       await supabase
         .from("scheduled_content")
         .update({ status: "failed", error_message: error.message })
         .eq("id", item.id);
       
+      await fetchScheduledContent(selectedBusiness!.id);
       toast({ title: "Erreur", description: error.message, variant: "destructive" });
     }
   };
 
   const publishToGMB = async (item: ScheduledContent) => {
-    if (!item.question || !item.answer) {
-      toast({ title: "Erreur", description: "Le Q&A doit d'abord être généré", variant: "destructive" });
+    if (!item.content) {
+      toast({ title: "Erreur", description: "L'article doit d'abord être généré", variant: "destructive" });
       return;
     }
 
@@ -308,7 +329,7 @@ const SEOAutoPost = () => {
 
     setPublishing(item.id);
     try {
-      const { data, error } = await supabase.functions.invoke("publish-gmb-qa", {
+      const { data, error } = await supabase.functions.invoke("publish-gmb-post", {
         body: {
           content_id: item.id,
           provider_token: providerToken,
@@ -320,7 +341,7 @@ const SEOAutoPost = () => {
       await fetchScheduledContent(selectedBusiness!.id);
       toast({ 
         title: "Publié sur Google !", 
-        description: "Le Q&A a été publié sur votre fiche Google My Business" 
+        description: "L'article a été publié sur votre fiche Google My Business" 
       });
     } catch (error: any) {
       console.error("Error publishing:", error);
@@ -560,57 +581,77 @@ const SEOAutoPost = () => {
                   {next30Days.map((date) => {
                     const dateStr = format(date, "yyyy-MM-dd");
                     const dayContent = scheduledContent.find(
-                      c => c.scheduled_date === dateStr && c.content_type === "aeo_qa"
+                      c => c.scheduled_date === dateStr && c.content_type === "seo_article"
                     );
                     const isToday = isSameDay(date, today);
 
                     return (
-                      <div
+                      <Card
                         key={dateStr}
-                        className={`p-2 rounded-lg border text-center transition-all ${
-                          isToday 
-                            ? "border-primary bg-primary/5 ring-2 ring-primary/20" 
-                            : "border-border bg-card"
-                        }`}
-                        onClick={() => dayContent?.status === "pending" && generateContentForDay(dayContent)}
+                        className={`p-2 cursor-pointer transition-all ${
+                          isToday ? "ring-2 ring-primary" : ""
+                        } ${dayContent?.status === "published" ? "bg-secondary/20" : ""}`}
+                        onClick={() => {
+                          if (dayContent) {
+                            handlePreviewArticle(dayContent);
+                          }
+                        }}
                       >
-                        <p className="text-[10px] text-muted-foreground">
-                          {format(date, "EEE", { locale: fr })}
-                        </p>
-                        <p className={`text-sm font-bold ${isToday ? "text-primary" : "text-foreground"}`}>
-                          {format(date, "d")}
-                        </p>
-                        <div className="mt-1 h-5 flex items-center justify-center">
+                        <div className="text-center">
+                          <p className="text-[10px] text-muted-foreground uppercase">
+                            {format(date, "EEE", { locale: fr })}
+                          </p>
+                          <p className={`text-lg font-bold ${isToday ? "text-primary" : "text-foreground"}`}>
+                            {format(date, "d")}
+                          </p>
                           {dayContent ? (
-                            <div className="cursor-pointer">
-                              {getStatusBadge(dayContent.status, true)}
+                            <div className="mt-1">
+                              {dayContent.status === "published" && <Check className="w-4 h-4 mx-auto text-secondary" />}
+                              {dayContent.status === "generated" && <Sparkles className="w-4 h-4 mx-auto text-primary" />}
+                              {dayContent.status === "pending" && <Clock className="w-4 h-4 mx-auto text-muted-foreground" />}
+                              {dayContent.status === "generating" && <Loader2 className="w-4 h-4 mx-auto text-primary animate-spin" />}
+                              {(dayContent.status === "failed" || dayContent.status === "error") && <AlertCircle className="w-4 h-4 mx-auto text-destructive" />}
                             </div>
                           ) : (
-                            <span className="text-[10px] text-muted-foreground">—</span>
+                            <div className="mt-1 h-4" />
                           )}
                         </div>
-                      </div>
+                      </Card>
                     );
                   })}
+                </div>
+
+                {/* Legend */}
+                <div className="flex flex-wrap gap-4 mt-4 text-xs text-muted-foreground">
+                  <div className="flex items-center gap-1">
+                    <Clock className="w-3 h-3" /> Planifié
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Sparkles className="w-3 h-3 text-primary" /> Prêt
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Check className="w-3 h-3 text-secondary" /> Publié
+                  </div>
                 </div>
               </TabsContent>
 
               {/* Articles Tab - Mobile optimized */}
               <TabsContent value="articles" className="mt-3 space-y-2">
-                {scheduledContent.filter(c => c.question || c.answer).length === 0 ? (
+                {scheduledContent.filter(c => c.content_type === "seo_article").length === 0 ? (
                   <Card className="p-5 text-center">
-                    <Sparkles className="w-8 h-8 mx-auto mb-2 text-muted-foreground/30" />
+                    <FileText className="w-8 h-8 mx-auto mb-2 text-muted-foreground/30" />
+                    <h3 className="text-sm font-medium text-foreground mb-1">Aucun article planifié</h3>
                     <p className="text-xs text-muted-foreground">
-                      Aucun contenu généré. Cliquez sur une date pour générer.
+                      Cliquez sur "Analyser & Planifier" pour générer 30 titres d'articles
                     </p>
                   </Card>
                 ) : (
                   scheduledContent
-                    .filter(c => c.question || c.answer)
+                    .filter(c => c.content_type === "seo_article")
                     .map((item) => (
                       <Card 
                         key={item.id} 
-                        className="active:bg-muted/50 transition-colors"
+                        className="active:bg-muted/50 transition-colors cursor-pointer"
                         onClick={() => handlePreviewArticle(item)}
                       >
                         <CardContent className="p-3">
@@ -653,12 +694,10 @@ const SEOAutoPost = () => {
                             </div>
                           </div>
                           <div className="flex items-center gap-2">
-                            {!isSubscribed && <Lock className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />}
-                            {item.question && (
-                              <p className={`font-medium text-xs ${isSubscribed ? "text-foreground" : "text-muted-foreground"} line-clamp-2`}>
-                                {isSubscribed ? item.question : "Contenu réservé aux abonnés"}
-                              </p>
-                            )}
+                            {!isSubscribed && item.status !== "pending" && <Lock className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />}
+                            <p className={`font-medium text-xs ${isSubscribed || item.status === "pending" ? "text-foreground" : "text-muted-foreground"} line-clamp-2`}>
+                              {item.title || "Article en attente"}
+                            </p>
                           </div>
                           {item.keyword_used && (
                             <span className="inline-block mt-1.5 text-[10px] bg-muted px-2 py-0.5 rounded-full">

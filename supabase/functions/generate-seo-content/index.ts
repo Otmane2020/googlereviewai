@@ -20,7 +20,9 @@ serve(async (req) => {
       sourceUrl, 
       keywords, 
       singleQuestion,
-      gmbDescription // GMB profile description
+      gmbDescription, // GMB profile description
+      title, // For seo_article type
+      count, // For article_titles type
     } = await req.json();
     
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
@@ -61,6 +63,36 @@ Génère 30 mots-clés variés incluant:
 - Services/produits spécifiques mentionnés
 - Variantes longue traîne`;
 
+    } else if (type === "article_titles") {
+      // Generate 30 article titles
+      const numTitles = count || 30;
+      systemPrompt = `Tu es un expert en SEO et marketing de contenu. Tu crées des titres d'articles optimisés pour le référencement local et l'engagement.
+
+Règles pour les titres:
+- Titres accrocheurs et optimisés SEO
+- Incluent des mots-clés naturellement
+- Variés: guides, comparatifs, conseils, actualités locales
+- Longueur: 50-70 caractères idéalement
+- Pertinents pour l'activité et la localisation`;
+
+      userPrompt = `Génère ${numTitles} titres d'articles SEO uniques pour:
+Entreprise: ${businessName}
+Description: ${fullContext}
+Localisation: ${location}
+${keywords?.length ? `Mots-clés: ${keywords.join(", ")}` : ""}
+
+Types de titres à inclure:
+- Guides pratiques ("Comment...", "Guide complet...")
+- Conseils et astuces ("5 conseils pour...", "Les meilleures...")
+- Questions fréquentes ("Pourquoi...", "Quand...")
+- Actualités locales ("Nouveau à ${location}...")
+- Comparatifs ("vs", "avantages de...")
+
+IMPORTANT: Réponds UNIQUEMENT en JSON valide:
+{
+  "titles": ["Titre 1", "Titre 2", "Titre 3", ...]
+}`;
+
     } else if (type === "seo_article") {
       systemPrompt = `Tu es un expert en SEO et rédaction web. Tu crées des articles optimisés pour le référencement local.
       
@@ -77,21 +109,23 @@ Règles importantes:
 Entreprise: ${businessName}
 Description: ${fullContext}
 Localisation: ${location}
+${title ? `Titre de l'article: ${title}` : ""}
 ${sourceUrl ? `URL source: ${sourceUrl}` : ""}
 ${keywords?.length ? `Mots-clés: ${keywords.join(", ")}` : ""}
 
 Génère un article complet avec:
-1. Titre accrocheur (H1)
+1. ${title ? `Garde le titre: "${title}"` : "Titre accrocheur (H1)"}
 2. Meta description (max 155 caractères)
 3. Contenu structuré en markdown
 4. Conclusion avec CTA
 
 Réponds en JSON:
 {
-  "title": "Titre de l'article",
-  "meta_description": "Description meta de 155 caractères max",
-  "content": "Contenu complet en markdown",
-  "keywords": ["mot-clé utilisé 1", "mot-clé utilisé 2"]
+  "article": {
+    "title": "${title || "Titre de l'article"}",
+    "meta_description": "Description meta de 155 caractères max",
+    "content": "Contenu complet en markdown avec H2, H3, listes..."
+  }
 }`;
 
     } else if (type === "aeo_questions") {
@@ -181,33 +215,52 @@ IMPORTANT: Réponds uniquement en JSON valide:
         console.error("[generate-seo-content] Parse error:", e);
         result = { description: "", keywords: [], categories: [] };
       }
+    } else if (type === "article_titles") {
+      try {
+        const jsonMatch = content.match(/\{[\s\S]*"titles"[\s\S]*\}/);
+        if (jsonMatch) {
+          const parsed = JSON.parse(jsonMatch[0]);
+          result = { titles: parsed.titles || [] };
+          console.log(`[generate-seo-content] Generated ${result.titles.length} titles`);
+        } else {
+          // Fallback: try to extract titles from lines
+          const lines = content.split('\n').filter((l: string) => l.trim().length > 10);
+          result = { titles: lines.slice(0, 30) };
+        }
+      } catch (e) {
+        console.error("[generate-seo-content] Parse error:", e);
+        result = { titles: [], raw: content };
+      }
     } else if (type === "seo_article") {
       try {
-        const jsonMatch = content.match(/\{[\s\S]*\}/);
+        const jsonMatch = content.match(/\{[\s\S]*"article"[\s\S]*\}/);
         if (jsonMatch) {
           const parsed = JSON.parse(jsonMatch[0]);
           result = {
-            title: parsed.title || businessName,
-            meta_description: parsed.meta_description?.slice(0, 160) || "",
-            content: parsed.content || content,
-            keywords: parsed.keywords || keywords || [],
+            article: {
+              title: parsed.article?.title || businessName,
+              meta_description: parsed.article?.meta_description?.slice(0, 160) || "",
+              content: parsed.article?.content || content,
+            }
           };
         } else {
           // Fallback: extract from markdown
           const titleMatch = content.match(/^#\s+(.+)$/m);
           result = {
-            title: titleMatch ? titleMatch[1].trim() : businessName,
-            meta_description: "",
-            content: content,
-            keywords: keywords || [],
+            article: {
+              title: titleMatch ? titleMatch[1].trim() : businessName,
+              meta_description: "",
+              content: content,
+            }
           };
         }
       } catch (e) {
         console.error("[generate-seo-content] Parse error:", e);
         result = {
-          title: businessName,
-          content: content,
-          keywords: keywords || [],
+          article: {
+            title: businessName,
+            content: content,
+          }
         };
       }
     } else if (type === "aeo_questions") {
