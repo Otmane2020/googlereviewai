@@ -46,6 +46,15 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 
+interface ReviewCriteria {
+  rooms?: number;
+  service?: number;
+  location?: number;
+  cleanliness?: number;
+  food?: number;
+  [key: string]: number | undefined;
+}
+
 interface Review {
   id: number;
   review_id: string;
@@ -56,9 +65,27 @@ interface Review {
   review_date: string;
   replied: boolean;
   ai_response: string | null;
-  google_reply: string | null; // Existing Google response (manual/human)
+  google_reply: string | null;
   published_to_google: boolean | null;
+  photos?: unknown; // JSON from DB
+  criteria?: unknown; // JSON from DB
 }
+
+// Helper to safely parse photos array
+const parsePhotos = (photos: unknown): string[] => {
+  if (Array.isArray(photos)) {
+    return photos.filter((p): p is string => typeof p === "string");
+  }
+  return [];
+};
+
+// Helper to safely parse criteria object
+const parseCriteria = (criteria: unknown): ReviewCriteria | null => {
+  if (criteria && typeof criteria === "object" && !Array.isArray(criteria)) {
+    return criteria as ReviewCriteria;
+  }
+  return null;
+};
 
 interface Business {
   id: string;
@@ -802,6 +829,79 @@ const Reviews = () => {
                     {review.comment && (
                       <p className="text-sm text-muted-foreground mt-2 line-clamp-2">{review.comment}</p>
                     )}
+
+                    {/* Review Photos */}
+                    {(() => {
+                      const photos = parsePhotos(review.photos);
+                      if (photos.length === 0) return null;
+                      return (
+                        <div className="flex gap-2 mt-3 overflow-x-auto pb-1">
+                          {photos.slice(0, 4).map((photo, idx) => (
+                            <a
+                              key={idx}
+                              href={photo}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex-shrink-0"
+                            >
+                              <img
+                                src={photo}
+                                alt={`Photo ${idx + 1}`}
+                                className="w-16 h-16 rounded-lg object-cover border border-border hover:opacity-80 transition-opacity"
+                              />
+                            </a>
+                          ))}
+                          {photos.length > 4 && (
+                            <div className="w-16 h-16 rounded-lg bg-muted flex items-center justify-center text-sm text-muted-foreground font-medium flex-shrink-0">
+                              +{photos.length - 4}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })()}
+
+                    {/* Criteria/Aspects (for hotels, restaurants, etc.) */}
+                    {(() => {
+                      const criteria = parseCriteria(review.criteria);
+                      if (!criteria || Object.keys(criteria).length === 0) return null;
+                      const labelMap: Record<string, string> = {
+                        rooms: "Chambres",
+                        service: "Service",
+                        location: "Emplacement",
+                        cleanliness: "Propreté",
+                        food: "Cuisine",
+                        value: "Rapport qualité-prix",
+                        atmosphere: "Ambiance",
+                        amenities: "Équipements",
+                      };
+                      return (
+                        <div className="flex flex-wrap gap-2 mt-3">
+                          {Object.entries(criteria).map(([key, value]) => {
+                            if (!value) return null;
+                            return (
+                              <div
+                                key={key}
+                                className="flex items-center gap-1.5 px-2 py-1 bg-muted rounded-full text-xs"
+                              >
+                                <span className="text-muted-foreground capitalize">
+                                  {labelMap[key] || key}:
+                                </span>
+                                <div className="flex">
+                                  {[...Array(5)].map((_, i) => (
+                                    <Star
+                                      key={i}
+                                      className={`w-2.5 h-2.5 ${
+                                        i < value ? "text-accent fill-accent" : "text-muted-foreground/30"
+                                      }`}
+                                    />
+                                  ))}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      );
+                    })()}
 
                     {/* Google Reply (existing manual response) */}
                     {review.google_reply && !review.ai_response && (

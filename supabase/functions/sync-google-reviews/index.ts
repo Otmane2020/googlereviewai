@@ -290,6 +290,43 @@ serve(async (req) => {
 
                 reviewIdsInPage.push(canonicalReviewId);
                 
+                // Extract photos from review (media array from GMB API)
+                const photos: string[] = [];
+                if (review.reviewReply?.media) {
+                  for (const media of review.reviewReply.media) {
+                    if (media.googleUrl) photos.push(media.googleUrl);
+                  }
+                }
+                // Also check for reviewer media (photos attached by the reviewer)
+                if (review.reviewer?.profilePhotoUrl) {
+                  // This is the reviewer's profile photo, not review photos
+                }
+                // GMB API stores review media in a different field
+                if (review.media) {
+                  for (const media of review.media) {
+                    if (media.googleUrl) photos.push(media.googleUrl);
+                    else if (media.thumbnailUrl) photos.push(media.thumbnailUrl);
+                  }
+                }
+                
+                // Extract criteria/aspects (for hotels, restaurants, etc.)
+                // GMB API provides these as reviewReply.reviewReplyMetrics or in the review itself
+                let criteria: Record<string, number> | null = null;
+                if (review.reviewRating) {
+                  // Some categories have specific rating aspects
+                  criteria = {};
+                  // Common aspects from GMB: rooms, service, location, cleanliness, food, etc.
+                  for (const [key, value] of Object.entries(review.reviewRating)) {
+                    if (key !== 'overallRating' && typeof value === 'string') {
+                      const aspectRating = { "ONE": 1, "TWO": 2, "THREE": 3, "FOUR": 4, "FIVE": 5 }[value as string];
+                      if (aspectRating) {
+                        criteria[key] = aspectRating;
+                      }
+                    }
+                  }
+                  if (Object.keys(criteria).length === 0) criteria = null;
+                }
+                
                 // For existing reviews, we preserve notified status by setting it to true
                 // This prevents re-triggering notifications for old reviews
                 reviewsToUpsert.push({
@@ -302,6 +339,8 @@ serve(async (req) => {
                   review_date: review.createTime || new Date().toISOString(),
                   replied: !!review.reviewReply,
                   google_reply: review.reviewReply?.comment || null,
+                  photos: photos.length > 0 ? photos : [],
+                  criteria: criteria,
                 });
                 
                 // Track this review ID from Google
