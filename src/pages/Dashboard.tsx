@@ -260,8 +260,7 @@ const Dashboard = () => {
             setGoogleBusinessesForSelection(businessResult.google_businesses || []);
             setMaxBusinessesLimit(businessResult.max_businesses || 1);
             setShowSelectBusinessesDialog(true);
-            // Don't mark as synced yet - wait for selection
-            hasSyncedRef.current = false;
+            // Keep hasSyncedRef true to prevent loop - selection will handle the rest
             return;
           }
           
