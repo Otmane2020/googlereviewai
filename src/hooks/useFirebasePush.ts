@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { BrowserNotificationService } from "@/lib/notificationService";
 
 type PushPermissionState = "default" | "granted" | "denied" | "unsupported";
 
@@ -26,18 +27,20 @@ export const useFirebasePush = (): UseFirebasePushReturn => {
   // Check support and subscription status
   useEffect(() => {
     const checkSupport = async () => {
-      const supported = 
-        typeof window !== "undefined" &&
-        "serviceWorker" in navigator &&
-        "PushManager" in window &&
-        "Notification" in window;
+      const supported = BrowserNotificationService.isSupported() && "PushManager" in window;
 
-      console.log("[useFirebasePush] Checking support:", { supported });
+      console.log("[useFirebasePush] Support check:", { 
+        supported, 
+        hasNotification: "Notification" in window,
+        hasServiceWorker: "serviceWorker" in navigator,
+        hasPushManager: "PushManager" in window
+      });
+      
       setIsSupported(supported);
 
       if (supported) {
-        const currentPermission = Notification.permission as PushPermissionState;
-        console.log("[useFirebasePush] Permission status:", currentPermission);
+        const currentPermission = BrowserNotificationService.getPermission() as PushPermissionState;
+        console.log("[useFirebasePush] Current permission:", currentPermission);
         setPermission(currentPermission);
         
         // Check if user has FCM token in database
@@ -54,7 +57,7 @@ export const useFirebasePush = (): UseFirebasePushReturn => {
           }
           
           const hasSubscription = data && data.length > 0;
-          console.log("[useFirebasePush] Has subscription:", hasSubscription, data);
+          console.log("[useFirebasePush] Has subscription:", hasSubscription);
           setIsSubscribed(hasSubscription);
         }
       } else {
@@ -67,7 +70,8 @@ export const useFirebasePush = (): UseFirebasePushReturn => {
 
   // Subscribe to FCM
   const subscribe = useCallback(async (): Promise<boolean> => {
-    console.log("[useFirebasePush] subscribe called", { isSupported, user: !!user });
+    console.log("[useFirebasePush] Subscribe called");
+    console.log("[useFirebasePush] State:", { isSupported, hasUser: !!user });
     
     if (!isSupported) {
       console.error("[useFirebasePush] Push not supported");
@@ -75,70 +79,74 @@ export const useFirebasePush = (): UseFirebasePushReturn => {
     }
     
     if (!user) {
-      console.error("[useFirebasePush] No user");
+      console.error("[useFirebasePush] No user logged in");
       return false;
     }
 
     setIsLoading(true);
 
     try {
-      // First, request notification permission explicitly
-      console.log("[useFirebasePush] Requesting notification permission...");
-      const permissionResult = await Notification.requestPermission();
+      // Request permission using our service
+      console.log("[useFirebasePush] Requesting permission...");
+      const permissionResult = await BrowserNotificationService.requestPermission();
       console.log("[useFirebasePush] Permission result:", permissionResult);
       setPermission(permissionResult as PushPermissionState);
       
       if (permissionResult !== "granted") {
-        console.error("[useFirebasePush] Permission denied by user");
+        console.error("[useFirebasePush] Permission not granted:", permissionResult);
         return false;
       }
 
-      console.log("[useFirebasePush] Importing firebase...");
+      // Get FCM token
+      console.log("[useFirebasePush] Getting FCM token...");
       const { getFCMToken } = await import("@/lib/firebase");
-      
-      console.log("[useFirebasePush] Getting FCM token with VAPID key...");
       const fcmToken = await getFCMToken(VAPID_KEY);
       
       if (!fcmToken) {
-        console.error("[useFirebasePush] Failed to get FCM token - check browser console for details");
+        console.error("[useFirebasePush] Failed to get FCM token");
+        // Show test notification to confirm browser notifications work
+        BrowserNotificationService.showNotification("Test de notification", {
+          body: "Les notifications navigateur fonctionnent, mais FCM a échoué.",
+        });
         return false;
       }
 
       console.log("[useFirebasePush] FCM Token obtained:", fcmToken.substring(0, 30) + "...");
 
-      // Delete old subscriptions first to avoid conflicts
-      console.log("[useFirebasePush] Deleting old subscriptions...");
-      const { error: deleteError } = await supabase
+      // Delete old subscriptions first
+      console.log("[useFirebasePush] Cleaning old subscriptions...");
+      await supabase
         .from("push_subscriptions")
         .delete()
         .eq("user_id", user.id);
-      
-      if (deleteError) {
-        console.error("[useFirebasePush] Delete error:", deleteError);
-      }
 
       // Store FCM token in database
-      console.log("[useFirebasePush] Inserting new subscription...");
+      console.log("[useFirebasePush] Saving new subscription...");
       const { error } = await supabase
         .from("push_subscriptions")
         .insert({
           user_id: user.id,
-          endpoint: fcmToken, // Store FCM token as endpoint
-          p256dh: "fcm", // Marker to identify FCM tokens
+          endpoint: fcmToken,
+          p256dh: "fcm",
           auth: "fcm",
         });
 
       if (error) {
-        console.error("[useFirebasePush] Insert error:", error);
+        console.error("[useFirebasePush] Database error:", error);
         return false;
       }
 
-      console.log("[useFirebasePush] FCM token stored successfully");
+      console.log("[useFirebasePush] ✅ Subscription saved successfully");
       setIsSubscribed(true);
+      
+      // Show confirmation notification
+      BrowserNotificationService.showNotification("Notifications activées ✅", {
+        body: "Vous recevrez les alertes même quand l'app est fermée",
+      });
       
       return true;
     } catch (error) {
-      console.error("[useFirebasePush] Error subscribing to FCM:", error);
+      console.error("[useFirebasePush] Error:", error);
       return false;
     } finally {
       setIsLoading(false);
