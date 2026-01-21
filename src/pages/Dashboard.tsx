@@ -150,6 +150,24 @@ const Dashboard = () => {
   // Use subscription verification hook
   const { loading: subscriptionLoading } = useRequireSubscription();
 
+  // Check for pending business selection from Auth flow (immediate popup)
+  useEffect(() => {
+    const pendingSelection = sessionStorage.getItem("pending_business_selection");
+    if (pendingSelection && user) {
+      try {
+        const { businesses, maxBusinesses } = JSON.parse(pendingSelection);
+        setGoogleBusinessesForSelection(businesses);
+        setMaxBusinessesLimit(maxBusinesses);
+        setShowSelectBusinessesDialog(true);
+        sessionStorage.removeItem("pending_business_selection");
+        console.log("[Dashboard] Showing immediate business selection from Auth flow");
+      } catch (e) {
+        console.error("[Dashboard] Failed to parse pending selection:", e);
+        sessionStorage.removeItem("pending_business_selection");
+      }
+    }
+  }, [user]);
+
   // Fetch data when subscription is verified
   useEffect(() => {
     if (!subscriptionLoading && user) {
@@ -158,8 +176,15 @@ const Dashboard = () => {
   }, [subscriptionLoading, user, fetchData]);
 
   // Auto-sync on first login only (silent after first time)
+  // Skip if selection dialog is already shown from Auth flow
   useEffect(() => {
     const autoSync = async () => {
+      // Skip if already showing selection from Auth flow
+      if (showSelectBusinessesDialog) {
+        console.log("[Dashboard] Skipping auto-sync, selection dialog already shown");
+        return;
+      }
+      
       if (!loading && user && session?.provider_token && !hasSyncedRef.current) {
         hasSyncedRef.current = true;
         
@@ -167,7 +192,7 @@ const Dashboard = () => {
         const hasInitialSynced = localStorage.getItem(`starlinko_initial_sync_${user.id}`);
         
         if (!hasInitialSynced) {
-          // First time: show animation
+          // First time: show animation (only if not already synced from Auth)
           setShowSyncProgress(true);
           setSyncStep("businesses");
           const businessResult = await syncBusinesses();
@@ -205,7 +230,7 @@ const Dashboard = () => {
       }
     };
     autoSync();
-  }, [loading, user, session, syncBusinesses, syncReviews, fetchData]);
+  }, [loading, user, session, syncBusinesses, syncReviews, fetchData, showSelectBusinessesDialog]);
   
   // Handle successful business selection
   const handleBusinessSelectionSuccess = async () => {

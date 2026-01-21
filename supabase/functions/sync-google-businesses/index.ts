@@ -134,92 +134,96 @@ serve(async (req) => {
     const allLocations: any[] = [];
     const accountMap: Record<string, string> = {}; // locationId -> accountName
 
-    // Fetch locations for each account
-    for (const account of accounts) {
+    // Fetch locations for all accounts in PARALLEL
+    const locationPromises = accounts.map(async (account: any) => {
       const accountName = account.name; // Format: accounts/{accountId}
       
-      const locationsResponse = await fetch(
-        `https://mybusinessbusinessinformation.googleapis.com/v1/${accountName}/locations?readMask=name,title,storefrontAddress,websiteUri,phoneNumbers,profile,metadata`,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      );
+      try {
+        const locationsResponse = await fetch(
+          `https://mybusinessbusinessinformation.googleapis.com/v1/${accountName}/locations?readMask=name,title,storefrontAddress,websiteUri,phoneNumbers,profile,metadata`,
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        );
 
-      if (locationsResponse.ok) {
-        const locationsData = await locationsResponse.json();
-        const locations = locationsData.locations || [];
-        locations.forEach((loc: any) => {
-          allLocations.push(loc);
-          accountMap[loc.name] = accountName;
-        });
-      } else {
-        console.error(`Failed to fetch locations for ${accountName}:`, await locationsResponse.text());
+        if (locationsResponse.ok) {
+          const locationsData = await locationsResponse.json();
+          return { accountName, locations: locationsData.locations || [] };
+        } else {
+          console.error(`Failed to fetch locations for ${accountName}:`, await locationsResponse.text());
+          return { accountName, locations: [] };
+        }
+      } catch (e) {
+        console.error(`Error fetching locations for ${accountName}:`, e);
+        return { accountName, locations: [] };
       }
+    });
+
+    const locationsResults = await Promise.all(locationPromises);
+    
+    for (const result of locationsResults) {
+      result.locations.forEach((loc: any) => {
+        allLocations.push(loc);
+        accountMap[loc.name] = result.accountName;
+      });
     }
 
-    // Fetch media (profile photo) and posts for each location
+    // Fetch media and posts for each location in PARALLEL
     const mediaMap: Record<string, string> = {}; // google_place_id -> profile_image_url
     const postsMap: Record<string, any[]> = {}; // google_place_id -> posts[]
     
-    for (const location of allLocations) {
+    const mediaAndPostsPromises = allLocations.map(async (location: any) => {
       const googlePlaceId = location.name.split("/").pop();
       const accountName = accountMap[location.name];
       
-      if (accountName) {
+      if (!accountName) return { googlePlaceId, media: null, posts: [] };
+      
+      // Fetch media and posts in parallel for this location
+      const [mediaResult, postsResult] = await Promise.all([
         // Fetch profile photo
-        try {
-          const mediaResponse = await fetch(
-            `https://mybusiness.googleapis.com/v4/${accountName}/locations/${googlePlaceId}/media`,
-            {
-              headers: {
-                Authorization: `Bearer ${accessToken}`,
-              },
-            }
-          );
-          
-          if (mediaResponse.ok) {
-            const mediaData = await mediaResponse.json();
-            const mediaItems = mediaData.mediaItems || [];
-            
-            const profilePhoto = mediaItems.find((m: any) => 
-              m.locationAssociation?.category === "PROFILE"
-            ) || mediaItems.find((m: any) => 
-              m.locationAssociation?.category === "COVER"
-            ) || mediaItems[0];
-            
-            if (profilePhoto?.googleUrl) {
-              mediaMap[googlePlaceId] = profilePhoto.googleUrl;
-              console.log(`Found profile image for ${googlePlaceId}`);
-            }
+        fetch(
+          `https://mybusiness.googleapis.com/v4/${accountName}/locations/${googlePlaceId}/media`,
+          { headers: { Authorization: `Bearer ${accessToken}` } }
+        ).then(async (res) => {
+          if (res.ok) {
+            const data = await res.json();
+            const items = data.mediaItems || [];
+            const photo = items.find((m: any) => m.locationAssociation?.category === "PROFILE") ||
+                          items.find((m: any) => m.locationAssociation?.category === "COVER") ||
+                          items[0];
+            return photo?.googleUrl || null;
           }
-        } catch (e) {
-          console.error(`Failed to fetch media for ${googlePlaceId}:`, e);
-        }
-
-        // Fetch existing GMB posts
-        try {
-          const postsResponse = await fetch(
-            `https://mybusiness.googleapis.com/v4/${accountName}/locations/${googlePlaceId}/localPosts`,
-            {
-              headers: {
-                Authorization: `Bearer ${accessToken}`,
-              },
-            }
-          );
-          
-          if (postsResponse.ok) {
-            const postsData = await postsResponse.json();
-            const posts = postsData.localPosts || [];
-            postsMap[googlePlaceId] = posts;
-            console.log(`Found ${posts.length} posts for ${googlePlaceId}`);
-          } else {
-            console.log(`No posts found for ${googlePlaceId}: ${postsResponse.status}`);
+          return null;
+        }).catch(() => null),
+        
+        // Fetch posts
+        fetch(
+          `https://mybusiness.googleapis.com/v4/${accountName}/locations/${googlePlaceId}/localPosts`,
+          { headers: { Authorization: `Bearer ${accessToken}` } }
+        ).then(async (res) => {
+          if (res.ok) {
+            const data = await res.json();
+            return data.localPosts || [];
           }
-        } catch (e) {
-          console.error(`Failed to fetch posts for ${googlePlaceId}:`, e);
-        }
+          return [];
+        }).catch(() => [])
+      ]);
+      
+      return { googlePlaceId, media: mediaResult, posts: postsResult };
+    });
+    
+    const mediaAndPostsResults = await Promise.all(mediaAndPostsPromises);
+    
+    for (const result of mediaAndPostsResults) {
+      if (result.media) {
+        mediaMap[result.googlePlaceId] = result.media;
+        console.log(`Found profile image for ${result.googlePlaceId}`);
+      }
+      if (result.posts.length > 0) {
+        postsMap[result.googlePlaceId] = result.posts;
+        console.log(`Found ${result.posts.length} posts for ${result.googlePlaceId}`);
       }
     }
 
