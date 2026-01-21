@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { useFirebasePush } from "@/hooks/useFirebasePush";
 import { usePWA } from "@/hooks/usePWA";
 import { Button } from "@/components/ui/button";
@@ -6,20 +7,27 @@ import { X, Bell, BellRing, Settings } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 
+// Pages where the notification prompt should appear
+const ALLOWED_ROUTES = ["/dashboard", "/reviews", "/ai-settings", "/settings", "/businesses", "/seo-autopost", "/aeo-rank", "/maps-rank", "/notifications"];
+
 export const NotificationPrompt = () => {
   const { user } = useAuth();
+  const location = useLocation();
   const { permission, isSupported, isSubscribed, isLoading, subscribe } = useFirebasePush();
   const { isInstalled, isStandalone, isIOS, canInstall } = usePWA();
   const [dismissed, setDismissed] = useState(false);
   const [showDelayed, setShowDelayed] = useState(false);
 
-  // Check if already dismissed (only for 24h now, not 7 days)
+  // Check if we're on an allowed route
+  const isAllowedRoute = ALLOWED_ROUTES.some(route => location.pathname.startsWith(route));
+
+  // Check if already dismissed (only for 4h now for testing)
   useEffect(() => {
     const lastDismissed = localStorage.getItem("notification-prompt-dismissed");
     if (lastDismissed) {
       const dismissedTime = parseInt(lastDismissed, 10);
-      // Don't show for 24 hours after dismissal (reduced from 7 days)
-      if (Date.now() - dismissedTime < 24 * 60 * 60 * 1000) {
+      // Don't show for 4 hours after dismissal (for easier testing)
+      if (Date.now() - dismissedTime < 4 * 60 * 60 * 1000) {
         setDismissed(true);
       } else {
         // Clear old dismissal
@@ -119,8 +127,16 @@ export const NotificationPrompt = () => {
     });
   }, [isSupported, isSubscribed, dismissed, showDelayed, user, permission]);
 
-  // Don't show if: not supported, already subscribed, user dismissed, no user
-  if (!isSupported || isSubscribed || dismissed || !user) {
+  // Don't show if: not supported, already subscribed, user dismissed, no user, or not on allowed route
+  if (!isSupported || isSubscribed || dismissed || !user || !isAllowedRoute) {
+    console.log("[NotificationPrompt] Not showing because:", {
+      isSupported,
+      isSubscribed,
+      dismissed,
+      hasUser: !!user,
+      isAllowedRoute,
+      currentPath: location.pathname,
+    });
     return null;
   }
 
