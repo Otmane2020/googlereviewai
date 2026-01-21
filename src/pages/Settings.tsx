@@ -398,11 +398,10 @@ const SettingsPage = () => {
                 )}
               </div>
               <Button 
-                variant="outline" 
                 size="sm"
                 onClick={handleManageSubscription}
                 disabled={openingPortal}
-                className="gap-2 w-full sm:w-auto"
+                className="gap-2 w-full sm:w-auto bg-amber-400 hover:bg-amber-500 text-amber-950 border-0"
               >
                 {openingPortal ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
