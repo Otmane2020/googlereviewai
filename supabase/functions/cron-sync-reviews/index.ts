@@ -185,10 +185,10 @@ async function syncLocationReviews(
   const allGoogleReviewIds: string[] = []; // Track ALL reviews from Google
 
   try {
-    // Get existing review IDs for this location BEFORE sync
+    // Get existing review IDs for this location BEFORE sync (include author/rating for deletion notifications)
     const { data: existingReviews } = await supabase
       .from("reviews")
-      .select("id, review_id")
+      .select("id, review_id, author, rating, comment")
       .eq("user_id", userId)
       .eq("location_id", locationId);
     
