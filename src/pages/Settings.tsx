@@ -65,51 +65,71 @@ const SettingsPage = () => {
   const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
   const [openingPortal, setOpeningPortal] = useState(false);
 
+  const fetchProfileData = async () => {
+    if (!user) return;
+    
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (error) {
+      console.error("Error fetching profile:", error);
+    } else if (data) {
+      setProfile(data);
+      setFullName(data.full_name || "");
+    }
+    
+    // Check if Google is connected by looking at active businesses AND refresh token
+    const [businessesResult, oauthStatus] = await Promise.all([
+      supabase
+        .from("businesses")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("is_active", true)
+        .limit(1),
+      checkOAuthStatus()
+    ]);
+
+    const businesses = businessesResult.data;
+    const hasBusinesses = businesses && businesses.length > 0;
+
+    // IMPORTANT:
+    // Being logged in with Google (app_metadata) does NOT mean the Google Business integration is connected.
+    // We consider it connected only if we have active businesses OR a stored refresh token.
+    setIsGoogleConnected(hasBusinesses || oauthStatus.isConnected);
+    setHasRefreshToken(oauthStatus.isConnected);
+    
+    setLoading(false);
+  };
+
   useEffect(() => {
     if (!user) {
       navigate("/auth");
       return;
     }
 
-    const fetchProfile = async () => {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", user.id)
-        .maybeSingle();
+    fetchProfileData();
+  }, [user, session, navigate, checkOAuthStatus]);
 
-      if (error) {
-        console.error("Error fetching profile:", error);
-      } else if (data) {
-        setProfile(data);
-        setFullName(data.full_name || "");
+  // Listen for OAuth success message from popup window
+  useEffect(() => {
+    const handleOAuthMessage = (event: MessageEvent) => {
+      if (event.data?.type === "GOOGLE_OAUTH_SUCCESS") {
+        console.log("Received Google OAuth success message");
+        toast({
+          title: "Connexion réussie",
+          description: "Votre compte Google Business est connecté.",
+        });
+        // Refresh profile data to reflect the new connection
+        fetchProfileData();
       }
-      
-      // Check if Google is connected by looking at active businesses AND refresh token
-      const [businessesResult, oauthStatus] = await Promise.all([
-        supabase
-          .from("businesses")
-          .select("id")
-          .eq("user_id", user.id)
-          .eq("is_active", true)
-          .limit(1),
-        checkOAuthStatus()
-      ]);
-
-      const businesses = businessesResult.data;
-      const hasBusinesses = businesses && businesses.length > 0;
-
-      // IMPORTANT:
-      // Being logged in with Google (app_metadata) does NOT mean the Google Business integration is connected.
-      // We consider it connected only if we have active businesses OR a stored refresh token.
-      setIsGoogleConnected(hasBusinesses || oauthStatus.isConnected);
-      setHasRefreshToken(oauthStatus.isConnected);
-      
-      setLoading(false);
     };
 
-    fetchProfile();
-  }, [user, session, navigate, checkOAuthStatus]);
+    window.addEventListener("message", handleOAuthMessage);
+    return () => window.removeEventListener("message", handleOAuthMessage);
+  }, [user]);
 
   const handleSaveProfile = async () => {
     if (!user) return;
