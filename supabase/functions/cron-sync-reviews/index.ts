@@ -8,16 +8,28 @@ const corsHeaders = {
 };
 
 // Helper function to sync reviews for a single business
+// Helper function to sync reviews for a single business
+// Returns new review IDs for notification
 async function syncBusinessReviews(
   accessToken: string,
   locationId: string,
   userId: string,
   supabase: any
-): Promise<{ synced: number; errors: string[] }> {
+): Promise<{ synced: number; newReviewIds: string[]; errors: string[] }> {
   const errors: string[] = [];
   let synced = 0;
+  const newReviewIds: string[] = [];
 
   try {
+    // Get existing review IDs for this location BEFORE sync
+    const { data: existingReviews } = await supabase
+      .from("reviews")
+      .select("review_id")
+      .eq("user_id", userId)
+      .eq("location_id", locationId);
+    
+    const existingReviewIds = new Set(existingReviews?.map((r: any) => r.review_id) || []);
+
     // Fetch reviews from Google
     const reviewsUrl = `https://mybusiness.googleapis.com/v4/${locationId}/reviews`;
     const response = await fetch(reviewsUrl, {
@@ -28,7 +40,7 @@ async function syncBusinessReviews(
       const errorText = await response.text();
       console.error(`Failed to fetch reviews for ${locationId}:`, errorText);
       errors.push(`Location ${locationId}: ${response.status}`);
-      return { synced, errors };
+      return { synced, newReviewIds, errors };
     }
 
     const data = await response.json();
@@ -37,6 +49,7 @@ async function syncBusinessReviews(
     for (const review of reviews) {
       const reviewId = review.reviewId || review.name?.split("/").pop();
       const reviewer = review.reviewer || {};
+      const isNewReview = !existingReviewIds.has(reviewId);
       
       const reviewData = {
         review_id: reviewId,
@@ -46,9 +59,11 @@ async function syncBusinessReviews(
         rating: review.starRating ? parseInt(review.starRating.replace("STAR_", "").replace("_", "")) || 5 : 5,
         comment: review.comment || null,
         review_date: review.createTime || new Date().toISOString(),
+        // Mark as not notified if it's a new review - trigger will handle notification
+        notified: isNewReview ? false : true,
       };
 
-      // Upsert review
+      // Upsert review - trigger will fire and send notification for new reviews
       const { error: upsertError } = await supabase
         .from("reviews")
         .upsert(reviewData, { 
@@ -60,6 +75,10 @@ async function syncBusinessReviews(
         console.error(`Error upserting review ${reviewId}:`, upsertError);
       } else {
         synced++;
+        if (isNewReview) {
+          newReviewIds.push(reviewId);
+          console.log(`[CRON] New review detected: ${reviewId} by ${reviewData.author}`);
+        }
       }
     }
   } catch (error) {
@@ -67,7 +86,7 @@ async function syncBusinessReviews(
     errors.push(`Location ${locationId}: ${error instanceof Error ? error.message : "Unknown error"}`);
   }
 
-  return { synced, errors };
+  return { synced, newReviewIds, errors };
 }
 
 serve(async (req) => {
@@ -112,6 +131,10 @@ serve(async (req) => {
     const errors: string[] = [];
 
     for (const userSettings of settings) {
+      let userSynced = 0;
+      let userNewReviews = 0;
+      const userErrors: string[] = [];
+
       try {
         // Get access token using shared helper (SERVICE_ROLE client)
         const tokenResult = await getGoogleAccessToken(supabase, userSettings.user_id);
@@ -119,6 +142,16 @@ serve(async (req) => {
         if (!tokenResult.token) {
           console.log(`[CRON] User ${userSettings.user_id}: ${tokenResult.error || 'No token'}`);
           usersSkipped++;
+          
+          // Update sync status for this user
+          await supabase
+            .from("ai_settings")
+            .update({
+              last_sync_at: new Date().toISOString(),
+              last_sync_status: "error",
+              last_sync_error: tokenResult.error || "No token available",
+            })
+            .eq("user_id", userSettings.user_id);
           continue;
         }
 
@@ -138,15 +171,7 @@ serve(async (req) => {
 
         console.log(`[CRON] Syncing ${businesses.length} businesses for user ${userSettings.user_id}`);
 
-        // Get existing review IDs to detect new ones
-        const { data: existingReviews } = await supabase
-          .from("reviews")
-          .select("review_id")
-          .eq("user_id", userSettings.user_id);
-
-        const existingReviewIds = new Set(existingReviews?.map(r => r.review_id) || []);
-
-        // Sync each business
+        // Sync each business - notifications are handled by the trigger
         for (const business of businesses) {
           if (!business.google_place_id) continue;
 
@@ -157,29 +182,42 @@ serve(async (req) => {
             supabase
           );
 
-          totalSynced += result.synced;
-          errors.push(...result.errors);
+          userSynced += result.synced;
+          userNewReviews += result.newReviewIds.length;
+          userErrors.push(...result.errors);
         }
 
-        // Count new reviews (reviews that weren't in existingReviewIds)
-        const { data: currentReviews } = await supabase
-          .from("reviews")
-          .select("review_id")
+        totalSynced += userSynced;
+        totalNewReviews += userNewReviews;
+        errors.push(...userErrors);
+
+        // Update sync status for this user
+        await supabase
+          .from("ai_settings")
+          .update({
+            last_sync_at: new Date().toISOString(),
+            last_sync_status: userErrors.length > 0 ? "partial" : "success",
+            last_sync_error: userErrors.length > 0 ? userErrors.join("; ") : null,
+            reviews_synced_count: userSynced,
+          })
           .eq("user_id", userSettings.user_id);
 
-        if (currentReviews) {
-          for (const review of currentReviews) {
-            if (!existingReviewIds.has(review.review_id)) {
-              totalNewReviews++;
-              // Note: Notifications are now handled by the on_review_insert trigger
-            }
-          }
-        }
-
+        console.log(`[CRON] User ${userSettings.user_id}: synced ${userSynced} reviews, ${userNewReviews} new`);
         usersProcessed++;
       } catch (userError) {
         console.error(`[CRON] Error processing user ${userSettings.user_id}:`, userError);
-        errors.push(`User ${userSettings.user_id}: ${userError instanceof Error ? userError.message : 'Unknown error'}`);
+        const errorMsg = userError instanceof Error ? userError.message : 'Unknown error';
+        errors.push(`User ${userSettings.user_id}: ${errorMsg}`);
+        
+        // Update sync status on error
+        await supabase
+          .from("ai_settings")
+          .update({
+            last_sync_at: new Date().toISOString(),
+            last_sync_status: "error",
+            last_sync_error: errorMsg,
+          })
+          .eq("user_id", userSettings.user_id);
       }
     }
 

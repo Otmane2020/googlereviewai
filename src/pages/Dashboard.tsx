@@ -49,12 +49,20 @@ interface Review {
   published_to_google: boolean | null;
 }
 
+interface SyncStatus {
+  last_sync_at: string | null;
+  last_sync_status: string | null;
+  last_sync_error: string | null;
+  reviews_synced_count: number | null;
+}
+
 const Dashboard = () => {
   const { user, session } = useAuth();
   const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [recentReviews, setRecentReviews] = useState<Review[]>([]);
   const [stats, setStats] = useState({ total: 0, avgRating: 0, aiResponses: 0, pending: 0, businesses: 0, responseRate: 0 });
+  const [syncStatus, setSyncStatus] = useState<SyncStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [showGMBDialog, setShowGMBDialog] = useState(false);
   const [showSyncProgress, setShowSyncProgress] = useState(false);
@@ -95,10 +103,13 @@ const Dashboard = () => {
       }
     }
 
-    const [profileRes, businessesRes] = await Promise.all([
+    const [profileRes, businessesRes, syncStatusRes] = await Promise.all([
       supabase.from("profiles").select("*").eq("id", user.id).maybeSingle(),
-      supabase.from("businesses").select("id", { count: "exact" }).eq("user_id", user.id).eq("is_active", true)
+      supabase.from("businesses").select("id", { count: "exact" }).eq("user_id", user.id).eq("is_active", true),
+      supabase.from("ai_settings").select("last_sync_at, last_sync_status, last_sync_error, reviews_synced_count").eq("user_id", user.id).maybeSingle()
     ]);
+    
+    if (syncStatusRes.data) setSyncStatus(syncStatusRes.data);
 
     if (profileRes.data) setProfile(profileRes.data);
     
@@ -306,6 +317,66 @@ const Dashboard = () => {
                 </Button>
               </Link>
             </div>
+          </div>
+        )}
+
+        {/* Sync Status Card */}
+        {syncStatus && (
+          <div className={`rounded-xl p-3 border ${
+            syncStatus.last_sync_status === "error" 
+              ? "bg-destructive/10 border-destructive/30"
+              : syncStatus.last_sync_status === "partial"
+              ? "bg-orange-500/10 border-orange-500/30"
+              : "bg-secondary/10 border-secondary/30"
+          }`}>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                {syncStatus.last_sync_status === "error" ? (
+                  <AlertCircle className="w-4 h-4 text-destructive" />
+                ) : syncStatus.last_sync_status === "partial" ? (
+                  <AlertCircle className="w-4 h-4 text-orange-500" />
+                ) : (
+                  <CheckCircle2 className="w-4 h-4 text-secondary" />
+                )}
+                <div>
+                  <p className="text-xs font-medium text-foreground">
+                    {syncStatus.last_sync_status === "error" 
+                      ? "Erreur de synchronisation" 
+                      : syncStatus.last_sync_status === "partial"
+                      ? "Sync partielle"
+                      : "Sync automatique active"}
+                  </p>
+                  {syncStatus.last_sync_at && (
+                    <p className="text-[10px] text-muted-foreground">
+                      Dernière sync: {(() => {
+                        const diff = Date.now() - new Date(syncStatus.last_sync_at).getTime();
+                        const mins = Math.floor(diff / 60000);
+                        if (mins < 1) return "à l'instant";
+                        if (mins < 60) return `il y a ${mins} min`;
+                        const hours = Math.floor(mins / 60);
+                        if (hours < 24) return `il y a ${hours}h`;
+                        return `il y a ${Math.floor(hours / 24)}j`;
+                      })()}
+                    </p>
+                  )}
+                </div>
+              </div>
+              {syncStatus.last_sync_status === "error" && syncStatus.last_sync_error && (
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="text-xs text-destructive h-7"
+                  onClick={() => navigate("/settings")}
+                >
+                  Reconnecter
+                </Button>
+              )}
+            </div>
+            {syncStatus.last_sync_status === "error" && syncStatus.last_sync_error && (
+              <p className="text-[10px] text-destructive mt-1 line-clamp-1">
+                {syncStatus.last_sync_error}
+              </p>
+            )}
           </div>
         )}
 
