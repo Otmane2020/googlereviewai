@@ -195,11 +195,10 @@ const AISettingsPage = () => {
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [saved, setSaved] = useState(false);
   const [pendingStats, setPendingStats] = useState<PendingReviewsStats>({ oldReviews: 0, newReviews: 0 });
   const [generatingOld, setGeneratingOld] = useState(false);
-  const [hasLoadedSettings, setHasLoadedSettings] = useState(false);
-  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [hasChanges, setHasChanges] = useState(false);
+  const initialSettingsRef = useRef<AISettings | null>(null);
 
   // Use subscription verification hook
   const { loading: subscriptionLoading } = useRequireSubscription();
@@ -259,53 +258,43 @@ const AISettingsPage = () => {
       }
 
       setLoading(false);
-      // Mark settings as loaded AFTER setting the state
-      setTimeout(() => setHasLoadedSettings(true), 100);
     };
 
     fetchSettings();
   }, [user, subscriptionLoading]);
 
-  const saveSettings = useCallback(async (newSettings: AISettings) => {
+  const handleSave = async () => {
     if (!user) return;
     setSaving(true);
-    setSaved(false);
 
     const { error } = await supabase
       .from("ai_settings")
       .upsert({
         user_id: user.id,
-        ...newSettings,
+        ...settings,
       });
 
     setSaving(false);
-    if (!error) {
-      setSaved(true);
-      setTimeout(() => setSaved(false), 2000);
+    if (error) {
+      toast({
+        title: "Erreur",
+        description: "Impossible de sauvegarder les paramètres.",
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Enregistré",
+        description: "Vos paramètres IA ont été sauvegardés.",
+      });
+      setHasChanges(false);
+      initialSettingsRef.current = settings;
     }
-  }, [user]);
+  };
 
-  // Auto-save with debounce - only after settings have been loaded
-  useEffect(() => {
-    // Don't save until settings have been loaded from DB
-    if (!hasLoadedSettings) {
-      return;
-    }
-
-    if (saveTimeoutRef.current) {
-      clearTimeout(saveTimeoutRef.current);
-    }
-
-    saveTimeoutRef.current = setTimeout(() => {
-      saveSettings(settings);
-    }, 800);
-
-    return () => {
-      if (saveTimeoutRef.current) {
-        clearTimeout(saveTimeoutRef.current);
-      }
-    };
-  }, [settings, saveSettings, hasLoadedSettings]);
+  const updateSettings = (newSettings: Partial<AISettings>) => {
+    setSettings(prev => ({ ...prev, ...newSettings }));
+    setHasChanges(true);
+  };
 
   if (loading) {
     return (
@@ -333,10 +322,21 @@ const AISettingsPage = () => {
               <h1 className="text-lg font-bold text-foreground">Paramètres IA</h1>
               <p className="text-xs text-muted-foreground">Personnalisez vos réponses</p>
             </div>
-            <div className="flex items-center gap-2 h-8">
-              {saving && <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />}
-              {saved && <Check className="w-4 h-4 text-green-500" />}
-            </div>
+            <Button
+              onClick={handleSave}
+              disabled={saving || !hasChanges}
+              size="sm"
+              className="rounded-xl"
+            >
+              {saving ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <>
+                  <Check className="w-4 h-4 mr-1" />
+                  Enregistrer
+                </>
+              )}
+            </Button>
           </div>
         </div>
       </div>
@@ -366,7 +366,7 @@ const AISettingsPage = () => {
             </div>
             <Switch
               checked={settings.enabled}
-              onCheckedChange={(enabled) => setSettings({ ...settings, enabled })}
+              onCheckedChange={(enabled) => updateSettings({ enabled })}
               className="data-[state=checked]:bg-white/30"
             />
           </div>
@@ -385,7 +385,7 @@ const AISettingsPage = () => {
             {toneOptions.map((option) => (
               <button
                 key={option.value}
-                onClick={() => setSettings({ ...settings, tone: option.value })}
+                onClick={() => updateSettings({ tone: option.value })}
                 className={`flex items-center gap-2 px-4 py-3 rounded-xl text-left transition-all ${
                   settings.tone === option.value
                     ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
@@ -409,7 +409,7 @@ const AISettingsPage = () => {
             {lengthOptions.map((option) => (
               <button
                 key={option.value}
-                onClick={() => setSettings({ ...settings, response_length: option.value })}
+                onClick={() => updateSettings({ response_length: option.value })}
                 className={`flex-1 py-3 rounded-lg text-center transition-all ${
                   settings.response_length === option.value
                     ? "bg-background shadow-sm text-foreground font-medium"
@@ -437,14 +437,14 @@ const AISettingsPage = () => {
               <Switch
                 checked={settings.include_signature}
                 onCheckedChange={(include_signature) =>
-                  setSettings({ ...settings, include_signature })
+                  updateSettings({ include_signature })
                 }
               />
             </div>
             {settings.include_signature && (
               <Input
                 value={settings.signature}
-                onChange={(e) => setSettings({ ...settings, signature: e.target.value })}
+                onChange={(e) => updateSettings({ signature: e.target.value })}
                 placeholder="L'équipe {business_name}"
                 className="mt-3 rounded-xl bg-muted/50 border-0"
               />
@@ -467,7 +467,7 @@ const AISettingsPage = () => {
                   max={60}
                   value={settings.auto_reply_delay}
                   onChange={(e) =>
-                    setSettings({ ...settings, auto_reply_delay: parseInt(e.target.value) || 0 })
+                    updateSettings({ auto_reply_delay: parseInt(e.target.value) || 0 })
                   }
                   className="w-16 text-center rounded-xl bg-muted/50 border-0 h-9"
                 />
@@ -488,7 +488,7 @@ const AISettingsPage = () => {
               <Switch
                 checked={settings.only_positive_reviews}
                 onCheckedChange={(only_positive_reviews) =>
-                  setSettings({ ...settings, only_positive_reviews })
+                  updateSettings({ only_positive_reviews })
                 }
               />
             </div>
@@ -506,7 +506,7 @@ const AISettingsPage = () => {
               {[1, 2, 3, 4, 5].map((rating) => (
                 <button
                   key={rating}
-                  onClick={() => setSettings({ ...settings, minimum_rating: rating })}
+                  onClick={() => updateSettings({ minimum_rating: rating })}
                   className={`w-10 h-10 rounded-xl flex items-center justify-center font-medium transition-all ${
                     settings.minimum_rating === rating
                       ? "bg-yellow-500 text-white shadow-md shadow-yellow-500/30"
@@ -536,7 +536,7 @@ const AISettingsPage = () => {
               <Switch
                 checked={settings.auto_sync_reviews}
                 onCheckedChange={(auto_sync_reviews) =>
-                  setSettings({ ...settings, auto_sync_reviews })
+                  updateSettings({ auto_sync_reviews })
                 }
               />
             </div>
@@ -545,7 +545,7 @@ const AISettingsPage = () => {
                 {[15, 30, 60, 120].map((interval) => (
                   <button
                     key={interval}
-                    onClick={() => setSettings({ ...settings, sync_interval_minutes: interval })}
+                    onClick={() => updateSettings({ sync_interval_minutes: interval })}
                     className={`shrink-0 px-4 py-2 rounded-xl text-xs font-medium transition-all ${
                       settings.sync_interval_minutes === interval
                         ? "bg-purple-500 text-white shadow-md shadow-purple-500/30"
@@ -573,7 +573,7 @@ const AISettingsPage = () => {
               <Switch
                 checked={settings.auto_publish_to_google}
                 onCheckedChange={(auto_publish_to_google) =>
-                  setSettings({ ...settings, auto_publish_to_google })
+                  updateSettings({ auto_publish_to_google })
                 }
               />
             </div>
@@ -604,7 +604,7 @@ const AISettingsPage = () => {
               <Switch
                 checked={settings.email_notifications}
                 onCheckedChange={(email_notifications) =>
-                  setSettings({ ...settings, email_notifications })
+                  updateSettings({ email_notifications })
                 }
               />
             </div>
@@ -621,7 +621,7 @@ const AISettingsPage = () => {
           </div>
           <Textarea
             value={settings.custom_template}
-            onChange={(e) => setSettings({ ...settings, custom_template: e.target.value })}
+            onChange={(e) => updateSettings({ custom_template: e.target.value })}
             placeholder="Ajoutez des instructions pour l'IA..."
             rows={3}
             className="rounded-xl bg-muted/50 border-0 resize-none text-sm"
@@ -635,24 +635,6 @@ const AISettingsPage = () => {
             userId={user?.id || ""}
             onComplete={() => setPendingStats(prev => ({ ...prev, oldReviews: 0 }))}
           />
-        )}
-
-        {/* Auto-save indicator */}
-        {(saving || saved) && (
-          <div className="flex items-center justify-center gap-2 py-3 text-sm text-muted-foreground">
-            {saving && (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                <span>Enregistrement...</span>
-              </>
-            )}
-            {saved && !saving && (
-              <>
-                <Check className="w-4 h-4 text-green-500" />
-                <span className="text-green-600">Enregistré</span>
-              </>
-            )}
-          </div>
         )}
       </main>
 
