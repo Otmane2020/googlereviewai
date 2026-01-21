@@ -28,7 +28,8 @@ import {
   Upload,
   Check,
   History,
-  Coins
+  Coins,
+  AlertTriangle
 } from "lucide-react";
 
 interface AISettings {
@@ -196,9 +197,12 @@ const AISettingsPage = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [pendingStats, setPendingStats] = useState<PendingReviewsStats>({ oldReviews: 0, newReviews: 0 });
+  const [negativeReviewsCount, setNegativeReviewsCount] = useState(0);
+  const [userCredits, setUserCredits] = useState(0);
   const [generatingOld, setGeneratingOld] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
   const [settingsId, setSettingsId] = useState<string | null>(null);
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
   const initialSettingsRef = useRef<AISettings | null>(null);
 
   // Use subscription verification hook
@@ -208,8 +212,8 @@ const AISettingsPage = () => {
     if (subscriptionLoading || !user) return;
 
     const fetchSettings = async () => {
-      // Fetch settings and pending reviews count in parallel
-      const [settingsRes, reviewsRes, aiSettingsDateRes] = await Promise.all([
+      // Fetch settings, reviews, and profile in parallel
+      const [settingsRes, reviewsRes, aiSettingsDateRes, negativeReviewsRes, profileRes] = await Promise.all([
         supabase
           .from("ai_settings")
           .select("*")
@@ -224,7 +228,20 @@ const AISettingsPage = () => {
           .from("ai_settings")
           .select("created_at")
           .eq("user_id", user.id)
-          .maybeSingle()
+          .maybeSingle(),
+        // Count negative reviews (rating < 4) without AI response
+        supabase
+          .from("reviews")
+          .select("id", { count: "exact" })
+          .eq("user_id", user.id)
+          .is("ai_response", null)
+          .is("google_reply", null)
+          .lt("rating", 4),
+        supabase
+          .from("profiles")
+          .select("credits")
+          .eq("id", user.id)
+          .single()
       ]);
 
       if (settingsRes.error) {
@@ -258,6 +275,12 @@ const AISettingsPage = () => {
         // If no settings date, consider all as new
         setPendingStats({ oldReviews: reviewsRes.data.length, newReviews: 0 });
       }
+
+      // Set negative reviews count
+      setNegativeReviewsCount(negativeReviewsRes.count || 0);
+      
+      // Set user credits
+      setUserCredits(profileRes.data?.credits || 0);
 
       setLoading(false);
     };
@@ -503,7 +526,10 @@ const AISettingsPage = () => {
                 <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center">
                   <ThumbsUp className="w-4 h-4 text-green-500" />
                 </div>
-                <span className="font-medium text-sm text-foreground">Avis positifs seulement</span>
+                <div>
+                  <span className="font-medium text-sm text-foreground">Avis positifs seulement</span>
+                  <p className="text-xs text-muted-foreground">Note ≥ 4 étoiles</p>
+                </div>
               </div>
               <Switch
                 checked={settings.only_positive_reviews}
@@ -512,6 +538,34 @@ const AISettingsPage = () => {
                 }
               />
             </div>
+            
+            {/* Warning when disabled - show negative reviews estimate */}
+            {!settings.only_positive_reviews && negativeReviewsCount > 0 && (
+              <div className="mt-3 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20">
+                <div className="flex items-start gap-2">
+                  <AlertTriangle className="w-4 h-4 text-amber-500 mt-0.5 shrink-0" />
+                  <div className="flex-1">
+                    <p className="text-xs text-amber-700 dark:text-amber-400 font-medium">
+                      {negativeReviewsCount} avis négatif{negativeReviewsCount > 1 ? 's' : ''} à traiter
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Coût estimé : <span className="font-semibold text-foreground">{negativeReviewsCount} crédit{negativeReviewsCount > 1 ? 's' : ''}</span>
+                    </p>
+                    {userCredits < negativeReviewsCount && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setUpgradeOpen(true)}
+                        className="mt-2 h-7 text-xs rounded-lg border-amber-500/30 text-amber-600 hover:bg-amber-500/10"
+                      >
+                        <Coins className="w-3 h-3 mr-1" />
+                        Acheter des crédits ({userCredits} disponibles)
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Minimum rating */}
@@ -659,6 +713,7 @@ const AISettingsPage = () => {
       </main>
 
       <MobileBottomNav />
+      <UpgradeDialog open={upgradeOpen} onOpenChange={setUpgradeOpen} />
     </div>
   );
 };
