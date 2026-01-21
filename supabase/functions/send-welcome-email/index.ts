@@ -10,6 +10,51 @@ interface WelcomeEmailRequest {
   name?: string;
 }
 
+// Professional email design system
+const STYLES = {
+  fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
+  textPrimary: "#111827",
+  textSecondary: "#6b7280",
+  textMuted: "#9ca3af",
+  bgWhite: "#ffffff",
+  bgLight: "#f9fafb",
+  borderLight: "#e5e7eb",
+  brandBlue: "#2563eb",
+};
+
+const getProHeader = () => `
+  <div style="background: ${STYLES.bgWhite}; padding: 32px 24px; border-bottom: 1px solid ${STYLES.borderLight};">
+    <table cellpadding="0" cellspacing="0" border="0">
+      <tr>
+        <td style="vertical-align: middle;">
+          <img src="https://starlinko.lovable.app/favicon.png" width="32" height="32" alt="Starlinko" style="display: block;" />
+        </td>
+        <td style="vertical-align: middle; padding-left: 12px;">
+          <span style="font-family: ${STYLES.fontFamily}; font-weight: 600; font-size: 18px; color: ${STYLES.textPrimary};">Starlinko</span>
+        </td>
+      </tr>
+    </table>
+  </div>
+`;
+
+const getProFooter = () => `
+  <div style="padding: 24px; text-align: center; border-top: 1px solid ${STYLES.borderLight};">
+    <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textMuted}; font-size: 12px; margin: 0 0 8px 0;">
+      © 2025 Starlinko. Tous droits réservés.
+    </p>
+    <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textMuted}; font-size: 12px; margin: 0;">
+      <a href="https://starlinko.lovable.app" style="color: ${STYLES.brandBlue}; text-decoration: none;">starlinko.lovable.app</a>
+    </p>
+  </div>
+`;
+
+const getProButton = (text: string, url: string) => `
+  <a href="${url}" 
+     style="display: inline-block; background-color: ${STYLES.brandBlue}; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-family: ${STYLES.fontFamily}; font-size: 14px; font-weight: 500;">
+    ${text}
+  </a>
+`;
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -35,7 +80,7 @@ serve(async (req) => {
       );
     }
 
-    const firstName = name?.split(" ")[0] || "Cher client";
+    const firstName = name?.split(" ")[0] || "Bonjour";
 
     console.log(`Sending welcome email to ${email}`);
 
@@ -46,105 +91,52 @@ serve(async (req) => {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
-<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7fa;">
-  <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
-    <!-- Header with brand colors -->
-    <div style="background-color: #2563eb; padding: 40px 30px; text-align: center;">
-      <div style="display: inline-block; margin-bottom: 8px;">
-        <!-- Star logo representation -->
-        <span style="font-size: 42px; color: #facc15;">★</span>
-        <span style="display: inline-block; width: 8px; height: 8px; background-color: #22c55e; border-radius: 50%; margin-left: -12px; margin-bottom: 24px;"></span>
-      </div>
-      <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 700;">
-        Starlinko
-      </h1>
-      <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0; font-size: 16px;">
-        Gérez vos avis Google automatiquement
-      </p>
-    </div>
+<body style="margin: 0; padding: 0; background-color: ${STYLES.bgLight};">
+  <div style="max-width: 600px; margin: 0 auto; background-color: ${STYLES.bgWhite};">
+    ${getProHeader()}
     
-    <!-- Content -->
-    <div style="padding: 40px 30px;">
-      <h2 style="color: #1f2937; margin: 0 0 20px 0; font-size: 24px;">
-        Bienvenue ${firstName} ! 🎉
-      </h2>
+    <div style="padding: 40px 32px;">
+      <h1 style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textPrimary}; font-size: 24px; font-weight: 600; margin: 0 0 24px 0;">
+        Bienvenue sur Starlinko
+      </h1>
       
-      <p style="color: #4b5563; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
-        Merci de rejoindre Starlinko ! Vous avez fait le premier pas vers une gestion simplifiée de votre réputation en ligne.
+      <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textSecondary}; font-size: 15px; line-height: 1.6; margin: 0 0 24px 0;">
+        Bonjour ${firstName},
       </p>
       
-      <!-- Credits Box with brand yellow -->
-      <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: 12px; padding: 25px; margin: 25px 0; text-align: center; border-left: 4px solid #facc15;">
-        <p style="margin: 0 0 8px 0; color: #92400e; font-size: 14px; font-weight: 600;">CADEAU DE BIENVENUE</p>
-        <p style="margin: 0; color: #78350f; font-size: 36px; font-weight: 700;">10 crédits gratuits</p>
-        <p style="margin: 8px 0 0 0; color: #92400e; font-size: 14px;">pour générer vos premières réponses IA</p>
-      </div>
+      <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textSecondary}; font-size: 15px; line-height: 1.6; margin: 0 0 24px 0;">
+        Votre compte a été créé avec succès. Vous pouvez désormais gérer vos avis Google et générer des réponses professionnelles grâce à l'intelligence artificielle.
+      </p>
       
-      <!-- Features -->
-      <h3 style="color: #1f2937; margin: 30px 0 15px 0; font-size: 18px;">
-        Ce que vous pouvez faire maintenant :
-      </h3>
-      
-      <div style="margin: 0 0 25px 0;">
-        <table style="width: 100%; border-collapse: collapse;">
-          <tr>
-            <td style="padding: 12px 0; vertical-align: top; width: 32px;">
-              <span style="background: #22c55e; color: white; border-radius: 50%; width: 24px; height: 24px; display: inline-block; text-align: center; line-height: 24px; font-size: 14px;">✓</span>
-            </td>
-            <td style="padding: 12px 0; padding-left: 12px; color: #374151; font-size: 15px;">
-              <strong>Connecter Google My Business</strong> - Synchronisez tous vos avis
-            </td>
-          </tr>
-          <tr>
-            <td style="padding: 12px 0; vertical-align: top; width: 32px;">
-              <span style="background: #22c55e; color: white; border-radius: 50%; width: 24px; height: 24px; display: inline-block; text-align: center; line-height: 24px; font-size: 14px;">✓</span>
-            </td>
-            <td style="padding: 12px 0; padding-left: 12px; color: #374151; font-size: 15px;">
-              <strong>Générer des réponses IA</strong> - Personnalisées et professionnelles
-            </td>
-          </tr>
-          <tr>
-            <td style="padding: 12px 0; vertical-align: top; width: 32px;">
-              <span style="background: #22c55e; color: white; border-radius: 50%; width: 24px; height: 24px; display: inline-block; text-align: center; line-height: 24px; font-size: 14px;">✓</span>
-            </td>
-            <td style="padding: 12px 0; padding-left: 12px; color: #374151; font-size: 15px;">
-              <strong>Publier en 1 clic</strong> - Directement sur Google
-            </td>
-          </tr>
-        </table>
-      </div>
-      
-      <!-- CTA Button with brand blue -->
-      <div style="text-align: center; margin: 35px 0;">
-        <a href="https://starlinko.lovable.app/dashboard" 
-           style="display: inline-block; background-color: #2563eb; color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 8px; font-size: 16px; font-weight: 600;">
-          🚀 Commencer maintenant
-        </a>
-      </div>
-      
-      <!-- Tips -->
-      <div style="background-color: #eff6ff; border-radius: 12px; padding: 20px; margin: 25px 0; border-left: 4px solid #2563eb;">
-        <p style="margin: 0 0 10px 0; color: #2563eb; font-size: 14px; font-weight: 600;">💡 CONSEIL PRO</p>
-        <p style="margin: 0; color: #4b5563; font-size: 14px; line-height: 1.5;">
-          Activez les <strong>réponses automatiques</strong> dans les paramètres IA pour ne plus jamais manquer un avis. 
-          Starlinko répondra automatiquement à vos nouveaux avis 24h/24 !
+      <div style="background: ${STYLES.bgLight}; border-radius: 6px; padding: 20px; margin: 24px 0;">
+        <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textSecondary}; font-size: 13px; margin: 0 0 4px 0; text-transform: uppercase; letter-spacing: 0.5px;">
+          Crédits disponibles
+        </p>
+        <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textPrimary}; font-size: 32px; font-weight: 600; margin: 0;">
+          10
         </p>
       </div>
+      
+      <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textSecondary}; font-size: 15px; line-height: 1.6; margin: 0 0 8px 0;">
+        Pour commencer :
+      </p>
+      
+      <ul style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textSecondary}; font-size: 15px; line-height: 1.8; margin: 0 0 32px 0; padding-left: 20px;">
+        <li>Connectez votre compte Google My Business</li>
+        <li>Synchronisez vos avis clients</li>
+        <li>Générez des réponses personnalisées</li>
+      </ul>
+      
+      <div style="text-align: left; margin: 32px 0;">
+        ${getProButton("Accéder au tableau de bord", "https://starlinko.lovable.app/dashboard")}
+      </div>
+      
+      <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textMuted}; font-size: 13px; line-height: 1.6; margin: 32px 0 0 0;">
+        Si vous avez des questions, répondez directement à cet email.
+      </p>
     </div>
     
-    <!-- Footer with dark background -->
-    <div style="background-color: #1e293b; padding: 30px; text-align: center;">
-      <div style="margin-bottom: 15px;">
-        <span style="font-size: 24px; color: #facc15;">★</span>
-      </div>
-      <p style="color: #9ca3af; margin: 0 0 10px 0; font-size: 14px;">
-        Des questions ? Répondez simplement à cet email.
-      </p>
-      <p style="color: #6b7280; margin: 0; font-size: 12px;">
-        Starlinko - Gérez vos avis Google en automatique<br>
-        <a href="https://starlinko.lovable.app" style="color: #60a5fa; text-decoration: none;">starlinko.lovable.app</a>
-      </p>
-    </div>
+    ${getProFooter()}
   </div>
 </body>
 </html>
@@ -159,7 +151,7 @@ serve(async (req) => {
       body: JSON.stringify({
         from: "Starlinko <support@starlinko.app>",
         to: [email],
-        subject: "🎉 Bienvenue sur Starlinko - Vos 10 crédits gratuits vous attendent !",
+        subject: "Bienvenue sur Starlinko",
         html: htmlContent,
       }),
     });

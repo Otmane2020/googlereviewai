@@ -19,69 +19,97 @@ interface EngagementEmailRequest {
   };
 }
 
-// Brand colors
-const BRAND_BLUE = "#2563eb";
-const BRAND_YELLOW = "#facc15";
-const BRAND_GREEN = "#22c55e";
-const DARK_BG = "#1e293b";
+// Professional email design system
+const STYLES = {
+  fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
+  textPrimary: "#111827",
+  textSecondary: "#6b7280",
+  textMuted: "#9ca3af",
+  bgWhite: "#ffffff",
+  bgLight: "#f9fafb",
+  borderLight: "#e5e7eb",
+  brandBlue: "#2563eb",
+  warningBg: "#fef3c7",
+  warningText: "#92400e",
+  errorBg: "#fee2e2",
+  errorText: "#991b1b",
+  successBg: "#ecfdf5",
+  successText: "#065f46",
+};
 
-const getHeader = () => `
-  <div style="background-color: ${BRAND_BLUE}; padding: 30px; text-align: center;">
-    <div style="display: inline-block; margin-bottom: 4px;">
-      <span style="font-size: 32px; color: ${BRAND_YELLOW};">★</span>
-    </div>
-    <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 700;">Starlinko</h1>
+const getProHeader = () => `
+  <div style="background: ${STYLES.bgWhite}; padding: 32px 24px; border-bottom: 1px solid ${STYLES.borderLight};">
+    <table cellpadding="0" cellspacing="0" border="0">
+      <tr>
+        <td style="vertical-align: middle;">
+          <img src="https://starlinko.lovable.app/favicon.png" width="32" height="32" alt="Starlinko" style="display: block;" />
+        </td>
+        <td style="vertical-align: middle; padding-left: 12px;">
+          <span style="font-family: ${STYLES.fontFamily}; font-weight: 600; font-size: 18px; color: ${STYLES.textPrimary};">Starlinko</span>
+        </td>
+      </tr>
+    </table>
   </div>
 `;
 
-const getFooter = () => `
-  <div style="background-color: ${DARK_BG}; padding: 25px; text-align: center;">
-    <span style="font-size: 20px; color: ${BRAND_YELLOW};">★</span>
-    <p style="color: #6b7280; margin: 10px 0 0 0; font-size: 12px;">
-      Starlinko - <a href="https://starlinko.lovable.app" style="color: #60a5fa; text-decoration: none;">starlinko.lovable.app</a>
+const getProFooter = () => `
+  <div style="padding: 24px; text-align: center; border-top: 1px solid ${STYLES.borderLight};">
+    <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textMuted}; font-size: 12px; margin: 0 0 8px 0;">
+      © 2025 Starlinko. Tous droits réservés.
+    </p>
+    <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textMuted}; font-size: 12px; margin: 0;">
+      <a href="https://starlinko.lovable.app" style="color: ${STYLES.brandBlue}; text-decoration: none;">starlinko.lovable.app</a>
     </p>
   </div>
 `;
 
+const getProButton = (text: string, url: string) => `
+  <a href="${url}" 
+     style="display: inline-block; background-color: ${STYLES.brandBlue}; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-family: ${STYLES.fontFamily}; font-size: 14px; font-weight: 500;">
+    ${text}
+  </a>
+`;
+
 const emailTemplates: Record<EmailType, (name: string, data?: EngagementEmailRequest["data"]) => { subject: string; html: string }> = {
   activate_auto_reply: (name) => ({
-    subject: "⚡ Gagnez du temps : Activez les réponses automatiques",
+    subject: "Automatisez vos réponses aux avis",
     html: `
 <!DOCTYPE html>
 <html lang="fr">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
-<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7fa;">
-  <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
-    ${getHeader()}
-    <div style="padding: 40px 30px;">
-      <h2 style="color: #1f2937; margin: 0 0 20px 0;">Bonjour ${name} 👋</h2>
+<body style="margin: 0; padding: 0; background-color: ${STYLES.bgLight};">
+  <div style="max-width: 600px; margin: 0 auto; background-color: ${STYLES.bgWhite};">
+    ${getProHeader()}
+    <div style="padding: 40px 32px;">
+      <h1 style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textPrimary}; font-size: 24px; font-weight: 600; margin: 0 0 24px 0;">
+        Activez les réponses automatiques
+      </h1>
       
-      <p style="color: #4b5563; font-size: 16px; line-height: 1.6;">
-        Saviez-vous que vous pouvez <strong>automatiser complètement</strong> vos réponses aux avis Google ?
+      <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textSecondary}; font-size: 15px; line-height: 1.6; margin: 0 0 24px 0;">
+        Bonjour ${name},
       </p>
       
-      <div style="background: #eff6ff; border-radius: 12px; padding: 25px; margin: 25px 0; border-left: 4px solid ${BRAND_BLUE};">
-        <h3 style="color: ${BRAND_BLUE}; margin: 0 0 15px 0; font-size: 18px;">🤖 Réponses automatiques IA</h3>
-        <ul style="color: #374151; margin: 0; padding-left: 20px; line-height: 1.8;">
-          <li>Répondez 24h/24, 7j/7 automatiquement</li>
-          <li>Réponses personnalisées selon le ton de votre entreprise</li>
-          <li>Publication directe sur Google (optionnel)</li>
-          <li>Notifications pour chaque nouvel avis</li>
+      <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textSecondary}; font-size: 15px; line-height: 1.6; margin: 0 0 24px 0;">
+        Les réponses automatiques vous permettent de répondre à vos avis clients 24h/24, sans intervention manuelle.
+      </p>
+      
+      <div style="background: ${STYLES.bgLight}; border-radius: 6px; padding: 20px; margin: 24px 0; border-left: 3px solid ${STYLES.brandBlue};">
+        <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textPrimary}; font-size: 14px; font-weight: 500; margin: 0 0 12px 0;">
+          Fonctionnalités incluses :
+        </p>
+        <ul style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textSecondary}; font-size: 14px; line-height: 1.8; margin: 0; padding-left: 20px;">
+          <li>Réponses générées par IA selon le ton de votre entreprise</li>
+          <li>Publication automatique sur Google (optionnel)</li>
+          <li>Notification pour chaque nouvel avis</li>
+          <li>Prévisualisation avant publication</li>
         </ul>
       </div>
       
-      <div style="text-align: center; margin: 35px 0;">
-        <a href="https://starlinko.lovable.app/ai-settings" 
-           style="display: inline-block; background-color: ${BRAND_BLUE}; color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 8px; font-size: 16px; font-weight: 600;">
-          ⚡ Activer maintenant
-        </a>
+      <div style="text-align: left; margin: 32px 0;">
+        ${getProButton("Configurer les réponses automatiques", "https://starlinko.lovable.app/ai-settings")}
       </div>
-      
-      <p style="color: #6b7280; font-size: 14px; text-align: center;">
-        Vous gardez le contrôle total - prévisualisez et modifiez avant publication !
-      </p>
     </div>
-    ${getFooter()}
+    ${getProFooter()}
   </div>
 </body>
 </html>
@@ -89,42 +117,45 @@ const emailTemplates: Record<EmailType, (name: string, data?: EngagementEmailReq
   }),
 
   pending_reviews: (name, data) => ({
-    subject: `📝 ${data?.pending_count || 0} avis attendent votre réponse`,
+    subject: `${data?.pending_count || 0} avis en attente de réponse`,
     html: `
 <!DOCTYPE html>
 <html lang="fr">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
-<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7fa;">
-  <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
-    ${getHeader()}
-    <div style="padding: 40px 30px;">
-      <h2 style="color: #1f2937; margin: 0 0 20px 0;">Bonjour ${name} 👋</h2>
+<body style="margin: 0; padding: 0; background-color: ${STYLES.bgLight};">
+  <div style="max-width: 600px; margin: 0 auto; background-color: ${STYLES.bgWhite};">
+    ${getProHeader()}
+    <div style="padding: 40px 32px;">
+      <h1 style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textPrimary}; font-size: 24px; font-weight: 600; margin: 0 0 24px 0;">
+        Avis en attente de réponse
+      </h1>
       
-      <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: 12px; padding: 25px; margin: 25px 0; text-align: center; border-left: 4px solid ${BRAND_YELLOW};">
-        <p style="margin: 0 0 8px 0; color: #92400e; font-size: 14px; font-weight: 600;">AVIS EN ATTENTE</p>
-        <p style="margin: 0; color: #78350f; font-size: 48px; font-weight: 700;">${data?.pending_count || 0}</p>
-        <p style="margin: 8px 0 0 0; color: #92400e; font-size: 14px;">avis sans réponse</p>
-      </div>
-      
-      <p style="color: #4b5563; font-size: 16px; line-height: 1.6;">
-        Vos clients attendent une réponse ! Les entreprises qui répondent à leurs avis ont une 
-        <strong>meilleure note moyenne</strong> et <strong>plus de visibilité</strong> sur Google.
+      <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textSecondary}; font-size: 15px; line-height: 1.6; margin: 0 0 24px 0;">
+        Bonjour ${name},
       </p>
       
-      <div style="text-align: center; margin: 35px 0;">
-        <a href="https://starlinko.lovable.app/reviews" 
-           style="display: inline-block; background-color: ${BRAND_BLUE}; color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 8px; font-size: 16px; font-weight: 600;">
-          ✍️ Répondre aux avis
-        </a>
-      </div>
-      
-      <div style="background-color: #f3f4f6; border-radius: 12px; padding: 20px; margin: 25px 0;">
-        <p style="margin: 0; color: #4b5563; font-size: 14px; line-height: 1.5;">
-          💡 <strong>Astuce :</strong> Utilisez "Générer toutes les réponses" pour créer des réponses IA en un seul clic !
+      <div style="background: ${STYLES.warningBg}; border-radius: 6px; padding: 20px; margin: 24px 0; text-align: center;">
+        <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.warningText}; font-size: 13px; margin: 0 0 4px 0; text-transform: uppercase; letter-spacing: 0.5px;">
+          Avis sans réponse
+        </p>
+        <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textPrimary}; font-size: 36px; font-weight: 600; margin: 0;">
+          ${data?.pending_count || 0}
         </p>
       </div>
+      
+      <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textSecondary}; font-size: 15px; line-height: 1.6; margin: 0 0 24px 0;">
+        Répondre rapidement aux avis améliore votre visibilité sur Google et renforce la confiance de vos clients.
+      </p>
+      
+      <div style="text-align: left; margin: 32px 0;">
+        ${getProButton("Voir les avis", "https://starlinko.lovable.app/reviews")}
+      </div>
+      
+      <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textMuted}; font-size: 13px; line-height: 1.6; margin: 24px 0 0 0;">
+        Utilisez la fonction "Générer toutes les réponses" pour traiter plusieurs avis en un clic.
+      </p>
     </div>
-    ${getFooter()}
+    ${getProFooter()}
   </div>
 </body>
 </html>
@@ -132,35 +163,41 @@ const emailTemplates: Record<EmailType, (name: string, data?: EngagementEmailReq
   }),
 
   low_credits: (name, data) => ({
-    subject: "⚠️ Plus que quelques crédits - Rechargez maintenant",
+    subject: "Crédits bientôt épuisés",
     html: `
 <!DOCTYPE html>
 <html lang="fr">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
-<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7fa;">
-  <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
-    ${getHeader()}
-    <div style="padding: 40px 30px;">
-      <h2 style="color: #1f2937; margin: 0 0 20px 0;">Bonjour ${name} 👋</h2>
+<body style="margin: 0; padding: 0; background-color: ${STYLES.bgLight};">
+  <div style="max-width: 600px; margin: 0 auto; background-color: ${STYLES.bgWhite};">
+    ${getProHeader()}
+    <div style="padding: 40px 32px;">
+      <h1 style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textPrimary}; font-size: 24px; font-weight: 600; margin: 0 0 24px 0;">
+        Crédits bientôt épuisés
+      </h1>
       
-      <div style="background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); border-radius: 12px; padding: 25px; margin: 25px 0; text-align: center; border-left: 4px solid #ef4444;">
-        <p style="margin: 0 0 8px 0; color: #991b1b; font-size: 14px; font-weight: 600;">CRÉDITS RESTANTS</p>
-        <p style="margin: 0; color: #7f1d1d; font-size: 48px; font-weight: 700;">${data?.credits || 0}</p>
-      </div>
-      
-      <p style="color: #4b5563; font-size: 16px; line-height: 1.6;">
-        Vos crédits s'épuisent ! Pour continuer à générer des réponses IA professionnelles, 
-        rechargez votre compte ou passez à un abonnement illimité.
+      <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textSecondary}; font-size: 15px; line-height: 1.6; margin: 0 0 24px 0;">
+        Bonjour ${name},
       </p>
       
-      <div style="text-align: center; margin: 35px 0;">
-        <a href="https://starlinko.lovable.app/select-plan" 
-           style="display: inline-block; background-color: ${BRAND_BLUE}; color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 8px; font-size: 16px; font-weight: 600;">
-          💳 Voir les offres
-        </a>
+      <div style="background: ${STYLES.errorBg}; border-radius: 6px; padding: 20px; margin: 24px 0; text-align: center;">
+        <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.errorText}; font-size: 13px; margin: 0 0 4px 0; text-transform: uppercase; letter-spacing: 0.5px;">
+          Crédits restants
+        </p>
+        <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textPrimary}; font-size: 36px; font-weight: 600; margin: 0;">
+          ${data?.credits || 0}
+        </p>
+      </div>
+      
+      <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textSecondary}; font-size: 15px; line-height: 1.6; margin: 0 0 24px 0;">
+        Pour continuer à générer des réponses IA, rechargez vos crédits ou souscrivez à un abonnement.
+      </p>
+      
+      <div style="text-align: left; margin: 32px 0;">
+        ${getProButton("Voir les offres", "https://starlinko.lovable.app/select-plan")}
       </div>
     </div>
-    ${getFooter()}
+    ${getProFooter()}
   </div>
 </body>
 </html>
@@ -168,48 +205,45 @@ const emailTemplates: Record<EmailType, (name: string, data?: EngagementEmailReq
   }),
 
   no_credits_upgrade: (name, data) => ({
-    subject: `🚨 ${data?.pending_count || 0} avis sans réponse - Rechargez vos crédits`,
+    subject: `${data?.pending_count || 0} avis sans réponse - Crédits épuisés`,
     html: `
 <!DOCTYPE html>
 <html lang="fr">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
-<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7fa;">
-  <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
-    <div style="background-color: #dc2626; padding: 30px; text-align: center;">
-      <h1 style="color: #ffffff; margin: 0; font-size: 24px;">⚠️ Action requise</h1>
-    </div>
-    <div style="padding: 40px 30px;">
-      <h2 style="color: #1f2937; margin: 0 0 20px 0;">Bonjour ${name} 👋</h2>
+<body style="margin: 0; padding: 0; background-color: ${STYLES.bgLight};">
+  <div style="max-width: 600px; margin: 0 auto; background-color: ${STYLES.bgWhite};">
+    ${getProHeader()}
+    <div style="padding: 40px 32px;">
+      <h1 style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textPrimary}; font-size: 24px; font-weight: 600; margin: 0 0 24px 0;">
+        Crédits épuisés
+      </h1>
       
-      <div style="background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); border-radius: 12px; padding: 25px; margin: 25px 0; text-align: center; border-left: 4px solid #dc2626;">
-        <p style="margin: 0 0 8px 0; color: #991b1b; font-size: 14px; font-weight: 600;">VOS CRÉDITS SONT ÉPUISÉS</p>
-        <p style="margin: 0; color: #7f1d1d; font-size: 48px; font-weight: 700;">${data?.pending_count || 0}</p>
-        <p style="margin: 8px 0 0 0; color: #991b1b; font-size: 14px;">avis ne reçoivent pas de réponse automatique</p>
-      </div>
-      
-      <p style="color: #4b5563; font-size: 16px; line-height: 1.6;">
-        <strong>Vos clients attendent !</strong> Les réponses automatiques sont en pause car vos crédits sont épuisés. 
-        Rechargez maintenant pour ne pas perdre l'engagement de vos clients.
+      <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textSecondary}; font-size: 15px; line-height: 1.6; margin: 0 0 24px 0;">
+        Bonjour ${name},
       </p>
       
-      <div style="background: #fef3c7; border-radius: 12px; padding: 20px; margin: 25px 0; border-left: 4px solid ${BRAND_YELLOW};">
-        <p style="margin: 0; color: #92400e; font-size: 14px; line-height: 1.5;">
-          ⏰ <strong>Conseil :</strong> Répondre rapidement aux avis améliore votre référencement Google de 25% !
+      <div style="background: ${STYLES.errorBg}; border-radius: 6px; padding: 20px; margin: 24px 0; text-align: center;">
+        <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.errorText}; font-size: 13px; margin: 0 0 4px 0; text-transform: uppercase; letter-spacing: 0.5px;">
+          Avis en attente
+        </p>
+        <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textPrimary}; font-size: 36px; font-weight: 600; margin: 0;">
+          ${data?.pending_count || 0}
         </p>
       </div>
       
-      <div style="text-align: center; margin: 35px 0;">
-        <a href="https://starlinko.lovable.app/select-plan" 
-           style="display: inline-block; background-color: ${BRAND_BLUE}; color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 8px; font-size: 16px; font-weight: 600;">
-          ⚡ Recharger mes crédits
-        </a>
+      <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textSecondary}; font-size: 15px; line-height: 1.6; margin: 0 0 24px 0;">
+        Les réponses automatiques sont en pause. Rechargez vos crédits pour reprendre le traitement automatique de vos avis.
+      </p>
+      
+      <div style="text-align: left; margin: 32px 0;">
+        ${getProButton("Recharger les crédits", "https://starlinko.lovable.app/select-plan")}
       </div>
       
-      <p style="color: #9ca3af; font-size: 12px; text-align: center; margin-top: 30px;">
-        Ou répondez manuellement depuis votre <a href="https://starlinko.lovable.app/reviews" style="color: ${BRAND_BLUE};">tableau de bord</a>
+      <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textMuted}; font-size: 13px; line-height: 1.6; margin: 24px 0 0 0;">
+        Vous pouvez également <a href="https://starlinko.lovable.app/reviews" style="color: ${STYLES.brandBlue}; text-decoration: none;">répondre manuellement</a> depuis votre tableau de bord.
       </p>
     </div>
-    ${getFooter()}
+    ${getProFooter()}
   </div>
 </body>
 </html>
@@ -217,60 +251,65 @@ const emailTemplates: Record<EmailType, (name: string, data?: EngagementEmailReq
   }),
 
   weekly_summary: (name, data) => ({
-    subject: "📊 Votre résumé hebdomadaire Starlinko",
+    subject: "Résumé hebdomadaire",
     html: `
 <!DOCTYPE html>
 <html lang="fr">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
-<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7fa;">
-  <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
-    <div style="background-color: ${BRAND_BLUE}; padding: 30px; text-align: center;">
-      <div style="display: inline-block; margin-bottom: 4px;">
-        <span style="font-size: 32px; color: ${BRAND_YELLOW};">★</span>
-      </div>
-      <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 700;">Starlinko</h1>
-      <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0;">Résumé de la semaine</p>
-    </div>
-    <div style="padding: 40px 30px;">
-      <h2 style="color: #1f2937; margin: 0 0 20px 0;">Bonjour ${name} 👋</h2>
+<body style="margin: 0; padding: 0; background-color: ${STYLES.bgLight};">
+  <div style="max-width: 600px; margin: 0 auto; background-color: ${STYLES.bgWhite};">
+    ${getProHeader()}
+    <div style="padding: 40px 32px;">
+      <h1 style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textPrimary}; font-size: 24px; font-weight: 600; margin: 0 0 24px 0;">
+        Résumé hebdomadaire
+      </h1>
       
-      <p style="color: #4b5563; font-size: 16px; line-height: 1.6;">
-        Voici votre activité de la semaine sur Starlinko :
+      <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textSecondary}; font-size: 15px; line-height: 1.6; margin: 0 0 24px 0;">
+        Bonjour ${name},
       </p>
       
-      <table style="width: 100%; border-collapse: collapse; margin: 25px 0;">
+      <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textSecondary}; font-size: 15px; line-height: 1.6; margin: 0 0 24px 0;">
+        Voici l'activité de votre compte cette semaine :
+      </p>
+      
+      <table style="width: 100%; border-collapse: collapse; margin: 24px 0;">
         <tr>
-          <td style="width: 50%; padding: 10px 5px 10px 0;">
-            <div style="background: #f0fdf4; border-radius: 12px; padding: 20px; text-align: center; border-left: 4px solid ${BRAND_GREEN};">
-              <p style="margin: 0; color: #166534; font-size: 32px; font-weight: 700;">${data?.reviews_responded || 0}</p>
-              <p style="margin: 5px 0 0 0; color: #15803d; font-size: 12px;">Réponses générées</p>
+          <td style="width: 50%; padding: 0 8px 0 0;">
+            <div style="background: ${STYLES.successBg}; border-radius: 6px; padding: 20px; text-align: center;">
+              <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.successText}; font-size: 13px; margin: 0 0 4px 0; text-transform: uppercase; letter-spacing: 0.5px;">
+                Réponses générées
+              </p>
+              <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textPrimary}; font-size: 28px; font-weight: 600; margin: 0;">
+                ${data?.reviews_responded || 0}
+              </p>
             </div>
           </td>
-          <td style="width: 50%; padding: 10px 0 10px 5px;">
-            <div style="background: #eff6ff; border-radius: 12px; padding: 20px; text-align: center; border-left: 4px solid ${BRAND_BLUE};">
-              <p style="margin: 0; color: #1e40af; font-size: 32px; font-weight: 700;">${data?.reviews_published || 0}</p>
-              <p style="margin: 5px 0 0 0; color: #1d4ed8; font-size: 12px;">Publiées sur Google</p>
+          <td style="width: 50%; padding: 0 0 0 8px;">
+            <div style="background: ${STYLES.bgLight}; border-radius: 6px; padding: 20px; text-align: center;">
+              <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textSecondary}; font-size: 13px; margin: 0 0 4px 0; text-transform: uppercase; letter-spacing: 0.5px;">
+                Publiées sur Google
+              </p>
+              <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textPrimary}; font-size: 28px; font-weight: 600; margin: 0;">
+                ${data?.reviews_published || 0}
+              </p>
             </div>
           </td>
         </tr>
       </table>
       
       ${(data?.pending_count || 0) > 0 ? `
-      <div style="background: #fef3c7; border-radius: 12px; padding: 20px; margin: 25px 0; border-left: 4px solid ${BRAND_YELLOW};">
-        <p style="margin: 0; color: #92400e; font-size: 14px;">
-          ⚠️ <strong>${data?.pending_count} avis</strong> attendent encore une réponse.
+      <div style="background: ${STYLES.warningBg}; border-radius: 6px; padding: 16px; margin: 24px 0;">
+        <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.warningText}; font-size: 14px; margin: 0;">
+          ${data?.pending_count} avis en attente de réponse.
         </p>
       </div>
       ` : ''}
       
-      <div style="text-align: center; margin: 35px 0;">
-        <a href="https://starlinko.lovable.app/dashboard" 
-           style="display: inline-block; background-color: ${BRAND_BLUE}; color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 8px; font-size: 16px; font-weight: 600;">
-          📊 Voir le tableau de bord
-        </a>
+      <div style="text-align: left; margin: 32px 0;">
+        ${getProButton("Voir le tableau de bord", "https://starlinko.lovable.app/dashboard")}
       </div>
     </div>
-    ${getFooter()}
+    ${getProFooter()}
   </div>
 </body>
 </html>
@@ -311,7 +350,7 @@ serve(async (req) => {
       );
     }
 
-    const firstName = name?.split(" ")[0] || "Cher client";
+    const firstName = name?.split(" ")[0] || "";
     const { subject, html } = template(firstName, data);
 
     console.log(`Sending ${type} email to ${email}`);
