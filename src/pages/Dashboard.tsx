@@ -114,11 +114,11 @@ const Dashboard = () => {
 
     if (profileRes.data) setProfile(profileRes.data);
     
-    // Sort by pending first (no AI response AND no Google reply), then by date
+    // Sort by pending first (no Google reply = not answered on Google), then by date
     const sortedReviews = allReviews.sort((a, b) => {
-      // Pending reviews first (neither AI response nor Google reply)
-      const aPending = !a.ai_response && !a.google_reply;
-      const bPending = !b.ai_response && !b.google_reply;
+      // Pending reviews first (no Google reply = unanswered on Google)
+      const aPending = !a.published_to_google && !a.google_reply;
+      const bPending = !b.published_to_google && !b.google_reply;
       if (aPending && !bPending) return -1;
       if (!aPending && bPending) return 1;
       // Then by date
@@ -129,16 +129,20 @@ const Dashboard = () => {
     
     const total = allReviews.length;
     const avgRating = total > 0 ? allReviews.reduce((sum, r) => sum + r.rating, 0) / total : 0;
-    // Count responses: either AI response OR existing Google reply
-    const responded = allReviews.filter(r => r.ai_response || r.google_reply).length;
-    // Pending = no AI response AND no Google reply
-    const pending = allReviews.filter(r => !r.ai_response && !r.google_reply).length;
+    
+    // Standardized counts (same logic as Reviews page):
+    // - pending = no published_to_google AND no google_reply (truly unanswered)
+    // - aiReady = has AI response but not published and no google_reply (ready to publish)
+    // - responded = published_to_google OR has google_reply (answered)
+    const pending = allReviews.filter(r => !r.published_to_google && !r.google_reply).length;
+    const aiReady = allReviews.filter(r => r.ai_response && !r.published_to_google && !r.google_reply).length;
+    const responded = allReviews.filter(r => r.published_to_google || r.google_reply).length;
     const responseRate = total > 0 ? Math.round((responded / total) * 100) : 0;
     
     setStats({
       total,
       avgRating: Number(avgRating.toFixed(1)),
-      aiResponses: responded,
+      aiResponses: aiReady,
       pending,
       businesses: businessesRes.count || 0,
       responseRate
