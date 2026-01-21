@@ -27,7 +27,9 @@ import {
   AlertCircle,
   FileText,
   PlusCircle,
-  Crown
+  Crown,
+  Sparkles,
+  Tag
 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
@@ -50,6 +52,7 @@ interface Business {
   is_active: boolean;
   google_place_id: string | null;
   description: string | null;
+  auto_keywords: string[] | null;
 }
 
 const BusinessesPage = () => {
@@ -65,6 +68,7 @@ const BusinessesPage = () => {
   const [editingBusiness, setEditingBusiness] = useState<Business | null>(null);
   const [editDescription, setEditDescription] = useState("");
   const [saving, setSaving] = useState(false);
+  const [analyzingId, setAnalyzingId] = useState<string | null>(null);
   const { syncBusinesses, isSyncing } = useSyncGoogleBusinesses();
   const [newBusiness, setNewBusiness] = useState({
     name: "",
@@ -274,6 +278,38 @@ const BusinessesPage = () => {
     setSaving(false);
   };
 
+  const handleAnalyzeBusiness = async (business: Business) => {
+    if (!user) return;
+    setAnalyzingId(business.id);
+    
+    try {
+      const { error } = await supabase.functions.invoke("analyze-business-website", {
+        body: {
+          businessId: business.id,
+          website: business.website,
+          gmbDescription: business.description,
+        },
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Analyse terminée",
+        description: "Les mots-clés ont été extraits avec succès.",
+      });
+      fetchBusinesses();
+    } catch (error) {
+      console.error("Error analyzing business:", error);
+      toast({
+        title: "Erreur",
+        description: "Impossible d'analyser le site web.",
+        variant: "destructive",
+      });
+    } finally {
+      setAnalyzingId(null);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
@@ -454,6 +490,50 @@ const BusinessesPage = () => {
                       <p className="text-sm text-muted-foreground line-clamp-2">{business.description}</p>
                     </div>
                   )}
+
+                  {/* Keywords Section */}
+                  <div className="mt-4 pt-4 border-t border-border">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <Tag className="w-4 h-4 text-muted-foreground" />
+                        <span className="text-sm font-medium text-foreground">Mots-clés</span>
+                      </div>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="h-7 gap-1 text-xs"
+                        onClick={() => handleAnalyzeBusiness(business)}
+                        disabled={analyzingId === business.id || (!business.website && !business.description)}
+                      >
+                        {analyzingId === business.id ? (
+                          <Loader2 className="w-3 h-3 animate-spin" />
+                        ) : (
+                          <Sparkles className="w-3 h-3" />
+                        )}
+                        {analyzingId === business.id ? "Analyse..." : "Analyser"}
+                      </Button>
+                    </div>
+                    {business.auto_keywords && business.auto_keywords.length > 0 ? (
+                      <div className="flex flex-wrap gap-1">
+                        {business.auto_keywords.slice(0, 6).map((keyword, idx) => (
+                          <Badge key={idx} variant="secondary" className="text-xs px-2 py-0.5">
+                            {keyword}
+                          </Badge>
+                        ))}
+                        {business.auto_keywords.length > 6 && (
+                          <Badge variant="outline" className="text-xs px-2 py-0.5">
+                            +{business.auto_keywords.length - 6}
+                          </Badge>
+                        )}
+                      </div>
+                    ) : (
+                      <p className="text-xs text-muted-foreground">
+                        {business.website || business.description 
+                          ? "Cliquez sur Analyser pour extraire les mots-clés" 
+                          : "Ajoutez un site web ou une description"}
+                      </p>
+                    )}
+                  </div>
 
                   {/* Posts Section */}
                   <div className="mt-4 pt-4 border-t border-border">
