@@ -64,6 +64,7 @@ interface Business {
   description: string | null;
   auto_keywords: string[] | null;
   maps_url: string | null;
+  profile_image_url: string | null;
 }
 
 const BusinessesPage = () => {
@@ -421,9 +422,15 @@ const BusinessesPage = () => {
                 >
                   {/* Header: Logo + Name + Badge */}
                   <div className="flex items-start gap-3 mb-3">
-                    {/* Logo / Initials */}
-                    <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center flex-shrink-0 border border-primary/20">
-                      {isGoogleConnected ? (
+                    {/* Logo / Photo */}
+                    <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center flex-shrink-0 border border-primary/20 overflow-hidden">
+                      {business.profile_image_url ? (
+                        <img 
+                          src={business.profile_image_url}
+                          alt={business.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : isGoogleConnected ? (
                         <img 
                           src="https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png"
                           alt="Google"
