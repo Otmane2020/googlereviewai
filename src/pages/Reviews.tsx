@@ -638,21 +638,21 @@ const Reviews = () => {
           {/* Stats - Clickable Filters */}
           <div className="grid grid-cols-4 gap-3 mt-4">
             {[
-              { label: "Total", value: stats.total, gradient: "from-slate-500 to-slate-700", bgGradient: "from-slate-500/10 to-slate-700/10", status: "all" },
-              { label: "Non répondu", value: stats.pending, gradient: "from-red-500 to-orange-500", bgGradient: "from-red-500/15 to-orange-500/15", status: "pending" },
-              { label: "Réponse IA", value: stats.ready, gradient: "from-primary to-blue-500", bgGradient: "from-primary/15 to-blue-500/15", status: "ready" },
-              { label: "Publié", value: stats.published, gradient: "from-green-500 to-emerald-500", bgGradient: "from-green-500/15 to-emerald-500/15", status: "published" },
+              { label: "Total", value: stats.total, bgGradient: "from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900", textColor: "text-slate-700 dark:text-slate-200", status: "all" },
+              { label: "Non répondu", value: stats.pending, bgGradient: "from-red-100 to-orange-100 dark:from-red-900/40 dark:to-orange-900/40", textColor: "text-red-600 dark:text-red-400", status: "pending" },
+              { label: "Réponse IA", value: stats.ready, bgGradient: "from-blue-100 to-indigo-100 dark:from-blue-900/40 dark:to-indigo-900/40", textColor: "text-primary", status: "ready" },
+              { label: "Publié", value: stats.published, bgGradient: "from-green-100 to-emerald-100 dark:from-green-900/40 dark:to-emerald-900/40", textColor: "text-green-600 dark:text-green-400", status: "published" },
             ].map((stat) => (
               <button
                 key={stat.label}
                 onClick={() => setFilterStatus(stat.status)}
-                className={`rounded-xl p-3 text-center border transition-all ${
+                className={`rounded-xl p-3 text-center transition-all bg-gradient-to-br ${stat.bgGradient} ${
                   filterStatus === stat.status 
-                    ? `bg-gradient-to-br ${stat.bgGradient} border-transparent ring-2 ring-offset-2 ring-offset-background ring-current/30` 
-                    : "bg-card border-border hover:border-muted-foreground/50 hover:shadow-sm"
+                    ? "ring-2 ring-offset-2 ring-offset-background ring-primary/50 shadow-md" 
+                    : "hover:shadow-sm opacity-80 hover:opacity-100"
                 }`}
               >
-                <div className={`text-xl font-bold bg-gradient-to-r ${stat.gradient} bg-clip-text text-transparent`}>
+                <div className={`text-xl font-bold ${stat.textColor}`}>
                   {stat.value}
                 </div>
                 <div className="text-xs text-muted-foreground mt-0.5">{stat.label}</div>
@@ -804,26 +804,28 @@ const Reviews = () => {
 
                   {/* Content */}
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-medium text-foreground">{review.author}</span>
-                      <div className="flex">
-                        {[...Array(5)].map((_, i) => (
-                          <Star key={i} className={`w-3.5 h-3.5 ${i < review.rating ? "text-accent fill-accent" : "text-muted-foreground/30"}`} />
-                        ))}
+                    <div className="flex flex-col gap-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-medium text-foreground">{review.author}</span>
+                        <div className="flex">
+                          {[...Array(5)].map((_, i) => (
+                            <Star key={i} className={`w-3.5 h-3.5 ${i < review.rating ? "text-accent fill-accent" : "text-muted-foreground/30"}`} />
+                          ))}
+                        </div>
+                        {/* Status Badge */}
+                        {review.published_to_google ? (
+                          <Badge variant="secondary" className="text-xs gap-1 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"><CheckCircle className="w-3 h-3" /> Publié</Badge>
+                        ) : review.google_reply ? (
+                          <Badge variant="secondary" className="text-xs gap-1 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"><MessageSquare className="w-3 h-3" /> Répondu</Badge>
+                        ) : review.ai_response ? (
+                          <Badge className="text-xs gap-1 bg-primary/10 text-primary hover:bg-primary/20"><Sparkles className="w-3 h-3" /> IA prête</Badge>
+                        ) : (
+                          <Badge variant="outline" className="text-xs gap-1"><Clock className="w-3 h-3" /> En attente</Badge>
+                        )}
                       </div>
                       <span className="text-xs text-muted-foreground">
                         {new Date(review.review_date).toLocaleDateString("fr-FR")}
                       </span>
-                      {/* Status Badge */}
-                      {review.published_to_google ? (
-                        <Badge variant="secondary" className="text-xs gap-1 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"><CheckCircle className="w-3 h-3" /> Publié</Badge>
-                      ) : review.google_reply ? (
-                        <Badge variant="secondary" className="text-xs gap-1 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"><MessageSquare className="w-3 h-3" /> Répondu</Badge>
-                      ) : review.ai_response ? (
-                        <Badge className="text-xs gap-1 bg-primary/10 text-primary hover:bg-primary/20"><Sparkles className="w-3 h-3" /> IA prête</Badge>
-                      ) : (
-                        <Badge variant="outline" className="text-xs gap-1"><Clock className="w-3 h-3" /> En attente</Badge>
-                      )}
                     </div>
 
                     {review.comment && (
