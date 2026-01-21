@@ -138,11 +138,16 @@ const SEOAutoPost = () => {
     setScheduledContent((data as ScheduledContent[]) || []);
   };
 
-  const handleSubscribe = async () => {
+  const handleSubscribe = async (annual: boolean = false) => {
     try {
+      const priceKey = annual ? "seo_yearly" : "seo_monthly";
+      // Quantity = number of active businesses (minimum 1)
+      const quantity = Math.max(1, businesses.length);
+      
       const { data, error } = await supabase.functions.invoke("create-checkout", {
         body: { 
-          priceKey: "seo_monthly",
+          priceKey,
+          quantity,
         }
       });
       
@@ -551,13 +556,20 @@ const SEOAutoPost = () => {
                   <div className="flex items-center gap-3 mb-3">
                     <Lock className="w-6 h-6 text-primary flex-shrink-0" />
                     <div className="min-w-0">
-                      <p className="font-semibold text-sm text-foreground">Module Premium</p>
-                      <p className="text-xs text-muted-foreground">Débloquez toutes les fonctionnalités</p>
+                      <p className="font-semibold text-sm text-foreground">Module Premium SEO</p>
+                      <p className="text-xs text-muted-foreground">
+                        49€/mois par établissement ({businesses.length} établissement{businesses.length > 1 ? 's' : ''} = {49 * Math.max(1, businesses.length)}€/mois)
+                      </p>
                     </div>
                   </div>
-                  <Button onClick={handleSubscribe} size="sm" className="w-full">
-                    S'abonner - 49€/mois
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button onClick={() => handleSubscribe(false)} size="sm" className="flex-1">
+                      Mensuel - {49 * Math.max(1, businesses.length)}€
+                    </Button>
+                    <Button variant="outline" onClick={() => handleSubscribe(true)} size="sm" className="flex-1">
+                      Annuel - {Math.round(39.20 * Math.max(1, businesses.length))}€/mois
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             )}

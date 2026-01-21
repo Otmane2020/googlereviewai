@@ -143,10 +143,13 @@ const AEORank = () => {
   const handleSubscribe = async (annual: boolean = false) => {
     try {
       const priceKey = annual ? "aeo_yearly" : "aeo_monthly";
+      // Quantity = number of active businesses (minimum 1)
+      const quantity = Math.max(1, businesses.length);
       
       const { data, error } = await supabase.functions.invoke("create-checkout", {
         body: { 
           priceKey,
+          quantity,
         }
       });
       
@@ -556,15 +559,17 @@ const AEORank = () => {
                     <Lock className="w-6 h-6 text-primary flex-shrink-0" />
                     <div className="min-w-0">
                       <p className="font-semibold text-sm text-foreground">Module Premium AEO</p>
-                      <p className="text-xs text-muted-foreground">Débloquez toutes les fonctionnalités</p>
+                      <p className="text-xs text-muted-foreground">
+                        49€/mois par établissement ({businesses.length} établissement{businesses.length > 1 ? 's' : ''} = {49 * Math.max(1, businesses.length)}€/mois)
+                      </p>
                     </div>
                   </div>
                   <div className="flex gap-2">
                     <Button onClick={() => handleSubscribe(false)} size="sm" className="flex-1">
-                      49€/mois
+                      Mensuel - {49 * Math.max(1, businesses.length)}€
                     </Button>
                     <Button variant="outline" onClick={() => handleSubscribe(true)} size="sm" className="flex-1">
-                      39€/mois
+                      Annuel - {Math.round(39.20 * Math.max(1, businesses.length))}€/mois
                     </Button>
                   </div>
                 </CardContent>

@@ -50,6 +50,9 @@ const CREDIT_AMOUNTS: Record<string, number> = {
 const TRIAL_PLANS = ["starter_monthly", "starter_yearly"];
 const TRIAL_DAYS = 3;
 
+// Per-business pricing modules (49€/establishment)
+const PER_BUSINESS_MODULES = ["aeo_monthly", "aeo_yearly", "seo_monthly", "seo_yearly"];
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -74,7 +77,7 @@ serve(async (req) => {
       throw new Error("Unauthorized");
     }
 
-    const { priceKey, successUrl, cancelUrl, mode } = await req.json();
+    const { priceKey, successUrl, cancelUrl, mode, quantity } = await req.json();
 
     if (!priceKey || !PRICE_IDS[priceKey]) {
       throw new Error("Invalid price key");
@@ -82,7 +85,13 @@ serve(async (req) => {
 
     const priceId = PRICE_IDS[priceKey];
     const isCreditsPackage = priceKey.startsWith("credits_");
+    const isPerBusinessModule = PER_BUSINESS_MODULES.includes(priceKey);
     const checkoutMode = isCreditsPackage || mode === "payment" ? "payment" : "subscription";
+    
+    // For per-business modules, quantity must be at least 1
+    const lineItemQuantity = isPerBusinessModule ? Math.max(1, quantity || 1) : 1;
+    
+    console.log(`[create-checkout] Per-business module: ${isPerBusinessModule}, quantity: ${lineItemQuantity}`);
 
     // Check if customer already exists
     const customers = await stripe.customers.list({
@@ -146,7 +155,7 @@ serve(async (req) => {
     // Create checkout session
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
       customer: customerId,
-      line_items: [{ price: priceId, quantity: 1 }],
+      line_items: [{ price: priceId, quantity: lineItemQuantity }],
       mode: checkoutMode,
       success_url: successUrl || `${req.headers.get("origin")}/dashboard?success=true`,
       cancel_url: cancelUrl || `${req.headers.get("origin")}/dashboard?canceled=true`,
@@ -154,6 +163,7 @@ serve(async (req) => {
         supabase_user_id: user.id,
         price_key: priceKey,
         ...(isCreditsPackage && { credits_amount: String(CREDIT_AMOUNTS[priceKey] || 0) }),
+        ...(isPerBusinessModule && { businesses_count: String(lineItemQuantity) }),
       },
     };
 
