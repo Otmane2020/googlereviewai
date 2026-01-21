@@ -85,9 +85,13 @@ export type Database = {
           enabled: boolean | null
           id: string
           include_signature: boolean | null
+          last_sync_at: string | null
+          last_sync_error: string | null
+          last_sync_status: string | null
           minimum_rating: number | null
           only_positive_reviews: boolean | null
           response_length: string | null
+          reviews_synced_count: number | null
           signature: string | null
           sync_interval_minutes: number | null
           tone: string | null
@@ -104,9 +108,13 @@ export type Database = {
           enabled?: boolean | null
           id?: string
           include_signature?: boolean | null
+          last_sync_at?: string | null
+          last_sync_error?: string | null
+          last_sync_status?: string | null
           minimum_rating?: number | null
           only_positive_reviews?: boolean | null
           response_length?: string | null
+          reviews_synced_count?: number | null
           signature?: string | null
           sync_interval_minutes?: number | null
           tone?: string | null
@@ -123,9 +131,13 @@ export type Database = {
           enabled?: boolean | null
           id?: string
           include_signature?: boolean | null
+          last_sync_at?: string | null
+          last_sync_error?: string | null
+          last_sync_status?: string | null
           minimum_rating?: number | null
           only_positive_reviews?: boolean | null
           response_length?: string | null
+          reviews_synced_count?: number | null
           signature?: string | null
           sync_interval_minutes?: number | null
           tone?: string | null
@@ -642,6 +654,7 @@ export type Database = {
           google_reply_id: string | null
           id: number
           location_id: string
+          notified: boolean | null
           published_at: string | null
           published_to_google: boolean | null
           rating: number
@@ -660,6 +673,7 @@ export type Database = {
           google_reply_id?: string | null
           id?: number
           location_id: string
+          notified?: boolean | null
           published_at?: string | null
           published_to_google?: boolean | null
           rating: number
@@ -678,6 +692,7 @@ export type Database = {
           google_reply_id?: string | null
           id?: number
           location_id?: string
+          notified?: boolean | null
           published_at?: string | null
           published_to_google?: boolean | null
           rating?: number
