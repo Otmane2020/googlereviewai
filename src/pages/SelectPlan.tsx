@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { StarlinkoLogo } from "@/components/StarlinkoLogo";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { PlanCard } from "@/components/PlanCard";
+import { EmbeddedCheckoutDialog } from "@/components/EmbeddedCheckoutDialog";
 import { 
   Crown, 
   Loader2,
@@ -65,8 +65,9 @@ const SelectPlan = () => {
   const { user, loading, signOut } = useAuth();
   const navigate = useNavigate();
   const [isYearly, setIsYearly] = useState(false);
-  const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const [loadingLogout, setLoadingLogout] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
 
   const handleLogout = async () => {
     setLoadingLogout(true);
@@ -86,37 +87,14 @@ const SelectPlan = () => {
     return null;
   }
 
-  const handleSelectPlan = async (plan: Plan) => {
-    setLoadingPlan(plan.id);
+  const handleSelectPlan = (plan: Plan) => {
+    setSelectedPlan(plan);
+    setCheckoutOpen(true);
+  };
 
-    try {
-      const priceKey = `${plan.id}_${isYearly ? "yearly" : "monthly"}`;
-      
-      const { data, error } = await supabase.functions.invoke("create-checkout", {
-        body: {
-          priceKey,
-          successUrl: `${window.location.origin}/dashboard?success=true`,
-          cancelUrl: `${window.location.origin}/select-plan?canceled=true`,
-        },
-      });
-
-      if (error) throw error;
-
-      if (data?.url) {
-        window.location.href = data.url;
-      } else {
-        throw new Error("No checkout URL returned");
-      }
-    } catch (error) {
-      console.error("Checkout error:", error);
-      toast({
-        title: "Erreur",
-        description: "Impossible de créer la session de paiement.",
-        variant: "destructive",
-      });
-    } finally {
-      setLoadingPlan(null);
-    }
+  const getPriceKey = () => {
+    if (!selectedPlan) return "";
+    return `${selectedPlan.id}_${isYearly ? "yearly" : "monthly"}`;
   };
 
   if (loading) {
@@ -206,7 +184,7 @@ const SelectPlan = () => {
               key={plan.id}
               plan={plan}
               isYearly={isYearly}
-              isLoading={loadingPlan === plan.id}
+              isLoading={false}
               onSelect={() => handleSelectPlan(plan)}
             />
           ))}
@@ -231,6 +209,16 @@ const SelectPlan = () => {
           </Link>
         </div>
       </main>
+
+      {/* Embedded Checkout Dialog */}
+      {selectedPlan && (
+        <EmbeddedCheckoutDialog
+          open={checkoutOpen}
+          onOpenChange={setCheckoutOpen}
+          priceKey={getPriceKey()}
+          planName={selectedPlan.name}
+        />
+      )}
     </div>
   );
 };
