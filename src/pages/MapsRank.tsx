@@ -5,6 +5,7 @@ import { useRequireSubscription } from "@/hooks/useRequireSubscription";
 import { supabase } from "@/integrations/supabase/client";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
+import { RankingMap } from "@/components/RankingMap";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -12,8 +13,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
-import { MapPin, Search, Grid3X3, History, Loader2, AlertCircle, Target, Trophy, Building2 } from "lucide-react";
+import { MapPin, Search, Grid3X3, History, Loader2, Target, Building2, Star, Users } from "lucide-react";
 
 interface Business {
   id: string;
@@ -59,8 +61,7 @@ interface ScanResult {
 
 const MapsRank = () => {
   const { user, loading: authLoading } = useAuth();
-  const { loading: subLoading, valid } = useRequireSubscription();
-  const navigate = useNavigate();
+  const { loading: subLoading } = useRequireSubscription();
 
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [selectedBusiness, setSelectedBusiness] = useState<string>("");
@@ -70,7 +71,6 @@ const MapsRank = () => {
   const [isScanning, setIsScanning] = useState(false);
   const [scanResult, setScanResult] = useState<ScanResult | null>(null);
   const [history, setHistory] = useState<Scan[]>([]);
-  const [historyPoints, setHistoryPoints] = useState<ScanPoint[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [selectedPoint, setSelectedPoint] = useState<ScanPoint | null>(null);
 
@@ -228,7 +228,7 @@ const MapsRank = () => {
   };
 
   const getRankColor = (rank: number | null): string => {
-    if (rank === null) return "bg-gray-400";
+    if (rank === null) return "bg-muted-foreground/50";
     if (rank <= 3) return "bg-green-500";
     if (rank <= 7) return "bg-yellow-500";
     if (rank <= 10) return "bg-orange-500";
@@ -250,6 +250,53 @@ const MapsRank = () => {
       minute: "2-digit",
     });
   };
+
+  // Calculate stats
+  const getStats = () => {
+    if (!scanResult) return null;
+    const top3 = scanResult.points.filter(p => p.rank_position && p.rank_position <= 3).length;
+    const rank4to7 = scanResult.points.filter(p => p.rank_position && p.rank_position >= 4 && p.rank_position <= 7).length;
+    const rank8to10 = scanResult.points.filter(p => p.rank_position && p.rank_position >= 8 && p.rank_position <= 10).length;
+    const notFound = scanResult.points.filter(p => !p.rank_position).length;
+    const avgRank = scanResult.points
+      .filter(p => p.rank_position)
+      .reduce((sum, p) => sum + (p.rank_position || 0), 0) / (scanResult.points.length - notFound) || 0;
+    
+    return { top3, rank4to7, rank8to10, notFound, avgRank };
+  };
+
+  // Aggregate top competitors across all points
+  const getTopCompetitors = () => {
+    if (!scanResult) return [];
+    
+    const competitorMap = new Map<string, { name: string; address: string; rating: number | null; appearances: number; avgPosition: number }>();
+    
+    scanResult.points.forEach(point => {
+      point.competitors.forEach((comp, idx) => {
+        const existing = competitorMap.get(comp.placeId);
+        if (existing) {
+          existing.appearances += 1;
+          existing.avgPosition = (existing.avgPosition * (existing.appearances - 1) + (idx + 1)) / existing.appearances;
+        } else {
+          competitorMap.set(comp.placeId, {
+            name: comp.name,
+            address: comp.address,
+            rating: comp.rating,
+            appearances: 1,
+            avgPosition: idx + 1,
+          });
+        }
+      });
+    });
+    
+    return Array.from(competitorMap.values())
+      .sort((a, b) => b.appearances - a.appearances)
+      .slice(0, 10);
+  };
+
+  const stats = getStats();
+  const topCompetitors = getTopCompetitors();
+  const selectedBusinessData = businesses.find(b => b.id === selectedBusiness);
 
   if (authLoading || subLoading) {
     return (
@@ -277,36 +324,31 @@ const MapsRank = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Configuration Panel */}
-          <Card className="lg:col-span-1">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Grid3X3 className="w-5 h-5" />
+          <Card className="lg:col-span-3">
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <Grid3X3 className="w-4 h-4" />
                 Configuration
               </CardTitle>
-              <CardDescription>
-                Paramétrez votre analyse de positionnement
-              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               {/* Business selector */}
               <div className="space-y-2">
-                <Label htmlFor="business">Établissement</Label>
+                <Label htmlFor="business" className="text-xs">Établissement</Label>
                 <Select value={selectedBusiness} onValueChange={setSelectedBusiness}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Sélectionner un établissement" />
+                  <SelectTrigger className="h-9">
+                    <SelectValue placeholder="Sélectionner" />
                   </SelectTrigger>
                   <SelectContent>
                     {businesses.map((b) => (
                       <SelectItem key={b.id} value={b.id}>
                         <div className="flex items-center gap-2">
-                          <Building2 className="w-4 h-4" />
-                          {b.name}
+                          <Building2 className="w-3 h-3" />
+                          <span className="truncate">{b.name}</span>
                           {!b.google_place_id && (
-                            <Badge variant="destructive" className="ml-2 text-xs">
-                              Non connecté
-                            </Badge>
+                            <Badge variant="destructive" className="text-[10px] px-1">!</Badge>
                           )}
                         </div>
                       </SelectItem>
@@ -317,43 +359,43 @@ const MapsRank = () => {
 
               {/* Keyword */}
               <div className="space-y-2">
-                <Label htmlFor="keyword">Mot-clé de recherche</Label>
+                <Label htmlFor="keyword" className="text-xs">Mot-clé</Label>
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
                   <Input
                     id="keyword"
-                    placeholder="ex: restaurant italien"
+                    placeholder="restaurant italien"
                     value={keyword}
                     onChange={(e) => setKeyword(e.target.value)}
-                    className="pl-10"
+                    className="pl-8 h-9 text-sm"
                   />
                 </div>
               </div>
 
               {/* Grid size */}
               <div className="space-y-2">
-                <Label>Taille de la grille</Label>
+                <Label className="text-xs">Grille</Label>
                 <Select value={gridSize} onValueChange={setGridSize}>
-                  <SelectTrigger>
+                  <SelectTrigger className="h-9">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="3">3×3 (9 points)</SelectItem>
-                    <SelectItem value="5">5×5 (25 points)</SelectItem>
-                    <SelectItem value="7">7×7 (49 points)</SelectItem>
+                    <SelectItem value="3">3×3 (9 pts)</SelectItem>
+                    <SelectItem value="5">5×5 (25 pts)</SelectItem>
+                    <SelectItem value="7">7×7 (49 pts)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               {/* Spacing */}
               <div className="space-y-2">
-                <Label>Espacement entre les points</Label>
+                <Label className="text-xs">Espacement</Label>
                 <Select value={spacing} onValueChange={setSpacing}>
-                  <SelectTrigger>
+                  <SelectTrigger className="h-9">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="500">500 mètres</SelectItem>
+                    <SelectItem value="500">500 m</SelectItem>
                     <SelectItem value="1000">1 km</SelectItem>
                     <SelectItem value="2000">2 km</SelectItem>
                     <SelectItem value="3000">3 km</SelectItem>
@@ -368,12 +410,11 @@ const MapsRank = () => {
                 onClick={handleScan}
                 disabled={isScanning || !selectedBusiness || !keyword.trim()}
                 className="w-full"
-                size="lg"
               >
                 {isScanning ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Scan en cours...
+                    Scan...
                   </>
                 ) : (
                   <>
@@ -386,191 +427,260 @@ const MapsRank = () => {
               {/* History */}
               {history.length > 0 && (
                 <div className="pt-4 border-t">
-                  <h3 className="font-medium text-sm mb-3 flex items-center gap-2">
-                    <History className="w-4 h-4" />
-                    Historique récent
+                  <h3 className="font-medium text-xs mb-2 flex items-center gap-1.5 text-muted-foreground">
+                    <History className="w-3.5 h-3.5" />
+                    Historique
                   </h3>
-                  <div className="space-y-2 max-h-48 overflow-y-auto">
-                    {loadingHistory ? (
-                      <Skeleton className="h-10 w-full" />
-                    ) : (
-                      history.map((scan) => (
-                        <button
-                          key={scan.id}
-                          onClick={() => loadScanFromHistory(scan.id)}
-                          className="w-full text-left p-2 rounded-lg border hover:bg-muted transition-colors text-sm"
-                        >
-                          <div className="font-medium truncate">{scan.keyword}</div>
-                          <div className="text-xs text-muted-foreground">
-                            {scan.grid_size}×{scan.grid_size} • {formatDate(scan.created_at)}
-                          </div>
-                        </button>
-                      ))
-                    )}
-                  </div>
+                  <ScrollArea className="h-32">
+                    <div className="space-y-1.5 pr-2">
+                      {loadingHistory ? (
+                        <Skeleton className="h-8 w-full" />
+                      ) : (
+                        history.map((scan) => (
+                          <button
+                            key={scan.id}
+                            onClick={() => loadScanFromHistory(scan.id)}
+                            className="w-full text-left p-2 rounded-lg border hover:bg-muted transition-colors text-xs"
+                          >
+                            <div className="font-medium truncate">{scan.keyword}</div>
+                            <div className="text-[10px] text-muted-foreground">
+                              {scan.grid_size}×{scan.grid_size} • {formatDate(scan.created_at)}
+                            </div>
+                          </button>
+                        ))
+                      )}
+                    </div>
+                  </ScrollArea>
                 </div>
               )}
             </CardContent>
           </Card>
 
-          {/* Results Panel */}
-          <Card className="lg:col-span-2">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Trophy className="w-5 h-5" />
-                Résultats
-              </CardTitle>
-              <CardDescription>
-                Visualisation de votre classement par zone
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {!scanResult ? (
-                <div className="flex flex-col items-center justify-center py-16 text-center">
-                  <MapPin className="w-16 h-16 text-muted-foreground/30 mb-4" />
-                  <p className="text-muted-foreground">
-                    Configurez et lancez un scan pour voir les résultats
-                  </p>
-                </div>
-              ) : (
-                <div className="space-y-6">
-                  {/* Grid visualization */}
-                  <div className="flex justify-center">
-                    <div
-                      className="grid gap-2"
-                      style={{
-                        gridTemplateColumns: `repeat(${parseInt(gridSize)}, minmax(0, 1fr))`,
-                      }}
+          {/* Map & Results Panel */}
+          <div className="lg:col-span-6 space-y-4">
+            {/* Map */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <MapPin className="w-4 h-4" />
+                  Carte de classement
+                </CardTitle>
+                {scanResult && (
+                  <CardDescription className="text-xs">
+                    Cliquez sur un point pour voir les détails
+                  </CardDescription>
+                )}
+              </CardHeader>
+              <CardContent>
+                {!scanResult ? (
+                  <div className="w-full h-[400px] bg-muted/50 rounded-xl flex flex-col items-center justify-center text-center p-6">
+                    <MapPin className="w-16 h-16 text-muted-foreground/30 mb-4" />
+                    <p className="text-muted-foreground text-sm">
+                      Configurez et lancez un scan pour voir votre classement sur la carte
+                    </p>
+                  </div>
+                ) : (
+                  <RankingMap
+                    center={scanResult.center}
+                    points={scanResult.points}
+                    spacing={parseInt(spacing)}
+                    gridSize={parseInt(gridSize)}
+                    selectedPoint={selectedPoint}
+                    onPointSelect={setSelectedPoint}
+                    businessName={selectedBusinessData?.name}
+                  />
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Stats */}
+            {stats && (
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                <Card className="bg-green-500/10 border-green-500/20">
+                  <CardContent className="p-3 text-center">
+                    <div className="text-2xl font-bold text-green-600">{stats.top3}</div>
+                    <div className="text-[10px] text-muted-foreground">Top 3</div>
+                  </CardContent>
+                </Card>
+                <Card className="bg-yellow-500/10 border-yellow-500/20">
+                  <CardContent className="p-3 text-center">
+                    <div className="text-2xl font-bold text-yellow-600">{stats.rank4to7}</div>
+                    <div className="text-[10px] text-muted-foreground">Rang 4-7</div>
+                  </CardContent>
+                </Card>
+                <Card className="bg-orange-500/10 border-orange-500/20">
+                  <CardContent className="p-3 text-center">
+                    <div className="text-2xl font-bold text-orange-600">{stats.rank8to10}</div>
+                    <div className="text-[10px] text-muted-foreground">Rang 8-10</div>
+                  </CardContent>
+                </Card>
+                <Card className="bg-muted/50">
+                  <CardContent className="p-3 text-center">
+                    <div className="text-2xl font-bold text-muted-foreground">{stats.notFound}</div>
+                    <div className="text-[10px] text-muted-foreground">Absents</div>
+                  </CardContent>
+                </Card>
+                <Card className="bg-primary/10 border-primary/20 col-span-2 md:col-span-1">
+                  <CardContent className="p-3 text-center">
+                    <div className="text-2xl font-bold text-primary">
+                      {stats.avgRank > 0 ? `#${stats.avgRank.toFixed(1)}` : "–"}
+                    </div>
+                    <div className="text-[10px] text-muted-foreground">Moyenne</div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+          </div>
+
+          {/* Right Panel: Selected Point & Competitors */}
+          <div className="lg:col-span-3 space-y-4">
+            {/* Selected Point Details */}
+            {selectedPoint && (
+              <Card className="border-primary/30">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-base flex items-center gap-2">
+                      Point {selectedPoint.label}
+                    </CardTitle>
+                    <Badge 
+                      variant={getRankBadgeVariant(selectedPoint.rank_position)}
+                      className="text-sm px-2"
                     >
-                      {scanResult.points.map((point) => (
-                        <button
-                          key={point.label}
-                          onClick={() => setSelectedPoint(point)}
-                          className={`
-                            w-12 h-12 md:w-14 md:h-14 rounded-lg flex items-center justify-center
-                            font-bold text-white transition-all hover:scale-105
-                            ${getRankColor(point.rank_position)}
-                            ${selectedPoint?.label === point.label ? "ring-2 ring-offset-2 ring-primary" : ""}
-                          `}
-                          title={`${point.label}: ${point.rank_position ? `#${point.rank_position}` : "Non trouvé"}`}
+                      {selectedPoint.rank_position ? `#${selectedPoint.rank_position}` : "N/A"}
+                    </Badge>
+                  </div>
+                  <CardDescription className="text-xs">
+                    {selectedPoint.total_results} établissements dans cette zone
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {selectedPoint.competitors.length > 0 ? (
+                    <ScrollArea className="h-48">
+                      <div className="space-y-2 pr-2">
+                        {selectedPoint.competitors.map((comp, i) => (
+                          <div 
+                            key={comp.placeId} 
+                            className={`flex items-start gap-2 p-2 rounded-lg ${
+                              i < 3 ? "bg-muted/50" : ""
+                            }`}
+                          >
+                            <span className={`
+                              w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0
+                              ${i === 0 ? "bg-yellow-500 text-white" : 
+                                i === 1 ? "bg-gray-400 text-white" :
+                                i === 2 ? "bg-orange-600 text-white" : "bg-muted text-muted-foreground"}
+                            `}>
+                              {i + 1}
+                            </span>
+                            <div className="min-w-0 flex-1">
+                              <p className="font-medium text-sm truncate">{comp.name}</p>
+                              <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
+                                {comp.rating && (
+                                  <span className="flex items-center gap-0.5">
+                                    <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                                    {comp.rating.toFixed(1)}
+                                  </span>
+                                )}
+                                <span className="truncate">{comp.address}</span>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </ScrollArea>
+                  ) : (
+                    <p className="text-sm text-muted-foreground text-center py-4">
+                      Aucun concurrent dans cette zone
+                    </p>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Top Competitors Aggregate */}
+            {topCompetitors.length > 0 && (
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <Users className="w-4 h-4" />
+                    Top Concurrents
+                  </CardTitle>
+                  <CardDescription className="text-xs">
+                    Les plus présents sur votre zone
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ScrollArea className="h-64">
+                    <div className="space-y-2 pr-2">
+                      {topCompetitors.map((comp, i) => (
+                        <div 
+                          key={`${comp.name}-${i}`}
+                          className="flex items-start gap-2 p-2 rounded-lg border bg-card hover:bg-muted/50 transition-colors"
                         >
-                          {point.rank_position || "–"}
-                        </button>
+                          <span className={`
+                            w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0
+                            ${i === 0 ? "bg-red-500 text-white" : 
+                              i === 1 ? "bg-red-400 text-white" :
+                              i === 2 ? "bg-red-300 text-white" : "bg-muted text-muted-foreground"}
+                          `}>
+                            {i + 1}
+                          </span>
+                          <div className="min-w-0 flex-1">
+                            <p className="font-medium text-sm truncate">{comp.name}</p>
+                            <div className="flex flex-wrap items-center gap-2 text-[10px] mt-1">
+                              <Badge variant="outline" className="h-4 px-1.5 text-[10px]">
+                                {comp.appearances} zones
+                              </Badge>
+                              <span className="text-muted-foreground flex items-center gap-0.5">
+                                Pos. moy: #{comp.avgPosition.toFixed(1)}
+                              </span>
+                              {comp.rating && (
+                                <span className="flex items-center gap-0.5 text-muted-foreground">
+                                  <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                                  {comp.rating.toFixed(1)}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
                       ))}
                     </div>
-                  </div>
+                  </ScrollArea>
+                </CardContent>
+              </Card>
+            )}
 
-                  {/* Legend */}
-                  <div className="flex flex-wrap justify-center gap-3 text-sm">
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-4 h-4 rounded bg-green-500" />
+            {/* Legend */}
+            {scanResult && (
+              <Card>
+                <CardContent className="p-4">
+                  <h4 className="text-xs font-medium mb-3 text-muted-foreground">Légende</h4>
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 rounded-full bg-green-500" />
                       <span>Top 3</span>
                     </div>
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-4 h-4 rounded bg-yellow-500" />
-                      <span>4-7</span>
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 rounded-full bg-yellow-500" />
+                      <span>4 - 7</span>
                     </div>
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-4 h-4 rounded bg-orange-500" />
-                      <span>8-10</span>
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 rounded-full bg-orange-500" />
+                      <span>8 - 10</span>
                     </div>
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-4 h-4 rounded bg-red-500" />
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 rounded-full bg-red-500" />
                       <span>11+</span>
                     </div>
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-4 h-4 rounded bg-gray-400" />
+                    <div className="flex items-center gap-2 col-span-2">
+                      <div className="w-4 h-4 rounded-full bg-muted-foreground/50" />
                       <span>Non trouvé</span>
                     </div>
                   </div>
-
-                  {/* Selected point details */}
-                  {selectedPoint && (
-                    <Card className="border-primary/30 bg-primary/5">
-                      <CardHeader className="pb-2">
-                        <CardTitle className="text-lg flex items-center gap-2">
-                          Point {selectedPoint.label}
-                          <Badge variant={getRankBadgeVariant(selectedPoint.rank_position)}>
-                            {selectedPoint.rank_position ? `#${selectedPoint.rank_position}` : "Non classé"}
-                          </Badge>
-                        </CardTitle>
-                        <CardDescription>
-                          {selectedPoint.total_results} résultats dans cette zone
-                        </CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        {selectedPoint.competitors.length > 0 ? (
-                          <div className="space-y-2">
-                            <h4 className="font-medium text-sm">Top concurrents :</h4>
-                            <ul className="space-y-1.5">
-                              {selectedPoint.competitors.map((comp, i) => (
-                                <li key={comp.placeId} className="text-sm flex items-start gap-2">
-                                  <span className="font-medium text-muted-foreground min-w-[20px]">
-                                    {i + 1}.
-                                  </span>
-                                  <div>
-                                    <span className="font-medium">{comp.name}</span>
-                                    {comp.rating && (
-                                      <span className="text-muted-foreground ml-2">
-                                        ⭐ {comp.rating.toFixed(1)}
-                                      </span>
-                                    )}
-                                    <div className="text-xs text-muted-foreground truncate max-w-[200px] md:max-w-none">
-                                      {comp.address}
-                                    </div>
-                                  </div>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        ) : (
-                          <p className="text-sm text-muted-foreground">
-                            Aucun concurrent trouvé dans cette zone
-                          </p>
-                        )}
-                      </CardContent>
-                    </Card>
-                  )}
-
-                  {/* Stats summary */}
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <Card>
-                      <CardContent className="p-4 text-center">
-                        <div className="text-2xl font-bold text-green-600">
-                          {scanResult.points.filter(p => p.rank_position && p.rank_position <= 3).length}
-                        </div>
-                        <div className="text-xs text-muted-foreground">Top 3</div>
-                      </CardContent>
-                    </Card>
-                    <Card>
-                      <CardContent className="p-4 text-center">
-                        <div className="text-2xl font-bold text-yellow-600">
-                          {scanResult.points.filter(p => p.rank_position && p.rank_position >= 4 && p.rank_position <= 7).length}
-                        </div>
-                        <div className="text-xs text-muted-foreground">Rang 4-7</div>
-                      </CardContent>
-                    </Card>
-                    <Card>
-                      <CardContent className="p-4 text-center">
-                        <div className="text-2xl font-bold text-orange-600">
-                          {scanResult.points.filter(p => p.rank_position && p.rank_position >= 8 && p.rank_position <= 10).length}
-                        </div>
-                        <div className="text-xs text-muted-foreground">Rang 8-10</div>
-                      </CardContent>
-                    </Card>
-                    <Card>
-                      <CardContent className="p-4 text-center">
-                        <div className="text-2xl font-bold text-gray-600">
-                          {scanResult.points.filter(p => !p.rank_position).length}
-                        </div>
-                        <div className="text-xs text-muted-foreground">Non trouvé</div>
-                      </CardContent>
-                    </Card>
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                </CardContent>
+              </Card>
+            )}
+          </div>
         </div>
       </main>
 
