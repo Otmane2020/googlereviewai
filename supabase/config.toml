@@ -56,3 +56,12 @@ verify_jwt = false
 
 [functions.create-embedded-checkout]
 verify_jwt = false
+
+[functions.sync-gmb-posts]
+verify_jwt = false
+
+[functions.publish-gmb-post]
+verify_jwt = false
+
+[functions.analyze-business-website]
+verify_jwt = false
