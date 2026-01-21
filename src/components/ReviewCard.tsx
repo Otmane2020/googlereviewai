@@ -123,9 +123,11 @@ export const ReviewCard = ({
               {review.author.charAt(0).toUpperCase()}
             </div>
             <div>
-              <h4 className="font-medium text-foreground">{review.author}</h4>
-              <div className="flex items-center gap-2 mt-0.5">
+              <div className="flex items-center gap-2">
+                <h4 className="font-medium text-foreground">{review.author}</h4>
                 {renderStars(review.rating)}
+              </div>
+              <div className="flex items-center gap-2 mt-0.5">
                 <span className="text-xs text-muted-foreground">
                   {new Date(review.review_date).toLocaleDateString("fr-FR", {
                     day: "numeric",
@@ -133,28 +135,28 @@ export const ReviewCard = ({
                     year: "numeric"
                   })}
                 </span>
+                {review.published_to_google ? (
+                  <span className="flex items-center gap-1 text-xs font-medium text-secondary bg-secondary/10 px-2 py-1 rounded-full">
+                    <CheckCheck className="w-3 h-3" />
+                    Publié
+                  </span>
+                ) : review.ai_response ? (
+                  <span className="flex items-center gap-1 text-xs font-medium text-primary bg-primary/10 px-2 py-1 rounded-full">
+                    <Sparkles className="w-3 h-3" />
+                    Réponse prête
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-1 text-xs font-medium text-muted-foreground bg-muted px-2 py-1 rounded-full">
+                    <Clock className="w-3 h-3" />
+                    En attente
+                  </span>
+                )}
               </div>
             </div>
           </div>
 
-          {/* Status badge */}
+          {/* Menu */}
           <div className="flex items-center gap-2">
-            {review.published_to_google ? (
-              <span className="flex items-center gap-1 text-xs font-medium text-secondary bg-secondary/10 px-2 py-1 rounded-full">
-                <CheckCheck className="w-3 h-3" />
-                Publié
-              </span>
-            ) : review.ai_response ? (
-              <span className="flex items-center gap-1 text-xs font-medium text-primary bg-primary/10 px-2 py-1 rounded-full">
-                <Sparkles className="w-3 h-3" />
-                Réponse prête
-              </span>
-            ) : (
-              <span className="flex items-center gap-1 text-xs font-medium text-muted-foreground bg-muted px-2 py-1 rounded-full">
-                <Clock className="w-3 h-3" />
-                En attente
-              </span>
-            )}
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
