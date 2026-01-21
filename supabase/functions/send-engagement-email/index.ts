@@ -5,7 +5,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-type EmailType = "activate_auto_reply" | "pending_reviews" | "low_credits" | "weekly_summary";
+type EmailType = "activate_auto_reply" | "pending_reviews" | "low_credits" | "weekly_summary" | "no_credits_upgrade";
 
 interface EngagementEmailRequest {
   email: string;
@@ -149,6 +149,59 @@ const emailTemplates: Record<EmailType, (name: string, data?: EngagementEmailReq
           💳 Voir les offres
         </a>
       </div>
+    </div>
+    <div style="background-color: #1f2937; padding: 25px; text-align: center;">
+      <p style="color: #6b7280; margin: 0; font-size: 12px;">
+        Starlinko - <a href="https://starlinko.lovable.app" style="color: #8b5cf6;">starlinko.lovable.app</a>
+      </p>
+    </div>
+  </div>
+</body>
+</html>
+    `,
+  }),
+
+  no_credits_upgrade: (name, data) => ({
+    subject: `🚨 ${data?.pending_count || 0} avis sans réponse - Rechargez vos crédits`,
+    html: `
+<!DOCTYPE html>
+<html lang="fr">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7fa;">
+  <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
+    <div style="background: linear-gradient(135deg, #dc2626 0%, #f97316 100%); padding: 30px; text-align: center;">
+      <h1 style="color: #ffffff; margin: 0; font-size: 24px;">⚠️ Action requise</h1>
+    </div>
+    <div style="padding: 40px 30px;">
+      <h2 style="color: #1f2937; margin: 0 0 20px 0;">Bonjour ${name} 👋</h2>
+      
+      <div style="background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); border-radius: 12px; padding: 25px; margin: 25px 0; text-align: center;">
+        <p style="margin: 0 0 8px 0; color: #991b1b; font-size: 14px; font-weight: 600;">VOS CRÉDITS SONT ÉPUISÉS</p>
+        <p style="margin: 0; color: #7f1d1d; font-size: 48px; font-weight: 700;">${data?.pending_count || 0}</p>
+        <p style="margin: 8px 0 0 0; color: #991b1b; font-size: 14px;">avis ne reçoivent pas de réponse automatique</p>
+      </div>
+      
+      <p style="color: #4b5563; font-size: 16px; line-height: 1.6;">
+        <strong>Vos clients attendent !</strong> Les réponses automatiques sont en pause car vos crédits sont épuisés. 
+        Rechargez maintenant pour ne pas perdre l'engagement de vos clients.
+      </p>
+      
+      <div style="background: #fef3c7; border-radius: 12px; padding: 20px; margin: 25px 0;">
+        <p style="margin: 0; color: #92400e; font-size: 14px; line-height: 1.5;">
+          ⏰ <strong>Conseil :</strong> Répondre rapidement aux avis améliore votre référencement Google de 25% !
+        </p>
+      </div>
+      
+      <div style="text-align: center; margin: 35px 0;">
+        <a href="https://starlinko.lovable.app/select-plan" 
+           style="display: inline-block; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 8px; font-size: 16px; font-weight: 600;">
+          ⚡ Recharger mes crédits
+        </a>
+      </div>
+      
+      <p style="color: #9ca3af; font-size: 12px; text-align: center; margin-top: 30px;">
+        Ou répondez manuellement depuis votre <a href="https://starlinko.lovable.app/reviews" style="color: #6366f1;">tableau de bord</a>
+      </p>
     </div>
     <div style="background-color: #1f2937; padding: 25px; text-align: center;">
       <p style="color: #6b7280; margin: 0; font-size: 12px;">

@@ -142,15 +142,77 @@ serve(async (req) => {
 
     for (const userSettings of settings) {
       try {
-        // Get profile with credits
+        // Get profile with credits and email
         const { data: profile } = await supabase
           .from("profiles")
-          .select("credits, google_refresh_token")
+          .select("credits, google_refresh_token, email, full_name")
           .eq("id", userSettings.user_id)
           .single();
 
         if (!profile || profile.credits < 1) {
           console.log(`[AutoRespond] User ${userSettings.user_id} has insufficient credits`);
+          
+          // Send upgrade email if credits are 0 and user has pending reviews
+          if (profile && profile.credits === 0 && profile.email) {
+            // Check if we have pending reviews for this user
+            const { count: pendingCount } = await supabase
+              .from("reviews")
+              .select("id", { count: "exact", head: true })
+              .eq("user_id", userSettings.user_id)
+              .is("ai_response", null);
+            
+            if (pendingCount && pendingCount > 0) {
+              // Check if we already sent an email recently (last 24h)
+              const { data: recentNotif } = await supabase
+                .from("notifications")
+                .select("id")
+                .eq("user_id", userSettings.user_id)
+                .eq("type", "low_credits")
+                .gte("created_at", new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString())
+                .limit(1);
+              
+              if (!recentNotif || recentNotif.length === 0) {
+                console.log(`[AutoRespond] Sending upgrade email to ${profile.email}`);
+                
+                // Send upgrade email via send-engagement-email function
+                try {
+                  const emailResponse = await fetch(
+                    `${supabaseUrl}/functions/v1/send-engagement-email`,
+                    {
+                      method: "POST",
+                      headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${supabaseServiceKey}`,
+                      },
+                      body: JSON.stringify({
+                        email: profile.email,
+                        name: profile.full_name || "Client",
+                        type: "no_credits_upgrade",
+                        data: { pending_count: pendingCount, credits: 0 }
+                      }),
+                    }
+                  );
+                  
+                  if (emailResponse.ok) {
+                    console.log(`[AutoRespond] Upgrade email sent to ${profile.email}`);
+                  } else {
+                    console.error(`[AutoRespond] Failed to send upgrade email:`, await emailResponse.text());
+                  }
+                } catch (emailError) {
+                  console.error(`[AutoRespond] Email sending error:`, emailError);
+                }
+                
+                // Create in-app notification for upgrade
+                await supabase.from("notifications").insert({
+                  user_id: userSettings.user_id,
+                  type: "low_credits",
+                  title: "⚠️ Crédits épuisés",
+                  message: `${pendingCount} avis attendent une réponse. Rechargez vos crédits pour continuer.`,
+                });
+              }
+            }
+          }
+          
           continue;
         }
 
