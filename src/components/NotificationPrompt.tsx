@@ -68,7 +68,17 @@ export const NotificationPrompt = () => {
   };
 
   const handleRequestPermission = async () => {
-    console.log("[NotificationPrompt] Requesting permission...");
+    console.log("[NotificationPrompt] Requesting permission, current state:", permission);
+    
+    // If permission is denied, show instructions
+    if (permission === "denied") {
+      toast.error("Notifications bloquées par le navigateur", {
+        description: "Cliquez sur 🔒 dans la barre d'adresse → Notifications → Autoriser, puis rechargez la page.",
+        duration: 10000,
+      });
+      return;
+    }
+    
     const success = await subscribe();
     console.log("[NotificationPrompt] Subscribe result:", success);
     
@@ -77,25 +87,25 @@ export const NotificationPrompt = () => {
         description: "Vous recevrez les alertes même quand l'app est fermée.",
       });
       handleDismiss();
-    } else if (permission === "denied") {
-      toast.error("Notifications bloquées", {
-        description: "Activez-les dans les paramètres de votre navigateur.",
-      });
     } else {
-      toast.error("Échec de l'activation", {
-        description: "Vérifiez que vous êtes sur la version installée de l'app (PWA).",
-      });
+      // Check if permission was just denied
+      const currentPermission = Notification.permission;
+      if (currentPermission === "denied") {
+        toast.error("Notifications refusées", {
+          description: "Cliquez sur 🔒 → Notifications → Autoriser pour réactiver.",
+          duration: 8000,
+        });
+      } else {
+        toast.error("Échec de l'activation", {
+          description: "Vérifiez que vous êtes sur la version installée de l'app (PWA).",
+        });
+      }
     }
   };
 
-  // Don't show if:
-  // - Push not supported
-  // - Already subscribed  
-  // - Permission denied
-  // - User dismissed the prompt
-  // - No user logged in
-  // Note: We MUST show if permission === "granted" but NOT subscribed (token not registered)
-  if (!isSupported || isSubscribed || permission === "denied" || dismissed || !user) {
+  // Show prompt even if denied - we'll show instructions when clicked
+  // Don't show if: not supported, already subscribed, user dismissed, no user
+  if (!isSupported || isSubscribed || dismissed || !user) {
     return null;
   }
 
