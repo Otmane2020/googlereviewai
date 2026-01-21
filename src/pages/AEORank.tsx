@@ -5,62 +5,66 @@ import { supabase } from "@/integrations/supabase/client";
 import { useRequireSubscription } from "@/hooks/useRequireSubscription";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
+import { ArticlePreviewDialog } from "@/components/ArticlePreviewDialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
 import { 
+  HelpCircle, 
   Sparkles, 
   Loader2, 
-  Plus, 
-  Edit2, 
-  Trash2,
-  Copy,
-  Star as StarIcon,
-  HelpCircle,
+  Calendar,
+  Check,
+  Clock,
+  AlertCircle,
+  RefreshCw,
+  Building2,
+  Send,
+  Lock,
+  Eye,
+  List,
   TrendingUp
 } from "lucide-react";
+import { format, addDays, startOfToday, isSameDay } from "date-fns";
+import { fr } from "date-fns/locale";
 
 interface Business {
   id: string;
   name: string;
   address: string | null;
+  description: string | null;
+  categories: string[] | null;
+  auto_keywords: string[] | null;
 }
 
-interface Question {
+interface ScheduledContent {
   id: string;
-  question: string;
-  answer: string;
-  category: string | null;
-  keywords: string[] | null;
-  is_featured: boolean;
-  created_at: string;
-  business_id: string | null;
+  business_id: string;
+  content_type: string;
+  scheduled_date: string;
+  status: string;
+  title: string | null;
+  content: string | null;
+  question: string | null;
+  answer: string | null;
+  keyword_used: string | null;
 }
 
 const AEORank = () => {
-  const { user } = useAuth();
+  const { user, session } = useAuth();
   const navigate = useNavigate();
   const [businesses, setBusinesses] = useState<Business[]>([]);
-  const [questions, setQuestions] = useState<Question[]>([]);
+  const [scheduledContent, setScheduledContent] = useState<ScheduledContent[]>([]);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
-  const [showForm, setShowForm] = useState(false);
-  const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
-
-  // Form state
-  const [selectedBusiness, setSelectedBusiness] = useState<string>("");
-  const [businessDescription, setBusinessDescription] = useState("");
-  const [keywords, setKeywords] = useState("");
-
-  // Manual Q&A form
-  const [manualQuestion, setManualQuestion] = useState("");
-  const [manualAnswer, setManualAnswer] = useState("");
-  const [manualCategory, setManualCategory] = useState("");
+  const [publishing, setPublishing] = useState<string | null>(null);
+  const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null);
+  const [activeTab, setActiveTab] = useState("planning");
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [selectedArticle, setSelectedArticle] = useState<ScheduledContent | null>(null);
+  const [showPreviewDialog, setShowPreviewDialog] = useState(false);
 
   // Use subscription verification hook
   const { loading: subscriptionLoading } = useRequireSubscription();
@@ -68,181 +72,278 @@ const AEORank = () => {
   useEffect(() => {
     if (subscriptionLoading || !user) return;
     fetchData();
+    checkSubscription();
   }, [subscriptionLoading, user]);
+
+  const checkSubscription = async () => {
+    if (!user) return;
+    
+    // Check if user has AEO subscription
+    const { data: subscription } = await supabase
+      .from("subscriptions")
+      .select("*")
+      .eq("user_id", user.id)
+      .eq("module", "aeo_rank")
+      .eq("status", "active")
+      .maybeSingle();
+    
+    // Also check if user has a paid plan (Pro or Business)
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("plan_name")
+      .eq("id", user.id)
+      .single();
+    
+    const hasPaidPlan = profile?.plan_name && ["pro", "business"].includes(profile.plan_name.toLowerCase());
+    setIsSubscribed(!!subscription || hasPaidPlan);
+  };
 
   const fetchData = async () => {
     setLoading(true);
     try {
       const { data: businessData } = await supabase
         .from("businesses")
-        .select("id, name, address")
+        .select("id, name, address, description, categories, auto_keywords")
         .eq("user_id", user!.id);
       
-      setBusinesses(businessData || []);
-
-      const { data: questionData } = await supabase
-        .from("aeo_questions")
-        .select("*")
-        .eq("user_id", user!.id)
-        .order("created_at", { ascending: false });
+      setBusinesses((businessData as Business[]) || []);
       
-      setQuestions(questionData || []);
+      if (businessData && businessData.length > 0) {
+        setSelectedBusiness(businessData[0] as Business);
+        await fetchScheduledContent(businessData[0].id);
+      }
     } catch (error) {
       console.error("Error fetching data:", error);
     }
     setLoading(false);
   };
 
-  const generateQuestions = async () => {
-    if (!selectedBusiness) {
-      toast({ title: "Erreur", description: "Sélectionnez un établissement", variant: "destructive" });
-      return;
+  const fetchScheduledContent = async (businessId: string) => {
+    const { data } = await supabase
+      .from("scheduled_content")
+      .select("*")
+      .eq("business_id", businessId)
+      .eq("user_id", user!.id)
+      .eq("content_type", "aeo_qa")
+      .order("scheduled_date", { ascending: true });
+    
+    setScheduledContent((data as ScheduledContent[]) || []);
+  };
+
+  const handleSubscribe = async (annual: boolean = false) => {
+    try {
+      const priceId = annual 
+        ? "price_1SrHtSEfti9t9nN9t5NgA002" // AEO Annual
+        : "price_1SrHtHEfti9t9nN9Me70ucqf"; // AEO Monthly
+      
+      const { data, error } = await supabase.functions.invoke("create-checkout", {
+        body: { 
+          priceId,
+          mode: "subscription"
+        }
+      });
+      
+      if (error) throw error;
+      if (data?.url) {
+        window.location.href = data.url;
+      }
+    } catch (error: any) {
+      toast({
+        title: "Erreur",
+        description: "Impossible de créer la session de paiement",
+        variant: "destructive"
+      });
     }
+  };
 
-    const business = businesses.find(b => b.id === selectedBusiness);
-    if (!business) return;
+  const handlePreviewArticle = (article: ScheduledContent) => {
+    setSelectedArticle(article);
+    setShowPreviewDialog(true);
+  };
 
+  const analyzeAndGeneratePlan = async () => {
+    if (!selectedBusiness) return;
+    
     setGenerating(true);
     try {
-      const { data, error } = await supabase.functions.invoke("generate-seo-content", {
+      // Generate keywords from business info using AI
+      const { data: analysisData, error: analysisError } = await supabase.functions.invoke("generate-seo-content", {
         body: {
-          type: "aeo_questions",
-          businessName: business.name,
-          businessDescription: businessDescription || `${business.name} - Établissement local`,
-          location: business.address || "France",
-          keywords: keywords.split(",").map(k => k.trim()).filter(Boolean),
+          type: "analyze_business",
+          businessName: selectedBusiness.name,
+          businessDescription: selectedBusiness.description || selectedBusiness.name,
+          location: selectedBusiness.address || "France",
         },
       });
 
-      if (error) throw error;
+      if (analysisError) throw analysisError;
 
-      if (data.questions && data.questions.length > 0) {
-        const questionsToInsert = data.questions.map((q: any) => ({
+      // Update business with auto-detected keywords
+      const keywords = analysisData?.keywords || [];
+      await supabase
+        .from("businesses")
+        .update({ 
+          auto_keywords: keywords,
+          description: analysisData?.description || selectedBusiness.description 
+        })
+        .eq("id", selectedBusiness.id);
+
+      // Generate 30-day plan for AEO Q&A
+      const today = startOfToday();
+      const planItems: any[] = [];
+
+      for (let i = 0; i < 30; i++) {
+        const date = addDays(today, i);
+        const dateStr = format(date, "yyyy-MM-dd");
+        const keyword = keywords[i % keywords.length] || selectedBusiness.name;
+
+        planItems.push({
           user_id: user!.id,
-          business_id: selectedBusiness,
-          question: q.question,
-          answer: q.answer,
-          category: q.category || null,
-          keywords: keywords.split(",").map((k: string) => k.trim()).filter(Boolean),
-        }));
-
-        const { data: newQuestions, error: insertError } = await supabase
-          .from("aeo_questions")
-          .insert(questionsToInsert)
-          .select();
-
-        if (insertError) throw insertError;
-
-        setQuestions([...(newQuestions || []), ...questions]);
-        setShowForm(false);
-        resetForm();
-        
-        toast({ title: "Questions générées !", description: `${data.questions.length} Q&A créées` });
-      } else {
-        toast({ title: "Aucune question générée", description: "Essayez avec plus de détails", variant: "destructive" });
+          business_id: selectedBusiness.id,
+          content_type: "aeo_qa",
+          scheduled_date: dateStr,
+          status: "pending",
+          keyword_used: keyword,
+        });
       }
+
+      // Insert all planned content
+      const { error: insertError } = await supabase
+        .from("scheduled_content")
+        .upsert(planItems, { 
+          onConflict: "user_id,business_id,content_type,scheduled_date",
+          ignoreDuplicates: true 
+        });
+
+      if (insertError) throw insertError;
+
+      await fetchScheduledContent(selectedBusiness.id);
+      
+      // Update local state
+      setSelectedBusiness({
+        ...selectedBusiness,
+        auto_keywords: keywords,
+        description: analysisData?.description || selectedBusiness.description
+      });
+
+      toast({ 
+        title: "Plan généré !", 
+        description: `30 jours de Q&A planifiés avec ${keywords.length} mots-clés détectés` 
+      });
     } catch (error: any) {
-      console.error("Error generating questions:", error);
+      console.error("Error generating plan:", error);
       toast({ 
         title: "Erreur", 
-        description: error.message || "Impossible de générer les questions", 
+        description: error.message || "Impossible de générer le plan", 
         variant: "destructive" 
       });
     }
     setGenerating(false);
   };
 
-  const saveManualQuestion = async () => {
-    if (!manualQuestion || !manualAnswer) {
-      toast({ title: "Erreur", description: "Question et réponse requises", variant: "destructive" });
-      return;
-    }
-
+  const generateContentForDay = async (item: ScheduledContent) => {
     try {
-      if (editingQuestion) {
-        const { error } = await supabase
-          .from("aeo_questions")
-          .update({
-            question: manualQuestion,
-            answer: manualAnswer,
-            category: manualCategory || null,
-          })
-          .eq("id", editingQuestion.id);
+      // Update status to generating
+      await supabase
+        .from("scheduled_content")
+        .update({ status: "generating" })
+        .eq("id", item.id);
 
-        if (error) throw error;
+      const { data, error } = await supabase.functions.invoke("generate-seo-content", {
+        body: {
+          type: "aeo_questions",
+          businessName: selectedBusiness?.name,
+          businessDescription: selectedBusiness?.description || selectedBusiness?.name,
+          location: selectedBusiness?.address || "France",
+          keywords: [item.keyword_used],
+          singleQuestion: true,
+        },
+      });
 
-        setQuestions(questions.map(q => 
-          q.id === editingQuestion.id 
-            ? { ...q, question: manualQuestion, answer: manualAnswer, category: manualCategory || null }
-            : q
-        ));
-        toast({ title: "Question mise à jour !" });
-      } else {
-        const { data, error } = await supabase
-          .from("aeo_questions")
-          .insert({
-            user_id: user!.id,
-            business_id: selectedBusiness || null,
-            question: manualQuestion,
-            answer: manualAnswer,
-            category: manualCategory || null,
-          })
-          .select()
-          .single();
+      if (error) throw error;
 
-        if (error) throw error;
+      const qa = data?.questions?.[0];
+      
+      await supabase
+        .from("scheduled_content")
+        .update({ 
+          status: "generated",
+          question: qa?.question || null,
+          answer: qa?.answer || null,
+          title: qa?.question || null,
+        })
+        .eq("id", item.id);
 
-        setQuestions([data, ...questions]);
-        toast({ title: "Question ajoutée !" });
-      }
-
-      setEditingQuestion(null);
-      setManualQuestion("");
-      setManualAnswer("");
-      setManualCategory("");
+      await fetchScheduledContent(selectedBusiness!.id);
+      toast({ title: "Q&A généré !" });
     } catch (error: any) {
+      await supabase
+        .from("scheduled_content")
+        .update({ status: "failed", error_message: error.message })
+        .eq("id", item.id);
+      
       toast({ title: "Erreur", description: error.message, variant: "destructive" });
     }
   };
 
-  const deleteQuestion = async (id: string) => {
-    const { error } = await supabase.from("aeo_questions").delete().eq("id", id);
-    if (!error) {
-      setQuestions(questions.filter(q => q.id !== id));
-      toast({ title: "Question supprimée" });
+  const publishToGMB = async (item: ScheduledContent) => {
+    if (!item.question || !item.answer) {
+      toast({ title: "Erreur", description: "Le Q&A doit d'abord être généré", variant: "destructive" });
+      return;
+    }
+
+    const providerToken = session?.provider_token;
+    if (!providerToken) {
+      toast({ 
+        title: "Connexion requise", 
+        description: "Reconnectez-vous avec Google pour publier", 
+        variant: "destructive" 
+      });
+      return;
+    }
+
+    setPublishing(item.id);
+    try {
+      const { data, error } = await supabase.functions.invoke("publish-gmb-qa", {
+        body: {
+          content_id: item.id,
+          provider_token: providerToken,
+        },
+      });
+
+      if (error) throw error;
+
+      await fetchScheduledContent(selectedBusiness!.id);
+      toast({ 
+        title: "Publié sur Google !", 
+        description: "Le Q&A a été publié sur votre fiche Google My Business" 
+      });
+    } catch (error: any) {
+      console.error("Error publishing:", error);
+      toast({ 
+        title: "Erreur de publication", 
+        description: error.message || "Impossible de publier sur Google", 
+        variant: "destructive" 
+      });
+    }
+    setPublishing(null);
+  };
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case "published":
+        return <Badge className="bg-secondary text-secondary-foreground"><Check className="w-3 h-3 mr-1" />Publié</Badge>;
+      case "generated":
+        return <Badge className="bg-primary text-primary-foreground"><Sparkles className="w-3 h-3 mr-1" />Prêt</Badge>;
+      case "generating":
+        return <Badge variant="outline"><Loader2 className="w-3 h-3 mr-1 animate-spin" />En cours</Badge>;
+      case "failed":
+      case "error":
+        return <Badge variant="destructive"><AlertCircle className="w-3 h-3 mr-1" />Échec</Badge>;
+      default:
+        return <Badge variant="secondary"><Clock className="w-3 h-3 mr-1" />Planifié</Badge>;
     }
   };
-
-  const toggleFeatured = async (id: string, current: boolean) => {
-    const { error } = await supabase
-      .from("aeo_questions")
-      .update({ is_featured: !current })
-      .eq("id", id);
-    
-    if (!error) {
-      setQuestions(questions.map(q => q.id === id ? { ...q, is_featured: !current } : q));
-    }
-  };
-
-  const copyQA = (q: Question) => {
-    navigator.clipboard.writeText(`Q: ${q.question}\nR: ${q.answer}`);
-    toast({ title: "Copié !" });
-  };
-
-  const resetForm = () => {
-    setSelectedBusiness("");
-    setBusinessDescription("");
-    setKeywords("");
-  };
-
-  const startEdit = (q: Question) => {
-    setEditingQuestion(q);
-    setManualQuestion(q.question);
-    setManualAnswer(q.answer);
-    setManualCategory(q.category || "");
-  };
-
-  const categories = ["services", "horaires", "localisation", "avis", "prix", "contact"];
 
   if (loading) {
     return (
@@ -255,8 +356,11 @@ const AEORank = () => {
     );
   }
 
+  const today = startOfToday();
+  const next30Days = Array.from({ length: 30 }, (_, i) => addDays(today, i));
+
   return (
-    <div className="min-h-screen bg-muted/30">
+    <div className="min-h-screen bg-muted/30 pb-20 sm:pb-6">
       <DashboardHeader />
 
       {/* Page Header */}
@@ -268,25 +372,30 @@ const AEORank = () => {
                 <HelpCircle className="w-6 h-6 text-primary" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
+                <h1 className="text-xl sm:text-2xl font-bold text-foreground flex items-center gap-2">
                   ChatGPT Rank
                   <Badge variant="secondary" className="text-xs">AEO</Badge>
                 </h1>
-                <p className="text-sm text-muted-foreground">
-                  Optimisez votre visibilité sur les IA (ChatGPT, Perplexity...)
+                <p className="text-xs sm:text-sm text-muted-foreground">
+                  Planning automatique Q&A 30 jours
                 </p>
               </div>
             </div>
-            <div className="flex gap-2">
-              <Button variant="outline" onClick={() => { setEditingQuestion(null); setManualQuestion(""); setManualAnswer(""); setManualCategory(""); }}>
-                <Plus className="w-4 h-4 mr-2" />
-                Ajouter Q&A
+            {selectedBusiness && (
+              <Button onClick={analyzeAndGeneratePlan} disabled={generating}>
+                {generating ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Analyse en cours...
+                  </>
+                ) : (
+                  <>
+                    <RefreshCw className="w-4 h-4 mr-2" />
+                    Analyser & Planifier
+                  </>
+                )}
               </Button>
-              <Button onClick={() => setShowForm(true)}>
-                <Sparkles className="w-4 h-4 mr-2" />
-                Générer avec IA
-              </Button>
-            </div>
+            )}
           </div>
         </div>
       </div>
@@ -303,190 +412,285 @@ const AEORank = () => {
                 <h3 className="font-semibold text-foreground mb-1">Qu'est-ce que l'AEO ?</h3>
                 <p className="text-sm text-muted-foreground">
                   L'Answer Engine Optimization optimise votre contenu pour apparaître dans les réponses des IA comme ChatGPT, Perplexity ou Google AI. 
-                  Créez des Q&A pertinentes pour que votre entreprise soit citée par ces assistants.
+                  Publiez des Q&A pertinentes sur votre fiche Google pour être cité par ces assistants.
                 </p>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* AI Generation Form */}
-        {showForm && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-primary" />
-                Générer des Q&A avec l'IA
-              </CardTitle>
-              <CardDescription>
-                L'IA va créer des paires question-réponse optimisées pour les moteurs de réponse
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label>Établissement *</Label>
-                <Select value={selectedBusiness} onValueChange={setSelectedBusiness}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Sélectionner un établissement" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-popover">
-                    {businesses.map((b) => (
-                      <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Description de l'activité</Label>
-                <Textarea
-                  placeholder="Décrivez votre activité, vos services principaux..."
-                  value={businessDescription}
-                  onChange={(e) => setBusinessDescription(e.target.value)}
-                  rows={3}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Mots-clés (séparés par des virgules)</Label>
-                <Input
-                  placeholder="restaurant, cuisine française, réservation"
-                  value={keywords}
-                  onChange={(e) => setKeywords(e.target.value)}
-                />
-              </div>
-
-              <div className="flex gap-3 pt-4">
-                <Button variant="outline" onClick={() => { setShowForm(false); resetForm(); }}>
-                  Annuler
-                </Button>
-                <Button onClick={generateQuestions} disabled={generating || !selectedBusiness}>
-                  {generating ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Génération...
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className="w-4 h-4 mr-2" />
-                      Générer les Q&A
-                    </>
-                  )}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Manual Q&A Form */}
-        {(manualQuestion !== "" || manualAnswer !== "" || editingQuestion) && (
-          <Card>
-            <CardHeader>
-              <CardTitle>{editingQuestion ? "Modifier la question" : "Ajouter une Q&A"}</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label>Question *</Label>
-                <Input
-                  placeholder="Quels sont vos horaires d'ouverture ?"
-                  value={manualQuestion}
-                  onChange={(e) => setManualQuestion(e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Réponse *</Label>
-                <Textarea
-                  placeholder="Nous sommes ouverts du lundi au samedi de 9h à 19h..."
-                  value={manualAnswer}
-                  onChange={(e) => setManualAnswer(e.target.value)}
-                  rows={3}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Catégorie</Label>
-                <Select value={manualCategory} onValueChange={setManualCategory}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Sélectionner une catégorie" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-popover">
-                    {categories.map((cat) => (
-                      <SelectItem key={cat} value={cat}>{cat}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex gap-3 pt-4">
-                <Button variant="outline" onClick={() => { setEditingQuestion(null); setManualQuestion(""); setManualAnswer(""); setManualCategory(""); }}>
-                  Annuler
-                </Button>
-                <Button onClick={saveManualQuestion}>
-                  {editingQuestion ? "Mettre à jour" : "Ajouter"}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Questions List */}
-        {questions.length === 0 && !showForm ? (
+        {/* Business Selection */}
+        {businesses.length === 0 ? (
           <Card className="p-8 text-center">
-            <HelpCircle className="w-12 h-12 mx-auto mb-4 text-muted-foreground/30" />
-            <h3 className="text-lg font-medium text-foreground mb-2">Aucune question</h3>
+            <Building2 className="w-12 h-12 mx-auto mb-4 text-muted-foreground/30" />
+            <h3 className="text-lg font-medium text-foreground mb-2">Aucun établissement</h3>
             <p className="text-sm text-muted-foreground mb-4">
-              Générez vos premières Q&A pour optimiser votre visibilité IA
+              Connectez d'abord votre Google My Business
             </p>
-            <Button onClick={() => setShowForm(true)}>
-              <Sparkles className="w-4 h-4 mr-2" />
-              Générer avec l'IA
+            <Button onClick={() => navigate("/businesses")}>
+              Ajouter un établissement
             </Button>
           </Card>
         ) : (
-          <div className="grid gap-4">
-            {questions.map((q) => (
-              <Card key={q.id} className={q.is_featured ? "border-primary/50 bg-primary/5" : ""}>
-                <CardContent className="p-4 lg:p-6">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-2 flex-wrap">
-                        {q.is_featured && (
-                          <Badge variant="default" className="gap-1">
-                            <StarIcon className="w-3 h-3" />
-                            Featured
-                          </Badge>
-                        )}
-                        {q.category && (
-                          <Badge variant="secondary">{q.category}</Badge>
-                        )}
-                        <span className="text-xs text-muted-foreground">
-                          {new Date(q.created_at).toLocaleDateString("fr-FR")}
-                        </span>
-                      </div>
-                      <h4 className="font-medium text-foreground mb-2">{q.question}</h4>
-                      <p className="text-sm text-muted-foreground">{q.answer}</p>
+          <>
+            {/* Business Info Card */}
+            {selectedBusiness && (
+              <Card>
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="text-lg">{selectedBusiness.name}</CardTitle>
+                      <CardDescription>{selectedBusiness.address}</CardDescription>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <Button variant="ghost" size="icon" onClick={() => toggleFeatured(q.id, q.is_featured)}>
-                        <StarIcon className={`w-4 h-4 ${q.is_featured ? "fill-primary text-primary" : ""}`} />
+                    {businesses.length > 1 && (
+                      <select 
+                        className="text-sm border rounded-md px-2 py-1 bg-background"
+                        value={selectedBusiness.id}
+                        onChange={(e) => {
+                          const biz = businesses.find(b => b.id === e.target.value);
+                          if (biz) {
+                            setSelectedBusiness(biz);
+                            fetchScheduledContent(biz.id);
+                          }
+                        }}
+                      >
+                        {businesses.map(b => (
+                          <option key={b.id} value={b.id}>{b.name}</option>
+                        ))}
+                      </select>
+                    )}
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  {selectedBusiness.auto_keywords && selectedBusiness.auto_keywords.length > 0 ? (
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-2">Mots-clés détectés automatiquement :</p>
+                      <div className="flex flex-wrap gap-1">
+                        {selectedBusiness.auto_keywords.slice(0, 10).map((kw, i) => (
+                          <span key={i} className="px-2 py-0.5 bg-primary/10 text-primary text-xs rounded-full">
+                            {kw}
+                          </span>
+                        ))}
+                        {selectedBusiness.auto_keywords.length > 10 && (
+                          <span className="text-xs text-muted-foreground">
+                            +{selectedBusiness.auto_keywords.length - 10} autres
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">
+                      Cliquez sur "Analyser & Planifier" pour détecter automatiquement les mots-clés
+                    </p>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Subscription Banner for non-subscribers */}
+            {!isSubscribed && (
+              <Card className="border-primary/30 bg-primary/5">
+                <CardContent className="p-4">
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                      <Lock className="w-8 h-8 text-primary" />
+                      <div>
+                        <p className="font-semibold text-foreground">Module Premium AEO</p>
+                        <p className="text-sm text-muted-foreground">Abonnez-vous pour débloquer toutes les fonctionnalités</p>
+                      </div>
+                    </div>
+                    <div className="flex flex-col sm:flex-row gap-2">
+                      <Button onClick={() => handleSubscribe(false)}>
+                        49€/mois
                       </Button>
-                      <Button variant="ghost" size="icon" onClick={() => copyQA(q)}>
-                        <Copy className="w-4 h-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon" onClick={() => startEdit(q)}>
-                        <Edit2 className="w-4 h-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon" className="text-destructive" onClick={() => deleteQuestion(q.id)}>
-                        <Trash2 className="w-4 h-4" />
+                      <Button variant="outline" onClick={() => handleSubscribe(true)}>
+                        39€/mois (annuel)
                       </Button>
                     </div>
                   </div>
                 </CardContent>
               </Card>
-            ))}
-          </div>
+            )}
+
+            {/* Tabs */}
+            <Tabs value={activeTab} onValueChange={setActiveTab}>
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="planning" className="gap-2">
+                  <Calendar className="w-4 h-4" />
+                  Planning
+                </TabsTrigger>
+                <TabsTrigger value="articles" className="gap-2">
+                  <List className="w-4 h-4" />
+                  Q&A
+                </TabsTrigger>
+              </TabsList>
+
+              {/* Planning Tab */}
+              <TabsContent value="planning" className="mt-4">
+                <div className="grid grid-cols-5 sm:grid-cols-7 gap-2">
+                  {next30Days.map((day, index) => {
+                    const dateStr = format(day, "yyyy-MM-dd");
+                    const dayContent = scheduledContent.find(c => c.scheduled_date === dateStr);
+                    const isToday = isSameDay(day, today);
+                    
+                    return (
+                      <Card 
+                        key={dateStr}
+                        className={`p-2 cursor-pointer transition-all hover:shadow-md ${
+                          isToday ? "ring-2 ring-primary" : ""
+                        } ${dayContent?.status === "published" ? "bg-secondary/20" : ""}`}
+                        onClick={() => {
+                          if (dayContent) {
+                            handlePreviewArticle(dayContent);
+                          }
+                        }}
+                      >
+                        <div className="text-center">
+                          <p className="text-[10px] text-muted-foreground uppercase">
+                            {format(day, "EEE", { locale: fr })}
+                          </p>
+                          <p className={`text-lg font-bold ${isToday ? "text-primary" : "text-foreground"}`}>
+                            {format(day, "d")}
+                          </p>
+                          {dayContent ? (
+                            <div className="mt-1">
+                              {dayContent.status === "published" && <Check className="w-4 h-4 mx-auto text-secondary" />}
+                              {dayContent.status === "generated" && <Sparkles className="w-4 h-4 mx-auto text-primary" />}
+                              {dayContent.status === "pending" && <Clock className="w-4 h-4 mx-auto text-muted-foreground" />}
+                              {dayContent.status === "generating" && <Loader2 className="w-4 h-4 mx-auto text-primary animate-spin" />}
+                              {(dayContent.status === "failed" || dayContent.status === "error") && <AlertCircle className="w-4 h-4 mx-auto text-destructive" />}
+                            </div>
+                          ) : (
+                            <div className="mt-1 h-4" />
+                          )}
+                        </div>
+                      </Card>
+                    );
+                  })}
+                </div>
+
+                {/* Legend */}
+                <div className="flex flex-wrap gap-4 mt-4 text-xs text-muted-foreground">
+                  <div className="flex items-center gap-1">
+                    <Clock className="w-3 h-3" /> Planifié
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Sparkles className="w-3 h-3 text-primary" /> Prêt
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Check className="w-3 h-3 text-secondary" /> Publié
+                  </div>
+                </div>
+              </TabsContent>
+
+              {/* Q&A Tab */}
+              <TabsContent value="articles" className="mt-4 space-y-4">
+                {scheduledContent.length === 0 ? (
+                  <Card className="p-8 text-center">
+                    <HelpCircle className="w-12 h-12 mx-auto mb-4 text-muted-foreground/30" />
+                    <h3 className="text-lg font-medium text-foreground mb-2">Aucun Q&A planifié</h3>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      Cliquez sur "Analyser & Planifier" pour générer votre planning 30 jours
+                    </p>
+                  </Card>
+                ) : (
+                  scheduledContent.map((item) => (
+                    <Card key={item.id}>
+                      <CardContent className="p-4">
+                        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-2 flex-wrap">
+                              {getStatusBadge(item.status)}
+                              <span className="text-xs text-muted-foreground">
+                                {format(new Date(item.scheduled_date), "d MMMM yyyy", { locale: fr })}
+                              </span>
+                              {item.keyword_used && (
+                                <Badge variant="outline" className="text-xs">
+                                  {item.keyword_used}
+                                </Badge>
+                              )}
+                            </div>
+                            
+                            {item.question ? (
+                              <>
+                                <h4 className="font-medium text-foreground mb-1">{item.question}</h4>
+                                <p className="text-sm text-muted-foreground line-clamp-2">{item.answer}</p>
+                              </>
+                            ) : (
+                              <p className="text-sm text-muted-foreground italic">
+                                Q&A non encore généré - Mot-clé: "{item.keyword_used}"
+                              </p>
+                            )}
+                          </div>
+                          
+                          <div className="flex gap-2 flex-shrink-0">
+                            {item.question && (
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                onClick={() => handlePreviewArticle(item)}
+                              >
+                                <Eye className="w-4 h-4 mr-1" />
+                                Voir
+                              </Button>
+                            )}
+                            
+                            {!item.question && item.status !== "generating" && (
+                              <Button 
+                                size="sm"
+                                onClick={() => generateContentForDay(item)}
+                                disabled={!isSubscribed}
+                              >
+                                <Sparkles className="w-4 h-4 mr-1" />
+                                Générer
+                              </Button>
+                            )}
+                            
+                            {item.question && item.status !== "published" && (
+                              <Button 
+                                size="sm"
+                                onClick={() => publishToGMB(item)}
+                                disabled={publishing === item.id || !isSubscribed}
+                                className="bg-secondary hover:bg-secondary/90"
+                              >
+                                {publishing === item.id ? (
+                                  <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                                ) : (
+                                  <Send className="w-4 h-4 mr-1" />
+                                )}
+                                Publier
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))
+                )}
+              </TabsContent>
+            </Tabs>
+          </>
         )}
       </main>
 
       <MobileBottomNav />
+
+      {/* Preview Dialog */}
+      <ArticlePreviewDialog
+        open={showPreviewDialog}
+        onOpenChange={setShowPreviewDialog}
+        article={selectedArticle ? {
+          id: selectedArticle.id,
+          title: selectedArticle.title,
+          question: selectedArticle.question,
+          answer: selectedArticle.answer,
+          scheduled_date: selectedArticle.scheduled_date,
+          status: selectedArticle.status,
+          keyword_used: selectedArticle.keyword_used
+        } : null}
+        isSubscribed={isSubscribed}
+        onSubscribe={() => handleSubscribe(false)}
+      />
     </div>
   );
 };
