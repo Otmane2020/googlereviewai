@@ -110,6 +110,29 @@ serve(async (req) => {
 
     console.log(`Successfully saved ${savedBusinesses?.length || 0} businesses`);
 
+    // Trigger background analysis for each saved business
+    const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
+    
+    if (savedBusinesses && savedBusinesses.length > 0) {
+      for (const business of savedBusinesses) {
+        if (business.website || business.description) {
+          console.log(`Triggering analysis for business: ${business.id}`);
+          fetch(`${supabaseUrl}/functions/v1/analyze-business-website`, {
+            method: "POST",
+            headers: {
+              "Authorization": authHeader,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              businessId: business.id,
+              website: business.website,
+              gmbDescription: business.description,
+            }),
+          }).catch(e => console.error(`Analysis trigger failed for ${business.id}:`, e));
+        }
+      }
+    }
+
     return new Response(
       JSON.stringify({
         success: true,
