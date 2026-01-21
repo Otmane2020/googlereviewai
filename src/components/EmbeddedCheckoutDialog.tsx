@@ -8,8 +8,8 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
 
-// Initialize Stripe with publishable key
-const stripePromise = loadStripe("pk_live_51SrGmYEfti9t9nN9QlKLU8XVUW2YmIbqXHLt7NQ7mQ0Qgz2cNbxS2YvQnQW4O3qN8JKjHg0AqJ8s3TBj2ZvH2z9V00kC5Kp8Wd");
+// Initialize Stripe with publishable key from env
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || "");
 
 interface EmbeddedCheckoutDialogProps {
   open: boolean;
