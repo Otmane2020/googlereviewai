@@ -167,8 +167,8 @@ export const DashboardHeader = () => {
                   <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-[300px] p-0 bg-background/95 backdrop-blur-xl">
-                <SheetHeader className="p-4 border-b border-border/50">
+              <SheetContent side="right" className="w-[300px] p-0 bg-background/95 backdrop-blur-xl flex flex-col">
+                <SheetHeader className="p-4 border-b border-border/50 flex-shrink-0">
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-lg shadow-primary/25">
                       <span className="text-lg font-bold text-primary-foreground">
@@ -184,88 +184,91 @@ export const DashboardHeader = () => {
                   </div>
                 </SheetHeader>
 
-                {/* Credits Card */}
-                <div className="p-4 border-b border-border/50">
-                  <div className="bg-gradient-to-br from-accent/10 to-accent/5 rounded-2xl p-4 border border-accent/20">
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center gap-2">
-                        <Star className="w-5 h-5 text-accent fill-accent" />
-                        <span className="text-sm font-medium text-foreground">Crédits</span>
+                {/* Scrollable content */}
+                <div className="flex-1 overflow-y-auto">
+                  {/* Credits Card */}
+                  <div className="p-4 border-b border-border/50">
+                    <div className="bg-gradient-to-br from-accent/10 to-accent/5 rounded-2xl p-4 border border-accent/20">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                          <Star className="w-5 h-5 text-accent fill-accent" />
+                          <span className="text-sm font-medium text-foreground">Crédits</span>
+                        </div>
+                        {profile?.plan_name && (
+                          <Badge variant="secondary" className="text-[10px]">
+                            {profile.plan_name}
+                          </Badge>
+                        )}
                       </div>
-                      {profile?.plan_name && (
-                        <Badge variant="secondary" className="text-[10px]">
-                          {profile.plan_name}
-                        </Badge>
-                      )}
+                      <div className="text-3xl font-bold text-foreground mb-3">
+                        {profile?.credits || 0}
+                      </div>
+                      <Button 
+                        size="sm" 
+                        className="w-full rounded-xl gap-2 shadow-md"
+                        onClick={() => {
+                          setMobileMenuOpen(false);
+                          setUpgradeDialogOpen(true);
+                        }}
+                      >
+                        <Plus className="w-4 h-4" />
+                        Upgrade
+                      </Button>
                     </div>
-                    <div className="text-3xl font-bold text-foreground mb-3">
-                      {profile?.credits || 0}
-                    </div>
-                    <Button 
-                      size="sm" 
-                      className="w-full rounded-xl gap-2 shadow-md"
-                      onClick={() => {
-                        setMobileMenuOpen(false);
-                        setUpgradeDialogOpen(true);
-                      }}
-                    >
-                      <Plus className="w-4 h-4" />
-                      Upgrade
-                    </Button>
+                  </div>
+
+                  {/* Navigation */}
+                  <div className="p-4 space-y-1">
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2 px-2">
+                      Navigation
+                    </p>
+                    {navItems.map((item) => {
+                      const Icon = item.icon;
+                      const isActive = location.pathname === item.href;
+                      return (
+                        <Link
+                          key={item.href}
+                          to={item.href}
+                          className={`flex items-center gap-3 px-3 py-3 rounded-xl font-medium transition-all ${
+                            isActive 
+                              ? "bg-primary text-primary-foreground shadow-md" 
+                              : "text-foreground hover:bg-muted"
+                          }`}
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          <Icon className="w-5 h-5" />
+                          <span className="flex-1">{item.label}</span>
+                          <ChevronRight className={`w-4 h-4 ${isActive ? "text-primary-foreground/70" : "text-muted-foreground"}`} />
+                        </Link>
+                      );
+                    })}
+                  </div>
+
+                  {/* Settings */}
+                  <div className="p-4 space-y-1 border-t border-border/50">
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2 px-2">
+                      Paramètres
+                    </p>
+                    {menuItems.map((item) => {
+                      const Icon = item.icon;
+                      return (
+                        <Link
+                          key={item.href}
+                          to={item.href}
+                          className="flex items-center gap-3 px-3 py-3 rounded-xl font-medium text-foreground hover:bg-muted transition-all"
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          <Icon className="w-5 h-5 text-muted-foreground" />
+                          <span className="flex-1">{item.label}</span>
+                          <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                        </Link>
+                      );
+                    })}
                   </div>
                 </div>
 
-                {/* Navigation */}
-                <div className="p-4 space-y-1">
-                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2 px-2">
-                    Navigation
-                  </p>
-                  {navItems.map((item) => {
-                    const Icon = item.icon;
-                    const isActive = location.pathname === item.href;
-                    return (
-                      <Link
-                        key={item.href}
-                        to={item.href}
-                        className={`flex items-center gap-3 px-3 py-3 rounded-xl font-medium transition-all ${
-                          isActive 
-                            ? "bg-primary text-primary-foreground shadow-md" 
-                            : "text-foreground hover:bg-muted"
-                        }`}
-                        onClick={() => setMobileMenuOpen(false)}
-                      >
-                        <Icon className="w-5 h-5" />
-                        <span className="flex-1">{item.label}</span>
-                        <ChevronRight className={`w-4 h-4 ${isActive ? "text-primary-foreground/70" : "text-muted-foreground"}`} />
-                      </Link>
-                    );
-                  })}
-                </div>
-
-                {/* Settings */}
-                <div className="p-4 space-y-1 border-t border-border/50">
-                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2 px-2">
-                    Paramètres
-                  </p>
-                  {menuItems.map((item) => {
-                    const Icon = item.icon;
-                    return (
-                      <Link
-                        key={item.href}
-                        to={item.href}
-                        className="flex items-center gap-3 px-3 py-3 rounded-xl font-medium text-foreground hover:bg-muted transition-all"
-                        onClick={() => setMobileMenuOpen(false)}
-                      >
-                        <Icon className="w-5 h-5 text-muted-foreground" />
-                        <span className="flex-1">{item.label}</span>
-                        <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                      </Link>
-                    );
-                  })}
-                </div>
-
-                {/* Sign Out */}
-                <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-border/50 bg-background">
+                {/* Sign Out - Fixed at bottom */}
+                <div className="flex-shrink-0 p-4 border-t border-border/50 bg-background">
                   <Button 
                     variant="outline" 
                     className="w-full rounded-xl h-11 text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive/20"
