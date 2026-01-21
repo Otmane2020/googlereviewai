@@ -21,29 +21,29 @@ const PRICE_IDS: Record<string, string> = {
   business_yearly: "price_1SrHtQEfti9t9nN9GKvr4NSt",
   aeo_yearly: "price_1SrHtSEfti9t9nN9t5NgA002",
   seo_yearly: "price_1SrHtSEfti9t9nN9rXMfteyT",
-  // Credit packs (one-time purchases)
-  credits_100: "price_credits_100",
-  credits_1000: "price_credits_1000",
-  credits_3500: "price_credits_3500",
-  credits_7000: "price_credits_7000",
-  credits_10000: "price_credits_10000",
-  credits_17000: "price_credits_17000",
-  credits_35000: "price_credits_35000",
-  credits_70000: "price_credits_70000",
-  credits_100000: "price_credits_100000",
+  // Credit packs (one-time purchases) - 0.30€ per credit
+  credits_10: "price_1SrrYEEfti9t9nN9N8l9AaA1",
+  credits_100: "price_1SrrYFEfti9t9nN9Y4zxBb3p",
+  credits_330: "price_1SrrYGEfti9t9nN9z01pdk3y",
+  credits_660: "price_1SrrYIEfti9t9nN9q8NplGxN",
+  credits_1000: "price_1SrrYJEfti9t9nN9Bv7IhpUP",
+  credits_1660: "price_1SrrYKEfti9t9nN920sUpYws",
+  credits_3330: "price_1SrrYMEfti9t9nN9fqqz5xfd",
+  credits_6660: "price_1SrrYNEfti9t9nN9deRwwVI3",
+  credits_10000: "price_1SrrYOEfti9t9nN9TxSVXmcs",
 };
 
 // Credit amounts for each pack
 const CREDIT_AMOUNTS: Record<string, number> = {
+  credits_10: 10,
   credits_100: 100,
+  credits_330: 330,
+  credits_660: 660,
   credits_1000: 1000,
-  credits_3500: 3500,
-  credits_7000: 7000,
+  credits_1660: 1660,
+  credits_3330: 3330,
+  credits_6660: 6660,
   credits_10000: 10000,
-  credits_17000: 17000,
-  credits_35000: 35000,
-  credits_70000: 70000,
-  credits_100000: 100000,
 };
 
 // Plans that get a free trial (only Starter)

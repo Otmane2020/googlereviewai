@@ -70,17 +70,17 @@ const plans: Plan[] = [
   },
 ];
 
-// Credit packs with ~0.03€ per credit pricing
+// Credit packs with ~0.30€ per credit pricing
 const creditPacks: CreditPack[] = [
-  { price: 2.99, credits: 100, priceKey: "credits_100" },
-  { price: 29, credits: 1000, priceKey: "credits_1000" },
-  { price: 99, credits: 3500, priceKey: "credits_3500" },
-  { price: 199, credits: 7000, priceKey: "credits_7000" },
-  { price: 299, credits: 10000, priceKey: "credits_10000" },
-  { price: 499, credits: 17000, priceKey: "credits_17000" },
-  { price: 999, credits: 35000, priceKey: "credits_35000" },
-  { price: 1999, credits: 70000, priceKey: "credits_70000" },
-  { price: 2999, credits: 100000, priceKey: "credits_100000" },
+  { price: 2.99, credits: 10, priceKey: "credits_10" },
+  { price: 29, credits: 100, priceKey: "credits_100" },
+  { price: 99, credits: 330, priceKey: "credits_330" },
+  { price: 199, credits: 660, priceKey: "credits_660" },
+  { price: 299, credits: 1000, priceKey: "credits_1000" },
+  { price: 499, credits: 1660, priceKey: "credits_1660" },
+  { price: 999, credits: 3330, priceKey: "credits_3330" },
+  { price: 1999, credits: 6660, priceKey: "credits_6660" },
+  { price: 2999, credits: 10000, priceKey: "credits_10000" },
 ];
 
 interface UpgradeDialogProps {
@@ -234,7 +234,7 @@ export const UpgradeDialog = ({ open, onOpenChange, currentPlan }: UpgradeDialog
           <div className="flex items-center gap-2 mb-3">
             <Coins className="w-4 h-4 text-primary" />
             <span className="font-medium text-sm text-foreground">Recharger des crédits</span>
-            <Badge variant="outline" className="text-[10px] ml-auto">~0.03€/crédit</Badge>
+            <Badge variant="outline" className="text-[10px] ml-auto">~0.30€/crédit</Badge>
           </div>
           
           <DropdownMenu>
