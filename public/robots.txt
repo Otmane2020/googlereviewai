@@ -1,8 +1,13 @@
+# Starlinko - Google My Business Review Management
+# https://starlinko.app
+
 User-agent: Googlebot
 Allow: /
+Crawl-delay: 1
 
 User-agent: Bingbot
 Allow: /
+Crawl-delay: 2
 
 User-agent: Twitterbot
 Allow: /
@@ -12,3 +17,16 @@ Allow: /
 
 User-agent: *
 Allow: /
+Disallow: /dashboard
+Disallow: /reviews
+Disallow: /ai-settings
+Disallow: /settings
+Disallow: /businesses
+Disallow: /seo-autopost
+Disallow: /aeo-rank
+Disallow: /maps-rank
+Disallow: /notifications
+Disallow: /reset-password
+
+# Sitemap
+Sitemap: https://starlinko.app/sitemap.xml

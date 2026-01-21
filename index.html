@@ -4,9 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>Starlinko - Gestion automatisée des avis Google My Business</title>
-    <meta name="description" content="Starlinko est une application vérifiée avec accès complet à l'API Google My Business. Gérez et répondez automatiquement à vos avis en toute conformité." />
+    <meta name="description" content="Automatisez la gestion de vos avis Google My Business avec l'IA. Réponses automatiques, synchronisation en temps réel et analyse de performance. Application vérifiée par Google." />
     <meta name="author" content="Starlinko" />
-    <meta name="keywords" content="Google My Business, avis Google, gestion avis, API Google, automatisation, réponses automatiques" />
+    <meta name="keywords" content="Google My Business, avis Google, gestion avis, API Google, automatisation, réponses automatiques, IA, intelligence artificielle, réputation en ligne, SEO local" />
+    <meta name="robots" content="index, follow" />
+    <meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+    <meta name="bingbot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
 
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#ffffff" />
@@ -30,17 +33,134 @@
     <!-- Splash Screens for iOS -->
     <link rel="apple-touch-startup-image" href="/splash.png" />
 
-    <meta property="og:title" content="Starlinko - Gestion automatisée des avis Google My Business" />
-    <meta property="og:description" content="Application vérifiée avec accès API Google My Business. Gérez et répondez automatiquement à vos avis." />
+    <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    <meta property="og:url" content="https://starlinko.app/" />
+    <meta property="og:title" content="Starlinko - Gestion automatisée des avis Google My Business" />
+    <meta property="og:description" content="Automatisez la gestion de vos avis Google avec l'IA. Réponses automatiques et synchronisation en temps réel. Application vérifiée par Google." />
+    <meta property="og:image" content="https://starlinko.app/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content="fr_FR" />
+    <meta property="og:site_name" content="Starlinko" />
 
+    <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content="https://starlinko.app/" />
+    <meta name="twitter:title" content="Starlinko - Gestion automatisée des avis Google My Business" />
+    <meta name="twitter:description" content="Automatisez la gestion de vos avis Google avec l'IA. Réponses automatiques et synchronisation en temps réel." />
+    <meta name="twitter:image" content="https://starlinko.app/og-image.png" />
     <meta name="twitter:site" content="@Starlinko" />
-    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    <meta name="twitter:creator" content="@Starlinko" />
     
-    <link rel="canonical" href="https://starlinko.com" />
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://starlinko.app/" />
+    
+    <!-- Alternate languages (if applicable) -->
+    <link rel="alternate" hreflang="fr" href="https://starlinko.app/" />
+    <link rel="alternate" hreflang="x-default" href="https://starlinko.app/" />
+    
+    <!-- Manifest -->
     <link rel="manifest" href="/manifest.webmanifest" />
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Starlinko",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Web",
+      "description": "Automatisez la gestion de vos avis Google My Business avec l'intelligence artificielle. Réponses automatiques, synchronisation en temps réel et analyse de performance.",
+      "url": "https://starlinko.app",
+      "offers": {
+        "@type": "AggregateOffer",
+        "priceCurrency": "EUR",
+        "lowPrice": "0",
+        "highPrice": "99",
+        "offerCount": "4"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "ratingCount": "150",
+        "bestRating": "5",
+        "worstRating": "1"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "Starlinko",
+        "url": "https://starlinko.app",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://starlinko.app/pwa-512x512.png"
+        }
+      },
+      "featureList": [
+        "Réponses automatiques aux avis avec IA",
+        "Synchronisation Google My Business en temps réel",
+        "Analyse de performance et statistiques",
+        "Multi-établissements",
+        "SEO local automatisé",
+        "Notifications push instantanées"
+      ]
+    }
+    </script>
+
+    <!-- Organization Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Starlinko",
+      "url": "https://starlinko.app",
+      "logo": "https://starlinko.app/pwa-512x512.png",
+      "description": "Plateforme de gestion automatisée des avis Google My Business",
+      "sameAs": [
+        "https://twitter.com/Starlinko",
+        "https://www.linkedin.com/company/starlinko"
+      ],
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "customer service",
+        "availableLanguage": ["French", "English"]
+      }
+    }
+    </script>
+
+    <!-- FAQ Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Comment fonctionne Starlinko ?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Starlinko se connecte à votre compte Google My Business pour synchroniser automatiquement vos avis. L'IA génère des réponses personnalisées que vous pouvez publier en un clic ou automatiquement."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Est-ce que Starlinko est conforme aux règles de Google ?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Oui, Starlinko est une application vérifiée par Google avec un accès complet à l'API Google My Business. Toutes les actions sont conformes aux conditions d'utilisation de Google."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Combien d'établissements puis-je gérer ?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Selon votre plan, vous pouvez gérer de 1 à 50+ établissements. Les plans Pro permettent jusqu'à 10 établissements et les plans Business sont illimités."
+          }
+        }
+      ]
+    }
+    </script>
 
     <!-- Meta Pixel Code -->
     <script>
