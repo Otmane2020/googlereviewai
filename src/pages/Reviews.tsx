@@ -638,22 +638,24 @@ const Reviews = () => {
           {/* Stats - Clickable Filters */}
           <div className="grid grid-cols-4 gap-3 mt-4">
             {[
-              { label: "Total", value: stats.total, color: "text-foreground", bgColor: "bg-background", status: "all" },
-              { label: "Non répondu", value: stats.pending, color: "text-red-500", bgColor: "bg-red-500/10", status: "pending" },
-              { label: "Réponse IA", value: stats.ready, color: "text-primary", bgColor: "bg-primary/10", status: "ready" },
-              { label: "Publié", value: stats.published, color: "text-green-500", bgColor: "bg-green-500/10", status: "published" },
+              { label: "Total", value: stats.total, gradient: "from-slate-500 to-slate-700", bgGradient: "from-slate-500/10 to-slate-700/10", status: "all" },
+              { label: "Non répondu", value: stats.pending, gradient: "from-red-500 to-orange-500", bgGradient: "from-red-500/15 to-orange-500/15", status: "pending" },
+              { label: "Réponse IA", value: stats.ready, gradient: "from-primary to-blue-500", bgGradient: "from-primary/15 to-blue-500/15", status: "ready" },
+              { label: "Publié", value: stats.published, gradient: "from-green-500 to-emerald-500", bgGradient: "from-green-500/15 to-emerald-500/15", status: "published" },
             ].map((stat) => (
               <button
                 key={stat.label}
                 onClick={() => setFilterStatus(stat.status)}
-                className={`rounded-lg p-3 text-center border transition-all ${
+                className={`rounded-xl p-3 text-center border transition-all ${
                   filterStatus === stat.status 
-                    ? `${stat.bgColor} border-current ${stat.color} ring-2 ring-current/20` 
-                    : "bg-background border-border hover:border-muted-foreground/50"
+                    ? `bg-gradient-to-br ${stat.bgGradient} border-transparent ring-2 ring-offset-2 ring-offset-background ring-current/30` 
+                    : "bg-card border-border hover:border-muted-foreground/50 hover:shadow-sm"
                 }`}
               >
-                <div className={`text-xl font-bold ${stat.color}`}>{stat.value}</div>
-                <div className="text-xs text-muted-foreground">{stat.label}</div>
+                <div className={`text-xl font-bold bg-gradient-to-r ${stat.gradient} bg-clip-text text-transparent`}>
+                  {stat.value}
+                </div>
+                <div className="text-xs text-muted-foreground mt-0.5">{stat.label}</div>
               </button>
             ))}
           </div>
