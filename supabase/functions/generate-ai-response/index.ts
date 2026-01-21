@@ -143,7 +143,7 @@ IMPORTANT : Ne pas commencer par "Cher client" ou "Bonjour". Personnalise la ré
 
     console.log("Calling Lovable AI Gateway...");
     
-    // Use Lovable AI Gateway (faster than OpenRouter)
+    // Use Lovable AI Gateway with optimized settings for speed
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -151,16 +151,15 @@ IMPORTANT : Ne pas commencer par "Cher client" ou "Bonjour". Personnalise la ré
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
+        model: "google/gemini-2.5-flash-lite", // Fastest model for simple tasks
         messages: [
           { 
-            role: "system", 
-            content: "Tu es un assistant IA expert en relation client qui rédige des réponses aux avis Google de manière professionnelle et naturelle en français."
+            role: "user", 
+            content: prompt 
           },
-          { role: "user", content: prompt },
         ],
-        temperature: 0.7,
-        max_tokens: 200,
+        temperature: 0.5, // Lower temp = faster + more deterministic
+        max_tokens: 150, // Reduced for shorter responses
       }),
     });
 

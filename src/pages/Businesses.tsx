@@ -309,6 +309,21 @@ const BusinessesPage = () => {
                 <Crown className="w-3 h-3" />
                 {businesses.filter(b => b.is_active).length}/{maxBusinesses} établissement{maxBusinesses > 1 ? "s" : ""}
               </Badge>
+              {businesses.length < maxBusinesses && (
+                <Button
+                  variant="default"
+                  size="sm"
+                  onClick={handleSyncBusinesses}
+                  disabled={isSyncing}
+                >
+                  {isSyncing ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <PlusCircle className="w-4 h-4 mr-2" />
+                  )}
+                  Ajouter
+                </Button>
+              )}
               <Button
                 variant="outline"
                 size="sm"
