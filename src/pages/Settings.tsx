@@ -586,17 +586,15 @@ const SettingsPage = () => {
                     {!pushSupported 
                       ? "Non supporté par ce navigateur"
                       : pushSubscribed 
-                        ? "Activées - Vous recevez les alertes même app fermée"
-                        : pushPermission === "denied"
-                          ? "Bloquées - Activez-les dans les paramètres du navigateur"
-                          : "Désactivées - Activez pour recevoir les alertes"
+                        ? "Activées - Vous recevez les alertes"
+                        : "Cliquez pour activer les alertes"
                     }
                   </p>
                 </div>
               </div>
               {pushSupported && (
                 <Button
-                  variant={pushSubscribed ? "outline" : pushPermission === "denied" ? "secondary" : "default"}
+                  variant={pushSubscribed ? "outline" : "default"}
                   size="sm"
                   onClick={pushSubscribed ? handleUnsubscribePush : handleSubscribePush}
                   disabled={pushLoading}
@@ -608,11 +606,6 @@ const SettingsPage = () => {
                     <>
                       <BellOff className="w-4 h-4 mr-1.5" />
                       Désactiver
-                    </>
-                  ) : pushPermission === "denied" ? (
-                    <>
-                      <Shield className="w-4 h-4 mr-1.5" />
-                      Débloquer
                     </>
                   ) : (
                     <>
