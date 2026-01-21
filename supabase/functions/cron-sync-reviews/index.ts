@@ -64,7 +64,9 @@ async function fetchGMBLocations(accessToken: string, accountName: string): Prom
   }
 }
 
-// Sync reviews for a specific location
+// Sync reviews for a specific location WITH PAGINATION
+const MAX_PAGES = 10; // Safety limit
+
 async function syncLocationReviews(
   accessToken: string,
   accountId: string,
@@ -87,79 +89,107 @@ async function syncLocationReviews(
     const existingReviewIds = new Set(existingReviews?.map((r: any) => r.review_id) || []);
     console.log(`[CRON] Location ${locationId}: ${existingReviewIds.size} existing reviews in DB`);
 
-    // CORRECT URL FORMAT: /v4/accounts/{accountId}/locations/{locationId}/reviews
-    const reviewsUrl = `https://mybusiness.googleapis.com/v4/accounts/${accountId}/locations/${locationId}/reviews?pageSize=50`;
-    console.log(`[CRON] Fetching reviews from: ${reviewsUrl}`);
-    
-    const response = await fetch(reviewsUrl, {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    });
+    // PAGINATION LOOP - fetch all pages
+    let nextPageToken: string | null = null;
+    let pageCount = 0;
+    let totalFromGoogle = 0;
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error(`[CRON] Failed to fetch reviews for location ${locationId}:`, response.status, errorText);
+    do {
+      pageCount++;
+      let reviewsUrl = `https://mybusiness.googleapis.com/v4/accounts/${accountId}/locations/${locationId}/reviews?pageSize=50`;
+      if (nextPageToken) {
+        reviewsUrl += `&pageToken=${encodeURIComponent(nextPageToken)}`;
+      }
       
-      if (response.status === 404) {
-        errors.push(`Location ${locationId}: No reviews endpoint (might be new listing)`);
-      } else if (response.status === 403) {
-        errors.push(`Location ${locationId}: Permission denied`);
-      } else {
-        errors.push(`Location ${locationId}: Error ${response.status}`);
+      console.log(`[CRON] Fetching page ${pageCount}: ${reviewsUrl}`);
+      
+      const response = await fetch(reviewsUrl, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`[CRON] Failed to fetch reviews for location ${locationId}:`, response.status, errorText);
+        
+        if (response.status === 404) {
+          errors.push(`Location ${locationId}: No reviews endpoint (might be new listing)`);
+        } else if (response.status === 403) {
+          errors.push(`Location ${locationId}: Permission denied`);
+        } else {
+          errors.push(`Location ${locationId}: Error ${response.status}`);
+        }
+        break;
       }
-      return { synced, newReviewIds, errors };
-    }
 
-    const data = await response.json();
-    const reviews = data.reviews || [];
-    console.log(`[CRON] Found ${reviews.length} reviews for location ${locationId}`);
+      const data = await response.json();
+      const reviews = data.reviews || [];
+      nextPageToken = data.nextPageToken || null;
+      totalFromGoogle += reviews.length;
+      
+      console.log(`[CRON] Page ${pageCount}: ${reviews.length} reviews${nextPageToken ? ' (more pages available)' : ''}`);
 
-    for (const review of reviews) {
-      const fullReviewId = review.name || review.reviewId;
-      if (!fullReviewId) {
-        console.error("[CRON] Review has no ID:", review);
-        continue;
-      }
+      // Batch process reviews for this page
+      const reviewsToUpsert: any[] = [];
 
-      // Build canonical review ID
-      const reviewIdParts = fullReviewId.split("/reviews/");
-      const uniqueReviewId = reviewIdParts.length > 1 ? reviewIdParts[1] : fullReviewId;
-      const canonicalReviewId = `locations/${locationId}/reviews/${uniqueReviewId}`;
+      for (const review of reviews) {
+        const fullReviewId = review.name || review.reviewId;
+        if (!fullReviewId) {
+          console.error("[CRON] Review has no ID:", review);
+          continue;
+        }
 
-      const isNewReview = !existingReviewIds.has(canonicalReviewId);
-      const rating = parseStarRating(review.starRating);
+        // Build canonical review ID
+        const reviewIdParts = fullReviewId.split("/reviews/");
+        const uniqueReviewId = reviewIdParts.length > 1 ? reviewIdParts[1] : fullReviewId;
+        const canonicalReviewId = `locations/${locationId}/reviews/${uniqueReviewId}`;
 
-      const reviewData = {
-        review_id: canonicalReviewId,
-        user_id: userId,
-        location_id: locationId,
-        author: review.reviewer?.displayName || "Anonyme",
-        rating: rating,
-        comment: review.comment || "",
-        review_date: review.createTime || new Date().toISOString(),
-        replied: !!review.reviewReply,
-        google_reply: review.reviewReply?.comment || null,
-        // Mark as NOT notified if it's truly new - trigger will handle notification
-        notified: !isNewReview,
-      };
+        const isNewReview = !existingReviewIds.has(canonicalReviewId);
+        const rating = parseStarRating(review.starRating);
 
-      // Upsert review - trigger will fire and send notification for new reviews
-      const { error: upsertError } = await supabase
-        .from("reviews")
-        .upsert(reviewData, { 
-          onConflict: "review_id,user_id",
-          ignoreDuplicates: false 
+        reviewsToUpsert.push({
+          review_id: canonicalReviewId,
+          user_id: userId,
+          location_id: locationId,
+          author: review.reviewer?.displayName || "Anonyme",
+          rating: rating,
+          comment: review.comment || "",
+          review_date: review.createTime || new Date().toISOString(),
+          replied: !!review.reviewReply,
+          google_reply: review.reviewReply?.comment || null,
+          // Mark as NOT notified if it's truly new - trigger will handle notification
+          notified: !isNewReview,
         });
 
-      if (upsertError) {
-        console.error(`[CRON] Error upserting review ${canonicalReviewId}:`, upsertError);
-      } else {
-        synced++;
         if (isNewReview) {
           newReviewIds.push(canonicalReviewId);
-          console.log(`[CRON] 🆕 NEW REVIEW DETECTED: ${canonicalReviewId} by ${reviewData.author} (${rating}⭐)`);
+          console.log(`[CRON] 🆕 NEW REVIEW: ${canonicalReviewId} by ${review.reviewer?.displayName || 'Anonyme'} (${rating}⭐)`);
         }
       }
+
+      // Batch upsert all reviews from this page
+      if (reviewsToUpsert.length > 0) {
+        const { error: upsertError } = await supabase
+          .from("reviews")
+          .upsert(reviewsToUpsert, { 
+            onConflict: "review_id,user_id",
+            ignoreDuplicates: false 
+          });
+
+        if (upsertError) {
+          console.error(`[CRON] Batch upsert error:`, upsertError);
+          errors.push(`Location ${locationId}: ${upsertError.message}`);
+        } else {
+          synced += reviewsToUpsert.length;
+        }
+      }
+    } while (nextPageToken && pageCount < MAX_PAGES);
+
+    if (pageCount >= MAX_PAGES && nextPageToken) {
+      console.warn(`[CRON] ⚠️ Reached max page limit (${MAX_PAGES}) for location ${locationId}`);
     }
+
+    console.log(`[CRON] Location ${locationId}: Total ${totalFromGoogle} reviews from Google, ${synced} synced, ${newReviewIds.length} NEW`);
+
   } catch (error) {
     console.error(`[CRON] Exception syncing location ${locationId}:`, error);
     errors.push(`Location ${locationId}: ${error instanceof Error ? error.message : "Unknown error"}`);
