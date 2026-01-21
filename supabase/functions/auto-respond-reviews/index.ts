@@ -180,7 +180,7 @@ serve(async (req) => {
     // Get users with AI enabled
     const { data: settings } = await supabase
       .from("ai_settings")
-      .select("user_id, auto_sync_reviews, auto_publish_to_google, minimum_rating, auto_reply_delay, tone, response_length, include_signature, signature, custom_template, only_positive_reviews, created_at")
+      .select("user_id, auto_sync_reviews, auto_publish_to_google, minimum_rating, auto_reply_delay, tone, response_length, include_signature, signature, custom_template, only_positive_reviews, respond_to_edited_reviews, created_at")
       .eq("enabled", true);
 
     if (!settings || settings.length === 0) {
@@ -293,14 +293,35 @@ serve(async (req) => {
           reviewsQuery = reviewsQuery.gte("review_date", aiEnabledAt);
         }
 
-        const { data: reviews } = await reviewsQuery;
+        const { data: newReviews } = await reviewsQuery;
+        
+        // Also get edited reviews that need a new response (if option is enabled)
+        let editedReviews: any[] = [];
+        if (userSettings.respond_to_edited_reviews) {
+          const { data: edited } = await supabase
+            .from("reviews")
+            .select("*")
+            .eq("user_id", userSettings.user_id)
+            .eq("needs_new_response", true)
+            .gte("rating", minRating)
+            .order("last_edited_at", { ascending: true })
+            .limit(5);
+          
+          editedReviews = edited || [];
+          if (editedReviews.length > 0) {
+            console.log(`[AutoRespond] Found ${editedReviews.length} edited reviews needing new response for user ${userSettings.user_id}`);
+          }
+        }
+        
+        // Combine new and edited reviews
+        const reviews = [...(newReviews || []), ...editedReviews];
 
-        if (!reviews || reviews.length === 0) {
+        if (reviews.length === 0) {
           console.log(`[AutoRespond] No pending reviews for user ${userSettings.user_id}`);
           continue;
         }
 
-        console.log(`[AutoRespond] Found ${reviews.length} pending reviews for user ${userSettings.user_id}`);
+        console.log(`[AutoRespond] Found ${reviews.length} reviews to process (${newReviews?.length || 0} new, ${editedReviews.length} edited) for user ${userSettings.user_id}`);
 
         // Get business name
         const { data: business } = await supabase
@@ -341,10 +362,15 @@ serve(async (req) => {
 
           if (!aiResponse) continue;
 
-          // Update review with AI response
+          // Update review with AI response and clear needs_new_response flag
+          const isEditedReview = review.needs_new_response === true;
           await supabase
             .from("reviews")
-            .update({ ai_response: aiResponse })
+            .update({ 
+              ai_response: aiResponse,
+              needs_new_response: false, // Clear the flag
+              published_to_google: false, // Reset published status for re-publication
+            })
             .eq("id", review.id);
 
           // Deduct credit
@@ -360,7 +386,9 @@ serve(async (req) => {
             user_id: userSettings.user_id,
             amount: -1,
             type: "usage",
-            description: `Auto-réponse IA pour l'avis de ${review.author}`,
+            description: isEditedReview 
+              ? `Nouvelle réponse IA pour l'avis modifié de ${review.author}`
+              : `Auto-réponse IA pour l'avis de ${review.author}`,
           });
 
           totalResponses++;
@@ -368,9 +396,13 @@ serve(async (req) => {
           // Create notification for AI response
           await supabase.from("notifications").insert({
             user_id: userSettings.user_id,
-            type: "ai_response",
-            title: "Réponse IA générée automatiquement",
-            message: `Une réponse a été générée pour l'avis de ${review.author}`,
+            type: isEditedReview ? "ai_response_edited" : "ai_response",
+            title: isEditedReview 
+              ? "🔄 Nouvelle réponse IA générée"
+              : "Réponse IA générée automatiquement",
+            message: isEditedReview
+              ? `Une nouvelle réponse a été générée suite à la modification de l'avis de ${review.author}`
+              : `Une réponse a été générée pour l'avis de ${review.author}`,
             review_id: review.id,
           });
 

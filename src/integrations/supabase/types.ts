@@ -90,6 +90,7 @@ export type Database = {
           last_sync_status: string | null
           minimum_rating: number | null
           only_positive_reviews: boolean | null
+          respond_to_edited_reviews: boolean | null
           response_length: string | null
           reviews_synced_count: number | null
           signature: string | null
@@ -113,6 +114,7 @@ export type Database = {
           last_sync_status?: string | null
           minimum_rating?: number | null
           only_positive_reviews?: boolean | null
+          respond_to_edited_reviews?: boolean | null
           response_length?: string | null
           reviews_synced_count?: number | null
           signature?: string | null
@@ -136,6 +138,7 @@ export type Database = {
           last_sync_status?: string | null
           minimum_rating?: number | null
           only_positive_reviews?: boolean | null
+          respond_to_edited_reviews?: boolean | null
           response_length?: string | null
           reviews_synced_count?: number | null
           signature?: string | null
@@ -650,10 +653,13 @@ export type Database = {
           author: string
           comment: string | null
           created_at: string | null
+          edit_count: number | null
           google_reply: string | null
           google_reply_id: string | null
           id: number
+          last_edited_at: string | null
           location_id: string
+          needs_new_response: boolean | null
           notified: boolean | null
           published_at: string | null
           published_to_google: boolean | null
@@ -669,10 +675,13 @@ export type Database = {
           author: string
           comment?: string | null
           created_at?: string | null
+          edit_count?: number | null
           google_reply?: string | null
           google_reply_id?: string | null
           id?: number
+          last_edited_at?: string | null
           location_id: string
+          needs_new_response?: boolean | null
           notified?: boolean | null
           published_at?: string | null
           published_to_google?: boolean | null
@@ -688,10 +697,13 @@ export type Database = {
           author?: string
           comment?: string | null
           created_at?: string | null
+          edit_count?: number | null
           google_reply?: string | null
           google_reply_id?: string | null
           id?: number
+          last_edited_at?: string | null
           location_id?: string
+          needs_new_response?: boolean | null
           notified?: boolean | null
           published_at?: string | null
           published_to_google?: boolean | null

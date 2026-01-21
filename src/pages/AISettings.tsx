@@ -46,6 +46,7 @@ interface AISettings {
   sync_interval_minutes: number;
   auto_publish_to_google: boolean;
   email_notifications: boolean;
+  respond_to_edited_reviews: boolean;
 }
 
 interface PendingReviewsStats {
@@ -187,12 +188,13 @@ const AISettingsPage = () => {
     signature: "L'équipe {business_name}",
     custom_template: "",
     auto_reply_delay: 5,
-    only_positive_reviews: true, // Default to true - only respond to positive reviews
+    only_positive_reviews: true,
     minimum_rating: 3,
     auto_sync_reviews: true,
     sync_interval_minutes: 30,
     auto_publish_to_google: true,
     email_notifications: true,
+    respond_to_edited_reviews: true,
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -262,6 +264,7 @@ const AISettingsPage = () => {
           sync_interval_minutes: settingsRes.data.sync_interval_minutes ?? 30,
           auto_publish_to_google: settingsRes.data.auto_publish_to_google ?? true,
           email_notifications: settingsRes.data.email_notifications ?? true,
+          respond_to_edited_reviews: settingsRes.data.respond_to_edited_reviews ?? true,
         });
       }
 
@@ -662,13 +665,44 @@ const AISettingsPage = () => {
           </div>
         </div>
 
+        {/* Respond to Edited Reviews */}
+        <div className="bg-card rounded-2xl border border-border/50 overflow-hidden shadow-sm">
+          <div className="p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-orange-500/10 flex items-center justify-center">
+                  <PenLine className="w-4 h-4 text-orange-500" />
+                </div>
+                <div>
+                  <span className="font-medium text-sm text-foreground block">Avis modifiés</span>
+                  <span className="text-xs text-muted-foreground">Régénérer réponse IA</span>
+                </div>
+              </div>
+              <Switch
+                checked={settings.respond_to_edited_reviews}
+                onCheckedChange={(respond_to_edited_reviews) =>
+                  updateSettings({ respond_to_edited_reviews })
+                }
+              />
+            </div>
+            {settings.respond_to_edited_reviews && (
+              <div className="mt-3 ml-11 bg-orange-500/10 rounded-xl p-3 flex items-start gap-2">
+                <Sparkles className="w-4 h-4 text-orange-600 mt-0.5 shrink-0" />
+                <p className="text-xs text-orange-700 dark:text-orange-400">
+                  Une nouvelle réponse sera générée si le client modifie son avis
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+
         {/* Email Notifications */}
         <div className="bg-card rounded-2xl border border-border/50 overflow-hidden shadow-sm">
           <div className="p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center">
-                  <Bell className="w-4 h-4 text-red-500" />
+                <div className="w-8 h-8 rounded-lg bg-destructive/10 flex items-center justify-center">
+                  <Bell className="w-4 h-4 text-destructive" />
                 </div>
                 <div>
                   <span className="font-medium text-sm text-foreground block">Notifications email</span>
