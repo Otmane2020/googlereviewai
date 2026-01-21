@@ -1,9 +1,14 @@
-import { Star } from "lucide-react";
-
 interface StarlinkoLogoProps {
   className?: string;
   showBadge?: boolean;
 }
+
+// Custom 5-pointed star icon matching brand guidelines
+const FivePointedStar = ({ className = "w-8 h-8" }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12 2l2.939 6.243L22 9.18l-5 5.15L18.18 22 12 18.26 5.82 22 7 14.33l-5-5.15 7.061-.937L12 2z" />
+  </svg>
+);
 
 const GoogleGIcon = ({ className = "w-5 h-5" }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24">
@@ -30,8 +35,8 @@ export const StarlinkoLogo = ({ className = "", showBadge = true }: StarlinkoLog
   return (
     <div className={`flex items-center gap-2 ${className}`}>
       <div className="relative">
-        <Star className="h-7 w-7 sm:h-8 sm:w-8 text-accent fill-accent" />
-        <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-secondary rounded-full animate-pulse" />
+        <FivePointedStar className="h-7 w-7 sm:h-8 sm:w-8 text-accent" />
+        <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-secondary rounded-full animate-pulse" />
       </div>
       <div className="flex items-baseline gap-1">
         <span className="text-lg sm:text-xl font-bold tracking-tight">Starlinko</span>
