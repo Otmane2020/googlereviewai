@@ -349,31 +349,15 @@ const Dashboard = () => {
         {/* Low Credits Banner - show when credits are 0 */}
         <LowCreditsBanner credits={profile?.credits || 0} pendingReviews={stats.pending} />
 
-        {/* Sync Status Card */}
-        {syncStatus && (
-          <div className={`rounded-xl p-3 border ${
-            syncStatus.last_sync_status === "error" 
-              ? "bg-destructive/10 border-destructive/30"
-              : syncStatus.last_sync_status === "partial"
-              ? "bg-orange-500/10 border-orange-500/30"
-              : "bg-secondary/10 border-secondary/30"
-          }`}>
+        {/* Sync Status Card - Only show on errors */}
+        {syncStatus && syncStatus.last_sync_status === "error" && (
+          <div className="rounded-xl p-3 border bg-destructive/10 border-destructive/30">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                {syncStatus.last_sync_status === "error" ? (
-                  <AlertCircle className="w-4 h-4 text-destructive" />
-                ) : syncStatus.last_sync_status === "partial" ? (
-                  <AlertCircle className="w-4 h-4 text-orange-500" />
-                ) : (
-                  <CheckCircle2 className="w-4 h-4 text-secondary" />
-                )}
+                <AlertCircle className="w-4 h-4 text-destructive" />
                 <div>
                   <p className="text-xs font-medium text-foreground">
-                    {syncStatus.last_sync_status === "error" 
-                      ? "Erreur de synchronisation" 
-                      : syncStatus.last_sync_status === "partial"
-                      ? "Sync partielle"
-                      : "Sync automatique active"}
+                    Erreur de synchronisation
                   </p>
                   {syncStatus.last_sync_at && (
                     <p className="text-[10px] text-muted-foreground">
@@ -391,7 +375,7 @@ const Dashboard = () => {
                   )}
                 </div>
               </div>
-              {syncStatus.last_sync_status === "error" && syncStatus.last_sync_error && (
+              {syncStatus.last_sync_error && (
                 <Button 
                   variant="ghost" 
                   size="sm" 
@@ -402,7 +386,7 @@ const Dashboard = () => {
                 </Button>
               )}
             </div>
-            {syncStatus.last_sync_status === "error" && syncStatus.last_sync_error && (
+            {syncStatus.last_sync_error && (
               <p className="text-[10px] text-destructive mt-1 line-clamp-1">
                 {syncStatus.last_sync_error}
               </p>
