@@ -329,13 +329,16 @@ serve(async (req) => {
                 
                 // For existing reviews, we preserve notified status by setting it to true
                 // This prevents re-triggering notifications for old reviews
+                // Use originalComment to get the review in its original language (not Google-translated)
+                const originalComment = review.originalComment || review.comment || "";
+                
                 reviewsToUpsert.push({
                   user_id: user.id,
                   review_id: canonicalReviewId,
                   location_id: locationId,
                   author: review.reviewer?.displayName || "Anonyme",
                   rating: rating,
-                  comment: review.comment || "",
+                  comment: originalComment,
                   review_date: review.createTime || new Date().toISOString(),
                   replied: !!review.reviewReply,
                   google_reply: review.reviewReply?.comment || null,

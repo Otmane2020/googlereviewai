@@ -249,13 +249,16 @@ async function syncLocationReviews(
         const isNewReview = !existingReviewIds.has(canonicalReviewId);
         const rating = parseStarRating(review.starRating);
 
+        // Use originalComment to get the review in its original language (not Google-translated)
+        const originalComment = review.originalComment || review.comment || "";
+        
         reviewsToUpsert.push({
           review_id: canonicalReviewId,
           user_id: userId,
           location_id: locationId,
           author: review.reviewer?.displayName || "Anonyme",
           rating: rating,
-          comment: review.comment || "",
+          comment: originalComment,
           review_date: review.createTime || new Date().toISOString(),
           replied: !!review.reviewReply,
           google_reply: review.reviewReply?.comment || null,
