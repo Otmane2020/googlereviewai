@@ -141,11 +141,9 @@ const AEORank = () => {
     setScheduledContent((data as ScheduledContent[]) || []);
   };
 
-  const handleSubscribe = async (selectedBusinessIds: string[], annual: boolean = false) => {
+  const handleSubscribe = async (selectedBusinessIds: string[], annual: boolean = false, quantity: number = 1) => {
     try {
       const priceKey = annual ? "aeo_yearly" : "aeo_monthly";
-      // Quantity = number of selected businesses (minimum 1)
-      const quantity = Math.max(1, selectedBusinessIds.length);
       
       const { data, error } = await supabase.functions.invoke("create-checkout", {
         body: { 
