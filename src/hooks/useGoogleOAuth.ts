@@ -31,8 +31,9 @@ export const useGoogleOAuth = () => {
       if (data?.auth_url) {
         // Store user_id in session storage for callback
         sessionStorage.setItem("google_oauth_user_id", user.id);
-        // Open in new window to avoid iframe/webview restrictions from Google
-        window.open(data.auth_url, "_blank", "noopener,noreferrer");
+        // Open in same window to ensure OAuth callback works properly
+        // Using _self ensures the callback returns to this window with the code parameter
+        window.location.href = data.auth_url;
       } else {
         throw new Error(data?.error || "Failed to get OAuth URL");
       }
