@@ -354,70 +354,73 @@ const SEOAutoPost = () => {
   const next30Days = Array.from({ length: 30 }, (_, i) => addDays(today, i));
 
   return (
-    <div className="min-h-screen bg-muted/30 pb-20 sm:pb-6">
+    <div className="min-h-screen bg-muted/30 pb-20">
       <DashboardHeader />
 
-      {/* Page Header */}
+      {/* Mobile-First Page Header */}
       <div className="bg-card border-b border-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                <FileText className="w-6 h-6 text-primary" />
-              </div>
-              <div>
-                <h1 className="text-xl sm:text-2xl font-bold text-foreground">SEO & AEO AutoPost</h1>
-                <p className="text-xs sm:text-sm text-muted-foreground">
-                  Planning automatique 30 jours
-                </p>
-              </div>
+        <div className="px-4 py-4">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <FileText className="w-5 h-5 text-primary" />
             </div>
-            {selectedBusiness && (
-              <Button onClick={analyzeAndGeneratePlan} disabled={generating}>
-                {generating ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Analyse en cours...
-                  </>
-                ) : (
-                  <>
-                    <RefreshCw className="w-4 h-4 mr-2" />
-                    Analyser & Planifier
-                  </>
-                )}
-              </Button>
-            )}
+            <div className="min-w-0">
+              <h1 className="text-lg font-bold text-foreground truncate">SEO & AEO AutoPost</h1>
+              <p className="text-xs text-muted-foreground">
+                Planning automatique 30 jours
+              </p>
+            </div>
           </div>
+          {selectedBusiness && (
+            <Button 
+              onClick={analyzeAndGeneratePlan} 
+              disabled={generating}
+              className="w-full"
+              size="sm"
+            >
+              {generating ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Analyse en cours...
+                </>
+              ) : (
+                <>
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  Analyser & Planifier
+                </>
+              )}
+            </Button>
+          )}
         </div>
       </div>
 
-      <main className="max-w-7xl mx-auto p-4 sm:p-6 space-y-6">
+      <main className="px-4 py-4 space-y-4">
         {/* Business Selection */}
         {businesses.length === 0 ? (
-          <Card className="p-8 text-center">
-            <Building2 className="w-12 h-12 mx-auto mb-4 text-muted-foreground/30" />
-            <h3 className="text-lg font-medium text-foreground mb-2">Aucun établissement</h3>
-            <p className="text-sm text-muted-foreground mb-4">
+          <Card className="p-6 text-center">
+            <Building2 className="w-10 h-10 mx-auto mb-3 text-muted-foreground/30" />
+            <h3 className="text-base font-medium text-foreground mb-2">Aucun établissement</h3>
+            <p className="text-xs text-muted-foreground mb-4">
               Connectez d'abord votre Google My Business
             </p>
-            <Button onClick={() => navigate("/businesses")}>
+            <Button onClick={() => navigate("/businesses")} size="sm">
               Ajouter un établissement
             </Button>
           </Card>
         ) : (
           <>
-            {/* Business Info Card */}
+            {/* Business Info Card - Compact Mobile */}
             {selectedBusiness && (
-              <Card>
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <CardTitle className="text-lg">{selectedBusiness.name}</CardTitle>
-                      <CardDescription>{selectedBusiness.address}</CardDescription>
+              <Card className="overflow-hidden">
+                <CardContent className="p-3">
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    <div className="min-w-0 flex-1">
+                      <p className="font-semibold text-sm text-foreground truncate">{selectedBusiness.name}</p>
+                      <p className="text-xs text-muted-foreground truncate">{selectedBusiness.address}</p>
                     </div>
                     {businesses.length > 1 && (
                       <select 
-                        className="text-sm border rounded-md px-2 py-1"
+                        className="text-xs border rounded-md px-2 py-1.5 bg-background flex-shrink-0"
                         value={selectedBusiness.id}
                         onChange={(e) => {
                           const biz = businesses.find(b => b.id === e.target.value);
@@ -433,114 +436,125 @@ const SEOAutoPost = () => {
                       </select>
                     )}
                   </div>
-                </CardHeader>
-                <CardContent>
                   {selectedBusiness.auto_keywords && selectedBusiness.auto_keywords.length > 0 ? (
-                    <div>
-                      <p className="text-xs text-muted-foreground mb-2">Mots-clés détectés automatiquement :</p>
-                      <div className="flex flex-wrap gap-1">
-                        {selectedBusiness.auto_keywords.slice(0, 10).map((kw, i) => (
-                          <span key={i} className="px-2 py-0.5 bg-primary/10 text-primary text-xs rounded-full">
-                            {kw}
-                          </span>
-                        ))}
-                        {selectedBusiness.auto_keywords.length > 10 && (
-                          <span className="text-xs text-muted-foreground">
-                            +{selectedBusiness.auto_keywords.length - 10} autres
-                          </span>
-                        )}
-                      </div>
+                    <div className="flex flex-wrap gap-1">
+                      {selectedBusiness.auto_keywords.slice(0, 6).map((kw, i) => (
+                        <span key={i} className="px-2 py-0.5 bg-primary/10 text-primary text-[10px] rounded-full">
+                          {kw}
+                        </span>
+                      ))}
+                      {selectedBusiness.auto_keywords.length > 6 && (
+                        <span className="text-[10px] text-muted-foreground">
+                          +{selectedBusiness.auto_keywords.length - 6}
+                        </span>
+                      )}
                     </div>
                   ) : (
-                    <p className="text-sm text-muted-foreground">
-                      Cliquez sur "Analyser & Planifier" pour détecter automatiquement les mots-clés
+                    <p className="text-xs text-muted-foreground">
+                      Cliquez sur "Analyser & Planifier" pour détecter les mots-clés
                     </p>
                   )}
                 </CardContent>
               </Card>
             )}
 
-            {/* Subscription Banner for non-subscribers */}
+            {/* Subscription Banner - Compact Mobile */}
             {!isSubscribed && (
               <Card className="border-primary/30 bg-primary/5">
-                <CardContent className="p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-                  <div className="flex items-center gap-3">
-                    <Lock className="w-8 h-8 text-primary" />
-                    <div>
-                      <p className="font-semibold text-foreground">Module Premium</p>
-                      <p className="text-sm text-muted-foreground">Abonnez-vous pour débloquer toutes les fonctionnalités</p>
+                <CardContent className="p-3">
+                  <div className="flex items-center gap-3 mb-3">
+                    <Lock className="w-6 h-6 text-primary flex-shrink-0" />
+                    <div className="min-w-0">
+                      <p className="font-semibold text-sm text-foreground">Module Premium</p>
+                      <p className="text-xs text-muted-foreground">Débloquez toutes les fonctionnalités</p>
                     </div>
                   </div>
-                  <Button onClick={handleSubscribe}>
+                  <Button onClick={handleSubscribe} size="sm" className="w-full">
                     S'abonner - 49€/mois
                   </Button>
                 </CardContent>
               </Card>
             )}
 
-            {/* Tabs */}
+            {/* Tabs - Mobile optimized */}
             <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="planning" className="gap-2">
-                  <Calendar className="w-4 h-4" />
+              <TabsList className="grid w-full grid-cols-2 h-10">
+                <TabsTrigger value="planning" className="gap-1.5 text-xs">
+                  <Calendar className="w-3.5 h-3.5" />
                   Planning
                 </TabsTrigger>
-                <TabsTrigger value="articles" className="gap-2">
-                  <List className="w-4 h-4" />
+                <TabsTrigger value="articles" className="gap-1.5 text-xs">
+                  <List className="w-3.5 h-3.5" />
                   Articles
                 </TabsTrigger>
               </TabsList>
 
-              {/* Planning Tab */}
-              <TabsContent value="planning" className="mt-4">
-                <div className="grid grid-cols-5 sm:grid-cols-7 gap-2">
-                  {next30Days.map((date) => {
-                    const dateStr = format(date, "yyyy-MM-dd");
-                    const dayContent = scheduledContent.find(
-                      c => c.scheduled_date === dateStr && c.content_type === "aeo_qa"
-                    );
-                    const isToday = isSameDay(date, today);
+              {/* Planning Tab - Horizontal Scroll Mobile */}
+              <TabsContent value="planning" className="mt-3">
+                <div className="overflow-x-auto -mx-4 px-4 pb-2">
+                  <div className="flex gap-2 min-w-max">
+                    {next30Days.map((date) => {
+                      const dateStr = format(date, "yyyy-MM-dd");
+                      const dayContent = scheduledContent.find(
+                        c => c.scheduled_date === dateStr && c.content_type === "aeo_qa"
+                      );
+                      const isToday = isSameDay(date, today);
 
-                    return (
-                      <div
-                        key={dateStr}
-                        className={`p-2 sm:p-3 rounded-lg border text-center transition-all ${
-                          isToday 
-                            ? "border-primary bg-primary/5 ring-2 ring-primary/20" 
-                            : "border-border bg-card hover:border-primary/50"
-                        }`}
-                      >
-                        <p className="text-[10px] sm:text-xs text-muted-foreground">
-                          {format(date, "EEE", { locale: fr })}
-                        </p>
-                        <p className={`text-sm sm:text-base font-bold ${isToday ? "text-primary" : "text-foreground"}`}>
-                          {format(date, "d")}
-                        </p>
-                        <div className="mt-1">
-                          {dayContent ? (
-                            <div 
-                              className="cursor-pointer"
-                              onClick={() => dayContent.status === "pending" && generateContentForDay(dayContent)}
-                            >
-                              {getStatusBadge(dayContent.status)}
-                            </div>
-                          ) : (
-                            <span className="text-[10px] text-muted-foreground">—</span>
-                          )}
+                      return (
+                        <div
+                          key={dateStr}
+                          className={`w-14 flex-shrink-0 p-2 rounded-xl border text-center transition-all ${
+                            isToday 
+                              ? "border-primary bg-primary/10 ring-2 ring-primary/30" 
+                              : "border-border bg-card active:bg-muted"
+                          }`}
+                          onClick={() => dayContent?.status === "pending" && generateContentForDay(dayContent)}
+                        >
+                          <p className="text-[10px] text-muted-foreground uppercase">
+                            {format(date, "EEE", { locale: fr }).slice(0, 3)}
+                          </p>
+                          <p className={`text-base font-bold ${isToday ? "text-primary" : "text-foreground"}`}>
+                            {format(date, "d")}
+                          </p>
+                          <div className="mt-1 h-5 flex items-center justify-center">
+                            {dayContent ? (
+                              <>
+                                {dayContent.status === "published" && <Check className="w-4 h-4 text-secondary" />}
+                                {dayContent.status === "generated" && <Sparkles className="w-4 h-4 text-primary" />}
+                                {dayContent.status === "pending" && <Clock className="w-4 h-4 text-muted-foreground" />}
+                                {dayContent.status === "generating" && <Loader2 className="w-4 h-4 text-primary animate-spin" />}
+                                {(dayContent.status === "failed" || dayContent.status === "error") && <AlertCircle className="w-4 h-4 text-destructive" />}
+                              </>
+                            ) : (
+                              <span className="text-[10px] text-muted-foreground">—</span>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
+                  </div>
+                </div>
+                {/* Legend */}
+                <div className="flex flex-wrap gap-3 mt-3 text-[10px] text-muted-foreground">
+                  <div className="flex items-center gap-1">
+                    <Clock className="w-3 h-3" /> Planifié
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Sparkles className="w-3 h-3 text-primary" /> Prêt
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Check className="w-3 h-3 text-secondary" /> Publié
+                  </div>
                 </div>
               </TabsContent>
 
-              {/* Articles Tab */}
-              <TabsContent value="articles" className="mt-4 space-y-3">
+              {/* Articles Tab - Mobile optimized */}
+              <TabsContent value="articles" className="mt-3 space-y-2">
                 {scheduledContent.filter(c => c.question || c.answer).length === 0 ? (
-                  <Card className="p-6 text-center">
-                    <Sparkles className="w-10 h-10 mx-auto mb-3 text-muted-foreground/30" />
-                    <p className="text-sm text-muted-foreground">
-                      Aucun contenu généré. Cliquez sur une date planifiée pour générer.
+                  <Card className="p-5 text-center">
+                    <Sparkles className="w-8 h-8 mx-auto mb-2 text-muted-foreground/30" />
+                    <p className="text-xs text-muted-foreground">
+                      Aucun contenu généré. Cliquez sur une date pour générer.
                     </p>
                   </Card>
                 ) : (
@@ -549,38 +563,33 @@ const SEOAutoPost = () => {
                     .map((item) => (
                       <Card 
                         key={item.id} 
-                        className="cursor-pointer hover:border-primary/50 transition-colors"
+                        className="active:bg-muted/50 transition-colors"
                         onClick={() => handlePreviewArticle(item)}
                       >
-                        <CardContent className="p-4">
-                          <div className="flex items-start justify-between gap-3 mb-2">
-                            <div className="flex items-center gap-2">
+                        <CardContent className="p-3">
+                          <div className="flex items-center justify-between gap-2 mb-2">
+                            <div className="flex items-center gap-1.5 flex-wrap">
                               {getStatusBadge(item.status)}
-                              <span className="text-xs text-muted-foreground">
+                              <span className="text-[10px] text-muted-foreground">
                                 {format(new Date(item.scheduled_date), "d MMM", { locale: fr })}
                               </span>
                             </div>
-                            <div className="flex items-center gap-2">
-                              {item.keyword_used && (
-                                <span className="text-xs bg-muted px-2 py-0.5 rounded-full">
-                                  {item.keyword_used}
-                                </span>
-                              )}
+                            <div className="flex items-center gap-1.5">
                               <Button 
                                 size="sm" 
                                 variant="ghost"
+                                className="h-7 px-2"
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   handlePreviewArticle(item);
                                 }}
                               >
-                                <Eye className="w-3 h-3 mr-1" />
-                                Voir
+                                <Eye className="w-3 h-3" />
                               </Button>
                               {isSubscribed && item.status === "generated" && (
                                 <Button 
                                   size="sm" 
-                                  variant="default"
+                                  className="h-7 px-2"
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     publishToGMB(item);
@@ -590,23 +599,25 @@ const SEOAutoPost = () => {
                                   {publishing === item.id ? (
                                     <Loader2 className="w-3 h-3 animate-spin" />
                                   ) : (
-                                    <>
-                                      <Send className="w-3 h-3 mr-1" />
-                                      Publier
-                                    </>
+                                    <Send className="w-3 h-3" />
                                   )}
                                 </Button>
                               )}
                             </div>
                           </div>
                           <div className="flex items-center gap-2">
-                            {!isSubscribed && <Lock className="w-4 h-4 text-muted-foreground" />}
+                            {!isSubscribed && <Lock className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />}
                             {item.question && (
-                              <p className={`font-medium text-sm ${isSubscribed ? "text-foreground" : "text-muted-foreground"} line-clamp-1`}>
+                              <p className={`font-medium text-xs ${isSubscribed ? "text-foreground" : "text-muted-foreground"} line-clamp-2`}>
                                 {isSubscribed ? item.question : "Contenu réservé aux abonnés"}
                               </p>
                             )}
                           </div>
+                          {item.keyword_used && (
+                            <span className="inline-block mt-1.5 text-[10px] bg-muted px-2 py-0.5 rounded-full">
+                              {item.keyword_used}
+                            </span>
+                          )}
                         </CardContent>
                       </Card>
                     ))

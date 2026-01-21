@@ -357,59 +357,61 @@ const AEORank = () => {
   const next30Days = Array.from({ length: 30 }, (_, i) => addDays(today, i));
 
   return (
-    <div className="min-h-screen bg-muted/30 pb-20 sm:pb-6">
+    <div className="min-h-screen bg-muted/30 pb-20">
       <DashboardHeader />
 
-      {/* Page Header */}
+      {/* Mobile-First Page Header */}
       <div className="bg-card border-b border-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                <HelpCircle className="w-6 h-6 text-primary" />
-              </div>
-              <div>
-                <h1 className="text-xl sm:text-2xl font-bold text-foreground flex items-center gap-2">
-                  ChatGPT Rank
-                  <Badge variant="secondary" className="text-xs">AEO</Badge>
-                </h1>
-                <p className="text-xs sm:text-sm text-muted-foreground">
-                  Planning automatique Q&A 30 jours
-                </p>
-              </div>
+        <div className="px-4 py-4">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <HelpCircle className="w-5 h-5 text-primary" />
             </div>
-            {selectedBusiness && (
-              <Button onClick={analyzeAndGeneratePlan} disabled={generating}>
-                {generating ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Analyse en cours...
-                  </>
-                ) : (
-                  <>
-                    <RefreshCw className="w-4 h-4 mr-2" />
-                    Analyser & Planifier
-                  </>
-                )}
-              </Button>
-            )}
+            <div className="min-w-0">
+              <h1 className="text-lg font-bold text-foreground flex items-center gap-2">
+                ChatGPT Rank
+                <Badge variant="secondary" className="text-[10px] px-1.5">AEO</Badge>
+              </h1>
+              <p className="text-xs text-muted-foreground">
+                Planning automatique Q&A 30 jours
+              </p>
+            </div>
           </div>
+          {selectedBusiness && (
+            <Button 
+              onClick={analyzeAndGeneratePlan} 
+              disabled={generating}
+              className="w-full"
+              size="sm"
+            >
+              {generating ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Analyse en cours...
+                </>
+              ) : (
+                <>
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  Analyser & Planifier
+                </>
+              )}
+            </Button>
+          )}
         </div>
       </div>
 
-      <main className="max-w-7xl mx-auto p-4 sm:p-6 space-y-6">
-        {/* Info Card */}
+      <main className="px-4 py-4 space-y-4">
+        {/* Info Card - Compact Mobile */}
         <Card className="bg-gradient-to-br from-primary/5 to-secondary/5 border-primary/20">
-          <CardContent className="p-4 lg:p-6">
-            <div className="flex items-start gap-4">
-              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                <TrendingUp className="w-5 h-5 text-primary" />
+          <CardContent className="p-3">
+            <div className="flex items-start gap-3">
+              <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <TrendingUp className="w-4 h-4 text-primary" />
               </div>
-              <div>
-                <h3 className="font-semibold text-foreground mb-1">Qu'est-ce que l'AEO ?</h3>
-                <p className="text-sm text-muted-foreground">
-                  L'Answer Engine Optimization optimise votre contenu pour apparaître dans les réponses des IA comme ChatGPT, Perplexity ou Google AI. 
-                  Publiez des Q&A pertinentes sur votre fiche Google pour être cité par ces assistants.
+              <div className="min-w-0">
+                <h3 className="font-semibold text-sm text-foreground mb-0.5">Qu'est-ce que l'AEO ?</h3>
+                <p className="text-xs text-muted-foreground">
+                  Optimisez votre contenu pour être cité par ChatGPT, Perplexity et Google AI.
                 </p>
               </div>
             </div>
@@ -418,30 +420,30 @@ const AEORank = () => {
 
         {/* Business Selection */}
         {businesses.length === 0 ? (
-          <Card className="p-8 text-center">
-            <Building2 className="w-12 h-12 mx-auto mb-4 text-muted-foreground/30" />
-            <h3 className="text-lg font-medium text-foreground mb-2">Aucun établissement</h3>
-            <p className="text-sm text-muted-foreground mb-4">
+          <Card className="p-6 text-center">
+            <Building2 className="w-10 h-10 mx-auto mb-3 text-muted-foreground/30" />
+            <h3 className="text-base font-medium text-foreground mb-2">Aucun établissement</h3>
+            <p className="text-xs text-muted-foreground mb-4">
               Connectez d'abord votre Google My Business
             </p>
-            <Button onClick={() => navigate("/businesses")}>
+            <Button onClick={() => navigate("/businesses")} size="sm">
               Ajouter un établissement
             </Button>
           </Card>
         ) : (
           <>
-            {/* Business Info Card */}
+            {/* Business Info Card - Compact Mobile */}
             {selectedBusiness && (
-              <Card>
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <CardTitle className="text-lg">{selectedBusiness.name}</CardTitle>
-                      <CardDescription>{selectedBusiness.address}</CardDescription>
+              <Card className="overflow-hidden">
+                <CardContent className="p-3">
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    <div className="min-w-0 flex-1">
+                      <p className="font-semibold text-sm text-foreground truncate">{selectedBusiness.name}</p>
+                      <p className="text-xs text-muted-foreground truncate">{selectedBusiness.address}</p>
                     </div>
                     {businesses.length > 1 && (
                       <select 
-                        className="text-sm border rounded-md px-2 py-1 bg-background"
+                        className="text-xs border rounded-md px-2 py-1.5 bg-background flex-shrink-0"
                         value={selectedBusiness.id}
                         onChange={(e) => {
                           const biz = businesses.find(b => b.id === e.target.value);
@@ -457,117 +459,112 @@ const AEORank = () => {
                       </select>
                     )}
                   </div>
-                </CardHeader>
-                <CardContent>
                   {selectedBusiness.auto_keywords && selectedBusiness.auto_keywords.length > 0 ? (
-                    <div>
-                      <p className="text-xs text-muted-foreground mb-2">Mots-clés détectés automatiquement :</p>
-                      <div className="flex flex-wrap gap-1">
-                        {selectedBusiness.auto_keywords.slice(0, 10).map((kw, i) => (
-                          <span key={i} className="px-2 py-0.5 bg-primary/10 text-primary text-xs rounded-full">
-                            {kw}
-                          </span>
-                        ))}
-                        {selectedBusiness.auto_keywords.length > 10 && (
-                          <span className="text-xs text-muted-foreground">
-                            +{selectedBusiness.auto_keywords.length - 10} autres
-                          </span>
-                        )}
-                      </div>
+                    <div className="flex flex-wrap gap-1">
+                      {selectedBusiness.auto_keywords.slice(0, 6).map((kw, i) => (
+                        <span key={i} className="px-2 py-0.5 bg-primary/10 text-primary text-[10px] rounded-full">
+                          {kw}
+                        </span>
+                      ))}
+                      {selectedBusiness.auto_keywords.length > 6 && (
+                        <span className="text-[10px] text-muted-foreground">
+                          +{selectedBusiness.auto_keywords.length - 6}
+                        </span>
+                      )}
                     </div>
                   ) : (
-                    <p className="text-sm text-muted-foreground">
-                      Cliquez sur "Analyser & Planifier" pour détecter automatiquement les mots-clés
+                    <p className="text-xs text-muted-foreground">
+                      Cliquez sur "Analyser & Planifier" pour détecter les mots-clés
                     </p>
                   )}
                 </CardContent>
               </Card>
             )}
 
-            {/* Subscription Banner for non-subscribers */}
+            {/* Subscription Banner - Compact Mobile */}
             {!isSubscribed && (
               <Card className="border-primary/30 bg-primary/5">
-                <CardContent className="p-4">
-                  <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-                    <div className="flex items-center gap-3">
-                      <Lock className="w-8 h-8 text-primary" />
-                      <div>
-                        <p className="font-semibold text-foreground">Module Premium AEO</p>
-                        <p className="text-sm text-muted-foreground">Abonnez-vous pour débloquer toutes les fonctionnalités</p>
-                      </div>
+                <CardContent className="p-3">
+                  <div className="flex items-center gap-3 mb-3">
+                    <Lock className="w-6 h-6 text-primary flex-shrink-0" />
+                    <div className="min-w-0">
+                      <p className="font-semibold text-sm text-foreground">Module Premium AEO</p>
+                      <p className="text-xs text-muted-foreground">Débloquez toutes les fonctionnalités</p>
                     </div>
-                    <div className="flex flex-col sm:flex-row gap-2">
-                      <Button onClick={() => handleSubscribe(false)}>
-                        49€/mois
-                      </Button>
-                      <Button variant="outline" onClick={() => handleSubscribe(true)}>
-                        39€/mois (annuel)
-                      </Button>
-                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button onClick={() => handleSubscribe(false)} size="sm" className="flex-1">
+                      49€/mois
+                    </Button>
+                    <Button variant="outline" onClick={() => handleSubscribe(true)} size="sm" className="flex-1">
+                      39€/mois
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
             )}
 
-            {/* Tabs */}
+            {/* Tabs - Mobile optimized */}
             <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="planning" className="gap-2">
-                  <Calendar className="w-4 h-4" />
+              <TabsList className="grid w-full grid-cols-2 h-10">
+                <TabsTrigger value="planning" className="gap-1.5 text-xs">
+                  <Calendar className="w-3.5 h-3.5" />
                   Planning
                 </TabsTrigger>
-                <TabsTrigger value="articles" className="gap-2">
-                  <List className="w-4 h-4" />
+                <TabsTrigger value="articles" className="gap-1.5 text-xs">
+                  <List className="w-3.5 h-3.5" />
                   Q&A
                 </TabsTrigger>
               </TabsList>
 
-              {/* Planning Tab */}
-              <TabsContent value="planning" className="mt-4">
-                <div className="grid grid-cols-5 sm:grid-cols-7 gap-2">
-                  {next30Days.map((day, index) => {
-                    const dateStr = format(day, "yyyy-MM-dd");
-                    const dayContent = scheduledContent.find(c => c.scheduled_date === dateStr);
-                    const isToday = isSameDay(day, today);
-                    
-                    return (
-                      <Card 
-                        key={dateStr}
-                        className={`p-2 cursor-pointer transition-all hover:shadow-md ${
-                          isToday ? "ring-2 ring-primary" : ""
-                        } ${dayContent?.status === "published" ? "bg-secondary/20" : ""}`}
-                        onClick={() => {
-                          if (dayContent) {
-                            handlePreviewArticle(dayContent);
-                          }
-                        }}
-                      >
-                        <div className="text-center">
+              {/* Planning Tab - Horizontal Scroll Mobile */}
+              <TabsContent value="planning" className="mt-3">
+                <div className="overflow-x-auto -mx-4 px-4 pb-2">
+                  <div className="flex gap-2 min-w-max">
+                    {next30Days.map((day) => {
+                      const dateStr = format(day, "yyyy-MM-dd");
+                      const dayContent = scheduledContent.find(c => c.scheduled_date === dateStr);
+                      const isToday = isSameDay(day, today);
+                      
+                      return (
+                        <div 
+                          key={dateStr}
+                          className={`w-14 flex-shrink-0 p-2 rounded-xl border text-center transition-all ${
+                            isToday ? "border-primary bg-primary/10 ring-2 ring-primary/30" : "border-border bg-card"
+                          } ${dayContent?.status === "published" ? "bg-secondary/10" : ""} active:bg-muted`}
+                          onClick={() => {
+                            if (dayContent) {
+                              handlePreviewArticle(dayContent);
+                            }
+                          }}
+                        >
                           <p className="text-[10px] text-muted-foreground uppercase">
-                            {format(day, "EEE", { locale: fr })}
+                            {format(day, "EEE", { locale: fr }).slice(0, 3)}
                           </p>
-                          <p className={`text-lg font-bold ${isToday ? "text-primary" : "text-foreground"}`}>
+                          <p className={`text-base font-bold ${isToday ? "text-primary" : "text-foreground"}`}>
                             {format(day, "d")}
                           </p>
-                          {dayContent ? (
-                            <div className="mt-1">
-                              {dayContent.status === "published" && <Check className="w-4 h-4 mx-auto text-secondary" />}
-                              {dayContent.status === "generated" && <Sparkles className="w-4 h-4 mx-auto text-primary" />}
-                              {dayContent.status === "pending" && <Clock className="w-4 h-4 mx-auto text-muted-foreground" />}
-                              {dayContent.status === "generating" && <Loader2 className="w-4 h-4 mx-auto text-primary animate-spin" />}
-                              {(dayContent.status === "failed" || dayContent.status === "error") && <AlertCircle className="w-4 h-4 mx-auto text-destructive" />}
-                            </div>
-                          ) : (
-                            <div className="mt-1 h-4" />
-                          )}
+                          <div className="mt-1 h-5 flex items-center justify-center">
+                            {dayContent ? (
+                              <>
+                                {dayContent.status === "published" && <Check className="w-4 h-4 text-secondary" />}
+                                {dayContent.status === "generated" && <Sparkles className="w-4 h-4 text-primary" />}
+                                {dayContent.status === "pending" && <Clock className="w-4 h-4 text-muted-foreground" />}
+                                {dayContent.status === "generating" && <Loader2 className="w-4 h-4 text-primary animate-spin" />}
+                                {(dayContent.status === "failed" || dayContent.status === "error") && <AlertCircle className="w-4 h-4 text-destructive" />}
+                              </>
+                            ) : (
+                              <span className="text-[10px] text-muted-foreground">—</span>
+                            )}
+                          </div>
                         </div>
-                      </Card>
-                    );
-                  })}
+                      );
+                    })}
+                  </div>
                 </div>
 
                 {/* Legend */}
-                <div className="flex flex-wrap gap-4 mt-4 text-xs text-muted-foreground">
+                <div className="flex flex-wrap gap-3 mt-3 text-[10px] text-muted-foreground">
                   <div className="flex items-center gap-1">
                     <Clock className="w-3 h-3" /> Planifié
                   </div>
@@ -580,86 +577,82 @@ const AEORank = () => {
                 </div>
               </TabsContent>
 
-              {/* Q&A Tab */}
-              <TabsContent value="articles" className="mt-4 space-y-4">
+              {/* Q&A Tab - Mobile optimized */}
+              <TabsContent value="articles" className="mt-3 space-y-2">
                 {scheduledContent.length === 0 ? (
-                  <Card className="p-8 text-center">
-                    <HelpCircle className="w-12 h-12 mx-auto mb-4 text-muted-foreground/30" />
-                    <h3 className="text-lg font-medium text-foreground mb-2">Aucun Q&A planifié</h3>
-                    <p className="text-sm text-muted-foreground mb-4">
+                  <Card className="p-5 text-center">
+                    <HelpCircle className="w-8 h-8 mx-auto mb-2 text-muted-foreground/30" />
+                    <h3 className="text-sm font-medium text-foreground mb-1">Aucun Q&A planifié</h3>
+                    <p className="text-xs text-muted-foreground">
                       Cliquez sur "Analyser & Planifier" pour générer votre planning 30 jours
                     </p>
                   </Card>
                 ) : (
                   scheduledContent.map((item) => (
-                    <Card key={item.id}>
-                      <CardContent className="p-4">
-                        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-2 flex-wrap">
-                              {getStatusBadge(item.status)}
-                              <span className="text-xs text-muted-foreground">
-                                {format(new Date(item.scheduled_date), "d MMMM yyyy", { locale: fr })}
-                              </span>
-                              {item.keyword_used && (
-                                <Badge variant="outline" className="text-xs">
-                                  {item.keyword_used}
-                                </Badge>
-                              )}
-                            </div>
-                            
-                            {item.question ? (
-                              <>
-                                <h4 className="font-medium text-foreground mb-1">{item.question}</h4>
-                                <p className="text-sm text-muted-foreground line-clamp-2">{item.answer}</p>
-                              </>
-                            ) : (
-                              <p className="text-sm text-muted-foreground italic">
-                                Q&A non encore généré - Mot-clé: "{item.keyword_used}"
-                              </p>
-                            )}
+                    <Card key={item.id} className="active:bg-muted/50 transition-colors">
+                      <CardContent className="p-3">
+                        <div className="flex items-center justify-between gap-2 mb-2">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            {getStatusBadge(item.status)}
+                            <span className="text-[10px] text-muted-foreground">
+                              {format(new Date(item.scheduled_date), "d MMM", { locale: fr })}
+                            </span>
                           </div>
-                          
-                          <div className="flex gap-2 flex-shrink-0">
+                          <div className="flex gap-1.5 flex-shrink-0">
                             {item.question && (
                               <Button 
                                 variant="outline" 
                                 size="sm"
+                                className="h-7 px-2"
                                 onClick={() => handlePreviewArticle(item)}
                               >
-                                <Eye className="w-4 h-4 mr-1" />
-                                Voir
+                                <Eye className="w-3 h-3" />
                               </Button>
                             )}
                             
                             {!item.question && item.status !== "generating" && (
                               <Button 
                                 size="sm"
+                                className="h-7 px-2"
                                 onClick={() => generateContentForDay(item)}
                                 disabled={!isSubscribed}
                               >
-                                <Sparkles className="w-4 h-4 mr-1" />
-                                Générer
+                                <Sparkles className="w-3 h-3" />
                               </Button>
                             )}
                             
                             {item.question && item.status !== "published" && (
                               <Button 
                                 size="sm"
+                                className="h-7 px-2 bg-secondary hover:bg-secondary/90"
                                 onClick={() => publishToGMB(item)}
                                 disabled={publishing === item.id || !isSubscribed}
-                                className="bg-secondary hover:bg-secondary/90"
                               >
                                 {publishing === item.id ? (
-                                  <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                                  <Loader2 className="w-3 h-3 animate-spin" />
                                 ) : (
-                                  <Send className="w-4 h-4 mr-1" />
+                                  <Send className="w-3 h-3" />
                                 )}
-                                Publier
                               </Button>
                             )}
                           </div>
                         </div>
+                        
+                        {item.question ? (
+                          <div>
+                            <h4 className="font-medium text-xs text-foreground mb-0.5 line-clamp-2">{item.question}</h4>
+                            <p className="text-[10px] text-muted-foreground line-clamp-1">{item.answer}</p>
+                          </div>
+                        ) : (
+                          <p className="text-xs text-muted-foreground italic">
+                            Q&A non généré • {item.keyword_used}
+                          </p>
+                        )}
+                        {item.keyword_used && item.question && (
+                          <span className="inline-block mt-1.5 text-[10px] bg-muted px-2 py-0.5 rounded-full">
+                            {item.keyword_used}
+                          </span>
+                        )}
                       </CardContent>
                     </Card>
                   ))
