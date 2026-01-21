@@ -310,6 +310,55 @@ async function syncLocationReviews(
       if (reviewsToDelete.length > 0) {
         console.log(`[CRON] 🗑️ Found ${reviewsToDelete.length} deleted reviews to remove`);
         
+        // Create notifications for deleted reviews BEFORE deleting them
+        for (const deletedReview of reviewsToDelete) {
+          // In-app notification
+          await supabase.from("notifications").insert({
+            user_id: userId,
+            type: "review_deleted",
+            title: "🗑️ Avis supprimé",
+            message: `L'avis de ${deletedReview.author} (${deletedReview.rating} étoiles) a été supprimé de Google`,
+            review_id: null,
+          });
+          
+          // Send push notification
+          try {
+            await fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/send-push-notification`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${Deno.env.get("SUPABASE_ANON_KEY")}`,
+              },
+              body: JSON.stringify({
+                user_id: userId,
+                title: "🗑️ Avis supprimé",
+                body: `L'avis de ${deletedReview.author} (${deletedReview.rating}⭐) a été supprimé de Google`,
+                url: "/reviews",
+              }),
+            });
+          } catch (e) {
+            console.error("[CRON] Failed to send push notification for deleted review:", e);
+          }
+          
+          // Send email notification
+          try {
+            await fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/send-email-notification`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${Deno.env.get("SUPABASE_ANON_KEY")}`,
+              },
+              body: JSON.stringify({
+                user_id: userId,
+                subject: "🗑️ Un avis a été supprimé",
+                message: `L'avis de ${deletedReview.author} (${deletedReview.rating} étoiles) a été supprimé de Google. Cela peut indiquer que le client a retiré son avis.`,
+              }),
+            });
+          } catch (e) {
+            console.error("[CRON] Failed to send email notification for deleted review:", e);
+          }
+        }
+        
         const idsToDelete = reviewsToDelete.map((r: any) => r.id);
         const { error: deleteError } = await supabase
           .from("reviews")
