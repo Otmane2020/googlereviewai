@@ -653,6 +653,7 @@ export type Database = {
           author: string
           comment: string | null
           created_at: string | null
+          criteria: Json | null
           edit_count: number | null
           google_reply: string | null
           google_reply_id: string | null
@@ -661,6 +662,7 @@ export type Database = {
           location_id: string
           needs_new_response: boolean | null
           notified: boolean | null
+          photos: Json | null
           published_at: string | null
           published_to_google: boolean | null
           rating: number
@@ -675,6 +677,7 @@ export type Database = {
           author: string
           comment?: string | null
           created_at?: string | null
+          criteria?: Json | null
           edit_count?: number | null
           google_reply?: string | null
           google_reply_id?: string | null
@@ -683,6 +686,7 @@ export type Database = {
           location_id: string
           needs_new_response?: boolean | null
           notified?: boolean | null
+          photos?: Json | null
           published_at?: string | null
           published_to_google?: boolean | null
           rating: number
@@ -697,6 +701,7 @@ export type Database = {
           author?: string
           comment?: string | null
           created_at?: string | null
+          criteria?: Json | null
           edit_count?: number | null
           google_reply?: string | null
           google_reply_id?: string | null
@@ -705,6 +710,7 @@ export type Database = {
           location_id?: string
           needs_new_response?: boolean | null
           notified?: boolean | null
+          photos?: Json | null
           published_at?: string | null
           published_to_google?: boolean | null
           rating?: number

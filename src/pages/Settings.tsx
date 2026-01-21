@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { UpgradeDialog } from "@/components/UpgradeDialog";
+import { SupportDialog } from "@/components/SupportDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -548,13 +549,16 @@ const SettingsPage = () => {
             <Button variant="outline" className="w-full justify-start">
               Changer le mot de passe
             </Button>
-            <Button
-              variant="outline"
-              className="w-full justify-start text-destructive hover:text-destructive"
-              onClick={handleSignOut}
-            >
-              Se déconnecter
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                className="flex-1 justify-start text-destructive hover:text-destructive"
+                onClick={handleSignOut}
+              >
+                Se déconnecter
+              </Button>
+              <SupportDialog userEmail={profile?.email} />
+            </div>
           </div>
         </div>
 
