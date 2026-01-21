@@ -102,13 +102,6 @@ export const ConnectGMBDialog = ({ open, onOpenChange }: ConnectGMBDialogProps) 
             )}
           </Button>
 
-          <Button
-            variant="ghost"
-            onClick={() => onOpenChange(false)}
-            className="w-full"
-          >
-            Plus tard
-          </Button>
         </div>
       </DialogContent>
     </Dialog>
