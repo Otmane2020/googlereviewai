@@ -215,29 +215,46 @@ const SettingsPage = () => {
     console.log("[Settings] handleSubscribePush called");
     console.log("[Settings] Push state:", { pushSupported, pushSubscribed, pushPermission, pushLoading });
     
+    // If permission is denied, show instructions instead of trying to subscribe
+    if (pushPermission === "denied") {
+      toast({
+        title: "Notifications bloquées",
+        description: "Cliquez sur 🔒 dans la barre d'adresse → Notifications → Autoriser, puis rechargez la page.",
+        duration: 10000,
+      });
+      return;
+    }
+    
     const success = await subscribePush();
     console.log("[Settings] Subscribe result:", success);
     
     if (success) {
       toast({
-        title: "Notifications activées",
+        title: "Notifications activées 🎉",
         description: "Vous recevrez les alertes push même quand l'app est fermée.",
       });
     } else {
-      // More detailed error message
+      // Check permission after attempt
+      const currentPermission = typeof Notification !== "undefined" ? Notification.permission : "unsupported";
+      console.log("[Settings] Permission after attempt:", currentPermission);
+      
       let errorMessage = "Impossible d'activer les notifications.";
-      if (pushPermission === "denied") {
-        errorMessage = "Les notifications sont bloquées. Activez-les dans les paramètres de votre navigateur.";
-      } else if (pushPermission === "unsupported") {
+      let errorTitle = "Erreur";
+      
+      if (currentPermission === "denied") {
+        errorTitle = "Notifications bloquées";
+        errorMessage = "Cliquez sur 🔒 dans la barre d'adresse → Notifications → Autoriser, puis rechargez.";
+      } else if (!pushSupported) {
         errorMessage = "Les notifications push ne sont pas supportées par ce navigateur.";
       } else {
-        errorMessage = "Échec de l'activation. Installez l'app (PWA) pour recevoir les notifications push.";
+        errorMessage = "Erreur technique lors de l'activation. Consultez la console pour plus de détails.";
       }
       
       toast({
-        title: "Erreur",
+        title: errorTitle,
         description: errorMessage,
         variant: "destructive",
+        duration: 8000,
       });
     }
   };
@@ -550,9 +567,9 @@ const SettingsPage = () => {
                   </p>
                 </div>
               </div>
-              {pushSupported && pushPermission !== "denied" && (
+              {pushSupported && (
                 <Button
-                  variant={pushSubscribed ? "outline" : "default"}
+                  variant={pushSubscribed ? "outline" : pushPermission === "denied" ? "secondary" : "default"}
                   size="sm"
                   onClick={pushSubscribed ? handleUnsubscribePush : handleSubscribePush}
                   disabled={pushLoading}
@@ -564,6 +581,11 @@ const SettingsPage = () => {
                     <>
                       <BellOff className="w-4 h-4 mr-1.5" />
                       Désactiver
+                    </>
+                  ) : pushPermission === "denied" ? (
+                    <>
+                      <Shield className="w-4 h-4 mr-1.5" />
+                      Débloquer
                     </>
                   ) : (
                     <>
