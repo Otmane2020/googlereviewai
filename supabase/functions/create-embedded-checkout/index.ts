@@ -33,31 +33,54 @@ serve(async (req) => {
   }
 
   try {
-    const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
+    console.log("[create-embedded-checkout] Function started");
+    
+    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    
+    console.log("[create-embedded-checkout] Env check:", {
+      hasStripeKey: !!stripeKey,
+      hasSupabaseUrl: !!supabaseUrl,
+      hasServiceRoleKey: !!serviceRoleKey,
+    });
+
+    const stripe = new Stripe(stripeKey || "", {
       apiVersion: "2025-08-27.basil",
     });
 
     // Get auth header
     const authHeader = req.headers.get("Authorization");
+    console.log("[create-embedded-checkout] Auth header present:", !!authHeader);
+    
     if (!authHeader?.startsWith("Bearer ")) {
+      console.error("[create-embedded-checkout] No valid auth header");
       throw new Error("Unauthorized");
     }
 
     const supabaseClient = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      supabaseUrl ?? "",
+      serviceRoleKey ?? "",
       { auth: { persistSession: false } }
     );
 
     const token = authHeader.replace("Bearer ", "");
+    console.log("[create-embedded-checkout] Validating token...");
+    
     const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
 
-    if (userError || !userData.user) {
-      console.error("[create-embedded-checkout] Auth error:", userError);
+    if (userError) {
+      console.error("[create-embedded-checkout] Auth error:", userError.message);
+      throw new Error("Unauthorized");
+    }
+    
+    if (!userData.user) {
+      console.error("[create-embedded-checkout] No user found");
       throw new Error("Unauthorized");
     }
 
     const user = userData.user;
+    console.log("[create-embedded-checkout] User authenticated:", user.id);
 
     const { priceKey } = await req.json();
 
