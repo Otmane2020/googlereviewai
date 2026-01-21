@@ -69,7 +69,14 @@ async function fetchGMBLocations(accessToken: string, accountName: string): Prom
     }
 
     const data = await response.json();
-    return { locations: data.locations || [] };
+    const locations = data.locations || [];
+    
+    // Debug: log what Google returns
+    for (const loc of locations) {
+      console.log(`[CRON] Location ${loc.title}: websiteUri=${loc.websiteUri || 'NOT SET'}`);
+    }
+    
+    return { locations };
   } catch (error) {
     console.error(`[CRON] Exception fetching locations for ${accountName}:`, error);
     return { locations: [], error: error instanceof Error ? error.message : "Unknown error" };
