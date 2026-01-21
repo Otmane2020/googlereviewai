@@ -50,6 +50,14 @@ export const OAuthCallback = ({ children }: { children: React.ReactNode }) => {
               title: "Connexion réussie",
               description: "Votre compte Google Business est connecté pour la synchronisation automatique.",
             });
+            
+            // Notify parent window (if opened via window.open) that OAuth succeeded
+            if (window.opener && !window.opener.closed) {
+              window.opener.postMessage({ type: "GOOGLE_OAUTH_SUCCESS" }, "*");
+              // Close this popup window after notifying parent
+              window.close();
+              return;
+            }
           }
           
           setIsProcessing(false);
