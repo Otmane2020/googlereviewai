@@ -12,6 +12,7 @@ interface BusinessInput {
   address: string | null;
   phone: string | null;
   website: string | null;
+  description?: string | null;
 }
 
 serve(async (req) => {
@@ -87,6 +88,7 @@ serve(async (req) => {
       address: b.address,
       phone: b.phone,
       website: b.website,
+      description: b.description || null,
       is_active: true,
     }));
 

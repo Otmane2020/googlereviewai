@@ -138,7 +138,7 @@ serve(async (req) => {
       const accountName = account.name; // Format: accounts/{accountId}
       
       const locationsResponse = await fetch(
-        `https://mybusinessbusinessinformation.googleapis.com/v1/${accountName}/locations?readMask=name,title,storefrontAddress,websiteUri,phoneNumbers`,
+        `https://mybusinessbusinessinformation.googleapis.com/v1/${accountName}/locations?readMask=name,title,storefrontAddress,websiteUri,phoneNumbers,profile`,
         {
           headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -178,6 +178,7 @@ serve(async (req) => {
             : null,
           phone: location.phoneNumbers?.primaryPhone || null,
           website: location.websiteUri || null,
+          description: location.profile?.description || null,
           is_active: true,
         });
       }
@@ -210,6 +211,7 @@ serve(async (req) => {
             address: b.address,
             phone: b.phone,
             website: b.website,
+            description: b.description,
           })),
           max_businesses: maxBusinesses,
           businesses: [] 
