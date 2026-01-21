@@ -468,41 +468,53 @@ const Reviews = () => {
                     <DialogTitle>Vos établissements</DialogTitle>
                   </DialogHeader>
                   <div className="space-y-1 mt-4">
-                    {businesses.map((business) => {
-                      const isSelected = selectedBusinessId === business.id;
-                      const bgColor = `hsl(${business.name.charCodeAt(0) * 15 % 360}, 60%, 50%)`;
-                      
-                      return (
-                        <button
-                          key={business.id}
-                          onClick={() => {
-                            handleBusinessChange(business.id);
-                            setBusinessDialogOpen(false);
-                          }}
-                          className={`w-full flex items-center gap-3 p-3 rounded-lg transition-all ${
-                            isSelected
-                              ? "bg-muted"
-                              : "hover:bg-muted/50"
-                          }`}
-                        >
-                          <div 
-                            className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-lg flex-shrink-0"
-                            style={{ backgroundColor: bgColor }}
+                    {loading ? (
+                      <div className="flex items-center justify-center py-8">
+                        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+                      </div>
+                    ) : businesses.length === 0 ? (
+                      <div className="text-center py-8 text-muted-foreground">
+                        <Building2 className="w-10 h-10 mx-auto mb-2 opacity-50" />
+                        <p className="text-sm">Aucun établissement trouvé</p>
+                        <p className="text-xs mt-1">Connectez votre compte Google pour synchroniser vos établissements</p>
+                      </div>
+                    ) : (
+                      businesses.map((business) => {
+                        const isSelected = selectedBusinessId === business.id;
+                        const bgColor = `hsl(${business.name.charCodeAt(0) * 15 % 360}, 60%, 50%)`;
+                        
+                        return (
+                          <button
+                            key={business.id}
+                            onClick={() => {
+                              handleBusinessChange(business.id);
+                              setBusinessDialogOpen(false);
+                            }}
+                            className={`w-full flex items-center gap-3 p-3 rounded-lg transition-all ${
+                              isSelected
+                                ? "bg-muted"
+                                : "hover:bg-muted/50"
+                            }`}
                           >
-                            {business.name.charAt(0).toUpperCase()}
-                          </div>
-                          <div className="flex-1 text-left min-w-0">
-                            <div className="font-medium truncate">{business.name}</div>
-                            {business.google_place_id && (
-                              <div className="text-xs text-muted-foreground truncate">Connecté à Google</div>
+                            <div 
+                              className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-lg flex-shrink-0"
+                              style={{ backgroundColor: bgColor }}
+                            >
+                              {business.name.charAt(0).toUpperCase()}
+                            </div>
+                            <div className="flex-1 text-left min-w-0">
+                              <div className="font-medium truncate">{business.name}</div>
+                              {business.google_place_id && (
+                                <div className="text-xs text-muted-foreground truncate">Connecté à Google</div>
+                              )}
+                            </div>
+                            {isSelected && (
+                              <CheckCircle className="w-5 h-5 text-primary flex-shrink-0" />
                             )}
-                          </div>
-                          {isSelected && (
-                            <CheckCircle className="w-5 h-5 text-primary flex-shrink-0" />
-                          )}
-                        </button>
-                      );
-                    })}
+                          </button>
+                        );
+                      })
+                    )}
                   </div>
                 </DialogContent>
               </Dialog>
