@@ -37,14 +37,14 @@ export const useRequireSubscription = () => {
 
         // Quick check - if no plan at all, redirect immediately
         if (!profile?.plan_name || profile.plan_name === "free") {
-          navigate("/select-plan");
+          navigate("/choose-plan");
           return;
         }
 
         // Check subscription status
         const validStatuses = ["active", "trial", "trialing"];
         if (!validStatuses.includes(profile.subscription_status || "")) {
-          navigate("/select-plan");
+          navigate("/choose-plan");
           return;
         }
 
@@ -53,7 +53,7 @@ export const useRequireSubscription = () => {
           if (profile.trial_end) {
             const trialEnd = new Date(profile.trial_end);
             if (trialEnd < new Date()) {
-              navigate("/select-plan");
+              navigate("/choose-plan");
               return;
             }
           }
@@ -72,7 +72,7 @@ export const useRequireSubscription = () => {
               const { data: verification } = await supabase.functions.invoke("verify-subscription");
               
               if (!verification?.valid) {
-                navigate("/select-plan");
+                navigate("/choose-plan");
                 return;
               }
             }
@@ -89,8 +89,8 @@ export const useRequireSubscription = () => {
 
       } catch (error) {
         console.error("Error verifying subscription:", error);
-        // SECURITY: On error, block access and redirect to select-plan
-        navigate("/select-plan");
+        // SECURITY: On error, block access and redirect to choose-plan
+        navigate("/choose-plan");
         return;
       }
     };
