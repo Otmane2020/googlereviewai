@@ -31,11 +31,11 @@ const Auth = () => {
       if (hasValidPlan) {
         navigate("/dashboard", { replace: true });
       } else {
-        navigate("/select-plan", { replace: true });
+        navigate("/choose-plan", { replace: true });
       }
     } catch (error) {
       console.error("[Auth] Error checking subscription:", error);
-      navigate("/select-plan", { replace: true });
+      navigate("/choose-plan", { replace: true });
     }
   };
 

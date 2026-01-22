@@ -36,7 +36,7 @@ const Index = () => {
           if (hasValidPlan) {
             navigate("/dashboard", { replace: true });
           } else {
-            navigate("/select-plan", { replace: true });
+            navigate("/choose-plan", { replace: true });
           }
         } catch (error) {
           console.error("[Index] Error checking subscription:", error);
