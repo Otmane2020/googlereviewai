@@ -234,6 +234,7 @@ serve(async (req) => {
       customer: customerId,
       line_items: lineItems,
       mode: checkoutMode,
+      locale: "fr",
       success_url: successUrl || `${req.headers.get("origin")}/dashboard?success=true`,
       cancel_url: cancelUrl || `${req.headers.get("origin")}/checkout?canceled=true`,
       metadata,
