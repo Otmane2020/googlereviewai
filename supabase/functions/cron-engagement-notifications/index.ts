@@ -72,12 +72,15 @@ serve(async (req) => {
         .eq("user_id", profile.id)
         .maybeSingle();
 
-      // Check pending reviews (no AI response)
+      // Check pending reviews (no AI response AND no Google reply AND not marked as replied)
+      // This ensures we only count truly pending reviews, not old ones already handled
       const { data: pendingReviews, error: reviewsError } = await supabase
         .from("reviews")
         .select("id")
         .eq("user_id", profile.id)
-        .is("ai_response", null);
+        .is("ai_response", null)
+        .is("google_reply", null)
+        .eq("replied", false);
 
       const pendingCount = pendingReviews?.length || 0;
 

@@ -341,6 +341,10 @@ serve(async (req) => {
                   }
                 }
                 
+                // If the review already has a Google reply, it's already handled
+                // Mark as notified to prevent notification trigger from firing for old reviews
+                const hasGoogleReply = !!review.reviewReply;
+                
                 reviewsToUpsert.push({
                   user_id: user.id,
                   review_id: canonicalReviewId,
@@ -349,10 +353,12 @@ serve(async (req) => {
                   rating: rating,
                   comment: originalComment,
                   review_date: review.createTime || new Date().toISOString(),
-                  replied: !!review.reviewReply,
+                  replied: hasGoogleReply,
                   google_reply: review.reviewReply?.comment || null,
                   photos: photos.length > 0 ? photos : [],
                   criteria: criteria,
+                  // Pre-mark as notified if already has a reply to avoid spam notifications
+                  // This will be overwritten later for existing reviews
                 });
                 
                 // Track this review ID from Google
