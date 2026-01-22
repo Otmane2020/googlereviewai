@@ -12,13 +12,13 @@ const PRICE_IDS = {
   starter_monthly: "price_1SrHtCEfti9t9nN9L8Fytsni",
   pro_monthly: "price_1SrHtDEfti9t9nN96yIPGiOo",
   business_monthly: "price_1SrHtEEfti9t9nN9mq7MrV3G",
-  aeo_monthly: "price_1SrHtHEfti9t9nN9Me70ucqf",
+  aeo_monthly: "price_1SsBcUEfti9t9nN9aqWMiw7Y", // Recurring monthly
   seo_monthly: "price_1SrHtIEfti9t9nN9qfdPvSY5",
   // Yearly plans (-20%)
   starter_yearly: "price_1SrHtOEfti9t9nN9fG4lSroa",
   pro_yearly: "price_1SrHtPEfti9t9nN9dnZ0sXpi",
   business_yearly: "price_1SrHtQEfti9t9nN9GKvr4NSt",
-  aeo_yearly: "price_1SrHtSEfti9t9nN9t5NgA002",
+  aeo_yearly: "price_1SsBcVEfti9t9nN9oFgHq9x8", // Recurring yearly
   seo_yearly: "price_1SrHtSEfti9t9nN9rXMfteyT",
 };
 
