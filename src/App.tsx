@@ -11,9 +11,12 @@ import { NotificationPrompt } from "@/components/NotificationPrompt";
 import { SplashScreen } from "@/components/SplashScreen";
 import { OnboardingScreen } from "@/components/OnboardingScreen";
 import { usePWA } from "@/hooks/usePWA";
+import { CartProvider } from "@/contexts/CartContext";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import SelectPlan from "./pages/SelectPlan";
+import ChoosePlan from "./pages/ChoosePlan";
+import Checkout from "./pages/Checkout";
 import Dashboard from "./pages/Dashboard";
 import Reviews from "./pages/Reviews";
 import AISettings from "./pages/AISettings";
@@ -87,6 +90,8 @@ const AppContent = () => {
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/select-plan" element={<SelectPlan />} />
+            <Route path="/choose-plan" element={<ChoosePlan />} />
+            <Route path="/checkout" element={<Checkout />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/reviews" element={<Reviews />} />
@@ -114,11 +119,13 @@ const AppContent = () => {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <AppContent />
-      </TooltipProvider>
+      <CartProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <AppContent />
+        </TooltipProvider>
+      </CartProvider>
     </AuthProvider>
   </QueryClientProvider>
 );
