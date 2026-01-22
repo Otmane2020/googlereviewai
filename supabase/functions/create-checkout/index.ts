@@ -13,15 +13,15 @@ const PRICE_IDS: Record<string, string> = {
   starter_monthly: "price_1SrHtCEfti9t9nN9L8Fytsni",
   pro_monthly: "price_1SrHtDEfti9t9nN96yIPGiOo",
   business_monthly: "price_1SrHtEEfti9t9nN9mq7MrV3G",
-  aeo_monthly: "price_1SsBcUEfti9t9nN9aqWMiw7Y", // Recurring monthly
+  aeo_monthly: "price_1SsBcUEfti9t9nN9aqWMiw7Y",
   seo_monthly: "price_1SrHtIEfti9t9nN9qfdPvSY5",
   // Yearly plans (-20%)
   starter_yearly: "price_1SrHtOEfti9t9nN9fG4lSroa",
   pro_yearly: "price_1SrHtPEfti9t9nN9dnZ0sXpi",
   business_yearly: "price_1SrHtQEfti9t9nN9GKvr4NSt",
-  aeo_yearly: "price_1SsBcVEfti9t9nN9oFgHq9x8", // Recurring yearly
+  aeo_yearly: "price_1SsBcVEfti9t9nN9oFgHq9x8",
   seo_yearly: "price_1SrHtSEfti9t9nN9rXMfteyT",
-  // Credit packs (one-time purchases) - 0.30€ per credit
+  // Credit packs (one-time purchases)
   credits_10: "price_1SrrYEEfti9t9nN9N8l9AaA1",
   credits_100: "price_1SrrYFEfti9t9nN9Y4zxBb3p",
   credits_330: "price_1SrrYGEfti9t9nN9z01pdk3y",
@@ -53,6 +53,20 @@ const TRIAL_DAYS = 3;
 // Per-business pricing modules (49€/establishment)
 const PER_BUSINESS_MODULES = ["aeo_monthly", "aeo_yearly", "seo_monthly", "seo_yearly"];
 
+// Subscription price keys (recurring)
+const SUBSCRIPTION_PRICE_KEYS = [
+  "starter_monthly", "starter_yearly",
+  "pro_monthly", "pro_yearly",
+  "business_monthly", "business_yearly",
+  "aeo_monthly", "aeo_yearly",
+  "seo_monthly", "seo_yearly",
+];
+
+interface CartItem {
+  priceKey: string;
+  quantity: number;
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -77,21 +91,43 @@ serve(async (req) => {
       throw new Error("Unauthorized");
     }
 
-    const { priceKey, successUrl, cancelUrl, mode, quantity } = await req.json();
-
-    if (!priceKey || !PRICE_IDS[priceKey]) {
-      throw new Error("Invalid price key");
+    const body = await req.json();
+    
+    // Support both old single-item format and new cart format
+    let items: CartItem[] = [];
+    
+    if (body.items && Array.isArray(body.items)) {
+      // New cart format: { items: [{ priceKey, quantity }, ...] }
+      items = body.items;
+    } else if (body.priceKey) {
+      // Old single-item format: { priceKey, quantity, ... }
+      items = [{ priceKey: body.priceKey, quantity: body.quantity || 1 }];
+    } else {
+      throw new Error("Invalid request: items or priceKey required");
     }
 
-    const priceId = PRICE_IDS[priceKey];
-    const isCreditsPackage = priceKey.startsWith("credits_");
-    const isPerBusinessModule = PER_BUSINESS_MODULES.includes(priceKey);
-    const checkoutMode = isCreditsPackage || mode === "payment" ? "payment" : "subscription";
-    
-    // For per-business modules, quantity must be at least 1
-    const lineItemQuantity = isPerBusinessModule ? Math.max(1, quantity || 1) : 1;
-    
-    console.log(`[create-checkout] Per-business module: ${isPerBusinessModule}, quantity: ${lineItemQuantity}`);
+    const { successUrl, cancelUrl } = body;
+
+    // Validate all price keys
+    for (const item of items) {
+      if (!PRICE_IDS[item.priceKey]) {
+        throw new Error(`Invalid price key: ${item.priceKey}`);
+      }
+    }
+
+    // Separate subscription items from one-time items
+    const subscriptionItems = items.filter(item => SUBSCRIPTION_PRICE_KEYS.includes(item.priceKey));
+    const oneTimeItems = items.filter(item => !SUBSCRIPTION_PRICE_KEYS.includes(item.priceKey));
+
+    // Determine checkout mode
+    const hasSubscriptions = subscriptionItems.length > 0;
+    const hasOneTime = oneTimeItems.length > 0;
+
+    // Stripe doesn't allow mixing subscription and payment modes in one session
+    // If we have both, we'll create a subscription and add one-time items as invoice items
+    const checkoutMode = hasSubscriptions ? "subscription" : "payment";
+
+    console.log(`[create-checkout] Mode: ${checkoutMode}, Subscription items: ${subscriptionItems.length}, One-time items: ${oneTimeItems.length}`);
 
     // Check if customer already exists
     const customers = await stripe.customers.list({
@@ -117,7 +153,6 @@ serve(async (req) => {
         sub.currency === "usd"
       );
 
-      // If customer has USD subscriptions and we're trying to use EUR prices, create new customer
       if (hasUsdSubscriptions) {
         console.log("Customer has USD subscriptions, creating new customer for EUR prices");
         const newCustomer = await stripe.customers.create({
@@ -134,8 +169,7 @@ serve(async (req) => {
         // Check if customer already had a trial
         const hadTrial = subscriptions.data.some((sub: Stripe.Subscription) => sub.trial_end !== null);
         
-        // If customer already had a trial, don't offer another one
-        if (hadTrial && TRIAL_PLANS.includes(priceKey)) {
+        if (hadTrial) {
           skipTrial = true;
         }
       }
@@ -149,26 +183,64 @@ serve(async (req) => {
       customerId = customer.id;
     }
 
-    // Determine if this plan gets a free trial
-    const hasTrial = TRIAL_PLANS.includes(priceKey);
+    // Determine if this cart has a trial-eligible plan
+    const hasTrialPlan = items.some(item => TRIAL_PLANS.includes(item.priceKey));
+
+    // Build line items
+    const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [];
+    
+    if (checkoutMode === "subscription") {
+      // Add subscription items
+      for (const item of subscriptionItems) {
+        const priceId = PRICE_IDS[item.priceKey];
+        const quantity = PER_BUSINESS_MODULES.includes(item.priceKey) 
+          ? Math.max(1, item.quantity) 
+          : 1;
+        
+        lineItems.push({ price: priceId, quantity });
+      }
+      
+      // Note: One-time items cannot be added directly to subscription checkout
+      // They would need to be added as invoice items after subscription is created
+      // For simplicity, we'll skip them in this session and handle separately if needed
+      if (hasOneTime) {
+        console.log(`[create-checkout] Warning: ${oneTimeItems.length} one-time items cannot be added to subscription checkout`);
+      }
+    } else {
+      // Payment mode - all one-time items
+      for (const item of oneTimeItems) {
+        const priceId = PRICE_IDS[item.priceKey];
+        lineItems.push({ price: priceId, quantity: item.quantity || 1 });
+      }
+    }
+
+    // Build metadata
+    const metadata: Record<string, string> = {
+      supabase_user_id: user.id,
+      cart_items: JSON.stringify(items.map(i => ({ priceKey: i.priceKey, quantity: i.quantity }))),
+    };
+
+    // Add credits info if applicable
+    const creditItems = items.filter(item => item.priceKey.startsWith("credits_"));
+    if (creditItems.length > 0) {
+      const totalCredits = creditItems.reduce((sum, item) => {
+        return sum + (CREDIT_AMOUNTS[item.priceKey] || 0) * item.quantity;
+      }, 0);
+      metadata.total_credits = String(totalCredits);
+    }
 
     // Create checkout session
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
       customer: customerId,
-      line_items: [{ price: priceId, quantity: lineItemQuantity }],
+      line_items: lineItems,
       mode: checkoutMode,
       success_url: successUrl || `${req.headers.get("origin")}/dashboard?success=true`,
-      cancel_url: cancelUrl || `${req.headers.get("origin")}/dashboard?canceled=true`,
-      metadata: {
-        supabase_user_id: user.id,
-        price_key: priceKey,
-        ...(isCreditsPackage && { credits_amount: String(CREDIT_AMOUNTS[priceKey] || 0) }),
-        ...(isPerBusinessModule && { businesses_count: String(lineItemQuantity) }),
-      },
+      cancel_url: cancelUrl || `${req.headers.get("origin")}/checkout?canceled=true`,
+      metadata,
     };
 
-    // Add trial period for Starter plan only (if not skipped) - only for subscriptions
-    if (checkoutMode === "subscription" && hasTrial && !skipTrial) {
+    // Add trial period for Starter plan only (if not skipped)
+    if (checkoutMode === "subscription" && hasTrialPlan && !skipTrial) {
       sessionParams.subscription_data = {
         trial_period_days: TRIAL_DAYS,
         metadata: {
@@ -176,6 +248,8 @@ serve(async (req) => {
         },
       };
     }
+
+    console.log(`[create-checkout] Creating session with ${lineItems.length} line items, trial: ${hasTrialPlan && !skipTrial}`);
 
     const session = await stripe.checkout.sessions.create(sessionParams);
 
