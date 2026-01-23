@@ -186,9 +186,9 @@ const MobileAds = () => {
   // Search View - Redesigned for Facebook Ads
   if (view === "search") {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-primary via-primary/90 to-blue-700">
+      <div className="min-h-screen bg-gradient-to-b from-background to-muted/30">
         {/* Header */}
-        <header className="sticky top-0 z-50 bg-white/10 backdrop-blur-lg border-b border-white/10">
+        <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border/50">
           <div className="container max-w-lg mx-auto px-4 py-3 flex items-center justify-center">
             <StarlinkoLogo className="h-7" />
           </div>
@@ -197,32 +197,34 @@ const MobileAds = () => {
         <main className="container max-w-lg mx-auto px-4 py-6">
           {/* Hero Section - Attention Grabbing */}
           <div className="text-center mb-6">
-            {/* Animated Badge */}
-            <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-medium mb-4 animate-pulse">
-              <Zap className="w-4 h-4" />
-              <span>+2000 entreprises nous font confiance</span>
+            {/* 5 Stars Badge */}
+            <div className="inline-flex items-center gap-1 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium mb-4">
+              {[1,2,3,4,5].map((i) => (
+                <Star key={i} className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+              ))}
+              <span className="ml-2 text-foreground">+2000 entreprises</span>
             </div>
             
-            <h1 className="text-3xl font-extrabold text-white mb-3 leading-tight">
-              Répondez à vos avis Google en <span className="text-yellow-300">2 secondes</span> ⚡
+            <h1 className="text-3xl font-extrabold text-foreground mb-3 leading-tight">
+              Répondez à vos Avis<br />avec <span className="text-primary">L'IA</span> 🤖
             </h1>
             
-            <p className="text-white/90 text-lg mb-2">
-              L'IA qui répond à vos clients <span className="font-semibold">à votre place</span>
+            <p className="text-muted-foreground text-lg mb-2">
+              L'IA qui répond à vos clients <span className="font-semibold text-foreground">à votre place</span>
             </p>
 
             {/* Trust Badges */}
-            <div className="flex items-center justify-center gap-4 text-white/70 text-xs mt-4">
+            <div className="flex items-center justify-center gap-4 text-muted-foreground text-xs mt-4">
               <div className="flex items-center gap-1">
-                <Shield className="w-3 h-3" />
+                <Shield className="w-3 h-3 text-primary" />
                 <span>100% Gratuit</span>
               </div>
               <div className="flex items-center gap-1">
-                <Clock className="w-3 h-3" />
+                <Clock className="w-3 h-3 text-primary" />
                 <span>30 sec</span>
               </div>
               <div className="flex items-center gap-1">
-                <TrendingUp className="w-3 h-3" />
+                <TrendingUp className="w-3 h-3 text-primary" />
                 <span>+40% visibilité</span>
               </div>
             </div>
@@ -311,24 +313,24 @@ const MobileAds = () => {
 
           {/* Social Proof */}
           <div className="mt-6 text-center">
-            <p className="text-white/60 text-xs mb-3">Ils ont automatisé leurs réponses :</p>
+            <p className="text-muted-foreground text-xs mb-3">Ils ont automatisé leurs réponses :</p>
             <div className="flex items-center justify-center gap-3">
               {[1, 2, 3, 4, 5].map((i) => (
                 <div
                   key={i}
-                  className="w-10 h-10 rounded-full bg-white/20 border-2 border-white/30 flex items-center justify-center text-white text-xs font-bold"
+                  className="w-10 h-10 rounded-full bg-primary/10 border-2 border-primary/20 flex items-center justify-center text-primary text-xs font-bold"
                   style={{ marginLeft: i > 1 ? '-8px' : '0' }}
                 >
                   {['JD', 'ML', 'SA', 'PR', 'LC'][i-1]}
                 </div>
               ))}
-              <span className="text-white/80 text-sm font-medium ml-2">+2,847</span>
+              <span className="text-foreground text-sm font-medium ml-2">+2,847</span>
             </div>
           </div>
 
           {/* CTA Section */}
           <div className="mt-8 text-center">
-            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
+            <div className="bg-primary/5 rounded-2xl p-4 border border-primary/20">
               <div className="flex items-center justify-center gap-2 mb-2">
                 <Star className="w-5 h-5 text-yellow-300 fill-yellow-300" />
                 <Star className="w-5 h-5 text-yellow-300 fill-yellow-300" />
@@ -336,10 +338,10 @@ const MobileAds = () => {
                 <Star className="w-5 h-5 text-yellow-300 fill-yellow-300" />
                 <Star className="w-5 h-5 text-yellow-300 fill-yellow-300" />
               </div>
-              <p className="text-white text-sm font-medium">
+              <p className="text-foreground text-sm font-medium">
                 "Gain de temps incroyable, mes clients sont ravis !"
               </p>
-              <p className="text-white/60 text-xs mt-1">— Marie L., Restaurant Paris 11e</p>
+              <p className="text-muted-foreground text-xs mt-1">— Marie L., Restaurant Paris 11e</p>
             </div>
           </div>
         </main>
