@@ -68,3 +68,9 @@ verify_jwt = false
 
 [functions.generate-old-reviews-batch]
 verify_jwt = false
+
+[functions.search-places]
+verify_jwt = false
+
+[functions.generate-demo-response]
+verify_jwt = false
