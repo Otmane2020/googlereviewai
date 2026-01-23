@@ -9,10 +9,11 @@ export const SplashScreen = ({ onComplete }: SplashScreenProps) => {
   const [fadeOut, setFadeOut] = useState(false);
 
   useEffect(() => {
+    // Transition rapide - juste assez pour le fade-in
     const timer = setTimeout(() => {
       setFadeOut(true);
-      setTimeout(onComplete, 500);
-    }, 2000);
+      setTimeout(onComplete, 300);
+    }, 800);
 
     return () => clearTimeout(timer);
   }, [onComplete]);
