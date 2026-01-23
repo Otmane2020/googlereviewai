@@ -28,7 +28,8 @@ serve(async (req) => {
         );
       }
 
-      const url = `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(query)}&types=establishment&key=${apiKey}&language=fr`;
+      // Restrict to France, Belgium, Switzerland
+      const url = `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(query)}&types=establishment&key=${apiKey}&language=fr&components=country:fr|country:be|country:ch`;
       
       const response = await fetch(url);
       const data = await response.json();
