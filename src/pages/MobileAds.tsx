@@ -181,7 +181,7 @@ const MobileAds = () => {
               <span className="ml-2 text-foreground">+2000 entreprises</span>
             </div>
             
-            <h1 className="text-3xl font-extrabold text-foreground mb-3 leading-tight">Répondez à vos Avis
+            <h1 className="text-3xl font-extrabold text-foreground mb-3 leading-tight">Répondez à vos Avis 
 avec L'IA <br />avec <span className="text-primary">L'IA</span> 🤖
             </h1>
             
