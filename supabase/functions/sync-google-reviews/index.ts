@@ -478,20 +478,46 @@ serve(async (req) => {
     }
 
     // Delete reviews that no longer exist on Google
+    // BUT ONLY for locations that were actually synced successfully
     let deletedCount = 0;
-    if (allGoogleReviewIds.length > 0) {
+    
+    // GUARD 1: Skip deletion if there were API errors (403, 429, etc.)
+    const hasCriticalErrors = errors.some(e => 
+      e.includes("403") || e.includes("429") || e.includes("Quota exceeded") || e.includes("Permission denied")
+    );
+    
+    if (hasCriticalErrors) {
+      console.log("[SAFETY] Skipping deletion detection due to API errors - avoiding false positives");
+    } else if (allGoogleReviewIds.length > 0) {
       console.log(`Checking for deleted reviews. Found ${allGoogleReviewIds.length} reviews on Google.`);
       
-      // Get all review IDs currently in the database for this user
+      // Extract location IDs that were successfully synced
+      const syncedLocationIds = [...new Set(allGoogleReviewIds.map(id => {
+        // review_id format: "locations/{locationId}/reviews/{reviewId}"
+        const match = id.match(/^locations\/([^\/]+)\//);
+        return match ? match[1] : null;
+      }).filter(Boolean))];
+      
+      console.log(`Successfully synced ${syncedLocationIds.length} locations:`, syncedLocationIds);
+      
+      // FIX: Only get reviews from locations that were actually synced
       const { data: dbReviews, error: dbReviewsError } = await supabaseAdmin
         .from("reviews")
-        .select("id, review_id, author, rating")
-        .eq("user_id", user.id);
+        .select("id, review_id, author, rating, location_id")
+        .eq("user_id", user.id)
+        .in("location_id", syncedLocationIds); // ← KEY FIX: Filter by synced locations
       
       if (!dbReviewsError && dbReviews) {
         // Find reviews in DB that are not in Google anymore
         const googleReviewIdSet = new Set(allGoogleReviewIds);
-        const reviewsToDelete = dbReviews.filter(r => !googleReviewIdSet.has(r.review_id));
+        let reviewsToDelete = dbReviews.filter(r => !googleReviewIdSet.has(r.review_id));
+        
+        // GUARD 2: Safety threshold - max 20% deletions per sync
+        const maxDeletions = Math.ceil(dbReviews.length * 0.2);
+        if (reviewsToDelete.length > maxDeletions && maxDeletions > 0) {
+          console.warn(`[SAFETY] Too many deletions detected (${reviewsToDelete.length}), capping at ${maxDeletions} (20% threshold)`);
+          reviewsToDelete = reviewsToDelete.slice(0, maxDeletions);
+        }
         
         if (reviewsToDelete.length > 0) {
           console.log(`Found ${reviewsToDelete.length} reviews to delete (no longer on Google)`);

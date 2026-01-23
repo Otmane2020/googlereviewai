@@ -303,9 +303,23 @@ async function syncLocationReviews(
     }
 
     // DELETION DETECTION: Remove reviews that no longer exist on Google
-    if (allGoogleReviewIds.length > 0 && existingReviews && existingReviews.length > 0) {
+    // GUARD 1: Skip deletion if there were API errors during sync
+    const hasCriticalErrors = errors.some(e => 
+      e.includes("403") || e.includes("429") || e.includes("Permission denied")
+    );
+    
+    if (hasCriticalErrors) {
+      console.log(`[CRON] [SAFETY] Skipping deletion detection due to API errors - avoiding false positives`);
+    } else if (allGoogleReviewIds.length > 0 && existingReviews && existingReviews.length > 0) {
       const googleReviewIdSet = new Set(allGoogleReviewIds);
-      const reviewsToDelete = existingReviews.filter((r: any) => !googleReviewIdSet.has(r.review_id));
+      let reviewsToDelete = existingReviews.filter((r: any) => !googleReviewIdSet.has(r.review_id));
+      
+      // GUARD 2: Safety threshold - max 20% deletions per sync
+      const maxDeletions = Math.ceil(existingReviews.length * 0.2);
+      if (reviewsToDelete.length > maxDeletions && maxDeletions > 0) {
+        console.warn(`[CRON] [SAFETY] Too many deletions detected (${reviewsToDelete.length}), capping at ${maxDeletions} (20% threshold)`);
+        reviewsToDelete = reviewsToDelete.slice(0, maxDeletions);
+      }
       
       if (reviewsToDelete.length > 0) {
         console.log(`[CRON] 🗑️ Found ${reviewsToDelete.length} deleted reviews to remove`);
