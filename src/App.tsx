@@ -33,6 +33,7 @@ import Notifications from "./pages/Notifications";
 import ResetPassword from "./pages/ResetPassword";
 import MobileAds from "./pages/MobileAds";
 import PasswordAuth from "./pages/PasswordAuth";
+import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -117,6 +118,7 @@ const AppContent = () => {
               <Route path="/notifications" element={<Notifications />} />
               <Route path="/mobile-ads" element={<MobileAds />} />
               <Route path="/PW" element={<PasswordAuth />} />
+              <Route path="/admin" element={<Admin />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
             {/* Global prompts */}
