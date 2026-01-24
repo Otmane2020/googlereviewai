@@ -99,6 +99,42 @@ const Dashboard = () => {
     }
   }, []);
 
+  // Track user visits in localStorage (no cookies required)
+  useEffect(() => {
+    if (!user) return;
+    
+    const storageKey = `starlinko_visits_${user.id}`;
+    const now = new Date().toISOString();
+    
+    try {
+      const existingData = localStorage.getItem(storageKey);
+      const visitData = existingData ? JSON.parse(existingData) : {
+        firstVisit: now,
+        visitCount: 0,
+        sessions: []
+      };
+      
+      // Increment visit count
+      visitData.visitCount += 1;
+      visitData.lastVisit = now;
+      
+      // Keep last 50 sessions for analytics
+      visitData.sessions.push({
+        date: now,
+        referrer: document.referrer || 'direct',
+        userAgent: navigator.userAgent
+      });
+      if (visitData.sessions.length > 50) {
+        visitData.sessions = visitData.sessions.slice(-50);
+      }
+      
+      localStorage.setItem(storageKey, JSON.stringify(visitData));
+      console.log(`[Tracking] Visit #${visitData.visitCount} recorded`);
+    } catch (e) {
+      console.error('[Tracking] Failed to track visit:', e);
+    }
+  }, [user]);
+
   // Handle Google OAuth callback - when user returns from Google with a code
   useEffect(() => {
     const handleGoogleCallback = async () => {
