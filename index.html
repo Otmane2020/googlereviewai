@@ -196,6 +196,24 @@
       fbq('track', 'PageView');
     </script>
     <!-- End Meta Pixel Code -->
+
+    <!-- LinkedIn Insight Tag -->
+    <script type="text/javascript">
+      _linkedin_partner_id = "8548802";
+      window._linkedin_data_partner_ids = window._linkedin_data_partner_ids || [];
+      window._linkedin_data_partner_ids.push(_linkedin_partner_id);
+    </script>
+    <script type="text/javascript">
+      (function(l) {
+        if (!l){window.lintrk = function(a,b){window.lintrk.q.push([a,b])};
+        window.lintrk.q=[]}
+        var s = document.getElementsByTagName("script")[0];
+        var b = document.createElement("script");
+        b.type = "text/javascript";b.async = true;
+        b.src = "https://snap.licdn.com/li.lms-analytics/insight.min.js";
+        s.parentNode.insertBefore(b, s);})(window.lintrk);
+    </script>
+    <!-- End LinkedIn Insight Tag -->
     <meta property="og:title" content="Starlinko – IA pour Google Business Profile &amp; Avis Google">
   <meta name="twitter:title" content="Starlinko – IA pour Google Business Profile &amp; Avis Google">
   <meta property="og:description" content="Starlinko automatise la gestion Google Business Profile : réponses IA aux avis, posts GMB, Q&amp;A optimisés pour ranker sur Google Maps et ChatGPT.">
@@ -211,6 +229,10 @@
     <noscript><img height="1" width="1" style="display:none"
       src="https://www.facebook.com/tr?id=1400016238246849&ev=PageView&noscript=1"
     /></noscript>
+    <!-- LinkedIn noscript fallback -->
+    <noscript>
+      <img height="1" width="1" style="display:none;" alt="" src="https://px.ads.linkedin.com/collect/?pid=8548802&fmt=gif" />
+    </noscript>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
