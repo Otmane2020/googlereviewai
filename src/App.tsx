@@ -11,6 +11,7 @@ import { NotificationPrompt } from "@/components/NotificationPrompt";
 import { SplashScreen } from "@/components/SplashScreen";
 import { OnboardingScreen } from "@/components/OnboardingScreen";
 import { usePWA } from "@/hooks/usePWA";
+import { useVisitTracking } from "@/hooks/useVisitTracking";
 import { CartProvider } from "@/contexts/CartContext";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
@@ -41,6 +42,9 @@ const AppContent = () => {
   const [showSplash, setShowSplash] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
+
+  // Global visit tracking for all pages (Facebook ads, etc.)
+  useVisitTracking();
 
   useEffect(() => {
     // Always show splash in standalone PWA mode on app launch
