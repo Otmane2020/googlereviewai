@@ -133,11 +133,16 @@ export const NotificationPrompt = () => {
     return null;
   }
 
-  // Don't show if: not supported, already subscribed, user dismissed, no user, or not on allowed route
-  if (!isSupported || isSubscribed || dismissed || !user || !isAllowedRoute) {
+  // Show the prompt even if "subscribed" when permission is denied.
+  // This happens when a user subscribed in the past but later blocked notifications in the browser/OS.
+  const shouldHideBecauseSubscribed = isSubscribed && permission !== "denied";
+
+  // Don't show if: not supported, already subscribed (and permission not denied), user dismissed, no user, or not on allowed route
+  if (!isSupported || shouldHideBecauseSubscribed || dismissed || !user || !isAllowedRoute) {
     console.log("[NotificationPrompt] Not showing because:", {
       isSupported,
       isSubscribed,
+      shouldHideBecauseSubscribed,
       dismissed,
       hasUser: !!user,
       isAllowedRoute,
