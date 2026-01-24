@@ -37,14 +37,17 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+// Tracking wrapper - must be inside BrowserRouter
+const TrackingWrapper = ({ children }: { children: React.ReactNode }) => {
+  useVisitTracking();
+  return <>{children}</>;
+};
+
 const AppContent = () => {
   const { isStandalone } = usePWA();
   const [showSplash, setShowSplash] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
-
-  // Global visit tracking for all pages (Facebook ads, etc.)
-  useVisitTracking();
 
   useEffect(() => {
     // Always show splash in standalone PWA mode on app launch
@@ -86,40 +89,42 @@ const AppContent = () => {
 
   return (
     <BrowserRouter>
-      {showSplash ? (
-        <SplashScreen onComplete={handleSplashComplete} />
-      ) : showOnboarding ? (
-        <OnboardingScreen onComplete={handleOnboardingComplete} />
-      ) : (
-        <OAuthCallback>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/select-plan" element={<SelectPlan />} />
-            <Route path="/choose-plan" element={<ChoosePlan />} />
-            <Route path="/checkout" element={<Checkout />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/reviews" element={<Reviews />} />
-            <Route path="/ai-settings" element={<AISettings />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/businesses" element={<Businesses />} />
-            <Route path="/privacy" element={<PrivacyPolicy />} />
-            <Route path="/terms" element={<TermsOfService />} />
-            <Route path="/install" element={<Install />} />
-            <Route path="/seo-autopost" element={<SEOAutoPost />} />
-            <Route path="/aeo-rank" element={<AEORank />} />
-            <Route path="/maps-rank" element={<MapsRank />} />
-            <Route path="/notifications" element={<Notifications />} />
-            <Route path="/mobile-ads" element={<MobileAds />} />
-            <Route path="/PW" element={<PasswordAuth />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-          {/* Global prompts */}
-          <InstallPrompt />
-          <NotificationPrompt />
-        </OAuthCallback>
-      )}
+      <TrackingWrapper>
+        {showSplash ? (
+          <SplashScreen onComplete={handleSplashComplete} />
+        ) : showOnboarding ? (
+          <OnboardingScreen onComplete={handleOnboardingComplete} />
+        ) : (
+          <OAuthCallback>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/select-plan" element={<SelectPlan />} />
+              <Route path="/choose-plan" element={<ChoosePlan />} />
+              <Route path="/checkout" element={<Checkout />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/reviews" element={<Reviews />} />
+              <Route path="/ai-settings" element={<AISettings />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/businesses" element={<Businesses />} />
+              <Route path="/privacy" element={<PrivacyPolicy />} />
+              <Route path="/terms" element={<TermsOfService />} />
+              <Route path="/install" element={<Install />} />
+              <Route path="/seo-autopost" element={<SEOAutoPost />} />
+              <Route path="/aeo-rank" element={<AEORank />} />
+              <Route path="/maps-rank" element={<MapsRank />} />
+              <Route path="/notifications" element={<Notifications />} />
+              <Route path="/mobile-ads" element={<MobileAds />} />
+              <Route path="/PW" element={<PasswordAuth />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+            {/* Global prompts */}
+            <InstallPrompt />
+            <NotificationPrompt />
+          </OAuthCallback>
+        )}
+      </TrackingWrapper>
     </BrowserRouter>
   );
 };
