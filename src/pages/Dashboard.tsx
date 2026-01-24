@@ -169,11 +169,14 @@ const Dashboard = () => {
 
     if (profileRes.data) setProfile(profileRes.data);
     
+    // Helper to check if review has a real google reply
+    const hasReply = (r: Review) => r.google_reply && r.google_reply.trim() !== '';
+    
     // Sort by pending first (no Google reply = not answered on Google), then by date
     const sortedReviews = allReviews.sort((a, b) => {
       // Pending reviews first (no Google reply = unanswered on Google)
-      const aPending = !a.published_to_google && !a.google_reply;
-      const bPending = !b.published_to_google && !b.google_reply;
+      const aPending = !a.published_to_google && !hasReply(a);
+      const bPending = !b.published_to_google && !hasReply(b);
       if (aPending && !bPending) return -1;
       if (!aPending && bPending) return 1;
       // Then by date
@@ -189,9 +192,10 @@ const Dashboard = () => {
     // - pending = no published_to_google AND no google_reply (truly unanswered)
     // - aiReady = has AI response but not published and no google_reply (ready to publish)
     // - responded = published_to_google OR has google_reply (answered)
-    const pending = allReviews.filter(r => !r.published_to_google && !r.google_reply).length;
-    const aiReady = allReviews.filter(r => r.ai_response && !r.published_to_google && !r.google_reply).length;
-    const responded = allReviews.filter(r => r.published_to_google || r.google_reply).length;
+    const hasGoogleReply = (r: Review) => r.google_reply && r.google_reply.trim() !== '';
+    const pending = allReviews.filter(r => !r.published_to_google && !hasGoogleReply(r)).length;
+    const aiReady = allReviews.filter(r => r.ai_response && !r.published_to_google && !hasGoogleReply(r)).length;
+    const responded = allReviews.filter(r => r.published_to_google || hasGoogleReply(r)).length;
     const responseRate = total > 0 ? Math.round((responded / total) * 100) : 0;
     
     setStats({
