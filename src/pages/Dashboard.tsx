@@ -15,6 +15,13 @@ import { LowCreditsBanner } from "@/components/LowCreditsBanner";
 import { UTMBuilderDialog } from "@/components/UTMBuilderDialog";
 import { toast } from "sonner";
 
+// LinkedIn Insight Tag tracking for dashboard
+declare global {
+  interface Window {
+    lintrk?: (action: string, data: object) => void;
+  }
+}
+
 import { Button } from "@/components/ui/button";
 import { 
   Star, 
@@ -84,6 +91,13 @@ const Dashboard = () => {
   const [showSelectBusinessesDialog, setShowSelectBusinessesDialog] = useState(false);
   const [googleBusinessesForSelection, setGoogleBusinessesForSelection] = useState<any[]>([]);
   const [maxBusinessesLimit, setMaxBusinessesLimit] = useState(1);
+
+  // LinkedIn Insight Tag - track dashboard view
+  useEffect(() => {
+    if (window.lintrk) {
+      window.lintrk('track', { conversion_id: 21122002 });
+    }
+  }, []);
 
   // Handle Google OAuth callback - when user returns from Google with a code
   useEffect(() => {
