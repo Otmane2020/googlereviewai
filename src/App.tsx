@@ -31,6 +31,7 @@ import MapsRank from "./pages/MapsRank";
 import Notifications from "./pages/Notifications";
 import ResetPassword from "./pages/ResetPassword";
 import MobileAds from "./pages/MobileAds";
+import PasswordAuth from "./pages/PasswordAuth";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -107,6 +108,7 @@ const AppContent = () => {
             <Route path="/maps-rank" element={<MapsRank />} />
             <Route path="/notifications" element={<Notifications />} />
             <Route path="/mobile-ads" element={<MobileAds />} />
+            <Route path="/PW" element={<PasswordAuth />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
           {/* Global prompts */}
