@@ -488,6 +488,12 @@ serve(async (req) => {
       await new Promise((resolve) => setTimeout(resolve, 200));
     }
 
+    // Calculate average rank for keyword tracking
+    const rankedResults = results.filter(r => r.rank_position !== null);
+    const avgRank = rankedResults.length > 0
+      ? rankedResults.reduce((sum, r) => sum + (r.rank_position || 0), 0) / rankedResults.length
+      : null;
+
     // Update scan status
     await supabaseClient
       .from("maps_rank_scans")
@@ -497,7 +503,44 @@ serve(async (req) => {
       })
       .eq("id", scan.id);
 
-    logStep("Scan completed", { status: hasError ? "failed" : "completed", pointsProcessed: results.length });
+    // Save/update keyword tracking
+    if (!hasError) {
+      const { data: existingKeyword } = await supabaseClient
+        .from("maps_rank_keywords")
+        .select("id, scan_count")
+        .eq("user_id", user.id)
+        .eq("business_id", business.id)
+        .eq("keyword", keyword)
+        .single();
+
+      if (existingKeyword) {
+        // Update existing keyword
+        await supabaseClient
+          .from("maps_rank_keywords")
+          .update({
+            last_avg_rank: avgRank,
+            scan_count: existingKeyword.scan_count + 1,
+            last_scanned_at: new Date().toISOString(),
+          })
+          .eq("id", existingKeyword.id);
+        logStep("Updated keyword tracking", { keyword, avgRank, scanCount: existingKeyword.scan_count + 1 });
+      } else {
+        // Insert new keyword
+        await supabaseClient
+          .from("maps_rank_keywords")
+          .insert({
+            user_id: user.id,
+            business_id: business.id,
+            keyword,
+            last_avg_rank: avgRank,
+            scan_count: 1,
+            last_scanned_at: new Date().toISOString(),
+          });
+        logStep("Created keyword tracking", { keyword, avgRank });
+      }
+    }
+
+    logStep("Scan completed", { status: hasError ? "failed" : "completed", pointsProcessed: results.length, avgRank });
 
     return new Response(
       JSON.stringify({
@@ -505,6 +548,7 @@ serve(async (req) => {
         scan_id: scan.id,
         center: { lat: centerLat, lng: centerLng },
         points: results,
+        avg_rank: avgRank,
         error: hasError ? errorMessage : null,
       }),
       {

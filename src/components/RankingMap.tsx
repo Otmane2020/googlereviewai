@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { MapContainer, TileLayer, Marker, Popup, Circle, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import { getDirectionalInfo, getDirectionAbbr } from "@/components/maps-rank/DirectionalLabel";
 
 // Fix Leaflet default icon issue in Vite
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
@@ -29,6 +30,8 @@ interface ScanPoint {
   rank_position: number | null;
   total_results: number;
   competitors: Competitor[];
+  direction?: string;
+  distance?: number;
 }
 
 interface RankingMapProps {
@@ -54,8 +57,8 @@ const MapRecenter = ({ center }: { center: { lat: number; lng: number } }) => {
   return null;
 };
 
-// Create custom colored markers
-const createRankIcon = (rank: number | null, isSelected: boolean) => {
+// Create custom colored markers with directional labels
+const createRankIcon = (rank: number | null, isSelected: boolean, direction?: string) => {
   let color = "#9ca3af"; // gray
   if (rank !== null) {
     if (rank <= 3) color = "#22c55e"; // green
@@ -64,61 +67,124 @@ const createRankIcon = (rank: number | null, isSelected: boolean) => {
     else color = "#ef4444"; // red
   }
 
-  const size = isSelected ? 36 : 28;
+  const size = isSelected ? 40 : 32;
   const borderWidth = isSelected ? 3 : 2;
+  const dirAbbr = direction ? getDirectionAbbr(direction) : "";
   
   return L.divIcon({
     className: "custom-rank-marker",
     html: `
       <div style="
+        position: relative;
         width: ${size}px;
         height: ${size}px;
-        background-color: ${color};
-        border: ${borderWidth}px solid white;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-weight: bold;
-        font-size: ${isSelected ? 14 : 12}px;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-        transform: translate(-50%, -50%);
-        ${isSelected ? 'box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.5), 0 2px 6px rgba(0,0,0,0.3);' : ''}
       ">
-        ${rank !== null ? rank : "–"}
+        <div style="
+          width: ${size}px;
+          height: ${size}px;
+          background-color: ${color};
+          border: ${borderWidth}px solid white;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: white;
+          font-weight: bold;
+          font-size: ${isSelected ? 14 : 12}px;
+          box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+          ${isSelected ? 'box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.5), 0 2px 6px rgba(0,0,0,0.3);' : ''}
+        ">
+          ${rank !== null ? rank : "–"}
+        </div>
+        ${direction && direction !== "Centre" ? `
+          <div style="
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.7);
+            color: white;
+            font-size: 8px;
+            font-weight: bold;
+            padding: 1px 4px;
+            border-radius: 3px;
+            white-space: nowrap;
+          ">
+            ${dirAbbr}
+          </div>
+        ` : ''}
       </div>
     `,
-    iconSize: [size, size],
+    iconSize: [size, size + 10],
     iconAnchor: [size / 2, size / 2],
   });
 };
 
-// Business center marker
-const createBusinessIcon = () => {
+// Business center marker with "VOUS" label
+const createBusinessIcon = (businessName?: string) => {
   return L.divIcon({
     className: "business-marker",
     html: `
       <div style="
-        width: 44px;
-        height: 44px;
-        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-        border: 3px solid white;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
-        transform: translate(-50%, -50%);
+        position: relative;
+        width: 50px;
+        height: 70px;
       ">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-          <polyline points="9 22 9 12 15 12 15 22"></polyline>
-        </svg>
+        <div style="
+          position: absolute;
+          top: 0;
+          left: 50%;
+          transform: translateX(-50%);
+          background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+          color: white;
+          font-size: 9px;
+          font-weight: bold;
+          padding: 2px 6px;
+          border-radius: 4px;
+          white-space: nowrap;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        ">
+          VOUS
+        </div>
+        <div style="
+          position: absolute;
+          top: 20px;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 44px;
+          height: 44px;
+          background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+          border: 3px solid white;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        ">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+          </svg>
+        </div>
       </div>
     `,
-    iconSize: [44, 44],
-    iconAnchor: [22, 22],
+    iconSize: [50, 70],
+    iconAnchor: [25, 42],
+  });
+};
+
+// Process points to add directional info
+const processPointsWithDirections = (
+  points: ScanPoint[],
+  center: { lat: number; lng: number }
+): ScanPoint[] => {
+  return points.map(point => {
+    const info = getDirectionalInfo(center.lat, center.lng, point.lat, point.lng);
+    return {
+      ...point,
+      direction: info.direction,
+      distance: info.distanceKm,
+    };
   });
 };
 
@@ -144,6 +210,9 @@ export const RankingMap = ({
   // Calculate total radius covered
   const totalRadius = (spacing * (gridSize - 1)) / 2 + spacing / 2;
 
+  // Process points with directional labels
+  const processedPoints = processPointsWithDirections(points, center);
+
   if (!center.lat || !center.lng) {
     return (
       <div className="w-full h-[400px] bg-muted rounded-xl flex items-center justify-center">
@@ -151,6 +220,11 @@ export const RankingMap = ({
       </div>
     );
   }
+
+  const formatDistance = (km: number) => {
+    if (km < 1) return `${Math.round(km * 1000)}m`;
+    return `${km.toFixed(1)}km`;
+  };
 
   return (
     <div className="w-full h-[400px] rounded-xl overflow-hidden border border-border shadow-sm">
@@ -178,29 +252,43 @@ export const RankingMap = ({
         />
         <Marker 
           position={[center.lat, center.lng]} 
-          icon={createBusinessIcon()}
+          icon={createBusinessIcon(businessName)}
           zIndexOffset={1000}
         >
           <Popup>
             <div className="text-center">
+              <div className="bg-primary/10 text-primary px-2 py-1 rounded-full text-xs font-medium mb-2">
+                VOTRE ÉTABLISSEMENT
+              </div>
               <strong>{businessName || "Votre établissement"}</strong>
               <p className="text-xs text-muted-foreground mt-1">Centre du scan</p>
             </div>
           </Popup>
         </Marker>
-        {points.map((point) => (
+        {processedPoints.map((point) => (
           <Marker
             key={point.label}
             position={[point.lat, point.lng]}
-            icon={createRankIcon(point.rank_position, selectedPoint?.label === point.label)}
+            icon={createRankIcon(
+              point.rank_position, 
+              selectedPoint?.label === point.label,
+              point.direction
+            )}
             eventHandlers={{
               click: () => onPointSelect(point),
             }}
           >
             <Popup>
-              <div className="min-w-[180px]">
+              <div className="min-w-[200px]">
                 <div className="flex items-center justify-between mb-2">
-                  <strong>Point {point.label}</strong>
+                  <div>
+                    <strong className="text-sm">{point.direction || "Point"}</strong>
+                    {point.distance !== undefined && point.distance > 0 && (
+                      <span className="text-xs text-muted-foreground ml-1">
+                        ({formatDistance(point.distance)})
+                      </span>
+                    )}
+                  </div>
                   <span className={`
                     px-2 py-0.5 rounded text-xs font-bold text-white
                     ${point.rank_position === null ? "bg-gray-400" : 
@@ -216,11 +304,18 @@ export const RankingMap = ({
                 </p>
                 {point.competitors.length > 0 && (
                   <div className="border-t pt-2">
-                    <p className="text-xs font-medium mb-1">Top 3:</p>
+                    <p className="text-xs font-medium mb-1">Top 3 de la zone :</p>
                     <ul className="text-xs space-y-1">
                       {point.competitors.slice(0, 3).map((comp, i) => (
                         <li key={comp.placeId} className="flex items-start gap-1">
-                          <span className="text-muted-foreground">{i + 1}.</span>
+                          <span className={`
+                            w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0
+                            ${i === 0 ? "bg-yellow-500 text-white" : 
+                              i === 1 ? "bg-gray-400 text-white" :
+                              "bg-orange-600 text-white"}
+                          `}>
+                            {i + 1}
+                          </span>
                           <span className="truncate">{comp.name}</span>
                         </li>
                       ))}
@@ -235,3 +330,6 @@ export const RankingMap = ({
     </div>
   );
 };
+
+// Export the helper for use in MapsRank.tsx
+export { processPointsWithDirections };

@@ -1,11 +1,15 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRequireSubscription } from "@/hooks/useRequireSubscription";
 import { supabase } from "@/integrations/supabase/client";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
-import { RankingMap } from "@/components/RankingMap";
+import { RankingMap, processPointsWithDirections } from "@/components/RankingMap";
+import { VisibilityScore } from "@/components/maps-rank/VisibilityScore";
+import { KeywordChips } from "@/components/maps-rank/KeywordChips";
+import { RankRecommendations } from "@/components/maps-rank/RankRecommendations";
+import { getDirectionalInfo } from "@/components/maps-rank/DirectionalLabel";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -22,6 +26,7 @@ interface Business {
   name: string;
   google_place_id: string | null;
   address: string | null;
+  categories: string[] | null;
 }
 
 interface Competitor {
@@ -38,6 +43,8 @@ interface ScanPoint {
   rank_position: number | null;
   total_results: number;
   competitors: Competitor[];
+  direction?: string;
+  distance?: number;
 }
 
 interface Scan {
@@ -59,9 +66,16 @@ interface ScanResult {
   error?: string;
 }
 
+interface SavedKeyword {
+  keyword: string;
+  last_avg_rank: number | null;
+}
+
 const MapsRank = () => {
   const { user, loading: authLoading } = useAuth();
   const { loading: subLoading } = useRequireSubscription();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [selectedBusiness, setSelectedBusiness] = useState<string>("");
@@ -73,6 +87,7 @@ const MapsRank = () => {
   const [history, setHistory] = useState<Scan[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [selectedPoint, setSelectedPoint] = useState<ScanPoint | null>(null);
+  const [previousAvgRank, setPreviousAvgRank] = useState<number | null>(null);
 
   // Fetch businesses on mount
   useEffect(() => {
@@ -81,13 +96,17 @@ const MapsRank = () => {
     const fetchBusinesses = async () => {
       const { data } = await supabase
         .from("businesses")
-        .select("id, name, google_place_id, address")
+        .select("id, name, google_place_id, address, categories")
         .eq("user_id", user.id)
         .eq("is_active", true);
 
       if (data) {
         setBusinesses(data);
-        if (data.length > 0 && !selectedBusiness) {
+        // Check for business_id in URL params
+        const urlBusinessId = searchParams.get("business_id");
+        if (urlBusinessId && data.some(b => b.id === urlBusinessId)) {
+          setSelectedBusiness(urlBusinessId);
+        } else if (data.length > 0 && !selectedBusiness) {
           setSelectedBusiness(data[0].id);
         }
       }
@@ -95,6 +114,14 @@ const MapsRank = () => {
 
     fetchBusinesses();
   }, [user]);
+
+  // Set keyword from URL params
+  useEffect(() => {
+    const urlKeyword = searchParams.get("keyword");
+    if (urlKeyword) {
+      setKeyword(urlKeyword);
+    }
+  }, [searchParams]);
 
   // Fetch scan history when business changes
   useEffect(() => {
@@ -119,6 +146,25 @@ const MapsRank = () => {
     fetchHistory();
   }, [user, selectedBusiness]);
 
+  // Fetch previous avg rank for keyword
+  const fetchPreviousRank = async (kw: string) => {
+    if (!user || !selectedBusiness) return;
+    
+    const { data } = await supabase
+      .from("maps_rank_keywords")
+      .select("last_avg_rank")
+      .eq("user_id", user.id)
+      .eq("business_id", selectedBusiness)
+      .eq("keyword", kw)
+      .single();
+    
+    if (data) {
+      setPreviousAvgRank(data.last_avg_rank);
+    } else {
+      setPreviousAvgRank(null);
+    }
+  };
+
   const handleScan = async () => {
     if (!selectedBusiness || !keyword.trim()) {
       toast.error("Sélectionnez un établissement et entrez un mot-clé");
@@ -130,6 +176,9 @@ const MapsRank = () => {
       toast.error("Cet établissement n'est pas connecté à Google. Reconnectez-le dans Établissements.");
       return;
     }
+
+    // Fetch previous rank before scan
+    await fetchPreviousRank(keyword.trim());
 
     setIsScanning(true);
     setScanResult(null);
@@ -162,7 +211,20 @@ const MapsRank = () => {
         throw new Error(result.error || "Erreur lors du scan");
       }
 
-      setScanResult(result);
+      // Process points with directional info
+      const processedPoints = result.points.map((point: ScanPoint) => {
+        const info = getDirectionalInfo(result.center.lat, result.center.lng, point.lat, point.lng);
+        return {
+          ...point,
+          direction: info.direction,
+          distance: info.distanceKm,
+        };
+      });
+
+      setScanResult({
+        ...result,
+        points: processedPoints,
+      });
       toast.success(`Scan terminé ! ${result.points.length} points analysés`);
 
       // Refresh history
@@ -210,29 +272,36 @@ const MapsRank = () => {
 
       if (points.length > 0 && scan) {
         const scanData = scan as Scan;
+        
+        // Add directional info
+        const processedPoints = points.map(point => {
+          const info = getDirectionalInfo(scanData.center_lat, scanData.center_lng, point.lat, point.lng);
+          return {
+            ...point,
+            direction: info.direction,
+            distance: info.distanceKm,
+          };
+        });
+        
         setScanResult({
           scan_id: scanId,
           center: { lat: scanData.center_lat, lng: scanData.center_lng },
-          points,
+          points: processedPoints,
           success: true,
         });
         setKeyword(scanData.keyword);
         setGridSize(scanData.grid_size.toString());
         setSpacing(scanData.spacing_m.toString());
         setSelectedPoint(null);
+        
+        // Fetch previous rank for this keyword
+        await fetchPreviousRank(scanData.keyword);
+        
         toast.success("Scan chargé depuis l'historique");
       }
     } catch (error) {
       toast.error("Erreur lors du chargement du scan");
     }
-  };
-
-  const getRankColor = (rank: number | null): string => {
-    if (rank === null) return "bg-muted-foreground/50";
-    if (rank <= 3) return "bg-green-500";
-    if (rank <= 7) return "bg-yellow-500";
-    if (rank <= 10) return "bg-orange-500";
-    return "bg-red-500";
   };
 
   const getRankBadgeVariant = (rank: number | null): "default" | "secondary" | "destructive" | "outline" => {
@@ -249,20 +318,6 @@ const MapsRank = () => {
       hour: "2-digit",
       minute: "2-digit",
     });
-  };
-
-  // Calculate stats
-  const getStats = () => {
-    if (!scanResult) return null;
-    const top3 = scanResult.points.filter(p => p.rank_position && p.rank_position <= 3).length;
-    const rank4to7 = scanResult.points.filter(p => p.rank_position && p.rank_position >= 4 && p.rank_position <= 7).length;
-    const rank8to10 = scanResult.points.filter(p => p.rank_position && p.rank_position >= 8 && p.rank_position <= 10).length;
-    const notFound = scanResult.points.filter(p => !p.rank_position).length;
-    const avgRank = scanResult.points
-      .filter(p => p.rank_position)
-      .reduce((sum, p) => sum + (p.rank_position || 0), 0) / (scanResult.points.length - notFound) || 0;
-    
-    return { top3, rank4to7, rank8to10, notFound, avgRank };
   };
 
   // Aggregate top competitors across all points
@@ -294,7 +349,6 @@ const MapsRank = () => {
       .slice(0, 10);
   };
 
-  const stats = getStats();
   const topCompetitors = getTopCompetitors();
   const selectedBusinessData = businesses.find(b => b.id === selectedBusiness);
 
@@ -357,20 +411,29 @@ const MapsRank = () => {
                 </Select>
               </div>
 
-              {/* Keyword */}
-              <div className="space-y-2">
-                <Label htmlFor="keyword" className="text-xs">Mot-clé</Label>
-                <div className="relative">
-                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
-                  <Input
-                    id="keyword"
-                    placeholder="restaurant italien"
-                    value={keyword}
-                    onChange={(e) => setKeyword(e.target.value)}
-                    className="pl-8 h-9 text-sm"
+              {/* Keywords Section */}
+              {selectedBusiness && user && (
+                <div className="space-y-2 pt-2 border-t">
+                  <Label className="text-xs">Mot-clé</Label>
+                  <div className="relative mb-2">
+                    <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+                    <Input
+                      id="keyword"
+                      placeholder="Ex: restaurant italien"
+                      value={keyword}
+                      onChange={(e) => setKeyword(e.target.value)}
+                      className="pl-8 h-9 text-sm"
+                    />
+                  </div>
+                  <KeywordChips
+                    userId={user.id}
+                    businessId={selectedBusiness}
+                    currentKeyword={keyword}
+                    onKeywordSelect={setKeyword}
+                    businessCategories={selectedBusinessData?.categories || []}
                   />
                 </div>
-              </div>
+              )}
 
               {/* Grid size */}
               <div className="space-y-2">
@@ -458,6 +521,15 @@ const MapsRank = () => {
 
           {/* Map & Results Panel */}
           <div className="lg:col-span-6 space-y-4">
+            {/* Visibility Score */}
+            {scanResult && (
+              <VisibilityScore 
+                points={scanResult.points} 
+                keyword={keyword}
+                previousAvgRank={previousAvgRank}
+              />
+            )}
+
             {/* Map */}
             <Card>
               <CardHeader className="pb-3">
@@ -467,7 +539,7 @@ const MapsRank = () => {
                 </CardTitle>
                 {scanResult && (
                   <CardDescription className="text-xs">
-                    Cliquez sur un point pour voir les détails
+                    Cliquez sur un point pour voir les détails • Labels : N=Nord, S=Sud, E=Est, O=Ouest
                   </CardDescription>
                 )}
               </CardHeader>
@@ -493,42 +565,13 @@ const MapsRank = () => {
               </CardContent>
             </Card>
 
-            {/* Stats */}
-            {stats && (
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-                <Card className="bg-green-500/10 border-green-500/20">
-                  <CardContent className="p-3 text-center">
-                    <div className="text-2xl font-bold text-green-600">{stats.top3}</div>
-                    <div className="text-[10px] text-muted-foreground">Top 3</div>
-                  </CardContent>
-                </Card>
-                <Card className="bg-yellow-500/10 border-yellow-500/20">
-                  <CardContent className="p-3 text-center">
-                    <div className="text-2xl font-bold text-yellow-600">{stats.rank4to7}</div>
-                    <div className="text-[10px] text-muted-foreground">Rang 4-7</div>
-                  </CardContent>
-                </Card>
-                <Card className="bg-orange-500/10 border-orange-500/20">
-                  <CardContent className="p-3 text-center">
-                    <div className="text-2xl font-bold text-orange-600">{stats.rank8to10}</div>
-                    <div className="text-[10px] text-muted-foreground">Rang 8-10</div>
-                  </CardContent>
-                </Card>
-                <Card className="bg-muted/50">
-                  <CardContent className="p-3 text-center">
-                    <div className="text-2xl font-bold text-muted-foreground">{stats.notFound}</div>
-                    <div className="text-[10px] text-muted-foreground">Absents</div>
-                  </CardContent>
-                </Card>
-                <Card className="bg-primary/10 border-primary/20 col-span-2 md:col-span-1">
-                  <CardContent className="p-3 text-center">
-                    <div className="text-2xl font-bold text-primary">
-                      {stats.avgRank > 0 ? `#${stats.avgRank.toFixed(1)}` : "–"}
-                    </div>
-                    <div className="text-[10px] text-muted-foreground">Moyenne</div>
-                  </CardContent>
-                </Card>
-              </div>
+            {/* Recommendations */}
+            {scanResult && selectedBusiness && (
+              <RankRecommendations
+                points={scanResult.points}
+                keyword={keyword}
+                businessId={selectedBusiness}
+              />
             )}
           </div>
 
@@ -540,7 +583,14 @@ const MapsRank = () => {
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-base flex items-center gap-2">
-                      Point {selectedPoint.label}
+                      {selectedPoint.direction || "Point"}
+                      {selectedPoint.distance !== undefined && selectedPoint.distance > 0 && (
+                        <span className="text-xs font-normal text-muted-foreground">
+                          ({selectedPoint.distance < 1 
+                            ? `${Math.round(selectedPoint.distance * 1000)}m` 
+                            : `${selectedPoint.distance.toFixed(1)}km`})
+                        </span>
+                      )}
                     </CardTitle>
                     <Badge 
                       variant={getRankBadgeVariant(selectedPoint.rank_position)}
@@ -676,6 +726,11 @@ const MapsRank = () => {
                       <div className="w-4 h-4 rounded-full bg-muted-foreground/50" />
                       <span>Non trouvé</span>
                     </div>
+                  </div>
+                  <div className="mt-3 pt-3 border-t">
+                    <p className="text-[10px] text-muted-foreground">
+                      N=Nord, S=Sud, E=Est, O=Ouest, NE=Nord-Est, etc.
+                    </p>
                   </div>
                 </CardContent>
               </Card>

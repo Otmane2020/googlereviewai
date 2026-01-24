@@ -382,6 +382,54 @@ export type Database = {
           },
         ]
       }
+      maps_rank_keywords: {
+        Row: {
+          business_id: string
+          created_at: string
+          id: string
+          keyword: string
+          last_avg_rank: number | null
+          last_scanned_at: string
+          scan_count: number
+          user_id: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          id?: string
+          keyword: string
+          last_avg_rank?: number | null
+          last_scanned_at?: string
+          scan_count?: number
+          user_id: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          id?: string
+          keyword?: string
+          last_avg_rank?: number | null
+          last_scanned_at?: string
+          scan_count?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "maps_rank_keywords_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "maps_rank_keywords_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       maps_rank_scan_points: {
         Row: {
           competitors: Json | null
