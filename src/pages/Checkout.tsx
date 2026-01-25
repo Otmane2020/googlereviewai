@@ -147,6 +147,10 @@ const Checkout = () => {
 
       if (error) throw error;
       if (data?.url) {
+        // Track LinkedIn conversion for purchase
+        if (typeof window !== 'undefined' && (window as any).lintrk) {
+          (window as any).lintrk('track', { conversion_id: 21122002 });
+        }
         clearCart();
         window.location.href = data.url;
       }
