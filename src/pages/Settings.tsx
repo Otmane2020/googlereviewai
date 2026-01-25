@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
-import { useNativePush } from "@/hooks/useNativePush";
 import { 
   User,
   Mail,
@@ -45,20 +44,22 @@ interface Profile {
 const SettingsPage = () => {
   const { user, session, signOut } = useAuth();
   const navigate = useNavigate();
-  const { 
-    permission: pushPermission, 
-    isSupported: pushSupported, 
-    isSubscribed: pushSubscribed, 
-    isLoading: pushLoading,
-    subscribe: subscribePush,
-    unsubscribe: unsubscribePush
-  } = useNativePush();
+  const [pushPermission, setPushPermission] = useState<NotificationPermission | "unsupported">("default");
   const [profile, setProfile] = useState<Profile | null>(null);
   const [fullName, setFullName] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
   const [openingPortal, setOpeningPortal] = useState(false);
+
+  // Check notification permission
+  useEffect(() => {
+    if ("Notification" in window) {
+      setPushPermission(Notification.permission);
+    } else {
+      setPushPermission("unsupported");
+    }
+  }, []);
 
   const fetchProfileData = async () => {
     if (!user) return;
@@ -145,71 +146,6 @@ const SettingsPage = () => {
     }
   };
 
-  // Handle push notification subscribe with feedback
-  const handleSubscribePush = async () => {
-    console.log("[Settings] handleSubscribePush called");
-    console.log("[Settings] Push state:", { pushSupported, pushSubscribed, pushPermission, pushLoading });
-    
-    // If permission is denied, show instructions instead of trying to subscribe
-    if (pushPermission === "denied") {
-      toast({
-        title: "Notifications bloquées",
-        description: "Cliquez sur 🔒 dans la barre d'adresse → Notifications → Autoriser, puis rechargez la page.",
-        duration: 10000,
-      });
-      return;
-    }
-    
-    const success = await subscribePush();
-    console.log("[Settings] Subscribe result:", success);
-    
-    if (success) {
-      toast({
-        title: "Notifications activées 🎉",
-        description: "Vous recevrez les alertes push même quand l'app est fermée.",
-      });
-    } else {
-      // Check permission after attempt
-      const currentPermission = typeof Notification !== "undefined" ? Notification.permission : "unsupported";
-      console.log("[Settings] Permission after attempt:", currentPermission);
-      
-      let errorMessage = "Impossible d'activer les notifications.";
-      let errorTitle = "Erreur";
-      
-      if (currentPermission === "denied") {
-        errorTitle = "Notifications bloquées";
-        errorMessage = "Cliquez sur 🔒 dans la barre d'adresse → Notifications → Autoriser, puis rechargez.";
-      } else if (!pushSupported) {
-        errorMessage = "Les notifications push ne sont pas supportées par ce navigateur.";
-      } else {
-        errorMessage = "Erreur technique lors de l'activation. Consultez la console pour plus de détails.";
-      }
-      
-      toast({
-        title: errorTitle,
-        description: errorMessage,
-        variant: "destructive",
-        duration: 8000,
-      });
-    }
-  };
-
-  // Handle push notification unsubscribe with feedback
-  const handleUnsubscribePush = async () => {
-    const success = await unsubscribePush();
-    if (success) {
-      toast({
-        title: "Notifications désactivées",
-        description: "Vous ne recevrez plus les alertes push.",
-      });
-    } else {
-      toast({
-        title: "Erreur",
-        description: "Impossible de désactiver les notifications.",
-        variant: "destructive",
-      });
-    }
-  };
 
   if (loading) {
     return (
@@ -412,13 +348,13 @@ const SettingsPage = () => {
           </div>
           
           <div className="space-y-4">
-            {/* Web Push Notifications */}
+            {/* Web Push Notifications - PushAlert handles this */}
             <div className="flex items-center justify-between p-4 bg-muted/50 rounded-xl">
               <div className="flex items-center gap-3">
                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                  pushSubscribed ? 'bg-green-500/10' : 'bg-muted'
+                  pushPermission === "granted" ? 'bg-green-500/10' : 'bg-muted'
                 }`}>
-                  {pushSubscribed ? (
+                  {pushPermission === "granted" ? (
                     <BellRing className="w-5 h-5 text-green-600" />
                   ) : (
                     <BellOff className="w-5 h-5 text-muted-foreground" />
@@ -429,36 +365,25 @@ const SettingsPage = () => {
                     Notifications Push
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    {!pushSupported 
+                    {pushPermission === "unsupported"
                       ? "Non supporté par ce navigateur"
-                      : pushSubscribed 
+                      : pushPermission === "granted" 
                         ? "Activées - Vous recevez les alertes"
-                        : "Cliquez pour activer les alertes"
+                        : pushPermission === "denied"
+                          ? "Bloquées - Autorisez dans le navigateur"
+                          : "Non configurées"
                     }
                   </p>
                 </div>
               </div>
-              {pushSupported && (
+              {pushPermission === "denied" && (
                 <Button
-                  variant={pushSubscribed ? "outline" : "default"}
+                  variant="outline"
                   size="sm"
-                  onClick={pushSubscribed ? handleUnsubscribePush : handleSubscribePush}
-                  disabled={pushLoading}
+                  onClick={() => window.location.reload()}
                   className="rounded-xl h-9 shrink-0"
                 >
-                  {pushLoading ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : pushSubscribed ? (
-                    <>
-                      <BellOff className="w-4 h-4 mr-1.5" />
-                      Désactiver
-                    </>
-                  ) : (
-                    <>
-                      <BellRing className="w-4 h-4 mr-1.5" />
-                      Activer
-                    </>
-                  )}
+                  Recharger
                 </Button>
               )}
             </div>

@@ -1,8 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNotifications } from "@/hooks/useNotifications";
-import { useNativePush } from "@/hooks/useNativePush";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { Button } from "@/components/ui/button";
@@ -11,15 +10,14 @@ import {
   Bell, 
   Search, 
   Star, 
-  MessageSquare, 
   Sparkles, 
   FileText,
   Target,
   MoreHorizontal,
   Loader2,
   CheckCheck,
-  SendHorizonal,
-  BellRing
+  BellRing,
+  BellOff
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -57,9 +55,18 @@ const Notifications = () => {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
-  const { isSubscribed, isTesting, testNotification, permission, subscribe, isLoading: pushLoading } = useNativePush();
   const [searchQuery, setSearchQuery] = useState("");
   const [showSearch, setShowSearch] = useState(false);
+  const [pushPermission, setPushPermission] = useState<NotificationPermission | "unsupported">("default");
+
+  // Check notification permission
+  useEffect(() => {
+    if ("Notification" in window) {
+      setPushPermission(Notification.permission);
+    } else {
+      setPushPermission("unsupported");
+    }
+  }, []);
 
   if (authLoading) {
     return (
@@ -95,7 +102,6 @@ const Notifications = () => {
   const handleNotificationClick = (notification: typeof notifications[0]) => {
     markAsRead(notification.id);
     
-    // Navigate to reviews with review_id filter if available
     if (notification.type === "new_review" && notification.review_id) {
       navigate(`/reviews?review_id=${notification.review_id}`);
     } else if (notification.type === "pending_reviews" || notification.review_id) {
@@ -123,7 +129,6 @@ const Notifications = () => {
         }`}
         onClick={() => handleNotificationClick(notification)}
       >
-        {/* Avatar with icon badge */}
         <div className="relative flex-shrink-0">
           <div className={`w-14 h-14 rounded-full ${color} flex items-center justify-center`}>
             <Icon className={`w-6 h-6 ${iconColor}`} />
@@ -133,7 +138,6 @@ const Notifications = () => {
           )}
         </div>
 
-        {/* Content */}
         <div className="flex-1 min-w-0">
           <p className={`text-sm leading-snug ${!notification.read ? "font-semibold" : "font-medium"}`}>
             <span className="text-foreground">{notification.title}</span>
@@ -145,7 +149,6 @@ const Notifications = () => {
           </p>
         </div>
 
-        {/* Menu */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
             <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0">
@@ -213,52 +216,40 @@ const Notifications = () => {
             </div>
           )}
           
-          {/* Push notification test/subscribe section */}
+          {/* Push notification status - PushAlert handles subscription */}
           <div className="px-4 py-3 border-t border-border/30">
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2">
-                <BellRing className="w-4 h-4 text-muted-foreground" />
+                {pushPermission === "granted" ? (
+                  <BellRing className="w-4 h-4 text-green-500" />
+                ) : (
+                  <BellOff className="w-4 h-4 text-muted-foreground" />
+                )}
                 <span className="text-sm text-muted-foreground">
-                  {isSubscribed ? "Notifications activées" : "Notifications désactivées"}
+                  {pushPermission === "granted" 
+                    ? "Notifications activées" 
+                    : pushPermission === "denied"
+                      ? "Notifications bloquées"
+                      : "Notifications non configurées"
+                  }
                 </span>
-                {permission === "denied" && (
-                  <span className="text-xs text-destructive">(bloquées)</span>
-                )}
               </div>
-              <div className="flex items-center gap-2">
-                {!isSubscribed && permission !== "denied" && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={subscribe}
-                    disabled={pushLoading}
-                    className="rounded-lg"
-                  >
-                    {pushLoading ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <Bell className="w-3 h-3 mr-1" />}
-                    Activer
-                  </Button>
-                )}
-                {isSubscribed && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={testNotification}
-                    disabled={isTesting}
-                    className="rounded-lg"
-                  >
-                    {isTesting ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <SendHorizonal className="w-3 h-3 mr-1" />}
-                    Tester
-                  </Button>
-                )}
-              </div>
-
-              {permission === "denied" && (
-                <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
-                  Pour recevoir des push, débloquez les notifications dans votre navigateur (icône 🔒 à gauche de l’URL →
-                  Notifications → Autoriser), puis rechargez la page.
-                </p>
+              {pushPermission === "denied" && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => window.location.reload()}
+                  className="rounded-lg text-xs"
+                >
+                  Recharger
+                </Button>
               )}
             </div>
+            {pushPermission === "denied" && (
+              <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
+                Cliquez sur 🔒 dans la barre d'adresse → Notifications → Autoriser
+              </p>
+            )}
           </div>
         </div>
 
@@ -275,7 +266,6 @@ const Notifications = () => {
           </div>
         ) : (
           <div>
-            {/* New notifications */}
             {newNotifications.length > 0 && (
               <div>
                 <div className="px-4 py-3 bg-muted/30">
@@ -289,7 +279,6 @@ const Notifications = () => {
               </div>
             )}
 
-            {/* Older notifications */}
             {olderNotifications.length > 0 && (
               <div>
                 <div className="px-4 py-3 bg-muted/30">
