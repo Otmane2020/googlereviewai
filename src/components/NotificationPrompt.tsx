@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { useFirebasePush } from "@/hooks/useFirebasePush";
+import { useNativePush } from "@/hooks/useNativePush";
 import { usePWA } from "@/hooks/usePWA";
 import { Button } from "@/components/ui/button";
 import { X, Bell, BellRing, Settings } from "lucide-react";
@@ -13,7 +13,7 @@ const ALLOWED_ROUTES = ["/dashboard", "/reviews", "/ai-settings", "/settings", "
 export const NotificationPrompt = () => {
   const { user, loading: authLoading } = useAuth();
   const location = useLocation();
-  const { permission, isSupported, isSubscribed, isLoading, subscribe } = useFirebasePush();
+  const { permission, isSupported, isSubscribed, isLoading, subscribe } = useNativePush();
   const { isInstalled, isStandalone, isIOS, canInstall } = usePWA();
   const [dismissed, setDismissed] = useState(false);
   const [showDelayed, setShowDelayed] = useState(false);
