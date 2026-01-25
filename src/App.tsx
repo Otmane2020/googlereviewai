@@ -49,23 +49,32 @@ const AppContent = () => {
   const [showSplash, setShowSplash] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [hasRunInit, setHasRunInit] = useState(false);
 
   useEffect(() => {
-    // Always show splash in standalone PWA mode on app launch
-    if (isStandalone) {
-      const hasSeenOnboarding = localStorage.getItem("starlinko_onboarding_completed");
+    // Only run initialization logic ONCE
+    if (hasRunInit) return;
+    
+    // Wait for isStandalone to stabilize (usePWA starts with false, then updates)
+    // We use a small delay to let the media query check complete
+    const timer = setTimeout(() => {
+      const standaloneNow = 
+        window.matchMedia("(display-mode: standalone)").matches ||
+        (window.navigator as any).standalone === true;
       
-      // Show splash on every app open in PWA mode
-      setShowSplash(true);
-      
-      // After splash, show onboarding only if first time
-      if (!hasSeenOnboarding) {
-        // Will show onboarding after splash
+      if (standaloneNow) {
+        const hasSeenOnboarding = localStorage.getItem("starlinko_onboarding_completed");
+        // Show splash on every app open in PWA mode
+        setShowSplash(true);
+        // Will show onboarding after splash if first time
+      } else {
+        setIsInitialized(true);
       }
-    } else {
-      setIsInitialized(true);
-    }
-  }, [isStandalone]);
+      setHasRunInit(true);
+    }, 50);
+
+    return () => clearTimeout(timer);
+  }, [hasRunInit]);
 
   const handleSplashComplete = () => {
     setShowSplash(false);
@@ -83,8 +92,8 @@ const AppContent = () => {
     localStorage.setItem("starlinko_onboarding_completed", "true");
   };
 
-  // Show loading state while initializing in non-PWA mode
-  if (!isStandalone && !isInitialized) {
+  // Show nothing while we determine standalone status
+  if (!hasRunInit) {
     return null;
   }
 
