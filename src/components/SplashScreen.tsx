@@ -28,13 +28,17 @@ export const SplashScreen = ({ onComplete }: SplashScreenProps) => {
       }}
     >
       <div className="flex flex-col items-center gap-4">
-        {/* Logo étoile jaune plate */}
-        <Star 
-          className="w-14 h-14" 
-          fill="#F5B800" 
-          stroke="#F5B800" 
-          strokeWidth={0}
-        />
+        {/* Logo étoile jaune avec ombre et point vert */}
+        <div className="relative">
+          <Star 
+            className="w-16 h-16 drop-shadow-[0_4px_8px_rgba(0,0,0,0.3)]" 
+            fill="#F5B800" 
+            stroke="#F5B800" 
+            strokeWidth={0}
+          />
+          {/* Point vert/cyan */}
+          <div className="absolute -right-1 bottom-1 w-3 h-3 rounded-full bg-[#2DD4BF] shadow-md" />
+        </div>
         
         {/* Brand avec Google G */}
         <div className="flex items-center gap-2">
