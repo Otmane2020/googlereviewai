@@ -45,6 +45,7 @@ const SettingsPage = () => {
   const { user, session, signOut } = useAuth();
   const navigate = useNavigate();
   const [pushPermission, setPushPermission] = useState<NotificationPermission | "unsupported">("default");
+  const [isSubscribedToPush, setIsSubscribedToPush] = useState<boolean>(true);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [fullName, setFullName] = useState("");
   const [loading, setLoading] = useState(true);
@@ -52,10 +53,13 @@ const SettingsPage = () => {
   const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
   const [openingPortal, setOpeningPortal] = useState(false);
 
-  // Check notification permission
+  // Check notification permission and subscription state
   useEffect(() => {
     if ("Notification" in window) {
       setPushPermission(Notification.permission);
+      // Check localStorage for opt-out state
+      const optedOut = localStorage.getItem("pushalert_opted_out") === "true";
+      setIsSubscribedToPush(!optedOut && Notification.permission === "granted");
     } else {
       setPushPermission("unsupported");
     }
@@ -352,9 +356,9 @@ const SettingsPage = () => {
             <div className="flex items-center justify-between p-4 bg-muted/50 rounded-xl">
               <div className="flex items-center gap-3">
                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                  pushPermission === "granted" ? 'bg-green-500/10' : 'bg-muted'
+                  pushPermission === "granted" && isSubscribedToPush ? 'bg-green-500/10' : 'bg-muted'
                 }`}>
-                  {pushPermission === "granted" ? (
+                  {pushPermission === "granted" && isSubscribedToPush ? (
                     <BellRing className="w-5 h-5 text-green-600" />
                   ) : (
                     <BellOff className="w-5 h-5 text-muted-foreground" />
@@ -367,17 +371,17 @@ const SettingsPage = () => {
                   <p className="text-xs text-muted-foreground">
                     {pushPermission === "unsupported"
                       ? "Non supporté par ce navigateur"
-                      : pushPermission === "granted" 
+                      : pushPermission === "granted" && isSubscribedToPush
                         ? "Activées - Vous recevez les alertes"
                         : pushPermission === "denied"
                           ? "Bloquées - Autorisez dans le navigateur"
-                          : "Non configurées"
+                          : "Désactivées"
                     }
                   </p>
                 </div>
               </div>
               <div className="flex gap-2">
-                {pushPermission === "granted" && (
+                {pushPermission === "granted" && isSubscribedToPush && (
                   <Button
                     variant="outline"
                     size="sm"
@@ -385,11 +389,12 @@ const SettingsPage = () => {
                       // PushAlert optOut - unsubscribe user
                       if (typeof window !== 'undefined' && (window as any).pushalertbyiw) {
                         ((window as any).pushalertbyiw = (window as any).pushalertbyiw || []).push(['optOut']);
+                        localStorage.setItem("pushalert_opted_out", "true");
+                        setIsSubscribedToPush(false);
                         toast({
                           title: "Notifications désactivées",
                           description: "Vous ne recevrez plus de notifications push.",
                         });
-                        setPushPermission("default");
                       }
                     }}
                     className="rounded-xl h-9 shrink-0"
@@ -398,12 +403,34 @@ const SettingsPage = () => {
                     Désactiver
                   </Button>
                 )}
-                {pushPermission === "default" && (
+                {pushPermission === "granted" && !isSubscribedToPush && (
                   <Button
                     variant="default"
                     size="sm"
                     onClick={() => {
                       // PushAlert forceSubscribe - re-subscribe user (regenerates token)
+                      if (typeof window !== 'undefined') {
+                        ((window as any).pushalertbyiw = (window as any).pushalertbyiw || []).push(['forceSubscribe']);
+                        localStorage.removeItem("pushalert_opted_out");
+                        setIsSubscribedToPush(true);
+                        toast({
+                          title: "Notifications réactivées",
+                          description: "Vous recevrez à nouveau les alertes.",
+                        });
+                      }
+                    }}
+                    className="rounded-xl h-9 shrink-0"
+                  >
+                    <Bell className="w-4 h-4 mr-1" />
+                    Réactiver
+                  </Button>
+                )}
+                {pushPermission === "default" && (
+                  <Button
+                    variant="default"
+                    size="sm"
+                    onClick={() => {
+                      // First time subscription
                       if (typeof window !== 'undefined') {
                         ((window as any).pushalertbyiw = (window as any).pushalertbyiw || []).push(['forceSubscribe']);
                         toast({
