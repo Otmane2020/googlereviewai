@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
-import { useFirebasePush } from "@/hooks/useFirebasePush";
+import { useNativePush } from "@/hooks/useNativePush";
 import { 
   User,
   Mail,
@@ -52,7 +52,7 @@ const SettingsPage = () => {
     isLoading: pushLoading,
     subscribe: subscribePush,
     unsubscribe: unsubscribePush
-  } = useFirebasePush();
+  } = useNativePush();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [fullName, setFullName] = useState("");
   const [loading, setLoading] = useState(true);

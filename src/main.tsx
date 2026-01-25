@@ -3,39 +3,39 @@ import App from "./App.tsx";
 import "./index.css";
 
 // Important: Keep a SINGLE service worker at scope '/'.
-// Having both a PWA SW and a Firebase Messaging SW causes push to be unreliable
-// because only one SW can control a given scope.
-async function ensureFirebaseServiceWorker() {
+// Native Web Push SW for notifications.
+async function ensurePushServiceWorker() {
   if (!("serviceWorker" in navigator)) return;
 
   try {
     const regs = await navigator.serviceWorker.getRegistrations();
 
-    // Unregister anything that isn't the Firebase messaging SW.
+    // Unregister old Firebase SW if present
     await Promise.all(
       regs.map(async (reg) => {
         const scriptUrl = reg.active?.scriptURL || reg.installing?.scriptURL || reg.waiting?.scriptURL || "";
-        const isFirebaseSw = scriptUrl.includes("/firebase-messaging-sw.js");
-        if (!isFirebaseSw) {
+        if (scriptUrl.includes("/firebase-messaging-sw.js")) {
           await reg.unregister();
+          console.log("[SW] Unregistered old Firebase SW");
         }
       })
     );
 
-    // Ensure Firebase SW is registered.
+    // Ensure native push SW is registered
     const existing = await navigator.serviceWorker.getRegistration("/");
     const existingUrl = existing?.active?.scriptURL || "";
-    if (!existing || !existingUrl.includes("/firebase-messaging-sw.js")) {
-      await navigator.serviceWorker.register("/firebase-messaging-sw.js", { scope: "/" });
+    if (!existing || !existingUrl.includes("/sw.js")) {
+      await navigator.serviceWorker.register("/sw.js", { scope: "/" });
+      console.log("[SW] Registered native push SW");
     }
 
-    // Don't await ready - let SW activate in background to avoid loops
+    // Don't await ready - let SW activate in background
   } catch (e) {
-    console.warn("[SW] Failed to ensure Firebase service worker:", e);
+    console.warn("[SW] Failed to ensure push service worker:", e);
   }
 }
 
 // Fire-and-forget (no need to block initial render)
-ensureFirebaseServiceWorker();
+ensurePushServiceWorker();
 
 createRoot(document.getElementById("root")!).render(<App />);

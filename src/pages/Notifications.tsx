@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNotifications } from "@/hooks/useNotifications";
-import { useFirebasePush } from "@/hooks/useFirebasePush";
+import { useNativePush } from "@/hooks/useNativePush";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { Button } from "@/components/ui/button";
@@ -57,7 +57,7 @@ const Notifications = () => {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
-  const { isSubscribed, isTesting, testNotification, permission, subscribe, isLoading: pushLoading } = useFirebasePush();
+  const { isSubscribed, isTesting, testNotification, permission, subscribe, isLoading: pushLoading } = useNativePush();
   const [searchQuery, setSearchQuery] = useState("");
   const [showSearch, setShowSearch] = useState(false);
 
