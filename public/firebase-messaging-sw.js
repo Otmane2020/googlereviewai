@@ -73,10 +73,9 @@ self.addEventListener('notificationclick', (event) => {
   );
 });
 
-// Install event
+// Install event - do NOT call skipWaiting() to prevent reload loops
 self.addEventListener('install', (event) => {
   console.log('[firebase-messaging-sw.js] Installing');
-  self.skipWaiting();
 });
 
 // Activate event

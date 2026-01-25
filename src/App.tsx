@@ -51,20 +51,25 @@ const AppContent = () => {
   const [isInitialized, setIsInitialized] = useState(false);
   const [hasRunInit, setHasRunInit] = useState(false);
 
-  // Anti-loop protection: detect excessive reloads
+  // Anti-loop protection: detect excessive reloads and force initialization
   useEffect(() => {
     const reloadCount = parseInt(sessionStorage.getItem("app_reload_count") || "0");
-    if (reloadCount > 3) {
-      console.warn("Too many reloads detected, breaking loop");
+    
+    // After 2 reloads in 3 seconds, force initialization and break the loop
+    if (reloadCount > 1) {
+      console.warn("Breaking reload loop - forcing initialization");
       sessionStorage.removeItem("app_reload_count");
+      setIsInitialized(true);
+      setHasRunInit(true);
       return;
     }
+    
     sessionStorage.setItem("app_reload_count", String(reloadCount + 1));
     
-    // Clear counter after 5 seconds of stability
+    // Clear counter after 3 seconds of stability
     const clearTimer = setTimeout(() => {
       sessionStorage.removeItem("app_reload_count");
-    }, 5000);
+    }, 3000);
     
     return () => clearTimeout(clearTimer);
   }, []);

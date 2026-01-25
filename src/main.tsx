@@ -29,8 +29,7 @@ async function ensureFirebaseServiceWorker() {
       await navigator.serviceWorker.register("/firebase-messaging-sw.js", { scope: "/" });
     }
 
-    // Make sure it's controlling the page.
-    await navigator.serviceWorker.ready;
+    // Don't await ready - let SW activate in background to avoid loops
   } catch (e) {
     console.warn("[SW] Failed to ensure Firebase service worker:", e);
   }
