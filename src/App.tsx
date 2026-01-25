@@ -51,22 +51,36 @@ const AppContent = () => {
   const [isInitialized, setIsInitialized] = useState(false);
   const [hasRunInit, setHasRunInit] = useState(false);
 
+  // Anti-loop protection: detect excessive reloads
+  useEffect(() => {
+    const reloadCount = parseInt(sessionStorage.getItem("app_reload_count") || "0");
+    if (reloadCount > 3) {
+      console.warn("Too many reloads detected, breaking loop");
+      sessionStorage.removeItem("app_reload_count");
+      return;
+    }
+    sessionStorage.setItem("app_reload_count", String(reloadCount + 1));
+    
+    // Clear counter after 5 seconds of stability
+    const clearTimer = setTimeout(() => {
+      sessionStorage.removeItem("app_reload_count");
+    }, 5000);
+    
+    return () => clearTimeout(clearTimer);
+  }, []);
+
   useEffect(() => {
     // Only run initialization logic ONCE
     if (hasRunInit) return;
     
     // Wait for isStandalone to stabilize (usePWA starts with false, then updates)
-    // We use a small delay to let the media query check complete
     const timer = setTimeout(() => {
       const standaloneNow = 
         window.matchMedia("(display-mode: standalone)").matches ||
         (window.navigator as any).standalone === true;
       
       if (standaloneNow) {
-        const hasSeenOnboarding = localStorage.getItem("starlinko_onboarding_completed");
-        // Show splash on every app open in PWA mode
         setShowSplash(true);
-        // Will show onboarding after splash if first time
       } else {
         setIsInitialized(true);
       }

@@ -55,9 +55,8 @@ export const usePWA = () => {
             if (newWorker) {
               newWorker.addEventListener("statechange", () => {
                 if (newWorker.state === "installed" && navigator.serviceWorker.controller) {
-                  // New content available, auto-refresh
+                  // Signal update available WITHOUT auto-reloading (prevents infinite loop)
                   setNeedRefresh(true);
-                  window.location.reload();
                 }
               });
             }
