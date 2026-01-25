@@ -36,7 +36,7 @@ export const StarlinkoLogo = ({ className = "", showBadge = true }: StarlinkoLog
     <div className={`flex items-center gap-2 ${className}`}>
       <div className="relative">
         <FivePointedStar className="h-7 w-7 sm:h-8 sm:w-8 text-accent" />
-        <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-secondary rounded-full animate-pulse" />
+        <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-secondary rounded-full" />
       </div>
       <div className="flex items-baseline gap-1">
         <span className="text-lg sm:text-xl font-bold tracking-tight">Starlinko</span>
