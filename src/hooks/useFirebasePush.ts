@@ -80,7 +80,9 @@ export const useFirebasePush = (): UseFirebasePushReturn => {
   // The client-side DB check can fail due to policies/network, while FCM can still deliver messages.
   // If the browser permission is granted and Firebase messaging is supported, we should listen.
   useEffect(() => {
-    if (!isSupported || !user || permission !== "granted") return;
+    // Foreground toasts should work even if the user is on a public page or DB checks fail.
+    // If the browser can receive FCM and permission is granted, listen.
+    if (!isSupported || permission !== "granted") return;
 
     let unsubscribe: (() => void) | null = null;
 
@@ -135,7 +137,7 @@ export const useFirebasePush = (): UseFirebasePushReturn => {
         unsubscribe();
       }
     };
-  }, [isSupported, user, permission]);
+  }, [isSupported, permission]);
 
   // Subscribe to FCM - FIREBASE ONLY, no browser notification API
   const subscribe = useCallback(async (): Promise<boolean> => {
@@ -155,20 +157,22 @@ export const useFirebasePush = (): UseFirebasePushReturn => {
     setIsLoading(true);
 
     try {
-      // Step 1: Register Firebase service worker FIRST
-      console.log("[useFirebasePush] Step 1: Registering Firebase service worker...");
+      // Step 1: Ensure Firebase service worker is registered
+      console.log("[useFirebasePush] Step 1: Ensuring Firebase service worker...");
       let swRegistration: ServiceWorkerRegistration;
       
       try {
-        // Check for existing registration
-        const existingReg = await navigator.serviceWorker.getRegistration("/firebase-messaging-sw.js");
-        if (existingReg) {
-          console.log("[useFirebasePush] ✅ SW already registered:", existingReg.scope);
+        // Always prefer the SW controlling scope '/'
+        const existingReg = await navigator.serviceWorker.getRegistration("/");
+        const existingUrl = existingReg?.active?.scriptURL || "";
+
+        if (existingReg && existingUrl.includes("/firebase-messaging-sw.js")) {
+          console.log("[useFirebasePush] ✅ Firebase SW already active:", existingReg.scope);
           swRegistration = existingReg;
         } else {
-          console.log("[useFirebasePush] Registering new SW...");
-          swRegistration = await navigator.serviceWorker.register("/firebase-messaging-sw.js");
-          console.log("[useFirebasePush] ✅ SW registered:", swRegistration.scope);
+          console.log("[useFirebasePush] Registering Firebase SW at '/' scope...");
+          swRegistration = await navigator.serviceWorker.register("/firebase-messaging-sw.js", { scope: "/" });
+          console.log("[useFirebasePush] ✅ Firebase SW registered:", swRegistration.scope);
         }
         
         // Wait for SW to be ready
