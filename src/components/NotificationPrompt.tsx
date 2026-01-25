@@ -2,8 +2,18 @@ import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { usePWA } from "@/hooks/usePWA";
 import { Button } from "@/components/ui/button";
-import { X, Bell, BellRing, Settings } from "lucide-react";
+import { X, Bell, Settings } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "@/hooks/use-toast";
+
+declare global {
+  interface Window {
+    PushAlertCo?: {
+      forceSubscribe: (callbacks?: { onSuccess?: () => void; onFailure?: () => void }) => void;
+      getSubsInfo: () => { status: string };
+    };
+  }
+}
 
 // Pages where the notification prompt should appear
 const ALLOWED_ROUTES = ["/dashboard", "/reviews", "/ai-settings", "/settings", "/businesses", "/seo-autopost", "/aeo-rank", "/maps-rank", "/notifications"];
@@ -15,14 +25,35 @@ export const NotificationPrompt = () => {
   const [dismissed, setDismissed] = useState(false);
   const [showDelayed, setShowDelayed] = useState(false);
   const [permission, setPermission] = useState<NotificationPermission | "unsupported">("default");
+  const [isSubscribing, setIsSubscribing] = useState(false);
+  const [isAlreadySubscribed, setIsAlreadySubscribed] = useState(false);
 
-  // Check notification permission
+  // Check notification permission and PushAlert subscription status
   useEffect(() => {
     if ("Notification" in window) {
       setPermission(Notification.permission);
     } else {
       setPermission("unsupported");
     }
+
+    // Check PushAlert subscription status
+    const checkSubscription = () => {
+      if (window.PushAlertCo) {
+        try {
+          const info = window.PushAlertCo.getSubsInfo();
+          if (info?.status === "subscribed") {
+            setIsAlreadySubscribed(true);
+          }
+        } catch (e) {
+          // SDK not ready yet
+        }
+      }
+    };
+
+    // Check immediately and after a delay (SDK may not be ready)
+    checkSubscription();
+    const timeout = setTimeout(checkSubscription, 2000);
+    return () => clearTimeout(timeout);
   }, []);
 
   // Check if we're on an allowed route
@@ -54,15 +85,53 @@ export const NotificationPrompt = () => {
       const timeout = setTimeout(() => setShowDelayed(true), 15000);
       return () => clearTimeout(timeout);
     } else {
-      const timeout = setTimeout(() => setShowDelayed(true), 1500);
+      const timeout = setTimeout(() => setShowDelayed(true), 2000);
       return () => clearTimeout(timeout);
     }
   }, [isInstalled, isStandalone, canInstall, isIOS]);
 
   const handleDismiss = () => {
-    if (permission === "denied") return;
     setDismissed(true);
     localStorage.setItem("notification-prompt-dismissed", Date.now().toString());
+  };
+
+  const handleSubscribe = () => {
+    setIsSubscribing(true);
+    
+    if (window.PushAlertCo) {
+      window.PushAlertCo.forceSubscribe({
+        onSuccess: () => {
+          setIsSubscribing(false);
+          setIsAlreadySubscribed(true);
+          setDismissed(true);
+          toast({
+            title: "Notifications activées",
+            description: "Vous recevrez les alertes pour vos avis Google",
+          });
+        },
+        onFailure: () => {
+          setIsSubscribing(false);
+          toast({
+            title: "Notifications non activées",
+            description: "Vous pouvez les activer plus tard dans les paramètres",
+            variant: "destructive",
+          });
+        }
+      });
+    } else {
+      // Fallback: request native permission
+      Notification.requestPermission().then((result) => {
+        setIsSubscribing(false);
+        setPermission(result);
+        if (result === "granted") {
+          setDismissed(true);
+          toast({
+            title: "Notifications activées",
+            description: "Vous recevrez les alertes pour vos avis Google",
+          });
+        }
+      });
+    }
   };
 
   // Wait for auth to load
@@ -71,45 +140,86 @@ export const NotificationPrompt = () => {
   const isBlocked = permission === "denied";
   const isGranted = permission === "granted";
 
-  // Don't show if already granted (PushAlert will handle), dismissed, no user, or not on allowed route
-  if (isGranted || (dismissed && !isBlocked) || !user || !isAllowedRoute || !showDelayed) {
+  // Don't show if already subscribed, dismissed, no user, or not on allowed route
+  if (isAlreadySubscribed || (dismissed && !isBlocked) || !user || !isAllowedRoute || !showDelayed) {
     return null;
   }
 
-  // PushAlert handles the subscription automatically via its SDK
-  // This component just informs users about blocked notifications
-  if (!isBlocked) {
-    // If not blocked and not granted, PushAlert's native prompt will appear
-    return null;
+  // Show blocked message when notifications are denied
+  if (isBlocked) {
+    return (
+      <div className="fixed top-20 left-4 right-4 z-40 animate-fade-in">
+        <div className="bg-destructive/10 border-destructive/30 border rounded-2xl shadow-2xl p-4 max-w-sm mx-auto">
+          <div className="flex items-start gap-3">
+            <div className="p-2.5 rounded-xl flex-shrink-0 bg-destructive/20">
+              <Settings className="w-6 h-6 text-destructive" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="font-semibold text-sm mb-1">Notifications bloquées</h3>
+              <p className="text-xs text-muted-foreground mb-3">
+                Cliquez sur 🔒 dans la barre d'adresse → Notifications → Autoriser
+              </p>
+              <div className="flex gap-2">
+                <Button 
+                  size="sm" 
+                  onClick={() => window.location.reload()}
+                  className="flex-1 h-9"
+                  variant="outline"
+                >
+                  Recharger après avoir autorisé
+                </Button>
+                <Button size="sm" variant="ghost" onClick={handleDismiss} className="h-9 px-3">
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
-  // Show only when blocked to guide users
+  // Show custom subscription prompt (replaces PushAlert widget)
   return (
     <div className="fixed top-20 left-4 right-4 z-40 animate-fade-in">
-      <div className="bg-destructive/10 border-destructive/30 border rounded-2xl shadow-2xl p-4 max-w-sm mx-auto">
+      <div className="bg-card border border-border rounded-2xl shadow-2xl p-4 max-w-sm mx-auto">
         <div className="flex items-start gap-3">
-          <div className="p-2.5 rounded-xl flex-shrink-0 bg-destructive/20">
-            <Settings className="w-6 h-6 text-destructive" />
+          <div className="p-2.5 rounded-xl flex-shrink-0 bg-primary/10">
+            <Bell className="w-6 h-6 text-primary" />
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-sm mb-1">Notifications bloquées</h3>
+            <h3 className="font-semibold text-sm mb-1">Activer les notifications</h3>
             <p className="text-xs text-muted-foreground mb-3">
-              Cliquez sur 🔒 dans la barre d'adresse → Notifications → Autoriser
+              Recevez une alerte instantanée à chaque nouvel avis Google
             </p>
             <div className="flex gap-2">
               <Button 
                 size="sm" 
-                onClick={() => window.location.reload()}
-                className="flex-1 h-9"
-                variant="outline"
+                variant="ghost"
+                onClick={handleDismiss}
+                className="h-9 px-4"
+                disabled={isSubscribing}
               >
-                Recharger après avoir autorisé
+                Plus tard
               </Button>
-              <Button size="sm" variant="ghost" onClick={handleDismiss} className="h-9 px-3">
-                <X className="w-4 h-4" />
+              <Button 
+                size="sm" 
+                onClick={handleSubscribe}
+                className="flex-1 h-9 bg-primary hover:bg-primary/90"
+                disabled={isSubscribing}
+              >
+                {isSubscribing ? "Activation..." : "Activer"}
               </Button>
             </div>
           </div>
+          <Button 
+            size="sm" 
+            variant="ghost" 
+            onClick={handleDismiss} 
+            className="h-8 w-8 p-0 -mt-1 -mr-1"
+          >
+            <X className="w-4 h-4" />
+          </Button>
         </div>
       </div>
     </div>
