@@ -18,6 +18,9 @@ export const NotificationPrompt = () => {
   const [dismissed, setDismissed] = useState(false);
   const [showDelayed, setShowDelayed] = useState(false);
 
+  // Determine if permission is blocked
+  const isBlocked = permission === "denied";
+
   // Check if we're on an allowed route
   const isAllowedRoute = ALLOWED_ROUTES.some(route => location.pathname.startsWith(route));
 
@@ -72,6 +75,10 @@ export const NotificationPrompt = () => {
   }, [isInstalled, isStandalone, canInstall, isIOS]);
 
   const handleDismiss = () => {
+    // If notifications are blocked, keep the prompt visible so the user always has access
+    // to the unblock instructions.
+    if (isBlocked) return;
+
     setDismissed(true);
     localStorage.setItem("notification-prompt-dismissed", Date.now().toString());
   };
@@ -137,13 +144,17 @@ export const NotificationPrompt = () => {
   // This happens when a user subscribed in the past but later blocked notifications in the browser/OS.
   const shouldHideBecauseSubscribed = isSubscribed && permission !== "denied";
 
+  // If permission is denied, do NOT allow a previous dismissal to hide the guidance.
+  const shouldHideBecauseDismissed = dismissed && !isBlocked;
+
   // Don't show if: not supported, already subscribed (and permission not denied), user dismissed, no user, or not on allowed route
-  if (!isSupported || shouldHideBecauseSubscribed || dismissed || !user || !isAllowedRoute) {
+  if (!isSupported || shouldHideBecauseSubscribed || shouldHideBecauseDismissed || !user || !isAllowedRoute) {
     console.log("[NotificationPrompt] Not showing because:", {
       isSupported,
       isSubscribed,
       shouldHideBecauseSubscribed,
       dismissed,
+      shouldHideBecauseDismissed,
       hasUser: !!user,
       isAllowedRoute,
       currentPath: location.pathname,
@@ -156,9 +167,6 @@ export const NotificationPrompt = () => {
   if (!showDelayed) {
     return null;
   }
-
-  // Determine if permission is blocked
-  const isBlocked = permission === "denied";
 
   return (
     <div className="fixed top-20 left-4 right-4 z-40 animate-fade-in">
