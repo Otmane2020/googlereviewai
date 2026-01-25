@@ -149,10 +149,14 @@ const AppContent = () => {
               <Route path="/admin" element={<Admin />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
-            {/* Global prompts */}
+          </OAuthCallback>
+        )}
+        {/* Global prompts - outside OAuthCallback to avoid ref issues */}
+        {isInitialized && !showSplash && !showOnboarding && (
+          <>
             <InstallPrompt />
             <NotificationPrompt />
-          </OAuthCallback>
+          </>
         )}
       </TrackingWrapper>
     </BrowserRouter>
