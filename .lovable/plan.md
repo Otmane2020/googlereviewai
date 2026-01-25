@@ -1,128 +1,99 @@
 
-# Plan d'amélioration de Maps Rank
+Objectif (immédiat)
+- Faire afficher 65 (comme sur Google) au lieu de 66 dans l’app, sans supprimer aveuglément des avis.
+- Corriger/fiabiliser les notifications push (et fournir un test “visible” simple).
 
-## Problèmes identifiés
+Constat (depuis le code + données backend)
+- Pour benyahya.otmane@gmail.com (user_id e26f003b-1610-4eb3-ac80-e61e2513caee), la base contient 66 avis synchronisés pour le lieu 15834486420159917356.
+- Le Dashboard calcule “Total avis” via `allReviews.length` (donc 66).
+- Les fonctions de sync suppriment un avis uniquement s’il est absent de la réponse “list reviews”. Or Google peut afficher 65 publiquement tout en renvoyant 66 au propriétaire via l’API (avis filtré/spam/modération). Dans ce cas, le cron ne “détecte” rien, car l’avis n’est pas réellement absent côté API.
+- Bonne nouvelle : l’API `reviews.list` expose un champ `totalReviewCount` (compte “Google”) dans la réponse. On ne l’utilise pas aujourd’hui.
 
-1. **Visualisation confuse** : Difficile de voir son propre positionnement parmi les points
-2. **Labels incorrects** : Les labels "A1, B2, etc." ne sont pas intuitifs et manquent de contexte
-3. **Aucune gestion de mots-clés** : Pas de système pour sauvegarder/réutiliser les mots-clés testés
-4. **Pas de lien avec AEO/SEO** : Les résultats Maps Rank ne guident pas la création de contenu
+Partie A — Corriger le “Total avis” (65 vs 66) de façon robuste
+Approche choisie
+- Afficher le “Total avis (Google)” depuis `totalReviewCount` renvoyé par Google, au lieu de compter les lignes locales.
+- Garder la synchro détaillée (66 lignes) pour le traitement interne (réponses, historique, etc.) mais ne pas l’utiliser pour le chiffre public.
 
----
+Changements à implémenter
+1) Mettre à jour la sync pour stocker le compteur Google dans la table `businesses`
+- La table `businesses` a déjà les colonnes `total_reviews` et `rating` (actuellement total_reviews=0 pour Sweet Deco).
+- Modifier les fonctions backend de sync des avis pour récupérer et persister :
+  - `totalReviewCount` → `businesses.total_reviews`
+  - `averageRating` → `businesses.rating`
+- À faire dans :
+  - `supabase/functions/sync-google-reviews/index.ts`
+  - `supabase/functions/cron-sync-reviews/index.ts`
+- Détail technique :
+  - Lors du fetch `reviews.list`, lire `totalReviewCount`/`averageRating` de la réponse (sur la première page ou chaque page, peu importe ; on mettra à jour à la fin de la sync d’un lieu).
+  - Relier le lieu Google (locationId) à `businesses.google_place_id` (c’est déjà le mapping utilisé ailleurs).
+  - Faire un `update businesses set total_reviews=?, rating=?, updated_at=now()` pour le business correspondant (si présent et actif).
 
-## Solution proposée
+2) Mettre à jour l’UI pour afficher le bon chiffre
+- Dashboard (`src/pages/Dashboard.tsx`)
+  - Remplacer `stats.total = allReviews.length` par une valeur basée sur `businesses.total_reviews` (somme des businesses actives).
+  - Conserver éventuellement un “Avis synchronisés” (optionnel) = `allReviews.length` pour transparence (mais le “Total avis” doit suivre Google).
+- Reviews (`src/pages/Reviews.tsx`)
+  - Le “total” par établissement doit être `selectedBusiness.total_reviews` (si présent), sinon fallback sur `businessReviews.length`.
+- Résultat attendu : Sweet Deco affiche 65 avis (comme la capture), même si 66 lignes restent en base.
 
-### 1. Améliorer la visualisation du positionnement
+3) (Optionnel mais recommandé) Clarifier l’origine du chiffre
+- Ajouter un label/tooltip “Total avis (Google)” pour éviter la confusion “synchro vs affichage public”.
 
-**Problème** : On ne voit pas clairement où on est classé.
+Partie B — “En attente” incohérent (6 vs 5) + cohérence des stats
+Constat actuel pour ce user :
+- En base : pending=5 (non publié + pas de google_reply), total=66.
+- Si Google “public” est 65, il est probable que l’avis “fantôme” influence aussi le compteur “en attente” côté app.
 
-**Solution** :
-- Ajouter un **score de visibilité global** en gros (ex: "72% visible en Top 10")
-- Afficher clairement **"VOUS"** sur le marker central avec votre nom d'établissement
-- Ajouter une **heatmap visuelle** montrant les zones fortes/faibles
-- Améliorer les popups avec **votre position mise en évidence** dans la liste des concurrents
+Changements à implémenter (cohérents avec la Partie A)
+1) Décorréler “Total avis (Google)” de “Avis en attente”
+- “Total avis (Google)” vient de `businesses.total_reviews`.
+- “Avis en attente” doit représenter les avis réellement traitables : on garde la logique sur les lignes locales (non répondu sur Google), MAIS on affiche aussi une explication si `businessReviews.length !== total_reviews` (ex: “1 avis est visible côté API mais pas affiché publiquement par Google”).
+2) Si vous exigez “pending” calé sur Google :
+- (Étape ultérieure si nécessaire) Ajouter une option manuelle “Masquer cet avis des stats” (archivage) pour exclure 1 avis précis des compteurs. Cela nécessite un petit champ en base (ex: `reviews.archived_at`) + bouton UI.
+- Vu l’urgence, je propose d’abord la solution “Total avis via Google” (Partie A) qui règle le 65 immédiatement, puis on ajuste “pending” si vous confirmez quel avis est le “fantôme”.
 
-### 2. Corriger les labels et ajouter du contexte
+Partie C — Notifications push “ne fonctionne pas”
+Constats techniques dans le code
+- Le service worker (`public/firebase-messaging-sw.js`) affiche bien les notifications en arrière-plan.
+- Il manque un handler “foreground” (`onMessage`) : quand l’app est ouverte, un push peut ne rien afficher visuellement.
+- Le backend `send-push-notification` est potentiellement appelable sans contrôle strict d’identité (risque). Il faut sécuriser.
 
-**Problème** : "Point A1" ne veut rien dire.
+Changements à implémenter
+1) Ajouter la réception “foreground” (app ouverte)
+- Ajouter un petit module/hook (ou compléter `useFirebasePush`) qui enregistre `onMessage(messaging, ...)` pour :
+  - afficher un toast in-app (sonner) dès qu’un push arrive
+  - (optionnel) déclencher une Notification native si souhaité et permission ok
+2) Ajouter un bouton “Tester les notifications” dans l’écran Notifications (ou Settings)
+- Action : appeler un backend function “test-push” (nouvelle fonction dédiée) qui envoie une notification à l’utilisateur courant.
+- Résultat : vous pouvez confirmer sur téléphone/desktop en 1 clic.
+3) Sécuriser l’envoi push
+- Modifier `send-push-notification` (ou n’exposer que “test-push”) pour exiger un appel authentifié et vérifier :
+  - user connecté
+  - `user.id === user_id` (sauf appels service role internes)
+- Objectif : éviter qu’un client puisse envoyer des push à n’importe quel user_id.
 
-**Solution** :
-- Remplacer les labels par des **directions géographiques** (Nord, Sud-Est, Centre, etc.)
-- Afficher la **distance approximative** du centre ("À 2km au Nord")
-- Ajouter une **info-bulle au survol** avant le clic
+Vérifications après implémentation
+1) Lancer une sync avis (manuelle) puis vérifier :
+- `businesses.total_reviews` passe à 65 pour Sweet Deco
+- Dashboard affiche 65 en “Total avis”
+- Reviews affiche 65 pour l’établissement
+2) Tester push :
+- Cliquer “Tester les notifications” → notification visible (app fermée ou PWA) + toast si app ouverte
+3) Vérifier que les jobs planifiés existent et tournent :
+- `auto-respond-reviews` est bien planifié toutes les 5 minutes (déjà présent)
+- `cron-sync-reviews` tourne (déjà présent)
 
-### 3. Système de gestion des mots-clés
+Livrables (fichiers impactés)
+- Backend functions :
+  - supabase/functions/sync-google-reviews/index.ts (persist totalReviewCount/averageRating)
+  - supabase/functions/cron-sync-reviews/index.ts (persist totalReviewCount/averageRating)
+  - supabase/functions/send-push-notification/index.ts (sécurisation) OU nouvelle fonction test dédiée
+- Frontend :
+  - src/pages/Dashboard.tsx (Total avis basé sur businesses.total_reviews)
+  - src/pages/Reviews.tsx (Total avis basé sur selectedBusiness.total_reviews)
+  - src/hooks/useFirebasePush.ts (ajout onMessage + état)
+  - src/pages/Notifications.tsx ou src/pages/Settings.tsx (bouton “Tester notifications”)
 
-**Problème** : Aucun historique des mots-clés, on doit tout retaper.
-
-**Solution** :
-- Créer une **table `maps_rank_keywords`** pour stocker les mots-clés par établissement
-- Afficher les **mots-clés récents** en chips cliquables
-- **Suggérer des mots-clés** basés sur les catégories de l'établissement
-- Permettre de **comparer l'évolution** d'un mot-clé dans le temps
-
-### 4. Liaison avec AEO et SEO
-
-**Problème** : Les données Maps Rank ne sont pas utilisées pour améliorer le contenu.
-
-**Solution** :
-- Bouton **"Améliorer ce mot-clé"** qui envoie vers AEO/SEO avec le mot-clé pré-rempli
-- Section **"Recommandations"** basée sur les résultats :
-  - Si mal classé → "Générer du contenu Q&A pour ce mot-clé"
-  - Analyse des **concurrents forts** → "Ils sont mieux classés sur ces termes"
-- Stocker le **dernier rang moyen par mot-clé** dans `businesses` pour suivi
-
----
-
-## Changements techniques
-
-### Base de données
-
-```text
-Nouvelle table : maps_rank_keywords
-┌─────────────────┬───────────────┬─────────────────────────────────┐
-│ Colonne         │ Type          │ Description                     │
-├─────────────────┼───────────────┼─────────────────────────────────┤
-│ id              │ uuid          │ Identifiant unique              │
-│ user_id         │ uuid          │ Propriétaire                    │
-│ business_id     │ uuid          │ Établissement lié               │
-│ keyword         │ text          │ Mot-clé                         │
-│ last_avg_rank   │ numeric       │ Dernier rang moyen obtenu       │
-│ scan_count      │ integer       │ Nombre de scans effectués       │
-│ last_scanned_at │ timestamp     │ Date du dernier scan            │
-│ created_at      │ timestamp     │ Date de création                │
-└─────────────────┴───────────────┴─────────────────────────────────┘
-```
-
-### Fichiers modifiés
-
-| Fichier | Modifications |
-|---------|---------------|
-| `src/pages/MapsRank.tsx` | Refonte UI complète avec score de visibilité, suggestions de mots-clés, boutons de liaison AEO/SEO |
-| `src/components/RankingMap.tsx` | Labels directionnels, meilleure mise en évidence du positionnement, heatmap optionnelle |
-| `supabase/functions/check-maps-ranking/index.ts` | Sauvegarde des mots-clés utilisés et mise à jour du rang moyen |
-
-### Nouveaux composants
-
-| Composant | Rôle |
-|-----------|------|
-| `KeywordChips.tsx` | Affiche les mots-clés récents en chips cliquables |
-| `RankRecommendations.tsx` | Suggestions d'amélioration basées sur les résultats |
-| `VisibilityScore.tsx` | Score de visibilité global avec jauge visuelle |
-
----
-
-## Interface améliorée (aperçu)
-
-```text
-┌────────────────────────────────────────────────────────────────┐
-│  Maps Rank - Restaurant La Bella Italia                        │
-├────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│  ┌─────────────────┐  Score de visibilité : ████████░░ 72%     │
-│  │ Mots-clés       │                                           │
-│  │ [restaurant italien] [pizza] [+ Ajouter]                    │
-│  │                 │                                           │
-│  │ Suggestions:    │  ┌──────────────────────────────────────┐ │
-│  │ • trattoria     │  │            CARTE                     │ │
-│  │ • pasta         │  │      ●2   ●3   ●5                    │ │
-│  └─────────────────┘  │         ★ VOUS                       │ │
-│                       │      ●1   ●-   ●4                    │ │
-│  ┌─────────────────┐  └──────────────────────────────────────┘ │
-│  │ Recommandations │                                           │
-│  │ ⚠ Faible sur    │  Légende:                                │
-│  │   "pizza" à     │  ● Vert = Top 3  ● Jaune = 4-7           │
-│  │   l'Est         │  ● Orange = 8-10 ● Rouge = 11+           │
-│  │ [Créer Q&A AEO] │                                           │
-│  └─────────────────┘                                           │
-└────────────────────────────────────────────────────────────────┘
-```
-
----
-
-## Bénéfices attendus
-
-- **Clarté** : Score global + direction = compréhension immédiate
-- **Productivité** : Mots-clés sauvegardés = plus de frappe répétée
-- **Stratégie** : Lien direct vers AEO/SEO = amélioration ciblée
-- **Suivi** : Historique des rangs = mesure de progression
+Décision rapide (pour éviter de rallonger)
+- Je vais implémenter en priorité la voie “Total avis = totalReviewCount Google” (Partie A) + test push + handler foreground (Partie C).
+- Si après ça vous voulez aussi que “en attente” soit exactement celui que vous voyez sur Google, on ajoutera l’option d’archivage manuel (petite étape supplémentaire).
