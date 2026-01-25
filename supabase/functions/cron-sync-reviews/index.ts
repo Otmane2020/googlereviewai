@@ -385,7 +385,8 @@ async function syncLocationReviews(
                   user_id: userId,
                   title: "✏️ Avis modifié",
                   body: `${editedReview.author} a modifié son avis ${editedReview.rating} étoiles`,
-                  data: { type: "review_edited", review_id: editedReview.existingDbId },
+                   url: `/reviews?review_id=${editedReview.existingDbId}`,
+                   data: { type: "review_edited", review_id: String(editedReview.existingDbId) },
                 }),
               });
               

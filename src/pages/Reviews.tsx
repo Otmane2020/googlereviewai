@@ -67,6 +67,9 @@ interface Review {
   ai_response: string | null;
   google_reply: string | null;
   published_to_google: boolean | null;
+  needs_new_response?: boolean | null;
+  last_edited_at?: string | null;
+  edit_count?: number | null;
   photos?: unknown; // JSON from DB
   criteria?: unknown; // JSON from DB
 }
@@ -832,6 +835,14 @@ const Reviews = () => {
                             <Star key={i} className={`w-3.5 h-3.5 ${i < review.rating ? "text-accent fill-accent" : "text-muted-foreground/30"}`} />
                           ))}
                         </div>
+                        {review.needs_new_response && (
+                          <Badge
+                            variant="outline"
+                            className="text-xs gap-1 border-destructive/30 text-destructive bg-destructive/5"
+                          >
+                            <RefreshCw className="w-3 h-3" /> À régénérer
+                          </Badge>
+                        )}
                         {/* Status Badge */}
                         {review.published_to_google ? (
                           <Badge variant="secondary" className="text-xs gap-1 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"><CheckCircle className="w-3 h-3" /> Publié</Badge>
@@ -1014,6 +1025,9 @@ const Reviews = () => {
                           <div className="mt-3 p-3 bg-primary/5 rounded-lg border border-primary/10 cursor-pointer hover:bg-primary/10 transition-colors">
                             <div className="flex items-center gap-1.5 text-xs text-primary font-medium mb-1">
                               <Sparkles className="w-3 h-3" /> Réponse IA
+                              {review.needs_new_response && (
+                                <span className="ml-2 text-destructive font-semibold">(avis modifié)</span>
+                              )}
                             </div>
                             <p className="text-sm text-muted-foreground line-clamp-2">{review.ai_response}</p>
                           </div>
@@ -1092,7 +1106,7 @@ const Reviews = () => {
                             <Copy className="w-4 h-4" />
                           </Button>
                           <Button size="sm" variant="ghost" onClick={() => generateAIResponse(review.id)} disabled={generatingId === review.id}>
-                            <RefreshCw className={`w-4 h-4 ${generatingId === review.id ? "animate-spin" : ""}`} />
+                            <RefreshCw className={`w-4 h-4 ${generatingId === review.id ? "animate-spin" : ""} ${review.needs_new_response ? "text-destructive" : ""}`} />
                           </Button>
                         </>
                       ) : (

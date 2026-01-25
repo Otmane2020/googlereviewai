@@ -251,6 +251,13 @@ const Notifications = () => {
                   </Button>
                 )}
               </div>
+
+              {permission === "denied" && (
+                <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
+                  Pour recevoir des push, débloquez les notifications dans votre navigateur (icône 🔒 à gauche de l’URL →
+                  Notifications → Autoriser), puis rechargez la page.
+                </p>
+              )}
             </div>
           </div>
         </div>

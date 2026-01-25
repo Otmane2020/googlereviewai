@@ -211,7 +211,8 @@ serve(async (req) => {
           title: notificationTitle,
           body: notificationMessage,
           url: reviewUrl,
-          data: { review_id },
+          // FCM requires all `data.*` values to be strings
+          data: { review_id: String(review_id) },
         }),
       });
 
