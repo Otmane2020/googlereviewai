@@ -187,15 +187,30 @@ async function syncLocationReviews(
   let googleTotalReviewCount: number | undefined;
   let googleAverageRating: number | undefined;
 
+  // Helper function to normalize comments for comparison (ignore whitespace and translation artifacts)
+  const normalizeComment = (comment: string | null): string => {
+    if (!comment) return "";
+    // Remove Google translation artifacts and normalize whitespace
+    let normalized = comment
+      .replace(/\(Translated by Google\)[^\(]*/gi, "")
+      .replace(/\(Original\)/gi, "")
+      .trim()
+      .replace(/\s+/g, " ");
+    return normalized;
+  };
+
   try {
-    // Get existing review IDs for this location BEFORE sync (include author/rating for deletion notifications)
+    // Get existing review IDs for this location BEFORE sync (include author/rating/ai_response for edit detection)
     const { data: existingReviews } = await supabase
       .from("reviews")
-      .select("id, review_id, author, rating, comment")
+      .select("id, review_id, author, rating, comment, ai_response, needs_new_response, edit_count, last_edited_at")
       .eq("user_id", userId)
       .eq("location_id", locationId);
     
     const existingReviewIds = new Set(existingReviews?.map((r: any) => r.review_id) || []);
+    const existingReviewMap = new Map<string, { id: number; review_id: string; author: string; rating: number; comment: string | null; ai_response: string | null; needs_new_response: boolean | null; edit_count: number | null; last_edited_at: string | null }>(
+      existingReviews?.map((r: any) => [r.review_id, r]) || []
+    );
     console.log(`[CRON] Location ${locationId}: ${existingReviewIds.size} existing reviews in DB`);
 
     // PAGINATION LOOP - fetch ALL pages
@@ -244,6 +259,7 @@ async function syncLocationReviews(
 
       // Batch process reviews
       const reviewsToUpsert: any[] = [];
+      const editedReviewsForNotification: any[] = [];
 
       for (const review of reviews) {
         const fullReviewId = review.name || review.reviewId;
@@ -257,6 +273,7 @@ async function syncLocationReviews(
         allGoogleReviewIds.push(canonicalReviewId);
 
         const isNewReview = !existingReviewIds.has(canonicalReviewId);
+        const existing = existingReviewMap.get(canonicalReviewId);
         const rating = parseStarRating(review.starRating);
 
         // Extract original comment - prefer originalComment, otherwise parse from translated format
@@ -271,6 +288,45 @@ async function syncLocationReviews(
           }
         }
         
+        // EDIT DETECTION: Check if existing review was edited by customer
+        let isNewEdit = false;
+        let editFields: any = {};
+        
+        if (existing) {
+          const existingNormalized = normalizeComment(existing.comment);
+          const newNormalized = normalizeComment(originalComment);
+          
+          // Only consider it an edit if:
+          // 1. The normalized content actually changed
+          // 2. The review wasn't already flagged as needing response
+          const contentChanged = existingNormalized !== newNormalized && newNormalized !== "";
+          const alreadyFlagged = existing.needs_new_response === true;
+          isNewEdit = contentChanged && !alreadyFlagged;
+          
+          if (isNewEdit) {
+            console.log(`[CRON] ✏️ EDITED: ${review.reviewer?.displayName || 'Anonyme'} (first detection)`);
+            console.log(`[CRON] Old: "${existingNormalized.substring(0, 50)}..." -> New: "${newNormalized.substring(0, 50)}..."`);
+            editFields = {
+              last_edited_at: new Date().toISOString(),
+              edit_count: (existing.edit_count || 0) + 1,
+              needs_new_response: existing.ai_response ? true : false,
+            };
+            editedReviewsForNotification.push({
+              review_id: canonicalReviewId,
+              author: review.reviewer?.displayName || "Anonyme",
+              rating: rating,
+              existingDbId: existing.id,
+            });
+          } else if (existing.needs_new_response) {
+            // Keep existing flags for already-flagged reviews
+            editFields = {
+              needs_new_response: true,
+              edit_count: existing.edit_count || 0,
+              last_edited_at: existing.last_edited_at || null,
+            };
+          }
+        }
+        
         reviewsToUpsert.push({
           review_id: canonicalReviewId,
           user_id: userId,
@@ -282,6 +338,7 @@ async function syncLocationReviews(
           replied: !!review.reviewReply,
           google_reply: review.reviewReply?.comment || null,
           notified: !isNewReview, // New reviews need notification
+          ...editFields,
         });
 
         if (isNewReview) {
@@ -304,6 +361,39 @@ async function syncLocationReviews(
           errors.push(`Location ${locationId}: ${upsertError.message}`);
         } else {
           synced += reviewsToUpsert.length;
+          
+          // Send notifications for edited reviews
+          for (const editedReview of editedReviewsForNotification) {
+            try {
+              // In-app notification
+              await supabase.from("notifications").insert({
+                user_id: userId,
+                type: "review_edited",
+                title: "✏️ Avis modifié",
+                message: `${editedReview.author} a modifié son avis ${editedReview.rating} étoiles`,
+                review_id: editedReview.existingDbId,
+              });
+              
+              // Push notification
+              await fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/send-push-notification`, {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  "Authorization": `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`,
+                },
+                body: JSON.stringify({
+                  user_id: userId,
+                  title: "✏️ Avis modifié",
+                  body: `${editedReview.author} a modifié son avis ${editedReview.rating} étoiles`,
+                  data: { type: "review_edited", review_id: editedReview.existingDbId },
+                }),
+              });
+              
+              console.log(`[CRON] Notification sent for edited review by ${editedReview.author}`);
+            } catch (notifError) {
+              console.error(`[CRON] Failed to send edit notification:`, notifError);
+            }
+          }
         }
       }
     } while (nextPageToken && pageCount < MAX_PAGES);
