@@ -2,40 +2,23 @@ import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
 
-// Important: Keep a SINGLE service worker at scope '/'.
-// Native Web Push SW for notifications.
-async function ensurePushServiceWorker() {
+// PushAlert handles service worker registration via its SDK
+// Just ensure sw.js is registered for offline/PWA support
+async function ensureServiceWorker() {
   if (!("serviceWorker" in navigator)) return;
 
   try {
-    const regs = await navigator.serviceWorker.getRegistrations();
-
-    // Unregister old Firebase SW if present
-    await Promise.all(
-      regs.map(async (reg) => {
-        const scriptUrl = reg.active?.scriptURL || reg.installing?.scriptURL || reg.waiting?.scriptURL || "";
-        if (scriptUrl.includes("/firebase-messaging-sw.js")) {
-          await reg.unregister();
-          console.log("[SW] Unregistered old Firebase SW");
-        }
-      })
-    );
-
-    // Ensure native push SW is registered
     const existing = await navigator.serviceWorker.getRegistration("/");
-    const existingUrl = existing?.active?.scriptURL || "";
-    if (!existing || !existingUrl.includes("/sw.js")) {
+    if (!existing) {
       await navigator.serviceWorker.register("/sw.js", { scope: "/" });
-      console.log("[SW] Registered native push SW");
+      console.log("[SW] Registered PushAlert SW");
     }
-
-    // Don't await ready - let SW activate in background
   } catch (e) {
-    console.warn("[SW] Failed to ensure push service worker:", e);
+    console.warn("[SW] Failed to register service worker:", e);
   }
 }
 
-// Fire-and-forget (no need to block initial render)
-ensurePushServiceWorker();
+// Fire-and-forget
+ensureServiceWorker();
 
 createRoot(document.getElementById("root")!).render(<App />);
