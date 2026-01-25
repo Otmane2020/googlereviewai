@@ -76,8 +76,11 @@ export const useFirebasePush = (): UseFirebasePushReturn => {
   }, [user]);
 
   // Setup foreground message handler for in-app toast notifications
+  // Important: do NOT depend on `isSubscribed` here.
+  // The client-side DB check can fail due to policies/network, while FCM can still deliver messages.
+  // If the browser permission is granted and Firebase messaging is supported, we should listen.
   useEffect(() => {
-    if (!isSupported || !user || !isSubscribed) return;
+    if (!isSupported || !user || permission !== "granted") return;
 
     let unsubscribe: (() => void) | null = null;
 
@@ -132,7 +135,7 @@ export const useFirebasePush = (): UseFirebasePushReturn => {
         unsubscribe();
       }
     };
-  }, [isSupported, user, isSubscribed]);
+  }, [isSupported, user, permission]);
 
   // Subscribe to FCM - FIREBASE ONLY, no browser notification API
   const subscribe = useCallback(async (): Promise<boolean> => {
