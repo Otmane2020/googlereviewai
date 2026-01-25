@@ -7,6 +7,10 @@ const MobileAds = () => {
   const navigate = useNavigate();
 
   const handleSignup = () => {
+    // Track LinkedIn conversion for signup
+    if (typeof window !== 'undefined' && (window as any).lintrk) {
+      (window as any).lintrk('track', { conversion_id: 21122002 });
+    }
     navigate("/auth?redirect=/choose-plan&from=ads");
   };
 
