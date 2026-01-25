@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { StarlinkoLogo } from "./StarlinkoLogo";
+import { TrustAvisBadge } from "./TrustAvisBadge";
 
 const footerLinks = {
   product: {
@@ -38,10 +39,11 @@ export const Footer = () => {
             <p className="text-card/60 text-xs sm:text-sm mb-4 sm:mb-6 max-w-xs">
               Plateforme de gestion automatisée des avis Google My Business.
             </p>
-            <div className="flex items-center gap-2 text-xs text-card/60">
+            <div className="flex items-center gap-2 text-xs text-card/60 mb-4">
               <span className="w-2 h-2 rounded-full bg-secondary animate-pulse" />
               <span>API : Opérationnel</span>
             </div>
+            <TrustAvisBadge />
           </div>
 
           {/* Links columns */}

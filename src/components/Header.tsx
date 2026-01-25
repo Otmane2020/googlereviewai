@@ -3,6 +3,7 @@ import { Button } from "./ui/button";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { TrustAvisMiniRating } from "./TrustAvisBadge";
 
 const navLinks = [
   { label: "Fonctionnalités", href: "#features" },
@@ -34,6 +35,7 @@ export const Header = () => {
                 {link.label}
               </a>
             ))}
+            <TrustAvisMiniRating />
           </div>
           
           <div className="hidden md:flex items-center gap-2">

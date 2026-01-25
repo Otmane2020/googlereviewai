@@ -1,4 +1,5 @@
 import { Star, Quote, Utensils, Leaf, Building2 } from "lucide-react";
+import { TrustAvisCarousel } from "./TrustAvisBadge";
 
 const GoogleIcon = ({ className = "w-5 h-5" }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24">
@@ -166,6 +167,11 @@ export const TestimonialsSection = () => {
               <p className="text-[10px] sm:text-xs text-muted-foreground">{stat.label}</p>
             </div>
           ))}
+        </div>
+
+        {/* Trust Avis Carousel */}
+        <div className="mt-10 sm:mt-12">
+          <TrustAvisCarousel />
         </div>
       </div>
     </section>
