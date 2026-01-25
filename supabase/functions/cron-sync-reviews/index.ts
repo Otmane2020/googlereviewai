@@ -176,13 +176,16 @@ async function syncLocationReviews(
   accountId: string,
   locationId: string,
   userId: string,
-  supabase: any
-): Promise<{ synced: number; newReviewIds: string[]; deleted: number; errors: string[] }> {
+  supabase: any,
+  businessId?: string
+): Promise<{ synced: number; newReviewIds: string[]; deleted: number; errors: string[]; googleTotalReviewCount?: number; googleAverageRating?: number }> {
   const errors: string[] = [];
   let synced = 0;
   let deleted = 0;
   const newReviewIds: string[] = [];
   const allGoogleReviewIds: string[] = []; // Track ALL reviews from Google
+  let googleTotalReviewCount: number | undefined;
+  let googleAverageRating: number | undefined;
 
   try {
     // Get existing review IDs for this location BEFORE sync (include author/rating for deletion notifications)
@@ -231,6 +234,13 @@ async function syncLocationReviews(
       nextPageToken = data.nextPageToken || null;
       
       console.log(`[CRON] Page ${pageCount}: ${reviews.length} reviews${nextPageToken ? ' (more pages)' : ''}`);
+      
+      // Store Google's official totals from first page
+      if (pageCount === 1) {
+        if (data.totalReviewCount !== undefined) googleTotalReviewCount = data.totalReviewCount;
+        if (data.averageRating !== undefined) googleAverageRating = data.averageRating;
+        console.log(`[CRON] Google reports: totalReviewCount=${googleTotalReviewCount}, averageRating=${googleAverageRating}`);
+      }
 
       // Batch process reviews
       const reviewsToUpsert: any[] = [];
@@ -390,13 +400,37 @@ async function syncLocationReviews(
     }
 
     console.log(`[CRON] Location ${locationId}: ${synced} synced, ${newReviewIds.length} NEW, ${deleted} deleted`);
+    
+    // Update business with Google's official counts
+    if (businessId && (googleTotalReviewCount !== undefined || googleAverageRating !== undefined)) {
+      const updateData: Record<string, unknown> = {
+        updated_at: new Date().toISOString(),
+      };
+      if (googleTotalReviewCount !== undefined) {
+        updateData.total_reviews = googleTotalReviewCount;
+      }
+      if (googleAverageRating !== undefined) {
+        updateData.rating = googleAverageRating;
+      }
+      
+      const { error: updateError } = await supabase
+        .from("businesses")
+        .update(updateData)
+        .eq("id", businessId);
+      
+      if (updateError) {
+        console.error(`[CRON] Failed to update business stats:`, updateError);
+      } else {
+        console.log(`[CRON] ✅ Updated business ${businessId}: total_reviews=${googleTotalReviewCount}, rating=${googleAverageRating}`);
+      }
+    }
 
   } catch (error) {
     console.error(`[CRON] Exception syncing location:`, error);
     errors.push(`Location ${locationId}: ${error instanceof Error ? error.message : "Unknown error"}`);
   }
 
-  return { synced, newReviewIds, deleted, errors };
+  return { synced, newReviewIds, deleted, errors, googleTotalReviewCount, googleAverageRating };
 }
 
 serve(async (req) => {
@@ -528,13 +562,14 @@ serve(async (req) => {
             // Update business info from GMB (website, description, etc.)
             await updateBusinessInfo(supabase, businessId, location);
 
-            // Sync reviews
+            // Sync reviews (pass businessId for stats update)
             const result = await syncLocationReviews(
               accessToken,
               accountId,
               locationId,
               userSettings.user_id,
-              supabase
+              supabase,
+              businessId
             );
 
             userSynced += result.synced;

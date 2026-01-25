@@ -91,6 +91,8 @@ interface Business {
   id: string;
   name: string;
   google_place_id: string | null;
+  total_reviews: number | null;
+  rating: number | null;
 }
 
 const REVIEWS_PER_PAGE = 10;
@@ -175,7 +177,7 @@ const Reviews = () => {
     if (!silent) setLoading(true);
     
     const [businessesRes, reviewsRes, profileRes] = await Promise.all([
-      supabase.from("businesses").select("id, name, google_place_id").eq("user_id", user.id).eq("is_active", true),
+      supabase.from("businesses").select("id, name, google_place_id, total_reviews, rating").eq("user_id", user.id).eq("is_active", true),
       supabase.from("reviews").select("*").eq("user_id", user.id).order("review_date", { ascending: false }),
       supabase.from("profiles").select("credits, plan_name").eq("id", user.id).single()
     ]);
@@ -404,8 +406,12 @@ const Reviews = () => {
 
   // A review is considered "replied" ONLY if published_to_google OR has google_reply (manual response)
   // Having just ai_response does NOT count as replied
+  // Use Google's official total_reviews if available, otherwise fallback to local count
+  const googleTotal = selectedBusiness?.total_reviews || 0;
+  const displayTotal = googleTotal > 0 ? googleTotal : businessReviews.length;
+  
   const stats = {
-    total: businessReviews.length,
+    total: displayTotal,
     pending: businessReviews.filter(r => !r.published_to_google && !r.google_reply).length,
     ready: businessReviews.filter(r => r.ai_response && !r.published_to_google && !r.google_reply).length,
     published: businessReviews.filter(r => r.published_to_google || r.google_reply).length,

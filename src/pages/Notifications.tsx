@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNotifications } from "@/hooks/useNotifications";
+import { useFirebasePush } from "@/hooks/useFirebasePush";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { Button } from "@/components/ui/button";
@@ -16,7 +17,9 @@ import {
   Target,
   MoreHorizontal,
   Loader2,
-  CheckCheck
+  CheckCheck,
+  SendHorizonal,
+  BellRing
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -54,6 +57,7 @@ const Notifications = () => {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
+  const { isSubscribed, isTesting, testNotification, permission, subscribe, isLoading: pushLoading } = useFirebasePush();
   const [searchQuery, setSearchQuery] = useState("");
   const [showSearch, setShowSearch] = useState(false);
 
@@ -208,6 +212,47 @@ const Notifications = () => {
               </div>
             </div>
           )}
+          
+          {/* Push notification test/subscribe section */}
+          <div className="px-4 py-3 border-t border-border/30">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <BellRing className="w-4 h-4 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground">
+                  {isSubscribed ? "Notifications activées" : "Notifications désactivées"}
+                </span>
+                {permission === "denied" && (
+                  <span className="text-xs text-destructive">(bloquées)</span>
+                )}
+              </div>
+              <div className="flex items-center gap-2">
+                {!isSubscribed && permission !== "denied" && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={subscribe}
+                    disabled={pushLoading}
+                    className="rounded-lg"
+                  >
+                    {pushLoading ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <Bell className="w-3 h-3 mr-1" />}
+                    Activer
+                  </Button>
+                )}
+                {isSubscribed && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={testNotification}
+                    disabled={isTesting}
+                    className="rounded-lg"
+                  >
+                    {isTesting ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <SendHorizonal className="w-3 h-3 mr-1" />}
+                    Tester
+                  </Button>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Notifications list */}

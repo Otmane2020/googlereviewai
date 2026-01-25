@@ -211,7 +211,7 @@ const Dashboard = () => {
 
     const [profileRes, businessesRes, syncStatusRes] = await Promise.all([
       supabase.from("profiles").select("*").eq("id", user.id).maybeSingle(),
-      supabase.from("businesses").select("id", { count: "exact" }).eq("user_id", user.id).eq("is_active", true),
+      supabase.from("businesses").select("id, total_reviews, rating", { count: "exact" }).eq("user_id", user.id).eq("is_active", true),
       supabase.from("ai_settings").select("last_sync_at, last_sync_status, last_sync_error, reviews_synced_count").eq("user_id", user.id).maybeSingle()
     ]);
     
@@ -238,6 +238,15 @@ const Dashboard = () => {
     const total = allReviews.length;
     const avgRating = total > 0 ? allReviews.reduce((sum, r) => sum + r.rating, 0) / total : 0;
     
+    // Use Google's official total from businesses table if available (sum of all active businesses)
+    const businessesList = businessesRes.data || [];
+    const googleTotal = businessesList.reduce((sum: number, b: { total_reviews?: number | null }) => sum + (b.total_reviews || 0), 0);
+    const googleAvgRating = businessesList.reduce((sum: number, b: { rating?: number | null }) => sum + (b.rating || 0), 0) / (businessesList.length || 1);
+    
+    // Use Google's count if available and greater than 0, otherwise fall back to local count
+    const displayTotal = googleTotal > 0 ? googleTotal : total;
+    const displayAvgRating = googleTotal > 0 ? googleAvgRating : avgRating;
+    
     // Standardized counts (same logic as Reviews page):
     // - pending = no published_to_google AND no google_reply (truly unanswered)
     // - aiReady = has AI response but not published and no google_reply (ready to publish)
@@ -246,11 +255,11 @@ const Dashboard = () => {
     const pending = allReviews.filter(r => !r.published_to_google && !hasGoogleReply(r)).length;
     const aiReady = allReviews.filter(r => r.ai_response && !r.published_to_google && !hasGoogleReply(r)).length;
     const responded = allReviews.filter(r => r.published_to_google || hasGoogleReply(r)).length;
-    const responseRate = total > 0 ? Math.round((responded / total) * 100) : 0;
+    const responseRate = displayTotal > 0 ? Math.round((responded / displayTotal) * 100) : 0;
     
     setStats({
-      total,
-      avgRating: Number(avgRating.toFixed(1)),
+      total: displayTotal,
+      avgRating: Number(displayAvgRating.toFixed(1)),
       aiResponses: aiReady,
       pending,
       businesses: businessesRes.count || 0,

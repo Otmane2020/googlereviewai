@@ -258,7 +258,36 @@ serve(async (req) => {
               const reviews = reviewsData.reviews || [];
               nextPageToken = reviewsData.nextPageToken || null;
               
+              // Extract Google's totalReviewCount and averageRating from the response
+              const googleTotalReviewCount = reviewsData.totalReviewCount;
+              const googleAverageRating = reviewsData.averageRating;
+              
               console.log(`Found ${reviews.length} reviews on page ${pageCount} for ${locationTitle}${nextPageToken ? ' (more pages available)' : ''}`);
+              console.log(`Google reports: totalReviewCount=${googleTotalReviewCount}, averageRating=${googleAverageRating}`);
+              
+              // Update the business with Google's official count (first page only has the totals)
+              if (pageCount === 1 && matchedBusinessId && googleTotalReviewCount !== undefined) {
+                const updateData: Record<string, unknown> = {
+                  updated_at: new Date().toISOString(),
+                };
+                if (googleTotalReviewCount !== undefined) {
+                  updateData.total_reviews = googleTotalReviewCount;
+                }
+                if (googleAverageRating !== undefined) {
+                  updateData.rating = googleAverageRating;
+                }
+                
+                const { error: updateError } = await supabaseAdmin
+                  .from("businesses")
+                  .update(updateData)
+                  .eq("id", matchedBusinessId);
+                
+                if (updateError) {
+                  console.error(`Failed to update business stats for ${matchedBusinessId}:`, updateError);
+                } else {
+                  console.log(`✅ Updated business ${matchedBusinessId}: total_reviews=${googleTotalReviewCount}, rating=${googleAverageRating}`);
+                }
+              }
 
               // Batch process reviews for this page
               const reviewsToUpsert: any[] = [];
