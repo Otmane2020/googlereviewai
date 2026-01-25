@@ -214,26 +214,57 @@
         s.parentNode.insertBefore(b, s);})(window.lintrk);
     </script>
     <!-- End LinkedIn Insight Tag -->
-    <!-- PushAlert -->
+    <!-- PushAlert - Widget disabled, using custom UI -->
     <script type="text/javascript">
+      // Disable PushAlert default widget before it loads
+      window.pushAlertByPass = true;
+      window.PA_WIDGET_DISABLE = true;
+      window.PA_DISABLED = true;
+      
       (function(d, t) {
         var g = d.createElement(t),
         s = d.getElementsByTagName(t)[0];
         g.src = "https://cdn.pushalert.co/integrate_e9d37ad5dc4d1baed0a28cbb966d31df.js";
         s.parentNode.insertBefore(g, s);
       }(document, "script"));
+      
+      // Force hide widget after SDK loads
+      document.addEventListener('DOMContentLoaded', function() {
+        var hideWidget = function() {
+          var elements = document.querySelectorAll('[id*="pushalert"], [class*="pushalert"], .pa-widget, #pa-push-notification-widget, .pa-subscription-widget');
+          elements.forEach(function(el) { 
+            el.style.display = 'none';
+            el.style.visibility = 'hidden';
+            el.remove();
+          });
+        };
+        hideWidget();
+        setInterval(hideWidget, 500);
+      });
     </script>
-    <!-- Hide PushAlert default widget -->
+    <!-- Hide PushAlert widget with CSS -->
     <style>
       #pushalert-overlay,
+      #pa-push-notification-widget,
       .pushalert-subscription-widget,
       .pushalert-widget,
-      [id^="pushalert"],
-      [class^="pushalert"] {
+      .pa-widget,
+      .pa-subscription-widget,
+      [id*="pushalert"],
+      [id*="pa-push"],
+      [class*="pushalert"],
+      [class*="pa-widget"],
+      div[style*="pushalert"],
+      iframe[src*="pushalert"] {
         display: none !important;
         visibility: hidden !important;
         opacity: 0 !important;
         pointer-events: none !important;
+        position: absolute !important;
+        left: -9999px !important;
+        top: -9999px !important;
+        width: 0 !important;
+        height: 0 !important;
       }
     </style>
     <!-- End PushAlert -->
