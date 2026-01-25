@@ -7,6 +7,12 @@ const corsHeaders = {
 };
 
 // Send notification via Firebase Cloud Messaging
+type FcmSendResult = {
+  ok: boolean;
+  status?: number;
+  errorText?: string;
+};
+
 async function sendFCMNotification(
   fcmToken: string,
   title: string,
@@ -15,7 +21,7 @@ async function sendFCMNotification(
   url: string,
   data: Record<string, string>,
   accessToken: string
-): Promise<boolean> {
+): Promise<FcmSendResult> {
   try {
     const projectId = "starlinkoapp";
     
@@ -58,16 +64,36 @@ async function sendFCMNotification(
     if (!response.ok) {
       const errorText = await response.text();
       console.error(`FCM error: ${response.status} - ${errorText}`);
-      return false;
+      return { ok: false, status: response.status, errorText };
     }
 
     const result = await response.json();
     console.log("FCM message sent:", result.name);
-    return true;
+    return { ok: true };
   } catch (error) {
     console.error("FCM send error:", error);
-    return false;
+    return { ok: false, errorText: error instanceof Error ? error.message : String(error) };
   }
+}
+
+function coerceFcmData(input: unknown): Record<string, string> {
+  const out: Record<string, string> = {};
+  if (!input || typeof input !== "object" || Array.isArray(input)) return out;
+
+  for (const [k, v] of Object.entries(input as Record<string, unknown>)) {
+    if (v === undefined || v === null) continue;
+    out[k] = typeof v === "string" ? v : String(v);
+  }
+  return out;
+}
+
+function shouldDeleteToken(res: FcmSendResult): boolean {
+  // Only delete tokens when we are confident they are invalid.
+  // 400 INVALID_ARGUMENT can be caused by a bad payload (e.g. non-string data values)
+  // and must NOT delete user subscriptions.
+  if (res.status === 404) return true;
+  const msg = (res.errorText || "").toUpperCase();
+  return msg.includes("UNREGISTERED") || msg.includes("NOT_FOUND") && msg.includes("REQUESTED ENTITY");
 }
 
 // Get OAuth2 access token from service account
@@ -246,7 +272,7 @@ serve(async (req) => {
 
     const notificationIcon = icon || "/icon-512x512.png";
     const notificationUrl = url || "/reviews";
-    const notificationData = data || {};
+    const notificationData = coerceFcmData(data);
 
     let sent = 0;
     let failed = 0;
@@ -256,7 +282,7 @@ serve(async (req) => {
       if (sub.p256dh === "fcm") {
         const fcmToken = sub.endpoint;
         
-        const success = await sendFCMNotification(
+        const res = await sendFCMNotification(
           fcmToken,
           title,
           body || "",
@@ -266,16 +292,22 @@ serve(async (req) => {
           accessToken
         );
 
-        if (success) {
+        if (res.ok) {
           sent++;
         } else {
           failed++;
-          // Remove invalid token
-          await supabase
-            .from("push_subscriptions")
-            .delete()
-            .eq("id", sub.id);
-          console.log(`Removed invalid FCM token for user ${user_id}`);
+          // Remove ONLY clearly invalid tokens
+          if (shouldDeleteToken(res)) {
+            await supabase
+              .from("push_subscriptions")
+              .delete()
+              .eq("id", sub.id);
+            console.log(`Removed invalid FCM token for user ${user_id}`);
+          } else {
+            console.log(
+              `Keeping token for user ${user_id} (send failed with status=${res.status ?? "n/a"})`
+            );
+          }
         }
       } else {
         // Legacy Web Push subscription - skip or try to handle
