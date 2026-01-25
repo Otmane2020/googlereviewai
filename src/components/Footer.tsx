@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { Star } from "lucide-react";
 import { StarlinkoLogo } from "./StarlinkoLogo";
 import { TrustAvisBadge } from "./TrustAvisBadge";
 
@@ -83,6 +84,22 @@ export const Footer = () => {
           <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-xs sm:text-sm text-card/60">
             <span>🤖 IA + SEO + AEO</span>
             <span>🚀 Devancez vos concurrents</span>
+            {/* TrustAvis Rating */}
+            <a
+              href="https://trust-avis.com/entreprise/starlinko"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 text-card/60 hover:text-card transition-colors"
+            >
+              <div className="w-4 h-4 bg-[#3B82F6] rounded flex items-center justify-center">
+                <Star className="w-2.5 h-2.5 text-white fill-white" />
+              </div>
+              <span className="font-medium">
+                <span className="text-card">Trust</span>
+                <span className="text-[#3B82F6]">Avis</span>
+              </span>
+              <span>4.8</span>
+            </a>
           </div>
         </div>
       </div>
