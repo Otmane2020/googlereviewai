@@ -11,7 +11,7 @@ import { PricingSection } from "@/components/PricingSection";
 import { CTASection } from "@/components/CTASection";
 import { Footer } from "@/components/Footer";
 import { MobileStickyButton } from "@/components/MobileStickyButton";
-import { Loader2 } from "lucide-react";
+import { Loader2, Star } from "lucide-react";
 
 const Index = () => {
   const { user, loading } = useAuth();
@@ -78,6 +78,25 @@ const Index = () => {
       </main>
       <Footer />
       <MobileStickyButton />
+      
+      {/* Sticky TrustAvis Rating - Bottom Right */}
+      <div className="fixed bottom-4 right-4 z-50 hidden sm:block">
+        <a
+          href="https://trust-avis.com/entreprise/starlinko"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 bg-card/95 backdrop-blur-sm border border-border rounded-full px-3 py-1.5 shadow-lg text-sm hover:shadow-xl transition-all"
+        >
+          <div className="w-4 h-4 bg-[#3B82F6] rounded flex items-center justify-center">
+            <Star className="w-2.5 h-2.5 text-white fill-white" />
+          </div>
+          <span className="font-medium">
+            <span className="text-foreground">Trust</span>
+            <span className="text-[#3B82F6]">Avis</span>
+          </span>
+          <span className="text-muted-foreground">4.8</span>
+        </a>
+      </div>
     </div>
   );
 };

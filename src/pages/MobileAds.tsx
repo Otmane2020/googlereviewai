@@ -140,26 +140,26 @@ const MobileAds = () => {
           </p>
           <p className="text-muted-foreground text-xs mt-1">— Marie L., Restaurant Paris</p>
         </div>
-        
-        {/* TrustAvis Rating - Bottom Right */}
-        <div className="flex justify-end mt-4 pr-1">
-          <a
-            href="https://trust-avis.com/entreprise/starlinko"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors text-sm"
-          >
-            <div className="w-4 h-4 bg-[#3B82F6] rounded flex items-center justify-center">
-              <Star className="w-2.5 h-2.5 text-white fill-white" />
-            </div>
-            <span className="font-medium">
-              <span className="text-foreground">Trust</span>
-              <span className="text-[#3B82F6]">Avis</span>
-            </span>
-            <span className="text-muted-foreground">4.8</span>
-          </a>
-        </div>
       </footer>
+      
+      {/* Sticky TrustAvis Rating - Bottom Right */}
+      <div className="fixed bottom-4 right-4 z-50">
+        <a
+          href="https://trust-avis.com/entreprise/starlinko"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 bg-card/95 backdrop-blur-sm border border-border rounded-full px-3 py-1.5 shadow-lg text-sm hover:shadow-xl transition-all"
+        >
+          <div className="w-4 h-4 bg-[#3B82F6] rounded flex items-center justify-center">
+            <Star className="w-2.5 h-2.5 text-white fill-white" />
+          </div>
+          <span className="font-medium">
+            <span className="text-foreground">Trust</span>
+            <span className="text-[#3B82F6]">Avis</span>
+          </span>
+          <span className="text-muted-foreground">4.8</span>
+        </a>
+      </div>
     </div>
   );
 };
