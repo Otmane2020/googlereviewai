@@ -207,12 +207,16 @@ serve(async (req) => {
           
           // Send upgrade email if credits are 0 and user has pending reviews
           if (profile && profile.credits === 0 && profile.email) {
-            // Check if we have pending reviews for this user
+            // Count ONLY reviews that are truly awaiting an automatic AI reply.
+            // Previously we counted all rows with ai_response = null, which can include
+            // historical reviews that already have a Google reply (=> wrong, can show 66).
             const { count: pendingCount } = await supabase
               .from("reviews")
               .select("id", { count: "exact", head: true })
               .eq("user_id", userSettings.user_id)
-              .is("ai_response", null);
+              .is("ai_response", null)
+              .is("google_reply", null)
+              .eq("replied", false);
             
             if (pendingCount && pendingCount > 0) {
               // Check if we already sent an email recently (last 24h)
