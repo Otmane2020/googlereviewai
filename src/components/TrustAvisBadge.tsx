@@ -1,4 +1,24 @@
 import { useEffect } from "react";
+import { Star } from "lucide-react";
+
+export const TrustAvisLabel = ({ className = "" }: { className?: string }) => {
+  return (
+    <a
+      href="https://trust-avis.com/entreprise/starlinko"
+      target="_blank"
+      rel="noopener noreferrer"
+      className={`inline-flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors ${className}`}
+    >
+      <div className="w-5 h-5 bg-[#3B82F6] rounded-md flex items-center justify-center">
+        <Star className="w-3 h-3 text-white fill-white" />
+      </div>
+      <span className="text-sm font-medium">
+        <span className="text-foreground">Trust</span>
+        <span className="text-[#3B82F6]">Avis</span>
+      </span>
+    </a>
+  );
+};
 
 export const TrustAvisBadge = () => {
   useEffect(() => {

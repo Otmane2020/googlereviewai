@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
 import { Check, Sparkles, Star, TrendingUp, Zap, Bot, Search, FileText, MessageSquare, Rocket, User } from "lucide-react";
+import { TrustAvisLabel } from "./TrustAvisBadge";
 
 const ChatGPTIcon = ({ className = "w-5 h-5" }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
@@ -127,6 +128,7 @@ export const HeroSection = () => {
               <Check className="w-4 h-4 text-secondary" />
               <span>+500 entreprises</span>
             </div>
+            <TrustAvisLabel className="text-card/80 hover:text-card" />
           </div>
         </div>
 

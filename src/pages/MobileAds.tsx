@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Star, Zap, Check, MessageSquare, TrendingUp, Clock, Sparkles, Gift } from "lucide-react";
 import { StarlinkoLogo } from "@/components/StarlinkoLogo";
+import { TrustAvisLabel } from "@/components/TrustAvisBadge";
 
 const MobileAds = () => {
   const navigate = useNavigate();
@@ -18,8 +19,10 @@ const MobileAds = () => {
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/20 flex flex-col">
       {/* Header */}
       <header className="py-4 px-4">
-        <div className="flex justify-center">
+        <div className="flex items-center justify-center gap-4">
           <StarlinkoLogo className="h-8" />
+          <div className="h-5 w-px bg-border" />
+          <TrustAvisLabel />
         </div>
       </header>
 
