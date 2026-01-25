@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Star, Zap, Check, MessageSquare, TrendingUp, Clock, Sparkles } from "lucide-react";
+import { Star, Zap, Check, MessageSquare, TrendingUp, Clock, Sparkles, Gift } from "lucide-react";
 import { StarlinkoLogo } from "@/components/StarlinkoLogo";
 
 const MobileAds = () => {
@@ -21,6 +21,12 @@ const MobileAds = () => {
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col items-center justify-center px-5 py-6 text-center">
+        {/* Launch Offer Badge */}
+        <div className="inline-flex items-center gap-1.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white px-4 py-1.5 rounded-full text-sm font-semibold mb-4 shadow-lg">
+          <Gift className="w-4 h-4" />
+          Offre de lancement – -20% sur le 1er mois
+        </div>
+
         {/* 5 Stars Badge */}
         <div className="inline-flex items-center gap-0.5 bg-primary/10 px-3 py-1.5 rounded-full mb-5">
           {[1, 2, 3, 4, 5].map(i => (
@@ -34,9 +40,9 @@ const MobileAds = () => {
           Ne perdez plus de clients à cause des <span className="text-destructive">avis non répondus</span>
         </h1>
 
-        {/* Subheadline - Solution */}
+        {/* Subheadline - Solution + Résultat */}
         <p className="text-muted-foreground text-base mb-6 max-w-xs leading-relaxed">
-          Starlinko répond <span className="font-semibold text-foreground">automatiquement</span> à vos avis Google avec l'IA et améliore votre visibilité locale.
+          Starlinko répond <span className="font-semibold text-foreground">automatiquement</span> à vos avis Google avec l'IA pour renforcer la confiance et attirer plus de clients.
         </p>
 
         {/* CTA Button */}
@@ -49,15 +55,21 @@ const MobileAds = () => {
           Essayer Starlinko gratuitement
         </Button>
 
-        {/* Trust Indicators - Right after CTA */}
-        <div className="flex items-center justify-center gap-4 text-muted-foreground text-sm mb-6">
-          <span className="flex items-center gap-1.5">
-            <Check className="w-4 h-4 text-primary" />
-            3 jours gratuits
-          </span>
-          <span className="flex items-center gap-1.5">
-            <Check className="w-4 h-4 text-primary" />
-            Sans CB
+        {/* Trust Indicators + Offer */}
+        <div className="flex flex-col items-center gap-2 text-sm mb-6">
+          <div className="flex items-center justify-center gap-4 text-muted-foreground">
+            <span className="flex items-center gap-1.5">
+              <Check className="w-4 h-4 text-primary" />
+              3 jours gratuits
+            </span>
+            <span className="flex items-center gap-1.5">
+              <Check className="w-4 h-4 text-primary" />
+              Sans CB
+            </span>
+          </div>
+          <span className="flex items-center gap-1.5 text-amber-600 font-medium">
+            <Gift className="w-4 h-4" />
+            -20% réservé aux nouveaux comptes
           </span>
         </div>
 
@@ -77,7 +89,7 @@ const MobileAds = () => {
           </span>
         </div>
 
-        {/* Why Starlinko - 4 bullets max */}
+        {/* Why Starlinko - Optimized order */}
         <div className="w-full max-w-xs bg-muted/50 rounded-2xl p-4 text-left">
           <p className="text-sm font-semibold text-foreground mb-3 text-center">
             🧠 Pourquoi Starlinko ?
@@ -87,25 +99,25 @@ const MobileAds = () => {
               <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
                 <MessageSquare className="w-4 h-4 text-primary" />
               </div>
-              <span className="text-sm text-foreground">Réponses auto aux avis Google</span>
+              <span className="text-sm text-foreground">Réponses automatiques aux avis Google</span>
             </div>
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
                 <Sparkles className="w-4 h-4 text-primary" />
               </div>
-              <span className="text-sm text-foreground">Ton pro et personnalisé</span>
+              <span className="text-sm text-foreground">Ton professionnel et personnalisé</span>
             </div>
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
                 <TrendingUp className="w-4 h-4 text-primary" />
               </div>
-              <span className="text-sm text-foreground">Meilleur SEO local</span>
+              <span className="text-sm text-foreground">Plus de visibilité et confiance locale</span>
             </div>
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
                 <Clock className="w-4 h-4 text-primary" />
               </div>
-              <span className="text-sm text-foreground">Mise en place en 2 min</span>
+              <span className="text-sm text-foreground">Mise en place en 2 minutes</span>
             </div>
           </div>
         </div>
