@@ -376,16 +376,59 @@ const SettingsPage = () => {
                   </p>
                 </div>
               </div>
-              {pushPermission === "denied" && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => window.location.reload()}
-                  className="rounded-xl h-9 shrink-0"
-                >
-                  Recharger
-                </Button>
-              )}
+              <div className="flex gap-2">
+                {pushPermission === "granted" && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      // PushAlert optOut - unsubscribe user
+                      if (typeof window !== 'undefined' && (window as any).pushalertbyiw) {
+                        ((window as any).pushalertbyiw = (window as any).pushalertbyiw || []).push(['optOut']);
+                        toast({
+                          title: "Notifications désactivées",
+                          description: "Vous ne recevrez plus de notifications push.",
+                        });
+                        setPushPermission("default");
+                      }
+                    }}
+                    className="rounded-xl h-9 shrink-0"
+                  >
+                    <BellOff className="w-4 h-4 mr-1" />
+                    Désactiver
+                  </Button>
+                )}
+                {pushPermission === "default" && (
+                  <Button
+                    variant="default"
+                    size="sm"
+                    onClick={() => {
+                      // PushAlert forceSubscribe - re-subscribe user (regenerates token)
+                      if (typeof window !== 'undefined') {
+                        ((window as any).pushalertbyiw = (window as any).pushalertbyiw || []).push(['forceSubscribe']);
+                        toast({
+                          title: "Demande envoyée",
+                          description: "Acceptez la notification dans votre navigateur.",
+                        });
+                      }
+                    }}
+                    className="rounded-xl h-9 shrink-0"
+                  >
+                    <Bell className="w-4 h-4 mr-1" />
+                    Activer
+                  </Button>
+                )}
+                {pushPermission === "denied" && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => window.location.reload()}
+                    className="rounded-xl h-9 shrink-0"
+                  >
+                    Recharger
+                  </Button>
+                )}
+              </div>
             </div>
 
             {/* Email notifications info */}
