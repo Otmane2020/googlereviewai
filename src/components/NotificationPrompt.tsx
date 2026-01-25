@@ -73,7 +73,7 @@ export const NotificationPrompt = () => {
     }
   }, []);
 
-  // Show prompt after a short delay
+  // Show prompt after install prompt is dismissed or after delay
   useEffect(() => {
     const installPromptDismissed = localStorage.getItem("install-prompt-dismissed");
     const isInstallPromptActive = !isInstalled && !isStandalone && (canInstall || isIOS);
@@ -81,11 +81,14 @@ export const NotificationPrompt = () => {
     const wasInstallDismissedRecently = installPromptDismissed && 
       (Date.now() - parseInt(installPromptDismissed, 10) < 24 * 60 * 60 * 1000);
 
+    // If install prompt is active and not dismissed, wait longer
     if (isInstallPromptActive && !wasInstallDismissedRecently) {
-      const timeout = setTimeout(() => setShowDelayed(true), 15000);
+      // Wait 8 seconds if install banner is showing
+      const timeout = setTimeout(() => setShowDelayed(true), 8000);
       return () => clearTimeout(timeout);
     } else {
-      const timeout = setTimeout(() => setShowDelayed(true), 2000);
+      // Show after 3 seconds if no install banner
+      const timeout = setTimeout(() => setShowDelayed(true), 3000);
       return () => clearTimeout(timeout);
     }
   }, [isInstalled, isStandalone, canInstall, isIOS]);
@@ -138,7 +141,6 @@ export const NotificationPrompt = () => {
   if (authLoading) return null;
 
   const isBlocked = permission === "denied";
-  const isGranted = permission === "granted";
 
   // Don't show if already subscribed, dismissed, no user, or not on allowed route
   if (isAlreadySubscribed || (dismissed && !isBlocked) || !user || !isAllowedRoute || !showDelayed) {
@@ -148,7 +150,7 @@ export const NotificationPrompt = () => {
   // Show blocked message when notifications are denied
   if (isBlocked) {
     return (
-      <div className="fixed top-20 left-4 right-4 z-40 animate-fade-in">
+      <div className="fixed bottom-20 sm:bottom-4 left-4 right-4 z-40 animate-fade-in">
         <div className="bg-destructive/10 border-destructive/30 border rounded-2xl shadow-2xl p-4 max-w-sm mx-auto">
           <div className="flex items-start gap-3">
             <div className="p-2.5 rounded-xl flex-shrink-0 bg-destructive/20">
@@ -166,7 +168,7 @@ export const NotificationPrompt = () => {
                   className="flex-1 h-9"
                   variant="outline"
                 >
-                  Recharger après avoir autorisé
+                  Recharger
                 </Button>
                 <Button size="sm" variant="ghost" onClick={handleDismiss} className="h-9 px-3">
                   <X className="w-4 h-4" />
@@ -179,9 +181,9 @@ export const NotificationPrompt = () => {
     );
   }
 
-  // Show custom subscription prompt (replaces PushAlert widget)
+  // Bottom notification prompt
   return (
-    <div className="fixed top-20 left-4 right-4 z-40 animate-fade-in">
+    <div className="fixed bottom-20 sm:bottom-4 left-4 right-4 z-40 animate-fade-in">
       <div className="bg-card border border-border rounded-2xl shadow-2xl p-4 max-w-sm mx-auto">
         <div className="flex items-start gap-3">
           <div className="p-2.5 rounded-xl flex-shrink-0 bg-primary/10">
@@ -190,7 +192,7 @@ export const NotificationPrompt = () => {
           <div className="flex-1 min-w-0">
             <h3 className="font-semibold text-sm mb-1">Activer les notifications</h3>
             <p className="text-xs text-muted-foreground mb-3">
-              Recevez une alerte instantanée à chaque nouvel avis Google
+              Recevez une alerte à chaque nouvel avis Google
             </p>
             <div className="flex gap-2">
               <Button 
@@ -205,21 +207,19 @@ export const NotificationPrompt = () => {
               <Button 
                 size="sm" 
                 onClick={handleSubscribe}
-                className="flex-1 h-9 bg-primary hover:bg-primary/90"
+                className="flex-1 h-9"
                 disabled={isSubscribing}
               >
                 {isSubscribing ? "Activation..." : "Activer"}
               </Button>
             </div>
           </div>
-          <Button 
-            size="sm" 
-            variant="ghost" 
+          <button 
             onClick={handleDismiss} 
-            className="h-8 w-8 p-0 -mt-1 -mr-1"
+            className="p-1 rounded-lg hover:bg-muted -mt-1 -mr-1"
           >
-            <X className="w-4 h-4" />
-          </Button>
+            <X className="w-4 h-4 text-muted-foreground" />
+          </button>
         </div>
       </div>
     </div>
