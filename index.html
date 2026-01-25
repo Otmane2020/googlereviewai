@@ -223,6 +223,19 @@
         s.parentNode.insertBefore(g, s);
       }(document, "script"));
     </script>
+    <!-- Hide PushAlert default widget -->
+    <style>
+      #pushalert-overlay,
+      .pushalert-subscription-widget,
+      .pushalert-widget,
+      [id^="pushalert"],
+      [class^="pushalert"] {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+      }
+    </style>
     <!-- End PushAlert -->
     <meta property="og:title" content="Starlinko – IA pour Google Business Profile &amp; Avis Google">
   <meta name="twitter:title" content="Starlinko – IA pour Google Business Profile &amp; Avis Google">
