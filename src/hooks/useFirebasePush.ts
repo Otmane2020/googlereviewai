@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 
 type PushPermissionState = "default" | "granted" | "denied" | "unsupported";
 
@@ -9,8 +10,10 @@ interface UseFirebasePushReturn {
   isSupported: boolean;
   isSubscribed: boolean;
   isLoading: boolean;
+  isTesting: boolean;
   subscribe: () => Promise<boolean>;
   unsubscribe: () => Promise<boolean>;
+  testNotification: () => Promise<boolean>;
 }
 
 // VAPID key for FCM - from Firebase Console > Project Settings > Cloud Messaging
@@ -22,6 +25,7 @@ export const useFirebasePush = (): UseFirebasePushReturn => {
   const [isSupported, setIsSupported] = useState(false);
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isTesting, setIsTesting] = useState(false);
 
   // Check support and subscription status
   useEffect(() => {
@@ -70,6 +74,65 @@ export const useFirebasePush = (): UseFirebasePushReturn => {
 
     checkSupport();
   }, [user]);
+
+  // Setup foreground message handler for in-app toast notifications
+  useEffect(() => {
+    if (!isSupported || !user || !isSubscribed) return;
+
+    let unsubscribe: (() => void) | null = null;
+
+    const setupForegroundHandler = async () => {
+      try {
+        const { getMessaging, onMessage } = await import("firebase/messaging");
+        const { initializeApp, getApps } = await import("firebase/app");
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyB8_ReuGYylRKMKu9L9leSRFB0nKCqRT64",
+          authDomain: "starlinkoapp.firebaseapp.com",
+          projectId: "starlinkoapp",
+          storageBucket: "starlinkoapp.firebasestorage.app",
+          messagingSenderId: "361474350795",
+          appId: "1:361474350795:web:c9f170e0dc04201149454e",
+        };
+
+        const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+        const messaging = getMessaging(app);
+
+        console.log("[useFirebasePush] Setting up foreground message handler");
+
+        unsubscribe = onMessage(messaging, (payload) => {
+          console.log("[useFirebasePush] 📨 Foreground message received:", payload);
+          
+          const title = payload.notification?.title || "Nouvelle notification";
+          const body = payload.notification?.body || "";
+          
+          // Show in-app toast
+          toast(title, {
+            description: body,
+            duration: 8000,
+            action: payload.data?.url ? {
+              label: "Voir",
+              onClick: () => {
+                window.location.href = payload.data!.url;
+              },
+            } : undefined,
+          });
+        });
+
+        console.log("[useFirebasePush] ✅ Foreground handler active");
+      } catch (error) {
+        console.error("[useFirebasePush] Failed to setup foreground handler:", error);
+      }
+    };
+
+    setupForegroundHandler();
+
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
+  }, [isSupported, user, isSubscribed]);
 
   // Subscribe to FCM - FIREBASE ONLY, no browser notification API
   const subscribe = useCallback(async (): Promise<boolean> => {
@@ -251,12 +314,64 @@ export const useFirebasePush = (): UseFirebasePushReturn => {
     }
   }, [user]);
 
+  // Test push notification
+  const testNotification = useCallback(async (): Promise<boolean> => {
+    if (!user) {
+      console.error("[useFirebasePush] Cannot test - no user");
+      return false;
+    }
+
+    setIsTesting(true);
+
+    try {
+      console.log("[useFirebasePush] Sending test notification...");
+      
+      const { data, error } = await supabase.functions.invoke("test-push-notification", {});
+
+      if (error) {
+        console.error("[useFirebasePush] Test error:", error);
+        toast.error("Erreur lors du test", {
+          description: error.message,
+        });
+        return false;
+      }
+
+      if (data?.success) {
+        if (data.sent > 0) {
+          toast.success("Notification envoyée !", {
+            description: "Vous devriez la recevoir dans quelques secondes.",
+          });
+        } else {
+          toast.warning("Aucun abonnement trouvé", {
+            description: "Activez d'abord les notifications.",
+          });
+        }
+        return data.sent > 0;
+      } else {
+        toast.error("Échec de l'envoi", {
+          description: data?.error || "Erreur inconnue",
+        });
+        return false;
+      }
+    } catch (error) {
+      console.error("[useFirebasePush] Test exception:", error);
+      toast.error("Erreur", {
+        description: error instanceof Error ? error.message : "Erreur inconnue",
+      });
+      return false;
+    } finally {
+      setIsTesting(false);
+    }
+  }, [user]);
+
   return {
     permission,
     isSupported,
     isSubscribed,
     isLoading,
+    isTesting,
     subscribe,
     unsubscribe,
+    testNotification,
   };
 };
