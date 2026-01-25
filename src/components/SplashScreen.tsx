@@ -27,7 +27,7 @@ export const SplashScreen = ({ onComplete }: SplashScreenProps) => {
         background: "linear-gradient(135deg, hsl(217 91% 45%) 0%, hsl(222 47% 25%) 100%)"
       }}
     >
-      <div className="flex flex-col items-center gap-4 animate-fade-in">
+      <div className="flex flex-col items-center gap-4">
         {/* Logo étoile jaune plate */}
         <Star 
           className="w-14 h-14" 
