@@ -53,13 +53,19 @@ const SettingsPage = () => {
   const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
   const [openingPortal, setOpeningPortal] = useState(false);
 
-  // Check notification permission and subscription state
+  // Check notification permission and subscription state via PushAlert SDK
   useEffect(() => {
     if ("Notification" in window) {
       setPushPermission(Notification.permission);
-      // Check localStorage for opt-out state
-      const optedOut = localStorage.getItem("pushalert_opted_out") === "true";
-      setIsSubscribedToPush(!optedOut && Notification.permission === "granted");
+      
+      // Use PushAlert API to check real subscription status
+      (window as any).pushalertbyiw = (window as any).pushalertbyiw || [];
+      (window as any).pushalertbyiw.push(['onReady', () => {
+        const subsInfo = (window as any).PushAlertCo?.getSubsInfo?.();
+        if (subsInfo) {
+          setIsSubscribedToPush(subsInfo.status === "subscribed");
+        }
+      }]);
     } else {
       setPushPermission("unsupported");
     }
@@ -386,10 +392,9 @@ const SettingsPage = () => {
                     variant="outline"
                     size="sm"
                     onClick={() => {
-                      // PushAlert optOut - unsubscribe user
-                      if (typeof window !== 'undefined' && (window as any).pushalertbyiw) {
-                        ((window as any).pushalertbyiw = (window as any).pushalertbyiw || []).push(['optOut']);
-                        localStorage.setItem("pushalert_opted_out", "true");
+                      // PushAlert unsubscribe - properly unsubscribe user
+                      if (typeof window !== 'undefined' && (window as any).PushAlertCo) {
+                        (window as any).PushAlertCo.unsubscribe();
                         setIsSubscribedToPush(false);
                         toast({
                           title: "Notifications désactivées",
@@ -408,15 +413,27 @@ const SettingsPage = () => {
                     variant="default"
                     size="sm"
                     onClick={() => {
-                      // PushAlert forceSubscribe - re-subscribe user (regenerates token)
-                      if (typeof window !== 'undefined') {
-                        ((window as any).pushalertbyiw = (window as any).pushalertbyiw || []).push(['forceSubscribe']);
-                        localStorage.removeItem("pushalert_opted_out");
-                        setIsSubscribedToPush(true);
-                        toast({
-                          title: "Notifications réactivées",
-                          description: "Vous recevrez à nouveau les alertes.",
-                        });
+                      // PushAlert forceSubscribe - re-subscribe user with native prompt
+                      if (typeof window !== 'undefined' && (window as any).PushAlertCo) {
+                        // Set up callbacks before calling forceSubscribe
+                        (window as any).pushalertbyiw = (window as any).pushalertbyiw || [];
+                        (window as any).pushalertbyiw.push(['onSuccess', () => {
+                          setIsSubscribedToPush(true);
+                          toast({
+                            title: "Notifications réactivées",
+                            description: "Vous recevrez à nouveau les alertes.",
+                          });
+                        }]);
+                        (window as any).pushalertbyiw.push(['onFailure', (result: any) => {
+                          if (result?.status === -1) {
+                            toast({
+                              title: "Notifications bloquées",
+                              description: "Autorisez dans les paramètres du navigateur.",
+                              variant: "destructive",
+                            });
+                          }
+                        }]);
+                        (window as any).PushAlertCo.forceSubscribe();
                       }
                     }}
                     className="rounded-xl h-9 shrink-0"
@@ -430,13 +447,28 @@ const SettingsPage = () => {
                     variant="default"
                     size="sm"
                     onClick={() => {
-                      // First time subscription
-                      if (typeof window !== 'undefined') {
-                        ((window as any).pushalertbyiw = (window as any).pushalertbyiw || []).push(['forceSubscribe']);
-                        toast({
-                          title: "Demande envoyée",
-                          description: "Acceptez la notification dans votre navigateur.",
-                        });
+                      // First time subscription with native prompt
+                      if (typeof window !== 'undefined' && (window as any).PushAlertCo) {
+                        (window as any).pushalertbyiw = (window as any).pushalertbyiw || [];
+                        (window as any).pushalertbyiw.push(['onSuccess', () => {
+                          setPushPermission("granted");
+                          setIsSubscribedToPush(true);
+                          toast({
+                            title: "Notifications activées",
+                            description: "Vous recevrez les alertes de nouveaux avis.",
+                          });
+                        }]);
+                        (window as any).pushalertbyiw.push(['onFailure', (result: any) => {
+                          if (result?.status === -1) {
+                            setPushPermission("denied");
+                            toast({
+                              title: "Notifications bloquées",
+                              description: "Autorisez dans les paramètres du navigateur.",
+                              variant: "destructive",
+                            });
+                          }
+                        }]);
+                        (window as any).PushAlertCo.forceSubscribe();
                       }
                     }}
                     className="rounded-xl h-9 shrink-0"
