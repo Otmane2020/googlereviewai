@@ -80,3 +80,6 @@ verify_jwt = false
 
 [functions.test-push-notification]
 verify_jwt = false
+
+[functions.register-pushalert-subscriber]
+verify_jwt = false

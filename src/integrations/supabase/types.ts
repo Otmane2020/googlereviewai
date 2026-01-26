@@ -602,6 +602,7 @@ export type Database = {
           onboarding_completed: boolean | null
           plan_id: string | null
           plan_name: string | null
+          pushalert_subscriber_id: string | null
           subscription_status: string | null
           total_points: number | null
           trial_end: string | null
@@ -626,6 +627,7 @@ export type Database = {
           onboarding_completed?: boolean | null
           plan_id?: string | null
           plan_name?: string | null
+          pushalert_subscriber_id?: string | null
           subscription_status?: string | null
           total_points?: number | null
           trial_end?: string | null
@@ -650,6 +652,7 @@ export type Database = {
           onboarding_completed?: boolean | null
           plan_id?: string | null
           plan_name?: string | null
+          pushalert_subscriber_id?: string | null
           subscription_status?: string | null
           total_points?: number | null
           trial_end?: string | null
