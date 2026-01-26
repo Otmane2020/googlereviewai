@@ -38,31 +38,44 @@ export const NotificationPrompt = () => {
 
     // Check PushAlert subscription status and register if subscribed but not registered
     const checkAndRegisterSubscription = async () => {
+      console.log("[NotificationPrompt] Checking PushAlert status...", { 
+        hasPushAlertCo: !!window.PushAlertCo, 
+        hasUser: !!user 
+      });
+      
       if (window.PushAlertCo && user) {
         try {
           const info = window.PushAlertCo.getSubsInfo();
+          console.log("[NotificationPrompt] PushAlert info:", info);
+          
           if (info?.status === "subscribed") {
             setIsAlreadySubscribed(true);
             
             // If subscribed, ensure subscriber ID is registered in our backend
             if (info.subs_id) {
-              // Check if already registered by trying to register (backend handles idempotency)
+              console.log("[NotificationPrompt] User subscribed, registering ID:", info.subs_id);
               await registerSubscriberId(info.subs_id);
+            } else {
+              console.warn("[NotificationPrompt] Subscribed but no subs_id available");
             }
           }
         } catch (e) {
-          // SDK not ready yet
+          console.log("[NotificationPrompt] SDK not ready yet:", e);
         }
       }
     };
 
-    // Check immediately and after a delay (SDK may not be ready)
-    const timeout1 = setTimeout(checkAndRegisterSubscription, 2000);
-    const timeout2 = setTimeout(checkAndRegisterSubscription, 5000);
+    // Check multiple times as SDK may take time to initialize
+    const timeout1 = setTimeout(checkAndRegisterSubscription, 1000);
+    const timeout2 = setTimeout(checkAndRegisterSubscription, 3000);
+    const timeout3 = setTimeout(checkAndRegisterSubscription, 6000);
+    const timeout4 = setTimeout(checkAndRegisterSubscription, 10000);
     
     return () => {
       clearTimeout(timeout1);
       clearTimeout(timeout2);
+      clearTimeout(timeout3);
+      clearTimeout(timeout4);
     };
   }, [user]);
 
