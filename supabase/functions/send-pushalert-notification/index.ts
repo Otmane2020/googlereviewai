@@ -34,39 +34,54 @@ serve(async (req) => {
     console.log(`[PushAlert] Sending notification to user: ${user_id}`);
     console.log(`[PushAlert] Title: ${title}, Message: ${message?.substring(0, 50)}...`);
 
-    // Get user email to use as subscriber identifier
+    // Get user's PushAlert subscriber ID from profile
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     const { data: profile, error: profileError } = await supabase
       .from("profiles")
-      .select("email")
+      .select("email, pushalert_subscriber_id")
       .eq("id", user_id)
       .maybeSingle();
 
-    if (profileError || !profile?.email) {
-      console.error("[PushAlert] Could not find user email:", profileError);
+    if (profileError) {
+      console.error("[PushAlert] Could not find user:", profileError);
       return new Response(
         JSON.stringify({ error: "User not found", sent: 0 }),
         { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    // Send notification via PushAlert REST API
-    // Using "Send to All Subscribers" endpoint as fallback, or targeted by attributes
+    const subscriberId = profile?.pushalert_subscriber_id;
+    
+    if (!subscriberId) {
+      console.log(`[PushAlert] No subscriber ID for user ${user_id}, skipping targeted notification`);
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          sent: 0, 
+          error: "User has no PushAlert subscriber ID registered. They need to enable notifications in the app first.",
+          email: profile?.email 
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    console.log(`[PushAlert] Found subscriber ID: ${subscriberId} for user ${user_id}`);
+
+    // Send notification to specific subscriber via PushAlert REST API
     const pushalertUrl = "https://api.pushalert.co/rest/v1/send";
     
-    const notificationPayload = {
+    const postData = new URLSearchParams({
       title: title,
       message: message || "",
       url: url || "https://starlinko.app/reviews",
       icon: icon || "https://starlinko.app/icon-512x512.png",
-      // Target specific subscriber by email attribute (if set during subscription)
-      // For now, we'll use broadcast and rely on segment targeting later
-    };
+      subscriber: subscriberId, // Target specific subscriber
+    });
 
-    console.log(`[PushAlert] Sending to API:`, JSON.stringify(notificationPayload));
+    console.log(`[PushAlert] Sending targeted notification to subscriber: ${subscriberId}`);
 
     const response = await fetch(pushalertUrl, {
       method: "POST",
@@ -74,12 +89,7 @@ serve(async (req) => {
         "Authorization": `api_key=${pushalertApiKey}`,
         "Content-Type": "application/x-www-form-urlencoded",
       },
-      body: new URLSearchParams({
-        title: notificationPayload.title,
-        message: notificationPayload.message,
-        url: notificationPayload.url,
-        icon: notificationPayload.icon,
-      }).toString(),
+      body: postData.toString(),
     });
 
     const responseText = await response.text();
@@ -93,12 +103,13 @@ serve(async (req) => {
     }
 
     if (response.ok && result.success !== false) {
-      console.log(`[PushAlert] ✅ Notification sent successfully`);
+      console.log(`[PushAlert] ✅ Targeted notification sent successfully to ${subscriberId}`);
       return new Response(
         JSON.stringify({ 
           success: true, 
           sent: 1,
           notification_id: result.id || result.notification_id,
+          subscriber_id: subscriberId,
           result 
         }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -110,6 +121,7 @@ serve(async (req) => {
           success: false, 
           sent: 0,
           error: result.message || result.error || "Unknown error",
+          subscriber_id: subscriberId,
           result 
         }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }

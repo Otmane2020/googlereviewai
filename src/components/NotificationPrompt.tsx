@@ -10,7 +10,7 @@ declare global {
   interface Window {
     PushAlertCo?: {
       forceSubscribe: (callbacks?: { onSuccess?: () => void; onFailure?: () => void }) => void;
-      getSubsInfo: () => { status: string };
+      getSubsInfo: () => { status: string; subs_id?: string };
     };
   }
 }
@@ -36,13 +36,19 @@ export const NotificationPrompt = () => {
       setPermission("unsupported");
     }
 
-    // Check PushAlert subscription status
-    const checkSubscription = () => {
-      if (window.PushAlertCo) {
+    // Check PushAlert subscription status and register if subscribed but not registered
+    const checkAndRegisterSubscription = async () => {
+      if (window.PushAlertCo && user) {
         try {
           const info = window.PushAlertCo.getSubsInfo();
           if (info?.status === "subscribed") {
             setIsAlreadySubscribed(true);
+            
+            // If subscribed, ensure subscriber ID is registered in our backend
+            if (info.subs_id) {
+              // Check if already registered by trying to register (backend handles idempotency)
+              await registerSubscriberId(info.subs_id);
+            }
           }
         } catch (e) {
           // SDK not ready yet
@@ -51,10 +57,14 @@ export const NotificationPrompt = () => {
     };
 
     // Check immediately and after a delay (SDK may not be ready)
-    checkSubscription();
-    const timeout = setTimeout(checkSubscription, 2000);
-    return () => clearTimeout(timeout);
-  }, []);
+    const timeout1 = setTimeout(checkAndRegisterSubscription, 2000);
+    const timeout2 = setTimeout(checkAndRegisterSubscription, 5000);
+    
+    return () => {
+      clearTimeout(timeout1);
+      clearTimeout(timeout2);
+    };
+  }, [user]);
 
   // Check if we're on an allowed route
   const isAllowedRoute = ALLOWED_ROUTES.some(route => location.pathname.startsWith(route));
@@ -98,6 +108,40 @@ export const NotificationPrompt = () => {
     localStorage.setItem("notification-prompt-dismissed", Date.now().toString());
   };
 
+  // Register PushAlert subscriber ID with our backend
+  const registerSubscriberId = async (subscriberId: string) => {
+    try {
+      const { supabase } = await import("@/integrations/supabase/client");
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session?.access_token) {
+        console.error("[PushAlert] No session for registering subscriber");
+        return;
+      }
+
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/register-pushalert-subscriber`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify({ subscriber_id: subscriberId }),
+        }
+      );
+
+      if (response.ok) {
+        console.log("[PushAlert] ✅ Subscriber ID registered successfully:", subscriberId);
+      } else {
+        const error = await response.json();
+        console.error("[PushAlert] Failed to register subscriber:", error);
+      }
+    } catch (error) {
+      console.error("[PushAlert] Error registering subscriber:", error);
+    }
+  };
+
   const handleSubscribe = async () => {
     setIsSubscribing(true);
     
@@ -109,8 +153,20 @@ export const NotificationPrompt = () => {
     if (window.PushAlertCo) {
       try {
         window.PushAlertCo.forceSubscribe({
-          onSuccess: () => {
+          onSuccess: async () => {
             clearTimeout(safetyTimeout);
+            
+            // Get the subscriber ID and register it with our backend
+            try {
+              const info = window.PushAlertCo?.getSubsInfo();
+              if (info?.subs_id) {
+                console.log("[PushAlert] Got subscriber ID:", info.subs_id);
+                await registerSubscriberId(info.subs_id);
+              }
+            } catch (e) {
+              console.error("[PushAlert] Error getting subscriber info:", e);
+            }
+            
             setIsSubscribing(false);
             setIsAlreadySubscribed(true);
             setDismissed(true);
