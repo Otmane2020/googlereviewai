@@ -56,7 +56,7 @@ serve(async (req) => {
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
           <td style="vertical-align: middle;">
-            <img src="https://starlinko.lovable.app/favicon.png" width="32" height="32" alt="Starlinko" style="display: block;" />
+            <img src="https://starlinko.app/favicon.png" width="32" height="32" alt="Starlinko" style="display: block;" />
           </td>
           <td style="vertical-align: middle; padding-left: 12px;">
             <span style="font-family: ${STYLES.fontFamily}; font-weight: 600; font-size: 18px; color: ${STYLES.textPrimary};">Starlinko Support</span>

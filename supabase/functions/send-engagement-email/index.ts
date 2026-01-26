@@ -42,7 +42,7 @@ const getProHeader = () => `
     <table cellpadding="0" cellspacing="0" border="0">
       <tr>
         <td style="vertical-align: middle;">
-          <img src="https://starlinko.lovable.app/favicon.png" width="32" height="32" alt="Starlinko" style="display: block;" />
+          <img src="https://starlinko.app/favicon.png" width="32" height="32" alt="Starlinko" style="display: block;" />
         </td>
         <td style="vertical-align: middle; padding-left: 12px;">
           <span style="font-family: ${STYLES.fontFamily}; font-weight: 600; font-size: 18px; color: ${STYLES.textPrimary};">Starlinko</span>
@@ -58,7 +58,7 @@ const getProFooter = () => `
       © 2025 Starlinko. Tous droits réservés.
     </p>
     <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textMuted}; font-size: 12px; margin: 0;">
-      <a href="https://starlinko.lovable.app" style="color: ${STYLES.brandBlue}; text-decoration: none;">starlinko.lovable.app</a>
+      <a href="https://starlinko.app" style="color: ${STYLES.brandBlue}; text-decoration: none;">starlinko.app</a>
     </p>
   </div>
 `;
@@ -106,7 +106,7 @@ const emailTemplates: Record<EmailType, (name: string, data?: EngagementEmailReq
       </div>
       
       <div style="text-align: left; margin: 32px 0;">
-        ${getProButton("Configurer les réponses automatiques", "https://starlinko.lovable.app/ai-settings")}
+        ${getProButton("Configurer les réponses automatiques", "https://starlinko.app/ai-settings")}
       </div>
     </div>
     ${getProFooter()}
@@ -148,7 +148,7 @@ const emailTemplates: Record<EmailType, (name: string, data?: EngagementEmailReq
       </p>
       
       <div style="text-align: left; margin: 32px 0;">
-        ${getProButton("Voir les avis", "https://starlinko.lovable.app/reviews")}
+        ${getProButton("Voir les avis", "https://starlinko.app/reviews")}
       </div>
       
       <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textMuted}; font-size: 13px; line-height: 1.6; margin: 24px 0 0 0;">
@@ -194,7 +194,7 @@ const emailTemplates: Record<EmailType, (name: string, data?: EngagementEmailReq
       </p>
       
       <div style="text-align: left; margin: 32px 0;">
-        ${getProButton("Voir les offres", "https://starlinko.lovable.app/select-plan")}
+        ${getProButton("Voir les offres", "https://starlinko.app/select-plan")}
       </div>
     </div>
     ${getProFooter()}
@@ -236,11 +236,11 @@ const emailTemplates: Record<EmailType, (name: string, data?: EngagementEmailReq
       </p>
       
       <div style="text-align: left; margin: 32px 0;">
-        ${getProButton("Recharger les crédits", "https://starlinko.lovable.app/select-plan")}
+        ${getProButton("Recharger les crédits", "https://starlinko.app/select-plan")}
       </div>
       
       <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textMuted}; font-size: 13px; line-height: 1.6; margin: 24px 0 0 0;">
-        Vous pouvez également <a href="https://starlinko.lovable.app/reviews" style="color: ${STYLES.brandBlue}; text-decoration: none;">répondre manuellement</a> depuis votre tableau de bord.
+        Vous pouvez également <a href="https://starlinko.app/reviews" style="color: ${STYLES.brandBlue}; text-decoration: none;">répondre manuellement</a> depuis votre tableau de bord.
       </p>
     </div>
     ${getProFooter()}
@@ -306,7 +306,7 @@ const emailTemplates: Record<EmailType, (name: string, data?: EngagementEmailReq
       ` : ''}
       
       <div style="text-align: left; margin: 32px 0;">
-        ${getProButton("Voir le tableau de bord", "https://starlinko.lovable.app/dashboard")}
+        ${getProButton("Voir le tableau de bord", "https://starlinko.app/dashboard")}
       </div>
     </div>
     ${getProFooter()}
