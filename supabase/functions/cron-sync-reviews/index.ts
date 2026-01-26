@@ -409,16 +409,23 @@ async function syncLocationReviews(
       e.includes("403") || e.includes("429") || e.includes("Permission denied")
     );
     
-    if (hasCriticalErrors) {
+    // GUARD 2: Skip if pagination was incomplete (fetched less than Google reports)
+    const paginationIncomplete = googleTotalReviewCount !== undefined && 
+      allGoogleReviewIds.length < googleTotalReviewCount;
+    
+    if (paginationIncomplete) {
+      console.log(`[CRON] [SAFETY] Skipping deletion detection - incomplete pagination: fetched ${allGoogleReviewIds.length}/${googleTotalReviewCount} reviews`);
+    } else if (hasCriticalErrors) {
       console.log(`[CRON] [SAFETY] Skipping deletion detection due to API errors - avoiding false positives`);
     } else if (allGoogleReviewIds.length > 0 && existingReviews && existingReviews.length > 0) {
       const googleReviewIdSet = new Set(allGoogleReviewIds);
       let reviewsToDelete = existingReviews.filter((r: any) => !googleReviewIdSet.has(r.review_id));
       
-      // GUARD 2: Safety threshold - max 20% deletions per sync
-      const maxDeletions = Math.ceil(existingReviews.length * 0.2);
+      // GUARD 3: Safety threshold - max 10% deletions (reduced from 20%) AND max 5 absolute
+      const maxDeletionsPercent = Math.ceil(existingReviews.length * 0.10);
+      const maxDeletions = Math.min(maxDeletionsPercent, 5);
       if (reviewsToDelete.length > maxDeletions && maxDeletions > 0) {
-        console.warn(`[CRON] [SAFETY] Too many deletions detected (${reviewsToDelete.length}), capping at ${maxDeletions} (20% threshold)`);
+        console.warn(`[CRON] [SAFETY] Too many deletions detected (${reviewsToDelete.length}), capping at ${maxDeletions} (10% / max 5 threshold)`);
         reviewsToDelete = reviewsToDelete.slice(0, maxDeletions);
       }
       

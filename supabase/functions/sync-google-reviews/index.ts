@@ -537,81 +537,90 @@ serve(async (req) => {
         .in("location_id", syncedLocationIds); // ← KEY FIX: Filter by synced locations
       
       if (!dbReviewsError && dbReviews) {
-        // Find reviews in DB that are not in Google anymore
-        const googleReviewIdSet = new Set(allGoogleReviewIds);
-        let reviewsToDelete = dbReviews.filter(r => !googleReviewIdSet.has(r.review_id));
+        // GUARD 2: Skip if we fetched significantly fewer reviews than DB has (pagination incomplete)
+        // Allow 10% tolerance for timing differences
+        const paginationIncomplete = allGoogleReviewIds.length < (dbReviews.length * 0.9);
         
-        // GUARD 2: Safety threshold - max 20% deletions per sync
-        const maxDeletions = Math.ceil(dbReviews.length * 0.2);
-        if (reviewsToDelete.length > maxDeletions && maxDeletions > 0) {
-          console.warn(`[SAFETY] Too many deletions detected (${reviewsToDelete.length}), capping at ${maxDeletions} (20% threshold)`);
-          reviewsToDelete = reviewsToDelete.slice(0, maxDeletions);
-        }
-        
-        if (reviewsToDelete.length > 0) {
-          console.log(`Found ${reviewsToDelete.length} reviews to delete (no longer on Google)`);
+        if (paginationIncomplete) {
+          console.log(`[SAFETY] Skipping deletion detection - likely incomplete pagination: fetched ${allGoogleReviewIds.length} but DB has ${dbReviews.length}`);
+        } else {
+          // Find reviews in DB that are not in Google anymore
+          const googleReviewIdSet = new Set(allGoogleReviewIds);
+          let reviewsToDelete = dbReviews.filter(r => !googleReviewIdSet.has(r.review_id));
           
-          // Create notifications for deleted reviews BEFORE deleting them
-          for (const deletedReview of reviewsToDelete) {
-            // In-app notification
-            await supabaseAdmin.from("notifications").insert({
-              user_id: user.id,
-              type: "review_deleted",
-              title: "🗑️ Avis supprimé",
-              message: `L'avis de ${deletedReview.author} (${deletedReview.rating} étoiles) a été supprimé de Google`,
-              review_id: null, // Review will be deleted so no link
-            });
-            
-            // Send push notification
-            try {
-              await fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/send-push-notification`, {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                  "Authorization": `Bearer ${Deno.env.get("SUPABASE_ANON_KEY")}`,
-                },
-                body: JSON.stringify({
-                  user_id: user.id,
-                  title: "🗑️ Avis supprimé",
-                  body: `L'avis de ${deletedReview.author} (${deletedReview.rating}⭐) a été supprimé de Google`,
-                  url: "/reviews",
-                }),
-              });
-            } catch (e) {
-              console.error("Failed to send push notification for deleted review:", e);
-            }
-            
-            // Send email notification
-            try {
-              await fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/send-email-notification`, {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                  "Authorization": `Bearer ${Deno.env.get("SUPABASE_ANON_KEY")}`,
-                },
-                body: JSON.stringify({
-                  user_id: user.id,
-                  subject: "🗑️ Un avis a été supprimé",
-                  message: `L'avis de ${deletedReview.author} (${deletedReview.rating} étoiles) a été supprimé de Google. Cela peut indiquer que le client a retiré son avis.`,
-                }),
-              });
-            } catch (e) {
-              console.error("Failed to send email notification for deleted review:", e);
-            }
+          // GUARD 3: Safety threshold - max 10% deletions (reduced from 20%) AND max 5 absolute
+          const maxDeletionsPercent = Math.ceil(dbReviews.length * 0.10);
+          const maxDeletions = Math.min(maxDeletionsPercent, 5);
+          if (reviewsToDelete.length > maxDeletions && maxDeletions > 0) {
+            console.warn(`[SAFETY] Too many deletions detected (${reviewsToDelete.length}), capping at ${maxDeletions} (10% / max 5 threshold)`);
+            reviewsToDelete = reviewsToDelete.slice(0, maxDeletions);
           }
           
-          const idsToDelete = reviewsToDelete.map(r => r.id);
-          const { error: deleteError } = await supabaseAdmin
-            .from("reviews")
-            .delete()
-            .in("id", idsToDelete);
-          
-          if (deleteError) {
-            console.error("Error deleting old reviews:", deleteError);
-            errors.push(`Failed to delete ${reviewsToDelete.length} removed reviews`);
-          } else {
-            deletedCount = reviewsToDelete.length;
-            console.log(`Successfully deleted ${deletedCount} reviews that were removed from Google`);
+          if (reviewsToDelete.length > 0) {
+            console.log(`Found ${reviewsToDelete.length} reviews to delete (no longer on Google)`);
+            
+            // Create notifications for deleted reviews BEFORE deleting them
+            for (const deletedReview of reviewsToDelete) {
+              // In-app notification
+              await supabaseAdmin.from("notifications").insert({
+                user_id: user.id,
+                type: "review_deleted",
+                title: "🗑️ Avis supprimé",
+                message: `L'avis de ${deletedReview.author} (${deletedReview.rating} étoiles) a été supprimé de Google`,
+                review_id: null, // Review will be deleted so no link
+              });
+              
+              // Send push notification
+              try {
+                await fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/send-push-notification`, {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${Deno.env.get("SUPABASE_ANON_KEY")}`,
+                  },
+                  body: JSON.stringify({
+                    user_id: user.id,
+                    title: "🗑️ Avis supprimé",
+                    body: `L'avis de ${deletedReview.author} (${deletedReview.rating}⭐) a été supprimé de Google`,
+                    url: "/reviews",
+                  }),
+                });
+              } catch (e) {
+                console.error("Failed to send push notification for deleted review:", e);
+              }
+              
+              // Send email notification
+              try {
+                await fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/send-email-notification`, {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${Deno.env.get("SUPABASE_ANON_KEY")}`,
+                  },
+                  body: JSON.stringify({
+                    user_id: user.id,
+                    subject: "🗑️ Un avis a été supprimé",
+                    message: `L'avis de ${deletedReview.author} (${deletedReview.rating} étoiles) a été supprimé de Google. Cela peut indiquer que le client a retiré son avis.`,
+                  }),
+                });
+              } catch (e) {
+                console.error("Failed to send email notification for deleted review:", e);
+              }
+            }
+            
+            const idsToDelete = reviewsToDelete.map(r => r.id);
+            const { error: deleteError } = await supabaseAdmin
+              .from("reviews")
+              .delete()
+              .in("id", idsToDelete);
+            
+            if (deleteError) {
+              console.error("Error deleting old reviews:", deleteError);
+              errors.push(`Failed to delete ${reviewsToDelete.length} removed reviews`);
+            } else {
+              deletedCount = reviewsToDelete.length;
+              console.log(`Successfully deleted ${deletedCount} reviews that were removed from Google`);
+            }
           }
         }
       }
