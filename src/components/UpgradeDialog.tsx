@@ -83,6 +83,9 @@ const creditPacks: CreditPack[] = [
   { price: 2999, credits: 10000, priceKey: "credits_10000" },
 ];
 
+// Plan hierarchy for upgrade logic
+const planHierarchy = ["starter", "pro", "business"];
+
 interface UpgradeDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -90,6 +93,14 @@ interface UpgradeDialogProps {
 }
 
 export const UpgradeDialog = ({ open, onOpenChange, currentPlan }: UpgradeDialogProps) => {
+  // Normalize current plan for comparison
+  const normalizedCurrentPlan = currentPlan?.toLowerCase().replace(/\s+/g, "");
+  const currentPlanIndex = normalizedCurrentPlan 
+    ? planHierarchy.indexOf(normalizedCurrentPlan) 
+    : -1;
+  
+  // Check if user has any active subscription
+  const hasActiveSubscription = currentPlanIndex >= 0;
   const [isYearly, setIsYearly] = useState(false);
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const [loadingCredits, setLoadingCredits] = useState(false);
@@ -214,15 +225,25 @@ export const UpgradeDialog = ({ open, onOpenChange, currentPlan }: UpgradeDialog
         {/* Plans Stack */}
         <div className="px-4 pb-4 pt-2 space-y-5">
           {plans.map((plan) => {
-            const isCurrentPlan = currentPlan?.toLowerCase() === plan.id;
+            const planIndex = planHierarchy.indexOf(plan.id);
+            const isCurrentPlan = normalizedCurrentPlan === plan.id;
+            // Disable if it's the current plan OR a lower tier
+            const isLowerTier = planIndex <= currentPlanIndex && planIndex !== -1 && currentPlanIndex !== -1;
+            const isDisabled = isCurrentPlan || isLowerTier;
+            
+            // Don't show trial option if user already has any subscription
+            const planWithoutTrial = hasActiveSubscription && plan.hasTrial 
+              ? { ...plan, hasTrial: false, trialDays: undefined }
+              : plan;
             
             return (
               <PlanCard
                 key={plan.id}
-                plan={plan}
+                plan={planWithoutTrial}
                 isYearly={isYearly}
                 isLoading={loadingPlan === plan.id}
                 isCurrentPlan={isCurrentPlan}
+                isLowerTier={isLowerTier && !isCurrentPlan}
                 onSelect={() => handleSelectPlan(plan)}
               />
             );

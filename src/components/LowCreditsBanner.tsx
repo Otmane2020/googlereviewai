@@ -6,9 +6,10 @@ import { UpgradeDialog } from "@/components/UpgradeDialog";
 interface LowCreditsBannerProps {
   credits: number;
   pendingReviews?: number;
+  currentPlan?: string;
 }
 
-export const LowCreditsBanner = ({ credits, pendingReviews = 0 }: LowCreditsBannerProps) => {
+export const LowCreditsBanner = ({ credits, pendingReviews = 0, currentPlan }: LowCreditsBannerProps) => {
   const [dismissed, setDismissed] = useState(false);
   const [upgradeDialogOpen, setUpgradeDialogOpen] = useState(false);
 
@@ -86,7 +87,11 @@ export const LowCreditsBanner = ({ credits, pendingReviews = 0 }: LowCreditsBann
         </div>
       </div>
       
-      <UpgradeDialog open={upgradeDialogOpen} onOpenChange={setUpgradeDialogOpen} />
+      <UpgradeDialog 
+        open={upgradeDialogOpen} 
+        onOpenChange={setUpgradeDialogOpen} 
+        currentPlan={currentPlan}
+      />
     </>
   );
 };
