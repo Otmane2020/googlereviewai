@@ -198,9 +198,9 @@ serve(async (req) => {
       }
     }
 
-    // 3. Send push notification
+    // 3. Send push notification via PushAlert
     try {
-      const pushResponse = await fetch(`${supabaseUrl}/functions/v1/send-push-notification`, {
+      const pushResponse = await fetch(`${supabaseUrl}/functions/v1/send-pushalert-notification`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -209,22 +209,21 @@ serve(async (req) => {
         body: JSON.stringify({
           user_id,
           title: notificationTitle,
-          body: notificationMessage,
-          url: reviewUrl,
-          // FCM requires all `data.*` values to be strings
-          data: { review_id: String(review_id) },
+          message: notificationMessage,
+          url: fullReviewUrl,
+          icon: "https://starlinko.app/icon-512x512.png",
         }),
       });
 
       if (pushResponse.ok) {
         const pushResult = await pushResponse.json();
-        console.log("[notify-new-review] Push notification result:", pushResult);
+        console.log("[notify-new-review] PushAlert notification result:", pushResult);
       } else {
         const pushError = await pushResponse.text();
-        console.error("[notify-new-review] Push notification failed:", pushError);
+        console.error("[notify-new-review] PushAlert notification failed:", pushError);
       }
     } catch (pushError) {
-      console.error("[notify-new-review] Push error:", pushError);
+      console.error("[notify-new-review] PushAlert error:", pushError);
     }
 
     return new Response(
