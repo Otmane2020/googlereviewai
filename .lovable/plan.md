@@ -1,120 +1,116 @@
 
-# Plan : Correction du bug de fausses suppressions d'avis
+# Plan : Correction de la non-réception des notifications push PushAlert
 
 ## Probleme identifie
 
-Le systeme de synchronisation detecte a tort des avis comme supprimes lorsque la pagination Google echoue partiellement.
+L'API PushAlert retourne `success: true` mais l'utilisateur ne recoit pas les notifications. Le SDK cote client affiche `status: "no_init"` ce qui indique un probleme d'initialisation.
 
-**Ce qui s'est passe a 15:56 :**
-1. Le CRON a synchronise les avis de Sweet Deco (65 avis en base)
-2. Page 1 a retourne 50 avis
-3. Page 2 n'a PAS ete chargee (timeout ou erreur reseau silencieuse)
-4. Le systeme a compare 50 avis Google vs 65 avis en DB
-5. 15 avis "manquants" ont ete detectes comme supprimes
-6. Le seuil de securite 20% (65 * 0.2 = 13) a limite les suppressions a 13 avis
-7. 13 avis ont ete supprimes a tort et 13 notifications envoyees
-8. Au cycle suivant, les 13 avis ont ete recreent depuis Google
-
-## Cause racine
-
-Le code ne verifie pas si la pagination est complete avant de declencher la detection de suppressions. Si `nextPageToken` existe mais que la boucle sort (erreur, timeout), les avis des pages non chargees sont consideres comme supprimes.
+**Cause racine :** Le `subscriber_id` enregistre en base de donnees correspond a un abonnement PushAlert qui n'est plus valide cote navigateur. L'utilisateur a accorde les permissions Chrome mais n'a pas complete le flow d'abonnement PushAlert complet.
 
 ## Solution proposee
 
-Ajouter un garde de securite supplementaire dans les deux fonctions de synchronisation :
+### 1. Ajouter la validation du subscriber avant envoi
 
-**Garde 3 - Verification de pagination complete :**
-- Si `allGoogleReviewIds.length < googleTotalReviewCount` (le total officiel), skipper la detection de suppression
-- Cela signifie que toutes les pages n'ont pas ete chargees
+Avant d'envoyer une notification, verifier que le subscriber est toujours actif via l'API PushAlert. Si l'abonnement est invalide, retirer le `subscriber_id` de la base pour forcer une re-inscription.
 
-**Amelioration du seuil de securite :**
-- Reduire le seuil de 20% a 10% pour limiter les faux positifs
-- Ajouter un minimum absolu (ex: max 5 suppressions par cycle)
+### 2. Ajouter un bouton "Reactiver les notifications" dans les parametres
+
+Permettre a l'utilisateur de forcer une nouvelle inscription PushAlert pour obtenir un nouveau `subscriber_id` valide.
+
+### 3. Ameliorer la detection d'abonnement au demarrage
+
+Si le SDK retourne `no_init` alors que l'utilisateur a un `subscriber_id` en base, forcer automatiquement une re-souscription.
 
 ---
 
 ## Fichiers a modifier
 
-### 1. `supabase/functions/cron-sync-reviews/index.ts`
+### 1. `supabase/functions/send-pushalert-notification/index.ts`
 
-**Lignes ~406-425 :** Ajouter verification pagination complete
+Ajouter une verification de l'etat du subscriber avant l'envoi :
 
 ```typescript
-// GUARD 3: Skip if pagination was incomplete
-if (googleTotalReviewCount !== undefined && allGoogleReviewIds.length < googleTotalReviewCount) {
-  console.log(`[CRON] [SAFETY] Skipping deletion detection - incomplete pagination: ${allGoogleReviewIds.length}/${googleTotalReviewCount}`);
-} else if (hasCriticalErrors) {
-  // existing guard 1...
+// Avant l'envoi, verifier si le subscriber est valide
+// PushAlert ne fournit pas d'API pour verifier un subscriber
+// Mais on peut detecter l'echec et marquer le subscriber comme invalide
+
+// Si la reponse contient une erreur specifique au subscriber, 
+// supprimer le subscriber_id de la base
+if (result.error === "invalid_subscriber" || result.error === "subscriber_not_found") {
+  await supabase
+    .from("profiles")
+    .update({ pushalert_subscriber_id: null })
+    .eq("id", user_id);
+  console.log("[PushAlert] Cleared invalid subscriber ID for user", user_id);
 }
 ```
 
-**Reduire le seuil :**
+### 2. `src/components/NotificationPrompt.tsx`
+
+Forcer la re-souscription si le SDK n'est pas initialise mais l'utilisateur a un subscriber_id :
+
 ```typescript
-// GUARD 2: Safety threshold - max 10% deletions (reduced from 20%) AND max 5 absolute
-const maxDeletionsPercent = Math.ceil(existingReviews.length * 0.10);
-const maxDeletions = Math.min(maxDeletionsPercent, 5);
+// Dans checkAndRegisterSubscription
+if (info?.status === "no_init" || info?.status === "unsubscribed") {
+  // Le SDK n'est pas initialise ou l'utilisateur s'est desabonne
+  // Proposer de reactiver
+  setIsAlreadySubscribed(false);
+}
 ```
 
-### 2. `supabase/functions/sync-google-reviews/index.ts`
+### 3. `src/pages/Settings.tsx`
 
-**Lignes ~514-550 :** Memes gardes de securite
+Ajouter un bouton "Reactiver les notifications push" dans les parametres :
 
-Ajouter la verification du total Google avant suppression :
-```typescript
-// Store googleTotalReviewCount per location
-// Compare allGoogleReviewIds.length vs sum of all googleTotalReviewCount
-// Skip deletion if incomplete
+```tsx
+<Button onClick={handleReactivatePush}>
+  Réactiver les notifications push
+</Button>
+```
+
+Avec une fonction qui :
+1. Supprime le `subscriber_id` actuel de la base
+2. Force une nouvelle souscription via `PushAlertCo.forceSubscribe()`
+3. Enregistre le nouveau `subscriber_id`
+
+---
+
+## Details techniques
+
+### Flux actuel problematique
+
+```text
+1. Utilisateur autorise notifs dans Chrome ✓
+2. SDK PushAlert non initialise (no_init)
+3. subscriber_id en base = ancien ID invalide
+4. Serveur envoie a PushAlert → success:true
+5. PushAlert ne peut pas delivrer → notification perdue
+```
+
+### Nouveau flux corrige
+
+```text
+1. Utilisateur ouvre l'app
+2. SDK detecte "no_init" mais subscriber_id existe
+3. App supprime l'ancien subscriber_id
+4. Prompt de notification s'affiche
+5. Utilisateur clique "Activer"
+6. Nouveau subscriber_id enregistre
+7. Notifications delivrees correctement ✓
 ```
 
 ---
 
 ## Impact
 
-- Elimination des fausses notifications "Avis supprime"
-- Les vraies suppressions seront encore detectees, mais seulement quand TOUTES les pages sont chargees
-- Reduction du nombre max de suppressions par cycle (5 au lieu de 13)
+- Les utilisateurs avec des abonnements invalides seront automatiquement invites a reactiver
+- Les notifications ne seront plus "perdues" vers des subscribers inactifs
+- Option manuelle dans les parametres pour forcer la re-activation
 
 ---
 
-## Details techniques
+## Tests recommandes
 
-### Flux de synchronisation actuel
-
-```text
-1. Fetch Page 1 (50 avis) 
-   -> nextPageToken existe
-2. Fetch Page 2 (15 avis)
-   -> nextPageToken = null
-3. Total: 65 avis
-4. Compare avec DB (65 avis)
-5. 0 suppression detectee ✓
-```
-
-### Flux problematique (15:56)
-
-```text
-1. Fetch Page 1 (50 avis)
-   -> nextPageToken existe
-2. Page 2 echoue (timeout silencieux)
-3. Total: 50 avis seulement
-4. Compare avec DB (65 avis)
-5. 15 avis "manquants"
-6. Seuil 20% = 13 suppressions ✗
-```
-
-### Nouveau flux avec garde
-
-```text
-1. Fetch Page 1 (50 avis)
-   -> googleTotalReviewCount = 65
-2. Page 2 echoue
-3. Total fetched: 50 < 65 officiel
-4. [SAFETY] Pagination incomplete
-5. Skip deletion detection ✓
-```
-
----
-
-## Nettoyage des notifications erronees
-
-Supprimer les notifications de type `review_deleted` creees le 2026-01-26 a 15:56 pour l'utilisateur `oben.rockman` (optionnel, a faire via requete SQL directe).
+1. Tester avec un utilisateur ayant `no_init` status
+2. Verifier que le prompt s'affiche apres suppression du subscriber_id
+3. Confirmer la reception d'une notification test apres reactivation
