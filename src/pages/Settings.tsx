@@ -408,37 +408,69 @@ const SettingsPage = () => {
                     Désactiver
                   </Button>
                 )}
-                {pushPermission === "granted" && !isSubscribedToPush && (
+                {/* Force reactivation button - always visible when push permission granted but SDK issues */}
+                {pushPermission === "granted" && (
                   <Button
-                    variant="default"
+                    variant="secondary"
                     size="sm"
-                    onClick={() => {
-                      // PushAlert forceSubscribe - re-subscribe user with native prompt
-                      if (typeof window !== 'undefined' && (window as any).PushAlertCo) {
-                        // Set up callbacks before calling forceSubscribe
-                        (window as any).pushalertbyiw = (window as any).pushalertbyiw || [];
-                        (window as any).pushalertbyiw.push(['onSuccess', () => {
-                          setIsSubscribedToPush(true);
-                          toast({
-                            title: "Notifications réactivées",
-                            description: "Vous recevrez à nouveau les alertes.",
-                          });
-                        }]);
-                        (window as any).pushalertbyiw.push(['onFailure', (result: any) => {
-                          if (result?.status === -1) {
+                    onClick={async () => {
+                      // Force re-subscribe: clear old subscriber_id and trigger new subscription
+                      if (typeof window !== 'undefined' && (window as any).PushAlertCo && user) {
+                        // 1. Clear old subscriber_id from database
+                        try {
+                          await supabase
+                            .from("profiles")
+                            .update({ pushalert_subscriber_id: null })
+                            .eq("id", user.id);
+                          console.log("[Settings] Cleared old subscriber_id");
+                        } catch (e) {
+                          console.error("[Settings] Error clearing subscriber_id:", e);
+                        }
+                        
+                        // 2. Force new subscription
+                        (window as any).PushAlertCo.forceSubscribe({
+                          onSuccess: async () => {
+                            const info = (window as any).PushAlertCo?.getSubsInfo?.();
+                            if (info?.subs_id) {
+                              // Register new subscriber_id
+                              try {
+                                const { data: { session } } = await supabase.auth.getSession();
+                                if (session?.access_token) {
+                                  await fetch(
+                                    `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/register-pushalert-subscriber`,
+                                    {
+                                      method: "POST",
+                                      headers: {
+                                        "Content-Type": "application/json",
+                                        "Authorization": `Bearer ${session.access_token}`,
+                                      },
+                                      body: JSON.stringify({ subscriber_id: info.subs_id }),
+                                    }
+                                  );
+                                }
+                              } catch (e) {
+                                console.error("[Settings] Error registering new subscriber:", e);
+                              }
+                            }
+                            setIsSubscribedToPush(true);
                             toast({
-                              title: "Notifications bloquées",
-                              description: "Autorisez dans les paramètres du navigateur.",
+                              title: "Notifications réactivées ✅",
+                              description: "Vous recevrez à nouveau les alertes.",
+                            });
+                          },
+                          onFailure: () => {
+                            toast({
+                              title: "Échec de réactivation",
+                              description: "Vérifiez les permissions du navigateur.",
                               variant: "destructive",
                             });
                           }
-                        }]);
-                        (window as any).PushAlertCo.forceSubscribe();
+                        });
                       }
                     }}
                     className="rounded-xl h-9 shrink-0"
                   >
-                    <Bell className="w-4 h-4 mr-1" />
+                    <BellRing className="w-4 h-4 mr-1" />
                     Réactiver
                   </Button>
                 )}

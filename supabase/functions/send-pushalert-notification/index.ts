@@ -116,6 +116,17 @@ serve(async (req) => {
       );
     } else {
       console.error(`[PushAlert] ❌ Failed:`, result);
+      
+      // Clear invalid subscriber ID from database if PushAlert reports it as invalid
+      const errorMsg = (result.message || result.error || "").toLowerCase();
+      if (errorMsg.includes("invalid") || errorMsg.includes("not found") || errorMsg.includes("subscriber")) {
+        console.log(`[PushAlert] Clearing invalid subscriber ID for user ${user_id}`);
+        await supabase
+          .from("profiles")
+          .update({ pushalert_subscriber_id: null })
+          .eq("id", user_id);
+      }
+      
       return new Response(
         JSON.stringify({ 
           success: false, 

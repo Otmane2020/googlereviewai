@@ -58,6 +58,22 @@ export const NotificationPrompt = () => {
             } else {
               console.warn("[NotificationPrompt] Subscribed but no subs_id available");
             }
+          } else if (info?.status === "no_init" || info?.status === "unsubscribed") {
+            // SDK not initialized or user unsubscribed - clear invalid subscriber_id from DB
+            console.log("[NotificationPrompt] SDK status:", info.status, "- clearing old subscriber_id and showing prompt");
+            setIsAlreadySubscribed(false);
+            
+            // Clear potentially invalid subscriber_id from database
+            try {
+              const { supabase } = await import("@/integrations/supabase/client");
+              await supabase
+                .from("profiles")
+                .update({ pushalert_subscriber_id: null })
+                .eq("id", user.id);
+              console.log("[NotificationPrompt] Cleared old subscriber_id from database");
+            } catch (e) {
+              console.error("[NotificationPrompt] Error clearing subscriber_id:", e);
+            }
           }
         } catch (e) {
           console.log("[NotificationPrompt] SDK not ready yet:", e);
