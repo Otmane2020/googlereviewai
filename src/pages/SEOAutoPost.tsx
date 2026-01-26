@@ -143,22 +143,46 @@ const SEOAutoPost = () => {
     try {
       const priceKey = annual ? "seo_yearly" : "seo_monthly";
       
-      const { data, error } = await supabase.functions.invoke("create-checkout", {
+      // First try to add to existing subscription
+      const { data: addData, error: addError } = await supabase.functions.invoke("add-subscription-item", {
         body: { 
           priceKey,
           quantity,
-          selectedBusinessIds,
         }
       });
       
-      if (error) throw error;
-      if (data?.url) {
-        window.location.href = data.url;
+      if (addData?.success) {
+        toast({
+          title: "Module activé !",
+          description: "Le module SEO a été ajouté à votre abonnement.",
+        });
+        setIsSubscribed(true);
+        checkSubscription();
+        return;
+      }
+      
+      // If no existing subscription, create checkout
+      if (addError?.message?.includes("No active subscription") || addError?.message?.includes("No Stripe customer")) {
+        const { data, error } = await supabase.functions.invoke("create-checkout", {
+          body: { 
+            priceKey,
+            quantity,
+            selectedBusinessIds,
+          }
+        });
+        
+        if (error) throw error;
+        if (data?.url) {
+          window.location.href = data.url;
+        }
+      } else if (addError) {
+        throw addError;
       }
     } catch (error: any) {
+      console.error("Subscription error:", error);
       toast({
         title: "Erreur",
-        description: "Impossible de créer la session de paiement",
+        description: error?.message || "Impossible de créer la session de paiement",
         variant: "destructive"
       });
     }
