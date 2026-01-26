@@ -235,6 +235,7 @@ serve(async (req) => {
       line_items: lineItems,
       mode: checkoutMode,
       locale: "fr",
+      allow_promotion_codes: true, // Enable promo codes in checkout
       success_url: successUrl || `${req.headers.get("origin")}/dashboard?success=true`,
       cancel_url: cancelUrl || `${req.headers.get("origin")}/checkout?canceled=true`,
       metadata,
