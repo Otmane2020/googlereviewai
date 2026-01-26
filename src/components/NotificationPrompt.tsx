@@ -98,32 +98,47 @@ export const NotificationPrompt = () => {
     localStorage.setItem("notification-prompt-dismissed", Date.now().toString());
   };
 
-  const handleSubscribe = () => {
+  const handleSubscribe = async () => {
     setIsSubscribing(true);
     
+    // Add a safety timeout to reset state if nothing happens
+    const safetyTimeout = setTimeout(() => {
+      setIsSubscribing(false);
+    }, 10000);
+    
     if (window.PushAlertCo) {
-      window.PushAlertCo.forceSubscribe({
-        onSuccess: () => {
-          setIsSubscribing(false);
-          setIsAlreadySubscribed(true);
-          setDismissed(true);
-          toast({
-            title: "Notifications activées",
-            description: "Vous recevrez les alertes pour vos avis Google",
-          });
-        },
-        onFailure: () => {
-          setIsSubscribing(false);
-          toast({
-            title: "Notifications non activées",
-            description: "Vous pouvez les activer plus tard dans les paramètres",
-            variant: "destructive",
-          });
-        }
-      });
+      try {
+        window.PushAlertCo.forceSubscribe({
+          onSuccess: () => {
+            clearTimeout(safetyTimeout);
+            setIsSubscribing(false);
+            setIsAlreadySubscribed(true);
+            setDismissed(true);
+            toast({
+              title: "Notifications activées",
+              description: "Vous recevrez les alertes pour vos avis Google",
+            });
+          },
+          onFailure: () => {
+            clearTimeout(safetyTimeout);
+            setIsSubscribing(false);
+            toast({
+              title: "Notifications non activées",
+              description: "Vous pouvez les activer plus tard dans les paramètres",
+              variant: "destructive",
+            });
+          }
+        });
+      } catch (error) {
+        clearTimeout(safetyTimeout);
+        setIsSubscribing(false);
+        console.error("PushAlert error:", error);
+      }
     } else {
       // Fallback: request native permission
-      Notification.requestPermission().then((result) => {
+      try {
+        const result = await Notification.requestPermission();
+        clearTimeout(safetyTimeout);
         setIsSubscribing(false);
         setPermission(result);
         if (result === "granted") {
@@ -133,7 +148,11 @@ export const NotificationPrompt = () => {
             description: "Vous recevrez les alertes pour vos avis Google",
           });
         }
-      });
+      } catch (error) {
+        clearTimeout(safetyTimeout);
+        setIsSubscribing(false);
+        console.error("Permission error:", error);
+      }
     }
   };
 
