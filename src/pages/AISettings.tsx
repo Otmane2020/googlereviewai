@@ -71,10 +71,12 @@ const lengthOptions = [
 const OldReviewsSection = ({ 
   oldReviewsCount, 
   userId,
+  currentPlan,
   onComplete 
 }: { 
   oldReviewsCount: number; 
   userId: string;
+  currentPlan?: string | null;
   onComplete: () => void;
 }) => {
   const [loading, setLoading] = useState(false);
@@ -172,7 +174,11 @@ const OldReviewsSection = ({
         </Button>
       </div>
       
-      <UpgradeDialog open={upgradeOpen} onOpenChange={setUpgradeOpen} />
+      <UpgradeDialog 
+        open={upgradeOpen} 
+        onOpenChange={setUpgradeOpen}
+        currentPlan={currentPlan || undefined}
+      />
     </>
   );
 };
@@ -201,6 +207,7 @@ const AISettingsPage = () => {
   const [pendingStats, setPendingStats] = useState<PendingReviewsStats>({ oldReviews: 0, newReviews: 0 });
   const [negativeReviewsCount, setNegativeReviewsCount] = useState(0);
   const [userCredits, setUserCredits] = useState(0);
+  const [currentPlan, setCurrentPlan] = useState<string | null>(null);
   const [generatingOld, setGeneratingOld] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
   const [settingsId, setSettingsId] = useState<string | null>(null);
@@ -241,7 +248,7 @@ const AISettingsPage = () => {
           .lt("rating", 4),
         supabase
           .from("profiles")
-          .select("credits")
+          .select("credits, plan_name")
           .eq("id", user.id)
           .single()
       ]);
@@ -282,8 +289,9 @@ const AISettingsPage = () => {
       // Set negative reviews count
       setNegativeReviewsCount(negativeReviewsRes.count || 0);
       
-      // Set user credits
+      // Set user credits and plan
       setUserCredits(profileRes.data?.credits || 0);
+      setCurrentPlan(profileRes.data?.plan_name || null);
 
       setLoading(false);
     };
@@ -725,13 +733,18 @@ const AISettingsPage = () => {
           <OldReviewsSection 
             oldReviewsCount={pendingStats.oldReviews}
             userId={user?.id || ""}
+            currentPlan={currentPlan}
             onComplete={() => setPendingStats(prev => ({ ...prev, oldReviews: 0 }))}
           />
         )}
       </main>
 
       <MobileBottomNav />
-      <UpgradeDialog open={upgradeOpen} onOpenChange={setUpgradeOpen} />
+      <UpgradeDialog 
+        open={upgradeOpen} 
+        onOpenChange={setUpgradeOpen} 
+        currentPlan={currentPlan || undefined}
+      />
     </div>
   );
 };

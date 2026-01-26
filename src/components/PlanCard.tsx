@@ -27,6 +27,7 @@ interface PlanCardProps {
   isYearly: boolean;
   isLoading: boolean;
   isCurrentPlan?: boolean;
+  isLowerTier?: boolean;
   onSelect: () => void;
 }
 
@@ -35,8 +36,10 @@ export const PlanCard = ({
   isYearly, 
   isLoading, 
   isCurrentPlan = false,
+  isLowerTier = false,
   onSelect 
 }: PlanCardProps) => {
+  const isDisabled = isCurrentPlan || isLowerTier;
   const price = isYearly ? plan.priceYearly / 12 : plan.priceMonthly;
   
   // Determine card style based on plan type
@@ -80,7 +83,7 @@ export const PlanCard = ({
   return (
     <div 
       className={`relative rounded-2xl border-2 ${style.border} ${style.bg} p-4 transition-all ${
-        isCurrentPlan ? "opacity-60" : ""
+        isDisabled ? "opacity-60" : ""
       }`}
     >
       {/* Badge */}
@@ -134,13 +137,15 @@ export const PlanCard = ({
       {/* CTA Button */}
       <Button
         onClick={onSelect}
-        disabled={isCurrentPlan || isLoading}
+        disabled={isDisabled || isLoading}
         className={`w-full mt-4 rounded-xl h-12 font-semibold text-white ${style.buttonBg} shadow-lg`}
       >
         {isLoading ? (
           <Loader2 className="w-4 h-4 animate-spin" />
         ) : isCurrentPlan ? (
-          "Plan actuel"
+          "✓ Plan actuel"
+        ) : isLowerTier ? (
+          "Plan inférieur"
         ) : (
           <>
             <Check className="w-4 h-4 mr-2" />

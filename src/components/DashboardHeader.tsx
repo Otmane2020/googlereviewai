@@ -294,7 +294,11 @@ export const DashboardHeader = () => {
         </nav>
       </div>
 
-      <UpgradeDialog open={upgradeDialogOpen} onOpenChange={setUpgradeDialogOpen} />
+      <UpgradeDialog 
+        open={upgradeDialogOpen} 
+        onOpenChange={setUpgradeDialogOpen} 
+        currentPlan={profile?.plan_name || undefined}
+      />
     </header>
   );
 };
