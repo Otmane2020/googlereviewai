@@ -25,6 +25,8 @@ const Auth = () => {
   const navigate = useNavigate();
 
   // Helper function to check subscription and redirect accordingly
+  // PAYMENT FIRST: Always redirect to choose-plan if no valid subscription
+  // Google connection happens AFTER payment on the dashboard
   const checkSubscriptionAndRedirect = async (userId: string) => {
     try {
       const { data: profile } = await supabase
@@ -41,6 +43,7 @@ const Auth = () => {
       if (hasValidPlan) {
         navigate("/dashboard", { replace: true });
       } else {
+        // Always redirect to payment first
         navigate("/choose-plan", { replace: true });
       }
     } catch (error) {
@@ -50,6 +53,7 @@ const Auth = () => {
   };
 
   // Handle OAuth callback and regular auth redirect
+  // PAYMENT FIRST FLOW: Don't sync businesses here, just store tokens and redirect to payment
   useEffect(() => {
     // Check URL for OAuth callback tokens
     const hash = window.location.hash;
@@ -57,10 +61,10 @@ const Auth = () => {
     
     if (hasTokens) {
       setIsRedirecting(true);
-      // OAuth callback - let Supabase process tokens, then store GMB refresh token
+      // OAuth callback - store GMB refresh token but DON'T sync yet (payment first)
       supabase.auth.getSession().then(async ({ data: { session } }) => {
         if (session) {
-          // If we have a provider_refresh_token from Google, store it for GMB access
+          // If we have a provider_refresh_token from Google, store it for later GMB access
           const providerRefreshToken = session.provider_refresh_token;
           if (providerRefreshToken && session.user) {
             try {
@@ -73,30 +77,10 @@ const Auth = () => {
                   updated_at: new Date().toISOString(),
                 })
                 .eq("id", session.user.id);
-              console.log("[Auth] Stored Google refresh token for GMB access");
+              console.log("[Auth] Stored Google refresh token for GMB access (will sync after payment)");
               
-              // Immediately trigger business sync with fresh provider_token
-              if (session.provider_token) {
-                console.log("[Auth] Triggering immediate business sync...");
-                try {
-                  const syncResponse = await supabase.functions.invoke("sync-google-businesses", {
-                    body: { provider_token: session.provider_token },
-                  });
-                  
-                  if (syncResponse.data?.requires_selection) {
-                    sessionStorage.setItem("pending_business_selection", JSON.stringify({
-                      businesses: syncResponse.data.google_businesses,
-                      maxBusinesses: syncResponse.data.max_businesses,
-                    }));
-                    console.log("[Auth] Stored pending business selection for Dashboard");
-                  } else if (syncResponse.data?.success) {
-                    localStorage.setItem(`starlinko_initial_sync_${session.user.id}`, "true");
-                    console.log("[Auth] Business sync complete, no selection needed");
-                  }
-                } catch (syncErr) {
-                  console.error("[Auth] Business sync failed:", syncErr);
-                }
-              }
+              // DON'T trigger business sync here - wait for payment first
+              // The Dashboard will handle sync after subscription is verified
             } catch (err) {
               console.error("[Auth] Failed to store Google refresh token:", err);
             }
