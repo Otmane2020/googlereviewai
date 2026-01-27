@@ -334,7 +334,37 @@ const SettingsPage = () => {
           </div>
           
           <div className="space-y-4">
-            <Button variant="outline" className="w-full justify-start">
+            <Button 
+              variant="outline" 
+              className="w-full justify-start"
+              onClick={async () => {
+                if (!user?.email) {
+                  toast({
+                    title: "Erreur",
+                    description: "Email non disponible",
+                    variant: "destructive",
+                  });
+                  return;
+                }
+                
+                const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
+                  redirectTo: `${window.location.origin}/reset-password`,
+                });
+                
+                if (error) {
+                  toast({
+                    title: "Erreur",
+                    description: error.message,
+                    variant: "destructive",
+                  });
+                } else {
+                  toast({
+                    title: "Email envoyé",
+                    description: "Vérifiez votre boîte mail pour réinitialiser votre mot de passe.",
+                  });
+                }
+              }}
+            >
               Changer le mot de passe
             </Button>
             <div className="flex gap-2">
