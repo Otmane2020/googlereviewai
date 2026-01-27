@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Send, Megaphone, Gift, Calendar, Clock, Check, AlertCircle, Loader2 } from "lucide-react";
+import { ArrowLeft, Send, Megaphone, Gift, Calendar, Clock, Check, AlertCircle, Loader2, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -146,7 +146,13 @@ export default function GmbPost() {
       if (error) throw error;
 
       if (data?.success) {
-        toast.success("Publication réussie sur Google !");
+        toast.success("Publication réussie !", {
+          description: "Votre post est maintenant visible sur Google Business Profile",
+          action: {
+            label: "Voir",
+            onClick: () => window.open("https://business.google.com", "_blank"),
+          },
+        });
         setContent("");
         setCtaType("NONE");
         setCtaUrl("");
@@ -385,8 +391,16 @@ export default function GmbPost() {
 
         {/* Recent Posts */}
         <Card>
-          <CardHeader className="pb-3">
+          <CardHeader className="pb-3 flex flex-row items-center justify-between">
             <CardTitle className="text-base">Publications récentes</CardTitle>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={fetchRecentPosts}
+              className="h-8 px-2"
+            >
+              <RefreshCw className="w-4 h-4" />
+            </Button>
           </CardHeader>
           <CardContent>
             {recentPosts.length === 0 ? (
@@ -399,10 +413,15 @@ export default function GmbPost() {
               <div className="space-y-3">
                 {recentPosts.map((post) => {
                   const Icon = getPostTypeIcon(post.topic_type);
+                  const isPublished = post.status === "published";
                   return (
                     <div 
                       key={post.id} 
-                      className="flex items-start gap-3 p-3 rounded-xl bg-muted/50"
+                      className={`flex items-start gap-3 p-3 rounded-xl border transition-all ${
+                        isPublished 
+                          ? "bg-emerald-500/10 border-emerald-500/30" 
+                          : "bg-muted/50 border-transparent"
+                      }`}
                     >
                       <div className="p-2 rounded-lg bg-primary/10">
                         <Icon className="w-4 h-4 text-primary" />
