@@ -327,26 +327,29 @@ const AEORank = () => {
       return;
     }
 
-    const providerToken = session?.provider_token;
-    if (!providerToken) {
-      toast({ 
-        title: "Connexion requise", 
-        description: "Reconnectez-vous avec Google pour publier", 
-        variant: "destructive" 
-      });
-      return;
-    }
-
     setPublishing(item.id);
     try {
       const { data, error } = await supabase.functions.invoke("publish-gmb-qa", {
         body: {
           content_id: item.id,
-          provider_token: providerToken,
         },
       });
 
       if (error) throw error;
+      
+      if (data?.requires_reconnect) {
+        toast({ 
+          title: "Reconnexion requise", 
+          description: "Reconnectez-vous avec Google depuis le Dashboard", 
+          variant: "destructive" 
+        });
+        setPublishing(null);
+        return;
+      }
+
+      if (data?.success === false) {
+        throw new Error(data.error || "Échec de la publication");
+      }
 
       await fetchScheduledContent(selectedBusiness!.id);
       toast({ 

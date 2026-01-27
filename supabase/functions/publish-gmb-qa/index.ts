@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { getGoogleAccessToken } from "../_shared/googleAuth.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -16,11 +17,13 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    const { content_id, provider_token } = await req.json();
+    const { content_id } = await req.json();
 
     if (!content_id) {
       throw new Error("content_id is required");
     }
+
+    console.log("[publish-gmb-qa] Publishing content:", content_id);
 
     // Get the scheduled content
     const { data: content, error: contentError } = await supabase
@@ -52,53 +55,114 @@ serve(async (req) => {
       throw new Error("Business not linked to Google My Business");
     }
 
+    // Get Google access token using shared helper
+    const tokenResult = await getGoogleAccessToken(supabase, content.user_id);
+    if (!tokenResult.token) {
+      // Update content with error
+      await supabase
+        .from("scheduled_content")
+        .update({
+          status: "error",
+          error_message: tokenResult.error || "Token expiré. Reconnectez-vous avec Google.",
+        })
+        .eq("id", content_id);
+
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: tokenResult.error || "No Google access token",
+          requires_reconnect: tokenResult.requires_reconnect,
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const accessToken = tokenResult.token;
+
     // Format Q&A for Google My Business post
     const postContent = content.content_type === "aeo_qa"
       ? `❓ ${content.question}\n\n✅ ${content.answer}`
       : content.content || "";
 
-    // Create a Google My Business post (local post)
-    const locationId = business.google_place_id;
-    const gmbUrl = `https://mybusiness.googleapis.com/v4/${locationId}/localPosts`;
+    // Get Google account
+    const accountsResponse = await fetch(
+      "https://mybusinessaccountmanagement.googleapis.com/v1/accounts",
+      { headers: { Authorization: `Bearer ${accessToken}` } }
+    );
 
-    console.log("Publishing to GMB:", gmbUrl);
-    console.log("Content:", postContent);
-
-    const gmbResponse = await fetch(gmbUrl, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${provider_token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        languageCode: "fr-FR",
-        summary: postContent.slice(0, 1500), // GMB limit
-        topicType: "STANDARD",
-      }),
-    });
-
-    if (!gmbResponse.ok) {
-      const errorText = await gmbResponse.text();
-      console.error("GMB API error:", gmbResponse.status, errorText);
-      
-      if (gmbResponse.status === 401 || gmbResponse.status === 403) {
-        // Update content with error
-        await supabase
-          .from("scheduled_content")
-          .update({
-            status: "error",
-            error_message: "Token expiré. Reconnectez-vous avec Google.",
-          })
-          .eq("id", content_id);
-          
-        throw new Error("Token Google expiré. Reconnectez-vous.");
-      }
-      
-      throw new Error(`GMB API error: ${gmbResponse.status}`);
+    if (!accountsResponse.ok) {
+      throw new Error("Failed to fetch Google accounts");
     }
 
-    const gmbData = await gmbResponse.json();
-    console.log("GMB post created:", gmbData);
+    const accountsData = await accountsResponse.json();
+    const accounts = accountsData.accounts || [];
+
+    if (accounts.length === 0) {
+      throw new Error("No Google Business accounts found");
+    }
+
+    console.log("[publish-gmb-qa] Content:", postContent.slice(0, 100));
+
+    let publishedPost = null;
+    let publishError = null;
+
+    // Try to publish to Google
+    for (const account of accounts) {
+      const accountId = account.name.split("/")[1];
+      
+      // Try different URL formats
+      const urls = [
+        `https://mybusiness.googleapis.com/v4/accounts/${accountId}/locations/${business.google_place_id}/localPosts`,
+        `https://mybusiness.googleapis.com/v4/${account.name}/locations/${business.google_place_id}/localPosts`,
+      ];
+
+      for (const url of urls) {
+        try {
+          console.log(`[publish-gmb-qa] Trying URL: ${url}`);
+          
+          const response = await fetch(url, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              languageCode: "fr-FR",
+              summary: postContent.slice(0, 1500), // GMB limit
+              topicType: "STANDARD",
+            }),
+          });
+
+          if (response.ok) {
+            publishedPost = await response.json();
+            console.log(`[publish-gmb-qa] Post published successfully:`, publishedPost.name);
+            break;
+          } else {
+            const errorText = await response.text();
+            console.log(`[publish-gmb-qa] URL failed (${response.status}):`, errorText);
+            publishError = `${response.status}: ${errorText}`;
+          }
+        } catch (e) {
+          console.error(`[publish-gmb-qa] Request failed:`, e);
+          publishError = e instanceof Error ? e.message : "Unknown error";
+        }
+      }
+
+      if (publishedPost) break;
+    }
+
+    if (!publishedPost) {
+      // Update content with error
+      await supabase
+        .from("scheduled_content")
+        .update({
+          status: "error",
+          error_message: publishError || "Failed to publish",
+        })
+        .eq("id", content_id);
+
+      throw new Error(publishError || "Failed to publish post to Google");
+    }
 
     // Update the scheduled content as published
     const { error: updateError } = await supabase
@@ -106,13 +170,13 @@ serve(async (req) => {
       .update({
         status: "published",
         published_at: new Date().toISOString(),
-        google_post_id: gmbData.name || null,
+        google_post_id: publishedPost.name || null,
         error_message: null,
       })
       .eq("id", content_id);
 
     if (updateError) {
-      console.error("Error updating content:", updateError);
+      console.error("[publish-gmb-qa] Error updating content:", updateError);
     }
 
     // Create notification
@@ -126,14 +190,14 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         success: true, 
-        google_post_id: gmbData.name,
+        google_post_id: publishedPost.name,
         message: "Q&A published successfully" 
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
 
   } catch (error) {
-    console.error("Error in publish-gmb-qa:", error);
+    console.error("[publish-gmb-qa] Error:", error);
     return new Response(
       JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
