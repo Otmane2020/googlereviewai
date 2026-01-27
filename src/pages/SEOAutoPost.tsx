@@ -34,7 +34,8 @@ import {
   Eye,
   List,
   ChevronDown,
-  CheckCircle
+  CheckCircle,
+  Settings
 } from "lucide-react";
 import { format, addDays, startOfToday, isSameDay } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -594,6 +595,15 @@ const SEOAutoPost = () => {
                   Articles
                 </TabsTrigger>
               </TabsList>
+
+              {/* Auto-publish info with settings icon */}
+              <div className="flex items-center justify-between mt-3 p-2 bg-muted/50 rounded-lg border border-border/50">
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <Settings className="w-3.5 h-3.5" />
+                  <span>Publication auto: <strong className="text-foreground">07:00 UTC</strong></span>
+                </div>
+                <Badge variant="secondary" className="text-[10px]">Quotidien</Badge>
+              </div>
 
               {/* Planning Tab */}
               <TabsContent value="planning" className="mt-3">
