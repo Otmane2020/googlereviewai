@@ -1,7 +1,9 @@
 import { Link } from "react-router-dom";
-import { Star } from "lucide-react";
+import { Star, Phone } from "lucide-react";
 import { StarlinkoLogo } from "./StarlinkoLogo";
 import { TrustAvisBadge } from "./TrustAvisBadge";
+
+const SUPPORT_PHONE = "01 85 09 91 15";
 
 const footerLinks = {
   product: {
@@ -21,8 +23,8 @@ const footerLinks = {
   support: {
     title: "Support",
     links: [
-      { label: "Centre d'aide", href: "#" },
-      { label: "Contact", href: "#" },
+      { label: SUPPORT_PHONE, href: `tel:${SUPPORT_PHONE.replace(/\s/g, '')}`, icon: "phone" },
+      { label: "Contact", href: "mailto:support@starlinko.app" },
     ],
   },
 };
@@ -52,20 +54,22 @@ export const Footer = () => {
             <div key={section.title}>
               <h4 className="font-semibold text-card mb-3 sm:mb-4 text-sm sm:text-base">{section.title}</h4>
               <ul className="space-y-2 sm:space-y-3">
-                {section.links.map((link) => (
+                {section.links.map((link: { label: string; href: string; icon?: string }) => (
                   <li key={link.label}>
                     {link.href.startsWith("/") ? (
                       <Link
                         to={link.href}
-                        className="text-xs sm:text-sm text-card/60 hover:text-card transition-colors"
+                        className="text-xs sm:text-sm text-card/60 hover:text-card transition-colors flex items-center gap-1.5"
                       >
+                        {link.icon === "phone" && <Phone className="w-3 h-3" />}
                         {link.label}
                       </Link>
                     ) : (
                       <a
                         href={link.href}
-                        className="text-xs sm:text-sm text-card/60 hover:text-card transition-colors"
+                        className="text-xs sm:text-sm text-card/60 hover:text-card transition-colors flex items-center gap-1.5"
                       >
+                        {link.icon === "phone" && <Phone className="w-3 h-3" />}
                         {link.label}
                       </a>
                     )}
