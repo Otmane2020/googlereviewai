@@ -35,6 +35,7 @@ import MobileAds from "./pages/MobileAds";
 import PasswordAuth from "./pages/PasswordAuth";
 import Admin from "./pages/Admin";
 import LocalAEO from "./pages/LocalAEO";
+import GmbPost from "./pages/GmbPost";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -149,6 +150,7 @@ const AppContent = () => {
               <Route path="/PW" element={<PasswordAuth />} />
               <Route path="/admin" element={<Admin />} />
               <Route path="/local-aeo" element={<LocalAEO />} />
+              <Route path="/gmb-post" element={<GmbPost />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </OAuthCallback>
