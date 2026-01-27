@@ -8,6 +8,9 @@ const corsHeaders = {
 interface WelcomeEmailRequest {
   email: string;
   name?: string;
+  plan_name?: string;
+  credits?: number;
+  is_trial?: boolean;
 }
 
 // Professional email design system
@@ -20,6 +23,8 @@ const STYLES = {
   bgLight: "#f9fafb",
   borderLight: "#e5e7eb",
   brandBlue: "#2563eb",
+  successBg: "#ecfdf5",
+  successText: "#065f46",
 };
 
 const getProHeader = () => `
@@ -50,7 +55,7 @@ const getProFooter = () => `
 
 const getProButton = (text: string, url: string) => `
   <a href="${url}" 
-     style="display: inline-block; background-color: ${STYLES.brandBlue}; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-family: ${STYLES.fontFamily}; font-size: 14px; font-weight: 500;">
+     style="display: inline-block; background-color: ${STYLES.brandBlue}; color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 6px; font-family: ${STYLES.fontFamily}; font-size: 15px; font-weight: 500;">
     ${text}
   </a>
 `;
@@ -71,7 +76,7 @@ serve(async (req) => {
       );
     }
 
-    const { email, name }: WelcomeEmailRequest = await req.json();
+    const { email, name, plan_name, credits, is_trial }: WelcomeEmailRequest = await req.json();
 
     if (!email) {
       return new Response(
@@ -80,9 +85,30 @@ serve(async (req) => {
       );
     }
 
-    const firstName = name?.split(" ")[0] || "Bonjour";
+    const firstName = name?.split(" ")[0] || "";
+    
+    // Determine email content based on whether it's a new subscription or just account creation
+    const hasSubscription = !!plan_name;
+    const displayCredits = credits ?? 10;
+    const displayPlan = plan_name || "Gratuit";
 
-    console.log(`Sending welcome email to ${email}`);
+    console.log(`Sending welcome email to ${email} (plan: ${displayPlan}, credits: ${displayCredits})`);
+
+    let planSection = "";
+    if (hasSubscription) {
+      planSection = `
+      <div style="background: linear-gradient(135deg, ${STYLES.brandBlue}15 0%, ${STYLES.brandBlue}05 100%); border-radius: 12px; padding: 24px; margin: 24px 0; text-align: center; border: 1px solid ${STYLES.brandBlue}30;">
+        ${is_trial ? `
+        <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textSecondary}; font-size: 13px; margin: 0 0 8px 0;">
+          🎁 Essai gratuit activé
+        </p>
+        ` : ""}
+        <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textPrimary}; font-size: 24px; font-weight: 700; margin: 0;">
+          ${displayPlan}
+        </p>
+      </div>
+      `;
+    }
 
     const htmlContent = `
 <!DOCTYPE html>
@@ -96,43 +122,60 @@ serve(async (req) => {
     ${getProHeader()}
     
     <div style="padding: 40px 32px;">
-      <h1 style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textPrimary}; font-size: 24px; font-weight: 600; margin: 0 0 24px 0;">
-        Bienvenue sur Starlinko
+      <h1 style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textPrimary}; font-size: 26px; font-weight: 600; margin: 0 0 24px 0;">
+        Bienvenue sur Starlinko ! 🚀
       </h1>
       
-      <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textSecondary}; font-size: 15px; line-height: 1.6; margin: 0 0 24px 0;">
-        Bonjour ${firstName},
+      <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textSecondary}; font-size: 16px; line-height: 1.6; margin: 0 0 24px 0;">
+        Bonjour${firstName ? ` ${firstName}` : ""} 👋
       </p>
       
       <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textSecondary}; font-size: 15px; line-height: 1.6; margin: 0 0 24px 0;">
-        Votre compte a été créé avec succès. Vous pouvez désormais gérer vos avis Google et générer des réponses professionnelles grâce à l'intelligence artificielle.
+        ${hasSubscription 
+          ? `Merci pour votre confiance ! Votre abonnement <strong>${displayPlan}</strong> est maintenant actif.`
+          : "Votre compte a été créé avec succès. Vous pouvez désormais gérer vos avis Google et générer des réponses professionnelles grâce à l'intelligence artificielle."
+        }
       </p>
       
-      <div style="background: ${STYLES.bgLight}; border-radius: 6px; padding: 20px; margin: 24px 0;">
-        <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textSecondary}; font-size: 13px; margin: 0 0 4px 0; text-transform: uppercase; letter-spacing: 0.5px;">
+      ${planSection}
+      
+      <div style="background: ${STYLES.successBg}; border-radius: 8px; padding: 20px; margin: 24px 0; text-align: center;">
+        <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.successText}; font-size: 12px; margin: 0 0 4px 0; text-transform: uppercase; letter-spacing: 0.5px;">
           Crédits disponibles
         </p>
-        <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textPrimary}; font-size: 32px; font-weight: 600; margin: 0;">
-          10
+        <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textPrimary}; font-size: 36px; font-weight: 700; margin: 0;">
+          ${displayCredits}
         </p>
       </div>
       
-      <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textSecondary}; font-size: 15px; line-height: 1.6; margin: 0 0 8px 0;">
+      <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textPrimary}; font-size: 15px; font-weight: 600; margin: 0 0 12px 0;">
         Pour commencer :
       </p>
       
-      <ul style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textSecondary}; font-size: 15px; line-height: 1.8; margin: 0 0 32px 0; padding-left: 20px;">
-        <li>Connectez votre compte Google My Business</li>
-        <li>Synchronisez vos avis clients</li>
-        <li>Générez des réponses personnalisées</li>
-      </ul>
+      <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; margin-bottom: 24px;">
+        <tr>
+          <td style="padding: 8px 0; font-family: ${STYLES.fontFamily}; color: ${STYLES.textSecondary}; font-size: 14px; line-height: 1.6;">
+            <span style="margin-right: 8px;">1️⃣</span> Connectez votre compte Google My Business
+          </td>
+        </tr>
+        <tr>
+          <td style="padding: 8px 0; font-family: ${STYLES.fontFamily}; color: ${STYLES.textSecondary}; font-size: 14px; line-height: 1.6;">
+            <span style="margin-right: 8px;">2️⃣</span> Synchronisez vos avis clients
+          </td>
+        </tr>
+        <tr>
+          <td style="padding: 8px 0; font-family: ${STYLES.fontFamily}; color: ${STYLES.textSecondary}; font-size: 14px; line-height: 1.6;">
+            <span style="margin-right: 8px;">3️⃣</span> Générez des réponses personnalisées en un clic
+          </td>
+        </tr>
+      </table>
       
-      <div style="text-align: left; margin: 32px 0;">
+      <div style="text-align: center; margin: 32px 0;">
         ${getProButton("Accéder au tableau de bord", "https://starlinko.app/dashboard")}
       </div>
       
       <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textMuted}; font-size: 13px; line-height: 1.6; margin: 32px 0 0 0;">
-        Si vous avez des questions, répondez directement à cet email.
+        Des questions ? Répondez directement à cet email, nous sommes là pour vous aider.
       </p>
     </div>
     
@@ -141,6 +184,10 @@ serve(async (req) => {
 </body>
 </html>
     `;
+
+    const subject = hasSubscription 
+      ? `🎉 Bienvenue ${firstName ? firstName + " " : ""}! Votre abonnement ${displayPlan} est actif`
+      : "Bienvenue sur Starlinko - Gérez vos avis avec l'IA";
 
     const response = await fetch("https://api.resend.com/emails", {
       method: "POST",
@@ -151,7 +198,7 @@ serve(async (req) => {
       body: JSON.stringify({
         from: "Starlinko <support@starlinko.app>",
         to: [email],
-        subject: "Bienvenue sur Starlinko",
+        subject,
         html: htmlContent,
       }),
     });

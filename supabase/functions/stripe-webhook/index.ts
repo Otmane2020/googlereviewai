@@ -110,7 +110,7 @@ serve(async (req) => {
 
             console.log(`[checkout.session.completed] ✅ Updated profile for user ${userId} with plan ${config.planName}${isTrial ? " (trial)" : ""}`);
 
-            // Send welcome/subscription confirmation email
+            // Send subscription confirmation email with plan details
             try {
               const { data: profile } = await supabaseAdmin
                 .from("profiles")
@@ -119,10 +119,10 @@ serve(async (req) => {
                 .single();
 
               if (profile?.email) {
-                console.log("[checkout.session.completed] Sending welcome email to:", profile.email);
+                console.log("[checkout.session.completed] Sending subscription email to:", profile.email);
                 
                 const emailResponse = await fetch(
-                  `${Deno.env.get("SUPABASE_URL")}/functions/v1/send-welcome-email`,
+                  `${Deno.env.get("SUPABASE_URL")}/functions/v1/send-subscription-email`,
                   {
                     method: "POST",
                     headers: {
@@ -132,19 +132,25 @@ serve(async (req) => {
                     body: JSON.stringify({
                       email: profile.email,
                       name: profile.full_name,
+                      plan_name: config.planName,
+                      credits: config.credits,
+                      max_businesses: config.maxBusinesses,
+                      billing_cycle: subscription.items.data[0]?.price.recurring?.interval || "month",
+                      is_trial: isTrial,
+                      trial_days: 3,
                     }),
                   }
                 );
 
                 if (emailResponse.ok) {
-                  console.log("[checkout.session.completed] ✅ Welcome email sent successfully");
+                  console.log("[checkout.session.completed] ✅ Subscription email sent successfully");
                 } else {
                   const emailError = await emailResponse.text();
                   console.error("[checkout.session.completed] Email error:", emailError);
                 }
               }
             } catch (emailErr) {
-              console.error("[checkout.session.completed] Error sending welcome email:", emailErr);
+              console.error("[checkout.session.completed] Error sending subscription email:", emailErr);
               // Don't throw - email failure shouldn't break the subscription flow
             }
           } else {
@@ -206,6 +212,15 @@ serve(async (req) => {
         const userId = customer.metadata?.supabase_user_id;
         if (!userId) break;
 
+        // Get user email for cancellation notification
+        const { data: profile } = await supabaseAdmin
+          .from("profiles")
+          .select("email, full_name, plan_name")
+          .eq("id", userId)
+          .single();
+
+        const cancelledPlan = profile?.plan_name || "votre abonnement";
+
         // Reset to free plan
         await supabaseAdmin.from("profiles").update({
           plan_name: null,
@@ -216,6 +231,75 @@ serve(async (req) => {
         }).eq("id", userId);
 
         console.log(`[customer.subscription.deleted] ✅ Subscription canceled for user ${userId}`);
+
+        // Send cancellation email
+        if (profile?.email) {
+          try {
+            await fetch(
+              `${Deno.env.get("SUPABASE_URL")}/functions/v1/send-email-notification`,
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  "Authorization": `Bearer ${Deno.env.get("SUPABASE_ANON_KEY")}`,
+                },
+                body: JSON.stringify({
+                  to: profile.email,
+                  subject: `Votre abonnement ${cancelledPlan} a été annulé`,
+                  html: `
+<!DOCTYPE html>
+<html lang="fr">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="margin: 0; padding: 0; background-color: #f9fafb;">
+  <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
+    <div style="background: #ffffff; padding: 32px 24px; border-bottom: 1px solid #e5e7eb;">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td style="vertical-align: middle;"><img src="https://starlinko.app/favicon.png" width="32" height="32" alt="Starlinko" /></td>
+          <td style="vertical-align: middle; padding-left: 12px;"><span style="font-family: -apple-system, sans-serif; font-weight: 600; font-size: 18px; color: #111827;">Starlinko</span></td>
+        </tr>
+      </table>
+    </div>
+    <div style="padding: 40px 32px;">
+      <h1 style="font-family: -apple-system, sans-serif; color: #111827; font-size: 24px; font-weight: 600; margin: 0 0 24px 0;">
+        Abonnement annulé
+      </h1>
+      <p style="font-family: -apple-system, sans-serif; color: #6b7280; font-size: 15px; line-height: 1.6; margin: 0 0 24px 0;">
+        Bonjour${profile.full_name ? ` ${profile.full_name.split(" ")[0]}` : ""},
+      </p>
+      <p style="font-family: -apple-system, sans-serif; color: #6b7280; font-size: 15px; line-height: 1.6; margin: 0 0 24px 0;">
+        Votre abonnement <strong>${cancelledPlan}</strong> a été annulé. Vous n'avez plus accès aux fonctionnalités premium.
+      </p>
+      <div style="background: #fef3c7; border-radius: 6px; padding: 16px; margin: 24px 0; border-left: 3px solid #f59e0b;">
+        <p style="font-family: -apple-system, sans-serif; color: #92400e; font-size: 14px; margin: 0;">
+          Vos avis ne seront plus traités automatiquement. Réabonnez-vous pour reprendre le service.
+        </p>
+      </div>
+      <div style="text-align: left; margin: 32px 0;">
+        <a href="https://starlinko.app/select-plan" style="display: inline-block; background-color: #2563eb; color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 6px; font-family: -apple-system, sans-serif; font-size: 15px; font-weight: 500;">
+          Voir les offres
+        </a>
+      </div>
+      <p style="font-family: -apple-system, sans-serif; color: #9ca3af; font-size: 13px; line-height: 1.6; margin: 24px 0 0 0;">
+        Une question ? Répondez à cet email, nous sommes là pour vous aider.
+      </p>
+    </div>
+    <div style="padding: 24px; text-align: center; border-top: 1px solid #e5e7eb;">
+      <p style="font-family: -apple-system, sans-serif; color: #9ca3af; font-size: 12px; margin: 0;">© 2025 Starlinko</p>
+    </div>
+  </div>
+</body>
+</html>
+                  `,
+                  from_name: "Starlinko",
+                }),
+              }
+            );
+            console.log("[customer.subscription.deleted] Cancellation email sent");
+          } catch (emailErr) {
+            console.error("[customer.subscription.deleted] Email error:", emailErr);
+          }
+        }
         break;
       }
 
@@ -249,6 +333,81 @@ serve(async (req) => {
               await supabaseAdmin.from("profiles").update(updateData).eq("id", userId);
 
               console.log(`[invoice.payment_succeeded] ✅ Renewed credits for user ${userId}`);
+
+              // Send renewal confirmation email
+              const { data: profile } = await supabaseAdmin
+                .from("profiles")
+                .select("email, full_name")
+                .eq("id", userId)
+                .single();
+
+              if (profile?.email) {
+                try {
+                  await fetch(
+                    `${Deno.env.get("SUPABASE_URL")}/functions/v1/send-email-notification`,
+                    {
+                      method: "POST",
+                      headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${Deno.env.get("SUPABASE_ANON_KEY")}`,
+                      },
+                      body: JSON.stringify({
+                        to: profile.email,
+                        subject: `✅ Votre abonnement ${config.planName} a été renouvelé`,
+                        html: `
+<!DOCTYPE html>
+<html lang="fr">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="margin: 0; padding: 0; background-color: #f9fafb;">
+  <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
+    <div style="background: #ffffff; padding: 32px 24px; border-bottom: 1px solid #e5e7eb;">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td style="vertical-align: middle;"><img src="https://starlinko.app/favicon.png" width="32" height="32" alt="Starlinko" /></td>
+          <td style="vertical-align: middle; padding-left: 12px;"><span style="font-family: -apple-system, sans-serif; font-weight: 600; font-size: 18px; color: #111827;">Starlinko</span></td>
+        </tr>
+      </table>
+    </div>
+    <div style="padding: 40px 32px;">
+      <h1 style="font-family: -apple-system, sans-serif; color: #111827; font-size: 24px; font-weight: 600; margin: 0 0 24px 0;">
+        Abonnement renouvelé ✅
+      </h1>
+      <p style="font-family: -apple-system, sans-serif; color: #6b7280; font-size: 15px; line-height: 1.6; margin: 0 0 24px 0;">
+        Bonjour${profile.full_name ? ` ${profile.full_name.split(" ")[0]}` : ""},
+      </p>
+      <p style="font-family: -apple-system, sans-serif; color: #6b7280; font-size: 15px; line-height: 1.6; margin: 0 0 24px 0;">
+        Votre abonnement <strong>${config.planName}</strong> a été renouvelé avec succès.
+      </p>
+      <div style="background: #ecfdf5; border-radius: 8px; padding: 20px; margin: 24px 0; text-align: center;">
+        <p style="font-family: -apple-system, sans-serif; color: #065f46; font-size: 12px; margin: 0 0 4px 0; text-transform: uppercase; letter-spacing: 0.5px;">
+          Crédits rechargés
+        </p>
+        <p style="font-family: -apple-system, sans-serif; color: #111827; font-size: 36px; font-weight: 700; margin: 0;">
+          ${config.credits}
+        </p>
+      </div>
+      <div style="text-align: center; margin: 32px 0;">
+        <a href="https://starlinko.app/dashboard" style="display: inline-block; background-color: #2563eb; color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 6px; font-family: -apple-system, sans-serif; font-size: 15px; font-weight: 500;">
+          Voir mon tableau de bord
+        </a>
+      </div>
+    </div>
+    <div style="padding: 24px; text-align: center; border-top: 1px solid #e5e7eb;">
+      <p style="font-family: -apple-system, sans-serif; color: #9ca3af; font-size: 12px; margin: 0;">© 2025 Starlinko</p>
+    </div>
+  </div>
+</body>
+</html>
+                        `,
+                        from_name: "Starlinko",
+                      }),
+                    }
+                  );
+                  console.log("[invoice.payment_succeeded] Renewal email sent");
+                } catch (emailErr) {
+                  console.error("[invoice.payment_succeeded] Email error:", emailErr);
+                }
+              }
             }
           }
         }
