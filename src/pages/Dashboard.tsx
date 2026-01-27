@@ -13,6 +13,7 @@ import { SyncProgressOverlay } from "@/components/SyncProgressOverlay";
 import { SelectBusinessesDialog } from "@/components/SelectBusinessesDialog";
 import { LowCreditsBanner } from "@/components/LowCreditsBanner";
 import { UTMBuilderDialog } from "@/components/UTMBuilderDialog";
+import { GmbInsightsCard } from "@/components/GmbInsightsCard";
 import { toast } from "sonner";
 
 // LinkedIn Insight Tag tracking for dashboard
@@ -679,6 +680,11 @@ const Dashboard = () => {
             <div className="text-2xl font-bold text-foreground">{stats.aiResponses}</div>
           </div>
         </div>
+
+        {/* GMB Performance Stats */}
+        {user && hasGoogleConnected && (
+          <GmbInsightsCard userId={user.id} />
+        )}
 
         {/* Quick Actions - Horizontal Scroll on Mobile */}
         <div className="overflow-x-auto -mx-4 px-4 pb-2">
