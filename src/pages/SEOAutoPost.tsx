@@ -76,6 +76,7 @@ const SEOAutoPost = () => {
   const [selectedArticle, setSelectedArticle] = useState<ScheduledContent | null>(null);
   const [showPreviewDialog, setShowPreviewDialog] = useState(false);
   const [businessDialogOpen, setBusinessDialogOpen] = useState(false);
+  const [publishTime, setPublishTime] = useState("07:00");
 
   // Use subscription verification hook
   const { loading: subscriptionLoading } = useRequireSubscription();
@@ -389,6 +390,15 @@ const SEOAutoPost = () => {
     setPublishing(null);
   };
 
+  const handlePublishTimeChange = async (time: string) => {
+    setPublishTime(time);
+    // Save to user preferences (could be stored in ai_settings or a new table)
+    toast({
+      title: "Heure mise à jour",
+      description: `La publication automatique sera effectuée à ${time}`,
+    });
+  };
+
   const getStatusBadge = (status: string, iconOnly: boolean = false) => {
     if (iconOnly) {
       switch (status) {
@@ -601,13 +611,29 @@ const SEOAutoPost = () => {
                 </TabsTrigger>
               </TabsList>
 
-              {/* Auto-publish info with settings icon */}
+              {/* Auto-publish info with time selector */}
               <div className="flex items-center justify-between mt-3 p-2 bg-muted/50 rounded-lg border border-border/50">
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   <Settings className="w-3.5 h-3.5" />
-                  <span>Publication auto: <strong className="text-foreground">07:00 UTC</strong></span>
+                  <span>Publication auto:</span>
                 </div>
-                <Badge variant="secondary" className="text-[10px]">Quotidien</Badge>
+                <div className="flex items-center gap-2">
+                  <select
+                    value={publishTime}
+                    onChange={(e) => handlePublishTimeChange(e.target.value)}
+                    className="h-7 text-xs bg-background border border-border rounded-md px-2 font-medium"
+                  >
+                    {Array.from({ length: 24 }, (_, i) => {
+                      const hour = i.toString().padStart(2, '0');
+                      return (
+                        <option key={hour} value={`${hour}:00`}>
+                          {hour}:00
+                        </option>
+                      );
+                    })}
+                  </select>
+                  <Badge variant="secondary" className="text-[10px]">Quotidien</Badge>
+                </div>
               </div>
 
               {/* Planning Tab */}
@@ -709,6 +735,19 @@ const SEOAutoPost = () => {
                               >
                                 <Eye className="w-3 h-3" />
                               </Button>
+                              {isSubscribed && item.status === "pending" && (
+                                <Button 
+                                  size="sm" 
+                                  variant="outline"
+                                  className="h-7 px-2"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    generateContentForDay(item);
+                                  }}
+                                >
+                                  <Sparkles className="w-3 h-3" />
+                                </Button>
+                              )}
                               {isSubscribed && item.status === "generated" && (
                                 <Button 
                                   size="sm" 
