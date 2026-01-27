@@ -623,7 +623,7 @@ const AEORank = () => {
                         key={dateStr}
                         className={`p-2 cursor-pointer transition-all ${
                           isToday ? "ring-2 ring-primary" : ""
-                        } ${dayContent?.status === "published" ? "bg-secondary/20" : ""}`}
+                        } ${dayContent?.status === "published" ? "bg-emerald-500/20" : ""}`}
                         onClick={() => {
                           if (dayContent) {
                             handlePreviewArticle(dayContent);
@@ -639,7 +639,7 @@ const AEORank = () => {
                           </p>
                           {dayContent ? (
                             <div className="mt-1">
-                              {dayContent.status === "published" && <Check className="w-4 h-4 mx-auto text-secondary" />}
+                              {dayContent.status === "published" && <Check className="w-4 h-4 mx-auto text-emerald-500" />}
                               {dayContent.status === "generated" && <Sparkles className="w-4 h-4 mx-auto text-primary" />}
                               {dayContent.status === "pending" && <Clock className="w-4 h-4 mx-auto text-muted-foreground" />}
                               {dayContent.status === "generating" && <Loader2 className="w-4 h-4 mx-auto text-primary animate-spin" />}
@@ -663,7 +663,7 @@ const AEORank = () => {
                     <Sparkles className="w-3 h-3 text-primary" /> Prêt
                   </div>
                   <div className="flex items-center gap-1">
-                    <Check className="w-3 h-3 text-secondary" /> Publié
+                    <Check className="w-3 h-3 text-emerald-500" /> Publié
                   </div>
                 </div>
               </TabsContent>

@@ -1,8 +1,9 @@
-# Starlinko - Google My Business Review Management
+# Starlinko - Google My Business Review Management & Local AEO
 # https://starlinko.app
 
 User-agent: Googlebot
 Allow: /
+Allow: /local-aeo
 Crawl-delay: 1
 
 User-agent: Bingbot
