@@ -39,7 +39,7 @@ const POST_TYPES = [
 ];
 
 const CTA_TYPES = [
-  { value: "", label: "Aucun" },
+  { value: "NONE", label: "Aucun" },
   { value: "LEARN_MORE", label: "En savoir plus" },
   { value: "BOOK", label: "Réserver" },
   { value: "ORDER", label: "Commander" },
@@ -56,7 +56,7 @@ export default function GmbPost() {
   const [selectedBusinessId, setSelectedBusinessId] = useState<string>("");
   const [postType, setPostType] = useState("STANDARD");
   const [content, setContent] = useState("");
-  const [ctaType, setCtaType] = useState("");
+  const [ctaType, setCtaType] = useState("NONE");
   const [ctaUrl, setCtaUrl] = useState("");
   const [isPublishing, setIsPublishing] = useState(false);
   const [recentPosts, setRecentPosts] = useState<GmbPost[]>([]);
@@ -125,7 +125,7 @@ export default function GmbPost() {
       return;
     }
 
-    if (ctaType && !ctaUrl) {
+    if (ctaType && ctaType !== "NONE" && !ctaUrl) {
       toast.error("Veuillez saisir une URL pour le bouton d'action");
       return;
     }
@@ -138,8 +138,8 @@ export default function GmbPost() {
           business_id: selectedBusinessId,
           summary: content,
           topic_type: postType,
-          cta_type: ctaType || undefined,
-          cta_url: ctaUrl || undefined,
+          cta_type: ctaType && ctaType !== "NONE" ? ctaType : undefined,
+          cta_url: ctaType && ctaType !== "NONE" ? ctaUrl : undefined,
         },
       });
 
@@ -148,7 +148,7 @@ export default function GmbPost() {
       if (data?.success) {
         toast.success("Publication réussie sur Google !");
         setContent("");
-        setCtaType("");
+        setCtaType("NONE");
         setCtaUrl("");
         fetchRecentPosts();
       } else if (data?.requires_reconnect) {
@@ -347,7 +347,7 @@ export default function GmbPost() {
                     </SelectContent>
                   </Select>
                 </div>
-                {ctaType && (
+                {ctaType && ctaType !== "NONE" && (
                   <div>
                     <Label className="text-sm font-medium mb-2 block">URL</Label>
                     <Input
