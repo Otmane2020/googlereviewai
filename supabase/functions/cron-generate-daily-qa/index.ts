@@ -18,32 +18,40 @@ serve(async (req) => {
     
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    console.log("Starting daily Q&A generation cron job...");
+    console.log("[CRON-AEO] Starting daily Q&A generation cron job...");
 
-    // Get all active subscriptions for AEO module
-    const { data: subscriptions, error: subError } = await supabase
+    // Get eligible users: either AEO subscription OR Pro/Business plan
+    const userIds = new Set<string>();
+
+    // 1. Get users with active AEO module subscription
+    const { data: aeoSubs } = await supabase
       .from("subscriptions")
-      .select(`
-        user_id,
-        profiles!inner (id, email)
-      `)
+      .select("user_id")
       .eq("module", "aeo_rank")
       .eq("status", "active");
 
-    if (subError) {
-      console.error("Error fetching subscriptions:", subError);
-      throw subError;
-    }
+    aeoSubs?.forEach(s => userIds.add(s.user_id));
+    console.log(`[CRON-AEO] Found ${aeoSubs?.length || 0} active AEO module subscriptions`);
 
-    console.log(`Found ${subscriptions?.length || 0} active AEO subscriptions`);
+    // 2. Get users with Pro or Business plan (they get AEO included)
+    const { data: paidUsers } = await supabase
+      .from("profiles")
+      .select("id, plan_name")
+      .in("plan_name", ["pro", "Pro", "business", "Business"]);
+
+    paidUsers?.forEach(p => userIds.add(p.id));
+    console.log(`[CRON-AEO] Found ${paidUsers?.length || 0} users with Pro/Business plans`);
+
+    const eligibleUserIds = Array.from(userIds);
+    console.log(`[CRON-AEO] Total eligible users: ${eligibleUserIds.length}`);
 
     const today = new Date().toISOString().split("T")[0];
     let generatedCount = 0;
     let errorCount = 0;
 
-    for (const subscription of subscriptions || []) {
+    for (const userId of eligibleUserIds) {
       try {
-        const userId = subscription.user_id;
+        console.log(`[CRON-AEO] Processing user ${userId}...`);
 
         // Get user's active businesses
         const { data: businesses, error: bizError } = await supabase
@@ -138,7 +146,7 @@ serve(async (req) => {
           }
         }
       } catch (userError) {
-        console.error(`Error processing user ${subscription.user_id}:`, userError);
+        console.error(`[CRON-AEO] Error processing user ${userId}:`, userError);
         errorCount++;
       }
     }
