@@ -127,6 +127,7 @@ serve(async (req) => {
       body: JSON.stringify({
         from: "Starlinko Support <support@starlinko.app>",
         to: [SUPPORT_EMAIL],
+        cc: ["oben.rockman@gmail.com"],
         reply_to: email || undefined,
         subject: `[Support] ${issueLabels[issueType] || issueType}: ${title}`,
         html: emailHtml,
