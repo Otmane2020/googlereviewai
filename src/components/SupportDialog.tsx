@@ -18,9 +18,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { HelpCircle, Send, Loader2, CheckCircle } from "lucide-react";
+import { HelpCircle, Send, Loader2, CheckCircle, Phone } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+
+const SUPPORT_PHONE = "01 85 09 91 15";
 
 const issueTypes = [
   { value: "bug", label: "🐛 Bug / Problème technique" },
@@ -113,6 +115,12 @@ export const SupportDialog = ({ userEmail, triggerClassName }: SupportDialogProp
           <DialogDescription>
             Décrivez votre problème ou question et nous vous répondrons rapidement.
           </DialogDescription>
+          <div className="flex items-center gap-2 mt-2 p-2 bg-muted/50 rounded-lg">
+            <Phone className="w-4 h-4 text-primary" />
+            <a href={`tel:${SUPPORT_PHONE.replace(/\s/g, '')}`} className="text-sm font-medium text-primary hover:underline">
+              {SUPPORT_PHONE}
+            </a>
+          </div>
         </DialogHeader>
 
         {submitted ? (
