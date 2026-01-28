@@ -11,6 +11,7 @@ const footerLinks = {
     links: [
       { label: "Fonctionnalités", href: "#features" },
       { label: "Tarifs", href: "#pricing" },
+      { label: "Blog", href: "/blog" },
     ],
   },
   legal: {
