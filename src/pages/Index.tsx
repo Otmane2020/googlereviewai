@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Header } from "@/components/Header";
 import { HeroSection } from "@/components/HeroSection";
 import { FeaturesSection } from "@/components/FeaturesSection";
+import { SectorsSection } from "@/components/SectorsSection";
 import { TestimonialsSection } from "@/components/TestimonialsSection";
 import { ComplianceSection } from "@/components/ComplianceSection";
 import { PricingSection } from "@/components/PricingSection";
@@ -71,6 +72,7 @@ const Index = () => {
       <main className="pb-20 sm:pb-0">
         <HeroSection />
         <FeaturesSection />
+        <SectorsSection />
         <TestimonialsSection />
         <ComplianceSection />
         <PricingSection />
