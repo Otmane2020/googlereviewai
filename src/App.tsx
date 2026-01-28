@@ -38,6 +38,7 @@ import LocalAEO from "./pages/LocalAEO";
 import GmbPost from "./pages/GmbPost";
 import AvisAIRestaurant from "./pages/AvisAIRestaurant";
 import AvisAIHotel from "./pages/AvisAIHotel";
+import Blog from "./pages/Blog";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -155,6 +156,7 @@ const AppContent = () => {
               <Route path="/gmb-post" element={<GmbPost />} />
               <Route path="/avis-ai-restaurant" element={<AvisAIRestaurant />} />
               <Route path="/avis-ai-hotel" element={<AvisAIHotel />} />
+              <Route path="/blog" element={<Blog />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </OAuthCallback>
