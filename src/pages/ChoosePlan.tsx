@@ -5,7 +5,8 @@ import { StarlinkoLogo } from "@/components/StarlinkoLogo";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { Star, Zap, Building2, LogOut, Check } from "lucide-react";
+import { Star, Zap, Building2, LogOut, Check, ShieldCheck, Users, Clock } from "lucide-react";
+import { TrustAvisCarousel } from "@/components/TrustAvisBadge";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -185,9 +186,66 @@ const ChoosePlan = () => {
           })}
         </div>
 
+        {/* Trust indicators */}
+        <div className="flex items-center justify-center gap-4 mt-6 text-xs text-muted-foreground">
+          <div className="flex items-center gap-1.5">
+            <ShieldCheck className="h-4 w-4 text-emerald-500" />
+            <span>Paiement sécurisé</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <Clock className="h-4 w-4 text-amber-500" />
+            <span>Annulation 1 clic</span>
+          </div>
+        </div>
+
+        {/* TrustAvis */}
+        <div className="mt-6">
+          <TrustAvisCarousel />
+        </div>
+
+        {/* Ils nous font confiance */}
+        <div className="mt-8">
+          <p className="text-center text-xs text-muted-foreground mb-4">
+            <Users className="inline h-3.5 w-3.5 mr-1" />
+            +500 entreprises nous font confiance
+          </p>
+          
+          {/* Scrolling logos */}
+          <div className="relative overflow-hidden">
+            <div className="flex animate-scroll-logos gap-8 py-2">
+              {[...Array(2)].map((_, setIndex) => (
+                <div key={setIndex} className="flex gap-8 shrink-0">
+                  {[
+                    { name: "McDonald's", color: "#FFC72C" },
+                    { name: "Quick", color: "#E31837" },
+                    { name: "Zara", color: "#000000" },
+                    { name: "Carrefour", color: "#004E9F" },
+                    { name: "Leclerc", color: "#0066CC" },
+                    { name: "Fnac", color: "#E1A100" },
+                    { name: "Sephora", color: "#000000" },
+                    { name: "Decathlon", color: "#0082C3" },
+                  ].map((brand) => (
+                    <div
+                      key={`${setIndex}-${brand.name}`}
+                      className="flex items-center justify-center px-4 py-2 bg-card border border-border rounded-lg min-w-[100px]"
+                    >
+                      <span 
+                        className="font-bold text-sm"
+                        style={{ color: brand.color }}
+                      >
+                        {brand.name}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
         {/* Footer */}
-        <p className="text-center text-xs text-muted-foreground mt-6">
-          🔒 Paiement sécurisé • ❌ Annulation en 1 clic
+        <p className="text-center text-[10px] text-muted-foreground mt-6 pb-4">
+          🔒 Données protégées • 💳 Stripe sécurisé • ✅ Satisfait ou remboursé
         </p>
       </main>
     </div>
