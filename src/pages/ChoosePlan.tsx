@@ -212,29 +212,27 @@ const ChoosePlan = () => {
           
           {/* Scrolling logos */}
           <div className="relative overflow-hidden">
-            <div className="flex animate-scroll-logos gap-8 py-2">
+            <div className="flex animate-scroll-logos-slow gap-6 py-2">
               {[...Array(2)].map((_, setIndex) => (
-                <div key={setIndex} className="flex gap-8 shrink-0">
+                <div key={setIndex} className="flex gap-6 shrink-0 items-center">
                   {[
-                    { name: "McDonald's", color: "#FFC72C" },
-                    { name: "Quick", color: "#E31837" },
-                    { name: "Zara", color: "#000000" },
-                    { name: "Carrefour", color: "#004E9F" },
-                    { name: "Leclerc", color: "#0066CC" },
-                    { name: "Fnac", color: "#E1A100" },
-                    { name: "Sephora", color: "#000000" },
-                    { name: "Decathlon", color: "#0082C3" },
+                    { name: "McDonald's", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/McDonald%27s_Golden_Arches.svg/1200px-McDonald%27s_Golden_Arches.svg.png" },
+                    { name: "Quick", logo: "https://upload.wikimedia.org/wikipedia/fr/thumb/b/b3/Quick_logo.svg/1200px-Quick_logo.svg.png" },
+                    { name: "Carrefour", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Carrefour_logo.svg/1200px-Carrefour_logo.svg.png" },
+                    { name: "Decathlon", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Decathlon_Logo.png/1200px-Decathlon_Logo.png" },
+                    { name: "Fnac", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Fnac_Logo.svg/1200px-Fnac_Logo.svg.png" },
+                    { name: "Sephora", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Sephora_logo.svg/1200px-Sephora_logo.svg.png" },
                   ].map((brand) => (
                     <div
                       key={`${setIndex}-${brand.name}`}
-                      className="flex items-center justify-center px-4 py-2 bg-card border border-border rounded-lg min-w-[100px]"
+                      className="flex items-center justify-center h-8 w-20 grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all"
                     >
-                      <span 
-                        className="font-bold text-sm"
-                        style={{ color: brand.color }}
-                      >
-                        {brand.name}
-                      </span>
+                      <img 
+                        src={brand.logo} 
+                        alt={brand.name}
+                        className="max-h-full max-w-full object-contain"
+                        loading="lazy"
+                      />
                     </div>
                   ))}
                 </div>
@@ -248,6 +246,25 @@ const ChoosePlan = () => {
           🔒 Données protégées • 💳 Stripe sécurisé • ✅ Satisfait ou remboursé
         </p>
       </main>
+      
+      {/* Sticky TrustAvis Rating - Bottom Right */}
+      <div className="fixed bottom-4 right-4 z-50">
+        <a
+          href="https://trust-avis.com/entreprise/starlinko"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 bg-card/95 backdrop-blur-sm border border-border rounded-full px-3 py-1.5 shadow-lg text-sm hover:shadow-xl transition-all"
+        >
+          <div className="w-4 h-4 bg-[#3B82F6] rounded flex items-center justify-center">
+            <Star className="w-2.5 h-2.5 text-white fill-white" />
+          </div>
+          <span className="font-medium">
+            <span className="text-foreground">Trust</span>
+            <span className="text-[#3B82F6]">Avis</span>
+          </span>
+          <span className="text-muted-foreground">4.8</span>
+        </a>
+      </div>
     </div>
   );
 };
