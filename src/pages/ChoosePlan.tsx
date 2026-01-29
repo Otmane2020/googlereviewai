@@ -212,27 +212,27 @@ const ChoosePlan = () => {
           
           {/* Scrolling logos */}
           <div className="relative overflow-hidden">
-            <div className="flex animate-scroll-logos-slow gap-8 py-3">
+            <div className="flex animate-scroll-logos gap-12 py-4">
               {[...Array(2)].map((_, setIndex) => (
-                <div key={setIndex} className="flex gap-8 shrink-0 items-center">
+                <div key={setIndex} className="flex gap-12 shrink-0 items-center">
                   {[
-                    { name: "McDonald's", logo: "https://logo.clearbit.com/mcdonalds.com" },
-                    { name: "Carrefour", logo: "https://logo.clearbit.com/carrefour.com" },
-                    { name: "Decathlon", logo: "https://logo.clearbit.com/decathlon.com" },
-                    { name: "Sephora", logo: "https://logo.clearbit.com/sephora.com" },
-                    { name: "Fnac", logo: "https://logo.clearbit.com/fnac.com" },
-                    { name: "Leroy Merlin", logo: "https://logo.clearbit.com/leroymerlin.fr" },
-                    { name: "Boulanger", logo: "https://logo.clearbit.com/boulanger.com" },
-                    { name: "Darty", logo: "https://logo.clearbit.com/darty.com" },
+                    { name: "McDonald's", domain: "mcdonalds.fr" },
+                    { name: "Carrefour", domain: "carrefour.fr" },
+                    { name: "Decathlon", domain: "decathlon.fr" },
+                    { name: "Sephora", domain: "sephora.fr" },
+                    { name: "Fnac", domain: "fnac.com" },
+                    { name: "Leroy Merlin", domain: "leroymerlin.fr" },
+                    { name: "Boulanger", domain: "boulanger.com" },
+                    { name: "Darty", domain: "darty.com" },
                   ].map((brand) => (
                     <div
                       key={`${setIndex}-${brand.name}`}
-                      className="flex items-center justify-center h-7 w-24 grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all"
+                      className="flex items-center justify-center h-10 w-10 grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all"
                     >
                       <img 
-                        src={brand.logo} 
+                        src={`https://www.google.com/s2/favicons?domain=${brand.domain}&sz=64`}
                         alt={brand.name}
-                        className="max-h-full max-w-full object-contain"
+                        className="w-8 h-8 object-contain"
                         loading="lazy"
                       />
                     </div>

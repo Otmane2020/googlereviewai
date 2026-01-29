@@ -167,11 +167,11 @@
   }
   
   .animate-scroll-logos {
-    animation: scroll-logos 20s linear infinite;
+    animation: scroll-logos 30s linear infinite;
   }
   
   .animate-scroll-logos-slow {
-    animation: scroll-logos 60s linear infinite;
+    animation: scroll-logos 45s linear infinite;
   }
   
   .safe-area-inset-bottom {
