@@ -15,7 +15,7 @@ import { useVisitTracking } from "@/hooks/useVisitTracking";
 import { CartProvider } from "@/contexts/CartContext";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
-import SelectPlan from "./pages/SelectPlan";
+// SelectPlan removed - using ChoosePlan instead
 import ChoosePlan from "./pages/ChoosePlan";
 import Checkout from "./pages/Checkout";
 import Dashboard from "./pages/Dashboard";
@@ -133,7 +133,7 @@ const AppContent = () => {
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
-              <Route path="/select-plan" element={<SelectPlan />} />
+              <Route path="/select-plan" element={<ChoosePlan />} />
               <Route path="/choose-plan" element={<ChoosePlan />} />
               <Route path="/checkout" element={<Checkout />} />
               <Route path="/reset-password" element={<ResetPassword />} />
