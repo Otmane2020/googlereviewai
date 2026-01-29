@@ -227,14 +227,15 @@ const ChoosePlan = () => {
                   ].map((brand) => (
                     <div
                       key={`${setIndex}-${brand.name}`}
-                      className="flex items-center justify-center h-10 w-10 grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all"
+                      className="flex items-center gap-2 shrink-0 grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all"
                     >
                       <img 
                         src={`https://www.google.com/s2/favicons?domain=${brand.domain}&sz=64`}
                         alt={brand.name}
-                        className="w-8 h-8 object-contain"
+                        className="w-6 h-6 object-contain"
                         loading="lazy"
                       />
+                      <span className="text-xs text-muted-foreground whitespace-nowrap">{brand.name}</span>
                     </div>
                   ))}
                 </div>
