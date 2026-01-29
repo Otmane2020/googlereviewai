@@ -19,6 +19,8 @@ const PLANS = [
     businesses: "1",
     badge: "ESSAI 3 JOURS",
     icon: Star,
+    iconColor: "text-amber-500",
+    iconBg: "bg-amber-500/10",
     hasTrial: true,
   },
   {
@@ -30,6 +32,8 @@ const PLANS = [
     businesses: "2",
     badge: "POPULAIRE",
     icon: Zap,
+    iconColor: "text-violet-500",
+    iconBg: "bg-violet-500/10",
   },
   {
     id: "business",
@@ -40,6 +44,8 @@ const PLANS = [
     businesses: "10",
     badge: "PRO",
     icon: Building2,
+    iconColor: "text-emerald-500",
+    iconBg: "bg-emerald-500/10",
   },
 ];
 
@@ -140,8 +146,8 @@ const ChoosePlan = () => {
                 className="relative rounded-xl border-2 border-border bg-card hover:border-primary/50 p-4 transition-all"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                    <Icon className="h-5 w-5 text-primary" />
+                  <div className={`w-10 h-10 rounded-lg ${plan.iconBg} flex items-center justify-center shrink-0`}>
+                    <Icon className={`h-5 w-5 ${plan.iconColor}`} />
                   </div>
                   
                   <div className="flex-1 min-w-0">
