@@ -161,6 +161,15 @@
     animation: slide-in-right 0.3s ease-out;
   }
   
+  @keyframes scroll-logos {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+  
+  .animate-scroll-logos {
+    animation: scroll-logos 20s linear infinite;
+  }
+  
   .safe-area-inset-bottom {
     padding-bottom: env(safe-area-inset-bottom, 0);
   }
