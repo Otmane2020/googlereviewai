@@ -131,7 +131,8 @@ const ChoosePlan = () => {
         <div className="space-y-3">
           {PLANS.map((plan) => {
             const Icon = plan.icon;
-            const price = isYearly ? plan.priceYearly : plan.priceMonthly;
+            // Always show monthly price, but yearly is divided by 12
+            const displayPrice = isYearly ? (plan.priceYearly / 12) : plan.priceMonthly;
             
             return (
               <div
@@ -157,10 +158,10 @@ const ChoosePlan = () => {
                   
                   <div className="text-right shrink-0">
                     <div className="font-bold text-foreground">
-                      {price.toFixed(2)}€
+                      {displayPrice.toFixed(2)}€
                     </div>
                     <div className="text-[10px] text-muted-foreground">
-                      /{isYearly ? "an" : "mois"}
+                      /mois{isYearly && " (facturé annuellement)"}
                     </div>
                   </div>
                 </div>
