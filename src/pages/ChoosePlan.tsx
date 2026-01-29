@@ -212,20 +212,22 @@ const ChoosePlan = () => {
           
           {/* Scrolling logos */}
           <div className="relative overflow-hidden">
-            <div className="flex animate-scroll-logos-slow gap-6 py-2">
+            <div className="flex animate-scroll-logos-slow gap-8 py-3">
               {[...Array(2)].map((_, setIndex) => (
-                <div key={setIndex} className="flex gap-6 shrink-0 items-center">
+                <div key={setIndex} className="flex gap-8 shrink-0 items-center">
                   {[
-                    { name: "McDonald's", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/McDonald%27s_Golden_Arches.svg/1200px-McDonald%27s_Golden_Arches.svg.png" },
-                    { name: "Quick", logo: "https://upload.wikimedia.org/wikipedia/fr/thumb/b/b3/Quick_logo.svg/1200px-Quick_logo.svg.png" },
-                    { name: "Carrefour", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Carrefour_logo.svg/1200px-Carrefour_logo.svg.png" },
-                    { name: "Decathlon", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Decathlon_Logo.png/1200px-Decathlon_Logo.png" },
-                    { name: "Fnac", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Fnac_Logo.svg/1200px-Fnac_Logo.svg.png" },
-                    { name: "Sephora", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Sephora_logo.svg/1200px-Sephora_logo.svg.png" },
+                    { name: "McDonald's", logo: "https://logo.clearbit.com/mcdonalds.com" },
+                    { name: "Carrefour", logo: "https://logo.clearbit.com/carrefour.com" },
+                    { name: "Decathlon", logo: "https://logo.clearbit.com/decathlon.com" },
+                    { name: "Sephora", logo: "https://logo.clearbit.com/sephora.com" },
+                    { name: "Fnac", logo: "https://logo.clearbit.com/fnac.com" },
+                    { name: "Leroy Merlin", logo: "https://logo.clearbit.com/leroymerlin.fr" },
+                    { name: "Boulanger", logo: "https://logo.clearbit.com/boulanger.com" },
+                    { name: "Darty", logo: "https://logo.clearbit.com/darty.com" },
                   ].map((brand) => (
                     <div
                       key={`${setIndex}-${brand.name}`}
-                      className="flex items-center justify-center h-8 w-20 grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all"
+                      className="flex items-center justify-center h-7 w-24 grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all"
                     >
                       <img 
                         src={brand.logo} 

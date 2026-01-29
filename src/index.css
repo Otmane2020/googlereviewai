@@ -171,7 +171,7 @@
   }
   
   .animate-scroll-logos-slow {
-    animation: scroll-logos 40s linear infinite;
+    animation: scroll-logos 60s linear infinite;
   }
   
   .safe-area-inset-bottom {
