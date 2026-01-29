@@ -5,7 +5,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { StarlinkoLogo } from "@/components/StarlinkoLogo";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
 import { 
   Gift, 
   Star,
@@ -14,9 +13,7 @@ import {
   Shield,
   Sparkles,
   LogOut,
-  Check,
-  FileText,
-  MessageSquare
+  Check
 } from "lucide-react";
 
 interface Plan {
@@ -26,13 +23,14 @@ interface Plan {
   priceYearly: number;
   credits: number;
   businesses: string;
-  badge?: string;
-  badgeColor?: string;
-  cardColor?: string;
-  iconColor?: string;
+  badge: string;
+  badgeColor: string;
+  cardBorder: string;
+  cardBg: string;
+  iconBg: string;
+  buttonBg: string;
   icon: React.ElementType;
   hasTrial?: boolean;
-  trialDays?: number;
 }
 
 const plans: Plan[] = [
@@ -45,11 +43,12 @@ const plans: Plan[] = [
     businesses: "1 établissement",
     badge: "ESSAI 3 JOURS",
     badgeColor: "bg-emerald-500",
-    cardColor: "from-emerald-50 to-emerald-100 border-emerald-300",
-    iconColor: "bg-emerald-500",
+    cardBorder: "border-emerald-400",
+    cardBg: "bg-gradient-to-br from-emerald-50 to-emerald-100",
+    iconBg: "bg-emerald-500",
+    buttonBg: "bg-emerald-500 hover:bg-emerald-600",
     icon: Gift,
     hasTrial: true,
-    trialDays: 3,
   },
   {
     id: "pro",
@@ -60,8 +59,10 @@ const plans: Plan[] = [
     businesses: "2 établissements",
     badge: "POPULAIRE",
     badgeColor: "bg-rose-500",
-    cardColor: "from-rose-50 to-rose-100 border-rose-300",
-    iconColor: "bg-rose-400",
+    cardBorder: "border-rose-400",
+    cardBg: "bg-gradient-to-br from-rose-50 to-rose-100",
+    iconBg: "bg-rose-400",
+    buttonBg: "bg-rose-500 hover:bg-rose-600",
     icon: Star,
   },
   {
@@ -73,8 +74,10 @@ const plans: Plan[] = [
     businesses: "Illimité",
     badge: "ENTREPRISE",
     badgeColor: "bg-violet-500",
-    cardColor: "from-violet-50 to-violet-100 border-violet-300",
-    iconColor: "bg-violet-500",
+    cardBorder: "border-violet-400",
+    cardBg: "bg-gradient-to-br from-violet-50 to-violet-100",
+    iconBg: "bg-violet-500",
+    buttonBg: "bg-violet-500 hover:bg-violet-600",
     icon: Crown,
   },
 ];
@@ -87,13 +90,6 @@ const SelectPlan = () => {
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const [currentPlanName, setCurrentPlanName] = useState<string | null>(null);
   const [subscriptionStatus, setSubscriptionStatus] = useState<string | null>(null);
-  
-  // Module toggles
-  const [seoEnabled, setSeoEnabled] = useState(false);
-  const [aeoEnabled, setAeoEnabled] = useState(false);
-
-  const MODULE_PRICE_MONTHLY = 49;
-  const MODULE_PRICE_YEARLY = 470.40;
 
   useEffect(() => {
     const fetchCurrentPlan = async () => {
@@ -136,20 +132,9 @@ const SelectPlan = () => {
     setLoadingPlan(priceKey);
 
     try {
-      // Build line items array
-      const lineItems: string[] = [priceKey];
-      
-      if (seoEnabled) {
-        lineItems.push(`seo_autopost_${isYearly ? "yearly" : "monthly"}`);
-      }
-      if (aeoEnabled) {
-        lineItems.push(`aeo_rank_${isYearly ? "yearly" : "monthly"}`);
-      }
-
       const { data, error } = await supabase.functions.invoke("create-checkout", {
         body: {
           priceKey,
-          lineItems: lineItems.length > 1 ? lineItems : undefined,
           successUrl: `${window.location.origin}/dashboard?success=true`,
           cancelUrl: `${window.location.origin}/select-plan?canceled=true`,
         },
@@ -172,13 +157,6 @@ const SelectPlan = () => {
     } finally {
       setLoadingPlan(null);
     }
-  };
-
-  const getModulesTotal = () => {
-    let total = 0;
-    if (seoEnabled) total += isYearly ? MODULE_PRICE_YEARLY : MODULE_PRICE_MONTHLY;
-    if (aeoEnabled) total += isYearly ? MODULE_PRICE_YEARLY : MODULE_PRICE_MONTHLY;
-    return total;
   };
 
   if (loading) {
@@ -267,24 +245,20 @@ const SelectPlan = () => {
             return (
               <div
                 key={plan.id}
-                className={`relative bg-gradient-to-br ${plan.cardColor} rounded-2xl p-5 border-2 shadow-sm`}
+                className={`relative ${plan.cardBg} rounded-2xl p-4 border-2 ${plan.cardBorder} shadow-sm`}
               >
                 {/* Badge */}
-                {plan.badge && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                    <span className={`inline-flex items-center gap-1 px-3 py-1 ${plan.badgeColor} text-white text-xs font-bold rounded-full shadow-md`}>
-                      {plan.id === "starter" && <Gift className="w-3 h-3" />}
-                      {plan.id === "pro" && <Star className="w-3 h-3" />}
-                      {plan.id === "business" && <Crown className="w-3 h-3" />}
-                      {plan.badge}
-                    </span>
-                  </div>
-                )}
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                  <span className={`inline-flex items-center gap-1 px-3 py-1 ${plan.badgeColor} text-white text-xs font-bold rounded-full shadow-md`}>
+                    <Icon className="w-3 h-3" />
+                    {plan.badge}
+                  </span>
+                </div>
 
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-3 mt-2">
                   {/* Icon */}
-                  <div className={`w-14 h-14 rounded-xl ${plan.iconColor} flex items-center justify-center shadow-md`}>
-                    <Icon className="w-7 h-7 text-white" />
+                  <div className={`w-12 h-12 rounded-xl ${plan.iconBg} flex items-center justify-center shadow-md`}>
+                    <Icon className="w-6 h-6 text-white" />
                   </div>
 
                   {/* Info */}
@@ -299,21 +273,12 @@ const SelectPlan = () => {
                   <div className="text-right">
                     <span className="text-2xl font-bold text-foreground">{price.toFixed(2)}€</span>
                     <span className="text-sm text-muted-foreground">{period}</span>
-                    {plan.hasTrial && (
-                      <p className="text-xs text-emerald-600 font-medium">3 jours gratuits</p>
-                    )}
                   </div>
                 </div>
 
                 {/* CTA Button */}
                 <Button
-                  className={`w-full mt-4 ${
-                    plan.id === "starter" 
-                      ? "bg-emerald-500 hover:bg-emerald-600" 
-                      : plan.id === "pro"
-                      ? "bg-rose-500 hover:bg-rose-600"
-                      : "bg-violet-500 hover:bg-violet-600"
-                  } text-white font-semibold`}
+                  className={`w-full mt-3 ${plan.buttonBg} text-white font-semibold`}
                   onClick={() => handleSelectPlan(plan)}
                   disabled={loadingPlan === priceKey || isCurrentPlan}
                 >
@@ -334,64 +299,6 @@ const SelectPlan = () => {
               </div>
             );
           })}
-        </div>
-
-        {/* Modules Add-ons */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-5 border border-gray-200 shadow-sm mb-6">
-          <h3 className="text-lg font-bold text-foreground mb-4 flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-amber-500" />
-            Modules Premium
-          </h3>
-
-          {/* SEO AutoPost */}
-          <div className="flex items-center justify-between py-3 border-b border-gray-100">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
-                <FileText className="w-5 h-5 text-blue-600" />
-              </div>
-              <div>
-                <p className="font-medium text-foreground">SEO AutoPost</p>
-                <p className="text-xs text-muted-foreground">1 article SEO/jour</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <span className="text-sm font-semibold text-foreground">
-                +{isYearly ? MODULE_PRICE_YEARLY.toFixed(0) : MODULE_PRICE_MONTHLY}€{isYearly ? "/an" : "/mois"}
-              </span>
-              <Switch checked={seoEnabled} onCheckedChange={setSeoEnabled} />
-            </div>
-          </div>
-
-          {/* AEO Rank */}
-          <div className="flex items-center justify-between py-3">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center">
-                <MessageSquare className="w-5 h-5 text-purple-600" />
-              </div>
-              <div>
-                <p className="font-medium text-foreground">ChatGPT Rank (AEO)</p>
-                <p className="text-xs text-muted-foreground">1 Q&A optimisé/jour</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <span className="text-sm font-semibold text-foreground">
-                +{isYearly ? MODULE_PRICE_YEARLY.toFixed(0) : MODULE_PRICE_MONTHLY}€{isYearly ? "/an" : "/mois"}
-              </span>
-              <Switch checked={aeoEnabled} onCheckedChange={setAeoEnabled} />
-            </div>
-          </div>
-
-          {/* Total if modules selected */}
-          {(seoEnabled || aeoEnabled) && (
-            <div className="mt-4 pt-3 border-t border-gray-200">
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-muted-foreground">Modules sélectionnés</span>
-                <span className="font-bold text-foreground">
-                  +{getModulesTotal().toFixed(2)}€{isYearly ? "/an" : "/mois"}
-                </span>
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Trust badge */}
