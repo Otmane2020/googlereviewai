@@ -47,6 +47,7 @@ interface AISettings {
   auto_publish_to_google: boolean;
   email_notifications: boolean;
   respond_to_edited_reviews: boolean;
+  publication_hour: number;
 }
 
 interface PendingReviewsStats {
@@ -201,6 +202,7 @@ const AISettingsPage = () => {
     auto_publish_to_google: true,
     email_notifications: true,
     respond_to_edited_reviews: true,
+    publication_hour: 7,
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -272,6 +274,7 @@ const AISettingsPage = () => {
           auto_publish_to_google: settingsRes.data.auto_publish_to_google ?? true,
           email_notifications: settingsRes.data.email_notifications ?? true,
           respond_to_edited_reviews: settingsRes.data.respond_to_edited_reviews ?? true,
+          publication_hour: (settingsRes.data as any).publication_hour ?? 7,
         });
       }
 
@@ -654,6 +657,43 @@ const AISettingsPage = () => {
                 </p>
               </div>
             )}
+          </div>
+        </div>
+
+        {/* SEO/AEO Publication Hour */}
+        <div className="bg-card rounded-2xl border border-border/50 overflow-hidden shadow-sm">
+          <div className="p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center">
+                  <Clock className="w-4 h-4 text-indigo-500" />
+                </div>
+                <div>
+                  <span className="font-medium text-sm text-foreground block">Heure publication SEO/AEO</span>
+                  <span className="text-xs text-muted-foreground">Articles & Q&A automatiques</span>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <select
+                  value={settings.publication_hour}
+                  onChange={(e) => updateSettings({ publication_hour: parseInt(e.target.value) })}
+                  className="h-9 px-3 rounded-xl bg-muted/50 border-0 text-sm font-medium text-foreground focus:ring-2 focus:ring-primary"
+                >
+                  {Array.from({ length: 24 }, (_, i) => (
+                    <option key={i} value={i}>
+                      {i.toString().padStart(2, "0")}:00
+                    </option>
+                  ))}
+                </select>
+                <span className="text-xs text-muted-foreground">UTC</span>
+              </div>
+            </div>
+            <div className="mt-3 ml-11 bg-indigo-500/10 rounded-xl p-3 flex items-start gap-2">
+              <Sparkles className="w-4 h-4 text-indigo-600 mt-0.5 shrink-0" />
+              <p className="text-xs text-indigo-700 dark:text-indigo-400">
+                SEO AutoPost et ChatGPT Rank publient à {settings.publication_hour.toString().padStart(2, "0")}:00 UTC chaque jour
+              </p>
+            </div>
           </div>
         </div>
 

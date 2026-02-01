@@ -76,7 +76,7 @@ const SEOAutoPost = () => {
   const [selectedArticle, setSelectedArticle] = useState<ScheduledContent | null>(null);
   const [showPreviewDialog, setShowPreviewDialog] = useState(false);
   const [businessDialogOpen, setBusinessDialogOpen] = useState(false);
-  const [publishTime, setPublishTime] = useState("07:00");
+  const [publicationHour, setPublicationHour] = useState(7);
 
   // Use subscription verification hook
   const { loading: subscriptionLoading } = useRequireSubscription();
@@ -113,16 +113,29 @@ const SEOAutoPost = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const { data: businessData } = await supabase
-        .from("businesses")
-        .select("id, name, address, description, categories, auto_keywords")
-        .eq("user_id", user!.id);
+      // Fetch businesses and AI settings in parallel
+      const [businessRes, aiSettingsRes] = await Promise.all([
+        supabase
+          .from("businesses")
+          .select("id, name, address, description, categories, auto_keywords")
+          .eq("user_id", user!.id),
+        supabase
+          .from("ai_settings")
+          .select("publication_hour")
+          .eq("user_id", user!.id)
+          .maybeSingle()
+      ]);
       
-      setBusinesses((businessData as Business[]) || []);
+      setBusinesses((businessRes.data as Business[]) || []);
       
-      if (businessData && businessData.length > 0) {
-        setSelectedBusiness(businessData[0] as Business);
-        await fetchScheduledContent(businessData[0].id);
+      // Set publication hour from settings
+      if (aiSettingsRes.data && (aiSettingsRes.data as any).publication_hour !== undefined) {
+        setPublicationHour((aiSettingsRes.data as any).publication_hour);
+      }
+      
+      if (businessRes.data && businessRes.data.length > 0) {
+        setSelectedBusiness(businessRes.data[0] as Business);
+        await fetchScheduledContent(businessRes.data[0].id);
       }
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -390,13 +403,27 @@ const SEOAutoPost = () => {
     setPublishing(null);
   };
 
-  const handlePublishTimeChange = async (time: string) => {
-    setPublishTime(time);
-    // Save to user preferences (could be stored in ai_settings or a new table)
-    toast({
-      title: "Heure mise à jour",
-      description: `La publication automatique sera effectuée à ${time}`,
-    });
+  const handlePublishTimeChange = async (hour: number) => {
+    setPublicationHour(hour);
+    // Save to ai_settings
+    const { error } = await supabase
+      .from("ai_settings")
+      .update({ publication_hour: hour } as any)
+      .eq("user_id", user!.id);
+    
+    if (error) {
+      console.error("Error saving publication hour:", error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de sauvegarder l'heure de publication",
+        variant: "destructive"
+      });
+    } else {
+      toast({
+        title: "Heure mise à jour",
+        description: `La publication automatique sera effectuée à ${hour.toString().padStart(2, "0")}:00 UTC`,
+      });
+    }
   };
 
   const getStatusBadge = (status: string, iconOnly: boolean = false) => {
@@ -619,18 +646,15 @@ const SEOAutoPost = () => {
                 </div>
                 <div className="flex items-center gap-2">
                   <select
-                    value={publishTime}
-                    onChange={(e) => handlePublishTimeChange(e.target.value)}
+                    value={publicationHour}
+                    onChange={(e) => handlePublishTimeChange(parseInt(e.target.value))}
                     className="h-7 text-xs bg-background border border-border rounded-md px-2 font-medium"
                   >
-                    {Array.from({ length: 24 }, (_, i) => {
-                      const hour = i.toString().padStart(2, '0');
-                      return (
-                        <option key={hour} value={`${hour}:00`}>
-                          {hour}:00
-                        </option>
-                      );
-                    })}
+                    {Array.from({ length: 24 }, (_, i) => (
+                      <option key={i} value={i}>
+                        {i.toString().padStart(2, '0')}:00 UTC
+                      </option>
+                    ))}
                   </select>
                   <Badge variant="secondary" className="text-[10px]">Quotidien</Badge>
                 </div>
