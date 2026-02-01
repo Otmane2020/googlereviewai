@@ -1,10 +1,25 @@
 import { ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Helmet } from "react-helmet";
 
 const PrivacyPolicy = () => {
   return (
     <div className="min-h-screen bg-background">
+      <Helmet>
+        <title>Politique de Confidentialité | Starlinko</title>
+        <meta 
+          name="description" 
+          content="Découvrez comment Starlinko protège vos données personnelles. Politique RGPD, droits d'accès, de rectification et de suppression de vos informations." 
+        />
+        <meta name="keywords" content="politique confidentialité, RGPD, protection données, vie privée, Starlinko" />
+        <link rel="canonical" href="https://starlinko.app/privacy" />
+        
+        <meta property="og:title" content="Politique de Confidentialité | Starlinko" />
+        <meta property="og:description" content="Protection de vos données personnelles conforme au RGPD." />
+        <meta property="og:url" content="https://starlinko.app/privacy" />
+        <meta property="og:type" content="website" />
+      </Helmet>
       <div className="container max-w-4xl mx-auto px-4 py-12">
         <Link to="/">
           <Button variant="ghost" className="mb-8">

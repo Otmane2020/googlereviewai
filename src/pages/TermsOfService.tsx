@@ -1,10 +1,25 @@
 import { ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Helmet } from "react-helmet";
 
 const TermsOfService = () => {
   return (
     <div className="min-h-screen bg-background">
+      <Helmet>
+        <title>Conditions Générales d'Utilisation | Starlinko</title>
+        <meta 
+          name="description" 
+          content="Consultez les conditions générales d'utilisation de Starlinko. Règles d'abonnement, facturation, propriété intellectuelle et responsabilités." 
+        />
+        <meta name="keywords" content="CGU, conditions générales, termes service, abonnement, Starlinko" />
+        <link rel="canonical" href="https://starlinko.app/terms" />
+        
+        <meta property="og:title" content="CGU - Conditions Générales | Starlinko" />
+        <meta property="og:description" content="Conditions d'utilisation de la plateforme Starlinko." />
+        <meta property="og:url" content="https://starlinko.app/terms" />
+        <meta property="og:type" content="website" />
+      </Helmet>
       <div className="container max-w-4xl mx-auto px-4 py-12">
         <Link to="/">
           <Button variant="ghost" className="mb-8">

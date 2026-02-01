@@ -4,6 +4,11 @@
 User-agent: Googlebot
 Allow: /
 Allow: /local-aeo
+Allow: /gmb-autoposting
+Allow: /avis-ai-restaurant
+Allow: /avis-ai-hotel
+Allow: /avis-ai-guide
+Allow: /blog
 Crawl-delay: 1
 
 User-agent: Bingbot
@@ -14,6 +19,15 @@ User-agent: Twitterbot
 Allow: /
 
 User-agent: facebookexternalhit
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: Google-Extended
 Allow: /
 
 User-agent: *
@@ -28,6 +42,9 @@ Disallow: /aeo-rank
 Disallow: /maps-rank
 Disallow: /notifications
 Disallow: /reset-password
+Disallow: /gmb-post
+Disallow: /checkout
+Disallow: /admin
 
 # Sitemap
 Sitemap: https://starlinko.app/sitemap.xml

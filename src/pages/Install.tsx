@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Download, Smartphone, Check, Share, Plus, MoreVertical } from "lucide-react";
 import { StarlinkoLogo } from "@/components/StarlinkoLogo";
 import { useNavigate } from "react-router-dom";
+import { Helmet } from "react-helmet";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -112,6 +113,20 @@ const Install = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-background to-secondary/5 p-4 safe-area-insets">
+      <Helmet>
+        <title>Installer Starlinko | Application PWA Avis Google</title>
+        <meta 
+          name="description" 
+          content="Installez l'application Starlinko sur votre téléphone. Accédez à vos avis Google depuis votre écran d'accueil, même hors ligne." 
+        />
+        <meta name="keywords" content="installer starlinko, application avis google, PWA, mobile app" />
+        <link rel="canonical" href="https://starlinko.app/install" />
+        
+        <meta property="og:title" content="Installer Starlinko - App Avis Google" />
+        <meta property="og:description" content="Installez l'app Starlinko pour gérer vos avis Google partout." />
+        <meta property="og:url" content="https://starlinko.app/install" />
+        <meta property="og:type" content="website" />
+      </Helmet>
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
