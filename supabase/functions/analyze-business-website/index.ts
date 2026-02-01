@@ -58,7 +58,8 @@ serve(async (req) => {
     console.log(`[ANALYZE] Website: ${website || "none"}`);
     console.log(`[ANALYZE] Generate content: ${generateContent ? "YES" : "NO"}`);
 
-    const firecrawlApiKey = Deno.env.get("FIRECRAWL_API_KEY");
+    // Try both API key names for Firecrawl (original and connector-linked)
+    const firecrawlApiKey = Deno.env.get("FIRECRAWL_API_KEY_1") || Deno.env.get("FIRECRAWL_API_KEY");
     const lovableApiKey = Deno.env.get("LOVABLE_API_KEY");
 
     let websiteContent = "";
