@@ -260,12 +260,12 @@ const SEOAutoPost = () => {
         });
       }
 
-      // Insert all planned content
+      // Insert all planned content - use ignoreDuplicates: false to replace existing titles
       const { error: insertError } = await supabase
         .from("scheduled_content")
         .upsert(planItems, { 
           onConflict: "user_id,business_id,content_type,scheduled_date",
-          ignoreDuplicates: true 
+          ignoreDuplicates: false 
         });
 
       if (insertError) throw insertError;
