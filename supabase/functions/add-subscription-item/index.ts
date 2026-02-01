@@ -119,40 +119,63 @@ serve(async (req) => {
       });
     }
 
-    // Only try to create an invoice if not in trial period
-    // During trial, Stripe handles prorated charges automatically at trial end
-    if (activeSubscription.status === "active") {
-      try {
-        // Check if there are pending invoice items first
-        const pendingItems = await stripe.invoiceItems.list({
+    // ALWAYS create an invoice for premium modules, even during trial
+    // Premium modules should be paid immediately, not deferred to trial end
+    try {
+      // Wait a moment for Stripe to generate invoice items
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      const pendingItems = await stripe.invoiceItems.list({
+        customer: customerId,
+        pending: true,
+        limit: 10,
+      });
+
+      if (pendingItems.data.length > 0) {
+        console.log(`[add-subscription-item] Found ${pendingItems.data.length} pending invoice items, creating invoice for immediate payment`);
+        
+        const invoice = await stripe.invoices.create({
           customer: customerId,
-          pending: true,
-          limit: 10,
+          auto_advance: true,
+          pending_invoice_items_behavior: "include",
         });
 
-        if (pendingItems.data.length > 0) {
-          console.log(`[add-subscription-item] Found ${pendingItems.data.length} pending invoice items, creating invoice`);
+        if (invoice.id && invoice.status === "draft") {
+          await stripe.invoices.finalizeInvoice(invoice.id);
+          const paidInvoice = await stripe.invoices.pay(invoice.id);
+          console.log(`[add-subscription-item] Invoice paid immediately: ${invoice.id}, status: ${paidInvoice.status}`);
           
-          const invoice = await stripe.invoices.create({
-            customer: customerId,
-            auto_advance: true,
-            pending_invoice_items_behavior: "include",
-          });
-
-          if (invoice.id && invoice.status === "draft") {
-            await stripe.invoices.finalizeInvoice(invoice.id);
-            await stripe.invoices.pay(invoice.id);
-            console.log(`[add-subscription-item] Invoice paid: ${invoice.id}`);
+          if (paidInvoice.status !== "paid") {
+            // Payment failed - remove the subscription item
+            console.log(`[add-subscription-item] Payment failed, reverting subscription item`);
+            if (existingItem) {
+              await stripe.subscriptionItems.update(existingItem.id, {
+                quantity: existingItem.quantity || 1,
+              });
+            } else {
+              // Find and delete the newly added item
+              const updatedSub = await stripe.subscriptions.retrieve(activeSubscription.id);
+              const newItem = updatedSub.items.data.find(
+                (item: Stripe.SubscriptionItem) => item.price.id === priceId
+              );
+              if (newItem) {
+                await stripe.subscriptionItems.del(newItem.id);
+              }
+            }
+            throw new Error("Le paiement a échoué. Veuillez vérifier votre moyen de paiement.");
           }
-        } else {
-          console.log(`[add-subscription-item] No pending invoice items, skipping invoice creation`);
         }
-      } catch (invoiceError) {
-        // Log but don't fail - the subscription item was already added successfully
-        console.log(`[add-subscription-item] Invoice processing note:`, invoiceError);
+      } else {
+        console.log(`[add-subscription-item] No pending invoice items found, module may already be included`);
       }
-    } else {
-      console.log(`[add-subscription-item] Subscription is in trial, charges will apply at trial end`);
+    } catch (invoiceError: unknown) {
+      const errorMessage = invoiceError instanceof Error ? invoiceError.message : "Unknown error";
+      // If it's our custom error, re-throw it
+      if (errorMessage.includes("paiement a échoué")) {
+        throw invoiceError;
+      }
+      // Log but don't fail for other invoice errors - the subscription item was already added
+      console.log(`[add-subscription-item] Invoice processing note:`, errorMessage);
     }
 
     // Update user's subscriptions table in Supabase
