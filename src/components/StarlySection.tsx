@@ -1,7 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
-import { Check, Clock, Shield, Zap, ArrowRight } from "lucide-react";
-import starlyRobot from "@/assets/starly-robot.png";
+import { Check, Clock, Shield, Zap, ArrowRight, Star } from "lucide-react";
+import starlyLogo from "@/assets/starly-logo.png";
+import starlyAction from "@/assets/starly-action.png";
 
 const GoogleIcon = ({ className = "w-5 h-5" }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24">
@@ -18,104 +19,109 @@ export const StarlySection = () => {
   return (
     <section className="py-16 sm:py-24 bg-gradient-to-b from-background to-muted/30 overflow-hidden">
       <div className="container mx-auto px-5 sm:px-6">
-        <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
-          {/* Image côté gauche */}
-          <div className="relative order-2 lg:order-1">
-            <div className="absolute -top-10 -left-10 w-40 h-40 bg-primary/10 rounded-full blur-3xl" />
-            <div className="absolute -bottom-10 -right-10 w-60 h-60 bg-secondary/10 rounded-full blur-3xl" />
-            <div className="relative">
-              <img 
-                src={starlyRobot} 
-                alt="Starly - Robot IA pour avis Google" 
-                className="w-full max-w-md mx-auto lg:mx-0 drop-shadow-2xl"
-              />
+        {/* Header central */}
+        <div className="text-center mb-12 sm:mb-16">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full border border-primary/20 mb-6">
+            <div className="w-2 h-2 bg-secondary rounded-full animate-pulse" />
+            <span className="text-primary text-sm font-medium">Assistant IA Officiel</span>
+          </div>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4">
+            Rencontrez <span className="text-primary">Starly</span>
+          </h2>
+          <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto">
+            Votre robot officiel qui gère vos avis Google <strong className="text-foreground">24h/24, 7j/7</strong>. 
+            Recrutez Starly et gagnez en tranquillité !
+          </p>
+        </div>
+
+        {/* Deux rubriques côte à côte */}
+        <div className="grid md:grid-cols-2 gap-8 lg:gap-12 items-stretch">
+          {/* Rubrique 1: Qui est Starly */}
+          <div className="bg-card rounded-3xl border border-border p-6 sm:p-8 flex flex-col items-center text-center relative overflow-hidden">
+            <div className="absolute -top-20 -right-20 w-40 h-40 bg-primary/5 rounded-full blur-3xl" />
+            <img 
+              src={starlyLogo} 
+              alt="Starly - Assistant IA" 
+              className="w-48 sm:w-56 mb-6 relative z-10"
+            />
+            <h3 className="text-xl sm:text-2xl font-bold text-foreground mb-3">
+              Qui est Starly ?
+            </h3>
+            <p className="text-muted-foreground mb-6">
+              Starly est votre assistant IA dédié, conçu pour gérer automatiquement tous vos avis Google avec intelligence et réactivité.
+            </p>
+            <div className="grid grid-cols-2 gap-3 w-full">
+              <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-xl">
+                <Clock className="w-4 h-4 text-primary flex-shrink-0" />
+                <span className="text-sm text-foreground">Disponible 24/7</span>
+              </div>
+              <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-xl">
+                <Zap className="w-4 h-4 text-secondary flex-shrink-0" />
+                <span className="text-sm text-foreground">Ultra rapide</span>
+              </div>
+              <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-xl">
+                <Shield className="w-4 h-4 text-primary flex-shrink-0" />
+                <span className="text-sm text-foreground">100% fiable</span>
+              </div>
+              <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-xl">
+                <Star className="w-4 h-4 text-secondary flex-shrink-0" />
+                <span className="text-sm text-foreground">Personnalisé</span>
+              </div>
             </div>
           </div>
 
-          {/* Contenu côté droit */}
-          <div className="order-1 lg:order-2 text-center lg:text-left">
-            {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full border border-primary/20 mb-6">
-              <div className="w-2 h-2 bg-secondary rounded-full animate-pulse" />
-              <span className="text-primary text-sm font-medium">Assistant IA Officiel</span>
-            </div>
-
-            {/* Titre */}
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4">
-              Rencontrez{" "}
-              <span className="text-primary">Starly</span>
-            </h2>
-            
-            <p className="text-lg sm:text-xl text-muted-foreground mb-6 max-w-lg mx-auto lg:mx-0">
-              Votre robot officiel qui gère vos avis Google <strong className="text-foreground">24h/24, 7j/7</strong>. 
-              Recrutez Starly et gagnez en tranquillité !
+          {/* Rubrique 2: Ce que fait Starly */}
+          <div className="bg-card rounded-3xl border border-border p-6 sm:p-8 flex flex-col items-center text-center relative overflow-hidden">
+            <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-secondary/5 rounded-full blur-3xl" />
+            <img 
+              src={starlyAction} 
+              alt="Starly gère vos avis Google" 
+              className="w-56 sm:w-64 mb-6 relative z-10"
+            />
+            <h3 className="text-xl sm:text-2xl font-bold text-foreground mb-3">
+              Ce que fait Starly
+            </h3>
+            <p className="text-muted-foreground mb-6">
+              Starly répond à chaque avis avec le bon ton, améliore votre e-réputation et vous fait gagner un temps précieux.
             </p>
-
-            {/* Avantages */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8 max-w-lg mx-auto lg:mx-0">
-              <div className="flex items-center gap-3 p-3 bg-card rounded-xl border border-border">
-                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <Clock className="w-5 h-5 text-primary" />
-                </div>
-                <div className="text-left">
-                  <p className="text-foreground font-semibold text-sm">Disponible 24/7</p>
-                  <p className="text-muted-foreground text-xs">Ne dort jamais</p>
-                </div>
+            <div className="space-y-2 w-full text-left">
+              <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-xl">
+                <GoogleIcon className="w-5 h-5 flex-shrink-0" />
+                <span className="text-sm text-foreground">Répond à tous vos avis Google automatiquement</span>
               </div>
-              <div className="flex items-center gap-3 p-3 bg-card rounded-xl border border-border">
-                <div className="w-10 h-10 rounded-lg bg-secondary/10 flex items-center justify-center flex-shrink-0">
-                  <Zap className="w-5 h-5 text-secondary" />
-                </div>
-                <div className="text-left">
-                  <p className="text-foreground font-semibold text-sm">Ultra rapide</p>
-                  <p className="text-muted-foreground text-xs">Répond en secondes</p>
-                </div>
+              <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-xl">
+                <Check className="w-4 h-4 text-secondary flex-shrink-0" />
+                <span className="text-sm text-foreground">Analyse le sentiment et adapte le ton</span>
               </div>
-              <div className="flex items-center gap-3 p-3 bg-card rounded-xl border border-border">
-                <div className="w-10 h-10 rounded-lg bg-accent/20 flex items-center justify-center flex-shrink-0">
-                  <GoogleIcon className="w-5 h-5" />
-                </div>
-                <div className="text-left">
-                  <p className="text-foreground font-semibold text-sm">Expert Google</p>
-                  <p className="text-muted-foreground text-xs">Spécialisé avis</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 p-3 bg-card rounded-xl border border-border">
-                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <Shield className="w-5 h-5 text-primary" />
-                </div>
-                <div className="text-left">
-                  <p className="text-foreground font-semibold text-sm">100% fiable</p>
-                  <p className="text-muted-foreground text-xs">Pas d'erreurs</p>
-                </div>
+              <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-xl">
+                <Check className="w-4 h-4 text-secondary flex-shrink-0" />
+                <span className="text-sm text-foreground">Publie directement sur Google Business</span>
               </div>
             </div>
+          </div>
+        </div>
 
-            {/* CTA */}
-            <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
-              <Button 
-                variant="default" 
-                size="xl" 
-                className="gap-2"
-                onClick={() => navigate("/auth")}
-              >
-                <Zap className="w-5 h-5" />
-                Recruter Starly
-                <ArrowRight className="w-4 h-4" />
-              </Button>
-            </div>
-
-            {/* Trust */}
-            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 mt-5 text-muted-foreground text-xs">
-              <span className="flex items-center gap-1.5">
-                <Check className="w-3.5 h-3.5 text-secondary" />
-                Essai gratuit 3 jours
-              </span>
-              <span className="flex items-center gap-1.5">
-                <Check className="w-3.5 h-3.5 text-secondary" />
-                Sans engagement
-              </span>
-            </div>
+        {/* CTA central */}
+        <div className="text-center mt-10 sm:mt-12">
+          <Button 
+            variant="default" 
+            size="xl" 
+            className="gap-2"
+            onClick={() => navigate("/auth")}
+          >
+            <Zap className="w-5 h-5" />
+            Recruter Starly
+            <ArrowRight className="w-4 h-4" />
+          </Button>
+          <div className="flex flex-wrap items-center justify-center gap-4 mt-5 text-muted-foreground text-xs">
+            <span className="flex items-center gap-1.5">
+              <Check className="w-3.5 h-3.5 text-secondary" />
+              Essai gratuit 3 jours
+            </span>
+            <span className="flex items-center gap-1.5">
+              <Check className="w-3.5 h-3.5 text-secondary" />
+              Sans engagement
+            </span>
           </div>
         </div>
       </div>
