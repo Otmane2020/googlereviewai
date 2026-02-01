@@ -1,7 +1,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Lock, ExternalLink, Sparkles } from "lucide-react";
+import { Calendar, Lock, ExternalLink, Sparkles, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
@@ -19,6 +19,8 @@ interface ArticlePreviewDialogProps {
   } | null;
   isSubscribed: boolean;
   onSubscribe: (annual?: boolean) => void;
+  onGenerate?: (id: string) => void;
+  generating?: boolean;
 }
 
 export const ArticlePreviewDialog = ({
@@ -27,18 +29,21 @@ export const ArticlePreviewDialog = ({
   article,
   isSubscribed,
   onSubscribe,
+  onGenerate,
+  generating = false,
 }: ArticlePreviewDialogProps) => {
   if (!article) return null;
 
   const hasContent = article.question || article.answer;
+  const isGenerating = article.status === "generating" || generating;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <div className="flex items-center gap-2 mb-2">
-            <Badge variant={article.status === "published" ? "default" : "secondary"}>
-              {article.status === "published" ? "Publié" : article.status === "generated" ? "Prêt" : "Planifié"}
+            <Badge variant={article.status === "published" ? "default" : article.status === "generated" ? "secondary" : "outline"}>
+              {article.status === "published" ? "Publié" : article.status === "generated" ? "Prêt" : isGenerating ? "Génération..." : "Planifié"}
             </Badge>
             <span className="text-xs text-muted-foreground flex items-center gap-1">
               <Calendar className="w-3 h-3" />
@@ -60,24 +65,50 @@ export const ArticlePreviewDialog = ({
             {hasContent ? (
               <>
                 {article.question && (
-                  <div>
-                    <p className="text-xs font-medium text-muted-foreground mb-1">Question</p>
-                    <p className="text-foreground">{article.question}</p>
+                  <div className="p-3 bg-primary/5 rounded-lg border border-primary/10">
+                    <p className="text-xs font-medium text-primary mb-1">❓ Question</p>
+                    <p className="text-foreground font-medium">{article.question}</p>
                   </div>
                 )}
                 {article.answer && (
-                  <div>
-                    <p className="text-xs font-medium text-muted-foreground mb-1">Réponse</p>
+                  <div className="p-3 bg-secondary/5 rounded-lg border border-secondary/10">
+                    <p className="text-xs font-medium text-secondary mb-1">✅ Réponse</p>
                     <p className="text-muted-foreground text-sm leading-relaxed">{article.answer}</p>
                   </div>
                 )}
               </>
             ) : (
-              <div className="text-center py-6">
-                <Sparkles className="w-10 h-10 mx-auto mb-3 text-muted-foreground/30" />
-                <p className="text-sm text-muted-foreground">
-                  Le contenu sera généré automatiquement à la date planifiée.
-                </p>
+              <div className="text-center py-6 space-y-4">
+                {isGenerating ? (
+                  <>
+                    <Loader2 className="w-10 h-10 mx-auto text-primary animate-spin" />
+                    <p className="text-sm text-muted-foreground">
+                      Génération du Q&A en cours...
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-10 h-10 mx-auto text-muted-foreground/30" />
+                    <div>
+                      <p className="text-sm font-medium text-foreground mb-1">
+                        Q&A pas encore généré
+                      </p>
+                      <p className="text-xs text-muted-foreground mb-4">
+                        Cliquez sur "Générer" pour créer la question et réponse maintenant, ou attendez la génération automatique.
+                      </p>
+                    </div>
+                    {onGenerate && (
+                      <Button 
+                        onClick={() => onGenerate(article.id)} 
+                        className="gap-2"
+                        disabled={generating}
+                      >
+                        <Sparkles className="w-4 h-4" />
+                        Générer maintenant
+                      </Button>
+                    )}
+                  </>
+                )}
               </div>
             )}
           </div>
