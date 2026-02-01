@@ -785,6 +785,14 @@ const AEORank = () => {
         } : null}
         isSubscribed={isSubscribed}
         onSubscribe={(annual) => handleSubscribe(businesses.map(b => b.id), annual)}
+        onGenerate={(id) => {
+          const item = scheduledContent.find(c => c.id === id);
+          if (item) {
+            setShowPreviewDialog(false);
+            generateContentForDay(item);
+          }
+        }}
+        generating={!!scheduledContent.find(c => c.id === selectedArticle?.id && c.status === "generating")}
       />
     </div>
   );
