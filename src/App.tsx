@@ -40,6 +40,7 @@ import AvisAIRestaurant from "./pages/AvisAIRestaurant";
 import AvisAIHotel from "./pages/AvisAIHotel";
 import AvisAIGuide from "./pages/AvisAIGuide";
 import Blog from "./pages/Blog";
+import BlogArticle from "./pages/BlogArticle";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -159,6 +160,7 @@ const AppContent = () => {
               <Route path="/avis-ai-hotel" element={<AvisAIHotel />} />
               <Route path="/avis-ai-guide" element={<AvisAIGuide />} />
               <Route path="/blog" element={<Blog />} />
+              <Route path="/blog/:slug" element={<BlogArticle />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </OAuthCallback>
