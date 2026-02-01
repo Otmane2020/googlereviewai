@@ -1,107 +1,81 @@
 
+# Plan d'amélioration de la qualité du contenu SEO/AEO
 
-# Plan : Améliorer l'interface GMB Post pour correspondre à AEO/SEO
+## Problèmes identifiés
 
-## Contexte
+1. **Modèle IA trop basique** : Le système utilise `gemini-2.5-flash-lite` (le modèle le moins performant) au lieu d'un modèle plus avancé
+2. **Prompts trop génériques** : Les instructions ne demandent pas assez de variété ni de spécificité
+3. **Pas de déduplication** : Le système génère des questions similaires sans vérifier l'historique
+4. **Localisation brute** : L'adresse complète est passée telle quelle au lieu d'extraire la ville/quartier
+5. **Réponses AEO trop longues** : 100-150 mots demandés alors que les IA préfèrent 60-80 mots
 
-Les publications GMB manuelles **fonctionnent correctement** - les logs montrent que les posts sont publiés avec succès sur Google (`Post published successfully`), et la base de données contient les posts avec `status: published` et un `google_post_id` valide.
+## Solution proposée
 
-La différence visuelle que vous observez vient du fait que :
-- **AEO/SEO** utilise un calendrier visuel avec des cases colorées en vert pour les éléments publiés
-- **GMB Post** affiche une simple liste avec des badges de statut
+### 1. Upgrade du modèle IA
+Passer de `gemini-2.5-flash-lite` à `gemini-2.5-flash` pour une meilleure qualité de génération.
 
-## Modifications proposées
+### 2. Amélioration des prompts SEO/AEO
 
-### 1. Ajouter un rafraîchissement automatique après publication
+**Nouveau prompt AEO avec règles de qualité :**
+- Questions variées par catégorie (éviter les répétitions)
+- Réponses plus concises (60-80 mots max)
+- Chiffres et données spécifiques obligatoires
+- Éviter les formulations génériques ("Chez X, vous trouverez...")
 
-**Fichier** : `src/pages/GmbPost.tsx`
+**Nouveau prompt SEO :**
+- Titres plus originaux (pas de "Où trouver..." répétitifs)
+- Focus sur des angles uniques (comparatifs, guides, témoignages)
+- Intégration naturelle de la localisation (quartier, pas code postal)
 
-Actuellement, `fetchRecentPosts()` est appelé après publication, mais il peut y avoir un léger délai. On va ajouter :
-- Un toast de confirmation plus visible
-- Un rafraîchissement automatique de la liste
+### 3. Extraction intelligente de la localisation
+- Parser l'adresse pour extraire uniquement la ville
+- Ajouter les villes proches si disponibles
+- Ne pas inclure le code postal dans le contenu
 
-### 2. Améliorer l'affichage visuel des posts publiés
+### 4. Système anti-duplication
+- Vérifier les questions existantes avant génération
+- Passer l'historique des 10 dernières questions au prompt
+- Forcer des angles différents à chaque génération
 
-**Fichier** : `src/pages/GmbPost.tsx`
+## Modifications techniques
 
-Modifier le style des posts publiés pour qu'ils soient plus visibles :
-- Fond vert émeraude comme dans SEO/AEO (`bg-emerald-500/10` au lieu de `bg-muted/50`)
-- Bordure verte pour les posts publiés
-- Animation de succès lors de la publication
-
-### 3. Ajouter un bouton de rafraîchissement manuel
-
-**Fichier** : `src/pages/GmbPost.tsx`
-
-Ajouter un bouton "Actualiser" dans la section "Publications récentes" :
+### Edge Function `generate-seo-content/index.ts`
 
 ```text
-+------------------------------------------+
-| Publications récentes        [↻ Refresh] |
-+------------------------------------------+
-| [POST 1 - avec fond vert si publié]      |
-| [POST 2]                                 |
-+------------------------------------------+
+Changements :
+├── Ligne 176: model: "gemini-2.5-flash-lite" → "google/gemini-2.5-flash"
+├── Lignes 131-164: Refonte du prompt AEO
+│   ├── Ajout règles anti-répétition
+│   ├── Réduction longueur réponses (60-80 mots)
+│   └── Catégories obligatoires variées
+├── Lignes 66-94: Refonte du prompt article_titles
+│   ├── Templates variés obligatoires
+│   └── Interdiction des formules génériques
+└── Nouvelle fonction: extractCityFromAddress()
 ```
 
-### 4. Améliorer le feedback après publication
+### Edge Function `cron-generate-daily-qa/index.ts`
 
-**Fichier** : `src/pages/GmbPost.tsx`
-
-- Afficher un toast plus visible avec le lien vers Google Business Profile
-- Scroller automatiquement vers la section "Publications récentes"
-- Mettre en surbrillance le nouveau post pendant quelques secondes
-
-## Details techniques
-
-### Modification du style des posts (ligne 405)
-
-```typescript
-// Avant
-className="flex items-start gap-3 p-3 rounded-xl bg-muted/50"
-
-// Apres
-className={`flex items-start gap-3 p-3 rounded-xl border transition-all ${
-  post.status === "published" 
-    ? "bg-emerald-500/10 border-emerald-500/30" 
-    : "bg-muted/50 border-transparent"
-}`}
+```text
+Changements :
+├── Récupération des 10 dernières questions générées
+├── Passage de l'historique au prompt
+└── Instruction explicite d'éviter les doublons
 ```
 
-### Ajout du bouton de rafraîchissement
+## Exemples de qualité attendue
 
-```typescript
-<CardHeader className="pb-3 flex flex-row items-center justify-between">
-  <CardTitle className="text-base">Publications récentes</CardTitle>
-  <Button 
-    variant="ghost" 
-    size="sm" 
-    onClick={fetchRecentPosts}
-    className="h-8 px-2"
-  >
-    <RefreshCw className="w-4 h-4" />
-  </Button>
-</CardHeader>
-```
+**AVANT (mauvaise qualité) :**
+> Question: "Où trouver un grossiste de meubles à Montreuil avec des tarifs avantageux ?"
+> Réponse: "Un grossiste de meubles à Montreuil propose des tarifs avantageux sur une large gamme..."
 
-### Amélioration du toast de confirmation
+**APRÈS (bonne qualité) :**
+> Question: "Quel est le délai de livraison moyen pour un canapé commandé en Île-de-France ?"
+> Réponse: "Le délai moyen est de 5 à 15 jours ouvrés pour une livraison sur rendez-vous. Sweet Deco à Lognes propose une livraison gratuite dès 500€ d'achat avec suivi en temps réel."
 
-```typescript
-toast.success("Publication réussie !", {
-  description: "Votre post est maintenant visible sur Google Business Profile",
-  action: {
-    label: "Voir",
-    onClick: () => window.open("https://business.google.com", "_blank"),
-  },
-});
-```
+## Impact attendu
 
-## Resume
-
-| Element | Avant | Apres |
-|---------|-------|-------|
-| Style posts publies | Fond gris (`bg-muted/50`) | Fond vert (`bg-emerald-500/10`) + bordure verte |
-| Rafraichissement | Automatique seulement | + Bouton manuel |
-| Feedback | Toast simple | Toast avec lien vers Google |
-| Animation | Aucune | Surbrillance du nouveau post |
-
+- Contenu 3x plus varié avec moins de répétitions
+- Réponses plus factuelles et citables par les IA
+- Meilleur positionnement sur les requêtes longue traîne
+- Localisation naturelle sans surcharger le texte
