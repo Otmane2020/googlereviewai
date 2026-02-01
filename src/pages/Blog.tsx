@@ -2,6 +2,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { 
   ChefHat, 
   Hotel, 
@@ -9,12 +10,19 @@ import {
   MessageSquare,
   ArrowRight,
   Calendar,
-  Clock
+  Clock,
+  FileText,
+  Loader2
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
 
-const articles = [
+// Articles statiques (guides internes)
+const staticArticles = [
   {
     slug: "/avis-ai-guide",
     title: "Comment l'IA révolutionne la gestion des avis clients en 2026",
@@ -62,6 +70,40 @@ const articles = [
 ];
 
 const Blog = () => {
+  // Récupérer les articles dynamiques depuis la base de données
+  const { data: dynamicArticles, isLoading } = useQuery({
+    queryKey: ["published-articles"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("published_articles")
+        .select("id, title, slug, body, meta_description, author, published_at, created_at")
+        .order("published_at", { ascending: false });
+      
+      if (error) {
+        console.error("Error fetching articles:", error);
+        throw error;
+      }
+      return data || [];
+    },
+  });
+
+  // Calculer le temps de lecture estimé
+  const calculateReadTime = (content: string) => {
+    const wordsPerMinute = 200;
+    const words = content?.split(/\s+/).length || 0;
+    const minutes = Math.ceil(words / wordsPerMinute);
+    return `${minutes} min`;
+  };
+
+  // Formater la date
+  const formatDate = (dateString: string) => {
+    try {
+      return format(new Date(dateString), "d MMMM yyyy", { locale: fr });
+    } catch {
+      return dateString;
+    }
+  };
+
   return (
     <>
       <Helmet>
@@ -99,48 +141,139 @@ const Blog = () => {
             </div>
           </section>
 
-          {/* Articles Grid */}
-          <section className="py-12 sm:py-16">
+          {/* Dynamic Articles from Database */}
+          {(dynamicArticles && dynamicArticles.length > 0) && (
+            <section className="py-12 sm:py-16">
+              <div className="container mx-auto px-4">
+                <div className="max-w-6xl mx-auto">
+                  <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+                    <FileText className="w-6 h-6 text-primary" />
+                    Derniers articles
+                  </h2>
+                  
+                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {dynamicArticles.map((article) => (
+                      <Link key={article.id} to={`/blog/${article.slug}`}>
+                        <Card className="h-full hover:shadow-lg transition-all hover:-translate-y-1 cursor-pointer group overflow-hidden">
+                          <CardContent className="p-6">
+                            <div className="flex items-center gap-2 mb-4">
+                              <div className="w-10 h-10 rounded-lg bg-secondary/10 flex items-center justify-center">
+                                <FileText className="w-5 h-5 text-secondary" />
+                              </div>
+                              <Badge variant="outline" className="text-xs">
+                                Article
+                              </Badge>
+                            </div>
+                            
+                            <h3 className="font-semibold text-lg mb-2 group-hover:text-primary transition-colors line-clamp-2">
+                              {article.title}
+                            </h3>
+                            
+                            <p className="text-sm text-muted-foreground mb-4 line-clamp-3">
+                              {article.meta_description || article.body?.substring(0, 150) + "..."}
+                            </p>
+                            
+                            <div className="flex items-center justify-between text-xs text-muted-foreground">
+                              <div className="flex items-center gap-3">
+                                <span className="flex items-center gap-1">
+                                  <Clock className="w-3 h-3" />
+                                  {calculateReadTime(article.body)}
+                                </span>
+                                <span className="flex items-center gap-1">
+                                  <Calendar className="w-3 h-3" />
+                                  {formatDate(article.published_at || article.created_at)}
+                                </span>
+                              </div>
+                              <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </section>
+          )}
+
+          {/* Loading State */}
+          {isLoading && (
+            <section className="py-12 sm:py-16">
+              <div className="container mx-auto px-4">
+                <div className="max-w-6xl mx-auto">
+                  <div className="flex items-center gap-2 mb-6">
+                    <Loader2 className="w-5 h-5 animate-spin text-primary" />
+                    <span className="text-muted-foreground">Chargement des articles...</span>
+                  </div>
+                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {[1, 2, 3].map((i) => (
+                      <Card key={i} className="h-full">
+                        <CardContent className="p-6">
+                          <div className="flex items-center gap-2 mb-4">
+                            <Skeleton className="w-10 h-10 rounded-lg" />
+                            <Skeleton className="w-16 h-5" />
+                          </div>
+                          <Skeleton className="h-6 w-full mb-2" />
+                          <Skeleton className="h-4 w-3/4 mb-4" />
+                          <Skeleton className="h-16 w-full" />
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </section>
+          )}
+
+          {/* Static Articles Grid */}
+          <section className="py-12 sm:py-16 bg-muted/20">
             <div className="container mx-auto px-4">
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-                {articles.map((article, index) => (
-                  <Link key={index} to={article.slug}>
-                    <Card className="h-full hover:shadow-lg transition-all hover:-translate-y-1 cursor-pointer group overflow-hidden">
-                      <CardContent className="p-6">
-                        <div className="flex items-center gap-2 mb-4">
-                          <div className={`w-10 h-10 rounded-lg ${article.bgColor} flex items-center justify-center`}>
-                            <article.icon className={`w-5 h-5 ${article.color}`} />
+              <div className="max-w-6xl mx-auto">
+                <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+                  <Bot className="w-6 h-6 text-primary" />
+                  Guides & Tutoriels
+                </h2>
+                
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {staticArticles.map((article, index) => (
+                    <Link key={index} to={article.slug}>
+                      <Card className="h-full hover:shadow-lg transition-all hover:-translate-y-1 cursor-pointer group overflow-hidden">
+                        <CardContent className="p-6">
+                          <div className="flex items-center gap-2 mb-4">
+                            <div className={`w-10 h-10 rounded-lg ${article.bgColor} flex items-center justify-center`}>
+                              <article.icon className={`w-5 h-5 ${article.color}`} />
+                            </div>
+                            <Badge variant="secondary" className="text-xs">
+                              {article.category}
+                            </Badge>
                           </div>
-                          <Badge variant="secondary" className="text-xs">
-                            {article.category}
-                          </Badge>
-                        </div>
-                        
-                        <h2 className="font-semibold text-lg mb-2 group-hover:text-primary transition-colors line-clamp-2">
-                          {article.title}
-                        </h2>
-                        
-                        <p className="text-sm text-muted-foreground mb-4 line-clamp-3">
-                          {article.description}
-                        </p>
-                        
-                        <div className="flex items-center justify-between text-xs text-muted-foreground">
-                          <div className="flex items-center gap-3">
-                            <span className="flex items-center gap-1">
-                              <Clock className="w-3 h-3" />
-                              {article.readTime}
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <Calendar className="w-3 h-3" />
-                              {article.date}
-                            </span>
+                          
+                          <h3 className="font-semibold text-lg mb-2 group-hover:text-primary transition-colors line-clamp-2">
+                            {article.title}
+                          </h3>
+                          
+                          <p className="text-sm text-muted-foreground mb-4 line-clamp-3">
+                            {article.description}
+                          </p>
+                          
+                          <div className="flex items-center justify-between text-xs text-muted-foreground">
+                            <div className="flex items-center gap-3">
+                              <span className="flex items-center gap-1">
+                                <Clock className="w-3 h-3" />
+                                {article.readTime}
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <Calendar className="w-3 h-3" />
+                                {article.date}
+                              </span>
+                            </div>
+                            <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
                           </div>
-                          <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                ))}
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  ))}
+                </div>
               </div>
             </div>
           </section>
