@@ -9,6 +9,7 @@ import { Star, Zap, Building2, LogOut, Check, ShieldCheck, Users, Clock } from "
 import { TrustAvisCarousel } from "@/components/TrustAvisBadge";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { Helmet } from "react-helmet";
 
 const PLANS = [
   {
@@ -100,6 +101,20 @@ const ChoosePlan = () => {
 
   return (
     <div className="min-h-screen bg-background safe-area-insets">
+      <Helmet>
+        <title>Tarifs & Abonnements | Starlinko - Gestion Avis Google</title>
+        <meta 
+          name="description" 
+          content="Choisissez le plan Starlinko adapté à votre entreprise. Essai gratuit 3 jours, à partir de 2,99€/mois. Automatisez vos avis Google avec l'IA." 
+        />
+        <meta name="keywords" content="tarifs starlinko, prix avis google, abonnement gestion avis, essai gratuit" />
+        <link rel="canonical" href="https://starlinko.app/select-plan" />
+        
+        <meta property="og:title" content="Tarifs Starlinko - Gestion des Avis Google" />
+        <meta property="og:description" content="Plans à partir de 2,99€/mois. Essai gratuit 3 jours." />
+        <meta property="og:url" content="https://starlinko.app/select-plan" />
+        <meta property="og:type" content="website" />
+      </Helmet>
       {/* Header */}
       <header className="border-b border-border/50 bg-card/50 backdrop-blur-sm">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
