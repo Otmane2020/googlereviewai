@@ -660,6 +660,45 @@ export type Database = {
         }
         Relationships: []
       }
+      published_articles: {
+        Row: {
+          author: string | null
+          body: string
+          created_at: string | null
+          id: string
+          meta_description: string | null
+          published_at: string | null
+          slug: string
+          source_id: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          author?: string | null
+          body: string
+          created_at?: string | null
+          id?: string
+          meta_description?: string | null
+          published_at?: string | null
+          slug: string
+          source_id?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          author?: string | null
+          body?: string
+          created_at?: string | null
+          id?: string
+          meta_description?: string | null
+          published_at?: string | null
+          slug?: string
+          source_id?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       push_subscriptions: {
         Row: {
           auth: string

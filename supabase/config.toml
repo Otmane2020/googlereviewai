@@ -86,3 +86,6 @@ verify_jwt = false
 
 [functions.register-pushalert-subscriber]
 verify_jwt = false
+
+[functions.receive-article]
+verify_jwt = false
