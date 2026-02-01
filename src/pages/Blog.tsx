@@ -74,17 +74,21 @@ const Blog = () => {
   const { data: dynamicArticles, isLoading } = useQuery({
     queryKey: ["published-articles"],
     queryFn: async () => {
+      console.log("[Blog] Fetching published articles...");
       const { data, error } = await supabase
         .from("published_articles")
         .select("id, title, slug, body, meta_description, author, published_at, created_at")
         .order("published_at", { ascending: false });
       
       if (error) {
-        console.error("Error fetching articles:", error);
+        console.error("[Blog] Error fetching articles:", error);
         throw error;
       }
+      console.log("[Blog] Fetched articles:", data?.length, data?.map(a => a.slug));
       return data || [];
     },
+    staleTime: 0, // Toujours refetch au montage
+    refetchOnWindowFocus: true,
   });
 
   // Calculer le temps de lecture estimé
