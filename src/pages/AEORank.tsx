@@ -266,8 +266,16 @@ const AEORank = () => {
 
       if (insertError) throw insertError;
 
-      await fetchScheduledContent(selectedBusiness.id);
-      
+      // Fetch newly created items
+      const { data: newItems } = await supabase
+        .from("scheduled_content")
+        .select("*")
+        .eq("business_id", selectedBusiness.id)
+        .eq("user_id", user!.id)
+        .eq("content_type", "aeo_qa")
+        .eq("status", "pending")
+        .order("scheduled_date", { ascending: true });
+
       // Update local state
       setSelectedBusiness({
         ...selectedBusiness,
@@ -276,8 +284,68 @@ const AEORank = () => {
       });
 
       toast({ 
-        title: "Plan généré !", 
-        description: `30 jours de Q&A planifiés avec ${keywords.length} mots-clés détectés` 
+        title: "Plan créé ! Génération des Q&A...", 
+        description: `30 jours planifiés, génération en cours...` 
+      });
+
+      // Generate all Q&A content in parallel (batch of 5 at a time for rate limiting)
+      const pendingItems = (newItems as ScheduledContent[]) || [];
+      const batchSize = 5;
+      let generatedCount = 0;
+
+      for (let i = 0; i < pendingItems.length; i += batchSize) {
+        const batch = pendingItems.slice(i, i + batchSize);
+        
+        await Promise.all(batch.map(async (item) => {
+          try {
+            // Update status to generating
+            await supabase
+              .from("scheduled_content")
+              .update({ status: "generating" })
+              .eq("id", item.id);
+
+            const { data, error } = await supabase.functions.invoke("generate-seo-content", {
+              body: {
+                type: "aeo_questions",
+                businessName: selectedBusiness.name,
+                businessDescription: selectedBusiness.description || selectedBusiness.name,
+                location: selectedBusiness.address || "France",
+                keywords: [item.keyword_used],
+                singleQuestion: true,
+              },
+            });
+
+            if (error) throw error;
+
+            const qa = data?.questions?.[0];
+            
+            await supabase
+              .from("scheduled_content")
+              .update({ 
+                status: "generated",
+                question: qa?.question || null,
+                answer: qa?.answer || null,
+                title: qa?.question || null,
+              })
+              .eq("id", item.id);
+
+            generatedCount++;
+          } catch (err: any) {
+            console.error(`Error generating Q&A for ${item.id}:`, err);
+            await supabase
+              .from("scheduled_content")
+              .update({ status: "failed", error_message: err.message })
+              .eq("id", item.id);
+          }
+        }));
+
+        // Update UI after each batch
+        await fetchScheduledContent(selectedBusiness.id);
+      }
+
+      toast({ 
+        title: "Terminé !", 
+        description: `${generatedCount} Q&A générés avec ${keywords.length} mots-clés`
       });
     } catch (error: any) {
       console.error("Error generating plan:", error);
@@ -460,12 +528,12 @@ const AEORank = () => {
               {generating ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Analyse en cours...
+                  Génération en cours...
                 </>
               ) : (
                 <>
-                  <RefreshCw className="w-4 h-4 mr-2" />
-                  Analyser & Planifier
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  Analyser & Générer
                 </>
               )}
             </Button>
