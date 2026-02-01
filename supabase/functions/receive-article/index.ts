@@ -31,13 +31,48 @@ Deno.serve(async (req) => {
       )
     }
 
-    const body = await req.json()
-    const { title, body: articleBody, slug, sourceId, metaDescription, author } = body
+    const requestBody = await req.json()
+    console.log('[receive-article] Received body keys:', Object.keys(requestBody))
+    
+    // Accept both 'body' and 'content' as the article content
+    const { 
+      title, 
+      body: articleBodyField, 
+      content,
+      slug, 
+      sourceId, 
+      source_id,
+      metaDescription, 
+      meta_description,
+      author 
+    } = requestBody
+
+    // Use body or content (support both naming conventions)
+    const articleBody = articleBodyField || content
+    const articleSourceId = sourceId || source_id
+    const articleMetaDescription = metaDescription || meta_description
 
     // Validate required fields
-    if (!title || !articleBody || !slug) {
+    if (!title) {
+      console.log('[receive-article] Missing title')
       return new Response(
-        JSON.stringify({ error: 'Missing required fields: title, body, slug' }),
+        JSON.stringify({ error: 'Missing required field: title', received: Object.keys(requestBody) }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+    
+    if (!articleBody) {
+      console.log('[receive-article] Missing body/content')
+      return new Response(
+        JSON.stringify({ error: 'Missing required field: body (or content)', received: Object.keys(requestBody) }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+    
+    if (!slug) {
+      console.log('[receive-article] Missing slug')
+      return new Response(
+        JSON.stringify({ error: 'Missing required field: slug', received: Object.keys(requestBody) }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
@@ -48,6 +83,8 @@ Deno.serve(async (req) => {
       .replace(/[^a-z0-9-]/g, '-')
       .replace(/-+/g, '-')
       .replace(/^-|-$/g, '')
+
+    console.log('[receive-article] Processing article:', { title, slug: sanitizedSlug })
 
     // Create Supabase client with service role
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!
@@ -62,8 +99,8 @@ Deno.serve(async (req) => {
           title,
           body: articleBody,
           slug: sanitizedSlug,
-          source_id: sourceId || null,
-          meta_description: metaDescription || null,
+          source_id: articleSourceId || null,
+          meta_description: articleMetaDescription || null,
           author: author || 'Équipe Starlinko',
           updated_at: new Date().toISOString(),
         },
@@ -73,14 +110,14 @@ Deno.serve(async (req) => {
       .single()
 
     if (error) {
-      console.error('Database error:', error)
+      console.error('[receive-article] Database error:', error)
       return new Response(
         JSON.stringify({ error: 'Failed to save article', details: error.message }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
-    console.log(`Article published: ${sanitizedSlug}`)
+    console.log(`[receive-article] ✅ Article published: ${sanitizedSlug}`)
 
     return new Response(
       JSON.stringify({
@@ -95,9 +132,9 @@ Deno.serve(async (req) => {
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   } catch (error) {
-    console.error('Error processing request:', error)
+    console.error('[receive-article] Error processing request:', error)
     return new Response(
-      JSON.stringify({ error: 'Internal server error' }),
+      JSON.stringify({ error: 'Internal server error', details: String(error) }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   }
