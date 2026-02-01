@@ -6,6 +6,30 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Extraire la ville d'une adresse complète
+function extractCityFromAddress(address: string | null): string {
+  if (!address) return "";
+  
+  // Pattern français: "Rue X, Ville, CodePostal" ou "Rue X, CodePostal Ville"
+  const parts = address.split(",").map(p => p.trim());
+  
+  for (const part of parts) {
+    // Chercher une partie qui ressemble à une ville (pas de numéro de rue, pas de code postal seul)
+    const cleaned = part.replace(/^\d{5}\s*/, "").replace(/\s*\d{5}$/, "").trim();
+    if (cleaned && !cleaned.match(/^\d/) && cleaned.length > 2 && !cleaned.match(/^(rue|avenue|boulevard|place|allée|impasse|chemin)/i)) {
+      return cleaned;
+    }
+  }
+  
+  // Fallback: prendre l'avant-dernière partie (souvent la ville)
+  if (parts.length >= 2) {
+    const candidate = parts[parts.length - 2].replace(/\d{5}/g, "").trim();
+    if (candidate) return candidate;
+  }
+  
+  return parts[0] || "";
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -66,27 +90,36 @@ Génère 30 mots-clés variés incluant:
     } else if (type === "article_titles") {
       // Generate 30 article titles
       const numTitles = count || 30;
-      systemPrompt = `Tu es un expert en SEO et marketing de contenu. Tu crées des titres d'articles optimisés pour le référencement local et l'engagement.
+      const city = extractCityFromAddress(location);
+      
+      systemPrompt = `Tu es un expert en SEO et marketing de contenu. Tu crées des titres d'articles UNIQUES et ORIGINAUX pour le référencement local.
 
-Règles pour les titres:
-- Titres accrocheurs et optimisés SEO
-- Incluent des mots-clés naturellement
-- Variés: guides, comparatifs, conseils, actualités locales
-- Longueur: 50-70 caractères idéalement
-- Pertinents pour l'activité et la localisation`;
+RÈGLES STRICTES:
+- INTERDITS: "Où trouver...", "Découvrez...", "Les meilleurs..." en début de titre
+- Chaque titre doit avoir un ANGLE UNIQUE (chiffre, comparatif, guide, erreur à éviter, tendance)
+- Intégrer la ville naturellement, PAS le code postal
+- Longueur: 50-70 caractères
+- Varier les formats: questions, listes, guides, études de cas`;
 
-      userPrompt = `Génère ${numTitles} titres d'articles SEO uniques pour:
+      userPrompt = `Génère ${numTitles} titres d'articles SEO UNIQUES et VARIÉS pour:
 Entreprise: ${businessName}
-Description: ${fullContext}
-Localisation: ${location}
+Secteur: ${fullContext || "Non précisé"}
+Ville: ${city || location}
 ${keywords?.length ? `Mots-clés: ${keywords.join(", ")}` : ""}
 
-Types de titres à inclure:
-- Guides pratiques ("Comment...", "Guide complet...")
-- Conseils et astuces ("5 conseils pour...", "Les meilleures...")
-- Questions fréquentes ("Pourquoi...", "Quand...")
-- Actualités locales ("Nouveau à ${location}...")
-- Comparatifs ("vs", "avantages de...")
+TEMPLATES OBLIGATOIRES (utilise chaque catégorie au moins 4 fois):
+1. CHIFFRES: "7 erreurs à éviter...", "Les 5 critères pour..."
+2. QUESTIONS: "Combien coûte...?", "Quel est le meilleur moment pour...?"
+3. COMPARATIFS: "X vs Y: lequel choisir?", "Différences entre..."
+4. GUIDES: "Guide complet:", "Étape par étape:"
+5. TENDANCES: "Tendances 2025:", "Ce qui change en..."
+6. LOCAL: "À ${city}:", "Près de ${city}:"
+7. PROBLÈMES: "Comment résoudre...", "Que faire si..."
+
+INTERDICTIONS ABSOLUES:
+- Pas de "Où trouver" ou "Découvrez" en début
+- Pas de titres génériques type "Les avantages de..."
+- Pas de répétitions de structure
 
 IMPORTANT: Réponds UNIQUEMENT en JSON valide:
 {
@@ -129,36 +162,54 @@ Réponds en JSON:
 }`;
 
     } else if (type === "aeo_questions") {
-      systemPrompt = `Tu es un expert en AEO (Answer Engine Optimization) et optimisation pour ChatGPT/Gemini/Perplexity.
+      const city = extractCityFromAddress(location);
+      const existingQuestions = keywords?.slice(1) || []; // Les questions existantes passées après le premier mot-clé
+      
+      systemPrompt = `Tu es un expert en AEO (Answer Engine Optimization) pour ChatGPT, Gemini et Perplexity.
 
-Tu crées des paires question-réponse optimisées pour être CITÉES par les IA:
+OBJECTIF: Créer des Q&A que les IA vont CITER dans leurs réponses.
 
-RÈGLES CRITIQUES:
-1. La réponse DOIT commencer par la réponse directe (pas "Chez ${businessName}...")
-2. Inclure des chiffres/données concrètes quand possible
-3. Réponse en 2-4 phrases maximum (60-100 mots)
-4. Le nom de l'entreprise apparaît EN FIN de réponse comme exemple
-5. Format facilement extractable par une IA`;
+FORMAT RÉPONSE OPTIMAL (60-80 mots MAX):
+- Phrase 1: Fait/chiffre précis (prix moyen, délai, pourcentage)
+- Phrase 2: Critère de choix ou contexte clé
+- Phrase 3: Exemple avec ${businessName}
+
+RÈGLES ANTI-GÉNÉRIQUE:
+- JAMAIS commencer par "Chez ${businessName}..." ou "À ${city}..."
+- TOUJOURS inclure un chiffre ou donnée vérifiable
+- Réponse DIRECTE, pas de tournures promotionnelles
+- Questions naturelles type conversation avec une IA`;
 
       const numQuestions = singleQuestion ? 1 : 5;
+      const excludeList = existingQuestions.length > 0 
+        ? `\n\nQUESTIONS À NE PAS RÉPÉTER:\n${existingQuestions.map((q: string) => `- ${q}`).join("\n")}` 
+        : "";
+      
       userPrompt = `Génère ${numQuestions} paire(s) question-réponse AEO pour:
 Entreprise: ${businessName}
-Description: ${fullContext}
-Localisation: ${location}
-${keywords?.length ? `Mot-clé principal: ${keywords[0]}` : ""}
+Activité: ${fullContext || "Non précisé"}
+Ville: ${city || location}
+${keywords?.length ? `Mot-clé: ${keywords[0]}` : ""}
+${excludeList}
 
-STRUCTURE DE RÉPONSE AEO OPTIMALE:
-- Phrase 1: Réponse directe avec chiffre/fait
-- Phrase 2: Contexte ou critère important
-- Phrase 3: Mention de ${businessName} comme exemple concret
+CATÉGORIES À VARIER:
+- prix: "Combien coûte...", "Quel budget pour..."
+- délais: "Combien de temps...", "Quel délai pour..."
+- choix: "Comment choisir...", "Quels critères pour..."
+- qualité: "Comment reconnaître...", "Quels signes de..."
+- local: "Où trouver à ${city}...", "Y a-t-il... près de..."
 
-IMPORTANT: Réponds uniquement en JSON valide:
+EXEMPLES DE BONNES RÉPONSES:
+❌ "Chez ${businessName}, vous trouverez une large gamme de produits de qualité..."
+✅ "Le prix moyen d'un canapé 3 places varie entre 800€ et 2500€ selon les matériaux. Privilégiez les tissus anti-taches pour les familles. ${businessName} à ${city} propose des modèles dès 650€ avec garantie 5 ans."
+
+IMPORTANT: Réponds UNIQUEMENT en JSON valide:
 {
   "questions": [
     {
-      "question": "Question naturelle que poserait un utilisateur à ChatGPT",
-      "answer": "Réponse directe et factuelle. Contexte. Chez ${businessName}, [exemple concret].",
-      "category": "services|horaires|localisation|avis|prix|contact"
+      "question": "Question naturelle type ChatGPT",
+      "answer": "Réponse 60-80 mots avec chiffre + contexte + exemple ${businessName}",
+      "category": "prix|délais|choix|qualité|local"
     }
   ]
 }`;
@@ -173,13 +224,13 @@ IMPORTANT: Réponds uniquement en JSON valide:
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash-lite",
+        model: "google/gemini-2.5-flash",
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },
         ],
-        temperature: 0.4,
-        max_tokens: 2000,
+        temperature: 0.7,
+        max_tokens: 3000,
       }),
     });
 
