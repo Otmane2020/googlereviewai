@@ -103,7 +103,7 @@ serve(async (req) => {
           const existingQuestionsList = recentQuestions?.map(q => q.question).filter(Boolean) || [];
           console.log(`[CRON-AEO] Found ${existingQuestionsList.length} recent questions to avoid for business ${business.id}`);
 
-          // Generate Q&A using AI - passer les questions existantes pour éviter doublons
+          // Generate Q&A using AI - passer les questions existantes pour éviter doublons + website pour Firecrawl
           const aiResponse = await fetch(`${supabaseUrl}/functions/v1/generate-seo-content`, {
             method: "POST",
             headers: {
@@ -115,6 +115,7 @@ serve(async (req) => {
               businessName: business.name,
               businessDescription: business.description,
               location: business.address,
+              websiteUrl: business.website, // Pass website for Firecrawl scraping
               keywords: randomKeyword ? [randomKeyword, ...existingQuestionsList] : existingQuestionsList,
               singleQuestion: true,
             }),
