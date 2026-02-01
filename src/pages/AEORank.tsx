@@ -77,6 +77,7 @@ const AEORank = () => {
   const [selectedArticle, setSelectedArticle] = useState<ScheduledContent | null>(null);
   const [showPreviewDialog, setShowPreviewDialog] = useState(false);
   const [businessDialogOpen, setBusinessDialogOpen] = useState(false);
+  const [publicationHour, setPublicationHour] = useState(7);
 
   // Use subscription verification hook
   const { loading: subscriptionLoading } = useRequireSubscription();
@@ -113,16 +114,29 @@ const AEORank = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const { data: businessData } = await supabase
-        .from("businesses")
-        .select("id, name, address, description, categories, auto_keywords")
-        .eq("user_id", user!.id);
+      // Fetch businesses and AI settings in parallel
+      const [businessRes, aiSettingsRes] = await Promise.all([
+        supabase
+          .from("businesses")
+          .select("id, name, address, description, categories, auto_keywords")
+          .eq("user_id", user!.id),
+        supabase
+          .from("ai_settings")
+          .select("publication_hour")
+          .eq("user_id", user!.id)
+          .maybeSingle()
+      ]);
       
-      setBusinesses((businessData as Business[]) || []);
+      setBusinesses((businessRes.data as Business[]) || []);
       
-      if (businessData && businessData.length > 0) {
-        setSelectedBusiness(businessData[0] as Business);
-        await fetchScheduledContent(businessData[0].id);
+      // Set publication hour from settings
+      if (aiSettingsRes.data && (aiSettingsRes.data as any).publication_hour !== undefined) {
+        setPublicationHour((aiSettingsRes.data as any).publication_hour);
+      }
+      
+      if (businessRes.data && businessRes.data.length > 0) {
+        setSelectedBusiness(businessRes.data[0] as Business);
+        await fetchScheduledContent(businessRes.data[0].id);
       }
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -605,7 +619,7 @@ const AEORank = () => {
               <div className="flex items-center justify-between mt-3 p-2 bg-muted/50 rounded-lg border border-border/50">
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   <Settings className="w-3.5 h-3.5" />
-                  <span>Publication auto: <strong className="text-foreground">07:00 UTC</strong></span>
+                  <span>Publication auto: <strong className="text-foreground">{publicationHour.toString().padStart(2, "0")}:00 UTC</strong></span>
                 </div>
                 <Badge variant="secondary" className="text-[10px]">Quotidien</Badge>
               </div>

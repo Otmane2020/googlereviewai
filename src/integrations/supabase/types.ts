@@ -90,6 +90,7 @@ export type Database = {
           last_sync_status: string | null
           minimum_rating: number | null
           only_positive_reviews: boolean | null
+          publication_hour: number | null
           respond_to_edited_reviews: boolean | null
           response_length: string | null
           reviews_synced_count: number | null
@@ -114,6 +115,7 @@ export type Database = {
           last_sync_status?: string | null
           minimum_rating?: number | null
           only_positive_reviews?: boolean | null
+          publication_hour?: number | null
           respond_to_edited_reviews?: boolean | null
           response_length?: string | null
           reviews_synced_count?: number | null
@@ -138,6 +140,7 @@ export type Database = {
           last_sync_status?: string | null
           minimum_rating?: number | null
           only_positive_reviews?: boolean | null
+          publication_hour?: number | null
           respond_to_edited_reviews?: boolean | null
           response_length?: string | null
           reviews_synced_count?: number | null
