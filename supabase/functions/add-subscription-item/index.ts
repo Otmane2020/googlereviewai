@@ -15,6 +15,18 @@ const MODULE_PRICE_IDS: Record<string, string> = {
   seo_yearly: "price_1SrHtSEfti9t9nN9rXMfteyT",
 };
 
+// Helper function to safely convert Unix timestamp to ISO string
+const safeTimestampToISO = (timestamp: number | null | undefined): string => {
+  if (!timestamp || timestamp <= 0) {
+    return new Date().toISOString();
+  }
+  try {
+    return new Date(timestamp * 1000).toISOString();
+  } catch {
+    return new Date().toISOString();
+  }
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -84,7 +96,7 @@ serve(async (req) => {
       throw new Error("No active subscription found. Please subscribe to a plan first.");
     }
 
-    console.log(`[add-subscription-item] Found subscription: ${activeSubscription.id}`);
+    console.log(`[add-subscription-item] Found subscription: ${activeSubscription.id}, status: ${activeSubscription.status}`);
 
     // Check if this price is already in the subscription
     const existingItem = activeSubscription.items.data.find(
@@ -93,9 +105,9 @@ serve(async (req) => {
 
     if (existingItem) {
       // Update quantity if already exists
-      console.log(`[add-subscription-item] Updating existing item quantity`);
+      console.log(`[add-subscription-item] Updating existing item quantity from ${existingItem.quantity} to ${(existingItem.quantity || 0) + lineItemQuantity}`);
       await stripe.subscriptionItems.update(existingItem.id, {
-        quantity: existingItem.quantity + lineItemQuantity,
+        quantity: (existingItem.quantity || 0) + lineItemQuantity,
       });
     } else {
       // Add new item to subscription
@@ -107,23 +119,40 @@ serve(async (req) => {
       });
     }
 
-    // Create an invoice for the prorated amount immediately
-    const invoice = await stripe.invoices.create({
-      customer: customerId,
-      auto_advance: true,
-      pending_invoice_items_behavior: "include",
-    });
-
-    // Finalize and pay the invoice
-    if (invoice.id) {
+    // Only try to create an invoice if not in trial period
+    // During trial, Stripe handles prorated charges automatically at trial end
+    if (activeSubscription.status === "active") {
       try {
-        await stripe.invoices.finalizeInvoice(invoice.id);
-        await stripe.invoices.pay(invoice.id);
-        console.log(`[add-subscription-item] Invoice paid: ${invoice.id}`);
+        // Check if there are pending invoice items first
+        const pendingItems = await stripe.invoiceItems.list({
+          customer: customerId,
+          pending: true,
+          limit: 10,
+        });
+
+        if (pendingItems.data.length > 0) {
+          console.log(`[add-subscription-item] Found ${pendingItems.data.length} pending invoice items, creating invoice`);
+          
+          const invoice = await stripe.invoices.create({
+            customer: customerId,
+            auto_advance: true,
+            pending_invoice_items_behavior: "include",
+          });
+
+          if (invoice.id && invoice.status === "draft") {
+            await stripe.invoices.finalizeInvoice(invoice.id);
+            await stripe.invoices.pay(invoice.id);
+            console.log(`[add-subscription-item] Invoice paid: ${invoice.id}`);
+          }
+        } else {
+          console.log(`[add-subscription-item] No pending invoice items, skipping invoice creation`);
+        }
       } catch (invoiceError) {
+        // Log but don't fail - the subscription item was already added successfully
         console.log(`[add-subscription-item] Invoice processing note:`, invoiceError);
-        // Continue even if invoice fails - the subscription item was added
       }
+    } else {
+      console.log(`[add-subscription-item] Subscription is in trial, charges will apply at trial end`);
     }
 
     // Update user's subscriptions table in Supabase
@@ -136,16 +165,24 @@ serve(async (req) => {
     const isYearly = priceKey.includes("yearly");
     const priceMonthly = isYearly ? 39.20 : 49;
 
+    // Safely handle timestamp conversion
+    const periodStart = safeTimestampToISO(activeSubscription.current_period_start);
+    const periodEnd = safeTimestampToISO(activeSubscription.current_period_end);
+
+    console.log(`[add-subscription-item] Saving to DB: module=${moduleType}, period=${periodStart} to ${periodEnd}`);
+
     await supabaseAdmin.from("subscriptions").upsert({
       user_id: user.id,
       module: moduleType,
       status: "active",
       price_monthly: priceMonthly * lineItemQuantity,
-      current_period_start: new Date(activeSubscription.current_period_start * 1000).toISOString(),
-      current_period_end: new Date(activeSubscription.current_period_end * 1000).toISOString(),
+      current_period_start: periodStart,
+      current_period_end: periodEnd,
     }, {
       onConflict: "user_id,module",
     });
+
+    console.log(`[add-subscription-item] Success! Module ${moduleType} added to subscription ${activeSubscription.id}`);
 
     return new Response(JSON.stringify({ 
       success: true,
