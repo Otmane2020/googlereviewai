@@ -140,13 +140,21 @@ serve(async (req) => {
 
     if (customers.data.length > 0) {
       const existingCustomer = customers.data[0];
+      console.log(`[create-checkout] Found existing Stripe customer: ${existingCustomer.id}`);
       
-      // Check customer's currency from existing subscriptions/invoices
+      // Check customer's subscriptions
       const subscriptions = await stripe.subscriptions.list({
         customer: existingCustomer.id,
         status: "all",
         limit: 10,
       });
+
+      console.log(`[create-checkout] Customer has ${subscriptions.data.length} subscriptions`);
+
+      // Check if customer has ACTIVE subscriptions (not canceled/incomplete)
+      const hasActiveSubscription = subscriptions.data.some((sub: Stripe.Subscription) => 
+        ["active", "trialing", "past_due"].includes(sub.status)
+      );
 
       // Check if customer has subscriptions with different currency (USD vs EUR)
       const hasUsdSubscriptions = subscriptions.data.some((sub: Stripe.Subscription) => 
@@ -154,7 +162,7 @@ serve(async (req) => {
       );
 
       if (hasUsdSubscriptions) {
-        console.log("Customer has USD subscriptions, creating new customer for EUR prices");
+        console.log("[create-checkout] Customer has USD subscriptions, creating new customer for EUR prices");
         const newCustomer = await stripe.customers.create({
           email: user.email,
           metadata: {
@@ -163,17 +171,30 @@ serve(async (req) => {
           },
         });
         customerId = newCustomer.id;
-      } else {
+      } else if (hasActiveSubscription) {
+        // Customer already has an active subscription - this shouldn't happen normally
+        // but we handle it gracefully
+        console.log("[create-checkout] Customer already has active subscription, using existing customer");
         customerId = existingCustomer.id;
+        skipTrial = true; // No trial if they already have an active sub
+      } else {
+        // Customer exists but has NO active subscription (canceled, expired, deleted user re-created, etc.)
+        // They can create a new subscription normally
+        customerId = existingCustomer.id;
+        console.log("[create-checkout] Existing customer with no active subscription, allowing new checkout");
         
-        // Check if customer already had a trial
-        const hadTrial = subscriptions.data.some((sub: Stripe.Subscription) => sub.trial_end !== null);
+        // Check if customer already had a trial on a COMPLETED subscription (not just any trial)
+        const hadCompletedTrialSubscription = subscriptions.data.some((sub: Stripe.Subscription) => 
+          sub.trial_end !== null && ["canceled", "ended"].includes(sub.status)
+        );
         
-        if (hadTrial) {
+        if (hadCompletedTrialSubscription) {
+          console.log("[create-checkout] Customer already used trial, skipping trial for new subscription");
           skipTrial = true;
         }
       }
     } else {
+      console.log("[create-checkout] No existing customer found, creating new one");
       const customer = await stripe.customers.create({
         email: user.email,
         metadata: {
@@ -261,7 +282,7 @@ serve(async (req) => {
     });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Unknown error";
-    console.error("Error creating checkout session:", message);
+    console.error("[create-checkout] Error:", message);
     return new Response(JSON.stringify({ error: message }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 400,
