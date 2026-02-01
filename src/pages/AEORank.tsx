@@ -48,6 +48,7 @@ interface Business {
   description: string | null;
   categories: string[] | null;
   auto_keywords: string[] | null;
+  website: string | null;
 }
 
 interface ScheduledContent {
@@ -118,7 +119,7 @@ const AEORank = () => {
       const [businessRes, aiSettingsRes] = await Promise.all([
         supabase
           .from("businesses")
-          .select("id, name, address, description, categories, auto_keywords")
+          .select("id, name, address, description, categories, auto_keywords, website")
           .eq("user_id", user!.id),
         supabase
           .from("ai_settings")
@@ -215,13 +216,14 @@ const AEORank = () => {
     
     setGenerating(true);
     try {
-      // Generate keywords from business info using AI
+      // Generate keywords from business info using AI + Firecrawl website scraping
       const { data: analysisData, error: analysisError } = await supabase.functions.invoke("generate-seo-content", {
         body: {
           type: "analyze_business",
           businessName: selectedBusiness.name,
           businessDescription: selectedBusiness.description || selectedBusiness.name,
           location: selectedBusiness.address || "France",
+          websiteUrl: selectedBusiness.website, // Pass website for Firecrawl scraping
         },
       });
 
@@ -310,6 +312,7 @@ const AEORank = () => {
                 businessName: selectedBusiness.name,
                 businessDescription: selectedBusiness.description || selectedBusiness.name,
                 location: selectedBusiness.address || "France",
+                websiteUrl: selectedBusiness.website, // Pass website for Firecrawl scraping
                 keywords: [item.keyword_used],
                 singleQuestion: true,
               },
@@ -372,6 +375,7 @@ const AEORank = () => {
           businessName: selectedBusiness?.name,
           businessDescription: selectedBusiness?.description || selectedBusiness?.name,
           location: selectedBusiness?.address || "France",
+          websiteUrl: selectedBusiness?.website, // Pass website for Firecrawl scraping
           keywords: [item.keyword_used],
           singleQuestion: true,
         },

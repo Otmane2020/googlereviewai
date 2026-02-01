@@ -30,6 +30,57 @@ function extractCityFromAddress(address: string | null): string {
   return parts[0] || "";
 }
 
+// Scrape website using Firecrawl
+async function scrapeWebsite(url: string): Promise<string | null> {
+  const FIRECRAWL_API_KEY = Deno.env.get("FIRECRAWL_API_KEY");
+  if (!FIRECRAWL_API_KEY) {
+    console.log("[Firecrawl] No API key configured, skipping website scrape");
+    return null;
+  }
+
+  try {
+    // Format URL
+    let formattedUrl = url.trim();
+    if (!formattedUrl.startsWith("http://") && !formattedUrl.startsWith("https://")) {
+      formattedUrl = `https://${formattedUrl}`;
+    }
+
+    console.log(`[Firecrawl] Scraping: ${formattedUrl}`);
+
+    const response = await fetch("https://api.firecrawl.dev/v1/scrape", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${FIRECRAWL_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        url: formattedUrl,
+        formats: ["markdown"],
+        onlyMainContent: true,
+        waitFor: 3000,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`[Firecrawl] Error ${response.status}:`, errorText);
+      return null;
+    }
+
+    const data = await response.json();
+    const markdown = data.data?.markdown || data.markdown || "";
+    
+    // Limit content to ~3000 chars to avoid token limits
+    const truncated = markdown.slice(0, 3000);
+    console.log(`[Firecrawl] Success! Got ${markdown.length} chars, using ${truncated.length}`);
+    
+    return truncated;
+  } catch (error) {
+    console.error("[Firecrawl] Exception:", error);
+    return null;
+  }
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -42,9 +93,11 @@ serve(async (req) => {
       businessDescription, 
       location, 
       sourceUrl, 
+      websiteUrl, // NEW: explicit website URL for scraping
       keywords, 
       singleQuestion,
       gmbDescription, // GMB profile description
+      websiteContent, // NEW: pre-scraped content (optional)
       title, // For seo_article type
       count, // For article_titles type
     } = await req.json();
@@ -54,10 +107,20 @@ serve(async (req) => {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
+    // Scrape website if URL provided and no pre-scraped content
+    let scrapedContent = websiteContent || null;
+    const urlToScrape = websiteUrl || sourceUrl;
+    
+    if (!scrapedContent && urlToScrape && (type === "analyze_business" || type === "aeo_questions")) {
+      console.log(`[generate-seo-content] Scraping website: ${urlToScrape}`);
+      scrapedContent = await scrapeWebsite(urlToScrape);
+    }
+
     // Combine all business context
     const fullContext = [
       businessDescription,
       gmbDescription,
+      scrapedContent ? `\n--- CONTENU DU SITE WEB ---\n${scrapedContent}` : "",
     ].filter(Boolean).join("\n");
 
     let systemPrompt = "";
@@ -65,26 +128,28 @@ serve(async (req) => {
 
     if (type === "analyze_business") {
       // Analyze business and generate keywords
-      systemPrompt = `Tu es un expert en SEO local et marketing digital. Tu analyses les profils d'entreprises pour extraire des mots-clés pertinents et comprendre leur activité.`;
+      systemPrompt = `Tu es un expert en SEO local et marketing digital. Tu analyses les profils d'entreprises pour extraire des mots-clés pertinents et comprendre leur activité.
+${scrapedContent ? "IMPORTANT: Utilise le contenu scrapé du site web pour générer des mots-clés PRÉCIS et PERTINENTS basés sur les vrais services/produits proposés." : ""}`;
 
       userPrompt = `Analyse cette entreprise et génère des mots-clés SEO pertinents:
 Nom: ${businessName}
-Description: ${fullContext || "Non fournie"}
+Description: ${businessDescription || "Non fournie"}
 Localisation: ${location}
-${sourceUrl ? `Site web: ${sourceUrl}` : ""}
+${urlToScrape ? `Site web: ${urlToScrape}` : ""}
+${scrapedContent ? `\n--- CONTENU DU SITE WEB (IMPORTANT - utilise ces infos) ---\n${scrapedContent}\n--- FIN DU CONTENU ---` : ""}
 
 IMPORTANT: Génère exactement ce JSON (pas de texte avant ou après):
 {
-  "description": "Description optimisée de l'entreprise en 2-3 phrases",
+  "description": "Description optimisée de l'entreprise en 2-3 phrases basée sur le contenu réel du site",
   "keywords": ["mot-clé 1", "mot-clé 2", ...],
   "categories": ["catégorie 1", "catégorie 2"]
 }
 
 Génère 30 mots-clés variés incluant:
-- Mots-clés principaux du secteur d'activité
+- Mots-clés principaux du secteur d'activité ${scrapedContent ? "(basés sur le contenu scrapé)" : ""}
 - Mots-clés locaux (avec la ville)
 - Questions fréquentes des clients
-- Services/produits spécifiques mentionnés
+- Services/produits spécifiques ${scrapedContent ? "MENTIONNÉS SUR LE SITE" : "mentionnés"}
 - Variantes longue traîne`;
 
     } else if (type === "article_titles") {
@@ -196,15 +261,16 @@ Réponds en JSON:
       systemPrompt = `Tu es un expert en AEO (Answer Engine Optimization) pour ChatGPT, Gemini et Perplexity.
 
 OBJECTIF: Créer des Q&A que les IA vont CITER dans leurs réponses.
+${scrapedContent ? "\n⚠️ IMPORTANT: Tu as accès au CONTENU RÉEL du site web. Utilise ces informations pour créer des Q&A PRÉCIS et PERTINENTS basés sur les vrais services, produits et tarifs mentionnés." : ""}
 
 FORMAT RÉPONSE OPTIMAL (60-80 mots MAX):
-- Phrase 1: Fait/chiffre précis (prix moyen, délai, pourcentage)
+- Phrase 1: Fait/chiffre précis (prix moyen, délai, pourcentage) ${scrapedContent ? "EXTRAIT DU SITE SI DISPONIBLE" : ""}
 - Phrase 2: Critère de choix ou contexte clé
 - Phrase 3: Exemple avec ${businessName}
 
 RÈGLES ANTI-GÉNÉRIQUE:
 - JAMAIS commencer par "Chez ${businessName}..." ou "À ${city}..."
-- TOUJOURS inclure un chiffre ou donnée vérifiable
+- TOUJOURS inclure un chiffre ou donnée vérifiable ${scrapedContent ? "(de préférence du site)" : ""}
 - Réponse DIRECTE, pas de tournures promotionnelles
 - Questions naturelles type conversation avec une IA`;
 
@@ -215,9 +281,10 @@ RÈGLES ANTI-GÉNÉRIQUE:
       
       userPrompt = `Génère ${numQuestions} paire(s) question-réponse AEO pour:
 Entreprise: ${businessName}
-Activité: ${fullContext || "Non précisé"}
+Activité: ${businessDescription || "Non précisé"}
 Ville: ${city || location}
 ${keywords?.length ? `Mot-clé: ${keywords[0]}` : ""}
+${scrapedContent ? `\n--- CONTENU DU SITE WEB (UTILISE CES INFOS RÉELLES) ---\n${scrapedContent}\n--- FIN DU CONTENU ---` : ""}
 ${excludeList}
 
 CATÉGORIES À VARIER:
