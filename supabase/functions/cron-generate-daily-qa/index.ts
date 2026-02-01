@@ -115,7 +115,7 @@ serve(async (req) => {
               businessName: business.name,
               businessDescription: business.description,
               location: business.address,
-              websiteUrl: business.website, // Pass website for Firecrawl scraping
+              websiteContent: business.website_content, // Use pre-scraped content from DB
               keywords: randomKeyword ? [randomKeyword, ...existingQuestionsList] : existingQuestionsList,
               singleQuestion: true,
             }),
