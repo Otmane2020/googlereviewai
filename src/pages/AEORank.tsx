@@ -376,7 +376,7 @@ const AEORank = () => {
           businessName: selectedBusiness?.name,
           businessDescription: selectedBusiness?.description || selectedBusiness?.name,
           location: selectedBusiness?.address || "France",
-          websiteUrl: selectedBusiness?.website, // Pass website for Firecrawl scraping
+          websiteContent: selectedBusiness?.website_content, // Use pre-scraped content from DB
           keywords: [item.keyword_used],
           singleQuestion: true,
         },
