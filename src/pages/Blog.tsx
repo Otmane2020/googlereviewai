@@ -6,6 +6,7 @@ import {
   ChefHat, 
   Hotel, 
   Bot,
+  MessageSquare,
   ArrowRight,
   Calendar,
   Clock
@@ -14,6 +15,17 @@ import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet";
 
 const articles = [
+  {
+    slug: "/avis-ai-guide",
+    title: "Comment l'IA révolutionne la gestion des avis clients en 2026",
+    description: "Guide complet pour automatiser vos réponses aux avis Google avec l'intelligence artificielle. Découvrez comment Starlinko transforme votre gestion de réputation.",
+    icon: MessageSquare,
+    color: "text-primary",
+    bgColor: "bg-primary/10",
+    category: "Guide",
+    readTime: "5 min",
+    date: "1 février 2026"
+  },
   {
     slug: "/avis-ai-restaurant",
     title: "Comment les restaurants gèrent leurs avis Google avec l'IA",
