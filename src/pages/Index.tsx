@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Header } from "@/components/Header";
 import { HeroSection } from "@/components/HeroSection";
+import { StarlySection } from "@/components/StarlySection";
 import { FeaturesSection } from "@/components/FeaturesSection";
 import { SectorsSection } from "@/components/SectorsSection";
 import { TestimonialsSection } from "@/components/TestimonialsSection";
@@ -71,6 +72,7 @@ const Index = () => {
       <Header />
       <main className="pb-20 sm:pb-0">
         <HeroSection />
+        <StarlySection />
         <FeaturesSection />
         <SectorsSection />
         <TestimonialsSection />
