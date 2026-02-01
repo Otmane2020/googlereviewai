@@ -92,34 +92,62 @@ Génère 30 mots-clés variés incluant:
       const numTitles = count || 30;
       const city = extractCityFromAddress(location);
       
-      systemPrompt = `Tu es un expert en SEO et marketing de contenu. Tu crées des titres d'articles UNIQUES et ORIGINAUX pour le référencement local.
+      // Déterminer la région à partir de la ville (simplification)
+      const getRegion = (cityName: string): string => {
+        const regions: Record<string, string> = {
+          "paris": "Île-de-France", "montreuil": "Île-de-France", "lognes": "Île-de-France",
+          "lyon": "Rhône-Alpes", "marseille": "PACA", "toulouse": "Occitanie",
+          "nantes": "Pays de la Loire", "bordeaux": "Nouvelle-Aquitaine",
+          "lille": "Hauts-de-France", "strasbourg": "Grand Est", "nice": "PACA"
+        };
+        const cityLower = cityName.toLowerCase();
+        for (const [key, region] of Object.entries(regions)) {
+          if (cityLower.includes(key)) return region;
+        }
+        return "France";
+      };
+      
+      const region = getRegion(city);
+      
+      systemPrompt = `Tu es un expert en SEO et marketing de contenu. Tu crées des titres d'articles UNIQUES et ORIGINAUX.
 
 RÈGLES STRICTES:
 - INTERDITS: "Où trouver...", "Découvrez...", "Les meilleurs..." en début de titre
 - Chaque titre doit avoir un ANGLE UNIQUE (chiffre, comparatif, guide, erreur à éviter, tendance)
-- Intégrer la ville naturellement, PAS le code postal
 - Longueur: 50-70 caractères
-- Varier les formats: questions, listes, guides, études de cas`;
+- Varier les formats: questions, listes, guides, études de cas
+
+RÈGLES DE LOCALISATION (TRÈS IMPORTANT):
+- 30% des titres: avec la ville "${city}"
+- 30% des titres: avec la région "${region}" ou "en France"
+- 40% des titres: SANS localisation (sujets universels)
+- JAMAIS le code postal dans un titre`;
 
       userPrompt = `Génère ${numTitles} titres d'articles SEO UNIQUES et VARIÉS pour:
 Entreprise: ${businessName}
 Secteur: ${fullContext || "Non précisé"}
-Ville: ${city || location}
+Ville pour titres locaux: ${city}
+Région: ${region}
 ${keywords?.length ? `Mots-clés: ${keywords.join(", ")}` : ""}
 
-TEMPLATES OBLIGATOIRES (utilise chaque catégorie au moins 4 fois):
+RÉPARTITION OBLIGATOIRE sur les ${numTitles} titres:
+- ~${Math.round(numTitles * 0.3)} titres avec "${city}" (ex: "Guide des canapés à ${city}")
+- ~${Math.round(numTitles * 0.3)} titres avec "${region}" ou "en France" (ex: "Tendances déco ${region} 2025")
+- ~${Math.round(numTitles * 0.4)} titres SANS localisation (ex: "7 erreurs à éviter avant d'acheter un canapé")
+
+TEMPLATES À VARIER:
 1. CHIFFRES: "7 erreurs à éviter...", "Les 5 critères pour..."
 2. QUESTIONS: "Combien coûte...?", "Quel est le meilleur moment pour...?"
 3. COMPARATIFS: "X vs Y: lequel choisir?", "Différences entre..."
 4. GUIDES: "Guide complet:", "Étape par étape:"
 5. TENDANCES: "Tendances 2025:", "Ce qui change en..."
-6. LOCAL: "À ${city}:", "Près de ${city}:"
-7. PROBLÈMES: "Comment résoudre...", "Que faire si..."
+6. PROBLÈMES: "Comment résoudre...", "Que faire si..."
 
 INTERDICTIONS ABSOLUES:
 - Pas de "Où trouver" ou "Découvrez" en début
 - Pas de titres génériques type "Les avantages de..."
 - Pas de répétitions de structure
+- PAS "${city}" dans tous les titres!
 
 IMPORTANT: Réponds UNIQUEMENT en JSON valide:
 {
