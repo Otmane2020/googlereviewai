@@ -217,30 +217,56 @@ const AEORank = () => {
     
     setGenerating(true);
     try {
-      // Generate keywords from business info using AI + Firecrawl website scraping
-      const { data: analysisData, error: analysisError } = await supabase.functions.invoke("generate-seo-content", {
-        body: {
-          type: "analyze_business",
-          businessName: selectedBusiness.name,
-          businessDescription: selectedBusiness.description || selectedBusiness.name,
-          location: selectedBusiness.address || "France",
-          websiteUrl: selectedBusiness.website, // Pass website for Firecrawl scraping
-        },
+      // ÉTAPE 1: Supprimer les anciens Q&A non publiés (tout remplacer)
+      await supabase
+        .from("scheduled_content")
+        .delete()
+        .eq("business_id", selectedBusiness.id)
+        .eq("user_id", user!.id)
+        .eq("content_type", "aeo_qa")
+        .neq("status", "published");
+
+      toast({ 
+        title: "Analyse en cours...", 
+        description: "Scraping du site web avec Firecrawl..." 
       });
+
+      // ÉTAPE 2: Appeler analyze-business-website pour scraper avec Firecrawl
+      const { data: analysisData, error: analysisError } = await supabase.functions.invoke(
+        "analyze-business-website",
+        {
+          body: {
+            businessId: selectedBusiness.id,
+            website: selectedBusiness.website,
+            generateContent: false,
+          },
+        }
+      );
 
       if (analysisError) throw analysisError;
 
-      // Update business with auto-detected keywords
-      const keywords = analysisData?.keywords || [];
-      await supabase
+      // ÉTAPE 3: Recharger le business pour avoir website_content frais
+      const { data: freshBusiness } = await supabase
         .from("businesses")
-        .update({ 
-          auto_keywords: keywords,
-          description: analysisData?.description || selectedBusiness.description 
-        })
-        .eq("id", selectedBusiness.id);
+        .select("*")
+        .eq("id", selectedBusiness.id)
+        .single();
 
-      // Generate 30-day plan for AEO Q&A
+      const keywords = analysisData?.keywords || (freshBusiness as Business)?.auto_keywords || [];
+      const websiteContent = (freshBusiness as Business)?.website_content || null;
+
+      // Mettre à jour l'état local
+      setSelectedBusiness({
+        ...selectedBusiness,
+        auto_keywords: keywords,
+        website_content: websiteContent,
+        description: analysisData?.description || selectedBusiness.description,
+      });
+
+      console.log(`[AEO] Website content: ${websiteContent ? websiteContent.length + ' chars' : 'NULL'}`);
+      console.log(`[AEO] Keywords: ${keywords.length}`);
+
+      // ÉTAPE 4: Créer planning 30 jours
       const today = startOfToday();
       const planItems: any[] = [];
 
@@ -259,17 +285,21 @@ const AEORank = () => {
         });
       }
 
-      // Insert all planned content
+      // Insérer le planning
       const { error: insertError } = await supabase
         .from("scheduled_content")
         .upsert(planItems, { 
-          onConflict: "user_id,business_id,content_type,scheduled_date",
-          ignoreDuplicates: true 
+          onConflict: "user_id,business_id,content_type,scheduled_date"
         });
 
       if (insertError) throw insertError;
 
-      // Fetch newly created items
+      toast({ 
+        title: "Plan créé ! Génération des Q&A...", 
+        description: `30 jours planifiés avec ${keywords.length} mots-clés` 
+      });
+
+      // ÉTAPE 5: Générer tous les Q&A en batch avec websiteContent
       const { data: newItems } = await supabase
         .from("scheduled_content")
         .select("*")
@@ -279,19 +309,6 @@ const AEORank = () => {
         .eq("status", "pending")
         .order("scheduled_date", { ascending: true });
 
-      // Update local state
-      setSelectedBusiness({
-        ...selectedBusiness,
-        auto_keywords: keywords,
-        description: analysisData?.description || selectedBusiness.description
-      });
-
-      toast({ 
-        title: "Plan créé ! Génération des Q&A...", 
-        description: `30 jours planifiés, génération en cours...` 
-      });
-
-      // Generate all Q&A content in parallel (batch of 5 at a time for rate limiting)
       const pendingItems = (newItems as ScheduledContent[]) || [];
       const batchSize = 5;
       let generatedCount = 0;
@@ -301,7 +318,6 @@ const AEORank = () => {
         
         await Promise.all(batch.map(async (item) => {
           try {
-            // Update status to generating
             await supabase
               .from("scheduled_content")
               .update({ status: "generating" })
@@ -311,9 +327,9 @@ const AEORank = () => {
               body: {
                 type: "aeo_questions",
                 businessName: selectedBusiness.name,
-                businessDescription: selectedBusiness.description || selectedBusiness.name,
+                businessDescription: (freshBusiness as Business)?.description || selectedBusiness.description,
                 location: selectedBusiness.address || "France",
-                websiteContent: selectedBusiness.website_content, // Use pre-scraped content
+                websiteContent: websiteContent, // Utiliser le contenu fraîchement scrapé
                 keywords: [item.keyword_used],
                 singleQuestion: true,
               },
@@ -326,14 +342,14 @@ const AEORank = () => {
             await supabase
               .from("scheduled_content")
               .update({ 
-                status: "generated",
+                status: qa?.question ? "generated" : "failed",
                 question: qa?.question || null,
                 answer: qa?.answer || null,
                 title: qa?.question || null,
               })
               .eq("id", item.id);
 
-            generatedCount++;
+            if (qa?.question) generatedCount++;
           } catch (err: any) {
             console.error(`Error generating Q&A for ${item.id}:`, err);
             await supabase
@@ -343,7 +359,7 @@ const AEORank = () => {
           }
         }));
 
-        // Update UI after each batch
+        // Mettre à jour l'UI après chaque batch
         await fetchScheduledContent(selectedBusiness.id);
       }
 
