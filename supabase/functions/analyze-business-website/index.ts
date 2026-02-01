@@ -90,9 +90,24 @@ serve(async (req) => {
 
         if (scrapeResponse.ok) {
           const scrapeData = await scrapeResponse.json();
-          websiteContent = scrapeData.data?.markdown || scrapeData.markdown || "";
+          const rawContent = scrapeData.data?.markdown || scrapeData.markdown || "";
+          // Store truncated version (max 8000 chars) for future use
+          websiteContent = rawContent.substring(0, 8000);
           websiteMetadata = scrapeData.data?.metadata || scrapeData.metadata || null;
-          console.log(`[ANALYZE] Firecrawl scraped ${websiteContent.length} chars`);
+          console.log(`[ANALYZE] Firecrawl scraped ${rawContent.length} chars, storing ${websiteContent.length}`);
+          
+          // Save scraped content to database immediately
+          const { error: contentUpdateError } = await supabaseAdmin
+            .from("businesses")
+            .update({ website_content: websiteContent })
+            .eq("id", businessId)
+            .eq("user_id", user.id);
+          
+          if (contentUpdateError) {
+            console.error("[ANALYZE] Failed to save website_content:", contentUpdateError);
+          } else {
+            console.log("[ANALYZE] Website content saved to database");
+          }
         } else {
           const errorText = await scrapeResponse.text();
           console.error(`[ANALYZE] Firecrawl error: ${scrapeResponse.status}`, errorText);

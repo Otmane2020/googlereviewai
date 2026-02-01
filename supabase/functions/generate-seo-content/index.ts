@@ -30,56 +30,7 @@ function extractCityFromAddress(address: string | null): string {
   return parts[0] || "";
 }
 
-// Scrape website using Firecrawl
-async function scrapeWebsite(url: string): Promise<string | null> {
-  const FIRECRAWL_API_KEY = Deno.env.get("FIRECRAWL_API_KEY");
-  if (!FIRECRAWL_API_KEY) {
-    console.log("[Firecrawl] No API key configured, skipping website scrape");
-    return null;
-  }
-
-  try {
-    // Format URL
-    let formattedUrl = url.trim();
-    if (!formattedUrl.startsWith("http://") && !formattedUrl.startsWith("https://")) {
-      formattedUrl = `https://${formattedUrl}`;
-    }
-
-    console.log(`[Firecrawl] Scraping: ${formattedUrl}`);
-
-    const response = await fetch("https://api.firecrawl.dev/v1/scrape", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${FIRECRAWL_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        url: formattedUrl,
-        formats: ["markdown"],
-        onlyMainContent: true,
-        waitFor: 3000,
-      }),
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error(`[Firecrawl] Error ${response.status}:`, errorText);
-      return null;
-    }
-
-    const data = await response.json();
-    const markdown = data.data?.markdown || data.markdown || "";
-    
-    // Limit content to ~3000 chars to avoid token limits
-    const truncated = markdown.slice(0, 3000);
-    console.log(`[Firecrawl] Success! Got ${markdown.length} chars, using ${truncated.length}`);
-    
-    return truncated;
-  } catch (error) {
-    console.error("[Firecrawl] Exception:", error);
-    return null;
-  }
-}
+// NO MORE Firecrawl here - content should be pre-scraped and passed via websiteContent parameter
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -107,13 +58,13 @@ serve(async (req) => {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    // Scrape website if URL provided and no pre-scraped content
-    let scrapedContent = websiteContent || null;
-    const urlToScrape = websiteUrl || sourceUrl;
+    // Use pre-scraped content from database - NO MORE Firecrawl calls here
+    const scrapedContent = websiteContent || null;
     
-    if (!scrapedContent && urlToScrape && (type === "analyze_business" || type === "aeo_questions")) {
-      console.log(`[generate-seo-content] Scraping website: ${urlToScrape}`);
-      scrapedContent = await scrapeWebsite(urlToScrape);
+    if (scrapedContent) {
+      console.log(`[generate-seo-content] Using pre-scraped website content: ${scrapedContent.length} chars`);
+    } else {
+      console.log(`[generate-seo-content] No website content available`);
     }
 
     // Combine all business context
@@ -135,7 +86,7 @@ ${scrapedContent ? "IMPORTANT: Utilise le contenu scrapé du site web pour gén�
 Nom: ${businessName}
 Description: ${businessDescription || "Non fournie"}
 Localisation: ${location}
-${urlToScrape ? `Site web: ${urlToScrape}` : ""}
+${websiteUrl || sourceUrl ? `Site web: ${websiteUrl || sourceUrl}` : ""}
 ${scrapedContent ? `\n--- CONTENU DU SITE WEB (IMPORTANT - utilise ces infos) ---\n${scrapedContent}\n--- FIN DU CONTENU ---` : ""}
 
 IMPORTANT: Génère exactement ce JSON (pas de texte avant ou après):

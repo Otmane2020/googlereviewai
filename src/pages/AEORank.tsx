@@ -49,6 +49,7 @@ interface Business {
   categories: string[] | null;
   auto_keywords: string[] | null;
   website: string | null;
+  website_content: string | null; // Pre-scraped content from Firecrawl
 }
 
 interface ScheduledContent {
@@ -119,7 +120,7 @@ const AEORank = () => {
       const [businessRes, aiSettingsRes] = await Promise.all([
         supabase
           .from("businesses")
-          .select("id, name, address, description, categories, auto_keywords, website")
+          .select("id, name, address, description, categories, auto_keywords, website, website_content")
           .eq("user_id", user!.id),
         supabase
           .from("ai_settings")
@@ -312,7 +313,7 @@ const AEORank = () => {
                 businessName: selectedBusiness.name,
                 businessDescription: selectedBusiness.description || selectedBusiness.name,
                 location: selectedBusiness.address || "France",
-                websiteUrl: selectedBusiness.website, // Pass website for Firecrawl scraping
+                websiteContent: selectedBusiness.website_content, // Use pre-scraped content
                 keywords: [item.keyword_used],
                 singleQuestion: true,
               },
