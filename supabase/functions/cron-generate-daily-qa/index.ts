@@ -91,7 +91,19 @@ serve(async (req) => {
             ? keywords[Math.floor(Math.random() * keywords.length)].name 
             : null;
 
-          // Generate Q&A using AI
+          // Récupérer les 10 dernières questions pour éviter les doublons
+          const { data: recentQuestions } = await supabase
+            .from("scheduled_content")
+            .select("question")
+            .eq("business_id", business.id)
+            .eq("content_type", "aeo_qa")
+            .order("created_at", { ascending: false })
+            .limit(10);
+
+          const existingQuestionsList = recentQuestions?.map(q => q.question).filter(Boolean) || [];
+          console.log(`[CRON-AEO] Found ${existingQuestionsList.length} recent questions to avoid for business ${business.id}`);
+
+          // Generate Q&A using AI - passer les questions existantes pour éviter doublons
           const aiResponse = await fetch(`${supabaseUrl}/functions/v1/generate-seo-content`, {
             method: "POST",
             headers: {
@@ -103,7 +115,7 @@ serve(async (req) => {
               businessName: business.name,
               businessDescription: business.description,
               location: business.address,
-              keywords: randomKeyword ? [randomKeyword] : [],
+              keywords: randomKeyword ? [randomKeyword, ...existingQuestionsList] : existingQuestionsList,
               singleQuestion: true,
             }),
           });
