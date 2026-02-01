@@ -163,6 +163,7 @@ export type Database = {
       businesses: {
         Row: {
           address: string | null
+          ai_response_model: Json | null
           auto_keywords: string[] | null
           categories: string[] | null
           created_at: string | null
@@ -183,6 +184,7 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          ai_response_model?: Json | null
           auto_keywords?: string[] | null
           categories?: string[] | null
           created_at?: string | null
@@ -203,6 +205,7 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          ai_response_model?: Json | null
           auto_keywords?: string[] | null
           categories?: string[] | null
           created_at?: string | null
