@@ -332,15 +332,53 @@
     "signUp": "Inscription",
     "email": "Email",
     "password": "Mot de passe",
+    "fullName": "Nom complet",
+    "fullNamePlaceholder": "Jean Dupont",
+    "emailPlaceholder": "vous@exemple.com",
     "confirmPassword": "Confirmer le mot de passe",
     "forgotPassword": "Mot de passe oublié ?",
     "resetPassword": "Réinitialiser le mot de passe",
-    "noAccount": "Pas encore de compte ?",
-    "hasAccount": "Déjà un compte ?",
+    "noAccount": "Pas encore de compte ? S'inscrire",
+    "hasAccount": "Déjà un compte ? Se connecter",
     "continueWithGoogle": "Continuer avec Google",
-    "orContinueWith": "ou continuer avec",
-    "termsAgree": "En créant un compte, vous acceptez nos",
-    "and": "et notre"
+    "orContinueWith": "Ou avec email",
+    "termsAgree": "En continuant, vous acceptez nos",
+    "and": "et notre",
+    "termsOfService": "Conditions d'utilisation",
+    "privacyPolicy": "Politique de confidentialité",
+    "signInButton": "Se connecter",
+    "signUpButton": "S'inscrire",
+    "backToHome": "Retour à l'accueil",
+    "back": "Retour",
+    "connectToAccess": "Connectez-vous pour accéder à votre espace",
+    "createAccountToStart": "Créez votre compte pour commencer",
+    "manageReviewsWithAI": "Gérez vos avis Google avec l'IA",
+    "joinBusinesses": "Rejoignez des centaines d'entreprises qui automatisent leurs réponses aux avis.",
+    "benefits": {
+      "freeTrial": "3 jours d'essai gratuit",
+      "unlimitedResponses": "Réponses IA illimitées",
+      "gmbSync": "Synchronisation Google My Business",
+      "prioritySupport": "Support prioritaire"
+    },
+    "errors": {
+      "loginError": "Erreur de connexion",
+      "invalidCredentials": "Email ou mot de passe incorrect",
+      "signupError": "Erreur d'inscription",
+      "cannotCreateAccount": "Impossible de créer le compte",
+      "nameRequired": "Veuillez entrer votre nom complet",
+      "googleError": "Erreur Google",
+      "unexpectedError": "Une erreur inattendue s'est produite"
+    },
+    "success": {
+      "loginSuccess": "Connexion réussie !",
+      "welcomeBack": "Bienvenue sur Starlinko",
+      "signupSuccess": "Inscription réussie !",
+      "canNowLogin": "Vous pouvez maintenant vous connecter"
+    },
+    "loading": {
+      "connecting": "Connexion en cours...",
+      "redirecting": "Redirection..."
+    }
   },
   "footer": {
     "description": "Solution IA pour gérer et répondre automatiquement à vos avis Google.",

@@ -103,7 +103,7 @@ serve(async (req) => {
           const existingQuestionsList = recentQuestions?.map(q => q.question).filter(Boolean) || [];
           console.log(`[CRON-AEO] Found ${existingQuestionsList.length} recent questions to avoid for business ${business.id}`);
 
-          // Generate Q&A using AI - passer les questions existantes pour éviter doublons + website pour Firecrawl
+          // Generate Q&A using AI - passer les questions existantes pour éviter doublons + website pour Firecrawl + langue GMB
           const aiResponse = await fetch(`${supabaseUrl}/functions/v1/generate-seo-content`, {
             method: "POST",
             headers: {
@@ -118,6 +118,7 @@ serve(async (req) => {
               websiteContent: business.website_content, // Use pre-scraped content from DB
               keywords: randomKeyword ? [randomKeyword, ...existingQuestionsList] : existingQuestionsList,
               singleQuestion: true,
+              language: business.gmb_language || "fr", // Use GMB language for content generation
             }),
           });
 

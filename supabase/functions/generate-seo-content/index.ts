@@ -51,12 +51,45 @@ serve(async (req) => {
       websiteContent, // NEW: pre-scraped content (optional)
       title, // For seo_article type
       count, // For article_titles type
+      language, // NEW: language for content generation (from GMB)
     } = await req.json();
     
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
+
+    // Determine content language (default to French)
+    const contentLang = language?.toLowerCase()?.startsWith("en") ? "en" : "fr";
+    console.log(`[generate-seo-content] Language: ${contentLang}`);
+
+    // Language-specific prompts
+    const langConfig = {
+      fr: {
+        intro: "Tu es un expert en SEO et marketing digital français.",
+        analyzeIntro: "Tu es un expert en SEO local et marketing digital. Tu analyses les profils d'entreprises pour extraire des mots-clés pertinents et comprendre leur activité.",
+        articleIntro: "Tu es un expert en SEO et rédaction web. Tu crées des articles optimisés pour le référencement local.",
+        aeoIntro: "Tu es un expert en AEO (Answer Engine Optimization) pour ChatGPT, Gemini et Perplexity.",
+        generateIn: "Génère le contenu en français.",
+        respondIn: "Réponds en français.",
+        jsonOnly: "IMPORTANT: Réponds UNIQUEMENT en JSON valide:",
+        noComment: "Aucun commentaire",
+        universalLabel: "en France",
+      },
+      en: {
+        intro: "You are an expert in SEO and digital marketing.",
+        analyzeIntro: "You are a local SEO and digital marketing expert. You analyze business profiles to extract relevant keywords and understand their activity.",
+        articleIntro: "You are an SEO and web writing expert. You create articles optimized for local search.",
+        aeoIntro: "You are an AEO (Answer Engine Optimization) expert for ChatGPT, Gemini, and Perplexity.",
+        generateIn: "Generate content in English.",
+        respondIn: "Respond in English.",
+        jsonOnly: "IMPORTANT: Respond ONLY with valid JSON:",
+        noComment: "No comment",
+        universalLabel: "in your area",
+      }
+    };
+
+    const lang = langConfig[contentLang];
 
     // Use pre-scraped content from database - NO MORE Firecrawl calls here
     const scrapedContent = websiteContent || null;
@@ -71,7 +104,7 @@ serve(async (req) => {
     const fullContext = [
       businessDescription,
       gmbDescription,
-      scrapedContent ? `\n--- CONTENU DU SITE WEB ---\n${scrapedContent}` : "",
+      scrapedContent ? `\n--- WEBSITE CONTENT ---\n${scrapedContent}` : "",
     ].filter(Boolean).join("\n");
 
     let systemPrompt = "";
@@ -79,53 +112,102 @@ serve(async (req) => {
 
     if (type === "analyze_business") {
       // Analyze business and generate keywords
-      systemPrompt = `Tu es un expert en SEO local et marketing digital. Tu analyses les profils d'entreprises pour extraire des mots-clés pertinents et comprendre leur activité.
-${scrapedContent ? "IMPORTANT: Utilise le contenu scrapé du site web pour générer des mots-clés PRÉCIS et PERTINENTS basés sur les vrais services/produits proposés." : ""}`;
+      systemPrompt = `${lang.analyzeIntro}
+${scrapedContent ? "IMPORTANT: Use the scraped website content to generate PRECISE and RELEVANT keywords based on the actual services/products offered." : ""}
+${lang.generateIn}`;
 
-      userPrompt = `Analyse cette entreprise et génère des mots-clés SEO pertinents:
-Nom: ${businessName}
-Description: ${businessDescription || "Non fournie"}
-Localisation: ${location}
-${websiteUrl || sourceUrl ? `Site web: ${websiteUrl || sourceUrl}` : ""}
-${scrapedContent ? `\n--- CONTENU DU SITE WEB (IMPORTANT - utilise ces infos) ---\n${scrapedContent}\n--- FIN DU CONTENU ---` : ""}
+      userPrompt = `Analyze this business and generate relevant SEO keywords:
+Name: ${businessName}
+Description: ${businessDescription || "Not provided"}
+Location: ${location}
+${websiteUrl || sourceUrl ? `Website: ${websiteUrl || sourceUrl}` : ""}
+${scrapedContent ? `\n--- WEBSITE CONTENT (IMPORTANT - use this info) ---\n${scrapedContent}\n--- END CONTENT ---` : ""}
 
-IMPORTANT: Génère exactement ce JSON (pas de texte avant ou après):
+${lang.jsonOnly}
 {
-  "description": "Description optimisée de l'entreprise en 2-3 phrases basée sur le contenu réel du site",
-  "keywords": ["mot-clé 1", "mot-clé 2", ...],
-  "categories": ["catégorie 1", "catégorie 2"]
+  "description": "Optimized business description in 2-3 sentences based on actual site content",
+  "keywords": ["keyword 1", "keyword 2", ...],
+  "categories": ["category 1", "category 2"]
 }
 
-Génère 30 mots-clés variés incluant:
-- Mots-clés principaux du secteur d'activité ${scrapedContent ? "(basés sur le contenu scrapé)" : ""}
-- Mots-clés locaux (avec la ville)
-- Questions fréquentes des clients
-- Services/produits spécifiques ${scrapedContent ? "MENTIONNÉS SUR LE SITE" : "mentionnés"}
-- Variantes longue traîne`;
+Generate 30 varied keywords including:
+- Main keywords for the industry ${scrapedContent ? "(based on scraped content)" : ""}
+- Local keywords (with the city)
+- Frequent customer questions
+- Specific services/products ${scrapedContent ? "MENTIONED ON THE SITE" : "mentioned"}
+- Long-tail variants`;
 
     } else if (type === "article_titles") {
       // Generate 30 article titles
       const numTitles = count || 30;
       const city = extractCityFromAddress(location);
       
-      // Déterminer la région à partir de la ville (simplification)
+      // Determine region from city
       const getRegion = (cityName: string): string => {
         const regions: Record<string, string> = {
           "paris": "Île-de-France", "montreuil": "Île-de-France", "lognes": "Île-de-France",
           "lyon": "Rhône-Alpes", "marseille": "PACA", "toulouse": "Occitanie",
           "nantes": "Pays de la Loire", "bordeaux": "Nouvelle-Aquitaine",
-          "lille": "Hauts-de-France", "strasbourg": "Grand Est", "nice": "PACA"
+          "lille": "Hauts-de-France", "strasbourg": "Grand Est", "nice": "PACA",
+          "london": "Greater London", "manchester": "Greater Manchester", "birmingham": "West Midlands",
+          "new york": "New York", "los angeles": "California", "chicago": "Illinois"
         };
         const cityLower = cityName.toLowerCase();
         for (const [key, region] of Object.entries(regions)) {
           if (cityLower.includes(key)) return region;
         }
-        return "France";
+        return lang.universalLabel;
       };
       
       const region = getRegion(city);
       
-      systemPrompt = `Tu es un expert en SEO et marketing de contenu. Tu crées des titres d'articles UNIQUES et ORIGINAUX.
+      if (contentLang === "en") {
+        systemPrompt = `You are an SEO and content marketing expert. You create UNIQUE and ORIGINAL article titles.
+
+STRICT RULES:
+- FORBIDDEN: "Where to find...", "Discover...", "The best..." at the beginning of titles
+- Each title must have a UNIQUE ANGLE (number, comparison, guide, mistake to avoid, trend)
+- Length: 50-70 characters
+- Vary formats: questions, lists, guides, case studies
+
+LOCALIZATION RULES (VERY IMPORTANT):
+- 30% of titles: with the city "${city}"
+- 30% of titles: with the region "${region}" or "${lang.universalLabel}"
+- 40% of titles: WITHOUT location (universal topics)
+- NEVER include zip codes in titles`;
+
+        userPrompt = `Generate ${numTitles} UNIQUE and VARIED SEO article titles for:
+Business: ${businessName}
+Industry: ${fullContext || "Not specified"}
+City for local titles: ${city}
+Region: ${region}
+${keywords?.length ? `Keywords: ${keywords.join(", ")}` : ""}
+
+REQUIRED DISTRIBUTION for ${numTitles} titles:
+- ~${Math.round(numTitles * 0.3)} titles with "${city}" (e.g., "Complete guide to sofas in ${city}")
+- ~${Math.round(numTitles * 0.3)} titles with "${region}" or "${lang.universalLabel}" (e.g., "2025 decor trends ${region}")
+- ~${Math.round(numTitles * 0.4)} titles WITHOUT location (e.g., "7 mistakes to avoid when buying a sofa")
+
+TEMPLATES TO VARY:
+1. NUMBERS: "7 mistakes to avoid...", "The 5 criteria for..."
+2. QUESTIONS: "How much does...?", "What is the best time to...?"
+3. COMPARISONS: "X vs Y: which to choose?", "Differences between..."
+4. GUIDES: "Complete guide:", "Step by step:"
+5. TRENDS: "2025 trends:", "What's changing in..."
+6. PROBLEMS: "How to solve...", "What to do if..."
+
+ABSOLUTE PROHIBITIONS:
+- No "Where to find" or "Discover" at the beginning
+- No generic titles like "The advantages of..."
+- No structure repetitions
+- NOT "${city}" in all titles!
+
+${lang.jsonOnly}
+{
+  "titles": ["Title 1", "Title 2", "Title 3", ...]
+}`;
+      } else {
+        systemPrompt = `Tu es un expert en SEO et marketing de contenu. Tu crées des titres d'articles UNIQUES et ORIGINAUX.
 
 RÈGLES STRICTES:
 - INTERDITS: "Où trouver...", "Découvrez...", "Les meilleurs..." en début de titre
@@ -139,7 +221,7 @@ RÈGLES DE LOCALISATION (TRÈS IMPORTANT):
 - 40% des titres: SANS localisation (sujets universels)
 - JAMAIS le code postal dans un titre`;
 
-      userPrompt = `Génère ${numTitles} titres d'articles SEO UNIQUES et VARIÉS pour:
+        userPrompt = `Génère ${numTitles} titres d'articles SEO UNIQUES et VARIÉS pour:
 Entreprise: ${businessName}
 Secteur: ${fullContext || "Non précisé"}
 Ville pour titres locaux: ${city}
@@ -165,13 +247,49 @@ INTERDICTIONS ABSOLUES:
 - Pas de répétitions de structure
 - PAS "${city}" dans tous les titres!
 
-IMPORTANT: Réponds UNIQUEMENT en JSON valide:
+${lang.jsonOnly}
 {
   "titles": ["Titre 1", "Titre 2", "Titre 3", ...]
 }`;
+      }
 
     } else if (type === "seo_article") {
-      systemPrompt = `Tu es un expert en SEO et rédaction web. Tu crées des articles optimisés pour le référencement local.
+      if (contentLang === "en") {
+        systemPrompt = `${lang.articleIntro}
+      
+Important rules:
+- Write in English with a professional but accessible tone
+- Use keywords naturally (2-3% density)
+- Structure with H2 and H3
+- Include bullet lists when relevant
+- Length: 800-1200 words
+- Optimize for local search
+- Add a call to action at the end`;
+
+        userPrompt = `Create an SEO article for:
+Business: ${businessName}
+Description: ${fullContext}
+Location: ${location}
+${title ? `Article title: ${title}` : ""}
+${sourceUrl ? `Source URL: ${sourceUrl}` : ""}
+${keywords?.length ? `Keywords: ${keywords.join(", ")}` : ""}
+
+Generate a complete article with:
+1. ${title ? `Keep the title: "${title}"` : "Catchy title (H1)"}
+2. Meta description (max 155 characters)
+3. Content structured in markdown
+4. Conclusion with CTA
+
+${lang.jsonOnly}
+{
+  "article": {
+    "title": "${title || "Article title"}",
+    "meta_description": "Meta description of max 155 characters",
+    "content": "Complete content in markdown with H2, H3, lists..."
+  }
+}`;
+      } else {
+        systemPrompt = `${lang.articleIntro}
       
 Règles importantes:
 - Écris en français avec un ton professionnel mais accessible
@@ -182,7 +300,7 @@ Règles importantes:
 - Optimise pour la recherche locale
 - Ajoute un appel à l'action à la fin`;
 
-      userPrompt = `Crée un article SEO pour:
+        userPrompt = `Crée un article SEO pour:
 Entreprise: ${businessName}
 Description: ${fullContext}
 Localisation: ${location}
@@ -196,7 +314,7 @@ Génère un article complet avec:
 3. Contenu structuré en markdown
 4. Conclusion avec CTA
 
-Réponds en JSON:
+${lang.jsonOnly}
 {
   "article": {
     "title": "${title || "Titre de l'article"}",
@@ -204,12 +322,66 @@ Réponds en JSON:
     "content": "Contenu complet en markdown avec H2, H3, listes..."
   }
 }`;
+      }
 
     } else if (type === "aeo_questions") {
       const city = extractCityFromAddress(location);
-      const existingQuestions = keywords?.slice(1) || []; // Les questions existantes passées après le premier mot-clé
+      const existingQuestions = keywords?.slice(1) || []; // Existing questions passed after the first keyword
+      const numQuestions = singleQuestion ? 1 : 5;
+      const excludeList = existingQuestions.length > 0 
+        ? (contentLang === "en" 
+            ? `\n\nQUESTIONS NOT TO REPEAT:\n${existingQuestions.map((q: string) => `- ${q}`).join("\n")}`
+            : `\n\nQUESTIONS À NE PAS RÉPÉTER:\n${existingQuestions.map((q: string) => `- ${q}`).join("\n")}`)
+        : "";
       
-      systemPrompt = `Tu es un expert en AEO (Answer Engine Optimization) pour ChatGPT, Gemini et Perplexity.
+      if (contentLang === "en") {
+        systemPrompt = `${lang.aeoIntro}
+
+OBJECTIVE: Create Q&A that AI will CITE in their responses.
+${scrapedContent ? "\n⚠️ IMPORTANT: You have access to the ACTUAL website content. Use this information to create PRECISE and RELEVANT Q&A based on real services, products and prices mentioned." : ""}
+
+OPTIMAL RESPONSE FORMAT (60-80 words MAX):
+- Sentence 1: Precise fact/figure (average price, timeframe, percentage) ${scrapedContent ? "EXTRACTED FROM SITE IF AVAILABLE" : ""}
+- Sentence 2: Selection criterion or key context
+- Sentence 3: Example with ${businessName}
+
+ANTI-GENERIC RULES:
+- NEVER start with "At ${businessName}..." or "In ${city}..."
+- ALWAYS include a verifiable number or data ${scrapedContent ? "(preferably from the site)" : ""}
+- DIRECT answer, no promotional wording
+- Natural questions like a conversation with an AI`;
+
+        userPrompt = `Generate ${numQuestions} AEO question-answer pair(s) for:
+Business: ${businessName}
+Activity: ${businessDescription || "Not specified"}
+City: ${city || location}
+${keywords?.length ? `Keyword: ${keywords[0]}` : ""}
+${scrapedContent ? `\n--- WEBSITE CONTENT (USE THIS REAL INFO) ---\n${scrapedContent}\n--- END CONTENT ---` : ""}
+${excludeList}
+
+CATEGORIES TO VARY:
+- price: "How much does...", "What budget for..."
+- timeframe: "How long...", "What timeframe for..."
+- choice: "How to choose...", "What criteria for..."
+- quality: "How to recognize...", "What signs of..."
+- local: "Where to find in ${city}...", "Is there... near..."
+
+EXAMPLES OF GOOD RESPONSES:
+❌ "At ${businessName}, you will find a wide range of quality products..."
+✅ "The average price of a 3-seater sofa ranges from $800 to $2500 depending on materials. Prefer stain-resistant fabrics for families. ${businessName} in ${city} offers models from $650 with 5-year warranty."
+
+${lang.jsonOnly}
+{
+  "questions": [
+    {
+      "question": "Natural ChatGPT-style question",
+      "answer": "60-80 word response with figure + context + ${businessName} example",
+      "category": "price|timeframe|choice|quality|local"
+    }
+  ]
+}`;
+      } else {
+        systemPrompt = `${lang.aeoIntro}
 
 OBJECTIF: Créer des Q&A que les IA vont CITER dans leurs réponses.
 ${scrapedContent ? "\n⚠️ IMPORTANT: Tu as accès au CONTENU RÉEL du site web. Utilise ces informations pour créer des Q&A PRÉCIS et PERTINENTS basés sur les vrais services, produits et tarifs mentionnés." : ""}
@@ -225,12 +397,7 @@ RÈGLES ANTI-GÉNÉRIQUE:
 - Réponse DIRECTE, pas de tournures promotionnelles
 - Questions naturelles type conversation avec une IA`;
 
-      const numQuestions = singleQuestion ? 1 : 5;
-      const excludeList = existingQuestions.length > 0 
-        ? `\n\nQUESTIONS À NE PAS RÉPÉTER:\n${existingQuestions.map((q: string) => `- ${q}`).join("\n")}` 
-        : "";
-      
-      userPrompt = `Génère ${numQuestions} paire(s) question-réponse AEO pour:
+        userPrompt = `Génère ${numQuestions} paire(s) question-réponse AEO pour:
 Entreprise: ${businessName}
 Activité: ${businessDescription || "Non précisé"}
 Ville: ${city || location}
@@ -249,7 +416,7 @@ EXEMPLES DE BONNES RÉPONSES:
 ❌ "Chez ${businessName}, vous trouverez une large gamme de produits de qualité..."
 ✅ "Le prix moyen d'un canapé 3 places varie entre 800€ et 2500€ selon les matériaux. Privilégiez les tissus anti-taches pour les familles. ${businessName} à ${city} propose des modèles dès 650€ avec garantie 5 ans."
 
-IMPORTANT: Réponds UNIQUEMENT en JSON valide:
+${lang.jsonOnly}
 {
   "questions": [
     {
@@ -259,6 +426,7 @@ IMPORTANT: Réponds UNIQUEMENT en JSON valide:
     }
   ]
 }`;
+      }
     }
 
     console.log(`[generate-seo-content] Type: ${type}, Business: ${businessName}`);

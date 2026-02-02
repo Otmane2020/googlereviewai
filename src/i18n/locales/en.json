@@ -332,15 +332,53 @@
     "signUp": "Sign up",
     "email": "Email",
     "password": "Password",
+    "fullName": "Full name",
+    "fullNamePlaceholder": "John Doe",
+    "emailPlaceholder": "you@example.com",
     "confirmPassword": "Confirm password",
     "forgotPassword": "Forgot password?",
     "resetPassword": "Reset password",
-    "noAccount": "Don't have an account?",
-    "hasAccount": "Already have an account?",
+    "noAccount": "Don't have an account? Sign up",
+    "hasAccount": "Already have an account? Sign in",
     "continueWithGoogle": "Continue with Google",
-    "orContinueWith": "or continue with",
-    "termsAgree": "By creating an account, you agree to our",
-    "and": "and our"
+    "orContinueWith": "Or with email",
+    "termsAgree": "By continuing, you agree to our",
+    "and": "and our",
+    "termsOfService": "Terms of Service",
+    "privacyPolicy": "Privacy Policy",
+    "signInButton": "Sign in",
+    "signUpButton": "Sign up",
+    "backToHome": "Back to home",
+    "back": "Back",
+    "connectToAccess": "Sign in to access your account",
+    "createAccountToStart": "Create your account to get started",
+    "manageReviewsWithAI": "Manage your Google reviews with AI",
+    "joinBusinesses": "Join hundreds of businesses that automate their review responses.",
+    "benefits": {
+      "freeTrial": "3-day free trial",
+      "unlimitedResponses": "Unlimited AI responses",
+      "gmbSync": "Google My Business sync",
+      "prioritySupport": "Priority support"
+    },
+    "errors": {
+      "loginError": "Login error",
+      "invalidCredentials": "Invalid email or password",
+      "signupError": "Sign up error",
+      "cannotCreateAccount": "Unable to create account",
+      "nameRequired": "Please enter your full name",
+      "googleError": "Google error",
+      "unexpectedError": "An unexpected error occurred"
+    },
+    "success": {
+      "loginSuccess": "Login successful!",
+      "welcomeBack": "Welcome to Starlinko",
+      "signupSuccess": "Sign up successful!",
+      "canNowLogin": "You can now sign in"
+    },
+    "loading": {
+      "connecting": "Connecting...",
+      "redirecting": "Redirecting..."
+    }
   },
   "footer": {
     "description": "AI solution to manage and automatically respond to your Google reviews.",
