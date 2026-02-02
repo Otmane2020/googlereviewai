@@ -7,9 +7,32 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 
+// SVG flag components for reliable cross-platform rendering
+const FrenchFlag = () => (
+  <svg width="20" height="15" viewBox="0 0 3 2" className="rounded-sm">
+    <rect width="1" height="2" x="0" fill="#002654" />
+    <rect width="1" height="2" x="1" fill="#FFFFFF" />
+    <rect width="1" height="2" x="2" fill="#CE1126" />
+  </svg>
+);
+
+const BritishFlag = () => (
+  <svg width="20" height="15" viewBox="0 0 60 30" className="rounded-sm">
+    <clipPath id="s"><path d="M0,0 v30 h60 v-30 z"/></clipPath>
+    <clipPath id="t"><path d="M30,15 h30 v15 z v15 h-30 z h-30 v-15 z v-15 h30 z"/></clipPath>
+    <g clipPath="url(#s)">
+      <path d="M0,0 v30 h60 v-30 z" fill="#012169"/>
+      <path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" strokeWidth="6"/>
+      <path d="M0,0 L60,30 M60,0 L0,30" clipPath="url(#t)" stroke="#C8102E" strokeWidth="4"/>
+      <path d="M30,0 v30 M0,15 h60" stroke="#fff" strokeWidth="10"/>
+      <path d="M30,0 v30 M0,15 h60" stroke="#C8102E" strokeWidth="6"/>
+    </g>
+  </svg>
+);
+
 const languages = [
-  { code: "fr", label: "Français", flag: "🇫🇷" },
-  { code: "en", label: "English", flag: "🇬🇧" },
+  { code: "fr", label: "Français", Flag: FrenchFlag },
+  { code: "en", label: "English", Flag: BritishFlag },
 ];
 
 interface LanguageSwitcherProps {
@@ -28,26 +51,30 @@ export const LanguageSwitcher = ({ variant = "flags", className = "" }: Language
 
   if (variant === "dropdown") {
     const currentLanguage = languages.find(l => l.code === currentLang) || languages[1];
+    const CurrentFlag = currentLanguage.Flag;
     
     return (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="sm" className={`gap-2 ${className}`}>
-            <span className="text-lg">{currentLanguage.flag}</span>
+            <CurrentFlag />
             <span className="hidden sm:inline text-sm">{currentLanguage.label}</span>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          {languages.map((lang) => (
-            <DropdownMenuItem
-              key={lang.code}
-              onClick={() => handleLanguageChange(lang.code)}
-              className={`gap-2 cursor-pointer ${currentLang === lang.code ? "bg-accent" : ""}`}
-            >
-              <span className="text-lg">{lang.flag}</span>
-              <span>{lang.label}</span>
-            </DropdownMenuItem>
-          ))}
+          {languages.map((lang) => {
+            const LangFlag = lang.Flag;
+            return (
+              <DropdownMenuItem
+                key={lang.code}
+                onClick={() => handleLanguageChange(lang.code)}
+                className={`gap-2 cursor-pointer ${currentLang === lang.code ? "bg-accent" : ""}`}
+              >
+                <LangFlag />
+                <span>{lang.label}</span>
+              </DropdownMenuItem>
+            );
+          })}
         </DropdownMenuContent>
       </DropdownMenu>
     );
@@ -56,21 +83,24 @@ export const LanguageSwitcher = ({ variant = "flags", className = "" }: Language
   // Flags variant - simple toggle
   return (
     <div className={`flex items-center gap-1 ${className}`}>
-      {languages.map((lang) => (
-        <button
-          key={lang.code}
-          onClick={() => handleLanguageChange(lang.code)}
-          className={`text-xl p-1 rounded-md transition-all ${
-            currentLang === lang.code
-              ? "bg-primary/10 scale-110 ring-2 ring-primary/30"
-              : "opacity-60 hover:opacity-100 hover:bg-muted"
-          }`}
-          title={lang.label}
-          aria-label={`Switch to ${lang.label}`}
-        >
-          {lang.flag}
-        </button>
-      ))}
+      {languages.map((lang) => {
+        const LangFlag = lang.Flag;
+        return (
+          <button
+            key={lang.code}
+            onClick={() => handleLanguageChange(lang.code)}
+            className={`p-1.5 rounded-md transition-all ${
+              currentLang === lang.code
+                ? "bg-primary/10 scale-110 ring-2 ring-primary/30"
+                : "opacity-60 hover:opacity-100 hover:bg-muted"
+            }`}
+            title={lang.label}
+            aria-label={`Switch to ${lang.label}`}
+          >
+            <LangFlag />
+          </button>
+        );
+      })}
     </div>
   );
 };
