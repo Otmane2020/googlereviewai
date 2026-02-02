@@ -38,14 +38,9 @@ i18n
 
 // Helper to check if user is likely from France
 export const isLikelyFrench = (): boolean => {
+  if (typeof navigator === "undefined") return false;
   const lang = navigator.language || (navigator as any).userLanguage;
   return lang?.toLowerCase().startsWith("fr");
 };
-
-// Set initial language based on detection
-if (!localStorage.getItem("i18nextLng")) {
-  const defaultLang = isLikelyFrench() ? "fr" : "en";
-  i18n.changeLanguage(defaultLang);
-}
 
 export default i18n;
