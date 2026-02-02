@@ -470,6 +470,29 @@ const AEORank = () => {
     setPublishing(null);
   };
 
+  const handlePublishTimeChange = async (hour: number) => {
+    setPublicationHour(hour);
+    // Save to ai_settings
+    const { error } = await supabase
+      .from("ai_settings")
+      .update({ publication_hour: hour } as any)
+      .eq("user_id", user!.id);
+    
+    if (error) {
+      console.error("Error saving publication hour:", error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de sauvegarder l'heure de publication",
+        variant: "destructive"
+      });
+    } else {
+      toast({
+        title: "Heure mise à jour",
+        description: `La publication automatique sera effectuée à ${hour.toString().padStart(2, "0")}:00 UTC`,
+      });
+    }
+  };
+
   const getStatusBadge = (status: string, iconOnly: boolean = false) => {
     if (iconOnly) {
       switch (status) {
@@ -708,9 +731,22 @@ const AEORank = () => {
               <div className="flex items-center justify-between mt-3 p-2 bg-muted/50 rounded-lg border border-border/50">
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   <Settings className="w-3.5 h-3.5" />
-                  <span>Publication auto: <strong className="text-foreground">{publicationHour.toString().padStart(2, "0")}:00 UTC</strong></span>
+                  <span>Publication auto:</span>
                 </div>
-                <Badge variant="secondary" className="text-[10px]">Quotidien</Badge>
+                <div className="flex items-center gap-2">
+                  <select
+                    value={publicationHour}
+                    onChange={(e) => handlePublishTimeChange(parseInt(e.target.value))}
+                    className="h-7 text-xs bg-background border border-border rounded-md px-2 font-medium"
+                  >
+                    {Array.from({ length: 24 }, (_, i) => (
+                      <option key={i} value={i}>
+                        {i.toString().padStart(2, '0')}:00 UTC
+                      </option>
+                    ))}
+                  </select>
+                  <Badge variant="secondary" className="text-[10px]">Quotidien</Badge>
+                </div>
               </div>
 
               {/* Planning Tab */}
