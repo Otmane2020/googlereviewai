@@ -1,38 +1,41 @@
 import { FileCheck, KeyRound, Eye, Check, X, Shield, Zap } from "lucide-react";
-
-const complianceFeatures = [
-  {
-    icon: Shield,
-    title: "Données sécurisées",
-    description: "Vos données sont chiffrées et protégées selon les standards les plus stricts.",
-  },
-  {
-    icon: KeyRound,
-    title: "Connexion sécurisée",
-    description: "Authentification OAuth 2.0 pour une connexion simple et sécurisée.",
-  },
-  {
-    icon: Eye,
-    title: "Transparence totale",
-    description: "Vous gardez le contrôle total sur vos données et autorisations.",
-  },
-];
-
-const doList = [
-  "Chiffrement des données",
-  "Respect de la vie privée",
-  "Sauvegardes automatiques",
-  "Support réactif",
-];
-
-const dontList = [
-  "Partage de vos données",
-  "Spam ou abus",
-  "Frais cachés",
-  "Engagement forcé",
-];
+import { useTranslation } from "react-i18next";
 
 export const ComplianceSection = () => {
+  const { t } = useTranslation();
+
+  const complianceFeatures = [
+    {
+      icon: Shield,
+      title: t("compliance.secureData"),
+      description: t("compliance.secureDataDesc"),
+    },
+    {
+      icon: KeyRound,
+      title: t("compliance.secureConnection"),
+      description: t("compliance.secureConnectionDesc"),
+    },
+    {
+      icon: Eye,
+      title: t("compliance.transparency"),
+      description: t("compliance.transparencyDesc"),
+    },
+  ];
+
+  const doList = [
+    t("compliance.encryption"),
+    t("compliance.privacyRespect"),
+    t("compliance.autoBackups"),
+    t("compliance.reactiveSupport"),
+  ];
+
+  const dontList = [
+    t("compliance.noSharing"),
+    t("compliance.noSpam"),
+    t("compliance.noHiddenFees"),
+    t("compliance.noForcedCommitment"),
+  ];
+
   return (
     <section id="compliance" className="py-16 sm:py-20 md:py-24 bg-muted/30">
       <div className="container mx-auto px-5 sm:px-6">
@@ -40,10 +43,10 @@ export const ComplianceSection = () => {
         <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-12 md:mb-16">
           <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-secondary/10 rounded-full mb-4 sm:mb-6">
             <Zap className="w-4 h-4 text-secondary" />
-            <span className="text-secondary text-xs sm:text-sm font-medium">Simple et sécurisé</span>
+            <span className="text-secondary text-xs sm:text-sm font-medium">{t("compliance.badge")}</span>
           </div>
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-3 sm:mb-4">
-            Sécurité et Transparence
+            {t("compliance.title")}
           </h2>
         </div>
 
@@ -66,14 +69,14 @@ export const ComplianceSection = () => {
         {/* Do's and Don'ts - Mobile optimized */}
         <div className="bg-card rounded-2xl sm:rounded-3xl border border-border shadow-lg sm:shadow-xl p-5 sm:p-8 md:p-12">
           <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-foreground mb-6 sm:mb-8 text-center">
-            Notre engagement de conformité
+            {t("compliance.commitment")}
           </h3>
           <div className="grid sm:grid-cols-2 gap-4 sm:gap-6 md:gap-8">
             {/* What we do */}
             <div className="bg-secondary/5 rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6">
               <h4 className="text-base sm:text-lg font-semibold text-foreground mb-3 sm:mb-4 flex items-center gap-2">
                 <Check className="w-4 h-4 sm:w-5 sm:h-5 text-secondary" />
-                Ce que nous faisons
+                {t("compliance.whatWeDo")}
               </h4>
               <ul className="space-y-2 sm:space-y-3">
                 {doList.map((item) => (
@@ -91,7 +94,7 @@ export const ComplianceSection = () => {
             <div className="bg-destructive/5 rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6">
               <h4 className="text-base sm:text-lg font-semibold text-foreground mb-3 sm:mb-4 flex items-center gap-2">
                 <X className="w-4 h-4 sm:w-5 sm:h-5 text-destructive" />
-                Ce que nous ne faisons pas
+                {t("compliance.whatWeDont")}
               </h4>
               <ul className="space-y-2 sm:space-y-3">
                 {dontList.map((item) => (

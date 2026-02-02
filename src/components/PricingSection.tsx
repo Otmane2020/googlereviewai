@@ -5,52 +5,72 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-
-const subscriptionPlans = [
-  { 
-    name: "Starter", 
-    credits: 10, 
-    priceMonthly: "2,99€",
-    priceYearly: "28,70€",
-    priceMonthlyEquiv: "2,39€",
-    businesses: "1 établissement",
-    icon: Battery,
-    priceKeyMonthly: "starter_monthly",
-    priceKeyYearly: "starter_yearly",
-    features: ["10 crédits IA/mois", "1 établissement", "Réponses personnalisées", "Support email"]
-  },
-  { 
-    name: "Pro", 
-    credits: 100, 
-    priceMonthly: "29,99€",
-    priceYearly: "287,90€",
-    priceMonthlyEquiv: "23,99€",
-    businesses: "2 établissements",
-    popular: true, 
-    icon: Zap,
-    priceKeyMonthly: "pro_monthly",
-    priceKeyYearly: "pro_yearly",
-    features: ["100 crédits IA/mois", "2 établissements", "Réponses personnalisées", "Support prioritaire", "Statistiques avancées"]
-  },
-  { 
-    name: "Business", 
-    credits: 400, 
-    priceMonthly: "99€",
-    priceYearly: "950,40€",
-    priceMonthlyEquiv: "79,20€",
-    businesses: "Illimité",
-    icon: Crown,
-    priceKeyMonthly: "business_monthly",
-    priceKeyYearly: "business_yearly",
-    features: ["400 crédits IA/mois", "Établissements illimités", "Réponses personnalisées", "Support dédié", "Statistiques avancées", "API access"]
-  },
-];
+import { useTranslation } from "react-i18next";
 
 export const PricingSection = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { user } = useAuth();
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("monthly");
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+
+  const subscriptionPlans = [
+    { 
+      name: t("pricing.plans.starter"), 
+      credits: 10, 
+      priceMonthly: "2,99€",
+      priceYearly: "28,70€",
+      priceMonthlyEquiv: "2,39€",
+      businesses: t("pricing.plans.location"),
+      icon: Battery,
+      priceKeyMonthly: "starter_monthly",
+      priceKeyYearly: "starter_yearly",
+      features: [
+        t("pricing.features.creditsPerMonth", { count: 10 }),
+        t("pricing.plans.location"),
+        t("pricing.features.personalizedResponses"),
+        t("pricing.features.emailSupport")
+      ]
+    },
+    { 
+      name: t("pricing.plans.pro"), 
+      credits: 100, 
+      priceMonthly: "29,99€",
+      priceYearly: "287,90€",
+      priceMonthlyEquiv: "23,99€",
+      businesses: t("pricing.plans.locations2"),
+      popular: true, 
+      icon: Zap,
+      priceKeyMonthly: "pro_monthly",
+      priceKeyYearly: "pro_yearly",
+      features: [
+        t("pricing.features.creditsPerMonth", { count: 100 }),
+        t("pricing.plans.locations2"),
+        t("pricing.features.personalizedResponses"),
+        t("pricing.features.support"),
+        t("pricing.features.advancedStats")
+      ]
+    },
+    { 
+      name: t("pricing.plans.business"), 
+      credits: 400, 
+      priceMonthly: "99€",
+      priceYearly: "950,40€",
+      priceMonthlyEquiv: "79,20€",
+      businesses: t("pricing.plans.unlimited"),
+      icon: Crown,
+      priceKeyMonthly: "business_monthly",
+      priceKeyYearly: "business_yearly",
+      features: [
+        t("pricing.features.creditsPerMonth", { count: 400 }),
+        t("pricing.features.unlimitedLocations"),
+        t("pricing.features.personalizedResponses"),
+        t("pricing.features.dedicatedSupport"),
+        t("pricing.features.advancedStats"),
+        t("pricing.features.api")
+      ]
+    },
+  ];
 
   const handleSubscribe = async (priceKey: string) => {
     if (!user) {
@@ -74,9 +94,9 @@ export const PricingSection = () => {
         window.location.href = data.url;
       }
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : "Erreur lors de la création du paiement";
+      const message = error instanceof Error ? error.message : t("errors.paymentError");
       toast({
-        title: "Erreur",
+        title: t("common.error"),
         description: message,
         variant: "destructive",
       });
@@ -92,13 +112,13 @@ export const PricingSection = () => {
         <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-12">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent/10 rounded-full mb-5">
             <Star className="w-4 h-4 text-accent" />
-            <span className="text-accent-foreground text-xs sm:text-sm font-semibold">Tarifs transparents</span>
+            <span className="text-accent-foreground text-xs sm:text-sm font-semibold">{t("pricing.badge")}</span>
           </div>
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Choisissez votre plan
+            {t("pricing.title")}
           </h2>
           <p className="text-muted-foreground text-sm sm:text-base mb-6">
-            1 crédit = 1 réponse IA générée pour vos avis Google
+            {t("pricing.creditExplain")}
           </p>
 
           {/* Billing Toggle */}
@@ -111,7 +131,7 @@ export const PricingSection = () => {
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              Mensuel
+              {t("pricing.monthly")}
             </button>
             <button
               onClick={() => setBillingCycle("yearly")}
@@ -121,7 +141,7 @@ export const PricingSection = () => {
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              Annuel
+              {t("pricing.yearly")}
               <span className="px-2 py-0.5 bg-secondary text-secondary-foreground text-xs rounded-full">
                 -20%
               </span>
@@ -145,7 +165,7 @@ export const PricingSection = () => {
                 {plan.popular && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                     <span className="inline-block px-3 py-1 bg-primary text-primary-foreground text-xs font-bold rounded-full shadow-md">
-                      Populaire
+                      {t("pricing.popular")}
                     </span>
                   </div>
                 )}
@@ -161,15 +181,15 @@ export const PricingSection = () => {
                   {billingCycle === "yearly" ? (
                     <>
                       <span className="text-2xl sm:text-3xl font-bold text-foreground">{plan.priceMonthlyEquiv}</span>
-                      <span className="text-muted-foreground text-sm">/mois</span>
+                      <span className="text-muted-foreground text-sm">{t("pricing.perMonth")}</span>
                       <p className="text-xs text-muted-foreground mt-1">
-                        Facturé {plan.priceYearly}/an
+                        {t("pricing.billedYearly", { price: plan.priceYearly })}
                       </p>
                     </>
                   ) : (
                     <>
                       <span className="text-2xl sm:text-3xl font-bold text-foreground">{plan.priceMonthly}</span>
-                      <span className="text-muted-foreground text-sm">/mois</span>
+                      <span className="text-muted-foreground text-sm">{t("pricing.perMonth")}</span>
                     </>
                   )}
                 </div>
@@ -194,7 +214,7 @@ export const PricingSection = () => {
                   {isLoading ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
                   ) : (
-                    "Commencer"
+                    t("pricing.getStarted")
                   )}
                 </Button>
               </div>

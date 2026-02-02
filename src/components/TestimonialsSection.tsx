@@ -1,5 +1,6 @@
 import { Star, Quote, Utensils, Leaf, Building2 } from "lucide-react";
 import { TrustAvisCarousel } from "./TrustAvisBadge";
+import { useTranslation } from "react-i18next";
 
 const GoogleIcon = ({ className = "w-5 h-5" }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24">
@@ -16,74 +17,83 @@ const ChatGPTIcon = ({ className = "w-5 h-5" }: { className?: string }) => (
   </svg>
 );
 
-// Professional company logos with icons
-const CompanyLogo1 = () => (
-  <div className="flex items-center gap-2">
-    <div className="w-7 h-7 rounded-md bg-gradient-to-br from-rose-500 to-pink-600 flex items-center justify-center shadow-sm">
-      <Utensils className="w-3.5 h-3.5 text-white" />
-    </div>
-    <div className="flex flex-col">
-      <span className="font-bold text-foreground text-xs leading-tight">La Bella Vista</span>
-      <span className="text-[10px] text-muted-foreground">Restaurant Italien</span>
-    </div>
-  </div>
-);
-
-const CompanyLogo2 = () => (
-  <div className="flex items-center gap-2">
-    <div className="w-7 h-7 rounded-md bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center shadow-sm">
-      <Leaf className="w-3.5 h-3.5 text-white" />
-    </div>
-    <div className="flex flex-col">
-      <span className="font-bold text-foreground text-xs leading-tight">GreenLeaf Bio</span>
-      <span className="text-[10px] text-muted-foreground">Épicerie Bio</span>
-    </div>
-  </div>
-);
-
-const CompanyLogo3 = () => (
-  <div className="flex items-center gap-2">
-    <div className="w-7 h-7 rounded-md bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-sm">
-      <Building2 className="w-3.5 h-3.5 text-white" />
-    </div>
-    <div className="flex flex-col">
-      <span className="font-bold text-foreground text-xs leading-tight">Immobilier Plus</span>
-      <span className="text-[10px] text-muted-foreground">Agence Immobilière</span>
-    </div>
-  </div>
-);
-
-const testimonials = [
-  {
-    name: "Marie Dupont",
-    role: "Gérante",
-    company: CompanyLogo1,
-    icon: Utensils,
-    rating: 5,
-    text: "Starlinko a révolutionné notre gestion des avis. On répond à 50 avis par semaine en 5 minutes au lieu de 2 heures !",
-    highlight: "+85% de réponses",
-  },
-  {
-    name: "Thomas Bernard",
-    role: "Directeur Marketing",
-    company: CompanyLogo2,
-    icon: Leaf,
-    rating: 5,
-    text: "Grâce à l'AEO, nous apparaissons maintenant dans les réponses de ChatGPT. Nos demandes de devis ont explosé.",
-    highlight: "+120% de leads",
-  },
-  {
-    name: "Sophie Martin",
-    role: "Directrice",
-    company: CompanyLogo3,
-    icon: Building2,
-    rating: 5,
-    text: "Les articles SEO générés automatiquement nous ont fait passer en première page Google sur 12 mots-clés locaux.",
-    highlight: "#1 sur Google",
-  },
-];
-
 export const TestimonialsSection = () => {
+  const { t } = useTranslation();
+
+  // Professional company logos with icons
+  const CompanyLogo1 = () => (
+    <div className="flex items-center gap-2">
+      <div className="w-7 h-7 rounded-md bg-gradient-to-br from-rose-500 to-pink-600 flex items-center justify-center shadow-sm">
+        <Utensils className="w-3.5 h-3.5 text-white" />
+      </div>
+      <div className="flex flex-col">
+        <span className="font-bold text-foreground text-xs leading-tight">La Bella Vista</span>
+        <span className="text-[10px] text-muted-foreground">{t("testimonials.company1")}</span>
+      </div>
+    </div>
+  );
+
+  const CompanyLogo2 = () => (
+    <div className="flex items-center gap-2">
+      <div className="w-7 h-7 rounded-md bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center shadow-sm">
+        <Leaf className="w-3.5 h-3.5 text-white" />
+      </div>
+      <div className="flex flex-col">
+        <span className="font-bold text-foreground text-xs leading-tight">GreenLeaf Bio</span>
+        <span className="text-[10px] text-muted-foreground">{t("testimonials.company2")}</span>
+      </div>
+    </div>
+  );
+
+  const CompanyLogo3 = () => (
+    <div className="flex items-center gap-2">
+      <div className="w-7 h-7 rounded-md bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-sm">
+        <Building2 className="w-3.5 h-3.5 text-white" />
+      </div>
+      <div className="flex flex-col">
+        <span className="font-bold text-foreground text-xs leading-tight">Immobilier Plus</span>
+        <span className="text-[10px] text-muted-foreground">{t("testimonials.company3")}</span>
+      </div>
+    </div>
+  );
+
+  const testimonials = [
+    {
+      name: "Marie Dupont",
+      role: t("testimonials.role1"),
+      company: CompanyLogo1,
+      icon: Utensils,
+      rating: 5,
+      text: t("testimonials.text1"),
+      highlight: t("testimonials.highlight1"),
+    },
+    {
+      name: "Thomas Bernard",
+      role: t("testimonials.role2"),
+      company: CompanyLogo2,
+      icon: Leaf,
+      rating: 5,
+      text: t("testimonials.text2"),
+      highlight: t("testimonials.highlight2"),
+    },
+    {
+      name: "Sophie Martin",
+      role: t("testimonials.role3"),
+      company: CompanyLogo3,
+      icon: Building2,
+      rating: 5,
+      text: t("testimonials.text3"),
+      highlight: t("testimonials.highlight3"),
+    },
+  ];
+
+  const stats = [
+    { value: "+500", label: t("testimonials.stats.businesses") },
+    { value: "50K+", label: t("testimonials.stats.reviewsProcessed") },
+    { value: "4.9/5", label: t("testimonials.stats.satisfaction") },
+    { value: "2min", label: t("testimonials.stats.setupTime") },
+  ];
+
   return (
     <section className="py-14 sm:py-20 md:py-24 bg-background">
       <div className="container mx-auto px-5 sm:px-6">
@@ -91,13 +101,13 @@ export const TestimonialsSection = () => {
         <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-12">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-secondary/10 rounded-full mb-5">
             <Quote className="w-4 h-4 text-secondary" />
-            <span className="text-secondary text-xs sm:text-sm font-semibold">Témoignages clients</span>
+            <span className="text-secondary text-xs sm:text-sm font-semibold">{t("testimonials.badge")}</span>
           </div>
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Ils nous font confiance
+            {t("testimonials.title")}
           </h2>
           <p className="text-muted-foreground text-sm sm:text-base">
-            +500 entreprises utilisent Starlinko pour dominer leur marché local
+            {t("testimonials.subtitle")}
           </p>
         </div>
 
@@ -156,12 +166,7 @@ export const TestimonialsSection = () => {
 
         {/* Stats bar */}
         <div className="mt-10 sm:mt-12 grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-          {[
-            { value: "+500", label: "Entreprises" },
-            { value: "50K+", label: "Avis traités" },
-            { value: "4.9/5", label: "Satisfaction" },
-            { value: "2min", label: "Temps setup" },
-          ].map((stat) => (
+          {stats.map((stat) => (
             <div key={stat.label} className="text-center p-3 sm:p-4 bg-card rounded-xl border border-border">
               <p className="text-lg sm:text-2xl font-bold text-primary">{stat.value}</p>
               <p className="text-[10px] sm:text-xs text-muted-foreground">{stat.label}</p>
