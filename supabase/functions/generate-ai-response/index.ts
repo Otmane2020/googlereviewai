@@ -6,13 +6,89 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Language-specific content
+const translations = {
+  fr: {
+    ourEstablishment: "Notre établissement",
+    signature: "— L'équipe",
+    responseGenerated: "Réponse IA générée",
+    responseFor: "Réponse générée pour l'avis de",
+    insufficientCredits: "Crédits insuffisants. Rechargez votre compte pour continuer.",
+    rateLimited: "Limite de requêtes atteinte, réessayez dans quelques secondes.",
+    creditsExhausted: "Crédits Lovable AI épuisés.",
+    usage: "usage",
+    aiResponseFor: "Réponse IA pour",
+    lengthMap: {
+      S: "1 à 2 phrases courtes (20-40 mots)",
+      M: "2 à 4 phrases (40-80 mots)",
+      L: "4 à 6 phrases (80-150 mots)",
+    },
+    toneMap: {
+      friendly: "amical et chaleureux",
+      professional: "professionnel et formel",
+      casual: "décontracté et naturel",
+      empathetic: "empathique et compréhensif",
+      humorous: "léger avec une touche d'humour tout en restant respectueux",
+      warm: "chaleureux et bienveillant",
+    },
+    positiveStrategy: "C'est un avis positif. Exprime ta gratitude chaleureusement et encourage le client à revenir.",
+    neutralStrategy: "C'est un avis mitigé. Remercie le client, reconnais les points à améliorer et montre ta volonté de faire mieux.",
+    negativeStrategy: "C'est un avis négatif. Montre de l'empathie, présente des excuses sincères et propose une solution ou un geste commercial.",
+    noComment: "Aucun commentaire",
+    promptIntro: "Tu es un assistant qui répond aux avis Google My Business pour",
+    rules: "Règles",
+    thankCustomer: "Remercier le client.",
+    length: "Longueur",
+    tone: "Ton",
+    instructions: "Instructions",
+    signatureLabel: "Signature",
+    important: "IMPORTANT : Ne pas commencer par \"Cher client\" ou \"Bonjour\". Personnalise la réponse. Réponds UNIQUEMENT avec le texte, sans guillemets.",
+  },
+  en: {
+    ourEstablishment: "Our establishment",
+    signature: "— The team at",
+    responseGenerated: "AI response generated",
+    responseFor: "Response generated for review by",
+    insufficientCredits: "Insufficient credits. Top up your account to continue.",
+    rateLimited: "Rate limit reached, please try again in a few seconds.",
+    creditsExhausted: "Lovable AI credits exhausted.",
+    usage: "usage",
+    aiResponseFor: "AI response for",
+    lengthMap: {
+      S: "1 to 2 short sentences (20-40 words)",
+      M: "2 to 4 sentences (40-80 words)",
+      L: "4 to 6 sentences (80-150 words)",
+    },
+    toneMap: {
+      friendly: "friendly and warm",
+      professional: "professional and formal",
+      casual: "casual and natural",
+      empathetic: "empathetic and understanding",
+      humorous: "light with a touch of humor while remaining respectful",
+      warm: "warm and caring",
+    },
+    positiveStrategy: "This is a positive review. Express your gratitude warmly and encourage the customer to return.",
+    neutralStrategy: "This is a mixed review. Thank the customer, acknowledge areas for improvement and show willingness to do better.",
+    negativeStrategy: "This is a negative review. Show empathy, offer sincere apologies and propose a solution or goodwill gesture.",
+    noComment: "No comment",
+    promptIntro: "You are an assistant responding to Google My Business reviews for",
+    rules: "Rules",
+    thankCustomer: "Thank the customer.",
+    length: "Length",
+    tone: "Tone",
+    instructions: "Instructions",
+    signatureLabel: "Signature",
+    important: "IMPORTANT: Do not start with \"Dear customer\" or \"Hello\". Personalize the response. Reply ONLY with the text, no quotes.",
+  },
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { reviewId, userId, businessId } = await req.json();
+    const { reviewId, userId, businessId, language: requestLanguage } = await req.json();
     console.log("Generating AI response for review:", reviewId, "user:", userId);
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
@@ -26,7 +102,7 @@ serve(async (req) => {
 
     // Parallel fetch: profile, review, and AI settings
     const [profileResult, reviewResult, aiSettingsResult] = await Promise.all([
-      supabase.from("profiles").select("credits, plan_name").eq("id", userId).single(),
+      supabase.from("profiles").select("credits, plan_name, preferred_language").eq("id", userId).single(),
       supabase.from("reviews").select("*").eq("id", reviewId).eq("user_id", userId).single(),
       supabase.from("ai_settings").select("*").eq("user_id", userId).single(),
     ]);
@@ -40,10 +116,14 @@ serve(async (req) => {
       throw new Error("User profile not found");
     }
 
+    // Determine language: request param > profile > default
+    const lang = requestLanguage || profile?.preferred_language || "fr";
+    const t = translations[lang as keyof typeof translations] || translations.fr;
+
     if (!profile || profile.credits < 1) {
       return new Response(
         JSON.stringify({ 
-          error: "Crédits insuffisants. Rechargez votre compte pour continuer.", 
+          error: t.insufficientCredits, 
           credits: profile?.credits || 0 
         }),
         { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -60,7 +140,7 @@ serve(async (req) => {
     if (businessId) {
       const { data } = await supabase
         .from("businesses")
-        .select("id, name, description")
+        .select("id, name, description, gmb_language")
         .eq("id", businessId)
         .eq("user_id", userId)
         .single();
@@ -70,14 +150,18 @@ serve(async (req) => {
     if (!business && review.location_id) {
       const { data } = await supabase
         .from("businesses")
-        .select("id, name, description")
+        .select("id, name, description, gmb_language")
         .eq("google_place_id", review.location_id)
         .eq("user_id", userId)
         .single();
       business = data;
     }
 
-    const businessName = business?.name || "Notre établissement";
+    // Use GMB language if available, otherwise use profile language
+    const responseLanguage = business?.gmb_language || lang;
+    const responseT = translations[responseLanguage as keyof typeof translations] || translations.fr;
+
+    const businessName = business?.name || t.ourEstablishment;
     const businessDescription = business?.description || "";
 
     const tone = aiSettings?.tone || "friendly";
@@ -92,56 +176,43 @@ serve(async (req) => {
         .replace("{business_name}", businessName)
         .replace("{nom_etablissement}", businessName);
     } else if (includeSignature) {
-      signature = `— L'équipe ${businessName}`;
+      signature = `${responseT.signature} ${businessName}`;
     }
 
     // Length and tone instructions
-    const lengthMap: Record<string, string> = {
-      S: "1 à 2 phrases courtes (20-40 mots)",
-      M: "2 à 4 phrases (40-80 mots)",
-      L: "4 à 6 phrases (80-150 mots)",
-    };
-    const lengthInstruction = lengthMap[responseLength] || "2 à 4 phrases (40-80 mots)";
-
-    const toneMap: Record<string, string> = {
-      friendly: "amical et chaleureux",
-      professional: "professionnel et formel",
-      casual: "décontracté et naturel",
-      empathetic: "empathique et compréhensif",
-      humorous: "léger avec une touche d'humour tout en restant respectueux",
-      warm: "chaleureux et bienveillant",
-    };
-    const toneInstruction = toneMap[tone] || "amical et professionnel";
+    const lengthInstruction = responseT.lengthMap[responseLength as keyof typeof responseT.lengthMap] || responseT.lengthMap.M;
+    const toneInstruction = responseT.toneMap[tone as keyof typeof responseT.toneMap] || responseT.toneMap.friendly;
 
     // Rating strategy
     let ratingStrategy = "";
     if (review.rating >= 4) {
-      ratingStrategy = "C'est un avis positif. Exprime ta gratitude chaleureusement et encourage le client à revenir.";
+      ratingStrategy = responseT.positiveStrategy;
     } else if (review.rating === 3) {
-      ratingStrategy = "C'est un avis mitigé. Remercie le client, reconnais les points à améliorer et montre ta volonté de faire mieux.";
+      ratingStrategy = responseT.neutralStrategy;
     } else {
-      ratingStrategy = "C'est un avis négatif. Montre de l'empathie, présente des excuses sincères et propose une solution ou un geste commercial.";
+      ratingStrategy = responseT.negativeStrategy;
     }
 
-    const prompt = `Tu es un assistant qui répond aux avis Google My Business pour ${businessName}.
-${businessDescription ? `Contexte : ${businessDescription}` : ""}
+    // Build prompt in the target language
+    const prompt = `${responseT.promptIntro} ${businessName}.
+${businessDescription ? `Context: ${businessDescription}` : ""}
 
-Avis :
-- Auteur : ${review.author}
-- Note : ${review.rating}/5
-- Commentaire : "${review.comment || "Aucun commentaire"}"
+Review:
+- Author: ${review.author}
+- Rating: ${review.rating}/5
+- Comment: "${review.comment || responseT.noComment}"
 
-Règles :
-1. Remercier le client.
+${responseT.rules}:
+1. ${responseT.thankCustomer}
 2. ${ratingStrategy}
-3. Longueur : ${lengthInstruction}.
-4. Ton : ${toneInstruction}.
-${customTemplate ? `5. Instructions : ${customTemplate}` : ""}
-${signature ? `6. Signature : "${signature}"` : ""}
+3. ${responseT.length}: ${lengthInstruction}.
+4. ${responseT.tone}: ${toneInstruction}.
+${customTemplate ? `5. ${responseT.instructions}: ${customTemplate}` : ""}
+${signature ? `6. ${responseT.signatureLabel}: "${signature}"` : ""}
 
-IMPORTANT : Ne pas commencer par "Cher client" ou "Bonjour". Personnalise la réponse. Réponds UNIQUEMENT avec le texte, sans guillemets.`;
+${responseT.important}`;
 
-    console.log("Calling Lovable AI Gateway...");
+    console.log("Calling Lovable AI Gateway... Language:", responseLanguage);
     
     // Use Lovable AI Gateway with optimized settings for speed
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -165,13 +236,13 @@ IMPORTANT : Ne pas commencer par "Cher client" ou "Bonjour". Personnalise la ré
 
     if (!response.ok) {
       if (response.status === 429) {
-        return new Response(JSON.stringify({ error: "Limite de requêtes atteinte, réessayez dans quelques secondes." }), {
+        return new Response(JSON.stringify({ error: t.rateLimited }), {
           status: 429,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
       if (response.status === 402) {
-        return new Response(JSON.stringify({ error: "Crédits Lovable AI épuisés." }), {
+        return new Response(JSON.stringify({ error: t.creditsExhausted }), {
           status: 402,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
@@ -202,15 +273,15 @@ IMPORTANT : Ne pas commencer par "Cher client" ou "Bonjour". Personnalise la ré
       supabase.from("credits_history").insert({
         user_id: userId,
         amount: -1,
-        type: "usage",
-        description: `Réponse IA pour ${review.author}`,
+        type: t.usage,
+        description: `${t.aiResponseFor} ${review.author}`,
       }),
       supabase.from("reviews").update({ ai_response: aiResponse }).eq("id", reviewId),
       supabase.from("notifications").insert({
         user_id: userId,
         type: "ai_response",
-        title: "Réponse IA générée",
-        message: `Réponse générée pour l'avis de ${review.author}`,
+        title: t.responseGenerated,
+        message: `${t.responseFor} ${review.author}`,
         review_id: reviewId,
       }),
     ]);
@@ -219,6 +290,7 @@ IMPORTANT : Ne pas commencer par "Cher client" ou "Bonjour". Personnalise la ré
       success: true, 
       response: aiResponse,
       credits_remaining: newCredits,
+      language: responseLanguage,
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

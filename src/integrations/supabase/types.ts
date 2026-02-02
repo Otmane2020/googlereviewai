@@ -168,6 +168,7 @@ export type Database = {
           categories: string[] | null
           created_at: string | null
           description: string | null
+          gmb_language: string | null
           google_place_id: string | null
           id: string
           is_active: boolean | null
@@ -189,6 +190,7 @@ export type Database = {
           categories?: string[] | null
           created_at?: string | null
           description?: string | null
+          gmb_language?: string | null
           google_place_id?: string | null
           id?: string
           is_active?: boolean | null
@@ -210,6 +212,7 @@ export type Database = {
           categories?: string[] | null
           created_at?: string | null
           description?: string | null
+          gmb_language?: string | null
           google_place_id?: string | null
           id?: string
           is_active?: boolean | null
@@ -611,6 +614,7 @@ export type Database = {
           onboarding_completed: boolean | null
           plan_id: string | null
           plan_name: string | null
+          preferred_language: string | null
           pushalert_subscriber_id: string | null
           subscription_status: string | null
           total_points: number | null
@@ -636,6 +640,7 @@ export type Database = {
           onboarding_completed?: boolean | null
           plan_id?: string | null
           plan_name?: string | null
+          preferred_language?: string | null
           pushalert_subscriber_id?: string | null
           subscription_status?: string | null
           total_points?: number | null
@@ -661,6 +666,7 @@ export type Database = {
           onboarding_completed?: boolean | null
           plan_id?: string | null
           plan_name?: string | null
+          preferred_language?: string | null
           pushalert_subscriber_id?: string | null
           subscription_status?: string | null
           total_points?: number | null

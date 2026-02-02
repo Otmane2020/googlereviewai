@@ -28,6 +28,44 @@ const STYLES = {
   errorText: "#991b1b",
 };
 
+// Translations for email content
+const emailTranslations = {
+  fr: {
+    newReviewReceived: "Nouvel avis reçu",
+    hello: "Bonjour",
+    youReceivedReview: "Vous avez reçu un nouvel avis de",
+    noComment: "Aucun commentaire",
+    creditsExhausted: "Crédits épuisés",
+    creditsExhaustedDesc: "L'IA ne peut pas répondre automatiquement à cet avis. Rechargez vos crédits pour laisser l'IA gérer vos réponses 24h/24.",
+    rechargeCredits: "Recharger les crédits",
+    replyManually: "répondre manuellement",
+    fromDashboard: "depuis votre tableau de bord",
+    viewAndReply: "Voir et répondre",
+    allRightsReserved: "Tous droits réservés",
+    newReviewTitle: (rating: number) => `Nouvel avis ${rating} étoile${rating > 1 ? 's' : ''}`,
+    leftReview: "a laissé un avis.",
+    noCreditsSubject: (rating: number) => `Nouvel avis ${rating}★ — Crédits épuisés`,
+    normalSubject: (rating: number) => `Nouvel avis ${rating} étoile${rating > 1 ? 's' : ''} reçu`,
+  },
+  en: {
+    newReviewReceived: "New review received",
+    hello: "Hello",
+    youReceivedReview: "You received a new review from",
+    noComment: "No comment",
+    creditsExhausted: "Credits exhausted",
+    creditsExhaustedDesc: "AI cannot automatically respond to this review. Top up your credits to let AI manage your responses 24/7.",
+    rechargeCredits: "Recharge credits",
+    replyManually: "reply manually",
+    fromDashboard: "from your dashboard",
+    viewAndReply: "View and reply",
+    allRightsReserved: "All rights reserved",
+    newReviewTitle: (rating: number) => `New ${rating}-star review`,
+    leftReview: "left a review.",
+    noCreditsSubject: (rating: number) => `New ${rating}★ review — Credits exhausted`,
+    normalSubject: (rating: number) => `New ${rating}-star review received`,
+  },
+};
+
 const getProHeader = () => `
   <div style="background: ${STYLES.bgWhite}; padding: 32px 24px; border-bottom: 1px solid ${STYLES.borderLight};">
     <table cellpadding="0" cellspacing="0" border="0">
@@ -43,10 +81,10 @@ const getProHeader = () => `
   </div>
 `;
 
-const getProFooter = () => `
+const getProFooter = (t: typeof emailTranslations.fr) => `
   <div style="padding: 24px; text-align: center; border-top: 1px solid ${STYLES.borderLight};">
     <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textMuted}; font-size: 12px; margin: 0 0 8px 0;">
-      © 2025 Starlinko. Tous droits réservés.
+      © 2025 Starlinko. ${t.allRightsReserved}
     </p>
     <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textMuted}; font-size: 12px; margin: 0;">
       <a href="https://starlinko.app" style="color: ${STYLES.brandBlue}; text-decoration: none;">starlinko.app</a>
@@ -90,26 +128,47 @@ serve(async (req) => {
       );
     }
 
-    const reviewUrl = `/reviews?review_id=${review_id}`;
     const fullReviewUrl = `https://starlinko.app/reviews?review_id=${review_id}`;
 
+    // Fetch settings, profile, and business language
     const [settingsResult, profileResult] = await Promise.all([
       supabase.from("ai_settings").select("email_notifications").eq("user_id", user_id).single(),
-      supabase.from("profiles").select("email, full_name, credits").eq("id", user_id).single(),
+      supabase.from("profiles").select("email, full_name, credits, preferred_language").eq("id", user_id).single(),
     ]);
+
+    // Get business to check GMB language
+    const { data: reviewData } = await supabase
+      .from("reviews")
+      .select("location_id")
+      .eq("id", review_id)
+      .single();
+
+    let businessLanguage = "fr";
+    if (reviewData?.location_id) {
+      const { data: business } = await supabase
+        .from("businesses")
+        .select("gmb_language")
+        .eq("google_place_id", reviewData.location_id)
+        .single();
+      businessLanguage = business?.gmb_language || "fr";
+    }
 
     const emailNotificationsEnabled = settingsResult.data?.email_notifications ?? true;
     const userEmail = profileResult.data?.email;
     const userName = profileResult.data?.full_name?.split(" ")[0] || "";
     const userCredits = profileResult.data?.credits ?? 0;
+    
+    // Determine language: GMB language takes priority
+    const lang = businessLanguage || profileResult.data?.preferred_language || "fr";
+    const t = emailTranslations[lang as keyof typeof emailTranslations] || emailTranslations.fr;
 
-    console.log("[notify-new-review] Settings:", { emailNotificationsEnabled, userEmail, userCredits });
+    console.log("[notify-new-review] Settings:", { emailNotificationsEnabled, userEmail, userCredits, lang });
 
     // 1. Create in-app notification
-    const notificationTitle = `Nouvel avis ${rating} étoile${rating > 1 ? 's' : ''}`;
+    const notificationTitle = t.newReviewTitle(rating);
     const notificationMessage = comment 
       ? `${author} : "${comment.substring(0, 100)}${comment.length > 100 ? '...' : ''}"`
-      : `${author} a laissé un avis.`;
+      : `${author} ${t.leftReview}`;
 
     const { error: notifError } = await supabase.from("notifications").insert({
       user_id,
@@ -137,22 +196,22 @@ serve(async (req) => {
           
           const noCreditsEmailHtml = `
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="${lang}">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
 <body style="margin: 0; padding: 0; background-color: ${STYLES.bgLight};">
   <div style="max-width: 600px; margin: 0 auto; background-color: ${STYLES.bgWhite};">
     ${getProHeader()}
     <div style="padding: 40px 32px;">
       <h1 style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textPrimary}; font-size: 24px; font-weight: 600; margin: 0 0 24px 0;">
-        Nouvel avis reçu
+        ${t.newReviewReceived}
       </h1>
       
       <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textSecondary}; font-size: 15px; line-height: 1.6; margin: 0 0 24px 0;">
-        Bonjour${userName ? ` ${userName}` : ''},
+        ${t.hello}${userName ? ` ${userName}` : ''},
       </p>
       
       <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textSecondary}; font-size: 15px; line-height: 1.6; margin: 0 0 24px 0;">
-        Vous avez reçu un nouvel avis de <strong>${author}</strong>.
+        ${t.youReceivedReview} <strong>${author}</strong>.
       </p>
       
       <div style="background: ${STYLES.bgLight}; border-radius: 6px; padding: 20px; margin: 24px 0;">
@@ -165,29 +224,29 @@ serve(async (req) => {
         </p>
         ` : `
         <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textMuted}; font-size: 14px; margin: 0;">
-          Aucun commentaire
+          ${t.noComment}
         </p>
         `}
       </div>
       
       <div style="background: ${STYLES.errorBg}; border-radius: 6px; padding: 20px; margin: 24px 0; border-left: 4px solid ${STYLES.errorText};">
         <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.errorText}; font-size: 15px; font-weight: 600; margin: 0 0 8px 0;">
-          ⚠️ Crédits épuisés
+          ⚠️ ${t.creditsExhausted}
         </p>
         <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textSecondary}; font-size: 14px; line-height: 1.6; margin: 0;">
-          L'IA ne peut pas répondre automatiquement à cet avis. Rechargez vos crédits pour laisser l'IA gérer vos réponses 24h/24.
+          ${t.creditsExhaustedDesc}
         </p>
       </div>
       
       <div style="text-align: left; margin: 32px 0;">
-        ${getProButton("Recharger les crédits", "https://starlinko.app/select-plan")}
+        ${getProButton(t.rechargeCredits, "https://starlinko.app/select-plan")}
       </div>
       
       <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textMuted}; font-size: 13px; line-height: 1.6; margin: 24px 0 0 0;">
-        Vous pouvez également <a href="${fullReviewUrl}" style="color: ${STYLES.brandBlue}; text-decoration: none;">répondre manuellement</a> depuis votre tableau de bord.
+        <a href="${fullReviewUrl}" style="color: ${STYLES.brandBlue}; text-decoration: none;">${t.replyManually}</a> ${t.fromDashboard}.
       </p>
     </div>
-    ${getProFooter()}
+    ${getProFooter(t)}
   </div>
 </body>
 </html>
@@ -201,7 +260,7 @@ serve(async (req) => {
             },
             body: JSON.stringify({
               to: userEmail,
-              subject: `Nouvel avis ${rating}★ — Crédits épuisés`,
+              subject: t.noCreditsSubject(rating),
               html: noCreditsEmailHtml,
               from_name: "Starlinko",
             }),
@@ -217,22 +276,22 @@ serve(async (req) => {
           // Normal email with credits available
           const emailHtml = `
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="${lang}">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
 <body style="margin: 0; padding: 0; background-color: ${STYLES.bgLight};">
   <div style="max-width: 600px; margin: 0 auto; background-color: ${STYLES.bgWhite};">
     ${getProHeader()}
     <div style="padding: 40px 32px;">
       <h1 style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textPrimary}; font-size: 24px; font-weight: 600; margin: 0 0 24px 0;">
-        Nouvel avis reçu
+        ${t.newReviewReceived}
       </h1>
       
       <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textSecondary}; font-size: 15px; line-height: 1.6; margin: 0 0 24px 0;">
-        Bonjour${userName ? ` ${userName}` : ''},
+        ${t.hello}${userName ? ` ${userName}` : ''},
       </p>
       
       <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textSecondary}; font-size: 15px; line-height: 1.6; margin: 0 0 24px 0;">
-        Vous avez reçu un nouvel avis de <strong>${author}</strong>.
+        ${t.youReceivedReview} <strong>${author}</strong>.
       </p>
       
       <div style="background: ${STYLES.bgLight}; border-radius: 6px; padding: 20px; margin: 24px 0;">
@@ -245,16 +304,16 @@ serve(async (req) => {
         </p>
         ` : `
         <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textMuted}; font-size: 14px; margin: 0;">
-          Aucun commentaire
+          ${t.noComment}
         </p>
         `}
       </div>
       
       <div style="text-align: left; margin: 32px 0;">
-        ${getProButton("Voir et répondre", fullReviewUrl)}
+        ${getProButton(t.viewAndReply, fullReviewUrl)}
       </div>
     </div>
-    ${getProFooter()}
+    ${getProFooter(t)}
   </div>
 </body>
 </html>
@@ -268,7 +327,7 @@ serve(async (req) => {
             },
             body: JSON.stringify({
               to: userEmail,
-              subject: `Nouvel avis ${rating} étoile${rating > 1 ? 's' : ''} reçu`,
+              subject: t.normalSubject(rating),
               html: emailHtml,
               from_name: "Starlinko",
             }),
@@ -315,7 +374,7 @@ serve(async (req) => {
     }
 
     return new Response(
-      JSON.stringify({ success: true, message: "Notifications sent" }),
+      JSON.stringify({ success: true, message: "Notifications sent", language: lang }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error: unknown) {
