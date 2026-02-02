@@ -1,6 +1,5 @@
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
-import LanguageDetector from "i18next-browser-languagedetector";
 
 import fr from "./locales/fr.json";
 import en from "./locales/en.json";
@@ -10,22 +9,32 @@ const resources = {
   en: { translation: en },
 };
 
+// Helper to check if user is likely from France
+const isLikelyFrench = (): boolean => {
+  if (typeof navigator === "undefined") return false;
+  const lang = navigator.language || (navigator as any).userLanguage;
+  return lang?.toLowerCase().startsWith("fr");
+};
+
+// Determine initial language synchronously
+const getInitialLanguage = (): string => {
+  // First check localStorage
+  const stored = localStorage.getItem("i18nextLng");
+  if (stored && (stored === "fr" || stored === "en" || stored.startsWith("fr") || stored.startsWith("en"))) {
+    return stored.startsWith("fr") ? "fr" : "en";
+  }
+  // Fall back to browser language detection
+  return isLikelyFrench() ? "fr" : "en";
+};
+
+// Initialize synchronously with determined language
 i18n
-  .use(LanguageDetector)
   .use(initReactI18next)
   .init({
     resources,
+    lng: getInitialLanguage(), // Set language explicitly at init
     fallbackLng: "en",
     supportedLngs: ["fr", "en"],
-    
-    detection: {
-      // Order of language detection
-      order: ["localStorage", "navigator", "htmlTag"],
-      // Cache language in localStorage
-      caches: ["localStorage"],
-      // Key used in localStorage
-      lookupLocalStorage: "i18nextLng",
-    },
     
     interpolation: {
       escapeValue: false, // React already escapes
@@ -36,11 +45,5 @@ i18n
     },
   });
 
-// Helper to check if user is likely from France
-export const isLikelyFrench = (): boolean => {
-  if (typeof navigator === "undefined") return false;
-  const lang = navigator.language || (navigator as any).userLanguage;
-  return lang?.toLowerCase().startsWith("fr");
-};
-
+export { isLikelyFrench };
 export default i18n;
