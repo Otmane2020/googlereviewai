@@ -9,11 +9,28 @@ const resources = {
   en: { translation: en },
 };
 
-// Helper to check if user is likely from France
+// Helper to check if user is likely French-speaking (France, Belgium, Switzerland, Canada, etc.)
 const isLikelyFrench = (): boolean => {
   if (typeof navigator === "undefined") return false;
-  const lang = navigator.language || (navigator as any).userLanguage;
-  return lang?.toLowerCase().startsWith("fr");
+  
+  // Check all available languages in navigator
+  const languages = navigator.languages || [navigator.language || (navigator as any).userLanguage];
+  
+  // French-speaking locale patterns
+  const frenchPatterns = [
+    'fr',      // Generic French
+    'fr-fr',   // France
+    'fr-be',   // Belgium
+    'fr-ch',   // Switzerland
+    'fr-ca',   // Canada
+    'fr-lu',   // Luxembourg
+    'fr-mc',   // Monaco
+  ];
+  
+  return languages.some(lang => {
+    const normalizedLang = lang?.toLowerCase();
+    return frenchPatterns.some(pattern => normalizedLang?.startsWith(pattern) || normalizedLang === pattern);
+  });
 };
 
 // Determine initial language synchronously
