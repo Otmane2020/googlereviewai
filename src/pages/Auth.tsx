@@ -9,8 +9,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { ArrowLeft, Loader2, Check, Mail, Lock, Eye, EyeOff, User } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const Auth = () => {
+  const { t } = useTranslation();
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
@@ -108,22 +110,22 @@ const Auth = () => {
         const { error } = await signIn(email, password);
         if (error) {
           toast({
-            title: "Erreur de connexion",
-            description: error.message || "Email ou mot de passe incorrect",
+            title: t("auth.errors.loginError"),
+            description: error.message || t("auth.errors.invalidCredentials"),
             variant: "destructive",
           });
         } else {
           toast({
-            title: "Connexion réussie !",
-            description: "Bienvenue sur Starlinko",
+            title: t("auth.success.loginSuccess"),
+            description: t("auth.success.welcomeBack"),
           });
           // Redirect will be handled by the useEffect
         }
       } else {
         if (!fullName.trim()) {
           toast({
-            title: "Nom requis",
-            description: "Veuillez entrer votre nom complet",
+            title: t("auth.errors.nameRequired"),
+            description: t("auth.errors.nameRequired"),
             variant: "destructive",
           });
           setLoading(false);
@@ -132,14 +134,14 @@ const Auth = () => {
         const { error } = await signUp(email, password, fullName);
         if (error) {
           toast({
-            title: "Erreur d'inscription",
-            description: error.message || "Impossible de créer le compte",
+            title: t("auth.errors.signupError"),
+            description: error.message || t("auth.errors.cannotCreateAccount"),
             variant: "destructive",
           });
         } else {
           toast({
-            title: "Inscription réussie !",
-            description: "Vous pouvez maintenant vous connecter",
+            title: t("auth.success.signupSuccess"),
+            description: t("auth.success.canNowLogin"),
           });
           setIsLogin(true);
           setEmail("");
@@ -149,8 +151,8 @@ const Auth = () => {
       }
     } catch (error) {
       toast({
-        title: "Erreur",
-        description: "Une erreur inattendue s'est produite",
+        title: t("common.error"),
+        description: t("auth.errors.unexpectedError"),
         variant: "destructive",
       });
     } finally {
@@ -160,19 +162,19 @@ const Auth = () => {
 
   // Show professional loading bar while checking authentication OR while redirecting
   if (authLoading || isRedirecting) {
-    return <AppLoadingBar message="Connexion en cours..." />;
+    return <AppLoadingBar message={t("auth.loading.connecting")} />;
   }
 
   // If user is already logged in but not yet redirecting, show loader too
   if (user) {
-    return <AppLoadingBar message="Redirection..." />;
+    return <AppLoadingBar message={t("auth.loading.redirecting")} />;
   }
 
   const benefits = [
-    "3 jours d'essai gratuit",
-    "Réponses IA illimitées",
-    "Synchronisation Google My Business",
-    "Support prioritaire",
+    t("auth.benefits.freeTrial"),
+    t("auth.benefits.unlimitedResponses"),
+    t("auth.benefits.gmbSync"),
+    t("auth.benefits.prioritySupport"),
   ];
 
   return (
@@ -188,10 +190,10 @@ const Auth = () => {
         <div className="space-y-8">
           <div>
             <h1 className="text-4xl font-bold text-card mb-4">
-              Gérez vos avis Google avec l'IA
+              {t("auth.manageReviewsWithAI")}
             </h1>
             <p className="text-card/80 text-lg">
-              Rejoignez des centaines d'entreprises qui automatisent leurs réponses aux avis.
+              {t("auth.joinBusinesses")}
             </p>
           </div>
           
@@ -208,7 +210,7 @@ const Auth = () => {
         </div>
 
         <p className="text-card/60 text-sm">
-          © {new Date().getFullYear()} Starlinko. Tous droits réservés.
+          © {new Date().getFullYear()} Starlinko. {t("common.allRightsReserved")}
         </p>
       </div>
 
@@ -219,7 +221,7 @@ const Auth = () => {
           <div className="flex items-center justify-between">
             <Link to="/" className="flex items-center gap-2 text-muted-foreground">
               <ArrowLeft className="w-5 h-5" />
-              <span>Retour</span>
+              <span>{t("auth.back")}</span>
             </Link>
             <StarlinkoLogo showBadge={false} />
           </div>
@@ -234,18 +236,18 @@ const Auth = () => {
                 className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
               >
                 <ArrowLeft className="w-4 h-4" />
-                Retour à l'accueil
+                {t("auth.backToHome")}
               </Link>
             </div>
 
             <div>
               <h2 className="text-2xl font-bold text-foreground">
-                {isLogin ? "Connexion" : "Inscription"}
+                {isLogin ? t("auth.signIn") : t("auth.signUp")}
               </h2>
               <p className="text-muted-foreground mt-2">
                 {isLogin 
-                  ? "Connectez-vous pour accéder à votre espace" 
-                  : "Créez votre compte pour commencer"}
+                  ? t("auth.connectToAccess")
+                  : t("auth.createAccountToStart")}
               </p>
             </div>
 
@@ -258,7 +260,7 @@ const Auth = () => {
                 const { error } = await signInWithGoogle();
                 if (error) {
                   toast({
-                    title: "Erreur Google",
+                    title: t("auth.errors.googleError"),
                     description: error.message,
                     variant: "destructive",
                   });
@@ -289,7 +291,7 @@ const Auth = () => {
                       d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                     />
                   </svg>
-                  Continuer avec Google
+                  {t("auth.continueWithGoogle")}
                 </>
               )}
             </Button>
@@ -301,7 +303,7 @@ const Auth = () => {
               </div>
               <div className="relative flex justify-center text-xs uppercase">
                 <span className="bg-background px-2 text-muted-foreground">
-                  Ou avec email
+                  {t("auth.orContinueWith")}
                 </span>
               </div>
             </div>
@@ -310,13 +312,13 @@ const Auth = () => {
             <form onSubmit={handleEmailSubmit} className="space-y-4">
               {!isLogin && (
                 <div className="space-y-2">
-                  <Label htmlFor="fullName">Nom complet</Label>
+                  <Label htmlFor="fullName">{t("auth.fullName")}</Label>
                   <div className="relative">
                     <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
                       id="fullName"
                       type="text"
-                      placeholder="Jean Dupont"
+                      placeholder={t("auth.fullNamePlaceholder")}
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
                       className="pl-10"
@@ -327,13 +329,13 @@ const Auth = () => {
               )}
               
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">{t("auth.email")}</Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
                     id="email"
                     type="email"
-                    placeholder="vous@exemple.com"
+                    placeholder={t("auth.emailPlaceholder")}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="pl-10"
@@ -343,7 +345,7 @@ const Auth = () => {
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="password">Mot de passe</Label>
+                <Label htmlFor="password">{t("auth.password")}</Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
@@ -380,7 +382,7 @@ const Auth = () => {
                 {loading ? (
                   <Loader2 className="w-5 h-5 animate-spin" />
                 ) : (
-                  isLogin ? "Se connecter" : "S'inscrire"
+                  isLogin ? t("auth.signInButton") : t("auth.signUpButton")
                 )}
               </Button>
             </form>
@@ -398,8 +400,8 @@ const Auth = () => {
                 className="text-sm text-primary hover:underline"
               >
                 {isLogin 
-                  ? "Pas encore de compte ? S'inscrire" 
-                  : "Déjà un compte ? Se connecter"}
+                  ? t("auth.noAccount")
+                  : t("auth.hasAccount")}
               </button>
               
               {isLogin && (
@@ -408,20 +410,20 @@ const Auth = () => {
                     to="/reset-password"
                     className="text-sm text-muted-foreground hover:underline"
                   >
-                    Mot de passe oublié ?
+                    {t("auth.forgotPassword")}
                   </Link>
                 </div>
               )}
             </div>
 
             <p className="text-xs text-center text-muted-foreground">
-              En continuant, vous acceptez nos{" "}
+              {t("auth.termsAgree")}{" "}
               <Link to="/terms" className="text-primary hover:underline">
-                Conditions d'utilisation
+                {t("auth.termsOfService")}
               </Link>{" "}
-              et notre{" "}
+              {t("auth.and")}{" "}
               <Link to="/privacy" className="text-primary hover:underline">
-                Politique de confidentialité
+                {t("auth.privacyPolicy")}
               </Link>
               .
             </p>
