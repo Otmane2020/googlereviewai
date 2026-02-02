@@ -2,6 +2,8 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
 import { Check, Sparkles, Star, TrendingUp, Zap, Bot, Search, FileText, MessageSquare, Rocket, User } from "lucide-react";
 import { TrustAvisLabel } from "./TrustAvisBadge";
+import { useDeviceDetection, GOOGLE_PLAY_URL } from "@/hooks/useDeviceDetection";
+import { GooglePlayButton } from "./GooglePlayButton";
 
 const ChatGPTIcon = ({ className = "w-5 h-5" }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
@@ -11,6 +13,7 @@ const ChatGPTIcon = ({ className = "w-5 h-5" }: { className?: string }) => (
 
 export const HeroSection = () => {
   const navigate = useNavigate();
+  const { isAndroid } = useDeviceDetection();
   
   return (
     <section className="relative min-h-screen gradient-hero overflow-hidden">
@@ -44,18 +47,34 @@ export const HeroSection = () => {
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-10 animate-fade-in" style={{ animationDelay: "0.3s" }}>
-            <Button variant="hero" size="xl" className="gap-2 w-full sm:w-auto" onClick={() => navigate("/auth")}>
-              <Zap className="w-5 h-5" />
-              Essai gratuit 3 jours
-            </Button>
-            <Button 
-              variant="outline" 
-              size="xl" 
-              className="gap-2 bg-card/10 border-card/30 text-card hover:bg-card/20 w-full sm:w-auto" 
-              onClick={() => document.getElementById("features")?.scrollIntoView({ behavior: "smooth" })}
-            >
-              Découvrir
-            </Button>
+            {isAndroid ? (
+              <>
+                <GooglePlayButton variant="badge" size="lg" className="w-full sm:w-auto justify-center" />
+                <Button 
+                  variant="heroOutline" 
+                  size="xl" 
+                  className="gap-2 w-full sm:w-auto" 
+                  onClick={() => navigate("/auth")}
+                >
+                  Essayer en ligne
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button variant="hero" size="xl" className="gap-2 w-full sm:w-auto" onClick={() => navigate("/auth")}>
+                  <Zap className="w-5 h-5" />
+                  Essai gratuit 3 jours
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="xl" 
+                  className="gap-2 bg-card/10 border-card/30 text-card hover:bg-card/20 w-full sm:w-auto" 
+                  onClick={() => document.getElementById("features")?.scrollIntoView({ behavior: "smooth" })}
+                >
+                  Découvrir
+                </Button>
+              </>
+            )}
           </div>
 
           {/* Mobile Feature Cards - Show on mobile only */}

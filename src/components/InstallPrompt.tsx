@@ -1,12 +1,24 @@
 import { useState, useEffect } from "react";
 import { usePWA } from "@/hooks/usePWA";
+import { useDeviceDetection } from "@/hooks/useDeviceDetection";
 import { Button } from "@/components/ui/button";
 import { X, Download, Share } from "lucide-react";
 
 export const InstallPrompt = () => {
   const { isInstalled, isStandalone, isIOS, canInstall, promptInstall } = usePWA();
+  const { isNativeApp, isAndroid } = useDeviceDetection();
   const [dismissed, setDismissed] = useState(false);
   const [showIOSGuide, setShowIOSGuide] = useState(false);
+
+  // Don't show if already in native app (Play Store install)
+  if (isNativeApp) {
+    return null;
+  }
+  
+  // Don't show on Android - they should use Google Play
+  if (isAndroid) {
+    return null;
+  }
 
   // Check if already dismissed recently
   useEffect(() => {
