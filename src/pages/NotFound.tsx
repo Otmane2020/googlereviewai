@@ -3,8 +3,10 @@ import { useEffect } from "react";
 import { Home, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { StarlinkoLogo } from "@/components/StarlinkoLogo";
+import { useTranslation } from "react-i18next";
 
 const NotFound = () => {
+  const { t } = useTranslation();
   const location = useLocation();
 
   useEffect(() => {
@@ -20,21 +22,21 @@ const NotFound = () => {
         <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-primary/10 flex items-center justify-center">
           <span className="text-5xl font-bold text-primary">404</span>
         </div>
-        <h1 className="text-2xl font-bold text-foreground mb-2">Page introuvable</h1>
+        <h1 className="text-2xl font-bold text-foreground mb-2">{t("notFound.title")}</h1>
         <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
-          La page que vous recherchez n'existe pas ou a été déplacée.
+          {t("notFound.description")}
         </p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Button asChild variant="outline">
             <Link to="/" className="gap-2">
               <ArrowLeft className="w-4 h-4" />
-              Retour à l'accueil
+              {t("notFound.backHome")}
             </Link>
           </Button>
           <Button asChild>
             <Link to="/dashboard" className="gap-2">
               <Home className="w-4 h-4" />
-              Tableau de bord
+              {t("notFound.dashboard")}
             </Link>
           </Button>
         </div>

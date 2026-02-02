@@ -3,6 +3,7 @@ import { Button } from "./ui/button";
 import { Sparkles, Zap, Check, ArrowRight, Target } from "lucide-react";
 import { useDeviceDetection } from "@/hooks/useDeviceDetection";
 import { GooglePlayButton } from "./GooglePlayButton";
+import { useTranslation } from "react-i18next";
 
 const GoogleIcon = ({ className = "w-5 h-5" }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24">
@@ -20,6 +21,7 @@ const ChatGPTIcon = ({ className = "w-5 h-5" }: { className?: string }) => (
 );
 
 export const CTASection = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { isAndroid } = useDeviceDetection();
   
@@ -39,13 +41,13 @@ export const CTASection = () => {
               <Target className="w-7 h-7 text-primary" />
             </div>
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Prêt à dominer votre marché ?
+              {t("cta.title")}
             </h2>
             <p className="text-muted-foreground text-sm sm:text-base mb-6 max-w-xl mx-auto">
-              Rejoignez +500 entreprises qui utilisent Starlinko pour devancer leurs concurrents.
+              {t("cta.subtitle")}
             </p>
             
-            {/* Benefits list - Light background with proper contrast */}
+            {/* Benefits list */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8">
               <div className="flex items-center gap-3 p-3 bg-muted rounded-xl">
                 <div className="w-8 h-8 rounded-lg bg-card flex items-center justify-center flex-shrink-0 shadow-sm">
@@ -53,7 +55,7 @@ export const CTASection = () => {
                 </div>
                 <div className="text-left">
                   <p className="text-foreground font-semibold text-sm">ChatGPT</p>
-                  <p className="text-muted-foreground text-xs">Visibilité AEO</p>
+                  <p className="text-muted-foreground text-xs">{t("aeo.title")}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3 p-3 bg-muted rounded-xl">
@@ -62,7 +64,7 @@ export const CTASection = () => {
                 </div>
                 <div className="text-left">
                   <p className="text-foreground font-semibold text-sm">SEO Google</p>
-                  <p className="text-muted-foreground text-xs">Articles auto</p>
+                  <p className="text-muted-foreground text-xs">{t("seo.title")}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3 p-3 bg-muted rounded-xl">
@@ -71,7 +73,7 @@ export const CTASection = () => {
                 </div>
                 <div className="text-left">
                   <p className="text-foreground font-semibold text-sm">IA</p>
-                  <p className="text-muted-foreground text-xs">Réponses auto</p>
+                  <p className="text-muted-foreground text-xs">{t("features.aiResponses")}</p>
                 </div>
               </div>
             </div>
@@ -85,7 +87,7 @@ export const CTASection = () => {
                   className="gap-2 w-full sm:w-auto" 
                   onClick={() => navigate("/auth")}
                 >
-                  Essayer en ligne
+                  {t("hero.ctaSecondary")}
                 </Button>
               </div>
             ) : (
@@ -96,7 +98,7 @@ export const CTASection = () => {
                 onClick={() => navigate("/auth")}
               >
                 <Zap className="w-5 h-5" />
-                Démarrer gratuitement
+                {t("cta.button")}
                 <ArrowRight className="w-4 h-4 ml-1" />
               </Button>
             )}
@@ -104,15 +106,15 @@ export const CTASection = () => {
             <div className="flex flex-wrap items-center justify-center gap-4 mt-5 text-muted-foreground text-xs">
               <span className="flex items-center gap-1.5">
                 <Check className="w-3.5 h-3.5 text-secondary" />
-                3 jours gratuits
+                {t("pricing.freeTrial")}
               </span>
               <span className="flex items-center gap-1.5">
                 <Check className="w-3.5 h-3.5 text-secondary" />
-                Sans carte bancaire
+                {t("common.no")} CB
               </span>
               <span className="flex items-center gap-1.5">
                 <Check className="w-3.5 h-3.5 text-secondary" />
-                Annulation facile
+                {t("common.cancel")}
               </span>
             </div>
           </div>

@@ -1,4 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { 
   LayoutGrid, 
   Star, 
@@ -7,16 +8,17 @@ import {
   PlusCircle
 } from "lucide-react";
 
-const navItems = [
-  { icon: LayoutGrid, label: "Accueil", href: "/dashboard" },
-  { icon: Star, label: "Avis", href: "/reviews" },
-  { icon: PlusCircle, label: "Post", href: "/gmb-post", isPlus: true },
-  { icon: Building2, label: "Business", href: "/businesses" },
-  { icon: Settings, label: "Réglages", href: "/settings" },
-];
-
 export const MobileBottomNav = () => {
+  const { t } = useTranslation();
   const location = useLocation();
+
+  const navItems = [
+    { icon: LayoutGrid, label: t("dashboard.title"), href: "/dashboard" },
+    { icon: Star, label: t("dashboard.reviews"), href: "/reviews" },
+    { icon: PlusCircle, label: t("dashboard.post"), href: "/gmb-post", isPlus: true },
+    { icon: Building2, label: t("dashboard.businesses"), href: "/businesses" },
+    { icon: Settings, label: t("dashboard.settings"), href: "/settings" },
+  ];
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-card/95 backdrop-blur-xl border-t border-border safe-area-inset-bottom">

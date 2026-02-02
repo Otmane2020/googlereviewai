@@ -1,6 +1,7 @@
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
+import "./i18n/config"; // Initialize i18n
 
 // PushAlert handles service worker registration via its SDK
 // Just ensure sw.js is registered for offline/PWA support

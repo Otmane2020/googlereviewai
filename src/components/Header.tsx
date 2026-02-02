@@ -4,15 +4,18 @@ import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { TrustAvisMiniRating } from "./TrustAvisBadge";
-
-const navLinks = [
-  { label: "Fonctionnalités", href: "#features" },
-  { label: "Conformité", href: "#compliance" },
-  { label: "Tarifs", href: "#pricing" },
-];
+import { LanguageSwitcher } from "./LanguageSwitcher";
+import { useTranslation } from "react-i18next";
 
 export const Header = () => {
+  const { t } = useTranslation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const navLinks = [
+    { label: t("header.features"), href: "#features" },
+    { label: t("header.compliance"), href: "#compliance" },
+    { label: t("header.pricing"), href: "#pricing" },
+  ];
 
   return (
     <header 
@@ -39,26 +42,30 @@ export const Header = () => {
           </div>
           
           <div className="hidden md:flex items-center gap-2">
+            <LanguageSwitcher />
             <Link to="/auth">
               <Button variant="outline" size="sm">
-                Se connecter
+                {t("header.signIn")}
               </Button>
             </Link>
             <Link to="/auth">
               <Button size="sm">
-                Créer un compte
+                {t("header.createAccount")}
               </Button>
             </Link>
           </div>
 
-          {/* Mobile Menu Button */}
-          <button
-            className="md:hidden p-2 rounded-lg text-foreground hover:bg-muted"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label="Menu"
-          >
-            {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </button>
+          {/* Mobile: Language + Menu */}
+          <div className="flex md:hidden items-center gap-2">
+            <LanguageSwitcher />
+            <button
+              className="p-2 rounded-lg text-foreground hover:bg-muted"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label="Menu"
+            >
+              {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </button>
+          </div>
         </nav>
 
         {/* Mobile Menu - Improved */}
@@ -79,12 +86,12 @@ export const Header = () => {
               <div className="flex flex-col gap-2">
                 <Link to="/auth" onClick={() => setMobileMenuOpen(false)}>
                   <Button variant="outline" className="w-full h-12 text-base">
-                    Se connecter
+                    {t("header.signIn")}
                   </Button>
                 </Link>
                 <Link to="/auth" onClick={() => setMobileMenuOpen(false)}>
                   <Button variant="default" className="w-full h-12 text-base">
-                    Créer un compte
+                    {t("header.createAccount")}
                   </Button>
                 </Link>
               </div>

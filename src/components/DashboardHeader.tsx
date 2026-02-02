@@ -4,9 +4,10 @@ import { StarlinkoLogo } from "./StarlinkoLogo";
 import { UpgradeDialog } from "./UpgradeDialog";
 import { SupportDialog } from "./SupportDialog";
 import { Button } from "./ui/button";
+import { LanguageSwitcher } from "./LanguageSwitcher";
+import { useTranslation } from "react-i18next";
 import { 
   Menu, 
-  X, 
   LayoutDashboard, 
   Star, 
   Building2, 
@@ -17,20 +18,12 @@ import {
   FileText,
   Search,
   Plus,
-  CreditCard,
   ChevronRight,
   Target
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useNotifications } from "@/hooks/useNotifications";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import {
   Sheet,
@@ -40,20 +33,6 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 
-const navItems = [
-  { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { label: "Avis", href: "/reviews", icon: Star },
-  { label: "Établissements", href: "/businesses", icon: Building2 },
-  { label: "SEO Auto", href: "/seo-autopost", icon: FileText },
-  { label: "AEO Rank", href: "/aeo-rank", icon: Search },
-  { label: "Maps Rank", href: "/maps-rank", icon: Target },
-];
-
-const menuItems = [
-  { label: "Paramètres IA", href: "/ai-settings", icon: Sparkles },
-  { label: "Paramètres", href: "/settings", icon: Settings },
-];
-
 interface UserProfile {
   credits: number;
   plan_name: string | null;
@@ -62,13 +41,28 @@ interface UserProfile {
 }
 
 export const DashboardHeader = () => {
+  const { t } = useTranslation();
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [upgradeDialogOpen, setUpgradeDialogOpen] = useState(false);
   const [profile, setProfile] = useState<UserProfile | null>(null);
-  const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
+  const { unreadCount } = useNotifications();
+
+  const navItems = [
+    { label: t("dashboard.title"), href: "/dashboard", icon: LayoutDashboard },
+    { label: t("dashboard.reviews"), href: "/reviews", icon: Star },
+    { label: t("dashboard.businesses"), href: "/businesses", icon: Building2 },
+    { label: t("dashboard.seoAuto"), href: "/seo-autopost", icon: FileText },
+    { label: t("dashboard.aeoRank"), href: "/aeo-rank", icon: Search },
+    { label: t("dashboard.mapsRank"), href: "/maps-rank", icon: Target },
+  ];
+
+  const menuItems = [
+    { label: t("dashboard.aiSettings"), href: "/ai-settings", icon: Sparkles },
+    { label: t("dashboard.settings"), href: "/settings", icon: Settings },
+  ];
 
   useEffect(() => {
     if (!user) return;
@@ -145,9 +139,12 @@ export const DashboardHeader = () => {
             })}
           </div>
 
-          {/* Right side actions - Mobile optimized */}
+          {/* Right side actions */}
           <div className="flex items-center gap-2">
-            {/* Notifications - Navigate to full page */}
+            {/* Language Switcher */}
+            <LanguageSwitcher className="hidden sm:flex" />
+
+            {/* Notifications */}
             <Button 
               variant="ghost" 
               size="icon" 
@@ -162,7 +159,7 @@ export const DashboardHeader = () => {
               )}
             </Button>
 
-            {/* Hamburger Menu - Contains credits, profile, settings */}
+            {/* Hamburger Menu */}
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl">
@@ -179,20 +176,28 @@ export const DashboardHeader = () => {
                     </div>
                     <div className="flex-1 min-w-0">
                       <SheetTitle className="text-left text-sm truncate">
-                        {profile?.full_name || "Utilisateur"}
+                        {profile?.full_name || t("common.user")}
                       </SheetTitle>
                       <p className="text-[11px] text-muted-foreground truncate">{user?.email}</p>
                     </div>
                   </div>
                 </SheetHeader>
 
-                {/* Credits Card - Compact */}
+                {/* Language Switcher - Mobile */}
+                <div className="px-3 py-2 border-b border-border/50 sm:hidden">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">{t("settings.language")}</span>
+                    <LanguageSwitcher />
+                  </div>
+                </div>
+
+                {/* Credits Card */}
                 <div className="p-3 border-b border-border/50">
                   <div className="bg-gradient-to-br from-accent/10 to-accent/5 rounded-xl p-3 border border-accent/20">
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
                         <Star className="w-4 h-4 text-accent fill-accent" />
-                        <span className="text-xs font-medium text-foreground">Crédits</span>
+                        <span className="text-xs font-medium text-foreground">{t("common.credits")}</span>
                       </div>
                       {profile?.plan_name && (
                         <Badge variant="secondary" className="text-[9px] px-1.5 py-0">
@@ -213,16 +218,16 @@ export const DashboardHeader = () => {
                         }}
                       >
                         <Plus className="w-3.5 h-3.5" />
-                        Upgrade
+                        {t("common.upgrade")}
                       </Button>
                     </div>
                   </div>
                 </div>
 
-                {/* Navigation - Compact */}
+                {/* Navigation */}
                 <div className="px-3 py-2 space-y-0.5">
                   <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-1.5 px-2">
-                    Navigation
+                    {t("common.navigation")}
                   </p>
                   {navItems.map((item) => {
                     const Icon = item.icon;
@@ -246,10 +251,10 @@ export const DashboardHeader = () => {
                   })}
                 </div>
 
-                {/* Settings - Compact */}
+                {/* Settings */}
                 <div className="px-3 py-2 space-y-0.5 border-t border-border/50">
                   <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-1.5 px-2">
-                    Paramètres
+                    {t("common.settings")}
                   </p>
                   {menuItems.map((item) => {
                     const Icon = item.icon;
@@ -268,7 +273,7 @@ export const DashboardHeader = () => {
                   })}
                 </div>
 
-                {/* Sign Out - Sticky Bottom */}
+                {/* Sign Out */}
                 <div className="sticky bottom-0 p-3 border-t border-border/50 bg-background/95 backdrop-blur-sm">
                   <div className="flex gap-2">
                     <SupportDialog 
@@ -284,7 +289,7 @@ export const DashboardHeader = () => {
                       }}
                     >
                       <LogOut className="w-4 h-4 mr-2" />
-                      Déconnexion
+                      {t("common.signOut")}
                     </Button>
                   </div>
                 </div>

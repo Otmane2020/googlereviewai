@@ -2,8 +2,10 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
 import { Zap } from "lucide-react";
 import { useDeviceDetection, GOOGLE_PLAY_URL } from "@/hooks/useDeviceDetection";
+import { useTranslation } from "react-i18next";
 
 export const MobileStickyButton = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { isAndroid } = useDeviceDetection();
 
@@ -23,7 +25,7 @@ export const MobileStickyButton = () => {
             <path d="M20.16 10.81C20.5 11.08 20.5 11.61 20.16 11.88L17.58 13.5L15.12 11.04L17.58 8.58L20.16 10.19C20.5 10.46 20.5 10.99 20.16 10.81Z" fill="#FBBC04"/>
             <path d="M6.05 2.66L16.81 8.88L14.54 11.15L6.05 2.66Z" fill="#EA4335"/>
           </svg>
-          Installer l'app
+          {t("hero.installApp")}
         </a>
       </div>
     );
@@ -38,7 +40,7 @@ export const MobileStickyButton = () => {
         onClick={() => navigate("/auth")}
       >
         <Zap className="w-5 h-5" />
-        Essai gratuit 3 jours
+        {t("hero.cta")}
       </Button>
     </div>
   );
