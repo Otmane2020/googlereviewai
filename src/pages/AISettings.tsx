@@ -48,6 +48,7 @@ interface AISettings {
   email_notifications: boolean;
   respond_to_edited_reviews: boolean;
   publication_hour: number;
+  timezone: string;
 }
 
 interface PendingReviewsStats {
@@ -203,6 +204,7 @@ const AISettingsPage = () => {
     email_notifications: true,
     respond_to_edited_reviews: true,
     publication_hour: 7,
+    timezone: "Europe/Paris",
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -275,6 +277,7 @@ const AISettingsPage = () => {
           email_notifications: settingsRes.data.email_notifications ?? true,
           respond_to_edited_reviews: settingsRes.data.respond_to_edited_reviews ?? true,
           publication_hour: (settingsRes.data as any).publication_hour ?? 7,
+          timezone: (settingsRes.data as any).timezone ?? "Europe/Paris",
         });
       }
 
@@ -660,9 +663,9 @@ const AISettingsPage = () => {
           </div>
         </div>
 
-        {/* SEO/AEO Publication Hour */}
+        {/* SEO/AEO Publication Hour with Timezone */}
         <div className="bg-card rounded-2xl border border-border/50 overflow-hidden shadow-sm">
-          <div className="p-4">
+          <div className="p-4 border-b border-border/30">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center">
@@ -685,13 +688,73 @@ const AISettingsPage = () => {
                     </option>
                   ))}
                 </select>
-                <span className="text-xs text-muted-foreground">UTC</span>
               </div>
+            </div>
+          </div>
+          
+          {/* Timezone Selector */}
+          <div className="p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-cyan-500/10 flex items-center justify-center">
+                  <svg className="w-4 h-4 text-cyan-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div>
+                  <span className="font-medium text-sm text-foreground block">Fuseau horaire</span>
+                  <span className="text-xs text-muted-foreground">Pour les publications automatiques</span>
+                </div>
+              </div>
+              <select
+                value={settings.timezone}
+                onChange={(e) => updateSettings({ timezone: e.target.value })}
+                className="h-9 px-3 rounded-xl bg-muted/50 border-0 text-sm font-medium text-foreground focus:ring-2 focus:ring-primary max-w-[180px]"
+              >
+                <optgroup label="Europe">
+                  <option value="Europe/Paris">Paris (France)</option>
+                  <option value="Europe/Brussels">Bruxelles (Belgique)</option>
+                  <option value="Europe/Zurich">Zürich (Suisse)</option>
+                  <option value="Europe/Luxembourg">Luxembourg</option>
+                  <option value="Europe/Monaco">Monaco</option>
+                  <option value="Europe/London">Londres (UK)</option>
+                  <option value="Europe/Berlin">Berlin (Allemagne)</option>
+                  <option value="Europe/Madrid">Madrid (Espagne)</option>
+                  <option value="Europe/Rome">Rome (Italie)</option>
+                  <option value="Europe/Amsterdam">Amsterdam (Pays-Bas)</option>
+                </optgroup>
+                <optgroup label="Amérique">
+                  <option value="America/Montreal">Montréal (Canada)</option>
+                  <option value="America/New_York">New York (USA)</option>
+                  <option value="America/Los_Angeles">Los Angeles (USA)</option>
+                  <option value="America/Chicago">Chicago (USA)</option>
+                  <option value="America/Toronto">Toronto (Canada)</option>
+                  <option value="America/Martinique">Martinique</option>
+                  <option value="America/Guadeloupe">Guadeloupe</option>
+                  <option value="America/Cayenne">Guyane</option>
+                </optgroup>
+                <optgroup label="Afrique">
+                  <option value="Africa/Casablanca">Casablanca (Maroc)</option>
+                  <option value="Africa/Algiers">Alger (Algérie)</option>
+                  <option value="Africa/Tunis">Tunis (Tunisie)</option>
+                  <option value="Africa/Dakar">Dakar (Sénégal)</option>
+                  <option value="Africa/Abidjan">Abidjan (Côte d'Ivoire)</option>
+                </optgroup>
+                <optgroup label="Océan Indien">
+                  <option value="Indian/Reunion">La Réunion</option>
+                  <option value="Indian/Mauritius">Maurice</option>
+                  <option value="Indian/Mayotte">Mayotte</option>
+                </optgroup>
+                <optgroup label="Pacifique">
+                  <option value="Pacific/Noumea">Nouvelle-Calédonie</option>
+                  <option value="Pacific/Tahiti">Tahiti</option>
+                </optgroup>
+              </select>
             </div>
             <div className="mt-3 ml-11 bg-indigo-500/10 rounded-xl p-3 flex items-start gap-2">
               <Sparkles className="w-4 h-4 text-indigo-600 mt-0.5 shrink-0" />
               <p className="text-xs text-indigo-700 dark:text-indigo-400">
-                SEO AutoPost et ChatGPT Rank publient à {settings.publication_hour.toString().padStart(2, "0")}:00 UTC chaque jour
+                Les contenus SEO/AEO seront publiés à {settings.publication_hour.toString().padStart(2, "0")}:00 heure locale ({settings.timezone.split('/')[1]?.replace('_', ' ') || settings.timezone})
               </p>
             </div>
           </div>

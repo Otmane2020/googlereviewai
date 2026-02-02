@@ -96,6 +96,7 @@ export type Database = {
           reviews_synced_count: number | null
           signature: string | null
           sync_interval_minutes: number | null
+          timezone: string | null
           tone: string | null
           updated_at: string | null
           user_id: string
@@ -121,6 +122,7 @@ export type Database = {
           reviews_synced_count?: number | null
           signature?: string | null
           sync_interval_minutes?: number | null
+          timezone?: string | null
           tone?: string | null
           updated_at?: string | null
           user_id: string
@@ -146,6 +148,7 @@ export type Database = {
           reviews_synced_count?: number | null
           signature?: string | null
           sync_interval_minutes?: number | null
+          timezone?: string | null
           tone?: string | null
           updated_at?: string | null
           user_id?: string
