@@ -4,6 +4,7 @@ import { Check, Sparkles, Star, TrendingUp, Zap, Bot, Search, FileText, MessageS
 import { TrustAvisLabel } from "./TrustAvisBadge";
 import { useDeviceDetection, GOOGLE_PLAY_URL } from "@/hooks/useDeviceDetection";
 import { GooglePlayButton } from "./GooglePlayButton";
+import { useTranslation } from "react-i18next";
 
 const ChatGPTIcon = ({ className = "w-5 h-5" }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
@@ -12,6 +13,7 @@ const ChatGPTIcon = ({ className = "w-5 h-5" }: { className?: string }) => (
 );
 
 export const HeroSection = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { isAndroid } = useDeviceDetection();
   
@@ -30,19 +32,19 @@ export const HeroSection = () => {
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-card/10 backdrop-blur-sm rounded-full border border-card/20 mb-6 animate-fade-in">
             <Rocket className="w-4 h-4 text-accent" />
             <span className="text-card text-xs sm:text-sm font-medium">
-              Devancez vos concurrents
+              {t("hero.trustedBy")}
             </span>
           </div>
 
           {/* Main headline */}
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-card leading-tight mb-5 animate-fade-in" style={{ animationDelay: "0.1s" }}>
-            Dominez votre marché local
-            <span className="block text-accent-gold mt-2">grâce à l'IA</span>
+            {t("hero.title")}
+            <span className="block text-accent-gold mt-2">{t("hero.titleHighlight")}</span>
           </h1>
 
           {/* Subtitle */}
           <p className="text-base sm:text-lg md:text-xl text-card/85 max-w-2xl mx-auto mb-8 animate-fade-in leading-relaxed" style={{ animationDelay: "0.2s" }}>
-            Réponses automatiques aux avis, articles SEO générés, et visibilité dans ChatGPT.
+            {t("hero.subtitle")}
           </p>
 
           {/* CTA Buttons */}
@@ -56,14 +58,14 @@ export const HeroSection = () => {
                   className="gap-2 w-full sm:w-auto" 
                   onClick={() => navigate("/auth")}
                 >
-                  Essayer en ligne
+                  {t("hero.ctaSecondary")}
                 </Button>
               </>
             ) : (
               <>
                 <Button variant="hero" size="xl" className="gap-2 w-full sm:w-auto" onClick={() => navigate("/auth")}>
                   <Zap className="w-5 h-5" />
-                  Essai gratuit 3 jours
+                  {t("hero.cta")}
                 </Button>
                 <Button 
                   variant="outline" 
@@ -71,21 +73,21 @@ export const HeroSection = () => {
                   className="gap-2 bg-card/10 border-card/30 text-card hover:bg-card/20 w-full sm:w-auto" 
                   onClick={() => document.getElementById("features")?.scrollIntoView({ behavior: "smooth" })}
                 >
-                  Découvrir
+                  {t("hero.ctaSecondary")}
                 </Button>
               </>
             )}
           </div>
 
-          {/* Mobile Feature Cards - Show on mobile only */}
+          {/* Mobile Feature Cards */}
           <div className="grid grid-cols-1 gap-3 mb-8 sm:hidden animate-fade-in" style={{ animationDelay: "0.35s" }}>
             <div className="flex items-center gap-3 p-4 bg-card rounded-xl border border-border shadow-sm">
               <div className="w-10 h-10 rounded-lg bg-accent/20 flex items-center justify-center flex-shrink-0">
                 <MessageSquare className="w-5 h-5 text-accent" />
               </div>
               <div className="text-left">
-                <p className="text-foreground font-semibold text-sm">Réponses aux avis par IA</p>
-                <p className="text-muted-foreground text-xs">Répondez à 100 avis en 1 clic</p>
+                <p className="text-foreground font-semibold text-sm">{t("features.aiResponses")}</p>
+                <p className="text-muted-foreground text-xs">{t("features.aiResponsesDesc")}</p>
               </div>
             </div>
             <div className="flex items-center gap-3 p-4 bg-card rounded-xl border border-border shadow-sm">
@@ -93,8 +95,8 @@ export const HeroSection = () => {
                 <FileText className="w-5 h-5 text-secondary" />
               </div>
               <div className="text-left">
-                <p className="text-foreground font-semibold text-sm">SEO AutoPost</p>
-                <p className="text-muted-foreground text-xs">Articles optimisés générés</p>
+                <p className="text-foreground font-semibold text-sm">{t("seo.title")}</p>
+                <p className="text-muted-foreground text-xs">{t("seo.description")}</p>
               </div>
             </div>
             <div className="flex items-center gap-3 p-4 bg-card rounded-xl border border-border shadow-sm">
@@ -102,34 +104,34 @@ export const HeroSection = () => {
                 <ChatGPTIcon className="w-5 h-5 text-primary" />
               </div>
               <div className="text-left">
-                <p className="text-foreground font-semibold text-sm">Visibilité ChatGPT</p>
-                <p className="text-muted-foreground text-xs">Apparaissez dans les réponses IA</p>
+                <p className="text-foreground font-semibold text-sm">{t("aeo.title")}</p>
+                <p className="text-muted-foreground text-xs">{t("aeo.description")}</p>
               </div>
             </div>
           </div>
 
-          {/* Desktop Stats - Hide on mobile */}
+          {/* Desktop Stats */}
           <div className="hidden sm:grid grid-cols-3 gap-8 max-w-2xl mx-auto mb-10 animate-fade-in" style={{ animationDelay: "0.35s" }}>
             <div className="text-center">
               <div className="flex items-center justify-center gap-2 text-3xl font-bold text-card mb-1">
                 <Bot className="w-6 h-6 text-accent" />
                 <span>ChatGPT</span>
               </div>
-              <p className="text-card/70 text-sm">Visibilité AEO</p>
+              <p className="text-card/70 text-sm">{t("aeo.title")}</p>
             </div>
             <div className="text-center border-x border-card/20">
               <div className="flex items-center justify-center gap-2 text-3xl font-bold text-card mb-1">
                 <TrendingUp className="w-6 h-6 text-accent-gold" />
                 <span>+40%</span>
               </div>
-              <p className="text-card/70 text-sm">SEO local</p>
+              <p className="text-card/70 text-sm">{t("features.seo")}</p>
             </div>
             <div className="text-center">
               <div className="flex items-center justify-center gap-2 text-3xl font-bold text-card mb-1">
                 <Search className="w-6 h-6 text-secondary" />
                 <span>#1</span>
               </div>
-              <p className="text-card/70 text-sm">Ranking local</p>
+              <p className="text-card/70 text-sm">{t("maps.title")}</p>
             </div>
           </div>
 
@@ -137,15 +139,15 @@ export const HeroSection = () => {
           <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-card/80 text-xs sm:text-sm animate-fade-in" style={{ animationDelay: "0.4s" }}>
             <div className="flex items-center gap-2">
               <Check className="w-4 h-4 text-secondary" />
-              <span>Sans engagement</span>
+              <span>{t("pricing.freeTrial")}</span>
             </div>
             <div className="flex items-center gap-2">
               <Check className="w-4 h-4 text-secondary" />
-              <span>2 min pour démarrer</span>
+              <span>2 min</span>
             </div>
             <div className="flex items-center gap-2">
               <Check className="w-4 h-4 text-secondary" />
-              <span>+500 entreprises</span>
+              <span>+500</span>
             </div>
             <TrustAvisLabel className="text-card/80 hover:text-card" />
           </div>
@@ -166,7 +168,7 @@ export const HeroSection = () => {
                     <div className="flex">
                       {[1,2,3,4,5].map(i => <Star key={i} className="w-3.5 h-3.5 text-accent fill-accent" />)}
                     </div>
-                    <span className="text-xs text-muted-foreground">il y a 2h</span>
+                    <span className="text-xs text-muted-foreground">2h</span>
                   </div>
                   <p className="text-muted-foreground text-sm leading-relaxed">
                     "Service impeccable ! L'équipe est très professionnelle et à l'écoute. Je recommande vivement."
@@ -180,7 +182,7 @@ export const HeroSection = () => {
                   <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center">
                     <Sparkles className="w-3.5 h-3.5 text-primary" />
                   </div>
-                  <span className="text-xs font-semibold text-primary">Réponse générée par Starlinko IA</span>
+                  <span className="text-xs font-semibold text-primary">{t("ai.generated")}</span>
                   <span className="text-[10px] px-2 py-0.5 bg-secondary/20 text-secondary rounded-full font-medium">Auto</span>
                 </div>
                 <p className="text-sm text-foreground leading-relaxed">

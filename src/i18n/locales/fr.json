@@ -1,0 +1,279 @@
+{
+  "common": {
+    "loading": "Chargement...",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "close": "Fermer",
+    "back": "Retour",
+    "next": "Suivant",
+    "confirm": "Confirmer",
+    "yes": "Oui",
+    "no": "Non",
+    "or": "ou",
+    "and": "et",
+    "error": "Erreur",
+    "success": "Succès",
+    "warning": "Attention",
+    "info": "Information",
+    "credits": "Crédits",
+    "upgrade": "Upgrade",
+    "features": "Fonctionnalités",
+    "pricing": "Tarifs",
+    "compliance": "Conformité",
+    "signIn": "Se connecter",
+    "signUp": "Créer un compte",
+    "signOut": "Déconnexion",
+    "settings": "Paramètres",
+    "user": "Utilisateur",
+    "navigation": "Navigation",
+    "support": "Support",
+    "help": "Aide",
+    "contact": "Contact",
+    "privacy": "Confidentialité",
+    "terms": "Conditions",
+    "legalNotice": "Mentions légales",
+    "allRightsReserved": "Tous droits réservés"
+  },
+  "header": {
+    "features": "Fonctionnalités",
+    "compliance": "Conformité",
+    "pricing": "Tarifs",
+    "signIn": "Se connecter",
+    "createAccount": "Créer un compte"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "reviews": "Avis",
+    "businesses": "Établissements",
+    "seoAuto": "SEO Auto",
+    "aeoRank": "AEO Rank",
+    "mapsRank": "Maps Rank",
+    "aiSettings": "Paramètres IA",
+    "settings": "Paramètres",
+    "notifications": "Notifications",
+    "post": "Post"
+  },
+  "hero": {
+    "title": "Répondez à vos avis Google",
+    "titleHighlight": "en quelques secondes grâce à l'IA",
+    "subtitle": "Starlinko génère des réponses personnalisées et professionnelles pour chaque avis Google de votre établissement. Gagnez du temps et améliorez votre e-réputation.",
+    "cta": "Essai gratuit 3 jours",
+    "ctaSecondary": "Voir la démo",
+    "installApp": "Installer l'app",
+    "trustedBy": "Utilisé par +500 établissements"
+  },
+  "cta": {
+    "title": "Prêt à transformer vos avis Google ?",
+    "subtitle": "Rejoignez des centaines d'établissements qui utilisent Starlinko pour gérer leurs avis clients automatiquement.",
+    "button": "Commencer maintenant",
+    "installApp": "Installer l'app"
+  },
+  "features": {
+    "title": "Tout ce dont vous avez besoin",
+    "subtitle": "pour gérer vos avis Google",
+    "aiResponses": "Réponses IA personnalisées",
+    "aiResponsesDesc": "Des réponses uniques adaptées à chaque avis, générées en quelques secondes.",
+    "autoSync": "Synchronisation automatique",
+    "autoSyncDesc": "Vos avis Google sont synchronisés automatiquement, 24h/24.",
+    "multiLocation": "Multi-établissements",
+    "multiLocationDesc": "Gérez tous vos établissements depuis un seul tableau de bord.",
+    "analytics": "Statistiques détaillées",
+    "analyticsDesc": "Suivez votre réputation et l'évolution de vos notes.",
+    "seo": "SEO Local",
+    "seoDesc": "Améliorez votre visibilité locale grâce au contenu optimisé.",
+    "notifications": "Notifications instantanées",
+    "notificationsDesc": "Soyez alerté dès qu'un nouvel avis est publié."
+  },
+  "pricing": {
+    "title": "Des tarifs simples et transparents",
+    "subtitle": "Choisissez le plan qui correspond à vos besoins",
+    "monthly": "Mensuel",
+    "yearly": "Annuel",
+    "savePercent": "Économisez {{percent}}%",
+    "perMonth": "/mois",
+    "perYear": "/an",
+    "popular": "Populaire",
+    "currentPlan": "Plan actuel",
+    "choosePlan": "Choisir ce plan",
+    "freeTrial": "Essai gratuit 3 jours",
+    "features": {
+      "aiResponses": "Réponses IA illimitées",
+      "locations": "{{count}} établissement(s)",
+      "unlimitedLocations": "Établissements illimités",
+      "autoSync": "Synchronisation automatique",
+      "analytics": "Statistiques détaillées",
+      "support": "Support prioritaire",
+      "api": "Accès API"
+    }
+  },
+  "reviews": {
+    "title": "Avis Google",
+    "noReviews": "Aucun avis trouvé",
+    "pendingResponse": "En attente de réponse",
+    "responded": "Répondu",
+    "generateResponse": "Générer une réponse",
+    "regenerate": "Régénérer",
+    "publishToGoogle": "Publier sur Google",
+    "published": "Publié sur Google",
+    "responseGenerated": "Réponse générée",
+    "stars": "étoiles",
+    "filters": {
+      "all": "Tous",
+      "pending": "En attente",
+      "responded": "Répondus",
+      "positive": "Positifs",
+      "negative": "Négatifs"
+    }
+  },
+  "businesses": {
+    "title": "Mes établissements",
+    "addBusiness": "Ajouter un établissement",
+    "connectGoogle": "Connecter Google",
+    "noBusiness": "Aucun établissement connecté",
+    "syncReviews": "Synchroniser les avis",
+    "totalReviews": "avis au total",
+    "averageRating": "Note moyenne"
+  },
+  "settings": {
+    "title": "Paramètres",
+    "account": "Compte",
+    "notifications": "Notifications",
+    "language": "Langue",
+    "appearance": "Apparence",
+    "billing": "Facturation",
+    "security": "Sécurité",
+    "aiSettings": "Paramètres IA",
+    "tone": "Ton des réponses",
+    "tones": {
+      "friendly": "Amical",
+      "professional": "Professionnel",
+      "formal": "Formel",
+      "casual": "Décontracté"
+    },
+    "responseLength": {
+      "short": "Court",
+      "medium": "Moyen",
+      "long": "Long"
+    },
+    "autoResponse": "Auto-réponse IA",
+    "autoResponseDesc": "Les nouvelles réponses seront générées automatiquement.",
+    "autoPublish": "Publication automatique",
+    "autoPublishDesc": "Publier automatiquement les réponses sur Google.",
+    "emailNotifications": "Notifications par email",
+    "pushNotifications": "Notifications push",
+    "pushEnabled": "Notifications activées",
+    "pushDisabled": "Notifications désactivées",
+    "enablePush": "Activer les notifications",
+    "androidManaged": "Géré par Android",
+    "androidManagedDesc": "Les notifications sont gérées par le système Android.",
+    "openAndroidSettings": "Ouvrir les paramètres Android"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "markAllRead": "Tout marquer comme lu",
+    "noNotifications": "Aucune notification",
+    "newReview": "Nouvel avis",
+    "responseGenerated": "Réponse générée",
+    "responsePublished": "Réponse publiée"
+  },
+  "auth": {
+    "signIn": "Connexion",
+    "signUp": "Inscription",
+    "email": "Email",
+    "password": "Mot de passe",
+    "confirmPassword": "Confirmer le mot de passe",
+    "forgotPassword": "Mot de passe oublié ?",
+    "resetPassword": "Réinitialiser le mot de passe",
+    "noAccount": "Pas encore de compte ?",
+    "hasAccount": "Déjà un compte ?",
+    "continueWithGoogle": "Continuer avec Google",
+    "orContinueWith": "ou continuer avec",
+    "termsAgree": "En créant un compte, vous acceptez nos",
+    "and": "et notre"
+  },
+  "footer": {
+    "description": "Solution IA pour gérer et répondre automatiquement à vos avis Google.",
+    "product": "Produit",
+    "company": "Entreprise",
+    "legal": "Légal",
+    "resources": "Ressources",
+    "blog": "Blog",
+    "guides": "Guides",
+    "pricing": "Tarifs",
+    "about": "À propos",
+    "contact": "Contact",
+    "privacy": "Confidentialité",
+    "terms": "Conditions",
+    "getOnGooglePlay": "Télécharger sur Google Play"
+  },
+  "errors": {
+    "generic": "Une erreur s'est produite",
+    "network": "Erreur de connexion",
+    "unauthorized": "Non autorisé",
+    "notFound": "Page introuvable",
+    "serverError": "Erreur serveur"
+  },
+  "notFound": {
+    "title": "Page introuvable",
+    "description": "La page que vous recherchez n'existe pas ou a été déplacée.",
+    "backHome": "Retour à l'accueil",
+    "dashboard": "Tableau de bord"
+  },
+  "ai": {
+    "generating": "Génération en cours...",
+    "generated": "Réponse générée",
+    "noCredits": "Plus de crédits disponibles",
+    "buyCredits": "Acheter des crédits"
+  },
+  "seo": {
+    "title": "SEO AutoPost",
+    "description": "Générez automatiquement du contenu SEO optimisé pour votre établissement.",
+    "planning": "Planification",
+    "articles": "Articles",
+    "generateContent": "Générer du contenu"
+  },
+  "aeo": {
+    "title": "AEO Rank",
+    "description": "Optimisez votre visibilité sur les moteurs de recherche IA.",
+    "questions": "Questions",
+    "generateQA": "Générer Q&A"
+  },
+  "maps": {
+    "title": "Maps Rank",
+    "description": "Analysez votre positionnement sur Google Maps.",
+    "scan": "Scanner",
+    "visibility": "Score de visibilité"
+  },
+  "gmb": {
+    "title": "Google My Business",
+    "post": "Publication",
+    "createPost": "Créer une publication",
+    "publishedPosts": "Publications",
+    "insights": "Statistiques"
+  },
+  "onboarding": {
+    "welcome": "Bienvenue sur Starlinko",
+    "step1Title": "Connectez votre compte Google",
+    "step1Desc": "Liez votre Google Business Profile pour synchroniser vos avis.",
+    "step2Title": "Configurez vos préférences",
+    "step2Desc": "Personnalisez le ton et le style des réponses IA.",
+    "step3Title": "Laissez l'IA travailler",
+    "step3Desc": "Starlinko génère et publie des réponses automatiquement.",
+    "getStarted": "Commencer"
+  },
+  "credits": {
+    "title": "Crédits",
+    "remaining": "restants",
+    "buyMore": "Acheter des crédits",
+    "history": "Historique",
+    "usage": "Utilisation"
+  },
+  "upgrade": {
+    "title": "Passez à la version Pro",
+    "benefits": "Avantages",
+    "currentPlan": "Plan actuel",
+    "choosePlan": "Choisir un plan"
+  }
+}

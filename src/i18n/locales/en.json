@@ -1,0 +1,279 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "confirm": "Confirm",
+    "yes": "Yes",
+    "no": "No",
+    "or": "or",
+    "and": "and",
+    "error": "Error",
+    "success": "Success",
+    "warning": "Warning",
+    "info": "Information",
+    "credits": "Credits",
+    "upgrade": "Upgrade",
+    "features": "Features",
+    "pricing": "Pricing",
+    "compliance": "Compliance",
+    "signIn": "Sign in",
+    "signUp": "Sign up",
+    "signOut": "Sign out",
+    "settings": "Settings",
+    "user": "User",
+    "navigation": "Navigation",
+    "support": "Support",
+    "help": "Help",
+    "contact": "Contact",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "legalNotice": "Legal notice",
+    "allRightsReserved": "All rights reserved"
+  },
+  "header": {
+    "features": "Features",
+    "compliance": "Compliance",
+    "pricing": "Pricing",
+    "signIn": "Sign in",
+    "createAccount": "Create account"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "reviews": "Reviews",
+    "businesses": "Businesses",
+    "seoAuto": "SEO Auto",
+    "aeoRank": "AEO Rank",
+    "mapsRank": "Maps Rank",
+    "aiSettings": "AI Settings",
+    "settings": "Settings",
+    "notifications": "Notifications",
+    "post": "Post"
+  },
+  "hero": {
+    "title": "Respond to your Google reviews",
+    "titleHighlight": "in seconds with AI",
+    "subtitle": "Starlinko generates personalized and professional responses for every Google review of your business. Save time and improve your online reputation.",
+    "cta": "Start free 3-day trial",
+    "ctaSecondary": "Watch demo",
+    "installApp": "Install the app",
+    "trustedBy": "Trusted by 500+ businesses"
+  },
+  "cta": {
+    "title": "Ready to transform your Google reviews?",
+    "subtitle": "Join hundreds of businesses using Starlinko to manage their customer reviews automatically.",
+    "button": "Get started now",
+    "installApp": "Install the app"
+  },
+  "features": {
+    "title": "Everything you need",
+    "subtitle": "to manage your Google reviews",
+    "aiResponses": "AI-powered responses",
+    "aiResponsesDesc": "Unique responses tailored to each review, generated in seconds.",
+    "autoSync": "Automatic sync",
+    "autoSyncDesc": "Your Google reviews are synced automatically, 24/7.",
+    "multiLocation": "Multi-location",
+    "multiLocationDesc": "Manage all your locations from a single dashboard.",
+    "analytics": "Detailed analytics",
+    "analyticsDesc": "Track your reputation and rating evolution.",
+    "seo": "Local SEO",
+    "seoDesc": "Improve your local visibility with optimized content.",
+    "notifications": "Instant notifications",
+    "notificationsDesc": "Get notified when a new review is posted."
+  },
+  "pricing": {
+    "title": "Simple and transparent pricing",
+    "subtitle": "Choose the plan that fits your needs",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "savePercent": "Save {{percent}}%",
+    "perMonth": "/month",
+    "perYear": "/year",
+    "popular": "Popular",
+    "currentPlan": "Current plan",
+    "choosePlan": "Choose this plan",
+    "freeTrial": "Free 3-day trial",
+    "features": {
+      "aiResponses": "Unlimited AI responses",
+      "locations": "{{count}} location(s)",
+      "unlimitedLocations": "Unlimited locations",
+      "autoSync": "Automatic sync",
+      "analytics": "Detailed analytics",
+      "support": "Priority support",
+      "api": "API access"
+    }
+  },
+  "reviews": {
+    "title": "Google Reviews",
+    "noReviews": "No reviews found",
+    "pendingResponse": "Pending response",
+    "responded": "Responded",
+    "generateResponse": "Generate response",
+    "regenerate": "Regenerate",
+    "publishToGoogle": "Publish to Google",
+    "published": "Published to Google",
+    "responseGenerated": "Response generated",
+    "stars": "stars",
+    "filters": {
+      "all": "All",
+      "pending": "Pending",
+      "responded": "Responded",
+      "positive": "Positive",
+      "negative": "Negative"
+    }
+  },
+  "businesses": {
+    "title": "My Businesses",
+    "addBusiness": "Add a business",
+    "connectGoogle": "Connect Google",
+    "noBusiness": "No business connected",
+    "syncReviews": "Sync reviews",
+    "totalReviews": "total reviews",
+    "averageRating": "Average rating"
+  },
+  "settings": {
+    "title": "Settings",
+    "account": "Account",
+    "notifications": "Notifications",
+    "language": "Language",
+    "appearance": "Appearance",
+    "billing": "Billing",
+    "security": "Security",
+    "aiSettings": "AI Settings",
+    "tone": "Response tone",
+    "tones": {
+      "friendly": "Friendly",
+      "professional": "Professional",
+      "formal": "Formal",
+      "casual": "Casual"
+    },
+    "responseLength": {
+      "short": "Short",
+      "medium": "Medium",
+      "long": "Long"
+    },
+    "autoResponse": "AI Auto-response",
+    "autoResponseDesc": "New responses will be generated automatically.",
+    "autoPublish": "Auto-publish",
+    "autoPublishDesc": "Automatically publish responses to Google.",
+    "emailNotifications": "Email notifications",
+    "pushNotifications": "Push notifications",
+    "pushEnabled": "Notifications enabled",
+    "pushDisabled": "Notifications disabled",
+    "enablePush": "Enable notifications",
+    "androidManaged": "Managed by Android",
+    "androidManagedDesc": "Notifications are managed by the Android system.",
+    "openAndroidSettings": "Open Android settings"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "markAllRead": "Mark all as read",
+    "noNotifications": "No notifications",
+    "newReview": "New review",
+    "responseGenerated": "Response generated",
+    "responsePublished": "Response published"
+  },
+  "auth": {
+    "signIn": "Sign in",
+    "signUp": "Sign up",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm password",
+    "forgotPassword": "Forgot password?",
+    "resetPassword": "Reset password",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "continueWithGoogle": "Continue with Google",
+    "orContinueWith": "or continue with",
+    "termsAgree": "By creating an account, you agree to our",
+    "and": "and our"
+  },
+  "footer": {
+    "description": "AI solution to manage and automatically respond to your Google reviews.",
+    "product": "Product",
+    "company": "Company",
+    "legal": "Legal",
+    "resources": "Resources",
+    "blog": "Blog",
+    "guides": "Guides",
+    "pricing": "Pricing",
+    "about": "About",
+    "contact": "Contact",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "getOnGooglePlay": "Get it on Google Play"
+  },
+  "errors": {
+    "generic": "An error occurred",
+    "network": "Connection error",
+    "unauthorized": "Unauthorized",
+    "notFound": "Page not found",
+    "serverError": "Server error"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "description": "The page you're looking for doesn't exist or has been moved.",
+    "backHome": "Back to home",
+    "dashboard": "Dashboard"
+  },
+  "ai": {
+    "generating": "Generating...",
+    "generated": "Response generated",
+    "noCredits": "No credits available",
+    "buyCredits": "Buy credits"
+  },
+  "seo": {
+    "title": "SEO AutoPost",
+    "description": "Automatically generate SEO-optimized content for your business.",
+    "planning": "Planning",
+    "articles": "Articles",
+    "generateContent": "Generate content"
+  },
+  "aeo": {
+    "title": "AEO Rank",
+    "description": "Optimize your visibility on AI search engines.",
+    "questions": "Questions",
+    "generateQA": "Generate Q&A"
+  },
+  "maps": {
+    "title": "Maps Rank",
+    "description": "Analyze your position on Google Maps.",
+    "scan": "Scan",
+    "visibility": "Visibility score"
+  },
+  "gmb": {
+    "title": "Google My Business",
+    "post": "Post",
+    "createPost": "Create a post",
+    "publishedPosts": "Posts",
+    "insights": "Insights"
+  },
+  "onboarding": {
+    "welcome": "Welcome to Starlinko",
+    "step1Title": "Connect your Google account",
+    "step1Desc": "Link your Google Business Profile to sync your reviews.",
+    "step2Title": "Configure your preferences",
+    "step2Desc": "Customize the tone and style of AI responses.",
+    "step3Title": "Let AI do the work",
+    "step3Desc": "Starlinko generates and publishes responses automatically.",
+    "getStarted": "Get started"
+  },
+  "credits": {
+    "title": "Credits",
+    "remaining": "remaining",
+    "buyMore": "Buy credits",
+    "history": "History",
+    "usage": "Usage"
+  },
+  "upgrade": {
+    "title": "Upgrade to Pro",
+    "benefits": "Benefits",
+    "currentPlan": "Current plan",
+    "choosePlan": "Choose a plan"
+  }
+}

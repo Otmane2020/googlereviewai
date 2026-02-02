@@ -2,37 +2,41 @@ import { Link } from "react-router-dom";
 import { Star, Phone } from "lucide-react";
 import { StarlinkoLogo } from "./StarlinkoLogo";
 import { TrustAvisBadge } from "./TrustAvisBadge";
+import { LanguageSwitcher } from "./LanguageSwitcher";
 import { GOOGLE_PLAY_URL } from "@/hooks/useDeviceDetection";
+import { useTranslation } from "react-i18next";
 
 const SUPPORT_PHONE = "01 85 09 91 15";
 
-const footerLinks = {
-  product: {
-    title: "Produit",
-    links: [
-      { label: "Fonctionnalités", href: "#features" },
-      { label: "Tarifs", href: "#pricing" },
-      { label: "Blog", href: "/blog" },
-      { label: "Google Play", href: GOOGLE_PLAY_URL, icon: "play" },
-    ],
-  },
-  legal: {
-    title: "Légal",
-    links: [
-      { label: "Confidentialité", href: "/privacy" },
-      { label: "Conditions", href: "/terms" },
-    ],
-  },
-  support: {
-    title: "Support",
-    links: [
-      { label: SUPPORT_PHONE, href: `tel:${SUPPORT_PHONE.replace(/\s/g, '')}`, icon: "phone" },
-      { label: "Contact", href: "mailto:support@starlinko.app" },
-    ],
-  },
-};
-
 export const Footer = () => {
+  const { t } = useTranslation();
+
+  const footerLinks = {
+    product: {
+      title: t("footer.product"),
+      links: [
+        { label: t("header.features"), href: "#features" },
+        { label: t("footer.pricing"), href: "#pricing" },
+        { label: t("footer.blog"), href: "/blog" },
+        { label: t("footer.getOnGooglePlay"), href: GOOGLE_PLAY_URL, icon: "play" },
+      ],
+    },
+    legal: {
+      title: t("footer.legal"),
+      links: [
+        { label: t("footer.privacy"), href: "/privacy" },
+        { label: t("footer.terms"), href: "/terms" },
+      ],
+    },
+    support: {
+      title: t("common.support"),
+      links: [
+        { label: SUPPORT_PHONE, href: `tel:${SUPPORT_PHONE.replace(/\s/g, '')}`, icon: "phone" },
+        { label: t("footer.contact"), href: "mailto:support@starlinko.app" },
+      ],
+    },
+  };
+
   return (
     <footer className="bg-foreground text-card py-12 sm:py-14 md:py-16">
       <div className="container mx-auto px-5 sm:px-6">
@@ -43,11 +47,14 @@ export const Footer = () => {
               <StarlinkoLogo showBadge={false} className="text-card scale-90 sm:scale-100" />
             </div>
             <p className="text-card/60 text-xs sm:text-sm mb-4 sm:mb-6 max-w-xs">
-              Plateforme de gestion automatisée des avis Google My Business.
+              {t("footer.description")}
             </p>
             <div className="flex items-center gap-2 text-xs text-card/60 mb-4">
               <span className="w-2 h-2 rounded-full bg-secondary animate-pulse" />
-              <span>API : Opérationnel</span>
+              <span>API : OK</span>
+            </div>
+            <div className="mb-4">
+              <LanguageSwitcher />
             </div>
             <TrustAvisBadge />
           </div>
@@ -93,12 +100,10 @@ export const Footer = () => {
         {/* Bottom bar */}
         <div className="pt-6 sm:pt-8 border-t border-card/10 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs sm:text-sm text-card/60 text-center sm:text-left">
-            © {new Date().getFullYear()} Starlinko. Tous droits réservés.
+            © {new Date().getFullYear()} Starlinko. {t("common.allRightsReserved")}
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-xs sm:text-sm text-card/60">
             <span>🤖 IA + SEO + AEO</span>
-            <span>🚀 Devancez vos concurrents</span>
-            {/* TrustAvis Rating */}
             <a
               href="https://trust-avis.com/entreprise/starlinko"
               target="_blank"
