@@ -28,8 +28,9 @@ const isLikelyFrench = (): boolean => {
   ];
   
   return languages.some(lang => {
-    const normalizedLang = lang?.toLowerCase();
-    return frenchPatterns.some(pattern => normalizedLang?.startsWith(pattern) || normalizedLang === pattern);
+    const normalizedLang = lang?.toLowerCase() || '';
+    // Check if the language starts with 'fr' (covers fr, fr-FR, fr-BE, etc.)
+    return normalizedLang.startsWith('fr');
   });
 };
 
