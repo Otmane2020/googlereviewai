@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { usePWA } from "@/hooks/usePWA";
+import { useDeviceDetection } from "@/hooks/useDeviceDetection";
 import { Button } from "@/components/ui/button";
 import { X, Bell, Settings } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -22,11 +23,17 @@ export const NotificationPrompt = () => {
   const { user, loading: authLoading } = useAuth();
   const location = useLocation();
   const { isInstalled, isStandalone, isIOS, canInstall } = usePWA();
+  const { isNativeApp, canUsePushAlert } = useDeviceDetection();
   const [dismissed, setDismissed] = useState(false);
   const [showDelayed, setShowDelayed] = useState(false);
   const [permission, setPermission] = useState<NotificationPermission | "unsupported">("default");
   const [isSubscribing, setIsSubscribing] = useState(false);
   const [isAlreadySubscribed, setIsAlreadySubscribed] = useState(false);
+
+  // Don't show in native app - notifications are handled by Android system
+  if (isNativeApp) {
+    return null;
+  }
 
   // Check notification permission and PushAlert subscription status
   useEffect(() => {

@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Star, Phone } from "lucide-react";
 import { StarlinkoLogo } from "./StarlinkoLogo";
 import { TrustAvisBadge } from "./TrustAvisBadge";
+import { GOOGLE_PLAY_URL } from "@/hooks/useDeviceDetection";
 
 const SUPPORT_PHONE = "01 85 09 91 15";
 
@@ -12,6 +13,7 @@ const footerLinks = {
       { label: "Fonctionnalités", href: "#features" },
       { label: "Tarifs", href: "#pricing" },
       { label: "Blog", href: "/blog" },
+      { label: "Google Play", href: GOOGLE_PLAY_URL, icon: "play" },
     ],
   },
   legal: {
@@ -68,9 +70,16 @@ export const Footer = () => {
                     ) : (
                       <a
                         href={link.href}
+                        target={link.href.startsWith("http") ? "_blank" : undefined}
+                        rel={link.href.startsWith("http") ? "noopener noreferrer" : undefined}
                         className="text-xs sm:text-sm text-card/60 hover:text-card transition-colors flex items-center gap-1.5"
                       >
                         {link.icon === "phone" && <Phone className="w-3 h-3" />}
+                        {link.icon === "play" && (
+                          <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M3 20.5V3.5C3 2.91 3.34 2.39 3.84 2.15L13.69 12L3.84 21.85C3.34 21.61 3 21.09 3 20.5Z"/>
+                          </svg>
+                        )}
                         {link.label}
                       </a>
                     )}

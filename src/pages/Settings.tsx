@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { useDeviceDetection } from "@/hooks/useDeviceDetection";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { UpgradeDialog } from "@/components/UpgradeDialog";
@@ -24,7 +25,8 @@ import {
   Check,
   Settings as SettingsIcon,
   Link2,
-  Sparkles
+  Sparkles,
+  ExternalLink
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
@@ -44,6 +46,7 @@ interface Profile {
 const SettingsPage = () => {
   const { user, session, signOut } = useAuth();
   const navigate = useNavigate();
+  const { isNativeApp, canUsePushAlert } = useDeviceDetection();
   const [pushPermission, setPushPermission] = useState<NotificationPermission | "unsupported">("default");
   const [isSubscribedToPush, setIsSubscribedToPush] = useState<boolean>(true);
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -388,35 +391,73 @@ const SettingsPage = () => {
           </div>
           
           <div className="space-y-4">
-            {/* Web Push Notifications - PushAlert handles this */}
-            <div className="flex items-center justify-between p-4 bg-muted/50 rounded-xl">
-              <div className="flex items-center gap-3">
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                  pushPermission === "granted" && isSubscribedToPush ? 'bg-green-500/10' : 'bg-muted'
-                }`}>
-                  {pushPermission === "granted" && isSubscribedToPush ? (
+            {/* Native App - Show Android system message */}
+            {isNativeApp ? (
+              <div className="flex items-center justify-between p-4 bg-green-500/10 rounded-xl border border-green-500/20">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-green-500/20 flex items-center justify-center">
                     <BellRing className="w-5 h-5 text-green-600" />
-                  ) : (
-                    <BellOff className="w-5 h-5 text-muted-foreground" />
-                  )}
+                  </div>
+                  <div>
+                    <p className="font-medium text-foreground text-sm">
+                      Notifications Push
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Gérées par le système Android
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <p className="font-medium text-foreground text-sm">
-                    Notifications Push
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {pushPermission === "unsupported"
-                      ? "Non supporté par ce navigateur"
-                      : pushPermission === "granted" && isSubscribedToPush
-                        ? "Activées - Vous recevez les alertes"
-                        : pushPermission === "denied"
-                          ? "Bloquées - Autorisez dans le navigateur"
-                          : "Désactivées"
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    // Try to open Android app settings
+                    // This works in Capacitor WebView
+                    try {
+                      window.open("intent:#Intent;action=android.settings.APP_NOTIFICATION_SETTINGS;extra=android.provider.extra.APP_PACKAGE=com.world.fi.starlinko;end", "_system");
+                    } catch {
+                      toast({
+                        title: "Paramètres Android",
+                        description: "Ouvrez Paramètres > Applications > Starlinko > Notifications",
+                      });
                     }
-                  </p>
-                </div>
+                  }}
+                  className="rounded-xl h-9 shrink-0 gap-1"
+                >
+                  <ExternalLink className="w-3 h-3" />
+                  Paramètres
+                </Button>
               </div>
-              <div className="flex gap-2">
+            ) : (
+              /* Web/PWA Push Notifications - PushAlert handles this */
+              <div className="flex items-center justify-between p-4 bg-muted/50 rounded-xl">
+                <div className="flex items-center gap-3">
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                    pushPermission === "granted" && isSubscribedToPush ? 'bg-green-500/10' : 'bg-muted'
+                  }`}>
+                    {pushPermission === "granted" && isSubscribedToPush ? (
+                      <BellRing className="w-5 h-5 text-green-600" />
+                    ) : (
+                      <BellOff className="w-5 h-5 text-muted-foreground" />
+                    )}
+                  </div>
+                  <div>
+                    <p className="font-medium text-foreground text-sm">
+                      Notifications Push
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {pushPermission === "unsupported"
+                        ? "Non supporté par ce navigateur"
+                        : pushPermission === "granted" && isSubscribedToPush
+                          ? "Activées - Vous recevez les alertes"
+                          : pushPermission === "denied"
+                            ? "Bloquées - Autorisez dans le navigateur"
+                            : "Désactivées"
+                      }
+                    </p>
+                  </div>
+                </div>
+                <div className="flex gap-2">
                 {pushPermission === "granted" && isSubscribedToPush && (
                   <Button
                     variant="outline"
@@ -549,9 +590,9 @@ const SettingsPage = () => {
                     Recharger
                   </Button>
                 )}
+                </div>
               </div>
-            </div>
-
+            )}
             {/* Email notifications info */}
             <div className="flex items-center justify-between p-4 bg-muted/50 rounded-xl">
               <div className="flex items-center gap-3">

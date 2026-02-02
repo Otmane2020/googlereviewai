@@ -1,6 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
 import { Sparkles, Zap, Check, ArrowRight, Target } from "lucide-react";
+import { useDeviceDetection } from "@/hooks/useDeviceDetection";
+import { GooglePlayButton } from "./GooglePlayButton";
 
 const GoogleIcon = ({ className = "w-5 h-5" }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24">
@@ -19,6 +21,7 @@ const ChatGPTIcon = ({ className = "w-5 h-5" }: { className?: string }) => (
 
 export const CTASection = () => {
   const navigate = useNavigate();
+  const { isAndroid } = useDeviceDetection();
   
   return (
     <section className="py-14 sm:py-20 md:py-24 gradient-hero relative overflow-hidden">
@@ -73,16 +76,30 @@ export const CTASection = () => {
               </div>
             </div>
             
-            <Button 
-              variant="default" 
-              size="xl" 
-              className="gap-2 w-full sm:w-auto min-w-[250px]" 
-              onClick={() => navigate("/auth")}
-            >
-              <Zap className="w-5 h-5" />
-              Démarrer gratuitement
-              <ArrowRight className="w-4 h-4 ml-1" />
-            </Button>
+            {isAndroid ? (
+              <div className="flex flex-col sm:flex-row items-center gap-3">
+                <GooglePlayButton variant="badge" size="lg" />
+                <Button 
+                  variant="outline" 
+                  size="lg" 
+                  className="gap-2 w-full sm:w-auto" 
+                  onClick={() => navigate("/auth")}
+                >
+                  Essayer en ligne
+                </Button>
+              </div>
+            ) : (
+              <Button 
+                variant="default" 
+                size="xl" 
+                className="gap-2 w-full sm:w-auto min-w-[250px]" 
+                onClick={() => navigate("/auth")}
+              >
+                <Zap className="w-5 h-5" />
+                Démarrer gratuitement
+                <ArrowRight className="w-4 h-4 ml-1" />
+              </Button>
+            )}
             
             <div className="flex flex-wrap items-center justify-center gap-4 mt-5 text-muted-foreground text-xs">
               <span className="flex items-center gap-1.5">
