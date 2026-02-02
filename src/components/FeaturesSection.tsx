@@ -2,6 +2,7 @@ import { Sparkles, Clock, MessageSquare, Zap, FileText, TrendingUp, ArrowRight, 
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "./ui/dialog";
 import { Button } from "./ui/button";
+import { useTranslation } from "react-i18next";
 
 const ChatGPTIcon = ({ className = "w-5 h-5" }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
@@ -9,113 +10,114 @@ const ChatGPTIcon = ({ className = "w-5 h-5" }: { className?: string }) => (
   </svg>
 );
 
-const features = [
-  {
-    icon: MessageCircle,
-    title: "Réponses aux avis par IA",
-    subtitle: "Répondez à 100 avis en 1 clic",
-    description: "L'IA génère des réponses personnalisées et professionnelles pour chaque avis client en quelques secondes.",
-    badge: "Populaire",
-    badgeColor: "bg-accent text-accent-foreground",
-    details: {
-      title: "Réponses aux avis par IA",
-      description: "Notre intelligence artificielle analyse le contenu et le sentiment de chaque avis pour générer des réponses personnalisées, professionnelles et authentiques.",
-      benefits: [
-        "Réponses contextuelles adaptées au contenu de l'avis",
-        "Ton personnalisable selon votre marque",
-        "Publication en 1 clic sur Google",
-        "Gain de temps : 100 avis traités en quelques minutes"
-      ]
-    }
-  },
-  {
-    icon: Pen,
-    title: "SEO AutoPost",
-    subtitle: "Articles optimisés générés",
-    description: "Articles SEO générés automatiquement pour dominer les recherches locales et attirer plus de clients.",
-    badge: "Nouveau",
-    badgeColor: "bg-secondary text-secondary-foreground",
-    details: {
-      title: "SEO AutoPost",
-      description: "Générez automatiquement des articles de blog optimisés pour le référencement local. Chaque article est conçu pour attirer du trafic qualifié.",
-      benefits: [
-        "Articles optimisés pour les mots-clés locaux",
-        "Contenu unique et pertinent pour votre secteur",
-        "Amélioration du positionnement Google",
-        "Publication automatique programmable"
-      ]
-    }
-  },
-  {
-    icon: Eye,
-    title: "Visibilité ChatGPT",
-    subtitle: "Apparaissez dans les réponses IA",
-    description: "Créez des Q&A optimisés pour apparaître dans les réponses de ChatGPT, Perplexity et autres IA.",
-    badge: "Exclusif",
-    badgeColor: "bg-primary text-primary-foreground",
-    details: {
-      title: "Visibilité ChatGPT (AEO)",
-      description: "L'Answer Engine Optimization (AEO) vous permet d'être cité directement dans les réponses des IA comme ChatGPT, Perplexity ou Google AI.",
-      benefits: [
-        "Questions-réponses optimisées pour les IA",
-        "Positionnement sur les requêtes conversationnelles",
-        "Nouvelle source de trafic qualifié",
-        "Avantage concurrentiel durable"
-      ]
-    }
-  },
-];
-
-const capabilities = [
-  { 
-    icon: TrendingUp, 
-    title: "Devancez vos concurrents", 
-    description: "Soyez visible là où ils ne sont pas encore",
-    stat: "+40%",
-  },
-  { 
-    icon: MessageSquare, 
-    title: "Multi-établissements", 
-    description: "Gérez tous vos points de vente",
-    stat: "∞",
-  },
-  { 
-    icon: Sparkles, 
-    title: "Ton personnalisable", 
-    description: "Adaptez le style à votre marque",
-    stat: "100%",
-  },
-  { 
-    icon: Clock, 
-    title: "Gain de temps", 
-    description: "Automatisez tout le processus",
-    stat: "x10",
-  },
-];
-
-const steps = [
-  {
-    num: "1",
-    title: "Connectez-vous",
-    description: "Liez votre Google My Business en un clic avec votre compte Google.",
-    icon: Link,
-  },
-  {
-    num: "2",
-    title: "L'IA travaille",
-    description: "Starlinko génère automatiquement des réponses personnalisées.",
-    icon: Bot,
-  },
-  {
-    num: "3",
-    title: "Publiez",
-    description: "Validez et publiez en un clic, ou activez le mode automatique.",
-    icon: Send,
-  },
-];
-
 export const FeaturesSection = () => {
+  const { t } = useTranslation();
   const [openDialog, setOpenDialog] = useState<number | null>(null);
+
+  const features = [
+    {
+      icon: MessageCircle,
+      title: t("features.aiResponses"),
+      subtitle: t("features.aiResponsesSubtitle"),
+      description: t("features.aiResponsesDesc"),
+      badge: t("features.popular"),
+      badgeColor: "bg-accent text-accent-foreground",
+      details: {
+        title: t("features.aiResponses"),
+        description: t("features.aiResponsesDetail"),
+        benefits: [
+          t("features.aiResponsesBenefit1"),
+          t("features.aiResponsesBenefit2"),
+          t("features.aiResponsesBenefit3"),
+          t("features.aiResponsesBenefit4"),
+        ]
+      }
+    },
+    {
+      icon: Pen,
+      title: t("features.seoAutoPost"),
+      subtitle: t("features.seoAutoPostSubtitle"),
+      description: t("features.seoAutoPostDesc"),
+      badge: t("features.new"),
+      badgeColor: "bg-secondary text-secondary-foreground",
+      details: {
+        title: t("features.seoAutoPost"),
+        description: t("features.seoAutoPostDetail"),
+        benefits: [
+          t("features.seoAutoPostBenefit1"),
+          t("features.seoAutoPostBenefit2"),
+          t("features.seoAutoPostBenefit3"),
+          t("features.seoAutoPostBenefit4"),
+        ]
+      }
+    },
+    {
+      icon: Eye,
+      title: t("features.chatgptVisibility"),
+      subtitle: t("features.chatgptVisibilitySubtitle"),
+      description: t("features.chatgptVisibilityDesc"),
+      badge: t("features.exclusive"),
+      badgeColor: "bg-primary text-primary-foreground",
+      details: {
+        title: t("features.chatgptVisibility") + " (AEO)",
+        description: t("features.chatgptVisibilityDetail"),
+        benefits: [
+          t("features.chatgptVisibilityBenefit1"),
+          t("features.chatgptVisibilityBenefit2"),
+          t("features.chatgptVisibilityBenefit3"),
+          t("features.chatgptVisibilityBenefit4"),
+        ]
+      }
+    },
+  ];
+
+  const capabilities = [
+    { 
+      icon: TrendingUp, 
+      title: t("features.stayAhead"), 
+      description: t("features.stayAheadDesc"),
+      stat: "+40%",
+    },
+    { 
+      icon: MessageSquare, 
+      title: t("features.multiLocation"), 
+      description: t("features.multiLocationDesc"),
+      stat: "∞",
+    },
+    { 
+      icon: Sparkles, 
+      title: t("features.customTone"), 
+      description: t("features.customToneDesc"),
+      stat: "100%",
+    },
+    { 
+      icon: Clock, 
+      title: t("features.timeSaving"), 
+      description: t("features.timeSavingDesc"),
+      stat: "x10",
+    },
+  ];
+
+  const steps = [
+    {
+      num: "1",
+      title: t("features.step1Title"),
+      description: t("features.step1Desc"),
+      icon: Link,
+    },
+    {
+      num: "2",
+      title: t("features.step2Title"),
+      description: t("features.step2Desc"),
+      icon: Bot,
+    },
+    {
+      num: "3",
+      title: t("features.step3Title"),
+      description: t("features.step3Desc"),
+      icon: Send,
+    },
+  ];
 
   return (
     <section id="features" className="py-14 sm:py-20 md:py-24 bg-background">
@@ -124,13 +126,13 @@ export const FeaturesSection = () => {
         <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-16">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full mb-5">
             <ChatGPTIcon className="w-4 h-4 text-primary" />
-            <span className="text-primary text-xs sm:text-sm font-semibold">SEO + AEO + IA</span>
+            <span className="text-primary text-xs sm:text-sm font-semibold">{t("features.badge")}</span>
           </div>
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Devancez vos concurrents
+            {t("features.sectionTitle")}
           </h2>
           <p className="text-muted-foreground text-sm sm:text-base">
-            Visibilité Google, ChatGPT, et satisfaction client. Tout en un.
+            {t("features.sectionSubtitle")}
           </p>
         </div>
 
@@ -156,7 +158,7 @@ export const FeaturesSection = () => {
               
               {/* Learn more button */}
               <button className="mt-4 flex items-center gap-1 text-primary text-sm font-medium group-hover:underline transition-all">
-                <span>En savoir plus</span>
+                <span>{t("features.learnMore")}</span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </button>
             </div>
@@ -181,7 +183,7 @@ export const FeaturesSection = () => {
               <div className="mt-4">
                 <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
                   <Target className="w-4 h-4 text-primary" />
-                  Avantages clés
+                  {t("features.keyBenefits")}
                 </h4>
                 <ul className="space-y-2">
                   {feature.details.benefits.map((benefit, i) => (
@@ -196,7 +198,7 @@ export const FeaturesSection = () => {
               </div>
               <div className="mt-6 flex justify-end">
                 <Button onClick={() => setOpenDialog(null)}>
-                  Compris !
+                  {t("features.gotIt")}
                 </Button>
               </div>
             </DialogContent>
@@ -206,8 +208,8 @@ export const FeaturesSection = () => {
         {/* Capabilities with stats */}
         <div className="bg-gradient-to-br from-primary/5 via-background to-secondary/5 rounded-2xl sm:rounded-3xl p-5 sm:p-8 border border-border/50">
           <div className="text-center mb-6 sm:mb-8">
-            <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-foreground mb-2">Pourquoi Starlinko ?</h3>
-            <p className="text-muted-foreground text-xs sm:text-sm">Les avantages qui font la différence</p>
+            <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-foreground mb-2">{t("features.whyStarlinko")}</h3>
+            <p className="text-muted-foreground text-xs sm:text-sm">{t("features.benefitsDesc")}</p>
           </div>
           
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
@@ -232,8 +234,8 @@ export const FeaturesSection = () => {
         {/* How it works - Timeline style for mobile */}
         <div className="mt-12 sm:mt-16">
           <div className="text-center mb-8">
-            <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-foreground mb-2">Comment ça marche ?</h3>
-            <p className="text-muted-foreground text-xs sm:text-sm">3 étapes simples pour démarrer</p>
+            <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-foreground mb-2">{t("features.howItWorks")}</h3>
+            <p className="text-muted-foreground text-xs sm:text-sm">{t("features.stepsDesc")}</p>
           </div>
           
           {/* Mobile: Vertical timeline */}

@@ -110,11 +110,11 @@ export const CTASection = () => {
               </span>
               <span className="flex items-center gap-1.5">
                 <Check className="w-3.5 h-3.5 text-secondary" />
-                {t("common.no")} CB
+                {t("pricing.noCreditCard")}
               </span>
               <span className="flex items-center gap-1.5">
                 <Check className="w-3.5 h-3.5 text-secondary" />
-                {t("common.cancel")}
+                {t("pricing.cancelAnytime")}
               </span>
             </div>
           </div>

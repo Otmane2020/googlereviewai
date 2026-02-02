@@ -12,86 +12,88 @@ import {
   ArrowRight
 } from "lucide-react";
 import { Link } from "react-router-dom";
-
-const sectors = [
-  {
-    icon: ChefHat,
-    name: "Restaurants",
-    description: "Pizzerias, brasseries, gastronomiques, fast-food... Répondez à chaque avis avec le ton adapté à votre cuisine.",
-    link: "/avis-ai-restaurant",
-    color: "text-orange-500",
-    bgColor: "bg-orange-100 dark:bg-orange-900/30"
-  },
-  {
-    icon: Hotel,
-    name: "Hôtels",
-    description: "Réponses multilingues 24h/24 pour vos clients internationaux. Du boutique-hôtel au palace.",
-    link: "/avis-ai-hotel",
-    color: "text-blue-500",
-    bgColor: "bg-blue-100 dark:bg-blue-900/30"
-  },
-  {
-    icon: Scissors,
-    name: "Salons de coiffure & beauté",
-    description: "Fidélisez votre clientèle avec des réponses chaleureuses qui reflètent l'ambiance de votre salon.",
-    link: "/auth",
-    color: "text-pink-500",
-    bgColor: "bg-pink-100 dark:bg-pink-900/30"
-  },
-  {
-    icon: Car,
-    name: "Garages & concessions",
-    description: "Gérez les avis techniques avec professionnalisme. Rassurez vos futurs clients sur la qualité de vos services.",
-    link: "/auth",
-    color: "text-slate-500",
-    bgColor: "bg-slate-100 dark:bg-slate-900/30"
-  },
-  {
-    icon: Stethoscope,
-    name: "Professionnels de santé",
-    description: "Médecins, dentistes, kinés... Réponses conformes et professionnelles pour votre cabinet.",
-    link: "/auth",
-    color: "text-emerald-500",
-    bgColor: "bg-emerald-100 dark:bg-emerald-900/30"
-  },
-  {
-    icon: Store,
-    name: "Commerces de proximité",
-    description: "Boulangeries, épiceries, fleuristes... Gardez le contact avec vos clients du quartier.",
-    link: "/auth",
-    color: "text-amber-500",
-    bgColor: "bg-amber-100 dark:bg-amber-900/30"
-  },
-  {
-    icon: Wrench,
-    name: "Artisans & BTP",
-    description: "Plombiers, électriciens, maçons... Mettez en avant votre sérieux et votre expertise.",
-    link: "/auth",
-    color: "text-yellow-600",
-    bgColor: "bg-yellow-100 dark:bg-yellow-900/30"
-  },
-  {
-    icon: GraduationCap,
-    name: "Formation & coaching",
-    description: "Auto-écoles, centres de formation, coachs... Valorisez les retours positifs de vos élèves.",
-    link: "/auth",
-    color: "text-violet-500",
-    bgColor: "bg-violet-100 dark:bg-violet-900/30"
-  }
-];
+import { useTranslation } from "react-i18next";
 
 export const SectorsSection = () => {
+  const { t } = useTranslation();
+
+  const sectors = [
+    {
+      icon: ChefHat,
+      name: t("sectors.restaurants"),
+      description: t("sectors.restaurantsDesc"),
+      link: "/avis-ai-restaurant",
+      color: "text-orange-500",
+      bgColor: "bg-orange-100 dark:bg-orange-900/30"
+    },
+    {
+      icon: Hotel,
+      name: t("sectors.hotels"),
+      description: t("sectors.hotelsDesc"),
+      link: "/avis-ai-hotel",
+      color: "text-blue-500",
+      bgColor: "bg-blue-100 dark:bg-blue-900/30"
+    },
+    {
+      icon: Scissors,
+      name: t("sectors.beauty"),
+      description: t("sectors.beautyDesc"),
+      link: "/auth",
+      color: "text-pink-500",
+      bgColor: "bg-pink-100 dark:bg-pink-900/30"
+    },
+    {
+      icon: Car,
+      name: t("sectors.automotive"),
+      description: t("sectors.automotiveDesc"),
+      link: "/auth",
+      color: "text-slate-500",
+      bgColor: "bg-slate-100 dark:bg-slate-900/30"
+    },
+    {
+      icon: Stethoscope,
+      name: t("sectors.healthcare"),
+      description: t("sectors.healthcareDesc"),
+      link: "/auth",
+      color: "text-emerald-500",
+      bgColor: "bg-emerald-100 dark:bg-emerald-900/30"
+    },
+    {
+      icon: Store,
+      name: t("sectors.retail"),
+      description: t("sectors.retailDesc"),
+      link: "/auth",
+      color: "text-amber-500",
+      bgColor: "bg-amber-100 dark:bg-amber-900/30"
+    },
+    {
+      icon: Wrench,
+      name: t("sectors.construction"),
+      description: t("sectors.constructionDesc"),
+      link: "/auth",
+      color: "text-yellow-600",
+      bgColor: "bg-yellow-100 dark:bg-yellow-900/30"
+    },
+    {
+      icon: GraduationCap,
+      name: t("sectors.education"),
+      description: t("sectors.educationDesc"),
+      link: "/auth",
+      color: "text-violet-500",
+      bgColor: "bg-violet-100 dark:bg-violet-900/30"
+    }
+  ];
+
   return (
     <section className="py-16 sm:py-24 bg-muted/30">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
-          <Badge className="mb-4">Tous secteurs</Badge>
+          <Badge className="mb-4">{t("sectors.badge")}</Badge>
           <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-            Une solution pour chaque métier
+            {t("sectors.title")}
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Starlinko s'adapte à votre secteur d'activité avec un ton et des réponses personnalisées 
-            qui correspondent à votre image de marque.
+            {t("sectors.subtitle")}
           </p>
         </div>
         

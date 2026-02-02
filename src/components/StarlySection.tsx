@@ -3,6 +3,7 @@ import { Button } from "./ui/button";
 import { Check, Clock, Shield, Zap, ArrowRight, Star } from "lucide-react";
 import starlyLogo from "@/assets/starly-logo.png";
 import starlyAction from "@/assets/starly-action.png";
+import { useTranslation } from "react-i18next";
 
 const GoogleIcon = ({ className = "w-5 h-5" }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24">
@@ -14,6 +15,7 @@ const GoogleIcon = ({ className = "w-5 h-5" }: { className?: string }) => (
 );
 
 export const StarlySection = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   return (
@@ -23,14 +25,15 @@ export const StarlySection = () => {
         <div className="text-center mb-12 sm:mb-16">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full border border-primary/20 mb-6">
             <div className="w-2 h-2 bg-secondary rounded-full animate-pulse" />
-            <span className="text-primary text-sm font-medium">Assistant IA Officiel</span>
+            <span className="text-primary text-sm font-medium">{t("starly.badge")}</span>
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4">
-            Rencontrez <span className="text-primary">Starly</span>
+            {t("starly.title")} <span className="text-primary">Starly</span>
           </h2>
           <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto">
-            Votre robot officiel qui gère vos avis Google <strong className="text-foreground">24h/24, 7j/7</strong>. 
-            Recrutez Starly et gagnez en tranquillité !
+            {t("starly.whoIsDesc").split("24h/24, 7j/7")[0]}
+            <strong className="text-foreground">24h/24, 7j/7</strong>
+            {t("starly.whoIsDesc").includes("24h/24, 7j/7") ? "" : ""}
           </p>
         </div>
 
@@ -41,31 +44,31 @@ export const StarlySection = () => {
             <div className="absolute -top-20 -right-20 w-40 h-40 bg-primary/5 rounded-full blur-3xl" />
             <img 
               src={starlyLogo} 
-              alt="Starly - Assistant IA" 
+              alt="Starly - AI Assistant" 
               className="w-48 sm:w-56 mb-6 relative z-10"
             />
             <h3 className="text-xl sm:text-2xl font-bold text-foreground mb-3">
-              Qui est Starly ?
+              {t("starly.whoIs")}
             </h3>
             <p className="text-muted-foreground mb-6">
-              Starly est votre assistant IA dédié, conçu pour gérer automatiquement tous vos avis Google avec intelligence et réactivité.
+              {t("starly.whoIsDesc")}
             </p>
             <div className="grid grid-cols-2 gap-3 w-full">
               <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-xl">
                 <Clock className="w-4 h-4 text-primary flex-shrink-0" />
-                <span className="text-sm text-foreground">Disponible 24/7</span>
+                <span className="text-sm text-foreground">{t("starly.available")}</span>
               </div>
               <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-xl">
                 <Zap className="w-4 h-4 text-secondary flex-shrink-0" />
-                <span className="text-sm text-foreground">Ultra rapide</span>
+                <span className="text-sm text-foreground">{t("starly.ultraFast")}</span>
               </div>
               <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-xl">
                 <Shield className="w-4 h-4 text-primary flex-shrink-0" />
-                <span className="text-sm text-foreground">100% fiable</span>
+                <span className="text-sm text-foreground">{t("starly.reliable")}</span>
               </div>
               <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-xl">
                 <Star className="w-4 h-4 text-secondary flex-shrink-0" />
-                <span className="text-sm text-foreground">Personnalisé</span>
+                <span className="text-sm text-foreground">{t("starly.personalized")}</span>
               </div>
             </div>
           </div>
@@ -75,27 +78,27 @@ export const StarlySection = () => {
             <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-secondary/5 rounded-full blur-3xl" />
             <img 
               src={starlyAction} 
-              alt="Starly gère vos avis Google" 
+              alt="Starly manages your Google reviews" 
               className="w-56 sm:w-64 mb-6 relative z-10"
             />
             <h3 className="text-xl sm:text-2xl font-bold text-foreground mb-3">
-              Ce que fait Starly
+              {t("starly.whatDoes")}
             </h3>
             <p className="text-muted-foreground mb-6">
-              Starly répond à chaque avis avec le bon ton, améliore votre e-réputation et vous fait gagner un temps précieux.
+              {t("starly.whatDoesDesc")}
             </p>
             <div className="space-y-2 w-full text-left">
               <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-xl">
                 <GoogleIcon className="w-5 h-5 flex-shrink-0" />
-                <span className="text-sm text-foreground">Répond à tous vos avis Google automatiquement</span>
+                <span className="text-sm text-foreground">{t("starly.respondsAuto")}</span>
               </div>
               <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-xl">
                 <Check className="w-4 h-4 text-secondary flex-shrink-0" />
-                <span className="text-sm text-foreground">Analyse le sentiment et adapte le ton</span>
+                <span className="text-sm text-foreground">{t("starly.analyzesSentiment")}</span>
               </div>
               <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-xl">
                 <Check className="w-4 h-4 text-secondary flex-shrink-0" />
-                <span className="text-sm text-foreground">Publie directement sur Google Business</span>
+                <span className="text-sm text-foreground">{t("starly.publishesDirect")}</span>
               </div>
             </div>
           </div>
@@ -110,17 +113,17 @@ export const StarlySection = () => {
             onClick={() => navigate("/auth")}
           >
             <Zap className="w-5 h-5" />
-            Recruter Starly
+            {t("starly.recruit")}
             <ArrowRight className="w-4 h-4" />
           </Button>
           <div className="flex flex-wrap items-center justify-center gap-4 mt-5 text-muted-foreground text-xs">
             <span className="flex items-center gap-1.5">
               <Check className="w-3.5 h-3.5 text-secondary" />
-              Essai gratuit 3 jours
+              {t("starly.freeTrial")}
             </span>
             <span className="flex items-center gap-1.5">
               <Check className="w-3.5 h-3.5 text-secondary" />
-              Sans engagement
+              {t("starly.noCommitment")}
             </span>
           </div>
         </div>
