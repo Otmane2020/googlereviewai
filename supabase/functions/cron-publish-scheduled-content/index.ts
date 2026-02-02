@@ -6,6 +6,40 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Helper function to get current hour in a specific timezone
+function getCurrentHourInTimezone(timezone: string): number {
+  try {
+    const now = new Date();
+    const formatter = new Intl.DateTimeFormat("en-US", {
+      timeZone: timezone,
+      hour: "numeric",
+      hour12: false,
+    });
+    const hourStr = formatter.format(now);
+    return parseInt(hourStr, 10);
+  } catch (error) {
+    console.error(`[CRON-PUBLISH] Invalid timezone ${timezone}, falling back to UTC:`, error);
+    return new Date().getUTCHours();
+  }
+}
+
+// Helper function to get today's date in a specific timezone
+function getTodayInTimezone(timezone: string): string {
+  try {
+    const now = new Date();
+    const formatter = new Intl.DateTimeFormat("en-CA", {
+      timeZone: timezone,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    });
+    return formatter.format(now); // Returns YYYY-MM-DD format
+  } catch (error) {
+    console.error(`[CRON-PUBLISH] Invalid timezone ${timezone}, falling back to UTC:`, error);
+    return new Date().toISOString().split("T")[0];
+  }
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -17,33 +51,46 @@ serve(async (req) => {
     
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Get current hour in UTC
-    const now = new Date();
-    const currentHour = now.getUTCHours();
-    const today = now.toISOString().split("T")[0];
+    const utcNow = new Date();
+    console.log(`[CRON-PUBLISH] Starting publication check at ${utcNow.toISOString()}`);
 
-    console.log(`[CRON-PUBLISH] Starting publication check at ${currentHour}:00 UTC for ${today}`);
-
-    // Find users whose publication_hour matches current hour
-    const { data: usersToPublish, error: usersError } = await supabase
+    // Get all users with their publication settings including timezone
+    const { data: allUserSettings, error: usersError } = await supabase
       .from("ai_settings")
-      .select("user_id, publication_hour")
-      .eq("publication_hour", currentHour);
+      .select("user_id, publication_hour, timezone");
 
     if (usersError) {
       console.error("[CRON-PUBLISH] Error fetching users:", usersError);
       throw usersError;
     }
 
-    console.log(`[CRON-PUBLISH] Found ${usersToPublish?.length || 0} users with publication_hour=${currentHour}`);
+    console.log(`[CRON-PUBLISH] Checking ${allUserSettings?.length || 0} users for publication time`);
+
+    // Filter users whose local time matches their publication_hour
+    const usersToPublish = (allUserSettings || []).filter((userSetting) => {
+      const timezone = userSetting.timezone || "Europe/Paris";
+      const currentLocalHour = getCurrentHourInTimezone(timezone);
+      const publicationHour = userSetting.publication_hour ?? 7;
+      
+      const shouldPublish = currentLocalHour === publicationHour;
+      if (shouldPublish) {
+        console.log(`[CRON-PUBLISH] User ${userSetting.user_id}: Local time is ${currentLocalHour}:00 (${timezone}), matches publication_hour ${publicationHour}`);
+      }
+      return shouldPublish;
+    });
+
+    console.log(`[CRON-PUBLISH] Found ${usersToPublish.length} users ready for publication`);
 
     let publishedAEO = 0;
     let publishedSEO = 0;
     let errors = 0;
 
-    for (const userSetting of usersToPublish || []) {
+    for (const userSetting of usersToPublish) {
       const userId = userSetting.user_id;
-      console.log(`[CRON-PUBLISH] Processing user ${userId}`);
+      const timezone = userSetting.timezone || "Europe/Paris";
+      const today = getTodayInTimezone(timezone);
+      
+      console.log(`[CRON-PUBLISH] Processing user ${userId} (timezone: ${timezone}, today: ${today})`);
 
       // Get user's active businesses
       const { data: businesses } = await supabase
@@ -151,8 +198,9 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({
         success: true,
-        current_hour: currentHour,
-        users_checked: usersToPublish?.length || 0,
+        utc_time: utcNow.toISOString(),
+        users_checked: allUserSettings?.length || 0,
+        users_published: usersToPublish.length,
         published_aeo: publishedAEO,
         published_seo: publishedSEO,
         errors,
