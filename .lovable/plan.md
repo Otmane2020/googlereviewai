@@ -1,178 +1,100 @@
 
-# Plan: Bouton Google Play + Détection Android + Fix Notifications
 
-## Résumé du problème
+# Diagnostic : Écran blanc sur anciens appareils mobiles
 
-**3 demandes principales :**
-1. **Ajouter un bouton "Installer depuis Google Play"** sur la landing page
-2. **Détecter Android** pour proposer Google Play au lieu de la PWA
-3. **Fix des notifications push** qui affichent "Non supporté par ce navigateur" dans l'app native
+## Problèmes identifiés
 
-## Analyse technique
+### 1. Conflit entre deux Service Workers (CRITIQUE)
+Le projet a **deux systèmes de Service Worker** qui entrent en conflit :
 
-### Pourquoi les notifications ne fonctionnent pas dans l'app native ?
+- **`public/sw.js`** : Service Worker personnalisé avec PushAlert (que nous venons de modifier)
+- **`vite-plugin-pwa`** dans `vite.config.ts` : Génère automatiquement un autre Service Worker via Workbox
 
-Le système actuel utilise **PushAlert** (Web Push API) qui fonctionne uniquement dans un navigateur web. Quand l'app est installée via le Play Store (Capacitor), elle s'exécute dans une **WebView native** où :
-- L'objet `Notification` n'existe pas ou retourne "unsupported"
-- Le SDK PushAlert ne peut pas s'initialiser correctement
-- Le Service Worker PushAlert ne fonctionne pas
+Sur les anciens appareils, ce conflit peut provoquer :
+- Cache corrompu
+- Boucles de mise à jour infinies
+- Écran blanc car le SW sert un ancien fichier HTML vide
 
-**Solution :** Pour les notifications dans l'app native, il faut utiliser **Firebase Cloud Messaging (FCM)** avec le plugin Capacitor. Mais comme l'app native est déjà publiée sur le Play Store, je vais d'abord **améliorer la détection et l'UX** côté web pour éviter la confusion.
+### 2. JavaScript moderne non supporté
+Certaines syntaxes JavaScript peuvent ne pas être supportées sur d'anciens navigateurs :
+- Optional chaining (`?.`)
+- Nullish coalescing (`??`)
+- `navigator.languages` (peut être undefined)
 
----
-
-## Plan d'implémentation
-
-### 1. Créer un hook `useDeviceDetection`
-Un hook réutilisable pour détecter le type d'appareil et le contexte d'exécution.
-
-```text
-src/hooks/useDeviceDetection.ts
-
-Détecte :
-├── isAndroid : true si Android
-├── isIOS : true si iOS  
-├── isNativeApp : true si WebView Capacitor
-├── isMobile : true si mobile
-└── canUsePushAlert : false si native app (WebView)
-```
-
-### 2. Ajouter le bouton Google Play sur la landing page
-
-**Fichiers modifiés :**
-- `src/components/HeroSection.tsx` : Ajout du badge Google Play
-- `src/components/MobileStickyButton.tsx` : Logique conditionnelle Android
-- `src/components/CTASection.tsx` : Bouton alternatif pour Android
-- `src/components/Footer.tsx` : Lien vers le Play Store
-
-**Logique :**
-- Desktop → Bouton "Essai gratuit" (vers /auth)
-- Android → Bouton "Installer l'app" (vers Google Play)
-- iOS → Bouton "Essai gratuit" + Guide PWA
-
-**URL Google Play :**
-```
-https://play.google.com/store/apps/details?id=com.world.fi.starlinko
-```
-
-### 3. Créer le composant `GooglePlayButton`
-
-Un composant réutilisable avec le badge officiel "Get it on Google Play" :
-
-```text
-src/components/GooglePlayButton.tsx
-
-Props :
-├── variant : "badge" | "button" | "link"
-├── className : styles additionnels
-└── size : "sm" | "md" | "lg"
-```
-
-### 4. Fix UX des notifications dans Settings
-
-**Problème :** L'app native affiche "Non supporté par ce navigateur" au lieu d'un message clair.
-
-**Solution :**
-
-```text
-Contexte : App native (WebView)
-┌─────────────────────────────────────────────────────┐
-│ 🔔 Notifications Push                              │
-│                                                     │
-│ ✓ Notifications activées via Android               │
-│                                                     │
-│ Les notifications sont gérées par le système       │
-│ Android. Vérifiez dans :                           │
-│ Paramètres > Applications > Starlinko > Notifs     │
-│                                                     │
-│ [Ouvrir les paramètres Android]                    │
-└─────────────────────────────────────────────────────┘
-```
-
-**Fichier modifié :** `src/pages/Settings.tsx`
-
-### 5. Améliorer NotificationPrompt pour l'app native
-
-Ne plus afficher le prompt de notification si on est dans une WebView native (car les permissions Android sont déjà gérées au niveau système).
-
-**Fichier modifié :** `src/components/NotificationPrompt.tsx`
-
-### 6. Ne plus montrer InstallPrompt dans l'app native
-
-L'invite d'installation PWA ne doit pas apparaître si l'utilisateur est déjà dans l'app native.
-
-**Fichier modifié :** `src/components/InstallPrompt.tsx`
-
----
-
-## Résumé des fichiers
-
-| Action | Fichier |
-|--------|---------|
-| Créer | `src/hooks/useDeviceDetection.ts` |
-| Créer | `src/components/GooglePlayButton.tsx` |
-| Modifier | `src/components/HeroSection.tsx` |
-| Modifier | `src/components/MobileStickyButton.tsx` |
-| Modifier | `src/components/CTASection.tsx` |
-| Modifier | `src/components/Footer.tsx` |
-| Modifier | `src/pages/Settings.tsx` |
-| Modifier | `src/components/NotificationPrompt.tsx` |
-| Modifier | `src/components/InstallPrompt.tsx` |
-
----
-
-## Section technique détaillée
-
-### Détection WebView Capacitor
-
+### 3. Condition d'initialisation bloquante dans App.tsx
 ```typescript
-const isNativeApp = () => {
-  // Capacitor injecte ce flag
-  return !!(window as any).Capacitor?.isNativePlatform?.();
-};
-
-const isAndroid = () => {
-  return /Android/i.test(navigator.userAgent);
-};
+// Ligne 123-125 : Si hasRunInit reste false, rien ne s'affiche
+if (!hasRunInit) {
+  return null;
+}
 ```
+Si le timer de 50ms échoue (ce qui peut arriver sur un appareil lent), l'app reste blanche.
 
-### Logique UX pour les notifications
+---
 
-```text
-┌─────────────────────────────────────────┐
-│           Utilisateur ouvre l'app       │
-└─────────────────────────────────────────┘
-                    │
-                    ▼
-        ┌───────────────────────┐
-        │  Est-ce une app      │
-        │  native (Capacitor)? │
-        └───────────────────────┘
-                    │
-           ┌────────┴────────┐
-           │                 │
-           ▼                 ▼
-    ┌──────────┐      ┌──────────────┐
-    │   OUI    │      │     NON      │
-    │ (Native) │      │   (Web/PWA)  │
-    └──────────┘      └──────────────┘
-           │                 │
-           ▼                 ▼
-    ┌──────────────┐  ┌──────────────────┐
-    │ Masquer le   │  │ Afficher le      │
-    │ prompt push  │  │ prompt PushAlert │
-    │              │  │                  │
-    │ Afficher:    │  │ Fonctionnement   │
-    │ "Géré par    │  │ normal           │
-    │  Android"    │  │                  │
-    └──────────────┘  └──────────────────┘
+## Plan de correction
+
+### Étape 1 : Désactiver le Service Worker de vite-plugin-pwa
+Modifier `vite.config.ts` pour utiliser uniquement le SW personnalisé :
+- Mettre `registerType: "prompt"` au lieu de `"autoUpdate"`
+- Désactiver `injectRegister`
+
+### Étape 2 : Améliorer la robustesse du sw.js
+Ajouter :
+- Un listener pour le message `SKIP_WAITING`
+- Meilleure gestion des erreurs
+- Version de cache mise à jour (v3)
+
+### Étape 3 : Sécuriser l'initialisation de l'app
+Modifier `App.tsx` pour :
+- Afficher un fallback (loader) au lieu de `null` pendant l'initialisation
+- Ajouter un timeout de sécurité plus long
+- Gérer les erreurs silencieuses
+
+### Étape 4 : Polyfill pour anciens navigateurs
+Ajouter une protection dans `i18n/config.ts` :
+```typescript
+const languages = navigator.languages || [navigator.language] || ['en'];
 ```
 
 ---
 
-## Résultat attendu
+## Section technique
 
-1. **Landing page :** Sur Android, le bouton principal devient "Installer l'app" avec le lien Play Store
-2. **Settings (app native) :** Message clair "Notifications gérées par Android" avec bouton pour ouvrir les paramètres système
-3. **Pas de prompts inutiles :** Plus de popup d'installation PWA ni de prompt notification dans l'app native
-4. **Badge Google Play :** Visible dans le footer et la section CTA pour tous les utilisateurs
+### Fichiers à modifier
+
+| Fichier | Modification |
+|---------|-------------|
+| `vite.config.ts` | Désactiver l'auto-registration du SW PWA |
+| `public/sw.js` | Ajouter listener SKIP_WAITING, version v3 |
+| `src/App.tsx` | Afficher loader au lieu de null, timeout sécurisé |
+| `src/i18n/config.ts` | Fallback pour navigateur.languages undefined |
+
+### Architecture corrigée du Service Worker
+
+```text
+┌─────────────────────────────────────────────────┐
+│                   Navigateur                     │
+├─────────────────────────────────────────────────┤
+│                                                  │
+│  ┌──────────────────────────────────────────┐   │
+│  │          public/sw.js (unique)           │   │
+│  │  - Gère le cache manuellement            │   │
+│  │  - Import PushAlert SDK                  │   │
+│  │  - skipWaiting() + clients.claim()       │   │
+│  └──────────────────────────────────────────┘   │
+│                                                  │
+│  ┌──────────────────────────────────────────┐   │
+│  │         vite-plugin-pwa (manifest seul)  │   │
+│  │  - Génère manifest.webmanifest           │   │
+│  │  - PAS de Service Worker                 │   │
+│  └──────────────────────────────────────────┘   │
+│                                                  │
+└─────────────────────────────────────────────────┘
+```
+
+### Tests recommandés après correction
+1. Publier le site pour activer le nouveau SW
+2. Sur l'ancien appareil : effacer les données du site (ou utiliser navigation privée)
+3. Vérifier que la page se charge correctement
+
