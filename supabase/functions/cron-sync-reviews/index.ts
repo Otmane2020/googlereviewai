@@ -403,31 +403,18 @@ async function syncLocationReviews(
       console.warn(`[CRON] ⚠️ Reached max pages (${MAX_PAGES})`);
     }
 
-    // DELETION DETECTION: Remove reviews that no longer exist on Google
-    // GUARD 1: Skip deletion if there were API errors during sync
-    const hasCriticalErrors = errors.some(e => 
-      e.includes("403") || e.includes("429") || e.includes("Permission denied")
-    );
+    // DELETION DETECTION: DISABLED
+    // The Google API pagination is unreliable and causes too many false positives
+    // Reviews will remain in DB even if deleted from Google - this is acceptable
+    // Use the Admin "Réconciliation" tool to manually clean ghost reviews if needed
+    console.log(`[CRON] [INFO] Deletion detection disabled to prevent false alerts. Fetched ${allGoogleReviewIds.length} reviews, Google reports ${googleTotalReviewCount || 'unknown'}`);
     
-    // GUARD 2: Skip if pagination was incomplete (fetched less than Google reports)
-    const paginationIncomplete = googleTotalReviewCount !== undefined && 
-      allGoogleReviewIds.length < googleTotalReviewCount;
-    
-    if (paginationIncomplete) {
-      console.log(`[CRON] [SAFETY] Skipping deletion detection - incomplete pagination: fetched ${allGoogleReviewIds.length}/${googleTotalReviewCount} reviews`);
-    } else if (hasCriticalErrors) {
-      console.log(`[CRON] [SAFETY] Skipping deletion detection due to API errors - avoiding false positives`);
-    } else if (allGoogleReviewIds.length > 0 && existingReviews && existingReviews.length > 0) {
+    // Keep the variable for logging but don't process deletions
+    const _deletionCheckDisabled = true;
+    if (false && allGoogleReviewIds.length > 0 && existingReviews && existingReviews.length > 0) {
+      // This code is intentionally disabled
       const googleReviewIdSet = new Set(allGoogleReviewIds);
       let reviewsToDelete = existingReviews.filter((r: any) => !googleReviewIdSet.has(r.review_id));
-      
-      // GUARD 3: Safety threshold - max 10% deletions (reduced from 20%) AND max 5 absolute
-      const maxDeletionsPercent = Math.ceil(existingReviews.length * 0.10);
-      const maxDeletions = Math.min(maxDeletionsPercent, 5);
-      if (reviewsToDelete.length > maxDeletions && maxDeletions > 0) {
-        console.warn(`[CRON] [SAFETY] Too many deletions detected (${reviewsToDelete.length}), capping at ${maxDeletions} (10% / max 5 threshold)`);
-        reviewsToDelete = reviewsToDelete.slice(0, maxDeletions);
-      }
       
       if (reviewsToDelete.length > 0) {
         console.log(`[CRON] 🗑️ Found ${reviewsToDelete.length} deleted reviews to remove`);
