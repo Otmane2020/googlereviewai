@@ -30,11 +30,7 @@ export const NotificationPrompt = () => {
   const [isSubscribing, setIsSubscribing] = useState(false);
   const [isAlreadySubscribed, setIsAlreadySubscribed] = useState(false);
 
-  // Don't show in native app - notifications are handled by Android system
-  if (isNativeApp) {
-    return null;
-  }
-
+  // ✅ All hooks MUST be called before any conditional return
   // Check notification permission and PushAlert subscription status
   useEffect(() => {
     if ("Notification" in window) {
@@ -138,6 +134,12 @@ export const NotificationPrompt = () => {
       return () => clearTimeout(timeout);
     }
   }, [isInstalled, isStandalone, canInstall, isIOS]);
+
+  // ✅ All conditional returns AFTER hooks
+  // Don't show in native app - notifications are handled by Android system
+  if (isNativeApp) {
+    return null;
+  }
 
   const handleDismiss = () => {
     setDismissed(true);
