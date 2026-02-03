@@ -119,9 +119,27 @@ const AppContent = () => {
     localStorage.setItem("starlinko_onboarding_completed", "true");
   };
 
-  // Show nothing while we determine standalone status
+  // Show minimal loader while we determine standalone status (instead of null for old devices)
   if (!hasRunInit) {
-    return null;
+    return (
+      <div style={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center', 
+        height: '100vh',
+        backgroundColor: '#ffffff'
+      }}>
+        <div style={{
+          width: '40px',
+          height: '40px',
+          border: '3px solid #e5e7eb',
+          borderTopColor: '#3b82f6',
+          borderRadius: '50%',
+          animation: 'spin 1s linear infinite'
+        }} />
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      </div>
+    );
   }
 
   return (

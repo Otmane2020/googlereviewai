@@ -14,7 +14,8 @@ export default defineConfig(({ mode }) => ({
     react(),
     mode === "development" && componentTagger(),
     VitePWA({
-      registerType: "autoUpdate",
+      registerType: "prompt",
+      injectRegister: false,
       includeAssets: ["favicon.ico", "robots.txt", "sitemap.xml", "icon-512x512.png", "splash.png", "pwa-192x192.png"],
       manifest: {
         name: "Starlinko - Gestion des avis Google",
