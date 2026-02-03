@@ -10,17 +10,7 @@ export const InstallPrompt = () => {
   const [dismissed, setDismissed] = useState(false);
   const [showIOSGuide, setShowIOSGuide] = useState(false);
 
-  // Don't show if already in native app (Play Store install)
-  if (isNativeApp) {
-    return null;
-  }
-  
-  // Don't show on Android - they should use Google Play
-  if (isAndroid) {
-    return null;
-  }
-
-  // Check if already dismissed recently
+  // ✅ Hook MUST be called before any conditional return
   useEffect(() => {
     const lastDismissed = localStorage.getItem("install-prompt-dismissed");
     if (lastDismissed) {
@@ -31,6 +21,17 @@ export const InstallPrompt = () => {
       }
     }
   }, []);
+
+  // ✅ All conditional returns AFTER hooks
+  // Don't show if already in native app (Play Store install)
+  if (isNativeApp) {
+    return null;
+  }
+  
+  // Don't show on Android - they should use Google Play
+  if (isAndroid) {
+    return null;
+  }
 
   const handleDismiss = () => {
     setDismissed(true);
