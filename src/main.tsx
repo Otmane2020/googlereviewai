@@ -58,8 +58,8 @@ async function ensureServiceWorker() {
   }
 }
 
-// Fire-and-forget
-maybeHardResetCachesOnce();
+// Fire-and-forget - cache reset disabled to prevent flash/reload loops
+// maybeHardResetCachesOnce();
 ensureServiceWorker();
 
 createRoot(document.getElementById("root")!).render(<App />);
