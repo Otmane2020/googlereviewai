@@ -1,100 +1,93 @@
 
+# Correction urgente : Écran blanc sur Opera Mobile
 
-# Diagnostic : Écran blanc sur anciens appareils mobiles
+## Problème identifié
 
-## Problèmes identifiés
+Les composants `InstallPrompt` et `NotificationPrompt` violent les **règles des hooks React** : ils font un `return null` AVANT d'appeler les hooks `useEffect`. 
 
-### 1. Conflit entre deux Service Workers (CRITIQUE)
-Le projet a **deux systèmes de Service Worker** qui entrent en conflit :
+Sur certains navigateurs (notamment Opera), cela provoque l'erreur fatale :
+> **"Rendered fewer hooks than expected"**
 
-- **`public/sw.js`** : Service Worker personnalisé avec PushAlert (que nous venons de modifier)
-- **`vite-plugin-pwa`** dans `vite.config.ts` : Génère automatiquement un autre Service Worker via Workbox
+Cette erreur casse complètement le rendu de l'application → écran blanc.
 
-Sur les anciens appareils, ce conflit peut provoquer :
-- Cache corrompu
-- Boucles de mise à jour infinies
-- Écran blanc car le SW sert un ancien fichier HTML vide
+## Fichiers à modifier
 
-### 2. JavaScript moderne non supporté
-Certaines syntaxes JavaScript peuvent ne pas être supportées sur d'anciens navigateurs :
-- Optional chaining (`?.`)
-- Nullish coalescing (`??`)
-- `navigator.languages` (peut être undefined)
+| Fichier | Problème |
+|---------|----------|
+| `src/components/InstallPrompt.tsx` | `return null` aux lignes 14-21 AVANT le `useEffect` ligne 24 |
+| `src/components/NotificationPrompt.tsx` | `return null` aux lignes 34-36 AVANT les `useEffect` lignes 39+ |
 
-### 3. Condition d'initialisation bloquante dans App.tsx
-```typescript
-// Ligne 123-125 : Si hasRunInit reste false, rien ne s'affiche
-if (!hasRunInit) {
-  return null;
-}
-```
-Si le timer de 50ms échoue (ce qui peut arriver sur un appareil lent), l'app reste blanche.
+## Solution
+
+Déplacer TOUS les `return null` conditionnels **APRÈS** tous les hooks. Les hooks doivent être appelés en premier, peu importe les conditions.
 
 ---
 
-## Plan de correction
+## Détails techniques
 
-### Étape 1 : Désactiver le Service Worker de vite-plugin-pwa
-Modifier `vite.config.ts` pour utiliser uniquement le SW personnalisé :
-- Mettre `registerType: "prompt"` au lieu de `"autoUpdate"`
-- Désactiver `injectRegister`
+### InstallPrompt.tsx - Avant
+```tsx
+export const InstallPrompt = () => {
+  const { ... } = usePWA();
+  const { isNativeApp, isAndroid } = useDeviceDetection();
+  const [dismissed, setDismissed] = useState(false);
+  
+  // ❌ ERREUR : return avant useEffect
+  if (isNativeApp) return null;
+  if (isAndroid) return null;
 
-### Étape 2 : Améliorer la robustesse du sw.js
-Ajouter :
-- Un listener pour le message `SKIP_WAITING`
-- Meilleure gestion des erreurs
-- Version de cache mise à jour (v3)
-
-### Étape 3 : Sécuriser l'initialisation de l'app
-Modifier `App.tsx` pour :
-- Afficher un fallback (loader) au lieu de `null` pendant l'initialisation
-- Ajouter un timeout de sécurité plus long
-- Gérer les erreurs silencieuses
-
-### Étape 4 : Polyfill pour anciens navigateurs
-Ajouter une protection dans `i18n/config.ts` :
-```typescript
-const languages = navigator.languages || [navigator.language] || ['en'];
+  useEffect(() => { ... }, []); // Hook après return = crash
 ```
 
----
+### InstallPrompt.tsx - Après
+```tsx
+export const InstallPrompt = () => {
+  const { ... } = usePWA();
+  const { isNativeApp, isAndroid } = useDeviceDetection();
+  const [dismissed, setDismissed] = useState(false);
+  
+  // ✅ useEffect EN PREMIER
+  useEffect(() => { ... }, []);
 
-## Section technique
-
-### Fichiers à modifier
-
-| Fichier | Modification |
-|---------|-------------|
-| `vite.config.ts` | Désactiver l'auto-registration du SW PWA |
-| `public/sw.js` | Ajouter listener SKIP_WAITING, version v3 |
-| `src/App.tsx` | Afficher loader au lieu de null, timeout sécurisé |
-| `src/i18n/config.ts` | Fallback pour navigateur.languages undefined |
-
-### Architecture corrigée du Service Worker
-
-```text
-┌─────────────────────────────────────────────────┐
-│                   Navigateur                     │
-├─────────────────────────────────────────────────┤
-│                                                  │
-│  ┌──────────────────────────────────────────┐   │
-│  │          public/sw.js (unique)           │   │
-│  │  - Gère le cache manuellement            │   │
-│  │  - Import PushAlert SDK                  │   │
-│  │  - skipWaiting() + clients.claim()       │   │
-│  └──────────────────────────────────────────┘   │
-│                                                  │
-│  ┌──────────────────────────────────────────┐   │
-│  │         vite-plugin-pwa (manifest seul)  │   │
-│  │  - Génère manifest.webmanifest           │   │
-│  │  - PAS de Service Worker                 │   │
-│  └──────────────────────────────────────────┘   │
-│                                                  │
-└─────────────────────────────────────────────────┘
+  // ✅ Conditions APRÈS les hooks
+  if (isNativeApp) return null;
+  if (isAndroid) return null;
 ```
 
-### Tests recommandés après correction
-1. Publier le site pour activer le nouveau SW
-2. Sur l'ancien appareil : effacer les données du site (ou utiliser navigation privée)
-3. Vérifier que la page se charge correctement
+### NotificationPrompt.tsx - Avant
+```tsx
+export const NotificationPrompt = () => {
+  const { user, loading } = useAuth();
+  // ... autres hooks
+  
+  // ❌ ERREUR : return avant useEffect
+  if (isNativeApp) return null;
+
+  useEffect(() => { ... }, [user]); // Crash
+```
+
+### NotificationPrompt.tsx - Après
+```tsx
+export const NotificationPrompt = () => {
+  const { user, loading } = useAuth();
+  // ... autres hooks
+  
+  // ✅ TOUS les useEffect d'abord
+  useEffect(() => { ... }, [user]);
+  useEffect(() => { ... }, []);
+  useEffect(() => { ... }, [isInstalled, ...]);
+
+  // ✅ Ensuite les conditions de rendu
+  if (isNativeApp) return null;
+```
+
+## Impact
+
+- Corrige l'écran blanc sur Opera Mobile
+- Corrige l'erreur "Rendered fewer hooks than expected"
+- Compatible avec tous les navigateurs (Chrome, Safari, Opera, Firefox, etc.)
+
+## Règle React fondamentale
+
+> **Les hooks doivent toujours être appelés dans le même ordre**, peu importe les conditions. Aucun `return` ne doit précéder un hook.
 
