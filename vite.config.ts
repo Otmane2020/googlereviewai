@@ -10,6 +10,14 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     port: 8080,
   },
+  // Old mobile devices may not support modern JS output; compile to ES2015.
+  // This is intentionally conservative to prevent white-screen-on-load.
+  build: {
+    target: "es2015",
+  },
+  esbuild: {
+    target: "es2015",
+  },
   plugins: [
     react(),
     mode === "development" && componentTagger(),
