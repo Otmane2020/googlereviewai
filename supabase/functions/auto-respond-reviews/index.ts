@@ -7,11 +7,25 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Generate AI response using OpenRouter
+// Brand voice profile interface
+interface BrandVoiceProfile {
+  tone?: string;
+  formality?: string;
+  length?: string;
+  emojis?: boolean;
+  emoji_list?: string[];
+  structure?: string[];
+  signature_style?: string;
+  keywords?: string[];
+  recurring_phrases?: string[];
+}
+
+// Generate AI response using OpenRouter with brand voice
 async function generateAIResponse(
   review: any,
   aiSettings: any,
-  businessName: string
+  businessName: string,
+  brandVoice?: BrandVoiceProfile | null
 ): Promise<string | null> {
   const OPENROUTER_API_KEY = Deno.env.get("OPENROUTER_API_KEY");
   if (!OPENROUTER_API_KEY) {
@@ -42,13 +56,39 @@ async function generateAIResponse(
   };
   const toneInstruction = toneMap[tone] || toneMap.friendly;
 
-  const systemPrompt = `You are an AI assistant that generates professional responses to customer reviews in French.
-${toneInstruction}
-${lengthInstruction}
-Always thank the customer and address their specific feedback.
+  // Build brand voice context if profile exists
+  let brandVoiceContext = "";
+  if (brandVoice && brandVoice.tone) {
+    brandVoiceContext = `
+STYLE DU GÉRANT (à respecter impérativement):
+- Ton: ${brandVoice.tone}
+- Niveau de formalité: ${brandVoice.formality || "semi-formel"}
+- Longueur habituelle: ${brandVoice.length || "moyenne"}
+${brandVoice.emojis ? `- Utilise des emojis: ${brandVoice.emoji_list?.join(" ") || "oui"}` : "- Pas d'emojis"}
+- Structure typique: ${brandVoice.structure?.join(" → ") || "remerciement → réponse → invitation"}
+${brandVoice.signature_style ? `- Formule de clôture: "${brandVoice.signature_style}"` : ""}
+${brandVoice.keywords?.length ? `- Vocabulaire favori: ${brandVoice.keywords.join(", ")}` : ""}
+${brandVoice.recurring_phrases?.length ? `- Expressions récurrentes: "${brandVoice.recurring_phrases.join('", "')}"` : ""}
+
+IMPORTANT: Imite exactement ce style pour que la réponse semble écrite par la même personne.
+`;
+  }
+
+  // Build system prompt
+  let systemPrompt = `You are an AI assistant that generates professional responses to customer reviews in French.`;
+  
+  if (brandVoice && brandVoice.tone) {
+    // Use brand voice instead of generic settings
+    systemPrompt += `\n${brandVoiceContext}`;
+  } else {
+    // Fall back to generic settings
+    systemPrompt += `\n${toneInstruction}\n${lengthInstruction}`;
+  }
+  
+  systemPrompt += `\nAlways thank the customer and address their specific feedback.
 ${review.rating >= 4 ? "This is a positive review, express gratitude." : "This is a critical review, show empathy and offer to improve."}
 ${customTemplate ? `Additional instructions: ${customTemplate}` : ""}
-${includeSignature && signature ? `End with this signature: ${signature}` : ""}
+${includeSignature && signature && !brandVoice?.signature_style ? `End with this signature: ${signature}` : ""}
 Do not include any greeting like "Cher client" - start directly with the response.`;
 
   const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
@@ -328,15 +368,20 @@ serve(async (req) => {
 
         console.log(`[AutoRespond] Found ${reviews.length} reviews to process (${newReviews?.length || 0} new, ${editedReviews.length} edited) for user ${userSettings.user_id}`);
 
-        // Get business name
+        // Get business with brand voice profile
         const { data: business } = await supabase
           .from("businesses")
-          .select("name")
+          .select("name, ai_response_model")
           .eq("user_id", userSettings.user_id)
           .limit(1)
           .single();
 
         const businessName = business?.name || "Notre équipe";
+        const brandVoice = business?.ai_response_model as BrandVoiceProfile | null;
+        
+        if (brandVoice?.tone) {
+          console.log(`[AutoRespond] Using brand voice profile for user ${userSettings.user_id}: ${brandVoice.tone}`);
+        }
 
         for (const review of reviews) {
           if (profile.credits < 1) break;
@@ -358,11 +403,12 @@ serve(async (req) => {
 
           console.log(`[AutoRespond] Review ${review.id} passed delay check, proceeding with AI response generation`);
 
-          // Generate AI response using Lovable AI Gateway
+          // Generate AI response with brand voice if available
           const aiResponse = await generateAIResponse(
             review,
             userSettings,
-            businessName
+            businessName,
+            brandVoice
           );
 
           if (!aiResponse) continue;
