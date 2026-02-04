@@ -92,3 +92,9 @@ verify_jwt = false
 
 [functions.analyze-brand-voice]
 verify_jwt = true
+
+[functions.cron-generate-daily-seo]
+verify_jwt = false
+
+[functions.cron-publish-scheduled-content]
+verify_jwt = false
