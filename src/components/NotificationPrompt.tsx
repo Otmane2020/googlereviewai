@@ -256,7 +256,7 @@ export const NotificationPrompt = () => {
   const isBlocked = permission === "denied";
 
   // Don't show if already subscribed, dismissed, no user, or not on allowed route
-  if (isAlreadySubscribed || (dismissed && !isBlocked) || !user || !isAllowedRoute || !showDelayed) {
+  if (isAlreadySubscribed || dismissed || !user || !isAllowedRoute || !showDelayed) {
     return null;
   }
 
