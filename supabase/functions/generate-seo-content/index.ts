@@ -54,9 +54,9 @@ serve(async (req) => {
       language, // NEW: language for content generation (from GMB)
     } = await req.json();
     
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
+    const OPENROUTER_API_KEY = Deno.env.get("OPENROUTER_API_KEY");
+    if (!OPENROUTER_API_KEY) {
+      throw new Error("OPENROUTER_API_KEY is not configured");
     }
 
     // Determine content language (default to French)
@@ -431,11 +431,12 @@ ${lang.jsonOnly}
 
     console.log(`[generate-seo-content] Type: ${type}, Business: ${businessName}`);
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        Authorization: `Bearer ${OPENROUTER_API_KEY}`,
         "Content-Type": "application/json",
+        "HTTP-Referer": "https://starlinko.com",
       },
       body: JSON.stringify({
         model: "google/gemini-2.5-flash",
@@ -450,8 +451,8 @@ ${lang.jsonOnly}
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("Lovable AI error:", response.status, errorText);
-      throw new Error(`AI gateway error: ${response.status}`);
+      console.error("OpenRouter error:", response.status, errorText);
+      throw new Error(`OpenRouter API error: ${response.status}`);
     }
 
     const data = await response.json();

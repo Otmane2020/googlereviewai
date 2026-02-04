@@ -91,9 +91,9 @@ serve(async (req) => {
     const { reviewId, userId, businessId, language: requestLanguage } = await req.json();
     console.log("Generating AI response for review:", reviewId, "user:", userId);
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
+    const OPENROUTER_API_KEY = Deno.env.get("OPENROUTER_API_KEY");
+    if (!OPENROUTER_API_KEY) {
+      throw new Error("OPENROUTER_API_KEY is not configured");
     }
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
@@ -212,17 +212,18 @@ ${signature ? `6. ${responseT.signatureLabel}: "${signature}"` : ""}
 
 ${responseT.important}`;
 
-    console.log("Calling Lovable AI Gateway... Language:", responseLanguage);
+    console.log("Calling OpenRouter... Language:", responseLanguage);
     
-    // Use Lovable AI Gateway with optimized settings for speed
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    // Use OpenRouter API with optimized settings for speed
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        Authorization: `Bearer ${OPENROUTER_API_KEY}`,
         "Content-Type": "application/json",
+        "HTTP-Referer": "https://starlinko.com",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash-lite", // Fastest model for simple tasks
+        model: "google/gemini-2.5-flash", // Fast and reliable model
         messages: [
           { 
             role: "user", 
@@ -230,7 +231,7 @@ ${responseT.important}`;
           },
         ],
         temperature: 0.5, // Lower temp = faster + more deterministic
-        max_tokens: 150, // Reduced for shorter responses
+        max_tokens: 250, // Slightly more for better responses
       }),
     });
 
@@ -241,15 +242,9 @@ ${responseT.important}`;
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      if (response.status === 402) {
-        return new Response(JSON.stringify({ error: t.creditsExhausted }), {
-          status: 402,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
       const errorText = await response.text();
-      console.error("AI gateway error:", response.status, errorText);
-      throw new Error("AI gateway error");
+      console.error("OpenRouter error:", response.status, errorText);
+      throw new Error("OpenRouter API error");
     }
 
     const data = await response.json();

@@ -6,15 +6,15 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Generate AI response using Lovable AI Gateway
+// Generate AI response using OpenRouter
 async function generateAIResponse(
   review: any,
   aiSettings: any,
   businessName: string
 ): Promise<string | null> {
-  const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-  if (!LOVABLE_API_KEY) {
-    console.error("[OldReviewsBatch] LOVABLE_API_KEY not configured");
+  const OPENROUTER_API_KEY = Deno.env.get("OPENROUTER_API_KEY");
+  if (!OPENROUTER_API_KEY) {
+    console.error("[OldReviewsBatch] OPENROUTER_API_KEY not configured");
     return null;
   }
 
@@ -50,14 +50,15 @@ ${customTemplate ? `Additional instructions: ${customTemplate}` : ""}
 ${includeSignature && signature ? `End with this signature: ${signature}` : ""}
 Do not include any greeting like "Cher client" - start directly with the response.`;
 
-  const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+  const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${LOVABLE_API_KEY}`,
+      Authorization: `Bearer ${OPENROUTER_API_KEY}`,
       "Content-Type": "application/json",
+      "HTTP-Referer": "https://starlinko.com",
     },
     body: JSON.stringify({
-      model: "google/gemini-2.5-flash-lite",
+      model: "google/gemini-2.5-flash",
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: `Generate a response for this ${review.rating}-star review from ${review.author}: "${review.comment || "No comment provided"}"` },
@@ -67,7 +68,7 @@ Do not include any greeting like "Cher client" - start directly with the respons
 
   if (!response.ok) {
     const errorText = await response.text();
-    console.error("[OldReviewsBatch] AI gateway error:", response.status, errorText);
+    console.error("[OldReviewsBatch] OpenRouter error:", response.status, errorText);
     return null;
   }
 
