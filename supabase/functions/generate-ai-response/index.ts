@@ -135,12 +135,12 @@ serve(async (req) => {
       throw new Error("Review not found");
     }
 
-    // Fetch business (might need location_id fallback)
+    // Fetch business with brand voice profile (might need location_id fallback)
     let business = null;
     if (businessId) {
       const { data } = await supabase
         .from("businesses")
-        .select("id, name, description, gmb_language")
+        .select("id, name, description, gmb_language, ai_response_model")
         .eq("id", businessId)
         .eq("user_id", userId)
         .single();
@@ -150,7 +150,7 @@ serve(async (req) => {
     if (!business && review.location_id) {
       const { data } = await supabase
         .from("businesses")
-        .select("id, name, description, gmb_language")
+        .select("id, name, description, gmb_language, ai_response_model")
         .eq("google_place_id", review.location_id)
         .eq("user_id", userId)
         .single();
@@ -163,6 +163,19 @@ serve(async (req) => {
 
     const businessName = business?.name || t.ourEstablishment;
     const businessDescription = business?.description || "";
+    
+    // Get brand voice profile if available
+    const brandVoice = business?.ai_response_model as {
+      tone?: string;
+      formality?: string;
+      length?: string;
+      emojis?: boolean;
+      emoji_list?: string[];
+      structure?: string[];
+      signature_style?: string;
+      keywords?: string[];
+      recurring_phrases?: string[];
+    } | null;
 
     const tone = aiSettings?.tone || "friendly";
     const responseLength = aiSettings?.response_length || "M";
@@ -193,10 +206,28 @@ serve(async (req) => {
       ratingStrategy = responseT.negativeStrategy;
     }
 
+    // Build brand voice context if profile exists
+    let brandVoiceContext = "";
+    if (brandVoice && brandVoice.tone) {
+      brandVoiceContext = `
+STYLE DU GÉRANT (à respecter impérativement):
+- Ton: ${brandVoice.tone}
+- Niveau de formalité: ${brandVoice.formality || "semi-formel"}
+- Longueur habituelle: ${brandVoice.length || "moyenne"}
+${brandVoice.emojis ? `- Utilise des emojis: ${brandVoice.emoji_list?.join(" ") || "oui"}` : "- Pas d'emojis"}
+- Structure typique: ${brandVoice.structure?.join(" → ") || "remerciement → réponse → invitation"}
+${brandVoice.signature_style ? `- Formule de clôture: "${brandVoice.signature_style}"` : ""}
+${brandVoice.keywords?.length ? `- Vocabulaire favori: ${brandVoice.keywords.join(", ")}` : ""}
+${brandVoice.recurring_phrases?.length ? `- Expressions récurrentes: "${brandVoice.recurring_phrases.join('", "')}"` : ""}
+
+IMPORTANT: Imite exactement ce style pour que la réponse semble écrite par la même personne.
+`;
+    }
+
     // Build prompt in the target language
     const prompt = `${responseT.promptIntro} ${businessName}.
 ${businessDescription ? `Context: ${businessDescription}` : ""}
-
+${brandVoiceContext}
 Review:
 - Author: ${review.author}
 - Rating: ${review.rating}/5
@@ -205,10 +236,10 @@ Review:
 ${responseT.rules}:
 1. ${responseT.thankCustomer}
 2. ${ratingStrategy}
-3. ${responseT.length}: ${lengthInstruction}.
-4. ${responseT.tone}: ${toneInstruction}.
-${customTemplate ? `5. ${responseT.instructions}: ${customTemplate}` : ""}
-${signature ? `6. ${responseT.signatureLabel}: "${signature}"` : ""}
+${!brandVoice ? `3. ${responseT.length}: ${lengthInstruction}.
+4. ${responseT.tone}: ${toneInstruction}.` : "3. Respecte le style du gérant défini ci-dessus."}
+${customTemplate ? `${brandVoice ? "4" : "5"}. ${responseT.instructions}: ${customTemplate}` : ""}
+${signature && !brandVoice?.signature_style ? `${brandVoice ? "5" : "6"}. ${responseT.signatureLabel}: "${signature}"` : ""}
 
 ${responseT.important}`;
 
