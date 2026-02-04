@@ -66,13 +66,17 @@ STYLE DU GÉRANT (à respecter impérativement):
 - Longueur habituelle: ${brandVoice.length || "moyenne"}
 ${brandVoice.emojis ? `- Utilise des emojis: ${brandVoice.emoji_list?.join(" ") || "oui"}` : "- Pas d'emojis"}
 - Structure typique: ${brandVoice.structure?.join(" → ") || "remerciement → réponse → invitation"}
-${brandVoice.signature_style ? `- Formule de clôture: "${brandVoice.signature_style}"` : ""}
 ${brandVoice.keywords?.length ? `- Vocabulaire favori: ${brandVoice.keywords.join(", ")}` : ""}
 ${brandVoice.recurring_phrases?.length ? `- Expressions récurrentes: "${brandVoice.recurring_phrases.join('", "')}"` : ""}
 
 IMPORTANT: Imite exactement ce style pour que la réponse semble écrite par la même personne.
 `;
   }
+
+  // Determine which signature to use (user settings takes priority over brand voice)
+  const finalSignature = includeSignature && signature 
+    ? signature 
+    : (brandVoice?.signature_style || "");
 
   // Build system prompt
   let systemPrompt = `You are an AI assistant that generates professional responses to customer reviews in French.`;
@@ -88,7 +92,7 @@ IMPORTANT: Imite exactement ce style pour que la réponse semble écrite par la 
   systemPrompt += `\nAlways thank the customer and address their specific feedback.
 ${review.rating >= 4 ? "This is a positive review, express gratitude." : "This is a critical review, show empathy and offer to improve."}
 ${customTemplate ? `Additional instructions: ${customTemplate}` : ""}
-${includeSignature && signature && !brandVoice?.signature_style ? `End with this signature: ${signature}` : ""}
+${finalSignature ? `IMPORTANT: End the response with this exact signature: "${finalSignature}"` : ""}
 Do not include any greeting like "Cher client" - start directly with the response.`;
 
   const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
