@@ -6,6 +6,23 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Helper function to get current hour in a specific timezone
+function getCurrentHourInTimezone(timezone: string): number {
+  try {
+    const now = new Date();
+    const formatter = new Intl.DateTimeFormat("en-US", {
+      timeZone: timezone,
+      hour: "numeric",
+      hour12: false,
+    });
+    const hourStr = formatter.format(now);
+    return parseInt(hourStr, 10);
+  } catch (error) {
+    console.error(`[CRON-SEO] Invalid timezone ${timezone}, falling back to UTC:`, error);
+    return new Date().getUTCHours();
+  }
+}
+
 // Helper function to get today's date in a specific timezone
 function getTodayInTimezone(timezone: string): string {
   try {
@@ -34,49 +51,72 @@ serve(async (req) => {
     
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    console.log("[CRON-SEO] Starting daily SEO content generation...");
+    console.log("[CRON-SEO] Starting hourly SEO content generation check...");
 
-    // Get eligible users: SEO subscription OR Pro/Business plan
-    const userIds = new Set<string>();
+    // Get all users with their publication settings
+    const { data: allUserSettings, error: usersError } = await supabase
+      .from("ai_settings")
+      .select("user_id, publication_hour, timezone");
 
-    // 1. Get users with active SEO module subscription
-    const { data: seoSubs } = await supabase
-      .from("subscriptions")
-      .select("user_id")
-      .eq("module", "seo_autopost")
-      .eq("status", "active");
+    if (usersError) {
+      console.error("[CRON-SEO] Error fetching users:", usersError);
+      throw usersError;
+    }
 
-    seoSubs?.forEach(s => userIds.add(s.user_id));
-    console.log(`[CRON-SEO] Found ${seoSubs?.length || 0} active SEO module subscriptions`);
+    console.log(`[CRON-SEO] Checking ${allUserSettings?.length || 0} users`);
 
-    // 2. Get users with Pro or Business plan (they get SEO included)
-    const { data: paidUsers } = await supabase
-      .from("profiles")
-      .select("id, plan_name")
-      .in("plan_name", ["pro", "Pro", "business", "Business"]);
+    // Filter users whose publication is in 2 hours (generate content ahead of time)
+    const usersToGenerate = (allUserSettings || []).filter((userSetting) => {
+      const timezone = userSetting.timezone || "Europe/Paris";
+      const currentLocalHour = getCurrentHourInTimezone(timezone);
+      const publicationHour = userSetting.publication_hour ?? 7;
+      
+      // Generate content 2 hours before publication time
+      const generationHour = (publicationHour - 2 + 24) % 24;
+      const shouldGenerate = currentLocalHour === generationHour;
+      
+      if (shouldGenerate) {
+        console.log(`[CRON-SEO] User ${userSetting.user_id}: Local time is ${currentLocalHour}:00 (${timezone}), generating for publication at ${publicationHour}:00`);
+      }
+      return shouldGenerate;
+    });
 
-    paidUsers?.forEach(p => userIds.add(p.id));
-    console.log(`[CRON-SEO] Found ${paidUsers?.length || 0} users with Pro/Business plans`);
-
-    const eligibleUserIds = Array.from(userIds);
-    console.log(`[CRON-SEO] Total eligible users: ${eligibleUserIds.length}`);
+    console.log(`[CRON-SEO] Found ${usersToGenerate.length} users ready for generation`);
 
     let generatedCount = 0;
     let errorCount = 0;
 
-    for (const userId of eligibleUserIds) {
+    for (const userSetting of usersToGenerate) {
+      const userId = userSetting.user_id;
+      
       try {
         console.log(`[CRON-SEO] Processing user ${userId}...`);
 
-        // Get user timezone
-        const { data: aiSettings } = await supabase
-          .from("ai_settings")
-          .select("timezone")
+        const timezone = userSetting.timezone || "Europe/Paris";
+        const today = getTodayInTimezone(timezone);
+
+        // Check eligibility: SEO subscription OR Pro/Business plan
+        const { data: seoSub } = await supabase
+          .from("subscriptions")
+          .select("id")
           .eq("user_id", userId)
+          .eq("module", "seo_autopost")
+          .eq("status", "active")
           .single();
 
-        const timezone = aiSettings?.timezone || "Europe/Paris";
-        const today = getTodayInTimezone(timezone);
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("plan_name")
+          .eq("id", userId)
+          .single();
+
+        const hasSeoAccess = seoSub || 
+          ["pro", "Pro", "business", "Business"].includes(profile?.plan_name || "");
+
+        if (!hasSeoAccess) {
+          console.log(`[CRON-SEO] User ${userId} doesn't have SEO access, skipping`);
+          continue;
+        }
 
         // Get user's active businesses
         const { data: businesses, error: bizError } = await supabase
@@ -173,7 +213,7 @@ Génère UNIQUEMENT le contenu de l'article (pas le titre), prêt à être publi
             const { error: updateError } = await supabase
               .from("scheduled_content")
               .update({
-                content: content.slice(0, 1500), // Limit to GMB max
+                content: content.slice(0, 1500),
                 status: "generated",
                 updated_at: new Date().toISOString(),
               })
@@ -204,9 +244,10 @@ Génère UNIQUEMENT le contenu de l'article (pas le titre), prêt à être publi
     return new Response(
       JSON.stringify({ 
         success: true, 
+        users_checked: allUserSettings?.length || 0,
+        users_generating: usersToGenerate.length,
         generated: generatedCount,
         errors: errorCount,
-        message: `Generated ${generatedCount} SEO articles with ${errorCount} errors` 
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
