@@ -174,7 +174,7 @@ export const PricingSection = () => {
             
             {/* Trust badges */}
             <div className="flex items-center justify-center gap-4 mt-4 text-xs text-muted-foreground">
-              <span>{t("pricing.cancelAnytime")}</span>
+             <span>Annuler à tout moment</span>
               <span>•</span>
               <span>{t("pricing.noCreditCard")}</span>
             </div>

@@ -335,6 +335,7 @@
                        <Gift className="w-4 h-4 text-secondary" />
                         <span className="text-secondary text-sm font-bold">🎁 2 mois GRATUITS = 78€ économisés</span>
                      </div>
+                     <p className="text-xs text-muted-foreground mt-2">Annuler à tout moment</p>
                    </>
                  ) : (
                    <>
@@ -343,7 +344,7 @@
                        <span className="text-muted-foreground">/mois</span>
                      </div>
                      <p className="text-sm text-muted-foreground mt-2">
-                       Sans engagement – Annulation à tout moment
+                       Sans engagement · Annuler à tout moment
                      </p>
                    </>
                  )}
