@@ -234,6 +234,21 @@
     "freeTrial": "Free 3-day trial",
     "noCreditCard": "No credit card",
     "cancelAnytime": "Cancel anytime",
+     "allinone": {
+       "badge": "One Offer",
+       "title": "One offer. Everything included.",
+       "subtitle": "Google visibility, ChatGPT and review management. Everything you need to dominate your local market.",
+       "name": "Starlinko All-in-One",
+       "description": "Complete SEO + AEO + AI Responses package",
+       "feature1": "Unlimited AI responses to Google reviews",
+       "feature2": "Automatically generated SEO articles",
+       "feature3": "ChatGPT & AI engines visibility",
+       "feature4": "Google My Business sync",
+       "feature5": "Detailed analytics",
+       "feature6": "Priority support",
+       "freeMonths": "2 months free",
+       "savings": "Save €78 per year"
+     },
     "features": {
       "aiResponses": "Unlimited AI responses",
       "locations": "{{count}} location(s)",
