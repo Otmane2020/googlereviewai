@@ -15,12 +15,14 @@ const PRICE_IDS: Record<string, string> = {
   business_monthly: "price_1SrHtEEfti9t9nN9mq7MrV3G",
   aeo_monthly: "price_1SsBcUEfti9t9nN9aqWMiw7Y",
   seo_monthly: "price_1SrHtIEfti9t9nN9qfdPvSY5",
+   allinone_monthly: "price_1SxGZgEfti9t9nN9txGIyk7j",
   // Yearly plans (-20%)
   starter_yearly: "price_1SrHtOEfti9t9nN9fG4lSroa",
   pro_yearly: "price_1SrHtPEfti9t9nN9dnZ0sXpi",
   business_yearly: "price_1SrHtQEfti9t9nN9GKvr4NSt",
   aeo_yearly: "price_1SsBcVEfti9t9nN9oFgHq9x8",
   seo_yearly: "price_1SrHtSEfti9t9nN9rXMfteyT",
+   allinone_yearly: "price_1SxGZxEfti9t9nN97rkyb8F1",
   // Credit packs (one-time purchases)
   credits_10: "price_1SrrYEEfti9t9nN9N8l9AaA1",
   credits_100: "price_1SrrYFEfti9t9nN9Y4zxBb3p",
@@ -60,6 +62,7 @@ const SUBSCRIPTION_PRICE_KEYS = [
   "business_monthly", "business_yearly",
   "aeo_monthly", "aeo_yearly",
   "seo_monthly", "seo_yearly",
+   "allinone_monthly", "allinone_yearly",
 ];
 
 interface CartItem {
