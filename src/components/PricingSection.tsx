@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "./ui/button";
-import { Check, Zap, Star, Battery, Crown, Loader2 } from "lucide-react";
+import { Check, Star, Sparkles, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,74 +11,27 @@ export const PricingSection = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("monthly");
-  const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+  const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("yearly");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const subscriptionPlans = [
-    { 
-      name: t("pricing.plans.starter"), 
-      credits: 10, 
-      priceMonthly: "2,99€",
-      priceYearly: "28,70€",
-      priceMonthlyEquiv: "2,39€",
-      businesses: t("pricing.plans.location"),
-      icon: Battery,
-      priceKeyMonthly: "starter_monthly",
-      priceKeyYearly: "starter_yearly",
-      features: [
-        t("pricing.features.creditsPerMonth", { count: 10 }),
-        t("pricing.plans.location"),
-        t("pricing.features.personalizedResponses"),
-        t("pricing.features.emailSupport")
-      ]
-    },
-    { 
-      name: t("pricing.plans.pro"), 
-      credits: 100, 
-      priceMonthly: "29,99€",
-      priceYearly: "287,90€",
-      priceMonthlyEquiv: "23,99€",
-      businesses: t("pricing.plans.locations2"),
-      popular: true, 
-      icon: Zap,
-      priceKeyMonthly: "pro_monthly",
-      priceKeyYearly: "pro_yearly",
-      features: [
-        t("pricing.features.creditsPerMonth", { count: 100 }),
-        t("pricing.plans.locations2"),
-        t("pricing.features.personalizedResponses"),
-        t("pricing.features.support"),
-        t("pricing.features.advancedStats")
-      ]
-    },
-    { 
-      name: t("pricing.plans.business"), 
-      credits: 400, 
-      priceMonthly: "99€",
-      priceYearly: "950,40€",
-      priceMonthlyEquiv: "79,20€",
-      businesses: t("pricing.plans.unlimited"),
-      icon: Crown,
-      priceKeyMonthly: "business_monthly",
-      priceKeyYearly: "business_yearly",
-      features: [
-        t("pricing.features.creditsPerMonth", { count: 400 }),
-        t("pricing.features.unlimitedLocations"),
-        t("pricing.features.personalizedResponses"),
-        t("pricing.features.dedicatedSupport"),
-        t("pricing.features.advancedStats"),
-        t("pricing.features.api")
-      ]
-    },
+  const features = [
+    t("pricing.allinone.feature1"),
+    t("pricing.allinone.feature2"),
+    t("pricing.allinone.feature3"),
+    t("pricing.allinone.feature4"),
+    t("pricing.allinone.feature5"),
+    t("pricing.allinone.feature6"),
   ];
 
-  const handleSubscribe = async (priceKey: string) => {
+  const handleSubscribe = async () => {
     if (!user) {
       navigate("/auth");
       return;
     }
 
-    setLoadingPlan(priceKey);
+    const priceKey = billingCycle === "monthly" ? "allinone_monthly" : "allinone_yearly";
+    setIsLoading(true);
+    
     try {
       const { data, error } = await supabase.functions.invoke("create-checkout", {
         body: {
@@ -101,7 +54,7 @@ export const PricingSection = () => {
         variant: "destructive",
       });
     } finally {
-      setLoadingPlan(null);
+      setIsLoading(false);
     }
   };
 
@@ -112,13 +65,13 @@ export const PricingSection = () => {
         <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-12">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent/10 rounded-full mb-5">
             <Star className="w-4 h-4 text-accent" />
-            <span className="text-accent-foreground text-xs sm:text-sm font-semibold">{t("pricing.badge")}</span>
+            <span className="text-accent-foreground text-xs sm:text-sm font-semibold">{t("pricing.allinone.badge")}</span>
           </div>
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-4">
-            {t("pricing.title")}
+            {t("pricing.allinone.title")}
           </h2>
           <p className="text-muted-foreground text-sm sm:text-base mb-6">
-            {t("pricing.creditExplain")}
+            {t("pricing.allinone.subtitle")}
           </p>
 
           {/* Billing Toggle */}
@@ -143,83 +96,89 @@ export const PricingSection = () => {
             >
               {t("pricing.yearly")}
               <span className="px-2 py-0.5 bg-secondary text-secondary-foreground text-xs rounded-full">
-                -20%
+                {t("pricing.allinone.freeMonths")}
               </span>
             </button>
           </div>
         </div>
 
-        {/* Subscription Plans */}
-        <div className="grid sm:grid-cols-3 gap-4 sm:gap-6 max-w-4xl mx-auto">
-          {subscriptionPlans.map((plan) => {
-            const priceKey = billingCycle === "monthly" ? plan.priceKeyMonthly : plan.priceKeyYearly;
-            const isLoading = loadingPlan === priceKey;
-
-            return (
-              <div
-                key={plan.name}
-                className={`relative bg-card p-5 sm:p-6 rounded-xl border text-center transition-all hover:shadow-lg ${
-                  plan.popular ? "border-primary shadow-md ring-2 ring-primary/20" : "border-border"
-                }`}
-              >
-                {plan.popular && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                    <span className="inline-block px-3 py-1 bg-primary text-primary-foreground text-xs font-bold rounded-full shadow-md">
-                      {t("pricing.popular")}
-                    </span>
+        {/* Single All-in-One Plan */}
+        <div className="max-w-lg mx-auto">
+          <div className="relative bg-card p-6 sm:p-8 rounded-2xl border-2 border-primary shadow-xl ring-2 ring-primary/20">
+            {/* Popular badge */}
+            <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+              <span className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-primary text-primary-foreground text-sm font-bold rounded-full shadow-lg">
+                <Sparkles className="w-4 h-4" />
+                {t("pricing.allinone.badge")}
+              </span>
+            </div>
+            
+            {/* Plan name */}
+            <div className="text-center mt-4 mb-6">
+              <h3 className="text-2xl font-bold text-foreground mb-2">
+                {t("pricing.allinone.name")}
+              </h3>
+              <p className="text-muted-foreground text-sm">
+                {t("pricing.allinone.description")}
+              </p>
+            </div>
+            
+            {/* Price */}
+            <div className="text-center mb-6">
+              {billingCycle === "yearly" ? (
+                <>
+                  <div className="flex items-baseline justify-center gap-2">
+                    <span className="text-4xl sm:text-5xl font-bold text-foreground">32,50€</span>
+                    <span className="text-muted-foreground text-lg">{t("pricing.perMonth")}</span>
                   </div>
-                )}
-                
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/15 to-secondary/15 flex items-center justify-center mx-auto mb-3">
-                  <plan.icon className="w-6 h-6 text-primary" />
+                  <p className="text-sm text-muted-foreground mt-2">
+                    {t("pricing.billedYearly", { price: "390€" })}
+                  </p>
+                  <p className="text-sm text-secondary font-medium mt-1">
+                    {t("pricing.allinone.savings")}
+                  </p>
+                </>
+              ) : (
+                <div className="flex items-baseline justify-center gap-2">
+                  <span className="text-4xl sm:text-5xl font-bold text-foreground">39€</span>
+                  <span className="text-muted-foreground text-lg">{t("pricing.perMonth")}</span>
                 </div>
-                
-                <h4 className="text-lg font-bold text-foreground mb-1">{plan.name}</h4>
-                <p className="text-muted-foreground text-xs mb-3">{plan.businesses}</p>
-                
-                <div className="mb-4">
-                  {billingCycle === "yearly" ? (
-                    <>
-                      <span className="text-2xl sm:text-3xl font-bold text-foreground">{plan.priceMonthlyEquiv}</span>
-                      <span className="text-muted-foreground text-sm">{t("pricing.perMonth")}</span>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {t("pricing.billedYearly", { price: plan.priceYearly })}
-                      </p>
-                    </>
-                  ) : (
-                    <>
-                      <span className="text-2xl sm:text-3xl font-bold text-foreground">{plan.priceMonthly}</span>
-                      <span className="text-muted-foreground text-sm">{t("pricing.perMonth")}</span>
-                    </>
-                  )}
-                </div>
-                
-                <ul className="space-y-2 mb-5 text-left">
-                  {plan.features.map((feature) => (
-                    <li key={feature} className="flex items-center gap-2 text-xs sm:text-sm">
-                      <div className="w-4 h-4 rounded-full bg-secondary/20 flex items-center justify-center flex-shrink-0">
-                        <Check className="w-2.5 h-2.5 text-secondary" />
-                      </div>
-                      <span className="text-muted-foreground">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-                
-                <Button 
-                  variant={plan.popular ? "default" : "outline"} 
-                  className="w-full" 
-                  onClick={() => handleSubscribe(priceKey)}
-                  disabled={isLoading}
-                >
-                  {isLoading ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    t("pricing.getStarted")
-                  )}
-                </Button>
-              </div>
-            );
-          })}
+              )}
+            </div>
+            
+            {/* Features */}
+            <ul className="space-y-3 mb-8">
+              {features.map((feature) => (
+                <li key={feature} className="flex items-center gap-3">
+                  <div className="w-5 h-5 rounded-full bg-secondary/20 flex items-center justify-center flex-shrink-0">
+                    <Check className="w-3 h-3 text-secondary" />
+                  </div>
+                  <span className="text-foreground text-sm sm:text-base">{feature}</span>
+                </li>
+              ))}
+            </ul>
+            
+            {/* CTA Button */}
+            <Button 
+              size="lg"
+              className="w-full text-lg py-6" 
+              onClick={handleSubscribe}
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : (
+                t("pricing.getStarted")
+              )}
+            </Button>
+            
+            {/* Trust badges */}
+            <div className="flex items-center justify-center gap-4 mt-4 text-xs text-muted-foreground">
+              <span>{t("pricing.cancelAnytime")}</span>
+              <span>•</span>
+              <span>{t("pricing.noCreditCard")}</span>
+            </div>
+          </div>
         </div>
       </div>
     </section>
