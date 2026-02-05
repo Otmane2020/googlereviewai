@@ -125,7 +125,7 @@
            {/* Badge */}
            <div className="inline-flex items-center gap-2 px-4 py-2 bg-card/10 backdrop-blur-sm rounded-full border border-card/20 mb-6">
              <Star className="w-4 h-4 text-accent fill-accent" />
-             <span className="text-card text-sm font-medium">One Pack · One Price</span>
+            <span className="text-card text-sm font-medium">Offre Unique · Tout Inclus</span>
            </div>
  
            {/* Headline */}
@@ -310,7 +310,7 @@
                <div className="absolute -top-4 left-1/2 -translate-x-1/2">
                  <span className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-primary text-primary-foreground text-sm font-bold rounded-full shadow-lg">
                    <Zap className="w-4 h-4" />
-                   All-in-One Visibility
+                    Visibilité Tout-en-Un
                  </span>
                </div>
  
@@ -331,9 +331,9 @@
                      <p className="text-sm text-muted-foreground mt-2">
                        Facturé <span className="font-semibold text-foreground">390€/an</span> (10 mois payés, 12 actifs)
                      </p>
-                     <div className="inline-flex items-center gap-1.5 mt-3 px-3 py-1 bg-secondary/10 rounded-full">
+                      <div className="inline-flex items-center gap-1.5 mt-3 px-4 py-2 bg-secondary/20 rounded-full border border-secondary/30">
                        <Gift className="w-4 h-4 text-secondary" />
-                       <span className="text-secondary text-sm font-semibold">2 mois offerts = 78€ économisés</span>
+                        <span className="text-secondary text-sm font-bold">🎁 2 mois GRATUITS = 78€ économisés</span>
                      </div>
                    </>
                  ) : (
