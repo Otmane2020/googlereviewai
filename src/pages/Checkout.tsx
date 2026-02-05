@@ -525,7 +525,7 @@ const Checkout = () => {
           </Button>
           
           <p className="text-[10px] text-center text-muted-foreground mt-2">
-            🔒 Paiement sécurisé Stripe · Annulation en 1 clic
+           🔒 Paiement sécurisé Stripe · Annuler à tout moment
           </p>
         </div>
       </div>
