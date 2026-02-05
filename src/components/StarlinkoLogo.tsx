@@ -42,11 +42,6 @@ export const StarlinkoLogo = ({ className = "", showBadge = true }: StarlinkoLog
         <span className="text-lg sm:text-xl font-bold tracking-tight">Starlinko</span>
         <GoogleGIcon className="h-3.5 w-3.5 sm:h-4 sm:w-4 opacity-80" />
       </div>
-      {showBadge && (
-        <span className="hidden sm:inline-flex ml-1 px-2 py-0.5 text-xs font-medium bg-secondary/20 text-secondary rounded-full border border-secondary/30">
-          IA Reviews
-        </span>
-      )}
     </div>
   );
 };
