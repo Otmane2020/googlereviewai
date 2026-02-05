@@ -5,51 +5,27 @@ import { StarlinkoLogo } from "@/components/StarlinkoLogo";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { Star, Zap, Building2, LogOut, Check, ShieldCheck, Users, Clock } from "lucide-react";
+import { Star, LogOut, Check, ShieldCheck, Clock, Sparkles, Loader2 } from "lucide-react";
 import { TrustAvisCarousel } from "@/components/TrustAvisBadge";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Helmet } from "react-helmet";
 
-const PLANS = [
-  {
-    id: "starter",
-    name: "Starter",
-    priceMonthly: 2.99,
-    priceYearly: 28.70,
-    credits: 30,
-    businesses: "1",
-    badge: "ESSAI 3 JOURS",
-    icon: Star,
-    iconColor: "text-amber-500",
-    iconBg: "bg-amber-500/10",
-    hasTrial: true,
-  },
-  {
-    id: "pro",
-    name: "Pro",
-    priceMonthly: 29.99,
-    priceYearly: 287.90,
-    credits: 100,
-    businesses: "2",
-    badge: "POPULAIRE",
-    icon: Zap,
-    iconColor: "text-violet-500",
-    iconBg: "bg-violet-500/10",
-  },
-  {
-    id: "business",
-    name: "Business",
-    priceMonthly: 99,
-    priceYearly: 950.40,
-    credits: 300,
-    businesses: "10",
-    badge: "PRO",
-    icon: Building2,
-    iconColor: "text-emerald-500",
-    iconBg: "bg-emerald-500/10",
-  },
-];
+const PLAN = {
+  id: "allinone",
+  name: "Starlinko Tout-en-Un",
+  priceMonthly: 39,
+  priceYearly: 390,
+  description: "Pack complet SEO + AEO + Réponses IA",
+  features: [
+    "Réponses IA illimitées aux avis Google",
+    "Articles SEO générés automatiquement",
+    "Optimisation AEO pour ChatGPT",
+    "Publication automatique sur Google",
+    "Tableau de bord analytics",
+    "Support prioritaire",
+  ],
+};
 
 const ChoosePlan = () => {
   const { user, loading, signOut } = useAuth();
@@ -149,120 +125,81 @@ const ChoosePlan = () => {
           )}
         </div>
 
-        {/* Plans */}
-        <div className="space-y-3">
-          {PLANS.map((plan) => {
-            const Icon = plan.icon;
-            // Always show monthly price, but yearly is divided by 12
-            const displayPrice = isYearly ? (plan.priceYearly / 12) : plan.priceMonthly;
-            
-            return (
-              <div
-                key={plan.id}
-                className="relative rounded-xl border-2 border-border bg-card hover:border-primary/50 p-4 transition-all"
-              >
-                <div className="flex items-center gap-3">
-                  <div className={`w-10 h-10 rounded-lg ${plan.iconBg} flex items-center justify-center shrink-0`}>
-                    <Icon className={`h-5 w-5 ${plan.iconColor}`} />
-                  </div>
-                  
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="font-semibold text-foreground">{plan.name}</span>
-                      <Badge variant="outline" className="text-[10px] px-1.5 py-0">
-                        {plan.badge}
-                      </Badge>
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      {plan.credits} crédits • {plan.businesses} établ.
-                    </p>
-                  </div>
-                  
-                  <div className="text-right shrink-0">
-                    <div className="font-bold text-foreground">
-                      {displayPrice.toFixed(2)}€
-                    </div>
-                    <div className="text-[10px] text-muted-foreground">
-                      /mois{isYearly && " (facturé annuellement)"}
-                    </div>
-                  </div>
+        {/* Single Plan Card */}
+        <div className="relative bg-card p-6 rounded-2xl border-2 border-primary shadow-xl ring-2 ring-primary/20">
+          {/* Badge */}
+          <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+            <span className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-primary text-primary-foreground text-sm font-bold rounded-full shadow-lg">
+              <Sparkles className="w-4 h-4" />
+              Offre Unique
+            </span>
+          </div>
+
+          {/* Plan name */}
+          <div className="text-center mt-4 mb-4">
+            <h3 className="text-xl font-bold text-foreground mb-1">{PLAN.name}</h3>
+            <p className="text-muted-foreground text-sm">{PLAN.description}</p>
+          </div>
+
+          {/* Price */}
+          <div className="text-center mb-4">
+            {isYearly ? (
+              <>
+                <div className="flex items-baseline justify-center gap-2">
+                  <span className="text-4xl font-bold text-foreground">32,50€</span>
+                  <span className="text-muted-foreground">/mois</span>
                 </div>
-
-                <Button
-                  className="w-full mt-3"
-                  size="sm"
-                  disabled={isProcessing}
-                  onClick={() => handleSelectPlan(plan.id)}
-                >
-                  {plan.hasTrial ? "Essai gratuit 3 jours" : "Choisir"}
-                </Button>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Facturé 390€/an
+                </p>
+                <p className="text-xs text-secondary font-medium">
+                  Économisez 78€ (2 mois offerts)
+                </p>
+              </>
+            ) : (
+              <div className="flex items-baseline justify-center gap-2">
+                <span className="text-4xl font-bold text-foreground">39€</span>
+                <span className="text-muted-foreground">/mois</span>
               </div>
-            );
-          })}
-        </div>
+            )}
+          </div>
 
-        {/* Trust indicators */}
-        <div className="flex items-center justify-center gap-4 mt-6 text-xs text-muted-foreground">
-          <div className="flex items-center gap-1.5">
-            <ShieldCheck className="h-4 w-4 text-emerald-500" />
-            <span>Paiement sécurisé</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <Clock className="h-4 w-4 text-amber-500" />
-            <span>Annulation 1 clic</span>
-          </div>
+          {/* Features */}
+          <ul className="space-y-2 mb-4">
+            {PLAN.features.map((feature) => (
+              <li key={feature} className="flex items-center gap-2 text-sm">
+                <div className="w-4 h-4 rounded-full bg-secondary/20 flex items-center justify-center flex-shrink-0">
+                  <Check className="w-2.5 h-2.5 text-secondary" />
+                </div>
+                <span className="text-foreground">{feature}</span>
+              </li>
+            ))}
+          </ul>
+
+          {/* CTA */}
+          <Button
+            className="w-full"
+            size="lg"
+            disabled={isProcessing}
+            onClick={() => handleSelectPlan(PLAN.id)}
+          >
+            {isProcessing ? (
+              <Loader2 className="w-5 h-5 animate-spin" />
+            ) : (
+              "Commencer maintenant"
+            )}
+          </Button>
+
+          {/* Trust */}
+          <p className="text-center text-xs text-muted-foreground mt-3">
+            Annuler à tout moment • Paiement sécurisé
+          </p>
         </div>
 
         {/* TrustAvis */}
         <div className="mt-6">
           <TrustAvisCarousel />
         </div>
-
-        {/* Ils nous font confiance */}
-        <div className="mt-8">
-          <p className="text-center text-xs text-muted-foreground mb-4">
-            <Users className="inline h-3.5 w-3.5 mr-1" />
-            +500 entreprises nous font confiance
-          </p>
-          
-          {/* Scrolling logos */}
-          <div className="relative overflow-hidden">
-            <div className="flex animate-scroll-logos gap-12 py-4">
-              {[...Array(2)].map((_, setIndex) => (
-                <div key={setIndex} className="flex gap-12 shrink-0 items-center">
-                  {[
-                    { name: "McDonald's", domain: "mcdonalds.fr" },
-                    { name: "Carrefour", domain: "carrefour.fr" },
-                    { name: "Decathlon", domain: "decathlon.fr" },
-                    { name: "Sephora", domain: "sephora.fr" },
-                    { name: "Fnac", domain: "fnac.com" },
-                    { name: "Leroy Merlin", domain: "leroymerlin.fr" },
-                    { name: "Boulanger", domain: "boulanger.com" },
-                    { name: "Darty", domain: "darty.com" },
-                  ].map((brand) => (
-                    <div
-                      key={`${setIndex}-${brand.name}`}
-                      className="flex items-center gap-2 shrink-0 grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all"
-                    >
-                      <img 
-                        src={`https://www.google.com/s2/favicons?domain=${brand.domain}&sz=64`}
-                        alt={brand.name}
-                        className="w-6 h-6 object-contain"
-                        loading="lazy"
-                      />
-                      <span className="text-xs text-muted-foreground whitespace-nowrap">{brand.name}</span>
-                    </div>
-                  ))}
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Footer */}
-        <p className="text-center text-[10px] text-muted-foreground mt-6 pb-4">
-          🔒 Données protégées • 💳 Stripe sécurisé • ✅ Satisfait ou remboursé
-        </p>
       </main>
       
       {/* Sticky TrustAvis Rating - Bottom Right */}
