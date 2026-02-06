@@ -44,6 +44,7 @@ import Blog from "./pages/Blog";
 import BlogArticle from "./pages/BlogArticle";
 import NotFound from "./pages/NotFound";
  import LandingPremium from "./pages/LandingPremium";
+import LandingFacebook from "./pages/LandingFacebook";
 
 const queryClient = new QueryClient();
 
@@ -183,6 +184,7 @@ const AppContent = () => {
               <Route path="/blog" element={<Blog />} />
               <Route path="/blog/:slug" element={<BlogArticle />} />
                <Route path="/landing" element={<LandingPremium />} />
+              <Route path="/lp/facebook" element={<LandingFacebook />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </OAuthCallback>

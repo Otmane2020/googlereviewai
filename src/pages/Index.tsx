@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Header } from "@/components/Header";
 import { HeroSection } from "@/components/HeroSection";
+import { DemoSection } from "@/components/DemoSection";
 import { StarlySection } from "@/components/StarlySection";
 import { FeaturesSection } from "@/components/FeaturesSection";
 import { SectorsSection } from "@/components/SectorsSection";
@@ -13,6 +14,7 @@ import { PricingSection } from "@/components/PricingSection";
 import { CTASection } from "@/components/CTASection";
 import { Footer } from "@/components/Footer";
 import { MobileStickyButton } from "@/components/MobileStickyButton";
+import { ExitIntentPopup } from "@/components/ExitIntentPopup";
 import { Loader2, Star } from "lucide-react";
 
 const Index = () => {
@@ -72,6 +74,7 @@ const Index = () => {
       <Header />
       <main className="pb-20 sm:pb-0">
         <HeroSection />
+        <DemoSection />
         <StarlySection />
         <FeaturesSection />
         <SectorsSection />
@@ -82,6 +85,7 @@ const Index = () => {
       </main>
       <Footer />
       <MobileStickyButton />
+      <ExitIntentPopup />
       
       {/* Sticky TrustAvis Rating - Bottom Right */}
       <div className="fixed bottom-4 right-4 z-50 hidden sm:block">
