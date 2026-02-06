@@ -48,9 +48,12 @@ const CREDIT_AMOUNTS: Record<string, number> = {
   credits_10000: 10000,
 };
 
-// Plans that get a free trial (only Starter)
+// Plans that get a free trial
 const TRIAL_PLANS = ["starter_monthly", "starter_yearly"];
 const TRIAL_DAYS = 3;
+
+// All-in-one yearly gets 60 days trial (2 months free)
+const ALLINONE_YEARLY_TRIAL_DAYS = 60;
 
 // Per-business pricing modules (49€/establishment)
 const PER_BUSINESS_MODULES = ["aeo_monthly", "aeo_yearly", "seo_monthly", "seo_yearly"];
@@ -265,17 +268,32 @@ serve(async (req) => {
       metadata,
     };
 
-    // Add trial period for Starter plan only (if not skipped)
-    if (checkoutMode === "subscription" && hasTrialPlan && !skipTrial) {
-      sessionParams.subscription_data = {
-        trial_period_days: TRIAL_DAYS,
-        metadata: {
-          supabase_user_id: user.id,
-        },
-      };
+    // Determine trial period
+    const hasAllinoneYearly = items.some(item => item.priceKey === "allinone_yearly");
+    const hasTrialPlan = items.some(item => TRIAL_PLANS.includes(item.priceKey));
+    
+    // Add trial period for eligible plans (if not skipped)
+    if (checkoutMode === "subscription" && !skipTrial) {
+      if (hasAllinoneYearly) {
+        // 60 days trial for all-in-one yearly (2 months free)
+        sessionParams.subscription_data = {
+          trial_period_days: ALLINONE_YEARLY_TRIAL_DAYS,
+          metadata: {
+            supabase_user_id: user.id,
+          },
+        };
+        console.log(`[create-checkout] Adding 60-day trial for allinone_yearly`);
+      } else if (hasTrialPlan) {
+        // 3 days trial for starter plans
+        sessionParams.subscription_data = {
+          trial_period_days: TRIAL_DAYS,
+          metadata: {
+            supabase_user_id: user.id,
+          },
+        };
+        console.log(`[create-checkout] Adding 3-day trial for starter plan`);
+      }
     }
-
-    console.log(`[create-checkout] Creating session with ${lineItems.length} line items, trial: ${hasTrialPlan && !skipTrial}`);
 
     const session = await stripe.checkout.sessions.create(sessionParams);
 

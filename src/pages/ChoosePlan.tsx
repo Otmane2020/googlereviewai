@@ -147,20 +147,32 @@ const ChoosePlan = () => {
           <div className="text-center mb-4">
             {isYearly ? (
               <>
-                <div className="flex items-baseline justify-center gap-2">
-                  <span className="text-4xl font-bold text-foreground">390€</span>
-                  <span className="text-muted-foreground">/an</span>
+                {/* Today's price - FREE */}
+                <div className="bg-secondary/10 rounded-xl p-4 mb-3">
+                  <p className="text-sm text-muted-foreground mb-1">Aujourd'hui</p>
+                  <div className="flex items-baseline justify-center gap-2">
+                    <span className="text-4xl font-bold text-secondary">0€</span>
+                  </div>
+                  <div className="flex items-center justify-center gap-2 mt-2 text-secondary">
+                    <Gift className="w-5 h-5 animate-bounce" />
+                    <span className="font-bold">2 mois offerts !</span>
+                  </div>
                 </div>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Soit 32,50€/mois au lieu de 39€
-                </p>
-                {/* Gift highlight */}
-                <div className="mt-3 inline-flex items-center gap-2 bg-secondary/20 text-secondary px-4 py-2 rounded-full">
-                  <Gift className="w-5 h-5" />
-                  <span className="font-bold">2 mois offerts !</span>
+                
+                {/* Future price */}
+                <div className="bg-muted/50 rounded-xl p-3">
+                  <p className="text-xs text-muted-foreground mb-1">Dans 2 mois</p>
+                  <div className="flex items-baseline justify-center gap-1">
+                    <span className="text-2xl font-bold text-foreground">390€</span>
+                    <span className="text-sm text-muted-foreground">/an</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Soit 32,50€/mois au lieu de 39€
+                  </p>
                 </div>
-                <p className="text-xs text-muted-foreground mt-2">
-                  Paiement unique de 390€ • Accès immédiat 12 mois
+                
+                <p className="text-xs text-muted-foreground mt-3">
+                  Annulation gratuite à tout moment pendant l'essai
                 </p>
               </>
             ) : (
@@ -197,6 +209,8 @@ const ChoosePlan = () => {
           >
             {isProcessing ? (
               <Loader2 className="w-5 h-5 animate-spin" />
+            ) : isYearly ? (
+              "Démarrer mon essai gratuit"
             ) : (
               "Commencer maintenant"
             )}
