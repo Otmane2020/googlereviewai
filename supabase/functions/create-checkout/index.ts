@@ -270,7 +270,6 @@ serve(async (req) => {
 
     // Determine trial period
     const hasAllinoneYearly = items.some(item => item.priceKey === "allinone_yearly");
-    const hasTrialPlan = items.some(item => TRIAL_PLANS.includes(item.priceKey));
     
     // Add trial period for eligible plans (if not skipped)
     if (checkoutMode === "subscription" && !skipTrial) {
