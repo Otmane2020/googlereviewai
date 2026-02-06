@@ -5,7 +5,7 @@ import { StarlinkoLogo } from "@/components/StarlinkoLogo";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { Star, LogOut, Check, ShieldCheck, Clock, Sparkles, Loader2 } from "lucide-react";
+import { Star, LogOut, Check, ShieldCheck, Clock, Sparkles, Loader2, Gift } from "lucide-react";
 import { TrustAvisCarousel } from "@/components/TrustAvisBadge";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -31,7 +31,7 @@ const PLAN = {
 const ChoosePlan = () => {
   const { user, loading, signOut } = useAuth();
   const navigate = useNavigate();
-  const [isYearly, setIsYearly] = useState(false);
+  const [isYearly, setIsYearly] = useState(true); // Yearly by default
   const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
@@ -120,8 +120,9 @@ const ChoosePlan = () => {
             Annuel
           </span>
           {isYearly && (
-            <Badge variant="secondary" className="text-xs bg-secondary text-secondary-foreground">
-              -20%
+            <Badge className="text-xs bg-secondary text-secondary-foreground flex items-center gap-1">
+              <Gift className="w-3 h-3" />
+              2 mois offerts
             </Badge>
           )}
         </div>
@@ -147,21 +148,31 @@ const ChoosePlan = () => {
             {isYearly ? (
               <>
                 <div className="flex items-baseline justify-center gap-2">
-                  <span className="text-4xl font-bold text-foreground">32,50€</span>
-                  <span className="text-muted-foreground">/mois</span>
+                  <span className="text-4xl font-bold text-foreground">390€</span>
+                  <span className="text-muted-foreground">/an</span>
                 </div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Facturé 390€/an
+                <p className="text-sm text-muted-foreground mt-1">
+                  Soit 32,50€/mois au lieu de 39€
                 </p>
-                <p className="text-xs text-secondary font-medium">
-                  Économisez 78€ (2 mois offerts)
+                {/* Gift highlight */}
+                <div className="mt-3 inline-flex items-center gap-2 bg-secondary/20 text-secondary px-4 py-2 rounded-full">
+                  <Gift className="w-5 h-5" />
+                  <span className="font-bold">2 mois offerts !</span>
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">
+                  Paiement unique de 390€ • Accès immédiat 12 mois
                 </p>
               </>
             ) : (
-              <div className="flex items-baseline justify-center gap-2">
-                <span className="text-4xl font-bold text-foreground">39€</span>
-                <span className="text-muted-foreground">/mois</span>
-              </div>
+              <>
+                <div className="flex items-baseline justify-center gap-2">
+                  <span className="text-4xl font-bold text-foreground">39€</span>
+                  <span className="text-muted-foreground">/mois</span>
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">
+                  Facturé mensuellement • Sans engagement
+                </p>
+              </>
             )}
           </div>
 
