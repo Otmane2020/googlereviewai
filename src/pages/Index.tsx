@@ -12,6 +12,7 @@ import { TestimonialsSection } from "@/components/TestimonialsSection";
 import { ComplianceSection } from "@/components/ComplianceSection";
 import { PricingSection } from "@/components/PricingSection";
 import { CTASection } from "@/components/CTASection";
+import { SectorDemoSection } from "@/components/SectorDemoSection";
 import { Footer } from "@/components/Footer";
 import { MobileStickyButton } from "@/components/MobileStickyButton";
 import { ExitIntentPopup } from "@/components/ExitIntentPopup";
@@ -75,6 +76,7 @@ const Index = () => {
       <main className="pb-20 sm:pb-0">
         <HeroSection />
         <DemoSection />
+        <SectorDemoSection />
         <StarlySection />
         <FeaturesSection />
         <SectorsSection />
