@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Helmet } from "react-helmet";
 
+// Single all-in-one plan - 39€/month or 390€/year
 const PLAN = {
   id: "allinone",
   name: "Starlinko Tout-en-Un",
