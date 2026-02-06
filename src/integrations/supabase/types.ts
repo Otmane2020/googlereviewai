@@ -14,6 +14,60 @@ export type Database = {
   }
   public: {
     Tables: {
+      abandoned_carts: {
+        Row: {
+          billing_cycle: string | null
+          cart_items: Json
+          converted: boolean | null
+          converted_at: string | null
+          coupon_code: string | null
+          created_at: string
+          email: string
+          email_1_sent_at: string | null
+          email_2_sent_at: string | null
+          email_3_sent_at: string | null
+          full_name: string | null
+          id: string
+          total_amount: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          billing_cycle?: string | null
+          cart_items?: Json
+          converted?: boolean | null
+          converted_at?: string | null
+          coupon_code?: string | null
+          created_at?: string
+          email: string
+          email_1_sent_at?: string | null
+          email_2_sent_at?: string | null
+          email_3_sent_at?: string | null
+          full_name?: string | null
+          id?: string
+          total_amount?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          billing_cycle?: string | null
+          cart_items?: Json
+          converted?: boolean | null
+          converted_at?: string | null
+          coupon_code?: string | null
+          created_at?: string
+          email?: string
+          email_1_sent_at?: string | null
+          email_2_sent_at?: string | null
+          email_3_sent_at?: string | null
+          full_name?: string | null
+          id?: string
+          total_amount?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       aeo_questions: {
         Row: {
           answer: string

@@ -70,6 +70,24 @@ serve(async (req) => {
 
         console.log("[checkout.session.completed] Processing", { userId, subscriptionId });
 
+        // Mark any abandoned carts as converted
+        if (userId) {
+          try {
+            const { data: convertedCarts } = await supabaseAdmin
+              .from("abandoned_carts")
+              .update({ converted: true, converted_at: new Date().toISOString() })
+              .eq("user_id", userId)
+              .eq("converted", false)
+              .select("id");
+            
+            if (convertedCarts && convertedCarts.length > 0) {
+              console.log(`[checkout.session.completed] ✅ Marked ${convertedCarts.length} abandoned cart(s) as converted`);
+            }
+          } catch (cartErr) {
+            console.error("[checkout.session.completed] Error marking abandoned carts:", cartErr);
+          }
+        }
+
         if (userId && subscriptionId) {
           // Get subscription details
           const subscription = await stripe.subscriptions.retrieve(subscriptionId);

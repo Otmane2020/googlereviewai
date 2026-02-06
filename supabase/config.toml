@@ -98,3 +98,6 @@ verify_jwt = false
 
 [functions.cron-publish-scheduled-content]
 verify_jwt = false
+
+[functions.cron-abandoned-cart]
+verify_jwt = false

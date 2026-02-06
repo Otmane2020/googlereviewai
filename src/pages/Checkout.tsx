@@ -74,6 +74,7 @@ const Checkout = () => {
     clearCart,
   } = useCart();
   const [isProcessing, setIsProcessing] = useState(false);
+  const [abandonedCartSaved, setAbandonedCartSaved] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -86,6 +87,67 @@ const Checkout = () => {
       navigate("/choose-plan");
     }
   }, [items, loading, navigate]);
+
+  // Track abandoned cart: save cart state when user arrives on checkout
+  useEffect(() => {
+    if (!user || items.length === 0 || abandonedCartSaved || loading) return;
+
+    const saveAbandonedCart = async () => {
+      try {
+        // Check if there's already a recent non-converted cart for this user
+        const { data: existing } = await supabase
+          .from("abandoned_carts")
+          .select("id, created_at")
+          .eq("user_id", user.id)
+          .eq("converted", false)
+          .order("created_at", { ascending: false })
+          .limit(1);
+
+        const recentCart = existing?.[0];
+        const isRecent = recentCart && 
+          (Date.now() - new Date(recentCart.created_at).getTime()) < 24 * 60 * 60 * 1000;
+
+        if (isRecent) {
+          // Update existing cart with latest items
+          await supabase
+            .from("abandoned_carts")
+            .update({
+              cart_items: items.map(i => ({ name: i.name, price: i.price, quantity: i.quantity, type: i.type })),
+              billing_cycle: billingCycle,
+              total_amount: totalToday,
+            })
+            .eq("id", recentCart.id);
+        } else {
+          // Get user email
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("email, full_name")
+            .eq("id", user.id)
+            .single();
+
+          if (profile?.email) {
+            await supabase
+              .from("abandoned_carts")
+              .insert({
+                user_id: user.id,
+                email: profile.email,
+                full_name: profile.full_name,
+                cart_items: items.map(i => ({ name: i.name, price: i.price, quantity: i.quantity, type: i.type })),
+                billing_cycle: billingCycle,
+                total_amount: totalToday,
+              });
+          }
+        }
+
+        setAbandonedCartSaved(true);
+        console.log("[Checkout] Abandoned cart tracked");
+      } catch (err) {
+        console.error("[Checkout] Error saving abandoned cart:", err);
+      }
+    };
+
+    saveAbandonedCart();
+  }, [user, items, loading, abandonedCartSaved, billingCycle, totalToday]);
 
   const planItem = items.find((item) => item.type === "plan");
 
