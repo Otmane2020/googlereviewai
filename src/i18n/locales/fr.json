@@ -479,6 +479,45 @@
     "currentPlan": "Plan actuel",
     "choosePlan": "Choisir un plan"
   },
+  "demo": {
+    "badge": "Démo en direct",
+    "title": "Voyez Starlinko en action",
+    "subtitle": "Notre IA génère des réponses personnalisées à chaque avis Google en quelques secondes",
+    "tab": "Avis {{num}}",
+    "aiLabel": "Réponse IA Starlinko",
+    "typing": "Rédaction...",
+    "published": "✓ Publiée",
+    "reviews": {
+      "0": {
+        "author": "Sophie M.",
+        "rating": 5,
+        "text": "Excellent restaurant, le service est top !",
+        "response": "Merci Sophie pour ce retour enthousiaste ! Nous sommes ravis que notre service vous ait plu. Au plaisir de vous revoir bientôt !"
+      },
+      "1": {
+        "author": "Jean-Pierre L.",
+        "rating": 4,
+        "text": "Bonne expérience dans l'ensemble, les plats étaient délicieux.",
+        "response": "Merci Jean-Pierre pour votre visite ! Heureux que nos plats vous aient régalé. Nous espérons dépasser vos attentes lors de votre prochaine visite !"
+      },
+      "2": {
+        "author": "Amina K.",
+        "rating": 3,
+        "text": "L'attente était un peu longue mais le repas valait le coup.",
+        "response": "Merci Amina pour votre avis constructif ! Nous travaillons activement à réduire nos délais d'attente. Votre patience a été récompensée et nous ferons encore mieux !"
+      }
+    },
+    "stats": {
+      "responseTime": "-95%",
+      "responseTimeLabel": "Temps de réponse",
+      "seoVisibility": "+40%",
+      "seoVisibilityLabel": "Visibilité SEO",
+      "googleMaps": "Top 3",
+      "googleMapsLabel": "Google Maps"
+    },
+    "cta": "Essayer gratuitement pendant 2 mois",
+    "ctaSubtext": "Sans carte bancaire • Annulation à tout moment"
+  },
   "sectorDemo": {
     "description": "Les réponses ci-dessous à des avis positifs ou négatifs ont été générées par",
     "brandName": "Starlinko IA",
