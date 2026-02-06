@@ -1,4 +1,5 @@
- import { useState } from "react";
+import { useState } from "react";
+import { SectorDemoSection } from "@/components/SectorDemoSection";
  import { useNavigate } from "react-router-dom";
  import { Button } from "@/components/ui/button";
  import { 
@@ -215,9 +216,12 @@
              ))}
            </div>
          </div>
-       </section>
- 
-       {/* Features - L'Offre Unique */}
+        </section>
+
+        {/* Sector Demo */}
+        <SectorDemoSection />
+
+        {/* Features - L'Offre Unique */}
        <section className="py-16 sm:py-24 bg-muted/50">
          <div className="container mx-auto px-5">
            <div className="text-center mb-12">
