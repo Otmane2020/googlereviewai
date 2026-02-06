@@ -23,92 +23,92 @@ interface DemoReview {
 const DEMO_DATA: Record<string, Record<ReviewType, DemoReview>> = {
   restaurant: {
     positive: {
-      author: "Sophie Martin",
+      author: "Caroline Vidal",
       rating: 5,
-      date: "il y a 2 jours",
-      text: "Superbe découverte ! Le risotto aux champignons était délicieux et le serveur très attentionné. Nous reviendrons sans hésiter.",
+      date: "il y a 3 jours",
+      text: "Un vrai coup de cœur ! Le tartare de saumon était d'une fraîcheur incroyable et l'ambiance chaleureuse. On s'est sentis comme chez nous.",
       response:
-        "Merci beaucoup Sophie pour votre chaleureux commentaire ! Nous sommes ravis que notre risotto ait su vous séduire et que notre équipe ait contribué à rendre votre repas agréable. À très bientôt pour une nouvelle dégustation !",
+        "Merci beaucoup Caroline pour ce magnifique retour ! Nous sommes ravis que notre tartare et l'atmosphère vous aient conquise. Toute l'équipe a hâte de vous retrouver pour un prochain moment gourmand !",
     },
     negative: {
-      author: "Marc Dupont",
+      author: "Frédéric Lemoine",
       rating: 2,
-      date: "il y a 5 jours",
-      text: "Service très lent, nous avons attendu plus de 40 minutes pour nos plats. Dommage car la nourriture était correcte.",
+      date: "il y a 4 jours",
+      text: "Réservation pour 20h, installés à 20h35. Les plats étaient tièdes et le serveur peu disponible. Très décevant pour le prix.",
       response:
-        "Merci Marc pour votre retour honnête. Nous sommes sincèrement désolés pour cette attente inhabituelle. Nous prenons des mesures pour améliorer notre rapidité de service. Nous espérons avoir l'occasion de vous offrir une meilleure expérience.",
+        "Merci Frédéric pour votre retour sincère. Nous sommes navrés de cette expérience qui ne correspond pas à nos exigences. Nous avons revu l'organisation du service aux heures de pointe. Nous aimerions vous inviter à revenir pour rectifier cette impression.",
     },
   },
   hotel: {
     positive: {
-      author: "Claire Lefèvre",
+      author: "Isabelle Marchand",
       rating: 5,
-      date: "il y a 3 jours",
-      text: "Séjour parfait ! La chambre était immaculée, le petit-déjeuner copieux et la vue sur mer magnifique. Personnel aux petits soins.",
+      date: "il y a 2 jours",
+      text: "Week-end mémorable ! Chambre spacieuse avec terrasse, spa sublime et personnel d'une gentillesse rare. Un vrai havre de paix.",
       response:
-        "Merci infiniment Claire pour ce merveilleux avis ! Nous sommes enchantés que votre séjour ait été à la hauteur de vos attentes. Notre équipe sera ravie de vous accueillir à nouveau !",
+        "Merci Isabelle pour ces mots qui nous vont droit au cœur ! Savoir que votre week-end a été si agréable est notre plus belle récompense. Nous serons ravis de vous accueillir de nouveau !",
     },
     negative: {
-      author: "Thomas Bernard",
+      author: "Rémi Blanchard",
       rating: 2,
       date: "il y a 1 semaine",
-      text: "Chambre bruyante donnant sur la rue, climatisation en panne. Le check-in a pris 25 minutes.",
+      text: "Wifi quasi inexistant, serviettes non changées en 3 jours et petit-déjeuner peu varié. Rapport qualité-prix décevant.",
       response:
-        "Merci Thomas pour votre retour. Nous regrettons sincèrement ces désagréments qui ne reflètent pas nos standards. La climatisation a été réparée et nous avons revu notre procédure d'accueil. Nous serions honorés de vous offrir un meilleur séjour.",
+        "Merci Rémi pour ces remarques pertinentes. Nous prenons très au sérieux chacun de ces points. Le réseau wifi a été mis à jour et les consignes de ménage renforcées. Nous espérons vous prouver notre amélioration lors d'un prochain séjour.",
     },
   },
   beauty: {
     positive: {
-      author: "Amina Khelifi",
+      author: "Leïla Benkacem",
       rating: 5,
       date: "il y a 1 jour",
-      text: "Soin du visage exceptionnel ! Ma peau n'a jamais été aussi lumineuse. L'esthéticienne était douce et professionnelle.",
+      text: "Massage relaxant absolument divin ! J'en suis ressortie transformée. Le cadre est zen et l'accueil chaleureux. Je recommande à 100 %.",
       response:
-        "Merci Amina, votre retour nous touche énormément ! Nous sommes ravis que notre soin ait répondu à vos attentes. Au plaisir de prendre soin de vous à nouveau !",
+        "Merci Leïla pour ce superbe avis ! Votre bien-être est notre priorité et nous sommes ravies que ce moment de détente ait été à la hauteur. Hâte de vous retrouver pour une nouvelle parenthèse zen !",
     },
     negative: {
-      author: "Julie Morel",
+      author: "Émilie Garnier",
       rating: 2,
-      date: "il y a 4 jours",
-      text: "Rendez-vous décalé de 30 minutes sans prévenir. La manucure s'est écaillée au bout de 2 jours.",
+      date: "il y a 3 jours",
+      text: "Coloration ratée, le résultat ne correspondait pas du tout à ce que j'avais demandé. Obligée d'aller rectifier ailleurs.",
       response:
-        "Merci Julie pour ce retour. Nous sommes désolés pour le retard et la tenue de votre manucure. Nous vous proposons une retouche gratuite et veillerons à respecter les horaires. Votre satisfaction est notre priorité.",
+        "Merci Émilie pour votre retour. Nous sommes sincèrement désolés de cette situation inacceptable. Nous souhaitons vous proposer une correction gratuite avec notre coloriste senior. Votre confiance compte énormément pour nous.",
     },
   },
   auto: {
     positive: {
-      author: "Philippe Roux",
+      author: "Stéphane Perrin",
       rating: 5,
-      date: "il y a 3 jours",
-      text: "Révision complète faite en une demi-journée, tarif transparent et explications claires du mécanicien. Je recommande vivement !",
+      date: "il y a 2 jours",
+      text: "Contrôle technique + vidange effectués rapidement. Facture détaillée, prix honnête et véhicule de courtoisie proposé. Garage au top !",
       response:
-        "Merci Philippe ! Nous sommes fiers de la confiance que vous nous accordez. La transparence et la qualité de service sont au cœur de notre engagement. Au plaisir de vous revoir !",
+        "Merci Stéphane pour votre confiance ! Nous mettons un point d'honneur à offrir un service rapide et transparent. Ravi que le véhicule de courtoisie ait facilité votre journée. À bientôt !",
     },
     negative: {
-      author: "Laurent Petit",
+      author: "Christophe Renaud",
       rating: 2,
-      date: "il y a 6 jours",
-      text: "Devis initial largement dépassé sans m'avoir consulté. La voiture a dû revenir 3 jours après pour le même problème.",
+      date: "il y a 5 jours",
+      text: "Pièce commandée soi-disant en stock, finalement 2 semaines d'attente. Aucune communication entre-temps. Frustrant.",
       response:
-        "Merci Laurent pour votre retour. Nous comprenons votre frustration et nous en excusons sincèrement. Nous avons renforcé notre protocole de validation des devis. Contactez-nous pour que nous trouvions une solution satisfaisante.",
+        "Merci Christophe pour ce signalement. Ce manque de communication est inexcusable et ne reflète pas nos valeurs. Nous avons mis en place un système de suivi SMS pour tenir nos clients informés. Nous vous devons mieux et souhaitons regagner votre confiance.",
     },
   },
   retail: {
     positive: {
-      author: "Nathalie Girard",
+      author: "Sandrine Collet",
       rating: 5,
-      date: "il y a 2 jours",
-      text: "Boutique magnifique avec un choix incroyable. La vendeuse m'a aidée à trouver exactement ce que je cherchais. Merci !",
+      date: "il y a 1 jour",
+      text: "Livraison ultra rapide et produit conforme à la description. Le service client m'a même appelée pour confirmer ma taille. Bravo !",
       response:
-        "Merci Nathalie pour ce bel avis ! Nous sommes ravis que notre équipe ait su vous accompagner. Votre satisfaction est notre plus belle récompense. À bientôt en boutique !",
+        "Merci Sandrine pour ce retour enthousiaste ! Nous croyons que l'attention aux détails fait toute la différence. Ravie que notre équipe ait su vous accompagner. Au plaisir de vous servir à nouveau !",
     },
     negative: {
-      author: "David Faure",
+      author: "Julien Carpentier",
       rating: 2,
-      date: "il y a 5 jours",
-      text: "Article reçu avec un défaut, et le SAV a mis 10 jours pour répondre. Expérience décevante.",
+      date: "il y a 6 jours",
+      text: "Colis arrivé abîmé, emballage insuffisant. Le retour a été compliqué et le remboursement a pris 3 semaines.",
       response:
-        "Merci David pour votre retour. Nous sommes navrés pour ce produit défectueux et ce délai de réponse inacceptable. Nous avons renforcé notre SAV et vous envoyons un remplacement immédiat avec un geste commercial.",
+        "Merci Julien pour votre retour. Nous sommes sincèrement désolés pour ces désagréments. Nous avons revu notre processus d'emballage et accéléré les délais de remboursement à 5 jours ouvrés. Nous espérons vous satisfaire pleinement la prochaine fois.",
     },
   },
 };
