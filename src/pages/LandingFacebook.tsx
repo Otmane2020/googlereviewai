@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { Helmet } from "react-helmet";
 import { useVisitTracking } from "@/hooks/useVisitTracking";
+import { SectorDemoSection } from "@/components/SectorDemoSection";
 
 const TESTIMONIALS = [
   {
@@ -166,6 +167,9 @@ const LandingFacebook = () => {
           </div>
         </div>
       </section>
+
+      {/* Sector Demo */}
+      <SectorDemoSection />
 
       {/* Features */}
       <section className="py-14 bg-muted/30">
