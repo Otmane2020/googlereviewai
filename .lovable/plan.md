@@ -1,45 +1,29 @@
 
-# Correction des traductions FR et EN
 
 ## Probleme identifie
 
-Le composant **DemoSection.tsx** (la section demo avec les 3 avis qui defilent sur la page d'accueil) contient **tout le texte directement en francais dans le code**, sans utiliser le systeme de traduction i18n. Resultat : quand un visiteur anglophone consulte le site, cette section reste en francais.
+La page `/landing` fonctionne parfaitement dans l'environnement de developpement (preview). Le probleme 404 vient tres probablement de l'une de ces deux causes :
 
-Le composant **SectorDemoSection.tsx** (demo par secteurs) est deja correctement traduit dans les deux langues -- aucun changement necessaire.
+1. **Le projet n'a pas ete publie** depuis l'ajout de la route `/landing` -- la version live sur `starlinko.lovable.app` ne contient pas encore cette page
+2. **Probleme de routage SPA** -- le serveur ne sait pas servir `index.html` pour les routes comme `/landing` lors d'un acces direct (rechargement ou lien direct)
 
-## Modifications prevues
+## Solution
 
-### 1. Ajouter les cles de traduction dans `fr.json`
+### Etape 1 : Ajouter un fichier `_redirects` pour le routage SPA
 
-Ajout d'un nouveau bloc `"demo"` avec toutes les traductions francaises :
-- Titre, sous-titre, badge "Demo en direct"
-- 3 avis avec auteur, texte et reponse IA
-- Labels des onglets ("Avis 1", "Avis 2", "Avis 3")
-- Labels IA ("Reponse IA Starlinko", "Redaction...", "Publiee")
-- Stats ("-95% Temps de reponse", "+40% Visibilite SEO", "Top 3 Google Maps")
-- CTA ("Essayer gratuitement pendant 2 mois", "Sans carte bancaire", etc.)
+Creer un fichier `public/_redirects` qui indique au serveur de toujours renvoyer `index.html` pour toutes les routes non-fichier. Cela corrige le probleme de rechargement sur les sous-pages.
 
-### 2. Ajouter les cles de traduction dans `en.json`
+### Etape 2 : Nettoyer les imports dans App.tsx
 
-Meme bloc `"demo"` avec les traductions anglaises :
-- "Live Demo", "See Starlinko in action"
-- 3 reviews with English names, text and AI responses
-- Tab labels ("Review 1", "Review 2", "Review 3")
-- AI labels ("Starlinko AI Response", "Writing...", "Published")
-- Stats ("-95% Response time", "+40% SEO Visibility", "Top 3 Google Maps")
-- CTA ("Try free for 2 months", "No credit card", etc.)
+Corriger les espaces parasites dans les lignes d'import de `LandingPremium` et de la route (lignes 46 et 186 de `App.tsx`) pour eviter tout probleme potentiel de parsing.
 
-### 3. Mettre a jour `DemoSection.tsx`
+### Etape 3 : Publier le projet
 
-- Importer `useTranslation` de react-i18next
-- Remplacer toutes les chaines codees en dur par des appels `t("demo.xxx")`
-- Les 3 avis de demonstration seront recuperes dynamiquement via les cles i18n au lieu d'etre dans un tableau statique
+Apres les corrections, le projet devra etre re-publie via le bouton "Publish" pour que les changements soient visibles sur l'URL publique.
 
 ## Details techniques
 
-Fichiers modifies :
-- `src/i18n/locales/fr.json` -- ajout du bloc `demo`
-- `src/i18n/locales/en.json` -- ajout du bloc `demo`
-- `src/components/DemoSection.tsx` -- integration i18n avec `useTranslation()`
+- Fichier a creer : `public/_redirects` avec le contenu `/* /index.html 200`
+- Fichier a modifier : `src/App.tsx` -- supprimer l'espace en debut de ligne pour l'import `LandingPremium` (ligne 46) et la route `/landing` (ligne 186) pour plus de coherence
+- Aucune modification de logique -- uniquement du nettoyage et de la configuration serveur
 
-Aucun nouveau fichier cree. Aucune modification de structure ou de style visuel.
