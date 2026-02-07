@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { SectorDemoSection } from "@/components/SectorDemoSection";
+import { Footer } from "@/components/Footer";
+import { useNavigate, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
- import { useNavigate } from "react-router-dom";
  import { Button } from "@/components/ui/button";
  import { 
    Star, 
@@ -113,7 +114,7 @@ const LandingPremium = () => {
        {/* Header */}
        <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
          <div className="container mx-auto px-5 py-4 flex items-center justify-between">
-           <StarlinkoLogo className="h-8" />
+           <Link to="/"><StarlinkoLogo className="h-8" /></Link>
            <Button 
              variant="outline" 
              size="sm"
@@ -489,15 +490,7 @@ const LandingPremium = () => {
          </div>
        </section>
  
-       {/* Footer */}
-       <footer className="py-8 border-t border-border bg-background">
-         <div className="container mx-auto px-5 text-center">
-           <StarlinkoLogo className="h-6 mx-auto mb-4 opacity-70" />
-           <p className="text-muted-foreground text-sm">
-             © 2025 Starlinko. Tous droits réservés.
-           </p>
-         </div>
-       </footer>
+        <Footer />
  
        {/* Sticky TrustAvis Badge */}
        <div className="fixed bottom-4 right-4 z-50">
