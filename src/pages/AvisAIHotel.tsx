@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet";
+import { FAQPageSchema, BreadcrumbSchema } from "@/components/StructuredData";
 
 const AvisAIHotel = () => {
   const benefits = [
@@ -67,8 +68,36 @@ const AvisAIHotel = () => {
     { value: "95%", label: "Clients satisfaits" }
   ];
 
+  const hotelFaqs = [
+    {
+      question: "Comment répondre aux avis Google d'un hôtel en plusieurs langues ?",
+      answer: "Starlinko détecte automatiquement la langue de l'avis et génère une réponse dans la même langue. L'IA supporte 12 langues dont le français, l'anglais, l'allemand, l'espagnol, l'italien, le portugais et le néerlandais, idéal pour les hôtels avec une clientèle internationale."
+    },
+    {
+      question: "L'IA peut-elle répondre aux avis d'un hôtel 24h/24 ?",
+      answer: "Oui, Starlinko fonctionne 24h/24 et 7j/7. Les avis reçus la nuit, le week-end ou pendant les vacances reçoivent une réponse automatique personnalisée. C'est particulièrement utile pour les hôtels dont les clients publient des avis à toute heure."
+    },
+    {
+      question: "Comment l'IA adapte-t-elle le ton pour l'hôtellerie de luxe ?",
+      answer: "L'IA de Starlinko permet de configurer le ton de réponse selon le positionnement de votre hôtel : luxe raffiné, boutique-hôtel chaleureux, familial décontracté. Les réponses respectent les standards de service attendus dans l'hôtellerie haut de gamme."
+    },
+    {
+      question: "Répondre aux avis améliore-t-il le classement d'un hôtel sur Google ?",
+      answer: "Oui, Google favorise les fiches actives avec des réponses régulières aux avis. Les hôtels qui répondent à 100% de leurs avis gagnent en moyenne +0.3 étoile sur leur note globale et améliorent leur positionnement sur Google Maps et dans les résultats locaux."
+    },
+    {
+      question: "Starlinko gère-t-il les plaintes et avis négatifs d'un hôtel ?",
+      answer: "Oui, l'IA génère des réponses professionnelles et empathiques aux avis négatifs. Elle reconnaît le problème spécifique (bruit, propreté, service), présente des excuses sincères et propose une solution concrète, limitant l'impact sur votre réputation en ligne."
+    }
+  ];
+
   return (
     <>
+      <FAQPageSchema faqs={hotelFaqs} />
+      <BreadcrumbSchema items={[
+        { name: "Accueil", url: "https://starlinko.app" },
+        { name: "Avis IA Hôtel", url: "https://starlinko.app/avis-ai-hotel" }
+      ]} />
       <Helmet>
         <title>Avis Google Hôtel IA - Réponses Automatiques Multilingues | Starlinko</title>
         <meta 

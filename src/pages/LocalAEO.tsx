@@ -1,9 +1,9 @@
-import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { Helmet } from "react-helmet";
 import { 
   Bot, 
   MessageSquare, 
@@ -18,16 +18,10 @@ import {
   Search,
   Sparkles
 } from "lucide-react";
+import { FAQPageSchema, BreadcrumbSchema } from "@/components/StructuredData";
 
 const LocalAEO = () => {
-  useEffect(() => {
-    // SEO meta tags
-    document.title = "Local AEO - Optimisation pour ChatGPT & IA | Starlinko";
-    const metaDescription = document.querySelector('meta[name="description"]');
-    if (metaDescription) {
-      metaDescription.setAttribute("content", "Optimisez votre visibilité locale dans ChatGPT, Gemini et les assistants IA. Générez automatiquement des Q&A optimisés pour apparaître dans les réponses IA.");
-    }
-  }, []);
+  
 
   const features = [
     {
@@ -89,8 +83,53 @@ const LocalAEO = () => {
     }
   ];
 
+  const aeoFaqs = [
+    {
+      question: "Comment apparaître dans les réponses de ChatGPT pour les recherches locales ?",
+      answer: "Pour apparaître dans ChatGPT pour les recherches locales, il faut publier du contenu structuré en format question-réponse sur votre fiche Google Business Profile. Starlinko automatise ce processus via son module AEO qui génère et publie quotidiennement des Q&A optimisés spécifiquement pour les moteurs de réponse IA."
+    },
+    {
+      question: "Qu'est-ce que l'AEO (Answer Engine Optimization) ?",
+      answer: "L'AEO (Answer Engine Optimization) est le référencement pour les moteurs de réponse IA comme ChatGPT, Gemini, Claude et Perplexity. Contrairement au SEO qui optimise pour les moteurs de recherche traditionnels, l'AEO optimise votre contenu pour être cité directement dans les réponses des assistants IA."
+    },
+    {
+      question: "Quelle est la différence entre SEO local et AEO local ?",
+      answer: "Le SEO local optimise votre positionnement dans Google Maps et les résultats de recherche locaux. L'AEO local optimise votre contenu pour que les assistants IA (ChatGPT, Gemini) recommandent votre entreprise lorsque les utilisateurs posent des questions sur des services près de chez eux. Starlinko combine les deux pour maximiser votre visibilité."
+    },
+    {
+      question: "Comment Starlinko génère-t-il des Q&A pour ChatGPT ?",
+      answer: "Starlinko utilise l'IA pour analyser votre activité, vos mots-clés et votre zone géographique. Il génère ensuite des questions-réponses pertinentes en format structuré et les publie automatiquement sur votre fiche Google Business Profile chaque jour, maximisant vos chances d'être cité par les IA."
+    },
+    {
+      question: "Combien de temps faut-il pour apparaître dans les réponses IA ?",
+      answer: "Les premiers résultats sont généralement visibles en 30 à 60 jours. Starlinko publie du contenu AEO quotidiennement, créant un effet cumulatif. Plus votre contenu est riche et régulier, plus les chances d'être cité par ChatGPT et les autres IA augmentent."
+    },
+    {
+      question: "L'AEO fonctionne-t-il pour tous les secteurs d'activité ?",
+      answer: "Oui, l'AEO est efficace pour toutes les entreprises locales : restaurants, hôtels, salons de coiffure, garages, professionnels de santé, commerces, artisans. Starlinko adapte le contenu Q&A à chaque secteur pour répondre aux questions que les utilisateurs posent réellement aux assistants IA."
+    }
+  ];
+
   return (
     <div className="min-h-screen bg-background">
+      <Helmet>
+        <title>Local AEO – Apparaissez dans ChatGPT & Gemini | Starlinko</title>
+        <meta
+          name="description"
+          content="Optimisez votre visibilité locale dans ChatGPT, Gemini et les assistants IA. Générez automatiquement des Q&A AEO pour être recommandé par l'IA. Essai gratuit."
+        />
+        <link rel="canonical" href="https://starlinko.app/local-aeo" />
+        <meta property="og:title" content="Local AEO – Apparaissez dans ChatGPT & Gemini" />
+        <meta property="og:description" content="Optimisez votre présence pour les moteurs de réponse IA. Q&A automatiques publiés sur Google Business Profile." />
+        <meta property="og:url" content="https://starlinko.app/local-aeo" />
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://starlinko.app/og-image.png" />
+      </Helmet>
+      <FAQPageSchema faqs={aeoFaqs} />
+      <BreadcrumbSchema items={[
+        { name: "Accueil", url: "https://starlinko.app" },
+        { name: "Local AEO", url: "https://starlinko.app/local-aeo" }
+      ]} />
       <Header />
       
       <main className="pt-20">
@@ -264,27 +303,7 @@ const LocalAEO = () => {
           </div>
         </section>
 
-        {/* Schema.org structured data */}
-        <script type="application/ld+json" dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "SoftwareApplication",
-            "name": "Starlinko Local AEO",
-            "applicationCategory": "BusinessApplication",
-            "description": "Optimisation pour les assistants IA (ChatGPT, Gemini) pour les entreprises locales. Générez automatiquement des Q&A optimisés pour apparaître dans les réponses IA.",
-            "operatingSystem": "Web",
-            "offers": {
-              "@type": "Offer",
-              "price": "49",
-              "priceCurrency": "EUR"
-            },
-            "aggregateRating": {
-              "@type": "AggregateRating",
-              "ratingValue": "4.8",
-              "reviewCount": "127"
-            }
-          })
-        }} />
+        {/* Schema moved to Helmet via StructuredData components */}
       </main>
 
       <Footer />

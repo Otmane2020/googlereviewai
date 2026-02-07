@@ -20,10 +20,38 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet";
+import { FAQPageSchema, BreadcrumbSchema } from "@/components/StructuredData";
 
 const AvisAIGuide = () => {
   return (
     <>
+      <FAQPageSchema faqs={[
+        {
+          question: "Comment répondre aux avis Google avec l'IA ?",
+          answer: "Utilisez une solution IA spécialisée comme Starlinko qui se connecte à votre fiche Google Business Profile, analyse chaque avis reçu (contenu, note, contexte) et génère automatiquement une réponse personnalisée publiée directement sur Google en moins de 2 heures."
+        },
+        {
+          question: "Est-ce que les réponses IA aux avis sont naturelles ?",
+          answer: "Oui, les réponses générées par l'IA de Starlinko sont personnalisées en fonction du contenu spécifique de chaque avis, du ton de votre entreprise et de votre secteur d'activité. Elles sont conçues pour paraître humaines et professionnelles, sans effet copié-collé."
+        },
+        {
+          question: "Répondre aux avis Google améliore-t-il le SEO local ?",
+          answer: "Oui, répondre régulièrement aux avis Google est un signal positif pour l'algorithme de Google. Les entreprises qui répondent à tous leurs avis améliorent leur classement sur Google Maps, obtiennent plus d'avis positifs et augmentent leur taux de conversion."
+        },
+        {
+          question: "Peut-on automatiser les réponses aux avis tout en gardant le contrôle ?",
+          answer: "Oui, Starlinko permet de configurer un mode semi-automatique où les réponses sont générées par l'IA mais soumises à votre validation avant publication. Vous pouvez aussi modifier les réponses ou activer le mode 100% automatique pour un gain de temps maximal."
+        },
+        {
+          question: "Combien d'avis peut-on traiter avec l'IA ?",
+          answer: "Starlinko peut traiter un nombre illimité d'avis. Que vous receviez 5 ou 500 avis par mois, l'IA analyse et répond à chacun de manière personnalisée, 24h/24 et 7j/7, sans aucune limite."
+        }
+      ]} />
+      <BreadcrumbSchema items={[
+        { name: "Accueil", url: "https://starlinko.app" },
+        { name: "Blog", url: "https://starlinko.app/blog" },
+        { name: "Guide IA Avis Clients", url: "https://starlinko.app/avis-ai-guide" }
+      ]} />
       <Helmet>
         <title>Comment l'IA révolutionne la gestion des avis clients en 2026 | Starlinko</title>
         <meta 

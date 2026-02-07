@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet";
+import { FAQPageSchema, BreadcrumbSchema } from "@/components/StructuredData";
 
 const AvisAIRestaurant = () => {
   const benefits = [
@@ -64,8 +65,36 @@ const AvisAIRestaurant = () => {
     { value: "15min", label: "Gagnées par jour" }
   ];
 
+  const restaurantFaqs = [
+    {
+      question: "Comment automatiser les réponses aux avis Google de mon restaurant ?",
+      answer: "Starlinko connecte votre fiche Google Business Profile et utilise l'IA pour analyser chaque avis reçu. L'IA génère une réponse personnalisée adaptée à l'univers de la restauration et la publie automatiquement en moins de 2 heures, même le soir et le week-end."
+    },
+    {
+      question: "L'IA comprend-elle le vocabulaire culinaire pour répondre aux avis ?",
+      answer: "Oui, l'IA de Starlinko est spécialement entraînée pour le secteur de la restauration. Elle comprend le vocabulaire culinaire, adapte le ton selon le type d'établissement (gastronomique, bistrot, pizzeria) et peut mentionner des plats ou services spécifiques évoqués dans l'avis."
+    },
+    {
+      question: "Comment gérer les avis négatifs d'un restaurant avec l'IA ?",
+      answer: "Starlinko génère des réponses diplomatiques et professionnelles aux avis négatifs. L'IA reconnaît le problème mentionné, présente des excuses appropriées et propose une solution, le tout en préservant l'image de votre restaurant. Vous pouvez valider ou modifier la réponse avant publication."
+    },
+    {
+      question: "Quel est l'impact des réponses aux avis sur la note Google d'un restaurant ?",
+      answer: "Les restaurants qui répondent systématiquement à leurs avis voient en moyenne +40% d'avis positifs supplémentaires. Une réponse rapide et personnalisée encourage les clients satisfaits à laisser un avis et rassure les futurs clients qui lisent les réponses du restaurateur."
+    },
+    {
+      question: "Combien de temps gagne un restaurateur avec Starlinko ?",
+      answer: "En moyenne, les restaurateurs utilisant Starlinko gagnent 15 minutes par jour sur la gestion des avis. L'IA traite 98% des avis automatiquement, vous laissant le temps de vous concentrer sur votre cuisine et votre service."
+    }
+  ];
+
   return (
     <>
+      <FAQPageSchema faqs={restaurantFaqs} />
+      <BreadcrumbSchema items={[
+        { name: "Accueil", url: "https://starlinko.app" },
+        { name: "Avis IA Restaurant", url: "https://starlinko.app/avis-ai-restaurant" }
+      ]} />
       <Helmet>
         <title>Avis Google Restaurant IA - Réponses Automatiques | Starlinko</title>
         <meta 

@@ -3,6 +3,8 @@ import { SectorDemoSection } from "@/components/SectorDemoSection";
 import { Footer } from "@/components/Footer";
 import { useNavigate, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { Helmet } from "react-helmet";
+import { ProductSchema, FAQPageSchema } from "@/components/StructuredData";
  import { Button } from "@/components/ui/button";
  import { 
    Star, 
@@ -111,6 +113,38 @@ const LandingPremium = () => {
  
    return (
      <div className="min-h-screen bg-background">
+       <Helmet>
+         <title>Starlinko Pack Complet – SEO + AEO + Avis IA | Tout-en-Un</title>
+         <meta
+           name="description"
+           content="Boostez votre visibilité sur Google & ChatGPT avec le Pack Complet Starlinko. Réponses IA aux avis, SEO local, AEO ChatGPT. À partir de 32,50€/mois."
+         />
+         <link rel="canonical" href="https://starlinko.app/landing" />
+         <meta property="og:title" content="Starlinko Pack Complet – Visibilité Google & ChatGPT" />
+         <meta property="og:description" content="Un seul pack, un seul prix. SEO + AEO + Avis Google IA. Passez devant vos concurrents en 60 jours." />
+         <meta property="og:url" content="https://starlinko.app/landing" />
+         <meta property="og:type" content="product" />
+         <meta property="og:image" content="https://starlinko.app/og-image.png" />
+       </Helmet>
+       <ProductSchema />
+       <FAQPageSchema faqs={[
+         {
+           question: "Que comprend le Pack Complet Starlinko ?",
+           answer: "Le Pack Complet Starlinko inclut toutes les fonctionnalités : réponses automatiques IA aux avis Google, SEO local automatisé avec publications quotidiennes, AEO pour apparaître dans ChatGPT et les IA, dashboard de suivi et statistiques complètes. Un seul prix, aucune option cachée."
+         },
+         {
+           question: "Combien coûte Starlinko ?",
+           answer: "Starlinko est à 39€/mois en mensuel, ou 32,50€/mois en engagement annuel (soit 390€/an avec 2 mois offerts). Toutes les fonctionnalités sont incluses sans option ni add-on supplémentaire."
+         },
+         {
+           question: "Puis-je essayer Starlinko gratuitement ?",
+           answer: "Oui, Starlinko propose un essai gratuit de 7 jours sans carte bancaire. Vous pouvez tester toutes les fonctionnalités et annuler à tout moment si la solution ne vous convient pas."
+         },
+         {
+           question: "Combien de temps faut-il pour voir des résultats ?",
+           answer: "Les premiers résultats sont visibles dès les premières semaines avec les réponses automatiques aux avis. L'effet cumulatif sur le SEO local et l'AEO se manifeste en 30 à 60 jours avec une augmentation progressive de la visibilité sur Google et les moteurs de réponse IA."
+         }
+       ]} />
        {/* Header */}
        <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
          <div className="container mx-auto px-5 py-4 flex items-center justify-between">
