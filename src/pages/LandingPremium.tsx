@@ -5,6 +5,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Helmet } from "react-helmet";
 import { ProductSchema, FAQPageSchema } from "@/components/StructuredData";
+import { FAQSection } from "@/components/FAQSection";
  import { Button } from "@/components/ui/button";
  import { 
    Star, 
@@ -104,12 +105,31 @@ const LandingPremium = () => {
      { icon: Target, label: "Réputation", desc: "Score & recommandations" },
    ];
  
-   const benefits = [
-     { icon: TrendingUp, text: "Jusqu'à +30% de CA potentiel" },
-     { icon: Rocket, text: "Effet cumulatif en 60 jours" },
-     { icon: Globe, text: "Visible sur Google & ChatGPT" },
-     { icon: Users, text: "+2000 entreprises équipées" },
-   ];
+    const benefits = [
+      { icon: TrendingUp, text: "Jusqu'à +30% de CA potentiel" },
+      { icon: Rocket, text: "Effet cumulatif en 60 jours" },
+      { icon: Globe, text: "Visible sur Google & ChatGPT" },
+      { icon: Users, text: "+2000 entreprises équipées" },
+    ];
+
+    const landingFaqs = [
+      {
+        question: "Que comprend le Pack Complet Starlinko ?",
+        answer: "Le Pack Complet Starlinko inclut toutes les fonctionnalités : réponses automatiques IA aux avis Google, SEO local automatisé avec publications quotidiennes, AEO pour apparaître dans ChatGPT et les IA, dashboard de suivi et statistiques complètes. Un seul prix, aucune option cachée."
+      },
+      {
+        question: "Combien coûte Starlinko ?",
+        answer: "Starlinko est à 39€/mois en mensuel, ou 32,50€/mois en engagement annuel (soit 390€/an avec 2 mois offerts). Toutes les fonctionnalités sont incluses sans option ni add-on supplémentaire."
+      },
+      {
+        question: "Puis-je essayer Starlinko gratuitement ?",
+        answer: "Oui, Starlinko propose un essai gratuit de 7 jours sans carte bancaire. Vous pouvez tester toutes les fonctionnalités et annuler à tout moment si la solution ne vous convient pas."
+      },
+      {
+        question: "Combien de temps faut-il pour voir des résultats ?",
+        answer: "Les premiers résultats sont visibles dès les premières semaines avec les réponses automatiques aux avis. L'effet cumulatif sur le SEO local et l'AEO se manifeste en 30 à 60 jours avec une augmentation progressive de la visibilité sur Google et les moteurs de réponse IA."
+      }
+    ];
  
    return (
      <div className="min-h-screen bg-background">
@@ -126,25 +146,8 @@ const LandingPremium = () => {
          <meta property="og:type" content="product" />
          <meta property="og:image" content="https://starlinko.app/og-image.png" />
        </Helmet>
-       <ProductSchema />
-       <FAQPageSchema faqs={[
-         {
-           question: "Que comprend le Pack Complet Starlinko ?",
-           answer: "Le Pack Complet Starlinko inclut toutes les fonctionnalités : réponses automatiques IA aux avis Google, SEO local automatisé avec publications quotidiennes, AEO pour apparaître dans ChatGPT et les IA, dashboard de suivi et statistiques complètes. Un seul prix, aucune option cachée."
-         },
-         {
-           question: "Combien coûte Starlinko ?",
-           answer: "Starlinko est à 39€/mois en mensuel, ou 32,50€/mois en engagement annuel (soit 390€/an avec 2 mois offerts). Toutes les fonctionnalités sont incluses sans option ni add-on supplémentaire."
-         },
-         {
-           question: "Puis-je essayer Starlinko gratuitement ?",
-           answer: "Oui, Starlinko propose un essai gratuit de 7 jours sans carte bancaire. Vous pouvez tester toutes les fonctionnalités et annuler à tout moment si la solution ne vous convient pas."
-         },
-         {
-           question: "Combien de temps faut-il pour voir des résultats ?",
-           answer: "Les premiers résultats sont visibles dès les premières semaines avec les réponses automatiques aux avis. L'effet cumulatif sur le SEO local et l'AEO se manifeste en 30 à 60 jours avec une augmentation progressive de la visibilité sur Google et les moteurs de réponse IA."
-         }
-       ]} />
+        <ProductSchema />
+        <FAQPageSchema faqs={landingFaqs} />
        {/* Header */}
        <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
          <div className="container mx-auto px-5 py-4 flex items-center justify-between">
@@ -500,8 +503,16 @@ const LandingPremium = () => {
              </div>
            </div>
          </div>
-       </section>
- 
+        </section>
+
+        {/* FAQ Section */}
+        <FAQSection
+          faqs={landingFaqs}
+          title="Questions fréquentes"
+          subtitle="Les réponses aux questions que vous vous posez sur Starlinko"
+          badgeText="FAQ"
+        />
+  
        {/* Final CTA */}
        <section className="py-16 sm:py-24 gradient-hero">
          <div className="container mx-auto px-5 text-center">

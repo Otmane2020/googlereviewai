@@ -17,6 +17,7 @@ import { SectorDemoSection } from "@/components/SectorDemoSection";
 import { Footer } from "@/components/Footer";
 import { MobileStickyButton } from "@/components/MobileStickyButton";
 import { ExitIntentPopup } from "@/components/ExitIntentPopup";
+import { FAQSection } from "@/components/FAQSection";
 import { Loader2, Star } from "lucide-react";
 import { Helmet } from "react-helmet";
 import {
@@ -141,6 +142,12 @@ const Index = () => {
         <TestimonialsSection />
         <ComplianceSection />
         <PricingSection />
+        <FAQSection
+          faqs={homepageFaqs}
+          title="Questions fréquentes"
+          subtitle="Tout ce que vous devez savoir sur Starlinko"
+          badgeText="FAQ"
+        />
         <CTASection />
       </main>
       <Footer />
