@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { SectorDemoSection } from "@/components/SectorDemoSection";
+import { useTranslation } from "react-i18next";
  import { useNavigate } from "react-router-dom";
  import { Button } from "@/components/ui/button";
  import { 
@@ -42,11 +43,19 @@ import { SectorDemoSection } from "@/components/SectorDemoSection";
    </svg>
  );
  
- const LandingPremium = () => {
-   const navigate = useNavigate();
-   const { user, loading: authLoading } = useAuth();
-   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("yearly");
-   const [isLoading, setIsLoading] = useState(false);
+const LandingPremium = () => {
+  const navigate = useNavigate();
+  const { user, loading: authLoading } = useAuth();
+  const { i18n } = useTranslation();
+  const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("yearly");
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Force French language on this landing page (FR-only marketing page)
+  useEffect(() => {
+    if (i18n.language !== "fr") {
+      i18n.changeLanguage("fr");
+    }
+  }, [i18n]);
  
    const handleSubscribe = async () => {
      if (!user) {
