@@ -4,9 +4,9 @@ import { useAuth } from "@/contexts/AuthContext";
 import { StarlinkoLogo } from "@/components/StarlinkoLogo";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Switch } from "@/components/ui/switch";
 import { Star, LogOut, Check, ShieldCheck, Clock, Sparkles, Loader2, Gift } from "lucide-react";
 import { TrustAvisCarousel } from "@/components/TrustAvisBadge";
+import { CountdownBar } from "@/components/CountdownBar";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Helmet } from "react-helmet";
@@ -78,6 +78,7 @@ const ChoosePlan = () => {
 
   return (
     <div className="min-h-screen bg-background safe-area-insets">
+      <CountdownBar hoursFromNow={4} />
       <Helmet>
         <title>Tarifs & Abonnements | Starlinko - Gestion Avis Google</title>
         <meta 
@@ -110,21 +111,34 @@ const ChoosePlan = () => {
           <p className="text-sm text-muted-foreground">Annulez à tout moment</p>
         </div>
 
-        {/* Toggle */}
-        <div className="flex items-center justify-center gap-3 mb-6">
-          <span className={`text-sm ${!isYearly ? "text-foreground font-medium" : "text-muted-foreground"}`}>
-            Mensuel
-          </span>
-          <Switch checked={isYearly} onCheckedChange={setIsYearly} />
-          <span className={`text-sm ${isYearly ? "text-foreground font-medium" : "text-muted-foreground"}`}>
+        {/* Billing Tabs */}
+        <div className="flex items-center gap-2 mb-6 bg-muted/50 rounded-xl p-1">
+          <button
+            onClick={() => setIsYearly(true)}
+            className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg text-sm font-semibold transition-all ${
+              isYearly
+                ? "bg-primary text-primary-foreground shadow-md"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
             Annuel
-          </span>
-          {isYearly && (
-            <Badge className="text-xs bg-secondary text-secondary-foreground flex items-center gap-1">
-              <Gift className="w-3 h-3" />
-              2 mois offerts
-            </Badge>
-          )}
+            {isYearly && (
+              <Badge className="text-[10px] bg-secondary text-secondary-foreground flex items-center gap-0.5 px-1.5 py-0">
+                <Gift className="w-2.5 h-2.5" />
+                -17%
+              </Badge>
+            )}
+          </button>
+          <button
+            onClick={() => setIsYearly(false)}
+            className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-semibold transition-all ${
+              !isYearly
+                ? "bg-primary text-primary-foreground shadow-md"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            Mensuel
+          </button>
         </div>
 
         {/* Single Plan Card */}
