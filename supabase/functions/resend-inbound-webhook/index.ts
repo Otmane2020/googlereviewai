@@ -15,12 +15,29 @@ serve(async (req) => {
 
   try {
     const payload = await req.json();
-    console.log("[Inbound Webhook] Received email:", JSON.stringify(payload, null, 2));
+    console.log("[Inbound Webhook] Received payload:", JSON.stringify(payload, null, 2));
 
-    const from = payload.from || "Expéditeur inconnu";
-    const subject = payload.subject || "(sans objet)";
-    const textBody = payload.text || payload.html || "(aucun contenu)";
-    const to = payload.to || "support@starlinko.app";
+    // CRITICAL: Only process email.received events to avoid loops
+    const eventType = payload.type || "";
+    if (eventType !== "email.received") {
+      console.log(`[Inbound Webhook] Ignored event type: ${eventType}`);
+      return new Response(
+        JSON.stringify({ success: true, ignored: true, reason: `Event type '${eventType}' not handled` }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Extract data from the nested structure
+    const data = payload.data || {};
+    const from = data.from || payload.from || "Expéditeur inconnu";
+    const subject = data.subject || payload.subject || "(sans objet)";
+    const textBody = data.text || data.html || payload.text || payload.html || "(aucun contenu)";
+    const to = Array.isArray(data.to) ? data.to.join(", ") : (data.to || payload.to || "support@starlinko.app");
+
+    // Extract sender email for reply_to
+    const senderEmail = typeof from === "string" 
+      ? (from.match(/<([^>]+)>/)?.[1] || (from.includes("@") ? from : undefined))
+      : undefined;
     const date = new Date().toLocaleString("fr-FR", { timeZone: "Europe/Paris" });
 
     // Send notification to oben.rockman@gmail.com
@@ -94,7 +111,7 @@ serve(async (req) => {
       body: JSON.stringify({
         from: "Starlinko Support <support@starlinko.app>",
         to: [NOTIFY_EMAIL],
-        reply_to: typeof from === "string" && from.includes("@") ? from : undefined,
+        reply_to: senderEmail || undefined,
         subject: `[Support] ${subject}`,
         html: emailHtml,
       }),
