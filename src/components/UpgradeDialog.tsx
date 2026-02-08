@@ -9,8 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Crown, Shield, Sparkles, Coins, ChevronDown, Loader2 } from "lucide-react";
-import { PlanCard } from "@/components/PlanCard";
+import { Crown, Shield, Sparkles, Coins, ChevronDown, Loader2, Check, Gift } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,18 +17,22 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-interface Plan {
-  id: string;
-  name: string;
-  priceMonthly: number;
-  priceYearly: number;
-  credits: number;
-  businesses: string;
-  features: string[];
-  popular?: boolean;
-  hasTrial?: boolean;
-  trialDays?: number;
-}
+// Single all-in-one plan
+const PLAN = {
+  id: "allinone",
+  name: "Starlinko Tout-en-Un",
+  priceMonthly: 39,
+  priceYearly: 390,
+  description: "Pack complet SEO + AEO + Réponses IA",
+  features: [
+    "Réponses IA illimitées aux avis Google",
+    "Articles SEO générés automatiquement",
+    "Optimisation AEO pour ChatGPT",
+    "Publication automatique sur Google",
+    "Tableau de bord analytics",
+    "Support prioritaire",
+  ],
+};
 
 interface CreditPack {
   price: number;
@@ -37,40 +40,6 @@ interface CreditPack {
   priceKey: string;
 }
 
-const plans: Plan[] = [
-  {
-    id: "starter",
-    name: "Starter",
-    priceMonthly: 2.99,
-    priceYearly: 28.70,
-    credits: 10,
-    businesses: "1",
-    features: ["Réponses IA", "Sync automatique", "Support email"],
-    hasTrial: true,
-    trialDays: 3,
-  },
-  {
-    id: "pro",
-    name: "Pro",
-    priceMonthly: 29.99,
-    priceYearly: 287.90,
-    credits: 100,
-    businesses: "2",
-    features: ["Tout Starter +", "IA premium", "Priorité réponses", "Analytics"],
-    popular: true,
-  },
-  {
-    id: "business",
-    name: "Business",
-    priceMonthly: 99,
-    priceYearly: 950.40,
-    credits: 400,
-    businesses: "Illimité",
-    features: ["Tout Pro +", "SEO AutoPost", "API access", "Support prioritaire"],
-  },
-];
-
-// Credit packs with ~0.30€ per credit pricing
 const creditPacks: CreditPack[] = [
   { price: 2.99, credits: 10, priceKey: "credits_10" },
   { price: 29, credits: 100, priceKey: "credits_100" },
@@ -83,9 +52,6 @@ const creditPacks: CreditPack[] = [
   { price: 2999, credits: 10000, priceKey: "credits_10000" },
 ];
 
-// Plan hierarchy for upgrade logic
-const planHierarchy = ["starter", "pro", "business"];
-
 interface UpgradeDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -93,23 +59,15 @@ interface UpgradeDialogProps {
 }
 
 export const UpgradeDialog = ({ open, onOpenChange, currentPlan }: UpgradeDialogProps) => {
-  // Normalize current plan for comparison
-  const normalizedCurrentPlan = currentPlan?.toLowerCase().replace(/\s+/g, "");
-  const currentPlanIndex = normalizedCurrentPlan 
-    ? planHierarchy.indexOf(normalizedCurrentPlan) 
-    : -1;
-  
-  // Check if user has any active subscription
-  const hasActiveSubscription = currentPlanIndex >= 0;
-  const [isYearly, setIsYearly] = useState(false);
-  const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+  const hasActivePlan = !!currentPlan && currentPlan.toLowerCase() !== "free";
+  const [isYearly, setIsYearly] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [loadingCredits, setLoadingCredits] = useState(false);
 
-  const handleSelectPlan = async (plan: Plan) => {
-    setLoadingPlan(plan.id);
-
+  const handleSubscribe = async () => {
+    setIsLoading(true);
     try {
-      const priceKey = `${plan.id}_${isYearly ? "yearly" : "monthly"}`;
+      const priceKey = `allinone_${isYearly ? "yearly" : "monthly"}`;
       
       const { data, error } = await supabase.functions.invoke("create-checkout", {
         body: {
@@ -134,13 +92,12 @@ export const UpgradeDialog = ({ open, onOpenChange, currentPlan }: UpgradeDialog
         variant: "destructive",
       });
     } finally {
-      setLoadingPlan(null);
+      setIsLoading(false);
     }
   };
 
   const handleBuyCredits = async (pack: CreditPack) => {
     setLoadingCredits(true);
-
     try {
       const { data, error } = await supabase.functions.invoke("create-checkout", {
         body: {
@@ -182,11 +139,11 @@ export const UpgradeDialog = ({ open, onOpenChange, currentPlan }: UpgradeDialog
             </div>
             <DialogHeader>
               <DialogTitle className="text-xl font-bold text-foreground">
-                Choisissez <span className="text-primary">votre plan</span>
+                Offre <span className="text-primary">Tout-en-Un</span>
               </DialogTitle>
             </DialogHeader>
             <p className="text-sm text-muted-foreground mt-1">
-              Débloquez toute la puissance de l'IA
+              {PLAN.description}
             </p>
 
             {/* Billing Toggle */}
@@ -194,60 +151,111 @@ export const UpgradeDialog = ({ open, onOpenChange, currentPlan }: UpgradeDialog
               <span className={`text-sm font-medium ${!isYearly ? "text-foreground" : "text-muted-foreground"}`}>
                 Mensuel
               </span>
-            <button
-              onClick={() => setIsYearly(!isYearly)}
-              className={`relative w-14 h-7 rounded-full transition-colors border-2 ${
-                isYearly 
-                  ? "bg-primary border-primary" 
-                  : "bg-muted border-border"
-              }`}
-            >
-              <div
-                className={`absolute top-0.5 w-5 h-5 rounded-full shadow-lg transition-transform ${
+              <button
+                onClick={() => setIsYearly(!isYearly)}
+                className={`relative w-14 h-7 rounded-full transition-colors border-2 ${
                   isYearly 
-                    ? "translate-x-7 bg-primary-foreground" 
-                    : "translate-x-1 bg-primary"
+                    ? "bg-primary border-primary" 
+                    : "bg-muted border-border"
                 }`}
-              />
-            </button>
+              >
+                <div
+                  className={`absolute top-0.5 w-5 h-5 rounded-full shadow-lg transition-transform ${
+                    isYearly 
+                      ? "translate-x-7 bg-primary-foreground" 
+                      : "translate-x-1 bg-primary"
+                  }`}
+                />
+              </button>
               <span className={`text-sm font-medium ${isYearly ? "text-foreground" : "text-muted-foreground"}`}>
                 Annuel
               </span>
               {isYearly && (
-                <Badge className="bg-foreground/10 text-foreground border-foreground/20 text-xs">
-                  -20%
+                <Badge className="bg-secondary/10 text-secondary border-secondary/20 text-xs flex items-center gap-1">
+                  <Gift className="w-3 h-3" />
+                  2 mois offerts
                 </Badge>
               )}
             </div>
           </div>
         </div>
 
-        {/* Plans Stack */}
-        <div className="px-4 pb-4 pt-2 space-y-5">
-          {plans.map((plan) => {
-            const planIndex = planHierarchy.indexOf(plan.id);
-            const isCurrentPlan = normalizedCurrentPlan === plan.id;
-            // Disable if it's the current plan OR a lower tier
-            const isLowerTier = planIndex <= currentPlanIndex && planIndex !== -1 && currentPlanIndex !== -1;
-            const isDisabled = isCurrentPlan || isLowerTier;
-            
-            // Don't show trial option if user already has any subscription
-            const planWithoutTrial = hasActiveSubscription && plan.hasTrial 
-              ? { ...plan, hasTrial: false, trialDays: undefined }
-              : plan;
-            
-            return (
-              <PlanCard
-                key={plan.id}
-                plan={planWithoutTrial}
-                isYearly={isYearly}
-                isLoading={loadingPlan === plan.id}
-                isCurrentPlan={isCurrentPlan}
-                isLowerTier={isLowerTier && !isCurrentPlan}
-                onSelect={() => handleSelectPlan(plan)}
-              />
-            );
-          })}
+        {/* Plan Card */}
+        <div className="px-4 pb-4 pt-2">
+          <div className="relative bg-card p-5 rounded-2xl border-2 border-primary shadow-lg ring-2 ring-primary/20">
+            {/* Badge */}
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-primary text-primary-foreground text-xs font-bold rounded-full shadow-lg">
+                <Sparkles className="w-3 h-3" />
+                Offre Unique
+              </span>
+            </div>
+
+            {/* Price */}
+            <div className="text-center mt-3 mb-4">
+              {isYearly ? (
+                <>
+                  <div className="bg-secondary/10 rounded-xl p-3 mb-2">
+                    <p className="text-xs text-muted-foreground mb-1">Aujourd'hui</p>
+                    <span className="text-3xl font-bold text-secondary">0€</span>
+                    <div className="flex items-center justify-center gap-1.5 mt-1 text-secondary text-sm">
+                      <Gift className="w-4 h-4 animate-bounce" />
+                      <span className="font-bold">2 mois offerts !</span>
+                    </div>
+                  </div>
+                  <div className="bg-muted/50 rounded-xl p-2">
+                    <p className="text-xs text-muted-foreground mb-0.5">Dans 2 mois</p>
+                    <div className="flex items-baseline justify-center gap-1">
+                      <span className="text-xl font-bold text-foreground">390€</span>
+                      <span className="text-sm text-muted-foreground">/an</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Soit 32,50€/mois au lieu de 39€
+                    </p>
+                  </div>
+                </>
+              ) : (
+                <div className="flex items-baseline justify-center gap-2">
+                  <span className="text-3xl font-bold text-foreground">39€</span>
+                  <span className="text-muted-foreground">/mois</span>
+                </div>
+              )}
+            </div>
+
+            {/* Features */}
+            <ul className="space-y-2 mb-4">
+              {PLAN.features.map((feature) => (
+                <li key={feature} className="flex items-center gap-2 text-sm">
+                  <div className="w-4 h-4 rounded-full bg-secondary/20 flex items-center justify-center flex-shrink-0">
+                    <Check className="w-2.5 h-2.5 text-secondary" />
+                  </div>
+                  <span className="text-foreground">{feature}</span>
+                </li>
+              ))}
+            </ul>
+
+            {/* CTA */}
+            <Button
+              className="w-full"
+              size="lg"
+              disabled={isLoading || hasActivePlan}
+              onClick={handleSubscribe}
+            >
+              {isLoading ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : hasActivePlan ? (
+                "Déjà abonné"
+              ) : isYearly ? (
+                "Démarrer mon essai gratuit"
+              ) : (
+                "Commencer maintenant"
+              )}
+            </Button>
+
+            <p className="text-center text-xs text-muted-foreground mt-2">
+              Annuler à tout moment • Paiement sécurisé
+            </p>
+          </div>
         </div>
 
         {/* Credit Packs Section */}
