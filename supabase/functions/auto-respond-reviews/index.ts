@@ -161,17 +161,18 @@ async function getGoogleAccountId(accessToken: string, userId: string): Promise<
 }
 
 // Publish reply to Google
+// Returns: { success: boolean, reviewDeleted: boolean }
 async function publishToGoogle(
   accessToken: string,
   review: any,
   aiResponse: string,
   userId: string
-): Promise<boolean> {
+): Promise<{ success: boolean; reviewDeleted: boolean }> {
   // First, get the Google account ID
   const accountId = await getGoogleAccountId(accessToken, userId);
   if (!accountId) {
     console.error("[AutoRespond] Cannot publish without account ID");
-    return false;
+    return { success: false, reviewDeleted: false };
   }
 
   // Extract the unique review ID from whatever format we have
@@ -201,11 +202,18 @@ async function publishToGoogle(
   if (!googleResponse.ok) {
     const errorText = await googleResponse.text();
     console.error("[AutoRespond] Google API error:", googleResponse.status, errorText);
-    return false;
+
+    // If 404: the review was deleted from Google → flag it as deleted so we stop retrying
+    if (googleResponse.status === 404) {
+      console.warn(`[AutoRespond] ⚠️ Review ${review.id} returned 404 - likely deleted from Google`);
+      return { success: false, reviewDeleted: true };
+    }
+
+    return { success: false, reviewDeleted: false };
   }
 
   console.log(`[AutoRespond] Successfully published to Google!`);
-  return true;
+  return { success: true, reviewDeleted: false };
 }
 
 serve(async (req) => {
@@ -467,9 +475,9 @@ serve(async (req) => {
             const tokenResult = await getGoogleAccessToken(supabase, userSettings.user_id);
 
             if (tokenResult.token) {
-              const published = await publishToGoogle(tokenResult.token, review, aiResponse, userSettings.user_id);
+              const publishResult = await publishToGoogle(tokenResult.token, review, aiResponse, userSettings.user_id);
               
-              if (published) {
+              if (publishResult.success) {
                 await supabase
                   .from("reviews")
                   .update({
@@ -488,6 +496,26 @@ serve(async (req) => {
                   title: "Réponse publiée sur Google",
                   message: `Votre réponse à l'avis de ${review.author} a été publiée automatiquement.`,
                   review_id: review.id,
+                });
+              } else if (publishResult.reviewDeleted) {
+                // Review was deleted from Google → stop retrying by marking as replied
+                console.warn(`[AutoRespond] Review ${review.id} deleted from Google, marking as replied to stop retries`);
+                await supabase
+                  .from("reviews")
+                  .update({
+                    replied: true,
+                    published_to_google: false,
+                    needs_new_response: false,
+                  })
+                  .eq("id", review.id);
+                
+                // In-app notification: inform user the review was deleted
+                await supabase.from("notifications").insert({
+                  user_id: userSettings.user_id,
+                  type: "review_deleted",
+                  title: "🗑️ Avis supprimé",
+                  message: `L'avis de ${review.author} (${review.rating}⭐) a été supprimé de Google. La réponse n'a pas pu être publiée.`,
+                  review_id: null,
                 });
               }
             } else {

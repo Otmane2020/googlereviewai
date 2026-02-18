@@ -403,22 +403,29 @@ async function syncLocationReviews(
       console.warn(`[CRON] ⚠️ Reached max pages (${MAX_PAGES})`);
     }
 
-    // DELETION DETECTION: DISABLED
-    // The Google API pagination is unreliable and causes too many false positives
-    // Reviews will remain in DB even if deleted from Google - this is acceptable
-    // Use the Admin "Réconciliation" tool to manually clean ghost reviews if needed
-    console.log(`[CRON] [INFO] Deletion detection disabled to prevent false alerts. Fetched ${allGoogleReviewIds.length} reviews, Google reports ${googleTotalReviewCount || 'unknown'}`);
-    
-    // Keep the variable for logging but don't process deletions
-    const _deletionCheckDisabled = true;
-    if (false && allGoogleReviewIds.length > 0 && existingReviews && existingReviews.length > 0) {
-      // This code is intentionally disabled
+    // DELETION DETECTION: SAFE VERSION WITH STRICT GUARDRAILS
+    // Only run if we fetched a count matching what Google reports (avoids false positives from incomplete pagination)
+    const allPagesFetched = !nextPageToken; // Loop ended with no remaining pages
+    const googleCountReliable = googleTotalReviewCount !== undefined && googleTotalReviewCount !== null;
+    // Allow tolerance of 2 in case Google's count is slightly delayed
+    const fetchedCountMatchesGoogle = googleCountReliable && allGoogleReviewIds.length >= (googleTotalReviewCount! - 2);
+    const safeToDetectDeletions = allPagesFetched && fetchedCountMatchesGoogle;
+
+    console.log(`[CRON] Deletion check: fetched=${allGoogleReviewIds.length}, googleReports=${googleTotalReviewCount}, allPagesFetched=${allPagesFetched}, safe=${safeToDetectDeletions}`);
+
+    if (safeToDetectDeletions && allGoogleReviewIds.length > 0 && existingReviews && existingReviews.length > 0) {
       const googleReviewIdSet = new Set(allGoogleReviewIds);
       let reviewsToDelete = existingReviews.filter((r: any) => !googleReviewIdSet.has(r.review_id));
-      
+
+      // Safety cap: never delete more than 10 reviews in a single run
+      if (reviewsToDelete.length > 10) {
+        console.warn(`[CRON] ⚠️ Too many potential deletions (${reviewsToDelete.length}), capping at 10 for safety`);
+        reviewsToDelete = reviewsToDelete.slice(0, 10);
+      }
+
       if (reviewsToDelete.length > 0) {
         console.log(`[CRON] 🗑️ Found ${reviewsToDelete.length} deleted reviews to remove`);
-        
+
         // Create notifications for deleted reviews BEFORE deleting them
         for (const deletedReview of reviewsToDelete) {
           // In-app notification
@@ -429,14 +436,14 @@ async function syncLocationReviews(
             message: `L'avis de ${deletedReview.author} (${deletedReview.rating} étoiles) a été supprimé de Google`,
             review_id: null,
           });
-          
-          // Send push notification
+
+          // Push notification
           try {
             await fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/send-push-notification`, {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${Deno.env.get("SUPABASE_ANON_KEY")}`,
+                "Authorization": `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`,
               },
               body: JSON.stringify({
                 user_id: userId,
@@ -448,40 +455,26 @@ async function syncLocationReviews(
           } catch (e) {
             console.error("[CRON] Failed to send push notification for deleted review:", e);
           }
-          
-          // Send email notification
-          try {
-            await fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/send-email-notification`, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${Deno.env.get("SUPABASE_ANON_KEY")}`,
-              },
-              body: JSON.stringify({
-                user_id: userId,
-                subject: "🗑️ Un avis a été supprimé",
-                message: `L'avis de ${deletedReview.author} (${deletedReview.rating} étoiles) a été supprimé de Google. Cela peut indiquer que le client a retiré son avis.`,
-              }),
-            });
-          } catch (e) {
-            console.error("[CRON] Failed to send email notification for deleted review:", e);
-          }
         }
-        
+
         const idsToDelete = reviewsToDelete.map((r: any) => r.id);
         const { error: deleteError } = await supabase
           .from("reviews")
           .delete()
           .in("id", idsToDelete);
-        
+
         if (deleteError) {
           console.error("[CRON] Error deleting old reviews:", deleteError);
           errors.push(`Failed to delete ${reviewsToDelete.length} removed reviews`);
         } else {
           deleted = reviewsToDelete.length;
-          console.log(`[CRON] ✅ Deleted ${deleted} reviews that were removed from Google`);
+          console.log(`[CRON] ✅ Deleted ${deleted} reviews removed from Google`);
         }
+      } else {
+        console.log(`[CRON] ✅ No deleted reviews detected`);
       }
+    } else if (!safeToDetectDeletions) {
+      console.log(`[CRON] ⏭️ Skipping deletion detection: fetched ${allGoogleReviewIds.length} but Google reports ${googleTotalReviewCount} (pagination incomplete or unreliable)`);
     }
 
     console.log(`[CRON] Location ${locationId}: ${synced} synced, ${newReviewIds.length} NEW, ${deleted} deleted`);
