@@ -4,35 +4,53 @@ import { useAuth } from "@/contexts/AuthContext";
 import { StarlinkoLogo } from "@/components/StarlinkoLogo";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Star, LogOut, Check, ShieldCheck, Clock, Sparkles, Loader2, Gift } from "lucide-react";
+import { Star, LogOut, ShieldCheck, Clock, Loader2, Gift } from "lucide-react";
 import { TrustAvisCarousel } from "@/components/TrustAvisBadge";
 import { CountdownBar } from "@/components/CountdownBar";
+import { PlanCard } from "@/components/PlanCard";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Helmet } from "react-helmet";
 
-// Single all-in-one plan - 39€/month or 390€/year
-const PLAN = {
-  id: "allinone",
-  name: "Starlinko Tout-en-Un",
-  priceMonthly: 39,
-  priceYearly: 390,
-  description: "Pack complet SEO + AEO + Réponses IA",
-  features: [
-    "Réponses IA illimitées aux avis Google",
-    "Articles SEO générés automatiquement",
-    "Optimisation AEO pour ChatGPT",
-    "Publication automatique sur Google",
-    "Tableau de bord analytics",
-    "Support prioritaire",
-  ],
-};
+const PLANS = [
+  {
+    id: "starter",
+    name: "Starter",
+    priceMonthly: 2.99,
+    priceYearly: 2.39,
+    credits: 30,
+    businesses: "1",
+    features: ["Réponses IA aux avis Google", "30 crédits/mois", "1 établissement"],
+    hasTrial: true,
+    trialDays: 3,
+  },
+  {
+    id: "pro",
+    name: "Pro",
+    priceMonthly: 29.99,
+    priceYearly: 23.99,
+    credits: 100,
+    businesses: "2",
+    features: ["Tout Starter +", "100 crédits/mois", "2 établissements", "Articles SEO"],
+    popular: true,
+  },
+  {
+    id: "business",
+    name: "Business",
+    priceMonthly: 99,
+    priceYearly: 79.20,
+    credits: 300,
+    businesses: "10",
+    features: ["Tout Pro +", "300 crédits/mois", "10 établissements", "AEO ChatGPT", "Support prioritaire"],
+  },
+];
 
 const ChoosePlan = () => {
   const { user, loading, signOut } = useAuth();
   const navigate = useNavigate();
-  const [isYearly, setIsYearly] = useState(true); // Yearly by default
+  const [isYearly, setIsYearly] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [loadingPlanId, setLoadingPlanId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -42,6 +60,7 @@ const ChoosePlan = () => {
 
   const handleSelectPlan = async (planId: string) => {
     setIsProcessing(true);
+    setLoadingPlanId(planId);
     try {
       const priceKey = `${planId}_${isYearly ? "yearly" : "monthly"}`;
       
@@ -58,6 +77,7 @@ const ChoosePlan = () => {
       toast.error("Erreur lors du paiement");
     } finally {
       setIsProcessing(false);
+      setLoadingPlanId(null);
     }
   };
 
@@ -66,8 +86,6 @@ const ChoosePlan = () => {
     navigate("/auth");
   };
 
-
-  // No profile-based current plan check for now
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -93,6 +111,7 @@ const ChoosePlan = () => {
         <meta property="og:url" content="https://starlinko.app/select-plan" />
         <meta property="og:type" content="website" />
       </Helmet>
+
       {/* Header */}
       <header className="border-b border-border/50 bg-card/50 backdrop-blur-sm">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
@@ -111,129 +130,55 @@ const ChoosePlan = () => {
           <p className="text-sm text-muted-foreground">Annulez à tout moment</p>
         </div>
 
-        {/* Billing Tabs */}
-        <div className="flex items-center gap-2 mb-6 bg-muted/50 rounded-xl p-1">
-          <button
-            onClick={() => setIsYearly(true)}
-            className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg text-sm font-semibold transition-all ${
-              isYearly
-                ? "bg-primary text-primary-foreground shadow-md"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            Annuel
-            {isYearly && (
-              <Badge className="text-[10px] bg-secondary text-secondary-foreground flex items-center gap-0.5 px-1.5 py-0">
-                <Gift className="w-2.5 h-2.5" />
-                -17%
-              </Badge>
-            )}
-          </button>
-          <button
-            onClick={() => setIsYearly(false)}
-            className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-semibold transition-all ${
-              !isYearly
-                ? "bg-primary text-primary-foreground shadow-md"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
+        {/* Billing Toggle */}
+        <div className="flex items-center justify-center gap-4 mb-6">
+          <span className={`text-sm font-medium ${!isYearly ? "text-foreground" : "text-muted-foreground"}`}>
             Mensuel
+          </span>
+          <button
+            onClick={() => setIsYearly(!isYearly)}
+            className={`relative w-14 h-7 rounded-full transition-colors border-2 ${
+              isYearly 
+                ? "bg-primary border-primary" 
+                : "bg-muted border-border"
+            }`}
+          >
+            <div
+              className={`absolute top-0.5 w-5 h-5 rounded-full shadow-lg transition-transform ${
+                isYearly 
+                  ? "translate-x-7 bg-primary-foreground" 
+                  : "translate-x-1 bg-primary"
+              }`}
+            />
           </button>
+          <span className={`text-sm font-medium ${isYearly ? "text-foreground" : "text-muted-foreground"}`}>
+            Annuel
+          </span>
         </div>
 
-        {/* Single Plan Card */}
-        <div className="relative bg-card p-6 rounded-2xl border-2 border-primary shadow-xl ring-2 ring-primary/20">
-          {/* Badge */}
-          <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-            <span className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-primary text-primary-foreground text-sm font-bold rounded-full shadow-lg">
-              <Sparkles className="w-4 h-4" />
-              Offre Unique
-            </span>
-          </div>
+        {/* Plan Cards */}
+        <div className="space-y-6">
+          {PLANS.map((plan) => (
+            <PlanCard
+              key={plan.id}
+              plan={plan}
+              isYearly={isYearly}
+              isLoading={isProcessing && loadingPlanId === plan.id}
+              onSelect={() => handleSelectPlan(plan.id)}
+            />
+          ))}
+        </div>
 
-          {/* Plan name */}
-          <div className="text-center mt-4 mb-4">
-            <h3 className="text-xl font-bold text-foreground mb-1">{PLAN.name}</h3>
-            <p className="text-muted-foreground text-sm">{PLAN.description}</p>
-          </div>
-
-          {/* Price */}
-          <div className="text-center mb-4">
-            {isYearly ? (
-              <>
-                {/* Today's price - FREE */}
-                <div className="bg-secondary/10 rounded-xl p-4 mb-3">
-                  <p className="text-sm text-muted-foreground mb-1">Aujourd'hui</p>
-                  <div className="flex items-baseline justify-center gap-2">
-                    <span className="text-4xl font-bold text-secondary">0€</span>
-                  </div>
-                  <div className="flex items-center justify-center gap-2 mt-2 text-secondary">
-                    <Gift className="w-5 h-5 animate-bounce" />
-                    <span className="font-bold">2 mois offerts !</span>
-                  </div>
-                </div>
-                
-                {/* Future price */}
-                <div className="bg-muted/50 rounded-xl p-3">
-                  <p className="text-xs text-muted-foreground mb-1">Dans 2 mois</p>
-                  <div className="flex items-baseline justify-center gap-1">
-                    <span className="text-2xl font-bold text-foreground">390€</span>
-                    <span className="text-sm text-muted-foreground">/an</span>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Soit 32,50€/mois au lieu de 39€
-                  </p>
-                </div>
-                
-                <p className="text-xs text-muted-foreground mt-3">
-                  Annulation gratuite à tout moment pendant l'essai
-                </p>
-              </>
-            ) : (
-              <>
-                <div className="flex items-baseline justify-center gap-2">
-                  <span className="text-4xl font-bold text-foreground">39€</span>
-                  <span className="text-muted-foreground">/mois</span>
-                </div>
-                <p className="text-xs text-muted-foreground mt-2">
-                  Facturé mensuellement • Sans engagement
-                </p>
-              </>
-            )}
-          </div>
-
-          {/* Features */}
-          <ul className="space-y-2 mb-4">
-            {PLAN.features.map((feature) => (
-              <li key={feature} className="flex items-center gap-2 text-sm">
-                <div className="w-4 h-4 rounded-full bg-secondary/20 flex items-center justify-center flex-shrink-0">
-                  <Check className="w-2.5 h-2.5 text-secondary" />
-                </div>
-                <span className="text-foreground">{feature}</span>
-              </li>
-            ))}
-          </ul>
-
-          {/* CTA */}
-          <Button
-            className="w-full"
-            size="lg"
-            disabled={isProcessing}
-            onClick={() => handleSelectPlan(PLAN.id)}
-          >
-            {isProcessing ? (
-              <Loader2 className="w-5 h-5 animate-spin" />
-            ) : isYearly ? (
-              "Démarrer mon essai gratuit"
-            ) : (
-              "Commencer maintenant"
-            )}
-          </Button>
-
-          {/* Trust */}
-          <p className="text-center text-xs text-muted-foreground mt-3">
-            Annuler à tout moment • Paiement sécurisé
-          </p>
+        {/* Trust */}
+        <div className="flex items-center justify-center gap-4 mt-6 text-xs text-muted-foreground">
+          <span className="flex items-center gap-1">
+            <ShieldCheck className="w-3.5 h-3.5 text-secondary" />
+            Paiement sécurisé
+          </span>
+          <span className="flex items-center gap-1">
+            <Clock className="w-3.5 h-3.5 text-secondary" />
+            Annulation immédiate
+          </span>
         </div>
 
         {/* TrustAvis */}
@@ -242,7 +187,7 @@ const ChoosePlan = () => {
         </div>
       </main>
       
-      {/* Sticky TrustAvis Rating - Bottom Right */}
+      {/* Sticky TrustAvis Rating */}
       <div className="fixed bottom-4 right-4 z-50">
         <a
           href="https://trust-avis.com/entreprise/starlinko"
