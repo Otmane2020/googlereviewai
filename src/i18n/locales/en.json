@@ -270,6 +270,23 @@
       "location": "1 location",
       "locations2": "2 locations",
       "unlimited": "Unlimited"
+    },
+    "trialBadge": "{{days}}-DAY TRIAL",
+    "startTrial": "Start free trial",
+    "thenPrice": "then {{price}}/mo",
+    "planFeatures": {
+      "starter1": "AI responses to Google reviews",
+      "starter2": "30 credits/month",
+      "starter3": "1 location",
+      "pro1": "Everything in Starter +",
+      "pro2": "100 credits/month",
+      "pro3": "2 locations",
+      "pro4": "Automatic SEO articles",
+      "business1": "Everything in Pro +",
+      "business2": "300 credits/month",
+      "business3": "10 locations",
+      "business4": "AEO for ChatGPT",
+      "business5": "Priority support"
     }
   },
   "reviews": {
