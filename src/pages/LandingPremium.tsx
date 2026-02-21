@@ -51,8 +51,39 @@ const LandingPremium = () => {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
   const { i18n } = useTranslation();
-  const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("yearly");
+  const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("monthly");
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingPlanId, setLoadingPlanId] = useState<string | null>(null);
+
+  const plans = [
+    {
+      id: "starter",
+      name: "Starter",
+      priceMonthly: 2.99,
+      priceYearly: 2.39,
+      credits: 30,
+      businesses: "1",
+      hasTrial: true,
+      trialDays: 3,
+    },
+    {
+      id: "pro",
+      name: "Pro",
+      priceMonthly: 29.99,
+      priceYearly: 23.99,
+      credits: 100,
+      businesses: "2",
+      popular: true,
+    },
+    {
+      id: "business",
+      name: "Business",
+      priceMonthly: 99,
+      priceYearly: 79.20,
+      credits: 300,
+      businesses: "10",
+    },
+  ];
 
   // Force French language on this landing page (FR-only marketing page)
   useEffect(() => {
@@ -61,15 +92,16 @@ const LandingPremium = () => {
     }
   }, [i18n]);
  
-   const handleSubscribe = async () => {
+   const handleSubscribe = async (planId: string) => {
      if (!user) {
        navigate("/auth?redirect=/landing");
        return;
      }
  
      setIsLoading(true);
+     setLoadingPlanId(planId);
      try {
-       const priceKey = billingCycle === "yearly" ? "allinone_yearly" : "allinone_monthly";
+       const priceKey = `${planId}_${billingCycle === "yearly" ? "yearly" : "monthly"}`;
        
        const { data, error } = await supabase.functions.invoke("create-checkout", {
          body: {
@@ -93,6 +125,7 @@ const LandingPremium = () => {
        });
      } finally {
        setIsLoading(false);
+       setLoadingPlanId(null);
      }
    };
  
@@ -318,13 +351,14 @@ const LandingPremium = () => {
            <div className="text-center mb-10">
              <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-accent/10 rounded-full mb-4">
                <Gift className="w-4 h-4 text-accent" />
-               <span className="text-accent-foreground text-sm font-semibold">Tarif simplifié</span>
+               <span className="text-accent-foreground text-sm font-semibold">Nos offres</span>
              </div>
              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-4">
-               Un seul prix, tout inclus
+               Choisissez votre plan
              </h2>
+             <p className="text-muted-foreground">Annulez à tout moment</p>
            </div>
- 
+
            {/* Billing Toggle */}
            <div className="flex justify-center mb-8">
              <div className="inline-flex items-center gap-2 p-1.5 bg-muted rounded-full">
@@ -348,114 +382,95 @@ const LandingPremium = () => {
                >
                  Annuel
                  <span className="px-2 py-0.5 bg-secondary text-secondary-foreground text-xs rounded-full font-semibold">
-                   2 mois offerts
+                   -20%
                  </span>
                </button>
              </div>
            </div>
- 
-           {/* Pricing Card */}
-           <div className="max-w-md mx-auto">
-             <div className="relative bg-card rounded-3xl border-2 border-primary shadow-xl p-8">
-               {/* Badge */}
-               <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                 <span className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-primary text-primary-foreground text-sm font-bold rounded-full shadow-lg">
-                   <Zap className="w-4 h-4" />
-                    Visibilité Tout-en-Un
-                 </span>
-               </div>
- 
-               {/* Plan name */}
-               <div className="text-center pt-4 mb-6">
-                 <h3 className="text-xl font-bold text-foreground mb-2">Starlinko Pack Complet</h3>
-                 <p className="text-muted-foreground text-sm">SEO + AEO + Avis + Publications IA</p>
-               </div>
- 
-               {/* Price */}
-               <div className="text-center mb-6">
-                 {billingCycle === "yearly" ? (
-                   <>
-                     <div className="flex items-baseline justify-center gap-1">
-                       <span className="text-5xl font-bold text-foreground">32,50€</span>
-                       <span className="text-muted-foreground">/mois</span>
-                     </div>
-                     <p className="text-sm text-muted-foreground mt-2">
-                       Facturé <span className="font-semibold text-foreground">390€/an</span> (10 mois payés, 12 actifs)
-                     </p>
-                      <div className="inline-flex items-center gap-1.5 mt-3 px-4 py-2 bg-secondary/20 rounded-full border border-secondary/30">
-                       <Gift className="w-4 h-4 text-secondary" />
-                        <span className="text-secondary text-sm font-bold">🎁 2 mois GRATUITS = 78€ économisés</span>
-                     </div>
-                     <p className="text-xs text-muted-foreground mt-2">Annuler à tout moment</p>
-                   </>
-                 ) : (
-                   <>
-                     <div className="flex items-baseline justify-center gap-1">
-                       <span className="text-5xl font-bold text-foreground">39€</span>
-                       <span className="text-muted-foreground">/mois</span>
-                     </div>
-                     <p className="text-sm text-muted-foreground mt-2">
-                       Sans engagement · Annuler à tout moment
-                     </p>
-                   </>
+
+           {/* Plan Cards */}
+           <div className="max-w-lg mx-auto space-y-6">
+             {plans.map((plan) => (
+               <div key={plan.id} className={`relative bg-card rounded-2xl border-2 p-5 transition-all ${
+                 plan.popular ? "border-primary shadow-xl" : "border-border shadow-sm"
+               }`}>
+                 {/* Badge */}
+                 {(plan.hasTrial || plan.popular) && (
+                   <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                     <span className={`inline-flex items-center gap-1 px-3 py-1 text-xs font-bold rounded-full shadow-lg text-white ${
+                       plan.hasTrial ? "bg-primary" : plan.popular ? "bg-destructive" : "bg-secondary"
+                     }`}>
+                       {plan.hasTrial ? `ESSAI ${plan.trialDays} JOURS` : "POPULAIRE"}
+                     </span>
+                   </div>
                  )}
-               </div>
- 
-               {/* Features list */}
-               <ul className="space-y-3 mb-8">
-                 {[
-                   "Accès complet à toutes les fonctionnalités",
-                   "SEO Google optimisé (visibilité locale)",
-                   "AEO – Visible sur ChatGPT & IA",
-                   "Réponses automatiques aux avis Google",
-                   "Publications & contenus IA",
-                   "Tableau de bord tout-en-un",
-                   "Mises à jour incluses",
-                 ].map((feature, i) => (
-                   <li key={i} className="flex items-center gap-3">
-                     <div className="w-5 h-5 rounded-full bg-secondary/20 flex items-center justify-center flex-shrink-0">
-                       <Check className="w-3 h-3 text-secondary" />
-                     </div>
-                     <span className="text-foreground text-sm">{feature}</span>
-                   </li>
-                 ))}
-               </ul>
- 
-               {/* CTA */}
-               <Button 
-                 size="xl" 
-                 className="w-full gap-2 h-14 text-base rounded-xl shadow-lg"
-                 onClick={handleSubscribe}
-                 disabled={isLoading || authLoading}
-               >
-                 {isLoading ? (
-                   <Loader2 className="w-5 h-5 animate-spin" />
-                 ) : (
-                   <>
-                     <Zap className="w-5 h-5" />
-                     Activer ma visibilité maintenant
-                   </>
+                 {!plan.hasTrial && !plan.popular && (
+                   <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                     <span className="inline-flex items-center gap-1 px-3 py-1 text-xs font-bold rounded-full shadow-lg text-white bg-secondary">
+                       PRO
+                     </span>
+                   </div>
                  )}
-               </Button>
- 
-               {/* Trust indicators */}
-               <div className="flex flex-wrap items-center justify-center gap-4 mt-5 text-muted-foreground text-xs">
-                 <span className="flex items-center gap-1.5">
-                   <Shield className="w-3.5 h-3.5 text-secondary" />
-                   Paiement sécurisé Stripe
-                 </span>
-                 <span className="flex items-center gap-1.5">
-                   <Lock className="w-3.5 h-3.5 text-secondary" />
-                   Données protégées
-                 </span>
+
+                 {/* Content */}
+                 <div className="flex items-center gap-4 mt-2">
+                   <div className={`w-14 h-14 rounded-xl flex items-center justify-center shrink-0 ${
+                     plan.hasTrial ? "bg-primary/10" : plan.popular ? "bg-primary/10" : "bg-secondary/10"
+                   }`}>
+                     {plan.hasTrial ? (
+                       <Star className="w-7 h-7 text-primary" />
+                     ) : plan.popular ? (
+                       <Zap className="w-7 h-7 text-primary" />
+                     ) : (
+                       <Sparkles className="w-7 h-7 text-secondary" />
+                     )}
+                   </div>
+                   <div className="flex-1 min-w-0">
+                     <h3 className="font-bold text-lg text-foreground">{plan.name}</h3>
+                     <p className="text-sm text-muted-foreground">
+                       {plan.credits} crédits • {plan.businesses} établ.
+                     </p>
+                   </div>
+                   <div className="text-right shrink-0">
+                     <div className="text-2xl font-bold text-foreground">
+                       {billingCycle === "yearly" 
+                         ? `${plan.priceYearly.toFixed(2).replace(".", ",")}€`
+                         : `${plan.priceMonthly.toFixed(2).replace(".", ",")}€`
+                       }
+                     </div>
+                     <div className="text-xs text-muted-foreground">/mois</div>
+                   </div>
+                 </div>
+
+                 {/* CTA */}
+                 <Button
+                   onClick={() => handleSubscribe(plan.id)}
+                   disabled={isLoading}
+                   className="w-full mt-4 rounded-xl h-12 font-semibold"
+                 >
+                   {isLoading && loadingPlanId === plan.id ? (
+                     <Loader2 className="w-4 h-4 animate-spin" />
+                   ) : plan.hasTrial ? (
+                     `Essai gratuit ${plan.trialDays} jours`
+                   ) : (
+                     "Choisir"
+                   )}
+                 </Button>
                </div>
-             </div>
+             ))}
            </div>
- 
-           {/* Bottom CTA text */}
-           <p className="text-center text-muted-foreground text-sm mt-8 max-w-md mx-auto">
-             Commencez à être recommandé par <span className="font-semibold text-foreground">ChatGPT</span> et visible sur <span className="font-semibold text-foreground">Google</span> dès aujourd'hui.
-           </p>
+
+           {/* Trust */}
+           <div className="flex flex-wrap items-center justify-center gap-4 mt-8 text-muted-foreground text-xs">
+             <span className="flex items-center gap-1.5">
+               <Shield className="w-3.5 h-3.5 text-secondary" />
+               Paiement sécurisé
+             </span>
+             <span className="flex items-center gap-1.5">
+               <Lock className="w-3.5 h-3.5 text-secondary" />
+               Données protégées
+             </span>
+           </div>
          </div>
        </section>
  
