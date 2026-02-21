@@ -270,6 +270,23 @@
       "location": "1 établissement",
       "locations2": "2 établissements",
       "unlimited": "Illimité"
+    },
+    "trialBadge": "ESSAI {{days}} JOURS",
+    "startTrial": "Démarrer l'essai",
+    "thenPrice": "puis {{price}}/mois",
+    "planFeatures": {
+      "starter1": "Réponses IA aux avis Google",
+      "starter2": "30 crédits/mois",
+      "starter3": "1 établissement",
+      "pro1": "Tout Starter +",
+      "pro2": "100 crédits/mois",
+      "pro3": "2 établissements",
+      "pro4": "Articles SEO automatiques",
+      "business1": "Tout Pro +",
+      "business2": "300 crédits/mois",
+      "business3": "10 établissements",
+      "business4": "AEO ChatGPT",
+      "business5": "Support prioritaire"
     }
   },
   "reviews": {
