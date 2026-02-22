@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useDeviceDetection } from "@/hooks/useDeviceDetection";
+import { useWebPush } from "@/hooks/useWebPush";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { UpgradeDialog } from "@/components/UpgradeDialog";
@@ -26,7 +27,8 @@ import {
   Settings as SettingsIcon,
   Link2,
   Sparkles,
-  ExternalLink
+  ExternalLink,
+  Send
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
@@ -47,8 +49,10 @@ const SettingsPage = () => {
   const { user, session, signOut } = useAuth();
   const navigate = useNavigate();
   const { isNativeApp, canUsePushAlert } = useDeviceDetection();
+  const webPush = useWebPush();
   const [pushPermission, setPushPermission] = useState<NotificationPermission | "unsupported">("default");
   const [isSubscribedToPush, setIsSubscribedToPush] = useState<boolean>(true);
+  const [testingSending, setTestingSending] = useState(false);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [fullName, setFullName] = useState("");
   const [loading, setLoading] = useState(true);
@@ -616,6 +620,109 @@ const SettingsPage = () => {
               >
                 Configurer
               </Button>
+            </div>
+
+            {/* VAPID Web Push section */}
+            <div className="p-4 bg-muted/50 rounded-xl space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                    webPush.isSubscribed ? 'bg-green-500/10' : 'bg-muted'
+                  }`}>
+                    {webPush.isSubscribed ? (
+                      <BellRing className="w-5 h-5 text-green-600" />
+                    ) : (
+                      <Bell className="w-5 h-5 text-muted-foreground" />
+                    )}
+                  </div>
+                  <div>
+                    <p className="font-medium text-foreground text-sm">
+                      Web Push (VAPID)
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {!webPush.isSupported
+                        ? "Non supporté par ce navigateur"
+                        : webPush.isSubscribed
+                          ? "Activé - Push natif actif"
+                          : webPush.permission === "denied"
+                            ? "Bloqué par le navigateur"
+                            : "Inactif - Activez pour recevoir les alertes"
+                      }
+                    </p>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  {webPush.isSupported && !webPush.isSubscribed && webPush.permission !== "denied" && (
+                    <Button
+                      variant="default"
+                      size="sm"
+                      disabled={webPush.loading}
+                      onClick={async () => {
+                        const ok = await webPush.subscribe();
+                        toast({
+                          title: ok ? "Web Push activé ✅" : "Échec de l'activation",
+                          description: ok 
+                            ? "Vous recevrez les notifications push natives." 
+                            : "Vérifiez les permissions du navigateur.",
+                          variant: ok ? "default" : "destructive",
+                        });
+                      }}
+                      className="rounded-xl h-9"
+                    >
+                      {webPush.loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Bell className="w-4 h-4 mr-1" />}
+                      Activer
+                    </Button>
+                  )}
+                  {webPush.isSubscribed && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={webPush.loading}
+                      onClick={async () => {
+                        await webPush.unsubscribe();
+                        toast({
+                          title: "Web Push désactivé",
+                          description: "Notifications push natives désactivées.",
+                        });
+                      }}
+                      className="rounded-xl h-9"
+                    >
+                      <BellOff className="w-4 h-4 mr-1" />
+                      Désactiver
+                    </Button>
+                  )}
+                </div>
+              </div>
+
+              {/* Test push notification button */}
+              {webPush.isSubscribed && (
+                <div className="flex items-center justify-between pt-2 border-t border-border/50">
+                  <p className="text-xs text-muted-foreground">
+                    Envoyez une notification de test pour vérifier
+                  </p>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    disabled={testingSending}
+                    onClick={async () => {
+                      setTestingSending(true);
+                      const ok = await webPush.sendTestNotification();
+                      setTestingSending(false);
+                      toast({
+                        title: ok ? "Notification envoyée 🔔" : "Échec de l'envoi",
+                        description: ok 
+                          ? "Vous devriez recevoir la notification dans quelques secondes." 
+                          : "Vérifiez votre souscription push.",
+                        variant: ok ? "default" : "destructive",
+                      });
+                    }}
+                    className="rounded-xl h-9 gap-1"
+                  >
+                    {testingSending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                    Tester
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
         </div>
