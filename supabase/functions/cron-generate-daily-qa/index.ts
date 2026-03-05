@@ -6,6 +6,21 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Check if user has daily plan (paid upgrade)
+async function hasDailyPlan(supabase: any, userId: string): Promise<boolean> {
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("plan_name, subscription_status")
+    .eq("id", userId)
+    .single();
+
+  if (!profile) return false;
+  const validStatuses = ["active", "trial", "trialing"];
+  if (!validStatuses.includes(profile.subscription_status || "")) return false;
+  const dailyPlans = ["daily", "pro", "business"];
+  return dailyPlans.includes((profile.plan_name || "").toLowerCase());
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -14,55 +29,39 @@ serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    console.log("[CRON-AEO] Starting daily Q&A generation cron job...");
+    console.log("[CRON-AEO] Starting daily Q&A generation...");
 
-    // Get eligible users: either AEO subscription OR Pro/Business plan
-    const userIds = new Set<string>();
-
-    // 1. Get users with active AEO module subscription
-    const { data: aeoSubs } = await supabase
-      .from("subscriptions")
-      .select("user_id")
-      .eq("module", "aeo_rank")
-      .eq("status", "active");
-
-    aeoSubs?.forEach(s => userIds.add(s.user_id));
-    console.log(`[CRON-AEO] Found ${aeoSubs?.length || 0} active AEO module subscriptions`);
-
-    // 2. Get users with Pro or Business plan (they get AEO included)
-    const { data: paidUsers } = await supabase
+    // Get ALL users (app is free now)
+    const { data: allProfiles } = await supabase
       .from("profiles")
-      .select("id, plan_name")
-      .in("plan_name", ["pro", "Pro", "business", "Business"]);
+      .select("id, plan_name, subscription_status");
 
-    paidUsers?.forEach(p => userIds.add(p.id));
-    console.log(`[CRON-AEO] Found ${paidUsers?.length || 0} users with Pro/Business plans`);
-
-    const eligibleUserIds = Array.from(userIds);
-    console.log(`[CRON-AEO] Total eligible users: ${eligibleUserIds.length}`);
+    const eligibleUserIds = (allProfiles || []).map((p: any) => p.id);
+    console.log(`[CRON-AEO] Total users: ${eligibleUserIds.length}`);
 
     const today = new Date().toISOString().split("T")[0];
+    const dayOfWeek = new Date().getDay(); // 0=Sunday, 1=Monday
     let generatedCount = 0;
     let errorCount = 0;
 
     for (const userId of eligibleUserIds) {
       try {
-        console.log(`[CRON-AEO] Processing user ${userId}...`);
+        const isDailyUser = await hasDailyPlan(supabase, userId);
 
-        // Get user's active businesses
-        const { data: businesses, error: bizError } = await supabase
+        // Free users: generate only on Mondays
+        if (!isDailyUser && dayOfWeek !== 1) {
+          continue;
+        }
+
+        const { data: businesses } = await supabase
           .from("businesses")
           .select("*")
           .eq("user_id", userId)
           .eq("is_active", true);
 
-        if (bizError || !businesses?.length) {
-          console.log(`No active businesses for user ${userId}`);
-          continue;
-        }
+        if (!businesses?.length) continue;
 
         for (const business of businesses) {
           // Check if Q&A already exists for today
@@ -74,23 +73,18 @@ serve(async (req) => {
             .eq("scheduled_date", today)
             .single();
 
-          if (existingContent) {
-            console.log(`Q&A already exists for business ${business.id} on ${today}`);
-            continue;
-          }
+          if (existingContent) continue;
 
-          // Get a random keyword for this business
           const { data: keywords } = await supabase
             .from("keywords")
             .select("name")
             .eq("business_id", business.id)
             .eq("is_active", true);
 
-          const randomKeyword = keywords?.length 
-            ? keywords[Math.floor(Math.random() * keywords.length)].name 
+          const randomKeyword = keywords?.length
+            ? keywords[Math.floor(Math.random() * keywords.length)].name
             : null;
 
-          // Récupérer les 10 dernières questions pour éviter les doublons
           const { data: recentQuestions } = await supabase
             .from("scheduled_content")
             .select("question")
@@ -99,10 +93,8 @@ serve(async (req) => {
             .order("created_at", { ascending: false })
             .limit(10);
 
-          const existingQuestionsList = recentQuestions?.map(q => q.question).filter(Boolean) || [];
-          console.log(`[CRON-AEO] Found ${existingQuestionsList.length} recent questions to avoid for business ${business.id}`);
+          const existingQuestionsList = recentQuestions?.map((q: any) => q.question).filter(Boolean) || [];
 
-          // Generate Q&A using AI - passer les questions existantes pour éviter doublons + website pour Firecrawl + langue GMB
           const aiResponse = await fetch(`${supabaseUrl}/functions/v1/generate-seo-content`, {
             method: "POST",
             headers: {
@@ -114,29 +106,19 @@ serve(async (req) => {
               businessName: business.name,
               businessDescription: business.description,
               location: business.address,
-              websiteContent: business.website_content, // Use pre-scraped content from DB
+              websiteContent: business.website_content,
               keywords: randomKeyword ? [randomKeyword, ...existingQuestionsList] : existingQuestionsList,
               singleQuestion: true,
-              language: business.gmb_language || "fr", // Use GMB language for content generation
+              language: business.gmb_language || "fr",
             }),
           });
 
-          if (!aiResponse.ok) {
-            console.error(`AI generation failed for business ${business.id}`);
-            errorCount++;
-            continue;
-          }
+          if (!aiResponse.ok) { errorCount++; continue; }
 
           const aiData = await aiResponse.json();
           const qa = aiData.questions?.[0];
+          if (!qa) { errorCount++; continue; }
 
-          if (!qa) {
-            console.error(`No Q&A generated for business ${business.id}`);
-            errorCount++;
-            continue;
-          }
-
-          // Save to scheduled_content
           const { error: insertError } = await supabase
             .from("scheduled_content")
             .insert({
@@ -150,34 +132,22 @@ serve(async (req) => {
               status: "pending",
             });
 
-          if (insertError) {
-            console.error(`Error saving Q&A for business ${business.id}:`, insertError);
-            errorCount++;
-          } else {
-            generatedCount++;
-            console.log(`Generated Q&A for business ${business.name}`);
-          }
+          if (insertError) { errorCount++; } else { generatedCount++; }
         }
       } catch (userError) {
-        console.error(`[CRON-AEO] Error processing user ${userId}:`, userError);
+        console.error(`[CRON-AEO] Error for user ${userId}:`, userError);
         errorCount++;
       }
     }
 
-    console.log(`Cron job completed. Generated: ${generatedCount}, Errors: ${errorCount}`);
+    console.log(`[CRON-AEO] Done. Generated: ${generatedCount}, Errors: ${errorCount}`);
 
     return new Response(
-      JSON.stringify({ 
-        success: true, 
-        generated: generatedCount,
-        errors: errorCount,
-        message: `Generated ${generatedCount} Q&As with ${errorCount} errors` 
-      }),
+      JSON.stringify({ success: true, generated: generatedCount, errors: errorCount }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
-
   } catch (error) {
-    console.error("Error in cron-generate-daily-qa:", error);
+    console.error("[CRON-AEO] Fatal:", error);
     return new Response(
       JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }

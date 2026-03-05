@@ -29,29 +29,9 @@ const Auth = () => {
   // Helper function to check subscription and redirect accordingly
   // PAYMENT FIRST: Always redirect to choose-plan if no valid subscription
   // Google connection happens AFTER payment on the dashboard
-  const checkSubscriptionAndRedirect = async (userId: string) => {
-    try {
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("plan_name, subscription_status")
-        .eq("id", userId)
-        .maybeSingle();
-      
-      const validStatuses = ["active", "trial", "trialing"];
-      const hasValidPlan = profile?.plan_name && 
-        profile.plan_name !== "free" &&
-        validStatuses.includes(profile.subscription_status || "");
-      
-      if (hasValidPlan) {
-        navigate("/dashboard", { replace: true });
-      } else {
-        // Always redirect to payment first
-        navigate("/choose-plan", { replace: true });
-      }
-    } catch (error) {
-      console.error("[Auth] Error checking subscription:", error);
-      navigate("/choose-plan", { replace: true });
-    }
+  const checkSubscriptionAndRedirect = async (_userId: string) => {
+    // App is now free - always redirect to dashboard
+    navigate("/dashboard", { replace: true });
   };
 
   // Handle OAuth callback and regular auth redirect

@@ -92,29 +92,26 @@ serve(async (req) => {
       try {
         console.log(`[CRON-SEO] Processing user ${userId}...`);
 
-        const timezone = userSetting.timezone || "Europe/Paris";
-        const today = getTodayInTimezone(timezone);
-
-        // Check eligibility: SEO subscription OR Pro/Business plan
-        const { data: seoSub } = await supabase
-          .from("subscriptions")
-          .select("id")
-          .eq("user_id", userId)
-          .eq("module", "seo_autopost")
-          .eq("status", "active")
-          .single();
-
+        // Check if user has daily plan or is free (weekly only)
         const { data: profile } = await supabase
           .from("profiles")
-          .select("plan_name")
+          .select("plan_name, subscription_status")
           .eq("id", userId)
           .single();
 
-        const hasSeoAccess = seoSub || 
-          ["pro", "Pro", "business", "Business"].includes(profile?.plan_name || "");
+        const validStatuses = ["active", "trial", "trialing"];
+        const dailyPlans = ["daily", "pro", "business"];
+        const isDailyUser = profile && 
+          validStatuses.includes(profile.subscription_status || "") &&
+          dailyPlans.includes((profile.plan_name || "").toLowerCase());
 
-        if (!hasSeoAccess) {
-          console.log(`[CRON-SEO] User ${userId} doesn't have SEO access, skipping`);
+        // Free users: generate only on Mondays
+        const timezone = userSetting.timezone || "Europe/Paris";
+        const today = getTodayInTimezone(timezone);
+        const dayOfWeek = new Date().getDay();
+
+        if (!isDailyUser && dayOfWeek !== 1) {
+          console.log(`[CRON-SEO] User ${userId}: free plan, skipping (not Monday)`);
           continue;
         }
 

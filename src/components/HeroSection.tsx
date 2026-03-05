@@ -38,8 +38,8 @@ export const HeroSection = () => {
 
           {/* Main headline */}
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-card leading-tight mb-5 animate-fade-in" style={{ animationDelay: "0.1s" }}>
-            {t("hero.title")}
-            <span className="block text-accent-gold mt-2">{t("hero.titleHighlight")}</span>
+            Gérez vos avis Google
+            <span className="block text-accent-gold mt-2">gratuitement avec l'IA</span>
           </h1>
 
           {/* Subtitle */}
@@ -63,9 +63,9 @@ export const HeroSection = () => {
               </>
             ) : (
               <>
-                <Button variant="hero" size="xl" className="gap-2 w-full sm:w-auto" onClick={() => navigate("/auth")}>
+              <Button variant="hero" size="xl" className="gap-2 w-full sm:w-auto" onClick={() => navigate("/auth")}>
                   <Zap className="w-5 h-5" />
-                  {t("hero.cta")}
+                  Commencer gratuitement
                 </Button>
                 <Button 
                   variant="outline" 
@@ -139,15 +139,15 @@ export const HeroSection = () => {
           <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-card/80 text-xs sm:text-sm animate-fade-in" style={{ animationDelay: "0.4s" }}>
             <div className="flex items-center gap-2">
               <Check className="w-4 h-4 text-secondary" />
-              <span>{t("pricing.freeTrial")}</span>
+              <span>100% gratuit</span>
             </div>
             <div className="flex items-center gap-2">
               <Check className="w-4 h-4 text-secondary" />
-              <span>2 min</span>
+              <span>Sans carte bancaire</span>
             </div>
             <div className="flex items-center gap-2">
               <Check className="w-4 h-4 text-secondary" />
-              <span>+500</span>
+              <span>+500 entreprises</span>
             </div>
             <TrustAvisLabel className="text-card/80 hover:text-card" />
           </div>

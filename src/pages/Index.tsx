@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
 import { Header } from "@/components/Header";
 import { HeroSection } from "@/components/HeroSection";
 import MobileAIDemoSection from "@/components/MobileAIDemoSection";
@@ -32,33 +31,9 @@ const Index = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const checkAndRedirect = async () => {
-      if (!loading && user) {
-        // Check subscription status
-        try {
-          const { data: profile } = await supabase
-            .from("profiles")
-            .select("plan_name, subscription_status")
-            .eq("id", user.id)
-            .maybeSingle();
-          
-          const validStatuses = ["active", "trial", "trialing"];
-          const hasValidPlan = profile?.plan_name && 
-            profile.plan_name !== "free" &&
-            validStatuses.includes(profile.subscription_status || "");
-          
-          if (hasValidPlan) {
-            navigate("/dashboard", { replace: true });
-          } else {
-            navigate("/choose-plan", { replace: true });
-          }
-        } catch (error) {
-          console.error("[Index] Error checking subscription:", error);
-        }
-      }
-    };
-
-    checkAndRedirect();
+    if (!loading && user) {
+      navigate("/dashboard", { replace: true });
+    }
   }, [user, loading, navigate]);
 
   // Show loader while checking auth
@@ -94,7 +69,7 @@ const Index = () => {
     },
     {
       question: "Combien coûte Starlinko ?",
-      answer: "Starlinko propose un essai gratuit de 7 jours sans carte bancaire. Ensuite, le Pack Complet tout-en-un est à 39€/mois (ou 32,50€/mois en annuel). Il inclut les réponses IA aux avis, le SEO local automatisé, l'AEO pour ChatGPT et les publications automatiques."
+      answer: "Starlinko est 100% gratuit. Gérez vos avis Google avec l'IA, recevez 1 post SEO par semaine et 10 crédits offerts. Pour publier tous les jours (SEO + AEO ChatGPT), un upgrade à 9,99€/mois est disponible."
     },
     {
       question: "Starlinko fonctionne-t-il pour tous les types d'entreprises ?",
