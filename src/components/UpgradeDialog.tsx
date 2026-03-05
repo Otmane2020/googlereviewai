@@ -8,48 +8,14 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Crown, Shield, Sparkles, Coins, ChevronDown, Loader2 } from "lucide-react";
+import { Crown, Shield, Sparkles, Coins, ChevronDown, Loader2, Check, ArrowRight, Star, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { PlanCard } from "@/components/PlanCard";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
-const PLANS = [
-  {
-    id: "starter",
-    name: "Starter",
-    priceMonthly: 2.99,
-    priceYearly: 2.39,
-    credits: 30,
-    businesses: "1",
-    features: ["Réponses IA aux avis Google", "30 crédits/mois", "1 établissement"],
-    hasTrial: true,
-    trialDays: 3,
-  },
-  {
-    id: "pro",
-    name: "Pro",
-    priceMonthly: 29.99,
-    priceYearly: 23.99,
-    credits: 100,
-    businesses: "2",
-    features: ["Tout Starter +", "100 crédits/mois", "2 établissements", "Articles SEO"],
-    popular: true,
-  },
-  {
-    id: "business",
-    name: "Business",
-    priceMonthly: 99,
-    priceYearly: 79.20,
-    credits: 300,
-    businesses: "10",
-    features: ["Tout Pro +", "300 crédits/mois", "10 établissements", "AEO ChatGPT", "Support prioritaire"],
-  },
-];
 
 interface CreditPack {
   price: number;
@@ -76,31 +42,25 @@ interface UpgradeDialogProps {
 }
 
 export const UpgradeDialog = ({ open, onOpenChange, currentPlan }: UpgradeDialogProps) => {
-  const [isYearly, setIsYearly] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [loadingPlanId, setLoadingPlanId] = useState<string | null>(null);
   const [loadingCredits, setLoadingCredits] = useState(false);
 
-  const handleSubscribe = async (planId: string) => {
+  const isAlreadyUpgraded = currentPlan?.toLowerCase() === "daily" || currentPlan?.toLowerCase() === "pro" || currentPlan?.toLowerCase() === "business";
+
+  const handleUpgrade = async () => {
     setIsLoading(true);
-    setLoadingPlanId(planId);
     try {
-      const priceKey = `${planId}_${isYearly ? "yearly" : "monthly"}`;
-      
       const { data, error } = await supabase.functions.invoke("create-checkout", {
         body: {
-          priceKey,
+          priceKey: "daily_monthly",
           successUrl: `${window.location.origin}/dashboard?success=true`,
           cancelUrl: `${window.location.origin}/settings?canceled=true`,
         },
       });
 
       if (error) throw error;
-
       if (data?.url) {
         window.location.href = data.url;
-      } else {
-        throw new Error("No checkout URL returned");
       }
     } catch (error) {
       console.error("Checkout error:", error);
@@ -111,7 +71,6 @@ export const UpgradeDialog = ({ open, onOpenChange, currentPlan }: UpgradeDialog
       });
     } finally {
       setIsLoading(false);
-      setLoadingPlanId(null);
     }
   };
 
@@ -128,11 +87,8 @@ export const UpgradeDialog = ({ open, onOpenChange, currentPlan }: UpgradeDialog
       });
 
       if (error) throw error;
-
       if (data?.url) {
         window.location.href = data.url;
-      } else {
-        throw new Error("No checkout URL returned");
       }
     } catch (error) {
       console.error("Credits checkout error:", error);
@@ -146,9 +102,13 @@ export const UpgradeDialog = ({ open, onOpenChange, currentPlan }: UpgradeDialog
     }
   };
 
-  // Determine current plan tier for disabling lower plans
-  const planOrder = ["starter", "pro", "business"];
-  const currentPlanIndex = currentPlan ? planOrder.indexOf(currentPlan.toLowerCase()) : -1;
+  const upgradeFeatures = [
+    "Posts SEO quotidiens",
+    "Q&A AEO quotidiens (ChatGPT)",
+    "100 crédits/mois",
+    "2 établissements",
+    "Support prioritaire",
+  ];
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -161,51 +121,67 @@ export const UpgradeDialog = ({ open, onOpenChange, currentPlan }: UpgradeDialog
             </div>
             <DialogHeader>
               <DialogTitle className="text-xl font-bold text-foreground">
-                Choisissez votre <span className="text-primary">plan</span>
+                Passez au <span className="text-primary">Quotidien</span>
               </DialogTitle>
             </DialogHeader>
-
-            {/* Billing Toggle */}
-            <div className="flex items-center justify-center gap-3 mt-5">
-              <span className={`text-sm font-medium ${!isYearly ? "text-foreground" : "text-muted-foreground"}`}>
-                Mensuel
-              </span>
-              <button
-                onClick={() => setIsYearly(!isYearly)}
-                className={`relative w-14 h-7 rounded-full transition-colors border-2 ${
-                  isYearly 
-                    ? "bg-primary border-primary" 
-                    : "bg-muted border-border"
-                }`}
-              >
-                <div
-                  className={`absolute top-0.5 w-5 h-5 rounded-full shadow-lg transition-transform ${
-                    isYearly 
-                      ? "translate-x-7 bg-primary-foreground" 
-                      : "translate-x-1 bg-primary"
-                  }`}
-                />
-              </button>
-              <span className={`text-sm font-medium ${isYearly ? "text-foreground" : "text-muted-foreground"}`}>
-                Annuel
-              </span>
-            </div>
+            <p className="text-sm text-muted-foreground mt-2">
+              Publiez tous les jours sur Google pour maximiser votre visibilité
+            </p>
           </div>
         </div>
 
-        {/* Plan Cards */}
-        <div className="px-4 pb-4 pt-2 space-y-5">
-          {PLANS.map((plan, index) => (
-            <PlanCard
-              key={plan.id}
-              plan={plan}
-              isYearly={isYearly}
-              isLoading={isLoading && loadingPlanId === plan.id}
-              isCurrentPlan={currentPlanIndex === index}
-              isLowerTier={currentPlanIndex > index}
-              onSelect={() => handleSubscribe(plan.id)}
-            />
-          ))}
+        {/* Upgrade Card */}
+        <div className="px-4 pb-4 pt-2">
+          <div className="relative rounded-2xl border-2 border-destructive/50 bg-destructive/5 p-5">
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+              <Badge className="bg-destructive text-white shadow-lg px-3 py-1 text-xs font-semibold">
+                <Sparkles className="w-3 h-3 mr-1" />
+                PUBLICATION QUOTIDIENNE
+              </Badge>
+            </div>
+
+            <div className="flex items-center gap-4 mt-3 mb-4">
+              <div className="w-14 h-14 rounded-xl bg-destructive/20 flex items-center justify-center shrink-0">
+                <Star className="w-7 h-7 text-destructive" />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-bold text-lg text-foreground">Quotidien</h3>
+                <p className="text-sm text-muted-foreground">SEO + AEO tous les jours</p>
+              </div>
+              <div className="text-right">
+                <div className="text-2xl font-bold text-foreground">9,99€</div>
+                <div className="text-xs text-muted-foreground">/mois</div>
+              </div>
+            </div>
+
+            <ul className="space-y-2 mb-4">
+              {upgradeFeatures.map((feature) => (
+                <li key={feature} className="flex items-center gap-2.5">
+                  <div className="w-5 h-5 rounded-full bg-secondary/20 flex items-center justify-center flex-shrink-0">
+                    <Check className="w-3 h-3 text-secondary" />
+                  </div>
+                  <span className="text-foreground text-sm">{feature}</span>
+                </li>
+              ))}
+            </ul>
+
+            <Button
+              onClick={handleUpgrade}
+              disabled={isLoading || isAlreadyUpgraded}
+              className="w-full rounded-xl h-12 font-semibold bg-destructive hover:bg-destructive/90 text-white shadow-lg"
+            >
+              {isLoading ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : isAlreadyUpgraded ? (
+                "✓ Déjà activé"
+              ) : (
+                <>
+                  <ArrowRight className="w-4 h-4 mr-2" />
+                  Passer au Quotidien
+                </>
+              )}
+            </Button>
+          </div>
         </div>
 
         {/* Credit Packs Section */}

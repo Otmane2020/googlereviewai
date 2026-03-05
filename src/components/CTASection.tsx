@@ -34,17 +34,16 @@ export const CTASection = () => {
       </div>
 
       <div className="relative container mx-auto px-5 sm:px-6">
-        {/* Card with light background for better readability */}
         <div className="bg-card rounded-2xl border border-border shadow-xl p-6 sm:p-10 max-w-3xl mx-auto">
           <div className="text-center">
             <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center mx-auto mb-4">
               <Target className="w-7 h-7 text-primary" />
             </div>
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-4">
-              {t("cta.title")}
+              Gérez vos avis Google gratuitement
             </h2>
             <p className="text-muted-foreground text-sm sm:text-base mb-6 max-w-xl mx-auto">
-              {t("cta.subtitle")}
+              Rejoignez des centaines d'établissements qui utilisent Starlinko pour automatiser leurs avis Google avec l'IA. C'est gratuit.
             </p>
             
             {/* Benefits list */}
@@ -87,7 +86,7 @@ export const CTASection = () => {
                   className="gap-2 w-full sm:w-auto" 
                   onClick={() => navigate("/auth")}
                 >
-                  {t("hero.ctaSecondary")}
+                  Créer mon compte gratuit
                 </Button>
               </div>
             ) : (
@@ -98,7 +97,7 @@ export const CTASection = () => {
                 onClick={() => navigate("/auth")}
               >
                 <Zap className="w-5 h-5" />
-                {t("cta.button")}
+                Créer mon compte gratuit
                 <ArrowRight className="w-4 h-4 ml-1" />
               </Button>
             )}
@@ -106,11 +105,11 @@ export const CTASection = () => {
             <div className="flex flex-wrap items-center justify-center gap-4 mt-5 text-muted-foreground text-xs">
               <span className="flex items-center gap-1.5">
                 <Check className="w-3.5 h-3.5 text-secondary" />
-                {t("pricing.freeTrial")}
+                100% gratuit
               </span>
               <span className="flex items-center gap-1.5">
                 <Check className="w-3.5 h-3.5 text-secondary" />
-                {t("pricing.noCreditCard")}
+                Sans carte bancaire
               </span>
               <span className="flex items-center gap-1.5">
                 <Check className="w-3.5 h-3.5 text-secondary" />

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "./ui/button";
-import { Check, Star, Sparkles, Loader2, Gift, Zap } from "lucide-react";
+import { Check, Star, Sparkles, Loader2, Gift, Zap, ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -12,112 +12,56 @@ export const PricingSection = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("yearly");
-  const [isLoading, setIsLoading] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const plans = [
-    {
-      id: "starter",
-      name: t("pricing.plans.starter"),
-      priceMonthly: 2.99,
-      priceYearly: 2.39,
-      features: [
-        t("pricing.planFeatures.starter1"),
-        t("pricing.planFeatures.starter2"),
-        t("pricing.planFeatures.starter3"),
-      ],
-      hasTrial: true,
-      trialDays: 3,
-      style: {
-        border: "border-primary",
-        bg: "bg-primary/5",
-        iconBg: "bg-primary",
-        iconColor: "text-primary-foreground",
-        buttonClass: "bg-primary hover:bg-primary/90 text-primary-foreground",
-        badgeClass: "bg-primary text-primary-foreground",
-        Icon: Gift,
-      },
-    },
-    {
-      id: "pro",
-      name: t("pricing.plans.pro"),
-      priceMonthly: 29.99,
-      priceYearly: 23.99,
-      features: [
-        t("pricing.planFeatures.pro1"),
-        t("pricing.planFeatures.pro2"),
-        t("pricing.planFeatures.pro3"),
-        t("pricing.planFeatures.pro4"),
-      ],
-      popular: true,
-      style: {
-        border: "border-destructive/50",
-        bg: "bg-destructive/5",
-        iconBg: "bg-destructive/20",
-        iconColor: "text-destructive",
-        buttonClass: "bg-destructive hover:bg-destructive/90 text-white",
-        badgeClass: "bg-destructive text-white",
-        Icon: Star,
-      },
-    },
-    {
-      id: "business",
-      name: t("pricing.plans.business"),
-      priceMonthly: 99,
-      priceYearly: 79.20,
-      features: [
-        t("pricing.planFeatures.business1"),
-        t("pricing.planFeatures.business2"),
-        t("pricing.planFeatures.business3"),
-        t("pricing.planFeatures.business4"),
-        t("pricing.planFeatures.business5"),
-      ],
-      style: {
-        border: "border-secondary/50",
-        bg: "bg-secondary/5",
-        iconBg: "bg-secondary/20",
-        iconColor: "text-secondary",
-        buttonClass: "bg-secondary hover:bg-secondary/90 text-white",
-        badgeClass: "bg-secondary text-white",
-        Icon: Zap,
-      },
-    },
-  ];
-
-  const handleSubscribe = async (planId: string) => {
+  const handleUpgrade = async () => {
     if (!user) {
       navigate("/auth");
       return;
     }
 
-    const priceKey = `${planId}_${billingCycle}`;
-    setIsLoading(planId);
-    
+    setIsLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke("create-checkout", {
         body: {
-          priceKey,
+          priceKey: "daily_monthly",
           successUrl: `${window.location.origin}/dashboard?success=true`,
           cancelUrl: `${window.location.origin}/#pricing`,
         },
       });
 
       if (error) throw error;
-
       if (data?.url) {
         window.location.href = data.url;
       }
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : t("errors.paymentError");
+      const message = error instanceof Error ? error.message : "Erreur de paiement";
       toast({
-        title: t("common.error"),
+        title: "Erreur",
         description: message,
         variant: "destructive",
       });
     } finally {
-      setIsLoading(null);
+      setIsLoading(false);
     }
   };
+
+  const freePlanFeatures = [
+    "Gestion des avis Google avec IA",
+    "1 post SEO par semaine",
+    "10 crédits offerts",
+    "1 établissement",
+    "Synchronisation automatique",
+  ];
+
+  const upgradePlanFeatures = [
+    "Tout le plan Gratuit +",
+    "Posts SEO quotidiens",
+    "Q&A AEO quotidiens (ChatGPT)",
+    "100 crédits/mois",
+    "2 établissements",
+    "Support prioritaire",
+  ];
 
   return (
     <section id="pricing" className="py-14 sm:py-20 md:py-24 bg-background">
@@ -126,141 +70,123 @@ export const PricingSection = () => {
         <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-12">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent/10 rounded-full mb-5">
             <Star className="w-4 h-4 text-accent" />
-            <span className="text-accent-foreground text-xs sm:text-sm font-semibold">{t("pricing.badge")}</span>
+            <span className="text-accent-foreground text-xs sm:text-sm font-semibold">Gratuit pour toujours</span>
           </div>
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-4">
-            {t("pricing.title")}
+            Gratuit. Sans surprise.
           </h2>
-          <p className="text-muted-foreground text-sm sm:text-base mb-6">
-            {t("pricing.subtitle")}
+          <p className="text-muted-foreground text-sm sm:text-base">
+            Gérez vos avis Google gratuitement. Passez au quotidien quand vous êtes prêt.
           </p>
-
-          {/* Billing Toggle */}
-          <div className="inline-flex items-center gap-2 p-1 bg-muted rounded-full">
-            <button
-              onClick={() => setBillingCycle("monthly")}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                billingCycle === "monthly"
-                  ? "bg-primary text-primary-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              {t("pricing.monthly")}
-            </button>
-            <button
-              onClick={() => setBillingCycle("yearly")}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-2 ${
-                billingCycle === "yearly"
-                  ? "bg-primary text-primary-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              {t("pricing.yearly")}
-              <span className="px-2 py-0.5 bg-secondary text-secondary-foreground text-xs rounded-full">
-                -20%
-              </span>
-            </button>
-          </div>
         </div>
 
-        {/* 3 Plan Cards */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
-          {plans.map((plan) => {
-            const price = billingCycle === "yearly" ? plan.priceYearly : plan.priceMonthly;
-            const IconComponent = plan.style.Icon;
+        {/* 2 Plan Cards */}
+        <div className="grid sm:grid-cols-2 gap-6 max-w-3xl mx-auto">
+          {/* Free Plan */}
+          <div className="relative rounded-2xl border-2 border-primary bg-primary/5 p-6 transition-all hover:shadow-lg">
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+              <Badge className="bg-primary text-primary-foreground shadow-lg px-3 py-1 text-xs font-semibold">
+                <Gift className="w-3 h-3 mr-1" />
+                100% GRATUIT
+              </Badge>
+            </div>
 
-            return (
-              <div
-                key={plan.id}
-                className={`relative rounded-2xl border-2 ${plan.style.border} ${plan.style.bg} p-6 transition-all hover:shadow-lg`}
-              >
-                {/* Badge */}
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                  <Badge className={`${plan.style.badgeClass} shadow-lg px-3 py-1 text-xs font-semibold`}>
-                    {plan.hasTrial ? (
-                      <>
-                        <Gift className="w-3 h-3 mr-1" />
-                        {t("pricing.trialBadge", { days: plan.trialDays })}
-                      </>
-                    ) : plan.popular ? (
-                      <>
-                        <Sparkles className="w-3 h-3 mr-1" />
-                        {t("pricing.popular")}
-                      </>
-                    ) : (
-                      <>
-                        <Zap className="w-3 h-3 mr-1" />
-                        PREMIUM
-                      </>
-                    )}
-                  </Badge>
-                </div>
-
-                {/* Icon + Name */}
-                <div className="flex items-center gap-3 mt-4 mb-4">
-                  <div className={`w-12 h-12 rounded-xl ${plan.style.iconBg} flex items-center justify-center`}>
-                    <IconComponent className={`w-6 h-6 ${plan.style.iconColor}`} />
-                  </div>
-                  <h3 className="text-xl font-bold text-foreground">{plan.name}</h3>
-                </div>
-
-                {/* Price */}
-                <div className="mb-5">
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-3xl font-bold text-foreground">
-                      {plan.hasTrial && billingCycle === "monthly" ? "0€" : `${price.toFixed(2).replace(".", ",")}€`}
-                    </span>
-                    <span className="text-muted-foreground text-sm">{t("pricing.perMonth")}</span>
-                  </div>
-                  {plan.hasTrial && (
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {t("pricing.thenPrice", { price: `${price.toFixed(2).replace(".", ",")}€` })}
-                    </p>
-                  )}
-                  {billingCycle === "yearly" && !plan.hasTrial && (
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {t("pricing.billedYearly", { price: `${(plan.priceYearly * 12).toFixed(0)}€` })}
-                    </p>
-                  )}
-                </div>
-
-                {/* Features */}
-                <ul className="space-y-2.5 mb-6">
-                  {plan.features.map((feature) => (
-                    <li key={feature} className="flex items-center gap-2.5">
-                      <div className="w-5 h-5 rounded-full bg-secondary/20 flex items-center justify-center flex-shrink-0">
-                        <Check className="w-3 h-3 text-secondary" />
-                      </div>
-                      <span className="text-foreground text-sm">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-
-                {/* CTA */}
-                <Button
-                  onClick={() => handleSubscribe(plan.id)}
-                  disabled={isLoading === plan.id}
-                  className={`w-full rounded-xl h-12 font-semibold ${plan.style.buttonClass} shadow-lg`}
-                >
-                  {isLoading === plan.id ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <>
-                      <Check className="w-4 h-4 mr-2" />
-                      {plan.hasTrial ? t("pricing.startTrial") : t("pricing.choosePlan")}
-                    </>
-                  )}
-                </Button>
+            <div className="flex items-center gap-3 mt-4 mb-4">
+              <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center">
+                <Gift className="w-6 h-6 text-primary-foreground" />
               </div>
-            );
-          })}
+              <h3 className="text-xl font-bold text-foreground">Gratuit</h3>
+            </div>
+
+            <div className="mb-5">
+              <div className="flex items-baseline gap-1">
+                <span className="text-3xl font-bold text-foreground">0€</span>
+                <span className="text-muted-foreground text-sm">/mois</span>
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Pour toujours, sans carte bancaire
+              </p>
+            </div>
+
+            <ul className="space-y-2.5 mb-6">
+              {freePlanFeatures.map((feature) => (
+                <li key={feature} className="flex items-center gap-2.5">
+                  <div className="w-5 h-5 rounded-full bg-secondary/20 flex items-center justify-center flex-shrink-0">
+                    <Check className="w-3 h-3 text-secondary" />
+                  </div>
+                  <span className="text-foreground text-sm">{feature}</span>
+                </li>
+              ))}
+            </ul>
+
+            <Button
+              onClick={() => navigate("/auth")}
+              className="w-full rounded-xl h-12 font-semibold bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg"
+            >
+              <Zap className="w-4 h-4 mr-2" />
+              Commencer gratuitement
+            </Button>
+          </div>
+
+          {/* Upgrade Plan */}
+          <div className="relative rounded-2xl border-2 border-destructive/50 bg-destructive/5 p-6 transition-all hover:shadow-lg">
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+              <Badge className="bg-destructive text-white shadow-lg px-3 py-1 text-xs font-semibold">
+                <Sparkles className="w-3 h-3 mr-1" />
+                PUBLICATION QUOTIDIENNE
+              </Badge>
+            </div>
+
+            <div className="flex items-center gap-3 mt-4 mb-4">
+              <div className="w-12 h-12 rounded-xl bg-destructive/20 flex items-center justify-center">
+                <Star className="w-6 h-6 text-destructive" />
+              </div>
+              <h3 className="text-xl font-bold text-foreground">Quotidien</h3>
+            </div>
+
+            <div className="mb-5">
+              <div className="flex items-baseline gap-1">
+                <span className="text-3xl font-bold text-foreground">9,99€</span>
+                <span className="text-muted-foreground text-sm">/mois</span>
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Publiez tous les jours sur Google
+              </p>
+            </div>
+
+            <ul className="space-y-2.5 mb-6">
+              {upgradePlanFeatures.map((feature) => (
+                <li key={feature} className="flex items-center gap-2.5">
+                  <div className="w-5 h-5 rounded-full bg-secondary/20 flex items-center justify-center flex-shrink-0">
+                    <Check className="w-3 h-3 text-secondary" />
+                  </div>
+                  <span className="text-foreground text-sm">{feature}</span>
+                </li>
+              ))}
+            </ul>
+
+            <Button
+              onClick={handleUpgrade}
+              disabled={isLoading}
+              className="w-full rounded-xl h-12 font-semibold bg-destructive hover:bg-destructive/90 text-white shadow-lg"
+            >
+              {isLoading ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <>
+                  <ArrowRight className="w-4 h-4 mr-2" />
+                  Passer au Quotidien
+                </>
+              )}
+            </Button>
+          </div>
         </div>
 
         {/* Trust */}
         <div className="flex items-center justify-center gap-4 mt-8 text-xs text-muted-foreground">
           <span>{t("pricing.cancelAnytime")}</span>
           <span>•</span>
-          <span>{t("pricing.noCreditCard")}</span>
+          <span>Sans carte bancaire pour le plan gratuit</span>
         </div>
       </div>
     </section>
