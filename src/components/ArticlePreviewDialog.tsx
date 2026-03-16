@@ -115,13 +115,13 @@ export const ArticlePreviewDialog = ({
         ) : (
           <div className="mt-4 p-6 bg-muted/50 rounded-lg text-center">
             <Lock className="w-10 h-10 mx-auto mb-3 text-muted-foreground" />
-            <h3 className="font-semibold text-foreground mb-2">Contenu réservé aux abonnés</h3>
+            <h3 className="font-semibold text-foreground mb-2">Passez au Quotidien pour débloquer</h3>
             <p className="text-sm text-muted-foreground mb-4">
-              Abonnez-vous au module SEO AutoPost pour accéder à ce contenu et débloquer toutes les fonctionnalités.
+              Le plan Gratuit inclut 1 post SEO et 1 Q&A AEO par semaine. Passez au Quotidien (9,99€/mois) pour publier tous les jours.
             </p>
             <Button onClick={() => onSubscribe(false)} className="gap-2">
-              <ExternalLink className="w-4 h-4" />
-              S'abonner maintenant
+              <Sparkles className="w-4 h-4" />
+              Passer au Quotidien
             </Button>
           </div>
         )}
