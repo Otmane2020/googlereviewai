@@ -109,9 +109,6 @@ const Index = () => {
       <Header />
       <main className="pb-20 sm:pb-0">
         <HeroSection />
-        <MobileAIDemoSection />
-        <DemoSection />
-        <SectorDemoSection />
         <SectorShowcaseSection />
         <StarlySection />
         <FeaturesSection />
