@@ -13,7 +13,7 @@ export const LowCreditsBanner = ({ credits, pendingReviews = 0, currentPlan }: L
   const [dismissed, setDismissed] = useState(false);
   const [upgradeDialogOpen, setUpgradeDialogOpen] = useState(false);
 
-  // Reset dismissed state when credits change to 0
+  // Reset dismissed state when credits drop to 0
   useEffect(() => {
     if (credits === 0) {
       setDismissed(false);
