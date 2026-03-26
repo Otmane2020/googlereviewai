@@ -107,3 +107,6 @@ verify_jwt = false
 
 [functions.receive-email-webhook]
 verify_jwt = false
+
+[functions.cron-monthly-credits]
+verify_jwt = false
