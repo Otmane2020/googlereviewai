@@ -8,6 +8,7 @@ import { DemoSection } from "@/components/DemoSection";
 import { StarlySection } from "@/components/StarlySection";
 import { FeaturesSection } from "@/components/FeaturesSection";
 import { SectorsSection } from "@/components/SectorsSection";
+import { SectorShowcaseSection } from "@/components/SectorShowcaseSection";
 import { TestimonialsSection } from "@/components/TestimonialsSection";
 import { ComplianceSection } from "@/components/ComplianceSection";
 import { PricingSection } from "@/components/PricingSection";
@@ -111,6 +112,7 @@ const Index = () => {
         <MobileAIDemoSection />
         <DemoSection />
         <SectorDemoSection />
+        <SectorShowcaseSection />
         <StarlySection />
         <FeaturesSection />
         <SectorsSection />
