@@ -20,8 +20,10 @@ export const LowCreditsBanner = ({ credits, pendingReviews = 0, currentPlan }: L
     }
   }, [credits]);
 
-  // Don't show if credits > 0 or dismissed
-  if (credits > 0 || dismissed) return null;
+  // Show when credits are low (≤3) or exhausted (0)
+  if (credits > 3 || dismissed) return null;
+
+  const isExhausted = credits === 0;
 
   return (
     <>
@@ -38,20 +40,22 @@ export const LowCreditsBanner = ({ credits, pendingReviews = 0, currentPlan }: L
           {/* Content */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
-              <h4 className="font-semibold text-foreground text-sm">
-                Crédits épuisés !
+             <h4 className="font-semibold text-foreground text-sm">
+                {isExhausted ? "Crédits épuisés !" : "Crédits presque épuisés !"}
               </h4>
               <span className="px-2 py-0.5 bg-destructive/20 text-destructive text-xs font-medium rounded-full">
-                0 crédit
+                {credits} crédit{credits !== 1 ? "s" : ""}
               </span>
             </div>
             
             <p className="text-xs text-muted-foreground leading-relaxed">
-              {pendingReviews > 0 
-                ? `${pendingReviews} avis ne peuvent pas recevoir de réponse IA automatique.`
-                : "Les réponses IA automatiques sont en pause."
+              {isExhausted 
+                ? (pendingReviews > 0 
+                    ? `${pendingReviews} avis ne peuvent pas recevoir de réponse IA.`
+                    : "Les réponses IA automatiques sont en pause.")
+                : `Il vous reste ${credits} crédit${credits !== 1 ? "s" : ""}. Rechargez ou passez au plan Quotidien.`
               }
-              {" "}Rechargez pour continuer.
+              {isExhausted && " Rechargez ou passez au plan Quotidien (9,99€/mois)."}
             </p>
             
             {/* Action buttons */}

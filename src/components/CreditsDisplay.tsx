@@ -42,7 +42,7 @@ export const CreditsDisplay = ({ credits, planName, compact = false }: CreditsDi
             </div>
             <div className="pt-2 border-t border-border">
               <p className="text-xs text-muted-foreground mb-2">
-                1 crédit = 1 réponse IA
+                1 crédit = 1 réponse IA · 25 gratuits/mois
               </p>
               <Button size="sm" className="w-full gap-2" onClick={() => navigate("/settings?tab=credits")}>
                 <Plus className="w-4 h-4" />
@@ -76,7 +76,7 @@ export const CreditsDisplay = ({ credits, planName, compact = false }: CreditsDi
         </Button>
       </div>
       <p className="text-xs text-muted-foreground mt-3 border-t border-border/50 pt-3">
-        1 crédit = 1 réponse IA générée
+        1 crédit = 1 réponse IA · 25 crédits gratuits/mois
       </p>
     </div>
   );
