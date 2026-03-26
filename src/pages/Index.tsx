@@ -112,6 +112,7 @@ const Index = () => {
         <MobileAIDemoSection />
         <DemoSection />
         <SectorDemoSection />
+        <SectorShowcaseSection />
         <StarlySection />
         <FeaturesSection />
         <SectorsSection />
