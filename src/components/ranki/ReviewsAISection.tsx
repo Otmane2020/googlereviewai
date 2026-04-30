@@ -29,11 +29,11 @@ export const ReviewsAISection = () => {
     <section id="reviews-ai" className="py-20 sm:py-28 bg-card">
       <div className="container mx-auto px-4 sm:px-6">
         <div className="max-w-2xl mx-auto text-center mb-14">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/15 text-accent-foreground text-xs font-semibold mb-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-background border border-border text-foreground text-xs font-semibold mb-4">
             <MessageSquareReply className="w-3.5 h-3.5" /> Reviews AI
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-foreground tracking-tight">
-            Every review answered. <span className="text-accent">Automatically.</span>
+            Every review answered. <span className="text-primary">Automatically.</span>
           </h2>
           <p className="mt-4 text-lg text-muted-foreground">
             On-brand AI replies published to Google Business in minutes — fueling both your reputation and your AI ranking.
@@ -55,7 +55,7 @@ export const ReviewsAISection = () => {
                   {Array.from({ length: 5 }).map((_, i) => (
                     <Star
                       key={i}
-                      className={`w-4 h-4 ${i < e.rating ? "fill-accent text-accent" : "text-muted"}`}
+                      className={`w-4 h-4 ${i < e.rating ? "fill-foreground text-foreground" : "text-muted"}`}
                     />
                   ))}
                 </div>
@@ -66,10 +66,10 @@ export const ReviewsAISection = () => {
                 <p className="text-sm text-foreground leading-snug">"{e.review}"</p>
               </div>
 
-              <div className="bg-gradient-to-br from-primary/10 to-secondary/10 border border-primary/20 rounded-xl p-3">
+              <div className="bg-primary/5 border border-primary/20 rounded-xl p-3">
                 <div className="flex items-center gap-1.5 mb-1">
-                  <div className="w-4 h-4 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
-                    <span className="text-[8px] font-bold text-white">AI</span>
+                  <div className="w-4 h-4 rounded-full bg-primary flex items-center justify-center">
+                    <span className="text-[8px] font-bold text-primary-foreground">AI</span>
                   </div>
                   <div className="text-[10px] uppercase font-bold text-primary">Ranki AI Reply</div>
                 </div>

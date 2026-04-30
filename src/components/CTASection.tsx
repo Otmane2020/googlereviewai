@@ -6,16 +6,11 @@ export const CTASection = () => {
   const navigate = useNavigate();
 
   return (
-    <section className="py-14 sm:py-20 md:py-24 gradient-hero relative overflow-hidden">
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-10 -right-10 w-60 h-60 bg-card/5 rounded-full blur-3xl" />
-        <div className="absolute -bottom-10 -left-10 w-80 h-80 bg-card/5 rounded-full blur-3xl" />
-      </div>
-
+    <section className="py-14 sm:py-20 md:py-24 bg-card relative overflow-hidden">
       <div className="relative container mx-auto px-5 sm:px-6">
-        <div className="bg-card rounded-2xl border border-border shadow-xl p-6 sm:p-10 max-w-3xl mx-auto text-center">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center mx-auto mb-4">
-            <Target className="w-7 h-7 text-primary" />
+        <div className="bg-background rounded-2xl border border-border shadow-xl p-6 sm:p-10 max-w-3xl mx-auto text-center">
+          <div className="w-14 h-14 rounded-2xl bg-muted flex items-center justify-center mx-auto mb-4">
+            <Target className="w-7 h-7 text-foreground" />
           </div>
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-4">
             Start ranking in AI search today

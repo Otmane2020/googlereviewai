@@ -65,38 +65,38 @@ export const RankiPricingSection = () => {
               key={p.name}
               className={`relative rounded-2xl p-6 border transition-all ${
                 p.highlight
-                  ? "bg-gradient-to-br from-primary to-primary/80 text-primary-foreground border-primary shadow-2xl scale-[1.02] md:scale-105"
+                  ? "bg-foreground text-background border-foreground shadow-2xl scale-[1.02] md:scale-105"
                   : "bg-card border-border hover:shadow-xl"
               }`}
             >
               {p.highlight && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 inline-flex items-center gap-1 px-3 py-1 rounded-full bg-accent text-accent-foreground text-xs font-bold shadow-md">
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 inline-flex items-center gap-1 px-3 py-1 rounded-full bg-background text-foreground border border-border text-xs font-bold shadow-md">
                   <Sparkles className="w-3 h-3" /> Most popular
                 </div>
               )}
 
-              <h3 className={`text-lg font-bold ${p.highlight ? "text-primary-foreground" : "text-foreground"}`}>
+              <h3 className={`text-lg font-bold ${p.highlight ? "text-background" : "text-foreground"}`}>
                 {p.name}
               </h3>
               <div className="mt-3 flex items-baseline gap-1">
-                <span className={`text-4xl font-extrabold ${p.highlight ? "text-primary-foreground" : "text-foreground"}`}>
+                <span className={`text-4xl font-extrabold ${p.highlight ? "text-background" : "text-foreground"}`}>
                   {p.price}
                 </span>
                 {p.period && (
-                  <span className={`text-sm ${p.highlight ? "text-primary-foreground/80" : "text-muted-foreground"}`}>
+                  <span className={`text-sm ${p.highlight ? "text-background/70" : "text-muted-foreground"}`}>
                     {p.period}
                   </span>
                 )}
               </div>
-              <p className={`mt-2 text-sm ${p.highlight ? "text-primary-foreground/85" : "text-muted-foreground"}`}>
+              <p className={`mt-2 text-sm ${p.highlight ? "text-background/80" : "text-muted-foreground"}`}>
                 {p.desc}
               </p>
 
               <ul className="mt-6 space-y-2.5">
                 {p.features.map((f) => (
                   <li key={f} className="flex items-start gap-2 text-sm">
-                    <Check className={`w-4 h-4 mt-0.5 flex-shrink-0 ${p.highlight ? "text-primary-foreground" : "text-secondary"}`} />
-                    <span className={p.highlight ? "text-primary-foreground/95" : "text-foreground"}>{f}</span>
+                    <Check className={`w-4 h-4 mt-0.5 flex-shrink-0 ${p.highlight ? "text-background" : "text-primary"}`} />
+                    <span className={p.highlight ? "text-background/95" : "text-foreground"}>{f}</span>
                   </li>
                 ))}
               </ul>
