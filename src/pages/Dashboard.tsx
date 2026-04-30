@@ -433,20 +433,24 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/20 pb-24">
-      <DashboardHeader />
+    <DashboardLayout title="Overview">
+      <div className="bg-gradient-to-b from-background to-muted/20">
+        {/* Mobile-only header (desktop uses sidebar layout) */}
+        <div className="md:hidden">
+          <DashboardHeader />
+        </div>
 
-      <main className="max-w-6xl mx-auto px-4 py-5 space-y-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm text-muted-foreground">Bienvenue,</p>
-            <h1 className="text-xl font-bold text-foreground">{profile?.full_name?.split(" ")[0] || "👋"}</h1>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="text-center px-4 py-2 bg-primary/10 rounded-xl">
-              <div className="text-lg font-bold text-primary">{profile?.credits || 0}</div>
-              <div className="text-[10px] text-muted-foreground">Crédits</div>
+        <main className="max-w-7xl mx-auto px-4 md:px-6 py-5 md:py-8 space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-muted-foreground">Welcome back,</p>
+              <h1 className="text-xl md:text-2xl font-bold text-foreground">{profile?.full_name?.split(" ")[0] || "👋"}</h1>
             </div>
+            <div className="flex items-center gap-2 md:hidden">
+              <div className="text-center px-4 py-2 bg-primary/10 rounded-xl">
+                <div className="text-lg font-bold text-primary">{profile?.credits || 0}</div>
+                <div className="text-[10px] text-muted-foreground">Credits</div>
+              </div>
             <Button 
               variant="outline" 
               size="icon"
