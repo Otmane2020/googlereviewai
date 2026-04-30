@@ -61,14 +61,14 @@ const BlogArticle = () => {
         <Header />
         <main className="pt-20">
           <div className="container mx-auto px-4 py-12 max-w-4xl text-center">
-            <h1 className="text-2xl font-bold mb-4">Article non trouvé</h1>
+            <h1 className="text-2xl font-bold mb-4">Article not found</h1>
             <p className="text-muted-foreground mb-6">
-              L'article que vous recherchez n'existe pas ou a été supprimé.
+              The article you are looking for does not exist or has been removed.
             </p>
             <Button asChild>
               <Link to="/blog">
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                Retour au blog
+                Back to blog
               </Link>
             </Button>
           </div>
@@ -78,7 +78,7 @@ const BlogArticle = () => {
     );
   }
 
-  const publishedDate = new Date(article.published_at).toLocaleDateString('fr-FR', {
+  const publishedDate = new Date(article.published_at).toLocaleDateString('en-US', {
     day: 'numeric',
     month: 'long',
     year: 'numeric'
@@ -89,16 +89,16 @@ const BlogArticle = () => {
   return (
     <>
       <Helmet>
-        <title>{article.title} | Blog Starlinko</title>
+        <title>{article.title} | Ranki.ai Blog</title>
         <meta 
           name="description" 
           content={article.meta_description || article.body.substring(0, 155) + '...'} 
         />
-        <link rel="canonical" href={`https://starlinko.app/blog/${article.slug}`} />
+        <link rel="canonical" href={`https://ranki.ai/blog/${article.slug}`} />
         
         <meta property="og:title" content={article.title} />
         <meta property="og:description" content={article.meta_description || article.body.substring(0, 155)} />
-        <meta property="og:url" content={`https://starlinko.app/blog/${article.slug}`} />
+        <meta property="og:url" content={`https://ranki.ai/blog/${article.slug}`} />
         <meta property="og:type" content="article" />
         
         <script type="application/ld+json">
@@ -111,12 +111,12 @@ const BlogArticle = () => {
             "dateModified": article.updated_at,
             "author": {
               "@type": "Organization",
-              "name": article.author || "Starlinko"
+              "name": article.author || "Ranki.ai"
             },
             "publisher": {
               "@type": "Organization",
-              "name": "Starlinko",
-              "url": "https://starlinko.app"
+              "name": "Ranki.ai",
+              "url": "https://ranki.ai"
             }
           })}
         </script>
@@ -133,7 +133,7 @@ const BlogArticle = () => {
               className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Retour au blog
+              Back to blog
             </Link>
           </div>
 
@@ -147,7 +147,7 @@ const BlogArticle = () => {
             <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
               <span className="flex items-center gap-1">
                 <User className="w-4 h-4" />
-                {article.author || 'Équipe Starlinko'}
+                {article.author || 'Ranki.ai Team'}
               </span>
               <span className="flex items-center gap-1">
                 <Calendar className="w-4 h-4" />
@@ -155,7 +155,7 @@ const BlogArticle = () => {
               </span>
               <span className="flex items-center gap-1">
                 <Clock className="w-4 h-4" />
-                {readingTime} min de lecture
+                {readingTime} min read
               </span>
             </div>
           </header>
@@ -180,14 +180,14 @@ const BlogArticle = () => {
           <section className="py-12 bg-muted/30">
             <div className="container mx-auto px-4 text-center max-w-2xl">
               <h2 className="text-2xl font-bold mb-4">
-                Prêt à automatiser vos avis ?
+                Ready to rank in AI search?
               </h2>
               <p className="text-muted-foreground mb-6">
-                Testez Starlinko gratuitement et découvrez comment l'IA peut transformer votre gestion des avis clients.
+                Try Ranki.ai free and discover how AI can boost your visibility inside ChatGPT, Gemini and Perplexity.
               </p>
               <Button asChild size="lg">
                 <Link to="/auth">
-                  Essai gratuit
+                  Start free
                 </Link>
               </Button>
             </div>

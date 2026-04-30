@@ -19,79 +19,72 @@ import { Helmet } from "react-helmet";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
-import { fr } from "date-fns/locale";
+import { enUS } from "date-fns/locale";
 
-// Articles statiques (guides internes)
+// Static editorial guides
 const staticArticles = [
   {
     slug: "/avis-ai-guide",
-    title: "Comment l'IA révolutionne la gestion des avis clients en 2026",
-    description: "Guide complet pour automatiser vos réponses aux avis Google avec l'intelligence artificielle. Découvrez comment Starlinko transforme votre gestion de réputation.",
+    title: "How AI is Reshaping Customer Review Management in 2026",
+    description: "A complete guide to automating Google review responses with artificial intelligence. Discover how Ranki.ai transforms your reputation management.",
     icon: MessageSquare,
     color: "text-primary",
     bgColor: "bg-primary/10",
     category: "Guide",
     readTime: "5 min",
-    date: "1 février 2026"
+    date: "February 1, 2026"
   },
   {
     slug: "/avis-ai-restaurant",
-    title: "Comment les restaurants gèrent leurs avis Google avec l'IA",
-    description: "Découvrez comment l'intelligence artificielle révolutionne la gestion des avis clients pour les restaurants, pizzerias et brasseries.",
+    title: "How Restaurants Manage Google Reviews With AI",
+    description: "Learn how artificial intelligence is transforming review management for restaurants, pizzerias and brasseries.",
     icon: ChefHat,
     color: "text-orange-500",
     bgColor: "bg-orange-100 dark:bg-orange-900/30",
-    category: "Secteur",
+    category: "Industry",
     readTime: "5 min",
-    date: "28 janvier 2026"
+    date: "January 28, 2026"
   },
   {
     slug: "/avis-ai-hotel",
-    title: "Gestion automatique des avis Google pour hôtels",
-    description: "Comment les hôtels utilisent l'IA pour répondre en 12 langues à leurs clients internationaux 24h/24.",
+    title: "Automated Google Review Management for Hotels",
+    description: "How hotels use AI to reply to international guests in 12 languages, 24/7.",
     icon: Hotel,
     color: "text-blue-500",
     bgColor: "bg-blue-100 dark:bg-blue-900/30",
-    category: "Secteur",
+    category: "Industry",
     readTime: "5 min",
-    date: "28 janvier 2026"
+    date: "January 28, 2026"
   },
   {
     slug: "/local-aeo",
-    title: "AEO Local : Optimisez votre visibilité sur ChatGPT et Gemini",
-    description: "Guide complet pour apparaître dans les réponses des IA génératives comme ChatGPT, Gemini et Perplexity grâce à l'AEO local.",
+    title: "Local GEO: Boost Your Visibility on ChatGPT, Gemini & Perplexity",
+    description: "A complete guide to appearing in generative AI answers from ChatGPT, Gemini and Perplexity through local Generative Engine Optimization.",
     icon: Bot,
     color: "text-violet-500",
     bgColor: "bg-violet-100 dark:bg-violet-900/30",
     category: "Guide",
     readTime: "7 min",
-    date: "27 janvier 2026"
+    date: "January 27, 2026"
   }
 ];
 
 const Blog = () => {
-  // Récupérer les articles dynamiques depuis la base de données
   const { data: dynamicArticles, isLoading } = useQuery({
     queryKey: ["published-articles"],
     queryFn: async () => {
-      console.log("[Blog] Fetching published articles...");
       const { data, error } = await supabase
         .from("published_articles")
         .select("id, title, slug, body, meta_description, author, published_at, created_at")
         .order("published_at", { ascending: false });
       
-      if (error) {
-        console.error("[Blog] Error fetching articles:", error);
-        throw error;
-      }
-      console.log("[Blog] Fetched articles:", data?.length, data?.map(a => a.slug));
+      if (error) throw error;
       return data || [];
     },
-    staleTime: 0, // Toujours refetch au montage
+    staleTime: 0,
     refetchOnWindowFocus: true,
   });
 
-  // Calculer le temps de lecture estimé
   const calculateReadTime = (content: string) => {
     const wordsPerMinute = 200;
     const words = content?.split(/\s+/).length || 0;
@@ -99,10 +92,9 @@ const Blog = () => {
     return `${minutes} min`;
   };
 
-  // Formater la date
   const formatDate = (dateString: string) => {
     try {
-      return format(new Date(dateString), "d MMMM yyyy", { locale: fr });
+      return format(new Date(dateString), "MMMM d, yyyy", { locale: enUS });
     } catch {
       return dateString;
     }
@@ -111,17 +103,17 @@ const Blog = () => {
   return (
     <>
       <Helmet>
-        <title>Blog - Conseils SEO Local & Gestion des Avis Google | Starlinko</title>
+        <title>Blog – Local GEO, AI Search & Google Reviews | Ranki.ai</title>
         <meta 
           name="description" 
-          content="Articles et guides sur la gestion des avis Google, le SEO local et l'AEO pour les commerces et entreprises locales. Conseils d'experts." 
+          content="Articles and guides on Generative Engine Optimization (GEO), local AI search and Google review management for local businesses. Expert insights from Ranki.ai." 
         />
-        <meta name="keywords" content="blog avis google, SEO local, AEO, gestion réputation, avis clients, IA" />
-        <link rel="canonical" href="https://starlinko.app/blog" />
+        <meta name="keywords" content="GEO blog, generative engine optimization, ChatGPT ranking, Gemini ranking, Perplexity, local SEO, AI search, Google reviews" />
+        <link rel="canonical" href="https://ranki.ai/blog" />
         
-        <meta property="og:title" content="Blog Starlinko - SEO Local & Gestion des Avis" />
-        <meta property="og:description" content="Conseils et guides pour gérer vos avis Google et améliorer votre visibilité locale." />
-        <meta property="og:url" content="https://starlinko.app/blog" />
+        <meta property="og:title" content="Ranki.ai Blog – Local GEO & AI Search" />
+        <meta property="og:description" content="Guides and tactics to rank locally inside ChatGPT, Gemini and Perplexity." />
+        <meta property="og:url" content="https://ranki.ai/blog" />
         <meta property="og:type" content="blog" />
       </Helmet>
 
@@ -129,30 +121,28 @@ const Blog = () => {
         <Header />
         
         <main className="pt-20">
-          {/* Hero Section */}
           <section className="py-12 sm:py-16 bg-gradient-to-b from-muted/50 to-background">
             <div className="container mx-auto px-4">
               <div className="max-w-3xl mx-auto text-center">
                 <Badge className="mb-4">Blog</Badge>
                 <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4">
-                  Ressources & Guides
+                  Resources & Guides
                 </h1>
                 <p className="text-lg text-muted-foreground">
-                  Conseils d'experts pour gérer vos avis Google, optimiser votre SEO local 
-                  et apparaître dans les réponses des IA génératives.
+                  Expert insights to manage your Google reviews, optimize local SEO 
+                  and rank inside generative AI engines like ChatGPT, Gemini and Perplexity.
                 </p>
               </div>
             </div>
           </section>
 
-          {/* Dynamic Articles from Database */}
           {(dynamicArticles && dynamicArticles.length > 0) && (
             <section className="py-12 sm:py-16">
               <div className="container mx-auto px-4">
                 <div className="max-w-6xl mx-auto">
                   <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
                     <FileText className="w-6 h-6 text-primary" />
-                    Derniers articles
+                    Latest articles
                   </h2>
                   
                   <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -200,14 +190,13 @@ const Blog = () => {
             </section>
           )}
 
-          {/* Loading State */}
           {isLoading && (
             <section className="py-12 sm:py-16">
               <div className="container mx-auto px-4">
                 <div className="max-w-6xl mx-auto">
                   <div className="flex items-center gap-2 mb-6">
                     <Loader2 className="w-5 h-5 animate-spin text-primary" />
-                    <span className="text-muted-foreground">Chargement des articles...</span>
+                    <span className="text-muted-foreground">Loading articles...</span>
                   </div>
                   <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {[1, 2, 3].map((i) => (
@@ -229,13 +218,12 @@ const Blog = () => {
             </section>
           )}
 
-          {/* Static Articles Grid */}
           <section className="py-12 sm:py-16 bg-muted/20">
             <div className="container mx-auto px-4">
               <div className="max-w-6xl mx-auto">
                 <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
                   <Bot className="w-6 h-6 text-primary" />
-                  Guides & Tutoriels
+                  Guides & Tutorials
                 </h2>
                 
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -282,20 +270,19 @@ const Blog = () => {
             </div>
           </section>
 
-          {/* CTA Section */}
           <section className="py-12 sm:py-16 bg-muted/30">
             <div className="container mx-auto px-4 text-center">
               <h2 className="text-2xl sm:text-3xl font-bold mb-4">
-                Prêt à automatiser vos avis ?
+                Ready to rank in AI search?
               </h2>
               <p className="text-muted-foreground mb-6 max-w-xl mx-auto">
-                Testez Starlinko gratuitement pendant 7 jours et découvrez comment l'IA peut transformer votre gestion des avis.
+                Try Ranki.ai free and discover how AI can boost your visibility inside ChatGPT, Gemini and Perplexity.
               </p>
               <Link 
                 to="/auth" 
                 className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-lg font-medium hover:bg-primary/90 transition-colors"
               >
-                Essai gratuit
+                Start free
                 <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
