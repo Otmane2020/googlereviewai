@@ -830,6 +830,7 @@ export type Database = {
           slug: string
           source_id: string | null
           title: string
+          translated_to_en: boolean | null
           updated_at: string | null
         }
         Insert: {
@@ -842,6 +843,7 @@ export type Database = {
           slug: string
           source_id?: string | null
           title: string
+          translated_to_en?: boolean | null
           updated_at?: string | null
         }
         Update: {
@@ -854,6 +856,7 @@ export type Database = {
           slug?: string
           source_id?: string | null
           title?: string
+          translated_to_en?: boolean | null
           updated_at?: string | null
         }
         Relationships: []
