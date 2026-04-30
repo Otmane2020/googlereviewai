@@ -110,3 +110,6 @@ verify_jwt = false
 
 [functions.cron-monthly-credits]
 verify_jwt = false
+
+[functions.process-email-queue]
+verify_jwt = true
