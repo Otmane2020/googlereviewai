@@ -1,5 +1,5 @@
-# Ranki.ai - GEO platform for Local Rank in ChatGPT, Gemini & Perplexity
-# https://starlinko.app
+# Ranki.ai – GEO platform for Local Rank in ChatGPT, Gemini & Perplexity
+# https://ranki.ai
 
 User-agent: Googlebot
 Allow: /
@@ -55,6 +55,18 @@ Allow: /
 User-agent: meta-externalagent
 Allow: /
 
+User-agent: Bytespider
+Allow: /
+
+User-agent: DuckAssistBot
+Allow: /
+
+User-agent: YouBot
+Allow: /
+
+User-agent: MistralAI-User
+Allow: /
+
 User-agent: *
 Allow: /
 Disallow: /dashboard
@@ -71,4 +83,4 @@ Disallow: /gmb-post
 Disallow: /checkout
 Disallow: /admin
 
-Sitemap: https://starlinko.app/sitemap.xml
+Sitemap: https://ranki.ai/sitemap.xml
