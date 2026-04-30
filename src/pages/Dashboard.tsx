@@ -797,32 +797,29 @@ const Dashboard = () => {
             </div>
           )}
         </div>
-      </main>
+          </main>
 
-      <MobileBottomNav />
-      
-      {/* GMB Connection Dialog for email users */}
-      <ConnectGMBDialog open={showGMBDialog} onOpenChange={setShowGMBDialog} />
-      
-      {/* Sync Progress Overlay */}
-      <SyncProgressOverlay 
-        isVisible={showSyncProgress} 
-        currentStep={syncStep}
-        onComplete={() => setShowSyncProgress(false)}
-      />
-      
-      {/* Business Selection Dialog */}
-      {user && (
-        <SelectBusinessesDialog
-          open={showSelectBusinessesDialog}
-          onOpenChange={setShowSelectBusinessesDialog}
-          businesses={googleBusinessesForSelection}
-          maxBusinesses={maxBusinessesLimit}
-          userId={user.id}
-          onSuccess={handleBusinessSelectionSuccess}
-        />
-      )}
-        </main>
+          {/* GMB Connection Dialog for email users */}
+          <ConnectGMBDialog open={showGMBDialog} onOpenChange={setShowGMBDialog} />
+
+          {/* Sync Progress Overlay */}
+          <SyncProgressOverlay
+            isVisible={showSyncProgress}
+            currentStep={syncStep}
+            onComplete={() => setShowSyncProgress(false)}
+          />
+
+          {/* Business Selection Dialog */}
+          {user && (
+            <SelectBusinessesDialog
+              open={showSelectBusinessesDialog}
+              onOpenChange={setShowSelectBusinessesDialog}
+              businesses={googleBusinessesForSelection}
+              maxBusinesses={maxBusinessesLimit}
+              userId={user.id}
+              onSuccess={handleBusinessSelectionSuccess}
+            />
+          )}
       </div>
     </DashboardLayout>
   );
