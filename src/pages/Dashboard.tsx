@@ -7,6 +7,7 @@ import { useSyncGoogleReviews } from "@/hooks/useSyncGoogleReviews";
 import { useRequireSubscription } from "@/hooks/useRequireSubscription";
 import { useGoogleOAuth } from "@/hooks/useGoogleOAuth";
 import { DashboardHeader } from "@/components/DashboardHeader";
+import { DashboardLayout } from "@/components/DashboardLayout";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { ConnectGMBDialog } from "@/components/ConnectGMBDialog";
 import { SyncProgressOverlay } from "@/components/SyncProgressOverlay";
@@ -446,12 +447,12 @@ const Dashboard = () => {
               <p className="text-sm text-muted-foreground">Welcome back,</p>
               <h1 className="text-xl md:text-2xl font-bold text-foreground">{profile?.full_name?.split(" ")[0] || "👋"}</h1>
             </div>
-            <div className="flex items-center gap-2 md:hidden">
-              <div className="text-center px-4 py-2 bg-primary/10 rounded-xl">
+            <div className="flex items-center gap-2">
+              <div className="text-center px-4 py-2 bg-primary/10 rounded-xl md:hidden">
                 <div className="text-lg font-bold text-primary">{profile?.credits || 0}</div>
                 <div className="text-[10px] text-muted-foreground">Credits</div>
               </div>
-            <Button 
+              <Button 
               variant="outline" 
               size="icon"
               className="rounded-xl h-12 w-12"
@@ -821,7 +822,9 @@ const Dashboard = () => {
           onSuccess={handleBusinessSelectionSuccess}
         />
       )}
-    </div>
+        </main>
+      </div>
+    </DashboardLayout>
   );
 };
 
