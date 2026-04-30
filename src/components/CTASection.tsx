@@ -30,9 +30,9 @@ export const CTASection = () => {
           </Button>
 
           <div className="flex flex-wrap items-center justify-center gap-4 mt-5 text-muted-foreground text-xs">
-            <span className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-secondary" /> 100% free plan</span>
-            <span className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-secondary" /> No credit card</span>
-            <span className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-secondary" /> Cancel anytime</span>
+            <span className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-primary" /> 100% free plan</span>
+            <span className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-primary" /> No credit card</span>
+            <span className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-primary" /> Cancel anytime</span>
           </div>
         </div>
       </div>

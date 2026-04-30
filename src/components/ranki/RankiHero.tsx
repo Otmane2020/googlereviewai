@@ -46,9 +46,9 @@ export const RankiHero = () => {
             </div>
 
             <div className="mt-6 flex flex-wrap items-center justify-center lg:justify-start gap-x-5 gap-y-2 text-xs text-muted-foreground">
-              <div className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-secondary" /> No credit card</div>
-              <div className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-secondary" /> 25 free credits</div>
-              <div className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-secondary" /> Setup in 2 min</div>
+              <div className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-primary" /> No credit card</div>
+              <div className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-primary" /> 25 free credits</div>
+              <div className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-primary" /> Setup in 2 min</div>
             </div>
 
             {/* AI engines pills */}
