@@ -1,47 +1,54 @@
-interface StarlinkoLogoProps {
+interface RankiLogoProps {
   className?: string;
   showBadge?: boolean;
+  variant?: "default" | "mono";
 }
 
-// Custom 5-pointed star icon matching PWA icons (same geometry)
-const FivePointedStar = ({ className = "w-8 h-8" }: { className?: string }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-    <polygon points="12,2 14.5,9 22,9 16,14 18,22 12,17 6,22 8,14 2,9 9.5,9" />
+/**
+ * Ranki.ai logo — geo pin + ranking bars motif inside.
+ * Filename kept as StarlinkoLogo.tsx to avoid breaking imports across the app.
+ * Exported as both StarlinkoLogo (compat) and RankiLogo.
+ */
+const RankiMark = ({ className = "w-8 h-8" }: { className?: string }) => (
+  <svg
+    className={className}
+    viewBox="0 0 32 32"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
+  >
+    <defs>
+      <linearGradient id="ranki-grad" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="hsl(var(--primary))" />
+        <stop offset="100%" stopColor="hsl(var(--secondary))" />
+      </linearGradient>
+    </defs>
+    {/* Geo pin shape */}
+    <path
+      d="M16 2C9.925 2 5 6.925 5 13c0 7.5 11 17 11 17s11-9.5 11-17c0-6.075-4.925-11-11-11z"
+      fill="url(#ranki-grad)"
+    />
+    {/* Ranking bars inside the pin */}
+    <rect x="10.5" y="11" width="2.5" height="6" rx="0.6" fill="white" opacity="0.95" />
+    <rect x="14.75" y="8.5" width="2.5" height="8.5" rx="0.6" fill="white" />
+    <rect x="19" y="13" width="2.5" height="4" rx="0.6" fill="white" opacity="0.85" />
+    {/* Sparkle / AI dot */}
+    <circle cx="23.5" cy="7.5" r="2.2" fill="hsl(var(--accent))" />
+    <circle cx="23.5" cy="7.5" r="0.9" fill="white" />
   </svg>
 );
 
-const GoogleGIcon = ({ className = "w-5 h-5" }: { className?: string }) => (
-  <svg className={className} viewBox="0 0 24 24">
-    <path
-      fill="#4285F4"
-      d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-    />
-    <path
-      fill="#34A853"
-      d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-    />
-    <path
-      fill="#FBBC05"
-      d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-    />
-    <path
-      fill="#EA4335"
-      d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-    />
-  </svg>
-);
-
-export const StarlinkoLogo = ({ className = "", showBadge = true }: StarlinkoLogoProps) => {
+export const RankiLogo = ({ className = "", showBadge = true, variant = "default" }: RankiLogoProps) => {
   return (
     <div className={`flex items-center gap-2 ${className}`}>
-      <div className="relative">
-        <FivePointedStar className="h-7 w-7 sm:h-8 sm:w-8 text-accent" />
-        <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-secondary rounded-full" />
-      </div>
-      <div className="flex items-baseline gap-1">
-        <span className="text-lg sm:text-xl font-bold tracking-tight">Starlinko</span>
-        <GoogleGIcon className="h-3.5 w-3.5 sm:h-4 sm:w-4 opacity-80" />
+      <RankiMark className="h-7 w-7 sm:h-8 sm:w-8" />
+      <div className="flex items-baseline">
+        <span className="text-lg sm:text-xl font-bold tracking-tight">Ranki</span>
+        <span className="text-lg sm:text-xl font-bold tracking-tight text-primary">.ai</span>
       </div>
     </div>
   );
 };
+
+// Backwards-compatible export — many files still import StarlinkoLogo by name.
+export const StarlinkoLogo = RankiLogo;
