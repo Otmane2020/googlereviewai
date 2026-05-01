@@ -9,9 +9,9 @@ interface SyncStep {
 }
 
 const steps: SyncStep[] = [
-  { id: "businesses", label: "Recherche des établissements", icon: Building2 },
-  { id: "reviews", label: "Synchronisation des avis", icon: MessageSquare },
-  { id: "complete", label: "Terminé !", icon: CheckCircle2 },
+  { id: "businesses", label: "Searching for businesses", icon: Building2 },
+  { id: "reviews", label: "Syncing reviews", icon: MessageSquare },
+  { id: "complete", label: "Done!", icon: CheckCircle2 },
 ];
 
 interface SyncProgressOverlayProps {
@@ -80,8 +80,8 @@ export const SyncProgressOverlay = ({
           <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-lg shadow-primary/30">
             <Sparkles className="w-8 h-8 text-white" />
           </div>
-          <h2 className="text-xl font-bold text-foreground">Synchronisation en cours</h2>
-          <p className="text-sm text-muted-foreground">Connexion avec Google My Business</p>
+          <h2 className="text-xl font-bold text-foreground">Syncing in progress</h2>
+          <p className="text-sm text-muted-foreground">Connecting to Google My Business</p>
         </div>
 
         {/* Progress Bar */}

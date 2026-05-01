@@ -41,21 +41,21 @@ export const LowCreditsBanner = ({ credits, pendingReviews = 0, currentPlan }: L
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
              <h4 className="font-semibold text-foreground text-sm">
-                {isExhausted ? "Crédits épuisés !" : "Crédits presque épuisés !"}
+                {isExhausted ? "Credits exhausted!" : "Credits running low!"}
               </h4>
               <span className="px-2 py-0.5 bg-destructive/20 text-destructive text-xs font-medium rounded-full">
-                {credits} crédit{credits !== 1 ? "s" : ""}
+                {credits} credit{credits !== 1 ? "s" : ""}
               </span>
             </div>
             
             <p className="text-xs text-muted-foreground leading-relaxed">
               {isExhausted 
                 ? (pendingReviews > 0 
-                    ? `${pendingReviews} avis ne peuvent pas recevoir de réponse IA.`
-                    : "Les réponses IA automatiques sont en pause.")
-                : `Il vous reste ${credits} crédit${credits !== 1 ? "s" : ""}. Rechargez ou passez au plan Quotidien.`
+                    ? `${pendingReviews} review${pendingReviews !== 1 ? "s" : ""} can't receive an AI reply.`
+                    : "Automatic AI responses are paused.")
+                : `You have ${credits} credit${credits !== 1 ? "s" : ""} left. Top up or upgrade to the Daily plan.`
               }
-              {isExhausted && " Rechargez ou passez au plan Quotidien (9,99€/mois)."}
+              {isExhausted && " Top up or upgrade to the Daily plan ($9.99/mo)."}
             </p>
             
             {/* Action buttons */}
@@ -66,7 +66,7 @@ export const LowCreditsBanner = ({ credits, pendingReviews = 0, currentPlan }: L
                 onClick={() => setUpgradeDialogOpen(true)}
               >
                 <Zap className="w-3.5 h-3.5 mr-1.5" />
-                Recharger
+                Top up
               </Button>
               <Button 
                 size="sm" 
@@ -74,7 +74,7 @@ export const LowCreditsBanner = ({ credits, pendingReviews = 0, currentPlan }: L
                 className="h-8 px-3 text-xs text-muted-foreground"
                 onClick={() => setDismissed(true)}
               >
-                Plus tard
+                Later
               </Button>
             </div>
           </div>

@@ -51,10 +51,10 @@ export const SyncStatusCard = ({ lastSyncResult, onReconnect }: SyncStatusCardPr
                 ? hasErrors ? "text-warning" : "text-secondary"
                 : "text-destructive"
             }`}>
-              Résultat de la synchronisation
+              Sync result
             </h4>
             <span className="text-xs text-muted-foreground">
-              {lastSyncResult.synced_count} avis
+              {lastSyncResult.synced_count} reviews
             </span>
           </div>
           
@@ -62,7 +62,7 @@ export const SyncStatusCard = ({ lastSyncResult, onReconnect }: SyncStatusCardPr
           
           {hasErrors && (
             <div className="space-y-1 mb-3">
-              <p className="text-xs font-medium text-muted-foreground">Erreurs ({lastSyncResult.errors!.length}):</p>
+              <p className="text-xs font-medium text-muted-foreground">Errors ({lastSyncResult.errors!.length}):</p>
               <ul className="text-xs text-muted-foreground space-y-0.5 max-h-24 overflow-y-auto">
                 {lastSyncResult.errors!.map((error, idx) => (
                   <li key={idx} className="flex items-start gap-1">
@@ -83,7 +83,7 @@ export const SyncStatusCard = ({ lastSyncResult, onReconnect }: SyncStatusCardPr
               disabled={isConnecting}
             >
               <LogIn className="w-4 h-4" />
-              {isConnecting ? "Connexion..." : "Reconnecter Google"}
+              {isConnecting ? "Connecting..." : "Reconnect Google"}
             </Button>
           )}
         </div>
