@@ -45,7 +45,7 @@ export const AutoResponseToggle = () => {
     if (error) {
       setEnabled(!newValue);
       toast({
-        title: "Erreur",
+        title: "Error",
         description: "Impossible de modifier le paramètre.",
         variant: "destructive",
       });

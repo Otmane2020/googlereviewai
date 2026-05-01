@@ -43,7 +43,7 @@ export const ArticlePreviewDialog = ({
         <DialogHeader>
           <div className="flex items-center gap-2 mb-2">
             <Badge variant={article.status === "published" ? "default" : article.status === "generated" ? "secondary" : "outline"}>
-              {article.status === "published" ? "Publié" : article.status === "generated" ? "Prêt" : isGenerating ? "Génération..." : "Planifié"}
+              {article.status === "published" ? "Published" : article.status === "generated" ? "Prêt" : isGenerating ? "Generating..." : "Planifié"}
             </Badge>
             <span className="text-xs text-muted-foreground flex items-center gap-1">
               <Calendar className="w-3 h-3" />
@@ -72,7 +72,7 @@ export const ArticlePreviewDialog = ({
                 )}
                 {article.answer && (
                   <div className="p-3 bg-secondary/5 rounded-lg border border-secondary/10">
-                    <p className="text-xs font-medium text-secondary mb-1">✅ Réponse</p>
+                    <p className="text-xs font-medium text-secondary mb-1">✅ Response</p>
                     <p className="text-muted-foreground text-sm leading-relaxed">{article.answer}</p>
                   </div>
                 )}

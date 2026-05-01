@@ -168,7 +168,7 @@ const SEOAutoPost = () => {
       
       if (addData?.success) {
         toast({
-          title: "Module activé !",
+          title: "Module activated!",
           description: "Le module SEO a été ajouté à votre abonnement.",
         });
         setIsSubscribed(true);
@@ -196,8 +196,8 @@ const SEOAutoPost = () => {
     } catch (error: any) {
       console.error("Subscription error:", error);
       toast({
-        title: "Erreur",
-        description: error?.message || "Impossible de créer la session de paiement",
+        title: "Error",
+        description: error?.message || "Unable to create payment session",
         variant: "destructive"
       });
     }
@@ -294,13 +294,13 @@ const SEOAutoPost = () => {
 
       toast({ 
         title: "Plan généré !", 
-        description: `30 titres d'articles planifiés avec ${keywords.length} mots-clés détectés` 
+        description: `30 titres d'articles planifiés avec ${keywords.length} keywords detected` 
       });
     } catch (error: any) {
       console.error("Error generating plan:", error);
       toast({ 
-        title: "Erreur", 
-        description: error.message || "Impossible de générer le plan", 
+        title: "Error", 
+        description: error.message || "Unable to generate plan", 
         variant: "destructive" 
       });
     }
@@ -351,13 +351,13 @@ const SEOAutoPost = () => {
         .eq("id", item.id);
       
       await fetchScheduledContent(selectedBusiness!.id);
-      toast({ title: "Erreur", description: error.message, variant: "destructive" });
+      toast({ title: "Error", description: error.message, variant: "destructive" });
     }
   };
 
   const publishToGMB = async (item: ScheduledContent) => {
     if (!item.content) {
-      toast({ title: "Erreur", description: "L'article doit d'abord être généré", variant: "destructive" });
+      toast({ title: "Error", description: "L'article doit d'abord être généré", variant: "destructive" });
       return;
     }
 
@@ -375,8 +375,8 @@ const SEOAutoPost = () => {
       
       if (data?.requires_reconnect) {
         toast({ 
-          title: "Reconnexion requise", 
-          description: "Reconnectez-vous avec Google depuis le Dashboard", 
+          title: "Reconnect required", 
+          description: "Reconnect with Google from the Dashboard", 
           variant: "destructive" 
         });
         setPublishing(null);
@@ -384,19 +384,19 @@ const SEOAutoPost = () => {
       }
 
       if (data?.success === false) {
-        throw new Error(data.error || "Échec de la publication");
+        throw new Error(data.error || "Publication failed");
       }
 
       await fetchScheduledContent(selectedBusiness!.id);
       toast({ 
-        title: "Publié sur Google !", 
+        title: "Published to Google!", 
         description: "L'article a été publié sur votre fiche Google My Business" 
       });
     } catch (error: any) {
       console.error("Error publishing:", error);
       toast({ 
-        title: "Erreur de publication", 
-        description: error.message || "Impossible de publier sur Google", 
+        title: "Publishing error", 
+        description: error.message || "Unable to publish to Google", 
         variant: "destructive" 
       });
     }
@@ -414,7 +414,7 @@ const SEOAutoPost = () => {
     if (error) {
       console.error("Error saving publication hour:", error);
       toast({
-        title: "Erreur",
+        title: "Error",
         description: "Impossible de sauvegarder l'heure de publication",
         variant: "destructive"
       });
@@ -445,7 +445,7 @@ const SEOAutoPost = () => {
     
     switch (status) {
       case "published":
-        return <Badge className="bg-secondary text-secondary-foreground"><Check className="w-3 h-3 mr-1" />Publié</Badge>;
+        return <Badge className="bg-secondary text-secondary-foreground"><Check className="w-3 h-3 mr-1" />Published</Badge>;
       case "generated":
         return <Badge className="bg-primary text-primary-foreground"><Sparkles className="w-3 h-3 mr-1" />Prêt</Badge>;
       case "generating":
@@ -500,7 +500,7 @@ const SEOAutoPost = () => {
               {generating ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Analyse en cours...
+                  Analyzing...
                 </>
               ) : (
                 <>
@@ -518,7 +518,7 @@ const SEOAutoPost = () => {
         {businesses.length === 0 ? (
           <Card className="p-6 text-center">
             <Building2 className="w-10 h-10 mx-auto mb-3 text-muted-foreground/30" />
-            <h3 className="text-base font-medium text-foreground mb-2">Aucun établissement</h3>
+            <h3 className="text-base font-medium text-foreground mb-2">No business</h3>
             <p className="text-xs text-muted-foreground mb-4">
               Connectez d'abord votre Google My Business
             </p>
@@ -555,7 +555,7 @@ const SEOAutoPost = () => {
                       </DialogTrigger>
                       <DialogContent className="sm:max-w-md">
                         <DialogHeader>
-                          <DialogTitle>Vos établissements</DialogTitle>
+                          <DialogTitle>Your businesses</DialogTitle>
                         </DialogHeader>
                         <div className="space-y-1 mt-4">
                           {businesses.map((business) => {
@@ -715,7 +715,7 @@ const SEOAutoPost = () => {
                     <Sparkles className="w-3 h-3 text-primary" /> Prêt
                   </div>
                   <div className="flex items-center gap-1">
-                    <Check className="w-3 h-3 text-emerald-500" /> Publié
+                    <Check className="w-3 h-3 text-emerald-500" /> Published
                   </div>
                 </div>
               </TabsContent>

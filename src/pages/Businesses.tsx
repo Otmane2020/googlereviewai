@@ -215,7 +215,7 @@ const BusinessesPage = () => {
       fetchBusinesses();
       toast({
         title: "Synchronisation",
-        description: "Aucun établissement Google trouvé sur votre compte.",
+        description: "No Google business found on your account.",
         variant: "destructive",
       });
     }
@@ -224,8 +224,8 @@ const BusinessesPage = () => {
   const handleBusinessSelectionSuccess = () => {
     fetchBusinesses();
     toast({
-      title: "Établissements mis à jour",
-      description: "Vos établissements ont été synchronisés.",
+      title: "Businesses updated",
+      description: "Your businesses have been synced.",
     });
   };
 
@@ -245,14 +245,14 @@ const BusinessesPage = () => {
 
     if (error) {
       toast({
-        title: "Erreur",
-        description: "Impossible d'ajouter l'établissement.",
+        title: "Error",
+        description: "Unable to add the business.",
         variant: "destructive",
       });
     } else {
       toast({
-        title: "Établissement ajouté",
-        description: `${newBusiness.name} a été ajouté avec succès.`,
+        title: "Business added",
+        description: `${newBusiness.name} was added successfully.`,
       });
       setNewBusiness({ name: "", address: "", phone: "", website: "" });
       setDialogOpen(false);
@@ -262,7 +262,7 @@ const BusinessesPage = () => {
   };
 
   const handleDeleteBusiness = async (id: string, name: string) => {
-    if (!confirm(`Êtes-vous sûr de vouloir supprimer "${name}" ?`)) return;
+    if (!confirm(`Are you sure you want to delete "${name}" ?`)) return;
 
     const { error } = await supabase
       .from("businesses")
@@ -271,14 +271,14 @@ const BusinessesPage = () => {
 
     if (error) {
       toast({
-        title: "Erreur",
-        description: "Impossible de supprimer l'établissement.",
+        title: "Error",
+        description: "Unable to delete the business.",
         variant: "destructive",
       });
     } else {
       toast({
-        title: "Établissement supprimé",
-        description: `${name} a été supprimé.`,
+        title: "Business deleted",
+        description: `${name} was deleted.`,
       });
       fetchBusinesses();
     }
@@ -295,14 +295,14 @@ const BusinessesPage = () => {
 
     if (error) {
       toast({
-        title: "Erreur",
-        description: "Impossible de mettre à jour la description.",
+        title: "Error",
+        description: "Unable to update description.",
         variant: "destructive",
       });
     } else {
       toast({
-        title: "Description mise à jour",
-        description: "La description a été enregistrée.",
+        title: "Description updated",
+        description: "Description saved.",
       });
       setEditDialogOpen(false);
       setEditingBusiness(null);
@@ -327,14 +327,14 @@ const BusinessesPage = () => {
       if (error) throw error;
 
       toast({
-        title: "Analyse terminée",
-        description: "Les mots-clés ont été extraits avec succès.",
+        title: "Analysis complete",
+        description: "Keywords extracted successfully.",
       });
       fetchBusinesses();
     } catch (error) {
       console.error("Error analyzing business:", error);
       toast({
-        title: "Erreur",
+        title: "Error",
         description: "Impossible d'analyser le site web.",
         variant: "destructive",
       });
@@ -369,7 +369,7 @@ const BusinessesPage = () => {
             <div className="min-w-0 flex-1">
               <h1 className="text-lg font-bold text-foreground">Établissements</h1>
               <p className="text-xs text-muted-foreground">
-                Gérez vos fiches Google
+                Manage your Google profiles
               </p>
             </div>
             <Badge variant="outline" className="gap-1 flex-shrink-0 bg-gradient-to-r from-primary/10 to-secondary/10 border-primary/30">
@@ -423,10 +423,10 @@ const BusinessesPage = () => {
           <div className="bg-card rounded-2xl border border-border p-8 text-center">
             <Building2 className="w-12 h-12 mx-auto mb-3 text-muted-foreground/30" />
             <h2 className="text-lg font-semibold text-foreground mb-2">
-              Aucun établissement
+              No business
             </h2>
             <p className="text-sm text-muted-foreground mb-4">
-              Connectez votre premier établissement Google
+              Connect your first Google business
             </p>
             <Button onClick={handleSyncBusinesses} disabled={isSyncing} size="sm">
               {isSyncing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Plus className="w-4 h-4 mr-2" />}
@@ -521,7 +521,7 @@ const BusinessesPage = () => {
                         </div>
                       ) : (
                         <div className="mb-3 p-3 bg-muted/30 rounded-xl border border-dashed border-muted-foreground/20 cursor-pointer hover:bg-muted/40 transition-colors">
-                          <p className="text-xs text-muted-foreground italic">Aucune description. Appuyez pour en générer une avec l'IA.</p>
+                          <p className="text-xs text-muted-foreground italic">No description. Tap to generate one with AI.</p>
                         </div>
                       )}
                     </SheetTrigger>
@@ -575,21 +575,21 @@ const BusinessesPage = () => {
                                     b.id === business.id ? { ...b, description: data.description, auto_keywords: data.keywords || b.auto_keywords } : b
                                   ));
                                   toast({
-                                    title: "Description générée ✨",
-                                    description: "La description a été créée avec l'IA",
+                                    title: "Description generated ✨",
+                                    description: "Description created with AI",
                                   });
                                 } else {
                                   toast({
-                                    title: "Génération terminée",
-                                    description: data?.message || "Vérifiez les informations du business",
+                                    title: "Generation complete",
+                                    description: data?.message || "Check the business info",
                                     variant: "destructive"
                                   });
                                 }
                               } catch (err) {
                                 console.error('Error generating description:', err);
                                 toast({
-                                  title: "Erreur",
-                                  description: "Impossible de générer la description",
+                                  title: "Error",
+                                  description: "Unable to generate description",
                                   variant: "destructive"
                                 });
                               } finally {
@@ -602,7 +602,7 @@ const BusinessesPage = () => {
                             ) : (
                               <Sparkles className="w-4 h-4" />
                             )}
-                            {analyzingId === business.id ? "Génération..." : "Régénérer avec IA"}
+                            {analyzingId === business.id ? "Generating..." : "Regenerate with AI"}
                           </Button>
                         </div>
                       </div>
@@ -672,7 +672,7 @@ const BusinessesPage = () => {
                                     setBusinesses(prev => prev.map(b => 
                                       b.id === business.id ? { ...b, website: newUrl } : b
                                     ));
-                                    toast({ title: "URL enregistrée ✓" });
+                                    toast({ title: "URL saved ✓" });
                                   }
                                 }}
                               >
@@ -680,7 +680,7 @@ const BusinessesPage = () => {
                               </Button>
                             </div>
                             <p className="text-xs text-muted-foreground">
-                              Cette URL sera analysée par l'IA pour enrichir vos mots-clés
+                              This URL will be analyzed by AI to enrich your keywords
                             </p>
                           </div>
 
@@ -710,13 +710,13 @@ const BusinessesPage = () => {
                                 ));
                                 
                                 toast({
-                                  title: "Analyse terminée ✨",
-                                  description: `${data?.keywords?.length || 0} mots-clés + ${data?.aeo_questions?.length || 0} questions AEO générées`,
+                                  title: "Analysis complete ✨",
+                                  description: `${data?.keywords?.length || 0} keywords + ${data?.aeo_questions?.length || 0} AEO questions generated`,
                                 });
                               } catch (err) {
                                 console.error('Error analyzing:', err);
                                 toast({
-                                  title: "Erreur",
+                                  title: "Error",
                                   description: "Impossible d'analyser le site",
                                   variant: "destructive"
                                 });
@@ -731,7 +731,7 @@ const BusinessesPage = () => {
                               <Sparkles className="w-4 h-4" />
                             )}
                             {analyzingId === business.id 
-                              ? "Analyse en cours..." 
+                              ? "Analyzing..." 
                               : "Analyser avec Firecrawl + IA"}
                           </Button>
 
@@ -771,7 +771,7 @@ const BusinessesPage = () => {
                       <SheetTrigger asChild>
                         <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs">
                           <Tag className="w-3.5 h-3.5" />
-                          Mots-clés
+                          Keywords
                           {business.auto_keywords && business.auto_keywords.length > 0 && (
                             <Badge variant="secondary" className="ml-1 h-4 px-1.5 text-[10px]">
                               {business.auto_keywords.length}
@@ -783,13 +783,13 @@ const BusinessesPage = () => {
                         <SheetHeader>
                           <SheetTitle className="flex items-center gap-2">
                             <Tag className="w-5 h-5" />
-                            Mots-clés de {business.name}
+                            Keywords de {business.name}
                           </SheetTitle>
                         </SheetHeader>
                         <div className="py-4">
                           <div className="flex items-center justify-between mb-4">
                             <p className="text-sm text-muted-foreground">
-                              {business.auto_keywords?.length || 0} mots-clés détectés
+                              {business.auto_keywords?.length || 0} keywords detected
                             </p>
                             <Button 
                               variant="default" 
@@ -819,8 +819,8 @@ const BusinessesPage = () => {
                               <Sparkles className="w-12 h-12 mx-auto mb-3 text-muted-foreground/30" />
                               <p className="text-sm text-muted-foreground">
                                 {business.website || business.description 
-                                  ? "Cliquez sur Analyser pour extraire les mots-clés automatiquement" 
-                                  : "Ajoutez un site web ou une description pour détecter les mots-clés"}
+                                  ? "Click Analyze to extract keywords automatically" 
+                                  : "Add a website or description to detect keywords"}
                               </p>
                             </div>
                           )}
@@ -931,7 +931,7 @@ const BusinessesPage = () => {
                 id="description"
                 value={editDescription}
                 onChange={(e) => setEditDescription(e.target.value)}
-                placeholder="Décrivez votre établissement..."
+                placeholder="Describe your business..."
                 rows={4}
                 className="resize-none"
               />

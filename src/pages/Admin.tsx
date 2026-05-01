@@ -366,7 +366,7 @@ const Admin = () => {
           </>
         ) : (
           <div className="text-center py-20">
-            <p className="text-muted-foreground">Erreur de chargement des données</p>
+            <p className="text-muted-foreground">Error de chargement des données</p>
             <Button variant="outline" className="mt-4" onClick={loadData}>
               Réessayer
             </Button>

@@ -127,7 +127,7 @@ export const KeywordChips = ({
       <div className="space-y-2">
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <History className="w-3 h-3" />
-          <span>Mots-clés récents</span>
+          <span>Keywords récents</span>
         </div>
         
         {loading ? (

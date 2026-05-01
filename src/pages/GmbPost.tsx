@@ -33,15 +33,15 @@ interface GmbPost {
 }
 
 const POST_TYPES = [
-  { value: "STANDARD", label: "Actualité", icon: Megaphone, description: "Partagez une nouveauté" },
-  { value: "OFFER", label: "Offre", icon: Gift, description: "Promotion spéciale" },
-  { value: "EVENT", label: "Événement", icon: Calendar, description: "Annoncez un événement" },
+  { value: "STANDARD", label: "News", icon: Megaphone, description: "Share an update" },
+  { value: "OFFER", label: "Offer", icon: Gift, description: "Special promotion" },
+  { value: "EVENT", label: "Event", icon: Calendar, description: "Announce an event" },
 ];
 
 const CTA_TYPES = [
   { value: "NONE", label: "Aucun" },
   { value: "LEARN_MORE", label: "En savoir plus" },
-  { value: "BOOK", label: "Réserver" },
+  { value: "BOOK", label: "Book" },
   { value: "ORDER", label: "Commander" },
   { value: "SHOP", label: "Acheter" },
   { value: "SIGN_UP", label: "S'inscrire" },
@@ -115,13 +115,13 @@ export default function GmbPost() {
     }
 
     if (!selectedBusinessId) {
-      toast.error("Veuillez sélectionner un établissement");
+      toast.error("Please select a business");
       return;
     }
 
     const selectedBusiness = businesses.find(b => b.id === selectedBusinessId);
     if (!selectedBusiness?.google_place_id) {
-      toast.error("Cet établissement n'est pas connecté à Google");
+      toast.error("This business isn't connected to Google");
       return;
     }
 
@@ -146,7 +146,7 @@ export default function GmbPost() {
       if (error) throw error;
 
       if (data?.success) {
-        toast.success("Publication réussie !", {
+        toast.success("Published successfully!", {
           description: "Votre post est maintenant visible sur Google Business Profile",
           action: {
             label: "Voir",
@@ -165,11 +165,11 @@ export default function GmbPost() {
           },
         });
       } else {
-        throw new Error(data?.error || "Échec de la publication");
+        throw new Error(data?.error || "Publication failed");
       }
     } catch (error) {
       console.error("Publish error:", error);
-      toast.error("Erreur lors de la publication");
+      toast.error("Error lors de la publication");
     } finally {
       setIsPublishing(false);
     }
@@ -182,7 +182,7 @@ export default function GmbPost() {
 
   const getPostTypeLabel = (type: string) => {
     const postType = POST_TYPES.find(p => p.value === type);
-    return postType?.label || "Actualité";
+    return postType?.label || "News";
   };
 
   const getStatusBadge = (status: string) => {
@@ -190,7 +190,7 @@ export default function GmbPost() {
       return (
         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-emerald-500/20 text-emerald-600">
           <Check className="w-3 h-3" />
-          Publié
+          Published
         </span>
       );
     }
@@ -219,7 +219,7 @@ export default function GmbPost() {
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div>
-            <h1 className="text-lg font-semibold">Créer un post GMB</h1>
+            <h1 className="text-lg font-semibold">Create a GMB post</h1>
             <p className="text-xs text-muted-foreground">Publiez sur Google Business Profile</p>
           </div>
         </div>
@@ -233,7 +233,7 @@ export default function GmbPost() {
               <Label className="text-sm font-medium mb-2 block">Établissement</Label>
               <Select value={selectedBusinessId} onValueChange={setSelectedBusinessId}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Sélectionner un établissement" />
+                  <SelectValue placeholder="Select a business" />
                 </SelectTrigger>
                 <SelectContent>
                   {businesses.map((business) => (
@@ -267,7 +267,7 @@ export default function GmbPost() {
               <div className="flex items-start gap-3">
                 <AlertCircle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
                 <div>
-                  <p className="font-medium text-amber-700">Aucun établissement</p>
+                  <p className="font-medium text-amber-700">No business</p>
                   <p className="text-sm text-muted-foreground mt-1">
                     Connectez votre compte Google pour publier des posts.
                   </p>
@@ -277,7 +277,7 @@ export default function GmbPost() {
                     className="mt-3"
                     onClick={() => navigate("/businesses")}
                   >
-                    Gérer les établissements
+                    Manage businesses
                   </Button>
                 </div>
               </div>
@@ -326,13 +326,13 @@ export default function GmbPost() {
               <div>
                 <Label className="text-sm font-medium mb-2 block">Contenu</Label>
                 <Textarea
-                  placeholder="Mettez à jour vos clients : nouveautés, événements, offres spéciales..."
+                  placeholder="Update your customers: news, events, special offers..."
                   value={content}
                   onChange={(e) => setContent(e.target.value.slice(0, 1500))}
                   className="min-h-[120px] resize-none"
                 />
                 <p className="text-xs text-muted-foreground text-right mt-1">
-                  {content.length}/1500 caractères
+                  {content.length}/1500 characters
                 </p>
               </div>
 
@@ -392,7 +392,7 @@ export default function GmbPost() {
         {/* Recent Posts */}
         <Card>
           <CardHeader className="pb-3 flex flex-row items-center justify-between">
-            <CardTitle className="text-base">Publications récentes</CardTitle>
+            <CardTitle className="text-base">Recent posts</CardTitle>
             <Button 
               variant="ghost" 
               size="sm" 
@@ -407,7 +407,7 @@ export default function GmbPost() {
               <div className="text-center py-8 text-muted-foreground">
                 <Megaphone className="w-10 h-10 mx-auto mb-3 opacity-30" />
                 <p className="text-sm">Aucune publication pour le moment</p>
-                <p className="text-xs mt-1">Créez votre premier post Google Business</p>
+                <p className="text-xs mt-1">Create your first Google Business post</p>
               </div>
             ) : (
               <div className="space-y-3">

@@ -172,8 +172,8 @@ const AEORank = () => {
       
       if (addData?.success) {
         toast({
-          title: "Module activé !",
-          description: "Le module AEO a été ajouté à votre abonnement.",
+          title: "Module activated!",
+          description: "The AEO module was added to your subscription.",
         });
         setIsSubscribed(true);
         checkSubscription();
@@ -200,8 +200,8 @@ const AEORank = () => {
     } catch (error: any) {
       console.error("Subscription error:", error);
       toast({
-        title: "Erreur",
-        description: error?.message || "Impossible de créer la session de paiement",
+        title: "Error",
+        description: error?.message || "Unable to create payment session",
         variant: "destructive"
       });
     }
@@ -227,8 +227,8 @@ const AEORank = () => {
         .neq("status", "published");
 
       toast({ 
-        title: "Analyse en cours...", 
-        description: "Scraping du site web avec Firecrawl..." 
+        title: "Analyzing...", 
+        description: "Scraping the website with Firecrawl..." 
       });
 
       // ÉTAPE 2: Appeler analyze-business-website pour scraper avec Firecrawl
@@ -295,8 +295,8 @@ const AEORank = () => {
       if (insertError) throw insertError;
 
       toast({ 
-        title: "Plan créé ! Génération des Q&A...", 
-        description: `30 jours planifiés avec ${keywords.length} mots-clés` 
+        title: "Plan created! Generating Q&As...", 
+        description: `30 days planned with ${keywords.length} keywords` 
       });
 
       // ÉTAPE 5: Générer tous les Q&A en batch avec websiteContent
@@ -338,8 +338,8 @@ const AEORank = () => {
             if (error) throw error;
             if (data?.fallback || data?.error) {
               throw new Error(data?.error === "BILLING_ERROR"
-                ? "Crédits IA épuisés. Rechargez votre solde."
-                : (data?.message || "Service IA indisponible"));
+                ? "AI credits exhausted. Top up your balance."
+                : (data?.message || "AI service unavailable"));
             }
 
             const qa = data?.questions?.[0];
@@ -369,14 +369,14 @@ const AEORank = () => {
       }
 
       toast({ 
-        title: "Terminé !", 
-        description: `${generatedCount} Q&A générés avec ${keywords.length} mots-clés`
+        title: "Done!", 
+        description: `${generatedCount} Q&As generated with ${keywords.length} keywords`
       });
     } catch (error: any) {
       console.error("Error generating plan:", error);
       toast({ 
-        title: "Erreur", 
-        description: error.message || "Impossible de générer le plan", 
+        title: "Error", 
+        description: error.message || "Unable to generate plan", 
         variant: "destructive" 
       });
     }
@@ -406,14 +406,14 @@ const AEORank = () => {
       if (error) throw error;
       if (data?.fallback || data?.error) {
         const msg = data?.error === "BILLING_ERROR"
-          ? "Crédits IA épuisés. Rechargez votre solde pour continuer."
-          : data?.message || "Service IA temporairement indisponible.";
+          ? "AI credits exhausted. Top up to continue."
+          : data?.message || "AI service temporarily unavailable.";
         await supabase
           .from("scheduled_content")
           .update({ status: "failed", error_message: msg })
           .eq("id", item.id);
         await fetchScheduledContent(selectedBusiness!.id);
-        toast({ title: "Génération impossible", description: msg, variant: "destructive" });
+        toast({ title: "Generation failed", description: msg, variant: "destructive" });
         return;
       }
 
@@ -430,20 +430,20 @@ const AEORank = () => {
         .eq("id", item.id);
 
       await fetchScheduledContent(selectedBusiness!.id);
-      toast({ title: "Q&A généré !" });
+      toast({ title: "Q&A generated!" });
     } catch (error: any) {
       await supabase
         .from("scheduled_content")
         .update({ status: "failed", error_message: error.message })
         .eq("id", item.id);
       
-      toast({ title: "Erreur", description: error.message, variant: "destructive" });
+      toast({ title: "Error", description: error.message, variant: "destructive" });
     }
   };
 
   const publishToGMB = async (item: ScheduledContent) => {
     if (!item.question || !item.answer) {
-      toast({ title: "Erreur", description: "Le Q&A doit d'abord être généré", variant: "destructive" });
+      toast({ title: "Error", description: "The Q&A must be generated first", variant: "destructive" });
       return;
     }
 
@@ -459,8 +459,8 @@ const AEORank = () => {
       
       if (data?.requires_reconnect) {
         toast({ 
-          title: "Reconnexion requise", 
-          description: "Reconnectez-vous avec Google depuis le Dashboard", 
+          title: "Reconnect required", 
+          description: "Reconnect with Google from the Dashboard", 
           variant: "destructive" 
         });
         setPublishing(null);
@@ -468,19 +468,19 @@ const AEORank = () => {
       }
 
       if (data?.success === false) {
-        throw new Error(data.error || "Échec de la publication");
+        throw new Error(data.error || "Publication failed");
       }
 
       await fetchScheduledContent(selectedBusiness!.id);
       toast({ 
-        title: "Publié sur Google !", 
-        description: "Le Q&A a été publié sur votre fiche Google My Business" 
+        title: "Published to Google!", 
+        description: "The Q&A was published on your Google Business Profile" 
       });
     } catch (error: any) {
       console.error("Error publishing:", error);
       toast({ 
-        title: "Erreur de publication", 
-        description: error.message || "Impossible de publier sur Google", 
+        title: "Publishing error", 
+        description: error.message || "Unable to publish to Google", 
         variant: "destructive" 
       });
     }
@@ -498,7 +498,7 @@ const AEORank = () => {
     if (error) {
       console.error("Error saving publication hour:", error);
       toast({
-        title: "Erreur",
+        title: "Error",
         description: "Impossible de sauvegarder l'heure de publication",
         variant: "destructive"
       });
@@ -529,7 +529,7 @@ const AEORank = () => {
     
     switch (status) {
       case "published":
-        return <Badge className="bg-secondary text-secondary-foreground"><Check className="w-3 h-3 mr-1" />Publié</Badge>;
+        return <Badge className="bg-secondary text-secondary-foreground"><Check className="w-3 h-3 mr-1" />Published</Badge>;
       case "generated":
         return <Badge className="bg-primary text-primary-foreground"><Sparkles className="w-3 h-3 mr-1" />Prêt</Badge>;
       case "generating":
@@ -624,7 +624,7 @@ const AEORank = () => {
         {businesses.length === 0 ? (
           <Card className="p-6 text-center">
             <Building2 className="w-10 h-10 mx-auto mb-3 text-muted-foreground/30" />
-            <h3 className="text-base font-medium text-foreground mb-2">Aucun établissement</h3>
+            <h3 className="text-base font-medium text-foreground mb-2">No business</h3>
             <p className="text-xs text-muted-foreground mb-4">
               Connectez d'abord votre Google My Business
             </p>
@@ -661,7 +661,7 @@ const AEORank = () => {
                       </DialogTrigger>
                       <DialogContent className="sm:max-w-md">
                         <DialogHeader>
-                          <DialogTitle>Vos établissements</DialogTitle>
+                          <DialogTitle>Your businesses</DialogTitle>
                         </DialogHeader>
                         <div className="space-y-1 mt-4">
                           {businesses.map((business) => {
@@ -819,7 +819,7 @@ const AEORank = () => {
                     <Sparkles className="w-3 h-3 text-primary" /> Prêt
                   </div>
                   <div className="flex items-center gap-1">
-                    <Check className="w-3 h-3 text-emerald-500" /> Publié
+                    <Check className="w-3 h-3 text-emerald-500" /> Published
                   </div>
                 </div>
               </TabsContent>

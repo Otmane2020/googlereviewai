@@ -282,7 +282,7 @@ const Checkout = () => {
       }
     } catch (error) {
       console.error("Checkout error:", error);
-      toast.error("Erreur lors du paiement. Veuillez réessayer.");
+      toast.error("Error lors du paiement. Veuillez réessayer.");
     } finally {
       setIsProcessing(false);
     }

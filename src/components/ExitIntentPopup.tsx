@@ -95,7 +95,7 @@ export const ExitIntentPopup = () => {
         <div className="p-6 bg-card">
           {/* Offer */}
           <div className="bg-accent/10 border border-accent/30 rounded-xl p-4 mb-5 text-center">
-            <p className="text-sm text-muted-foreground mb-1">Offre spéciale</p>
+            <p className="text-sm text-muted-foreground mb-1">Offer spéciale</p>
             <p className="text-3xl font-bold text-foreground">2 mois GRATUITS</p>
             <p className="text-sm text-muted-foreground mt-1">
               Essayez Starlinko sans risque pendant 60 jours
@@ -108,7 +108,7 @@ export const ExitIntentPopup = () => {
               <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
                 <Zap className="w-4 h-4 text-primary" />
               </div>
-              <span className="text-foreground">Réponses IA illimitées à vos avis Google</span>
+              <span className="text-foreground">Responses IA illimitées à vos avis Google</span>
             </li>
             <li className="flex items-center gap-3 text-sm">
               <div className="w-8 h-8 rounded-lg bg-secondary/10 flex items-center justify-center flex-shrink-0">

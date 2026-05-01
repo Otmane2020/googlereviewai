@@ -138,12 +138,12 @@ export const ReviewCard = ({
                 {review.published_to_google ? (
                   <span className="flex items-center gap-1 text-xs font-medium text-secondary bg-secondary/10 px-2 py-1 rounded-full">
                     <CheckCheck className="w-3 h-3" />
-                    Publié
+                    Published
                   </span>
                 ) : review.ai_response ? (
                   <span className="flex items-center gap-1 text-xs font-medium text-primary bg-primary/10 px-2 py-1 rounded-full">
                     <Sparkles className="w-3 h-3" />
-                    Réponse prête
+                    Response prête
                   </span>
                 ) : (
                   <span className="flex items-center gap-1 text-xs font-medium text-muted-foreground bg-muted px-2 py-1 rounded-full">
@@ -208,7 +208,7 @@ export const ReviewCard = ({
               <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center">
                 <Sparkles className="w-3 h-3 text-primary" />
               </div>
-              <span className="text-xs font-medium text-primary">Réponse générée par IA</span>
+              <span className="text-xs font-medium text-primary">Response générée par IA</span>
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed">{review.ai_response}</p>
           </div>
@@ -228,7 +228,7 @@ export const ReviewCard = ({
               ) : (
                 <Sparkles className="w-4 h-4" />
               )}
-              {isGenerating ? "Génération..." : "Générer (1 crédit)"}
+              {isGenerating ? "Generating..." : "Générer (1 crédit)"}
             </Button>
           ) : !review.published_to_google ? (
             <>
@@ -264,7 +264,7 @@ export const ReviewCard = ({
           ) : (
             <div className="flex items-center gap-2 text-sm text-secondary">
               <CheckCircle className="w-4 h-4" />
-              <span>Réponse publiée sur Google Business</span>
+              <span>Response publiée sur Google Business</span>
             </div>
           )}
         </div>

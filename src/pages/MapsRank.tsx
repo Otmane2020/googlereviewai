@@ -167,13 +167,13 @@ const MapsRank = () => {
 
   const handleScan = async () => {
     if (!selectedBusiness || !keyword.trim()) {
-      toast.error("Sélectionnez un établissement et entrez un mot-clé");
+      toast.error("Select a business et entrez un mot-clé");
       return;
     }
 
     const business = businesses.find(b => b.id === selectedBusiness);
     if (!business?.google_place_id) {
-      toast.error("Cet établissement n'est pas connecté à Google. Reconnectez-le dans Établissements.");
+      toast.error("This business isn't connected to Google. Reconnectez-le dans Établissements.");
       return;
     }
 
@@ -208,7 +208,7 @@ const MapsRank = () => {
       const result = await response.json();
 
       if (!response.ok || !result.success) {
-        throw new Error(result.error || "Erreur lors du scan");
+        throw new Error(result.error || "Error lors du scan");
       }
 
       // Process points with directional info
@@ -240,7 +240,7 @@ const MapsRank = () => {
         setHistory(newHistory as Scan[]);
       }
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Erreur inconnue";
+      const message = error instanceof Error ? error.message : "Error inconnue";
       toast.error(message);
     } finally {
       setIsScanning(false);
@@ -300,7 +300,7 @@ const MapsRank = () => {
         toast.success("Scan chargé depuis l'historique");
       }
     } catch (error) {
-      toast.error("Erreur lors du chargement du scan");
+      toast.error("Error lors du chargement du scan");
     }
   };
 

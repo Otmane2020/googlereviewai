@@ -136,7 +136,7 @@ export const UTMBuilderDialog = ({ trigger, open, onOpenChange }: UTMBuilderDial
       toast.success("URL copiée !");
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      toast.error("Erreur lors de la copie");
+      toast.error("Error lors de la copie");
     }
   };
 

@@ -75,7 +75,7 @@ const ResetPassword = () => {
     if (password.length < 6) {
       toast({
         title: "Mot de passe trop court",
-        description: "Le mot de passe doit contenir au moins 6 caractères.",
+        description: "Le mot de passe doit contenir au moins 6 characters.",
         variant: "destructive",
       });
       return;
@@ -97,7 +97,7 @@ const ResetPassword = () => {
 
       if (error) {
         toast({
-          title: "Erreur",
+          title: "Error",
           description: error.message,
           variant: "destructive",
         });
@@ -110,7 +110,7 @@ const ResetPassword = () => {
       }
     } catch (error) {
       toast({
-        title: "Erreur",
+        title: "Error",
         description: "Une erreur inattendue s'est produite.",
         variant: "destructive",
       });
@@ -150,7 +150,7 @@ const ResetPassword = () => {
         });
 
         if (error) {
-          toast({ title: "Erreur", description: error.message, variant: "destructive" });
+          toast({ title: "Error", description: error.message, variant: "destructive" });
         } else {
           toast({
             title: "Email envoyé",
@@ -262,7 +262,7 @@ const ResetPassword = () => {
               </button>
             </div>
             <p className="text-xs text-muted-foreground">
-              Minimum 6 caractères
+              Minimum 6 characters
             </p>
           </div>
 

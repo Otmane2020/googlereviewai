@@ -69,7 +69,7 @@ export const AddTestReviewDialog = ({
     e.preventDefault();
     if (!author.trim()) {
       toast({
-        title: "Erreur",
+        title: "Error",
         description: "Le nom de l'auteur est requis.",
         variant: "destructive",
       });
@@ -104,7 +104,7 @@ export const AddTestReviewDialog = ({
     } catch (error) {
       console.error("Error adding test review:", error);
       toast({
-        title: "Erreur",
+        title: "Error",
         description: "Impossible d'ajouter l'avis.",
         variant: "destructive",
       });

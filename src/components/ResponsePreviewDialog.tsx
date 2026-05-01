@@ -67,10 +67,10 @@ export const ResponsePreviewDialog = ({
       if (error) throw error;
 
       setHasChanges(false);
-      toast({ title: "Réponse sauvegardée" });
+      toast({ title: "Response sauvegardée" });
     } catch (error) {
       toast({
-        title: "Erreur",
+        title: "Error",
         description: "Impossible de sauvegarder la réponse.",
         variant: "destructive",
       });
@@ -93,7 +93,7 @@ export const ResponsePreviewDialog = ({
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(editedResponse);
-    toast({ title: "Copié !" });
+    toast({ title: "Copied!" });
   };
 
   if (!review) return null;
@@ -153,7 +153,7 @@ export const ResponsePreviewDialog = ({
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1.5 text-xs text-primary font-medium">
-                <Sparkles className="w-3 h-3" /> Réponse IA
+                <Sparkles className="w-3 h-3" /> AI response
               </div>
               {hasChanges && (
                 <span className="text-xs text-muted-foreground">
@@ -165,7 +165,7 @@ export const ResponsePreviewDialog = ({
               value={editedResponse}
               onChange={(e) => handleTextChange(e.target.value)}
               className="min-h-[150px] resize-none text-sm"
-              placeholder="Réponse..."
+              placeholder="Response..."
             />
           </div>
 

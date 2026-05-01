@@ -95,7 +95,7 @@ export const SelectBusinessesDialog = ({
     } catch (error) {
       console.error("Error saving businesses:", error);
       toast({
-        title: "Erreur",
+        title: "Error",
         description: "Impossible de sauvegarder les établissements.",
         variant: "destructive",
       });

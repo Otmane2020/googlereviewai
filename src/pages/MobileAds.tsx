@@ -28,7 +28,7 @@ const MobileAds = () => {
         {/* Launch Offer Badge */}
         <div className="inline-flex items-center gap-1.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white px-4 py-1.5 rounded-full text-sm font-semibold mb-4 shadow-lg">
           <Gift className="w-4 h-4" />
-          Offre de lancement – -20% sur le 1er mois
+          Offer de lancement – -20% sur le 1er mois
         </div>
 
         {/* 5 Stars Badge */}
@@ -103,7 +103,7 @@ const MobileAds = () => {
               <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
                 <MessageSquare className="w-4 h-4 text-primary" />
               </div>
-              <span className="text-sm text-foreground">Réponses automatiques aux avis Google</span>
+              <span className="text-sm text-foreground">Responses automatiques aux avis Google</span>
             </div>
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">

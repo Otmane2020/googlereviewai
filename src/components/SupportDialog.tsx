@@ -89,7 +89,7 @@ export const SupportDialog = ({ userEmail, triggerClassName }: SupportDialogProp
     } catch (error) {
       console.error("Error sending support request:", error);
       toast({
-        title: "Erreur",
+        title: "Error",
         description: "Impossible d'envoyer le message. Réessayez plus tard.",
         variant: "destructive",
       });
