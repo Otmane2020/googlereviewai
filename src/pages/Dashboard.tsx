@@ -154,7 +154,7 @@ const Dashboard = () => {
           const success = await handleOAuthCallback(code);
           
           if (success) {
-            toast.success("Google Business connecté avec succès !");
+            toast.success("Google Business connected successfully!");
             // Trigger sync after successful connection
             setShowSyncProgress(true);
             setSyncStep("businesses");
@@ -173,11 +173,11 @@ const Dashboard = () => {
               setLoading(false);
             }
           } else {
-            toast.error("Échec de la connexion Google. Veuillez réessayer.");
+            toast.error("Google connection failed. Please try again.");
           }
         } catch (error) {
           console.error("[Dashboard] OAuth callback error:", error);
-          toast.error("Erreur lors de la connexion Google");
+          toast.error("Error connecting to Google");
         }
       }
     };
@@ -480,8 +480,8 @@ const Dashboard = () => {
                 <Sparkles className="w-5 h-5 text-primary" />
               </div>
               <div className="flex-1">
-                <p className="font-medium text-foreground text-sm">Essai gratuit</p>
-                <p className="text-xs text-muted-foreground">10 crédits offerts pour tester</p>
+                <p className="font-medium text-foreground text-sm">Free trial</p>
+                <p className="text-xs text-muted-foreground">10 free credits to test</p>
               </div>
               <Link to="/settings">
                 <Button size="sm" variant="outline" className="rounded-xl text-xs">
@@ -518,10 +518,10 @@ const Dashboard = () => {
               </div>
               <div className="flex-1">
                 <h3 className="font-bold text-accent-foreground text-lg mb-1">
-                  🎉 Dernière étape : Connectez Google
+                  🎉 Last step: Connect Google
                 </h3>
                 <p className="text-accent-foreground/80 text-sm mb-3">
-                  Liez votre compte Google pour synchroniser vos avis et commencer à utiliser l'IA.
+                  Link your Google account to sync your reviews and start using AI.
                 </p>
                 <Button 
                   onClick={() => setShowGMBDialog(true)}
@@ -545,7 +545,7 @@ const Dashboard = () => {
                       d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                     />
                   </svg>
-                  Connecter Google Business
+                  Connect Google Business
                 </Button>
               </div>
             </div>
@@ -563,19 +563,19 @@ const Dashboard = () => {
                 <AlertCircle className="w-4 h-4 text-destructive" />
                 <div>
                   <p className="text-xs font-medium text-foreground">
-                    Erreur de synchronisation
+                    Sync error
                   </p>
                   {syncStatus.last_sync_at && (
                     <p className="text-[10px] text-muted-foreground">
-                      Dernière sync: {(() => {
+                      Last sync: {(() => {
                         const diff = Date.now() - new Date(syncStatus.last_sync_at).getTime();
                         const secs = Math.floor(diff / 1000);
-                        if (secs < 60) return "à l'instant";
+                        if (secs < 60) return "just now";
                         const mins = Math.floor(secs / 60);
-                        if (mins < 60) return `il y a ${mins} min`;
+                        if (mins < 60) return `${mins} min ago`;
                         const hours = Math.floor(mins / 60);
-                        if (hours < 24) return `il y a ${hours}h`;
-                        return `il y a ${Math.floor(hours / 24)}j`;
+                        if (hours < 24) return `${hours}h ago`;
+                        return `${Math.floor(hours / 24)}d ago`;
                       })()}
                     </p>
                   )}
@@ -588,7 +588,7 @@ const Dashboard = () => {
                   className="text-xs text-destructive h-7"
                   onClick={() => navigate("/settings")}
                 >
-                  Reconnecter
+                  Reconnect
                 </Button>
               )}
             </div>
@@ -621,7 +621,7 @@ const Dashboard = () => {
                 </div>
                 <div>
                   <p className="text-white/80 text-sm font-medium">
-                    {urgencyLevel === "green" ? "Tout est à jour !" : "Avis non répondus"}
+                    {urgencyLevel === "green" ? "All caught up!" : "Unanswered reviews"}
                   </p>
                   <div className="text-3xl font-bold text-white">{stats.pending}</div>
                 </div>
@@ -647,7 +647,7 @@ const Dashboard = () => {
                 : responseRateColor === "orange" ? "text-orange-500" 
                 : "text-red-500"
               }`} />
-              <span className="text-xs text-muted-foreground">Taux réponse</span>
+              <span className="text-xs text-muted-foreground">Response rate</span>
             </div>
             <div className={`text-2xl font-bold ${
               responseRateColor === "green" ? "text-green-600" 
@@ -662,7 +662,7 @@ const Dashboard = () => {
           <div className="bg-card rounded-2xl p-4 border border-border">
             <div className="flex items-center gap-2 mb-2">
               <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-              <span className="text-xs text-muted-foreground">Note moyenne</span>
+              <span className="text-xs text-muted-foreground">Average rating</span>
             </div>
             <div className="text-2xl font-bold text-foreground">{stats.avgRating || "-"}</div>
           </div>
@@ -671,7 +671,7 @@ const Dashboard = () => {
           <div className="bg-card rounded-2xl p-4 border border-border">
             <div className="flex items-center gap-2 mb-2">
               <MessageSquare className="w-4 h-4 text-primary" />
-              <span className="text-xs text-muted-foreground">Total avis</span>
+              <span className="text-xs text-muted-foreground">Total reviews</span>
             </div>
             <div className="text-2xl font-bold text-foreground">{stats.total}</div>
           </div>
@@ -680,7 +680,7 @@ const Dashboard = () => {
           <div className="bg-card rounded-2xl p-4 border border-border">
             <div className="flex items-center gap-2 mb-2">
               <Sparkles className="w-4 h-4 text-secondary" />
-              <span className="text-xs text-muted-foreground">Réponses IA</span>
+              <span className="text-xs text-muted-foreground">AI responses</span>
             </div>
             <div className="text-2xl font-bold text-foreground">{stats.aiResponses}</div>
           </div>
@@ -695,9 +695,9 @@ const Dashboard = () => {
         <div className="overflow-x-auto -mx-4 px-4 pb-2">
           <div className="flex gap-3 min-w-max">
             {[
-              { icon: Star, label: "Avis", desc: `${stats.pending} en attente`, href: "/reviews", color: "bg-yellow-500" },
-              { icon: Building2, label: "Business", desc: `${stats.businesses} actif${stats.businesses > 1 ? "s" : ""}`, href: "/businesses", color: "bg-violet-500" },
-              { icon: Sparkles, label: "IA", desc: "Paramètres", href: "/ai-settings", color: "bg-primary" },
+              { icon: Star, label: "Reviews", desc: `${stats.pending} pending`, href: "/reviews", color: "bg-yellow-500" },
+              { icon: Building2, label: "Business", desc: `${stats.businesses} active`, href: "/businesses", color: "bg-violet-500" },
+              { icon: Sparkles, label: "AI", desc: "Settings", href: "/ai-settings", color: "bg-primary" },
               { icon: TrendingUp, label: "SEO", desc: "Auto-post", href: "/seo-autopost", color: "bg-green-500" },
             ].map((action) => (
               <Link
@@ -720,11 +720,11 @@ const Dashboard = () => {
           <div className="p-4 border-b border-border flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Clock className="w-4 h-4 text-muted-foreground" />
-              <h2 className="font-semibold text-foreground text-sm">À traiter en priorité</h2>
+              <h2 className="font-semibold text-foreground text-sm">Priority queue</h2>
             </div>
             <Link to="/reviews">
               <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground text-xs">
-                Voir tout
+                View all
                 <ChevronRight className="w-3 h-3 ml-1" />
               </Button>
             </Link>
@@ -755,17 +755,17 @@ const Dashboard = () => {
                         {review.ai_response || review.google_reply ? (
                           <span className="text-[10px] bg-green-500/10 text-green-600 px-2 py-0.5 rounded-full font-medium flex items-center gap-1">
                             <CheckCircle2 className="w-2.5 h-2.5" />
-                            {review.google_reply ? "Répondu" : "IA prête"}
+                            {review.google_reply ? "Replied" : "AI ready"}
                           </span>
                         ) : (
                           <span className="text-[10px] bg-orange-500/10 text-orange-600 px-2 py-0.5 rounded-full font-medium flex items-center gap-1 animate-pulse">
                             <AlertCircle className="w-2.5 h-2.5" />
-                            À répondre
+                            To answer
                           </span>
                         )}
                       </div>
                       <p className="text-sm text-muted-foreground mt-1 line-clamp-1">
-                        {review.comment || "Aucun commentaire"}
+                        {review.comment || "No comment"}
                       </p>
                     </div>
                   </div>
@@ -775,7 +775,7 @@ const Dashboard = () => {
           ) : (
             <div className="p-8 text-center">
               <CheckCircle2 className="w-10 h-10 mx-auto mb-3 text-green-500" />
-              <p className="text-sm text-muted-foreground">Aucun avis en attente</p>
+              <p className="text-sm text-muted-foreground">No pending reviews</p>
               <Button 
                 variant="outline" 
                 size="sm" 
@@ -792,7 +792,7 @@ const Dashboard = () => {
                 disabled={isSyncing}
               >
                 {isSyncing ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <RefreshCw className="w-4 h-4 mr-2" />}
-                Synchroniser
+                Sync
               </Button>
             </div>
           )}
