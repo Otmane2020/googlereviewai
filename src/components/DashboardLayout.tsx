@@ -179,39 +179,20 @@ const RankiSidebar = () => {
 };
 
 export const DashboardLayout = ({ children, title }: DashboardLayoutProps) => {
-  const navigate = useNavigate();
-
   return (
     <SidebarProvider defaultOpen={true}>
       <div className="min-h-screen flex w-full bg-background">
-        {/* Desktop sidebar — hidden on mobile, mobile uses bottom nav */}
+        {/* Desktop sidebar — always visible (fixed), hidden on mobile (mobile uses bottom nav) */}
         <div className="hidden md:block">
           <RankiSidebar />
         </div>
 
         <div className="flex-1 flex flex-col min-w-0">
-          {/* Top bar — desktop only */}
-          <header className="hidden md:flex sticky top-0 z-40 h-14 items-center gap-3 border-b border-border bg-card/95 backdrop-blur-xl px-4">
-            <SidebarTrigger className="text-foreground" />
-            <div className="flex-1">
-              {title && <h1 className="text-base font-semibold text-foreground">{title}</h1>}
-            </div>
-            <Button
-              size="sm"
-              variant="outline"
-              className="gap-2"
-              onClick={() => navigate("/gmb-post")}
-            >
-              <PlusCircle className="w-4 h-4" /> New post
-            </Button>
-            <Button
-              size="sm"
-              className="gap-2"
-              onClick={() => navigate("/aeo-rank")}
-            >
-              <Sparkles className="w-4 h-4" /> Track new query
-            </Button>
-          </header>
+          {/* Floating sidebar trigger — always reachable on desktop, even when sidebar is collapsed */}
+          <div className="hidden md:flex sticky top-2 z-40 px-3 -mb-2">
+            <SidebarTrigger className="text-foreground bg-card/90 backdrop-blur border border-border rounded-lg shadow-sm" />
+            {title && <h1 className="ml-3 self-center text-sm font-semibold text-foreground">{title}</h1>}
+          </div>
 
           <main className="flex-1 min-w-0 pb-20 md:pb-0">{children}</main>
 
