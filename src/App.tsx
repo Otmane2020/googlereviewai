@@ -45,6 +45,12 @@ import BlogArticle from "./pages/BlogArticle";
 import NotFound from "./pages/NotFound";
 import LandingPremium from "./pages/LandingPremium";
 import LandingFacebook from "./pages/LandingFacebook";
+import { DashboardLayout } from "./components/DashboardLayout";
+
+// Wraps a page with the persistent dashboard sidebar (desktop) + bottom nav (mobile)
+const Shell = ({ children }: { children: React.ReactNode }) => (
+  <DashboardLayout>{children}</DashboardLayout>
+);
 
 const queryClient = new QueryClient();
 
