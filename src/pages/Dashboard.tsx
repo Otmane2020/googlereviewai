@@ -709,6 +709,65 @@ const Dashboard = () => {
           <GmbInsightsCard userId={user.id} />
         )}
 
+        {/* GEO Autoposting Block - AI-generated Q&A scheduled to GMB */}
+        <Link to="/aeo-rank" className="block">
+          <div className="relative overflow-hidden rounded-2xl p-5 bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-700 shadow-lg shadow-violet-500/30 transition-all hover:shadow-xl">
+            <div className="absolute -top-8 -right-8 w-32 h-32 bg-white/10 rounded-full blur-2xl" />
+            <div className="absolute -bottom-6 -left-6 w-24 h-24 bg-white/5 rounded-full blur-xl" />
+            <div className="relative">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center">
+                    <Sparkles className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <p className="text-white font-bold text-base">GEO Autoposting</p>
+                      <span className="text-[10px] bg-white/20 text-white px-2 py-0.5 rounded-full font-semibold uppercase tracking-wide">AI</span>
+                    </div>
+                    <p className="text-white/70 text-xs">Auto Q&A on Google · ChatGPT-ready</p>
+                  </div>
+                </div>
+                <ArrowUpRight className="w-5 h-5 text-white/80" />
+              </div>
+
+              <div className="grid grid-cols-3 gap-2 mb-4">
+                <div className="bg-white/10 backdrop-blur rounded-xl p-2.5 text-center">
+                  <div className="text-xl font-bold text-white">{aeoStats.planned}</div>
+                  <div className="text-[10px] text-white/70 uppercase tracking-wide">Scheduled</div>
+                </div>
+                <div className="bg-white/10 backdrop-blur rounded-xl p-2.5 text-center">
+                  <div className="text-xl font-bold text-white">{aeoStats.ready}</div>
+                  <div className="text-[10px] text-white/70 uppercase tracking-wide">Ready</div>
+                </div>
+                <div className="bg-white/10 backdrop-blur rounded-xl p-2.5 text-center">
+                  <div className="text-xl font-bold text-white">{aeoStats.published}</div>
+                  <div className="text-[10px] text-white/70 uppercase tracking-wide">Published</div>
+                </div>
+              </div>
+
+              {aeoStats.planned === 0 ? (
+                <div className="bg-white/15 backdrop-blur rounded-xl p-3 flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-white shrink-0" />
+                  <p className="text-xs text-white font-medium">Generate your first 30-day GEO plan with AI →</p>
+                </div>
+              ) : aeoStats.nextDate ? (
+                <div className="bg-white/15 backdrop-blur rounded-xl p-3 flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-white shrink-0" />
+                  <p className="text-xs text-white">
+                    Next post: <span className="font-semibold">{new Date(aeoStats.nextDate).toLocaleDateString("en-US", { month: "short", day: "numeric" })}</span>
+                  </p>
+                </div>
+              ) : (
+                <div className="bg-white/15 backdrop-blur rounded-xl p-3 flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-white shrink-0" />
+                  <p className="text-xs text-white font-medium">All Q&As published — generate a new plan</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </Link>
+
         {/* Quick Actions - Horizontal Scroll on Mobile */}
         <div className="overflow-x-auto -mx-4 px-4 pb-2">
           <div className="flex gap-3 min-w-max">
