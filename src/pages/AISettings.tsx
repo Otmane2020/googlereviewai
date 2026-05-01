@@ -563,7 +563,7 @@ const AISettingsPage = () => {
                   <AlertTriangle className="w-4 h-4 text-amber-500 mt-0.5 shrink-0" />
                   <div className="flex-1">
                     <p className="text-xs text-amber-700 dark:text-amber-400 font-medium">
-                      {negativeReviewsCount} negative review{negativeReviewsCount > 1 ? 's' : ''} à traiter
+                      {negativeReviewsCount} negative review{negativeReviewsCount > 1 ? 's' : ''} to process
                     </p>
                     <p className="text-xs text-muted-foreground mt-1">
                       Estimated cost : <span className="font-semibold text-foreground">{negativeReviewsCount} credit{negativeReviewsCount > 1 ? 's' : ''}</span>
@@ -713,40 +713,40 @@ const AISettingsPage = () => {
               >
                 <optgroup label="Europe">
                   <option value="Europe/Paris">Paris (France)</option>
-                  <option value="Europe/Brussels">Bruxelles (Belgique)</option>
-                  <option value="Europe/Zurich">Zürich (Suisse)</option>
+                  <option value="Europe/Brussels">Brussels (Belgium)</option>
+                  <option value="Europe/Zurich">Zurich (Switzerland)</option>
                   <option value="Europe/Luxembourg">Luxembourg</option>
                   <option value="Europe/Monaco">Monaco</option>
-                  <option value="Europe/London">Londres (UK)</option>
-                  <option value="Europe/Berlin">Berlin (Allemagne)</option>
-                  <option value="Europe/Madrid">Madrid (Espagne)</option>
-                  <option value="Europe/Rome">Rome (Italie)</option>
-                  <option value="Europe/Amsterdam">Amsterdam (Pays-Bas)</option>
+                  <option value="Europe/London">London (UK)</option>
+                  <option value="Europe/Berlin">Berlin (Germany)</option>
+                  <option value="Europe/Madrid">Madrid (Spain)</option>
+                  <option value="Europe/Rome">Rome (Italy)</option>
+                  <option value="Europe/Amsterdam">Amsterdam (Netherlands)</option>
                 </optgroup>
-                <optgroup label="Amérique">
-                  <option value="America/Montreal">Montréal (Canada)</option>
+                <optgroup label="Americas">
+                  <option value="America/Montreal">Montreal (Canada)</option>
                   <option value="America/New_York">New York (USA)</option>
                   <option value="America/Los_Angeles">Los Angeles (USA)</option>
                   <option value="America/Chicago">Chicago (USA)</option>
                   <option value="America/Toronto">Toronto (Canada)</option>
                   <option value="America/Martinique">Martinique</option>
                   <option value="America/Guadeloupe">Guadeloupe</option>
-                  <option value="America/Cayenne">Guyane</option>
+                  <option value="America/Cayenne">French Guiana</option>
                 </optgroup>
-                <optgroup label="Afrique">
-                  <option value="Africa/Casablanca">Casablanca (Maroc)</option>
-                  <option value="Africa/Algiers">Alger (Algérie)</option>
-                  <option value="Africa/Tunis">Tunis (Tunisie)</option>
-                  <option value="Africa/Dakar">Dakar (Sénégal)</option>
-                  <option value="Africa/Abidjan">Abidjan (Côte d'Ivoire)</option>
+                <optgroup label="Africa">
+                  <option value="Africa/Casablanca">Casablanca (Morocco)</option>
+                  <option value="Africa/Algiers">Algiers (Algeria)</option>
+                  <option value="Africa/Tunis">Tunis (Tunisia)</option>
+                  <option value="Africa/Dakar">Dakar (Senegal)</option>
+                  <option value="Africa/Abidjan">Abidjan (Ivory Coast)</option>
                 </optgroup>
-                <optgroup label="Océan Indien">
-                  <option value="Indian/Reunion">La Réunion</option>
-                  <option value="Indian/Mauritius">Maurice</option>
+                <optgroup label="Indian Ocean">
+                  <option value="Indian/Reunion">Reunion Island</option>
+                  <option value="Indian/Mauritius">Mauritius</option>
                   <option value="Indian/Mayotte">Mayotte</option>
                 </optgroup>
                 <optgroup label="Pacifique">
-                  <option value="Pacific/Noumea">Nouvelle-Calédonie</option>
+                  <option value="Pacific/Noumea">New Caledonia</option>
                   <option value="Pacific/Tahiti">Tahiti</option>
                 </optgroup>
               </select>
