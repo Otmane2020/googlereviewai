@@ -167,22 +167,22 @@ const AppContent = () => {
               <Route path="/checkout" element={<Checkout />} />
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/reviews" element={<Reviews />} />
-              <Route path="/ai-settings" element={<AISettings />} />
-              <Route path="/settings" element={<Settings />} />
-              <Route path="/businesses" element={<Businesses />} />
+              <Route path="/reviews" element={<Shell><Reviews /></Shell>} />
+              <Route path="/ai-settings" element={<Shell><AISettings /></Shell>} />
+              <Route path="/settings" element={<Shell><Settings /></Shell>} />
+              <Route path="/businesses" element={<Shell><Businesses /></Shell>} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route path="/terms" element={<TermsOfService />} />
               <Route path="/install" element={<Install />} />
-              <Route path="/seo-autopost" element={<SEOAutoPost />} />
-              <Route path="/aeo-rank" element={<AEORank />} />
-              <Route path="/maps-rank" element={<MapsRank />} />
-              <Route path="/notifications" element={<Notifications />} />
+              <Route path="/seo-autopost" element={<Shell><SEOAutoPost /></Shell>} />
+              <Route path="/aeo-rank" element={<Shell><AEORank /></Shell>} />
+              <Route path="/maps-rank" element={<Shell><MapsRank /></Shell>} />
+              <Route path="/notifications" element={<Shell><Notifications /></Shell>} />
               <Route path="/mobile-ads" element={<MobileAds />} />
               <Route path="/PW" element={<PasswordAuth />} />
               <Route path="/admin" element={<Admin />} />
               <Route path="/local-aeo" element={<LocalAEO />} />
-              <Route path="/gmb-post" element={<GmbPost />} />
+              <Route path="/gmb-post" element={<Shell><GmbPost /></Shell>} />
               <Route path="/gmb-autoposting" element={<GmbAutopostingGuide />} />
               <Route path="/avis-ai-restaurant" element={<AvisAIRestaurant />} />
               <Route path="/avis-ai-hotel" element={<AvisAIHotel />} />
