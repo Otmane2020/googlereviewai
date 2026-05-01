@@ -1,37 +1,20 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
-import { StarlinkoLogo } from "./StarlinkoLogo";
+import { useNavigate } from "react-router-dom";
 import { UpgradeDialog } from "./UpgradeDialog";
-import { SupportDialog } from "./SupportDialog";
 import { Button } from "./ui/button";
-import { LanguageSwitcher } from "./LanguageSwitcher";
-import { useTranslation } from "react-i18next";
-import { 
-  Menu, 
-  LayoutDashboard, 
-  Star, 
-  Building2, 
-  Settings, 
-  Sparkles,
-  LogOut,
-  Bell,
-  FileText,
-  Search,
-  Plus,
-  ChevronRight,
-  Target
-} from "lucide-react";
+import { Bell, Plus, Sparkles, LogOut, User as UserIcon } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useNotifications } from "@/hooks/useNotifications";
 import { Badge } from "@/components/ui/badge";
 import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface UserProfile {
   credits: number;
@@ -41,28 +24,11 @@ interface UserProfile {
 }
 
 export const DashboardHeader = () => {
-  const { t } = useTranslation();
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [upgradeDialogOpen, setUpgradeDialogOpen] = useState(false);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const { unreadCount } = useNotifications();
-
-  const navItems = [
-    { label: t("dashboard.title"), href: "/dashboard", icon: LayoutDashboard },
-    { label: t("dashboard.reviews"), href: "/reviews", icon: Star },
-    { label: t("dashboard.businesses"), href: "/businesses", icon: Building2 },
-    { label: t("dashboard.seoAuto"), href: "/seo-autopost", icon: FileText },
-    { label: t("dashboard.aeoRank"), href: "/aeo-rank", icon: Search },
-    { label: t("dashboard.mapsRank"), href: "/maps-rank", icon: Target },
-  ];
-
-  const menuItems = [
-    { label: t("dashboard.aiSettings"), href: "/ai-settings", icon: Sparkles },
-    { label: t("dashboard.settings"), href: "/settings", icon: Settings },
-  ];
 
   useEffect(() => {
     if (!user) return;
@@ -73,15 +39,11 @@ export const DashboardHeader = () => {
         .select("credits, plan_name, full_name, email")
         .eq("id", user.id)
         .single();
-      
-      if (data) {
-        setProfile(data);
-      }
+      if (data) setProfile(data);
     };
 
     fetchProfile();
 
-    // Subscribe to profile changes
     const channel = supabase
       .channel("profile-credits")
       .on(
@@ -93,7 +55,7 @@ export const DashboardHeader = () => {
           filter: `id=eq.${user.id}`,
         },
         (payload) => {
-          setProfile((prev) => prev ? { ...prev, ...payload.new } : null);
+          setProfile((prev) => (prev ? { ...prev, ...(payload.new as UserProfile) } : null));
         }
       )
       .subscribe();
@@ -109,199 +71,88 @@ export const DashboardHeader = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/50">
+    <header className="sticky top-0 z-30 bg-background/80 backdrop-blur-xl border-b border-border/50">
       <div className="max-w-7xl mx-auto px-4">
-        <nav className="flex items-center justify-between h-14">
-          {/* Logo */}
-          <Link to="/dashboard" className="flex-shrink-0">
-            <StarlinkoLogo showBadge={false} />
-          </Link>
+        <div className="flex items-center justify-end gap-2 h-14">
+          {/* Credits pill */}
+          <button
+            onClick={() => setUpgradeDialogOpen(true)}
+            className="hidden sm:flex items-center gap-2 px-3 h-9 rounded-xl bg-muted/60 hover:bg-muted transition-colors"
+          >
+            <Sparkles className="w-4 h-4 text-primary" />
+            <span className="text-sm font-medium text-foreground">
+              {profile?.credits ?? 0} credits
+            </span>
+            {profile?.plan_name && (
+              <Badge variant="secondary" className="text-[10px] px-1.5 py-0 ml-1">
+                {profile.plan_name}
+              </Badge>
+            )}
+            <Plus className="w-3.5 h-3.5 text-muted-foreground" />
+          </button>
 
-          {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center gap-1">
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = location.pathname === item.href;
-              return (
-                <Link
-                  key={item.href}
-                  to={item.href}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${
-                    isActive 
-                      ? "bg-primary text-primary-foreground shadow-md shadow-primary/25" 
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                  }`}
-                >
-                  <Icon className="w-4 h-4" />
-                  {item.label}
-                </Link>
-              );
-            })}
-          </div>
+          {/* Notifications */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="relative h-10 w-10 rounded-xl"
+            onClick={() => navigate("/notifications")}
+            aria-label="Notifications"
+          >
+            <Bell className="w-5 h-5" />
+            {unreadCount > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full flex items-center justify-center px-1 shadow-lg">
+                {unreadCount > 99 ? "99+" : unreadCount}
+              </span>
+            )}
+          </Button>
 
-          {/* Right side actions */}
-          <div className="flex items-center gap-2">
-            {/* Language Switcher */}
-            <LanguageSwitcher className="hidden sm:flex" />
-
-            {/* Notifications */}
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="relative h-10 w-10 rounded-xl"
-              onClick={() => navigate("/notifications")}
-            >
-              <Bell className="w-5 h-5" />
-              {unreadCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full flex items-center justify-center px-1 shadow-lg">
-                  {unreadCount > 99 ? "99+" : unreadCount}
-                </span>
-              )}
-            </Button>
-
-            {/* Hamburger Menu */}
-            <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl">
-                  <Menu className="h-5 w-5" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="right" className="w-[300px] p-0 bg-background/95 backdrop-blur-xl flex flex-col">
-                <SheetHeader className="p-3 border-b border-border/50 flex-shrink-0">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-lg shadow-primary/25">
-                      <span className="text-base font-bold text-primary-foreground">
-                        {profile?.full_name?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || "U"}
-                      </span>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <SheetTitle className="text-left text-sm truncate">
-                        {profile?.full_name || t("common.user")}
-                      </SheetTitle>
-                      <p className="text-[11px] text-muted-foreground truncate">{user?.email}</p>
-                    </div>
-                  </div>
-                </SheetHeader>
-
-                {/* Language Switcher - Mobile */}
-                <div className="px-3 py-2 border-b border-border/50 sm:hidden">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">{t("settings.language")}</span>
-                    <LanguageSwitcher />
-                  </div>
+          {/* User menu */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-sm">
+                  <span className="text-xs font-bold text-primary-foreground">
+                    {profile?.full_name?.charAt(0).toUpperCase() ||
+                      user?.email?.charAt(0).toUpperCase() ||
+                      "U"}
+                  </span>
                 </div>
-
-                {/* Credits Card */}
-                <div className="p-3 border-b border-border/50">
-                  <div className="bg-gradient-to-br from-accent/10 to-accent/5 rounded-xl p-3 border border-accent/20">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <Star className="w-4 h-4 text-accent fill-accent" />
-                        <span className="text-xs font-medium text-foreground">{t("common.credits")}</span>
-                      </div>
-                      {profile?.plan_name && (
-                        <Badge variant="secondary" className="text-[9px] px-1.5 py-0">
-                          {profile.plan_name}
-                        </Badge>
-                      )}
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-2xl font-bold text-foreground">
-                        {profile?.credits || 0}
-                      </span>
-                      <Button 
-                        size="sm" 
-                        className="h-8 rounded-lg gap-1.5 text-xs shadow-md"
-                        onClick={() => {
-                          setMobileMenuOpen(false);
-                          setUpgradeDialogOpen(true);
-                        }}
-                      >
-                        <Plus className="w-3.5 h-3.5" />
-                        {t("common.upgrade")}
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Navigation */}
-                <div className="px-3 py-2 space-y-0.5">
-                  <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-1.5 px-2">
-                    {t("common.navigation")}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuLabel className="font-normal">
+                <div className="flex flex-col space-y-0.5">
+                  <p className="text-sm font-medium truncate">
+                    {profile?.full_name || "User"}
                   </p>
-                  {navItems.map((item) => {
-                    const Icon = item.icon;
-                    const isActive = location.pathname === item.href;
-                    return (
-                      <Link
-                        key={item.href}
-                        to={item.href}
-                        className={`flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm font-medium transition-all ${
-                          isActive 
-                            ? "bg-primary text-primary-foreground shadow-md" 
-                            : "text-foreground hover:bg-muted"
-                        }`}
-                        onClick={() => setMobileMenuOpen(false)}
-                      >
-                        <Icon className="w-4 h-4" />
-                        <span className="flex-1">{item.label}</span>
-                        <ChevronRight className={`w-3.5 h-3.5 ${isActive ? "text-primary-foreground/70" : "text-muted-foreground"}`} />
-                      </Link>
-                    );
-                  })}
-                </div>
-
-                {/* Settings */}
-                <div className="px-3 py-2 space-y-0.5 border-t border-border/50">
-                  <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-1.5 px-2">
-                    {t("common.settings")}
+                  <p className="text-xs text-muted-foreground truncate">
+                    {user?.email}
                   </p>
-                  {menuItems.map((item) => {
-                    const Icon = item.icon;
-                    return (
-                      <Link
-                        key={item.href}
-                        to={item.href}
-                        className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm font-medium text-foreground hover:bg-muted transition-all"
-                        onClick={() => setMobileMenuOpen(false)}
-                      >
-                        <Icon className="w-4 h-4 text-muted-foreground" />
-                        <span className="flex-1">{item.label}</span>
-                        <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
-                      </Link>
-                    );
-                  })}
                 </div>
-
-                {/* Sign Out */}
-                <div className="sticky bottom-0 p-3 border-t border-border/50 bg-background/95 backdrop-blur-sm">
-                  <div className="flex gap-2">
-                    <SupportDialog 
-                      userEmail={profile?.email} 
-                      triggerClassName="flex-1 rounded-lg h-10"
-                    />
-                    <Button
-                      variant="outline" 
-                      className="flex-1 rounded-lg h-10 text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive/20"
-                      onClick={() => {
-                        setMobileMenuOpen(false);
-                        handleSignOut();
-                      }}
-                    >
-                      <LogOut className="w-4 h-4 mr-2" />
-                      {t("common.signOut")}
-                    </Button>
-                  </div>
-                </div>
-              </SheetContent>
-            </Sheet>
-          </div>
-        </nav>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => navigate("/settings")}>
+                <UserIcon className="w-4 h-4 mr-2" /> Settings
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setUpgradeDialogOpen(true)}>
+                <Sparkles className="w-4 h-4 mr-2" /> Upgrade plan
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={handleSignOut}
+                className="text-destructive focus:text-destructive"
+              >
+                <LogOut className="w-4 h-4 mr-2" /> Sign out
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
 
-      <UpgradeDialog 
-        open={upgradeDialogOpen} 
-        onOpenChange={setUpgradeDialogOpen} 
+      <UpgradeDialog
+        open={upgradeDialogOpen}
+        onOpenChange={setUpgradeDialogOpen}
         currentPlan={profile?.plan_name || undefined}
       />
     </header>
