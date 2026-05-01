@@ -91,7 +91,7 @@ export function GmbInsightsCard({ userId }: GmbInsightsCardProps) {
       bgColor: "bg-emerald-500/10",
     },
     {
-      label: "Itinéraires",
+      label: "Directions",
       value: insights?.directionRequests || 0,
       icon: MapPin,
       color: "text-red-500",
@@ -102,7 +102,7 @@ export function GmbInsightsCard({ userId }: GmbInsightsCardProps) {
   // Additional stats if they exist
   const additionalStats = [
     insights?.bookings && insights.bookings > 0 && {
-      label: "Réservations",
+      label: "Bookings",
       value: insights.bookings,
       icon: Calendar,
       color: "text-purple-500",
@@ -185,7 +185,7 @@ export function GmbInsightsCard({ userId }: GmbInsightsCardProps) {
             className="mt-2"
           >
             <RefreshCw className="w-4 h-4 mr-2" />
-            Réessayer
+            Retry
           </Button>
         </CardContent>
       </Card>

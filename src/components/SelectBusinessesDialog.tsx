@@ -50,7 +50,7 @@ export const SelectBusinessesDialog = ({
       if (newSelected.size >= maxBusinesses) {
         toast({
           title: "Limite atteinte",
-          description: `Votre plan permet ${maxBusinesses} établissement${maxBusinesses > 1 ? "s" : ""} maximum.`,
+          description: `Your plan allows up to ${maxBusinesses} business${maxBusinesses > 1 ? "es" : ""}.`,
           variant: "destructive",
         });
         return;
@@ -63,8 +63,8 @@ export const SelectBusinessesDialog = ({
   const handleSave = async () => {
     if (selected.size === 0) {
       toast({
-        title: "Sélection requise",
-        description: "Veuillez sélectionner au moins un établissement.",
+        title: "Selection required",
+        description: "Please select at least one business.",
         variant: "destructive",
       });
       return;
@@ -86,8 +86,8 @@ export const SelectBusinessesDialog = ({
       if (error) throw error;
 
       toast({
-        title: "Établissements synchronisés",
-        description: `${selected.size} établissement${selected.size > 1 ? "s" : ""} ajouté${selected.size > 1 ? "s" : ""}.`,
+        title: "Businesses synced",
+        description: `${selected.size} business${selected.size > 1 ? "es" : ""} added.`,
       });
 
       onSuccess();
@@ -96,7 +96,7 @@ export const SelectBusinessesDialog = ({
       console.error("Error saving businesses:", error);
       toast({
         title: "Error",
-        description: "Impossible de sauvegarder les établissements.",
+        description: "Unable to save businesses.",
         variant: "destructive",
       });
     } finally {
@@ -110,12 +110,12 @@ export const SelectBusinessesDialog = ({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Building2 className="w-5 h-5 text-primary" />
-            Sélectionnez vos établissements
+            Select your businesses
           </DialogTitle>
           <DialogDescription>
             Votre plan permet{" "}
             <span className="font-semibold text-foreground">
-              {maxBusinesses} établissement{maxBusinesses > 1 ? "s" : ""}
+              {maxBusinesses} business{maxBusinesses > 1 ? "es" : ""}
             </span>
             . Choisissez {maxBusinesses > 1 ? "lesquels" : "lequel"} synchroniser.
           </DialogDescription>
@@ -179,7 +179,7 @@ export const SelectBusinessesDialog = ({
           <div className="flex items-center justify-between w-full">
             <Badge variant="secondary" className="gap-1">
               <Crown className="w-3 h-3" />
-              {selected.size}/{maxBusinesses} sélectionné{selected.size > 1 ? "s" : ""}
+              {selected.size}/{maxBusinesses} selected
             </Badge>
             <div className="flex gap-2">
               <Button variant="outline" onClick={() => onOpenChange(false)}>

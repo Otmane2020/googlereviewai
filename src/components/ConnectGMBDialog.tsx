@@ -51,19 +51,19 @@ export const ConnectGMBDialog = ({ open, onOpenChange }: ConnectGMBDialogProps) 
           </DialogTitle>
           <DialogDescription>
             Connectez votre compte Google pour synchroniser automatiquement vos avis
-            et publier des réponses IA directement sur Google.
+            and publish AI responses directly to Google.
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 mt-4">
           <div className="bg-muted/50 rounded-lg p-4 space-y-2">
             <p className="text-sm text-muted-foreground">
-              Cette connexion permet à Starlinko de :
+              This connection allows Starlinko to:
             </p>
             <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
-              <li>Récupérer vos avis Google My Business</li>
-              <li>Publier des réponses aux avis</li>
-              <li>Synchroniser automatiquement en arrière-plan</li>
+              <li>Fetch your Google My Business reviews</li>
+              <li>Publish replies to reviews</li>
+              <li>Sync automatically in the background</li>
             </ul>
           </div>
 

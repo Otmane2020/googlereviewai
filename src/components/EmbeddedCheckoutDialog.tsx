@@ -79,7 +79,7 @@ export const EmbeddedCheckoutDialog = ({
                 onClick={() => setError(null)}
                 className="text-primary hover:underline"
               >
-                Réessayer
+                Retry
               </button>
             </div>
           ) : (
