@@ -336,6 +336,11 @@ const AEORank = () => {
             });
 
             if (error) throw error;
+            if (data?.fallback || data?.error) {
+              throw new Error(data?.error === "BILLING_ERROR"
+                ? "Crédits IA épuisés. Rechargez votre solde."
+                : (data?.message || "Service IA indisponible"));
+            }
 
             const qa = data?.questions?.[0];
             
