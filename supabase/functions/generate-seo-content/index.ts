@@ -452,7 +452,34 @@ ${lang.jsonOnly}
     if (!response.ok) {
       const errorText = await response.text();
       console.error("OpenRouter error:", response.status, errorText);
-      throw new Error(`OpenRouter API error: ${response.status}`);
+      if (response.status === 402) {
+        return new Response(
+          JSON.stringify({
+            error: "BILLING_ERROR",
+            message: "Crédits IA épuisés. Veuillez recharger votre solde Lovable AI.",
+            fallback: true,
+          }),
+          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      if (response.status === 429) {
+        return new Response(
+          JSON.stringify({
+            error: "RATE_LIMITED",
+            message: "Trop de requêtes. Réessayez dans quelques instants.",
+            fallback: true,
+          }),
+          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      return new Response(
+        JSON.stringify({
+          error: "SERVICE_UNAVAILABLE",
+          message: `Service IA indisponible (${response.status})`,
+          fallback: true,
+        }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
     const data = await response.json();
