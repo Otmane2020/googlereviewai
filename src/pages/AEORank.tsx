@@ -399,9 +399,21 @@ const AEORank = () => {
       });
 
       if (error) throw error;
+      if (data?.fallback || data?.error) {
+        const msg = data?.error === "BILLING_ERROR"
+          ? "Crédits IA épuisés. Rechargez votre solde pour continuer."
+          : data?.message || "Service IA temporairement indisponible.";
+        await supabase
+          .from("scheduled_content")
+          .update({ status: "failed", error_message: msg })
+          .eq("id", item.id);
+        await fetchScheduledContent(selectedBusiness!.id);
+        toast({ title: "Génération impossible", description: msg, variant: "destructive" });
+        return;
+      }
 
       const qa = data?.questions?.[0];
-      
+
       await supabase
         .from("scheduled_content")
         .update({ 
