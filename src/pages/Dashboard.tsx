@@ -78,6 +78,7 @@ const Dashboard = () => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [recentReviews, setRecentReviews] = useState<Review[]>([]);
   const [stats, setStats] = useState({ total: 0, avgRating: 0, aiResponses: 0, pending: 0, businesses: 0, responseRate: 0 });
+  const [aeoStats, setAeoStats] = useState({ planned: 0, ready: 0, published: 0, nextDate: null as string | null });
   const [syncStatus, setSyncStatus] = useState<SyncStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [showGMBDialog, setShowGMBDialog] = useState(false);
@@ -267,6 +268,23 @@ const Dashboard = () => {
       businesses: businessesRes.count || 0,
       responseRate
     });
+
+    // Fetch AEO autoposting stats (Q&A scheduled content)
+    const { data: aeoData } = await supabase
+      .from("scheduled_content")
+      .select("status, scheduled_date")
+      .eq("user_id", user.id)
+      .eq("content_type", "aeo_qa");
+    
+    if (aeoData) {
+      const planned = aeoData.length;
+      const ready = aeoData.filter((i: any) => i.status === "generated").length;
+      const published = aeoData.filter((i: any) => i.status === "published").length;
+      const upcoming = aeoData
+        .filter((i: any) => i.status !== "published" && new Date(i.scheduled_date) >= new Date(new Date().toDateString()))
+        .sort((a: any, b: any) => a.scheduled_date.localeCompare(b.scheduled_date))[0];
+      setAeoStats({ planned, ready, published, nextDate: upcoming?.scheduled_date || null });
+    }
 
     setLoading(false);
   }, [user]);
@@ -600,7 +618,7 @@ const Dashboard = () => {
           </div>
         )}
 
-        {/* Urgency Card - Non répondu */}
+        {/* Urgency Card - Unanswered */}
         <Link to="/reviews?status=pending" className="block">
           <div className={`relative overflow-hidden rounded-2xl p-5 transition-all ${
             urgencyLevel === "red" 
