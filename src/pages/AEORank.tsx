@@ -217,7 +217,7 @@ const AEORank = () => {
     
     setGenerating(true);
     try {
-      // ÉTAPE 1: Supprimer les anciens Q&A non publiés (tout remplacer)
+      // STEP 1: Delete old unpublished Q&As (replace all)
       await supabase
         .from("scheduled_content")
         .delete()
@@ -231,7 +231,7 @@ const AEORank = () => {
         description: "Scraping the website with Firecrawl..." 
       });
 
-      // ÉTAPE 2: Appeler analyze-business-website pour scraper avec Firecrawl
+      // STEP 2: Call analyze-business-website to scrape with Firecrawl
       const { data: analysisData, error: analysisError } = await supabase.functions.invoke(
         "analyze-business-website",
         {
@@ -245,7 +245,7 @@ const AEORank = () => {
 
       if (analysisError) throw analysisError;
 
-      // ÉTAPE 3: Recharger le business pour avoir website_content frais
+      // STEP 3: Reload business to get fresh website_content
       const { data: freshBusiness } = await supabase
         .from("businesses")
         .select("*")
@@ -255,7 +255,7 @@ const AEORank = () => {
       const keywords = analysisData?.keywords || (freshBusiness as Business)?.auto_keywords || [];
       const websiteContent = (freshBusiness as Business)?.website_content || null;
 
-      // Mettre à jour l'état local
+      // Update local state
       setSelectedBusiness({
         ...selectedBusiness,
         auto_keywords: keywords,
@@ -266,7 +266,7 @@ const AEORank = () => {
       console.log(`[AEO] Website content: ${websiteContent ? websiteContent.length + ' chars' : 'NULL'}`);
       console.log(`[AEO] Keywords: ${keywords.length}`);
 
-      // ÉTAPE 4: Créer planning 30 jours
+      // STEP 4: Create 30-day plan
       const today = startOfToday();
       const planItems: any[] = [];
 
@@ -285,7 +285,7 @@ const AEORank = () => {
         });
       }
 
-      // Insérer le planning
+      // Insert the plan
       const { error: insertError } = await supabase
         .from("scheduled_content")
         .upsert(planItems, { 
@@ -299,7 +299,7 @@ const AEORank = () => {
         description: `30 days planned with ${keywords.length} keywords` 
       });
 
-      // ÉTAPE 5: Générer tous les Q&A en batch avec websiteContent
+      // ÉTAPE 5: Generate tous les Q&A en batch avec websiteContent
       const { data: newItems } = await supabase
         .from("scheduled_content")
         .select("*")
@@ -329,7 +329,7 @@ const AEORank = () => {
                 businessName: selectedBusiness.name,
                 businessDescription: (freshBusiness as Business)?.description || selectedBusiness.description,
                 location: selectedBusiness.address || "France",
-                websiteContent: websiteContent, // Utiliser le contenu fraîchement scrapé
+                websiteContent: websiteContent, // Use freshly scraped content
                 keywords: [item.keyword_used],
                 singleQuestion: true,
               },
@@ -364,7 +364,7 @@ const AEORank = () => {
           }
         }));
 
-        // Mettre à jour l'UI après chaque batch
+        // Update UI after each batch
         await fetchScheduledContent(selectedBusiness.id);
       }
 
@@ -504,8 +504,8 @@ const AEORank = () => {
       });
     } else {
       toast({
-        title: "Heure mise à jour",
-        description: `La publication automatique sera effectuée à ${hour.toString().padStart(2, "0")}:00 UTC`,
+        title: "Time updated",
+        description: `Auto-publishing will run at ${hour.toString().padStart(2, "0")}:00 UTC`,
       });
     }
   };
@@ -531,14 +531,14 @@ const AEORank = () => {
       case "published":
         return <Badge className="bg-secondary text-secondary-foreground"><Check className="w-3 h-3 mr-1" />Published</Badge>;
       case "generated":
-        return <Badge className="bg-primary text-primary-foreground"><Sparkles className="w-3 h-3 mr-1" />Prêt</Badge>;
+        return <Badge className="bg-primary text-primary-foreground"><Sparkles className="w-3 h-3 mr-1" />Ready</Badge>;
       case "generating":
         return <Badge variant="outline"><Loader2 className="w-3 h-3 mr-1 animate-spin" />En cours</Badge>;
       case "failed":
       case "error":
         return <Badge variant="destructive"><AlertCircle className="w-3 h-3 mr-1" />Échec</Badge>;
       default:
-        return <Badge variant="secondary"><Clock className="w-3 h-3 mr-1" />Planifié</Badge>;
+        return <Badge variant="secondary"><Clock className="w-3 h-3 mr-1" />Scheduled</Badge>;
     }
   };
 
@@ -589,12 +589,12 @@ const AEORank = () => {
               {generating ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Génération en cours...
+                  Generating...
                 </>
               ) : (
                 <>
                   <Sparkles className="w-4 h-4 mr-2" />
-                  Analyser & Générer
+                  Analyze & Generate
                 </>
               )}
             </Button>
@@ -613,7 +613,7 @@ const AEORank = () => {
               <div className="min-w-0">
                 <h3 className="font-semibold text-sm text-foreground mb-0.5">Qu'est-ce que l'AEO ?</h3>
                 <p className="text-xs text-muted-foreground">
-                  Optimisez votre contenu pour être cité par ChatGPT, Perplexity et Google AI.
+                  Optimize your content to be cited by ChatGPT, Perplexity and Google AI.
                 </p>
               </div>
             </div>
@@ -629,7 +629,7 @@ const AEORank = () => {
               Connectez d'abord votre Google My Business
             </p>
             <Button onClick={() => navigate("/businesses")} size="sm">
-              Ajouter un établissement
+              Add a business
             </Button>
           </Card>
         ) : (
@@ -813,10 +813,10 @@ const AEORank = () => {
                 {/* Legend */}
                 <div className="flex flex-wrap gap-4 mt-4 text-xs text-muted-foreground">
                   <div className="flex items-center gap-1">
-                    <Clock className="w-3 h-3" /> Planifié
+                    <Clock className="w-3 h-3" /> Scheduled
                   </div>
                   <div className="flex items-center gap-1">
-                    <Sparkles className="w-3 h-3 text-primary" /> Prêt
+                    <Sparkles className="w-3 h-3 text-primary" /> Ready
                   </div>
                   <div className="flex items-center gap-1">
                     <Check className="w-3 h-3 text-emerald-500" /> Published
@@ -829,9 +829,9 @@ const AEORank = () => {
                 {scheduledContent.length === 0 ? (
                   <Card className="p-5 text-center">
                     <HelpCircle className="w-8 h-8 mx-auto mb-2 text-muted-foreground/30" />
-                    <h3 className="text-sm font-medium text-foreground mb-1">Aucun Q&A planifié</h3>
+                    <h3 className="text-sm font-medium text-foreground mb-1">No scheduled Q&A</h3>
                     <p className="text-xs text-muted-foreground">
-                      Cliquez sur "Analyser & Planifier" pour générer votre planning 30 jours
+                      Click "Analyze & Plan" to generate your 30-day plan
                     </p>
                   </Card>
                 ) : (
@@ -892,7 +892,7 @@ const AEORank = () => {
                           </div>
                         ) : (
                           <p className="text-xs text-muted-foreground italic">
-                            Q&A non généré • {item.keyword_used}
+                            Q&A not generated • {item.keyword_used}
                           </p>
                         )}
                         {item.keyword_used && item.question && (

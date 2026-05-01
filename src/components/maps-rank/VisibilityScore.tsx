@@ -113,7 +113,7 @@ export const VisibilityScore = ({ points, keyword, previousAvgRank }: Visibility
         {keyword && (
           <div className="mt-3 pt-3 border-t border-primary/20">
             <div className="text-xs text-muted-foreground">
-              Mot-clé analysé : <span className="font-medium text-foreground">"{keyword}"</span>
+              Keyword analysé : <span className="font-medium text-foreground">"{keyword}"</span>
             </div>
           </div>
         )}

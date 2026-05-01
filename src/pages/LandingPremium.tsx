@@ -532,7 +532,7 @@ const LandingPremium = () => {
        <section className="py-16 sm:py-24 gradient-hero">
          <div className="container mx-auto px-5 text-center">
            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-card mb-4">
-             Prêt à passer devant vos concurrents ?
+             Ready à passer devant vos concurrents ?
            </h2>
            <p className="text-card/80 text-lg mb-8 max-w-xl mx-auto">
              Rejoignez +2000 entreprises qui utilisent Starlinko pour leur visibilité en ligne.

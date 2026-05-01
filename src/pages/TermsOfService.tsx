@@ -50,7 +50,7 @@ const TermsOfService = () => {
             <ul className="list-disc list-inside text-muted-foreground space-y-2">
               <li>Synchroniser et gérer automatiquement leurs fiches et avis</li>
               <li>Analyser les performances locales et statistiques</li>
-              <li>Générer des réponses et rapports automatisés</li>
+              <li>Generate des réponses et rapports automatisés</li>
               <li>Centraliser la gestion multi-établissements</li>
             </ul>
           </section>

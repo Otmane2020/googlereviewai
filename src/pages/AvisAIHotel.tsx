@@ -316,7 +316,7 @@ const AvisAIHotel = () => {
           <section className="py-16 sm:py-24 bg-blue-500 text-white">
             <div className="container mx-auto px-4 text-center">
               <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-                Prêt à améliorer votre réputation ?
+                Ready à améliorer votre réputation ?
               </h2>
               <p className="text-blue-100 mb-8 max-w-xl mx-auto">
                 Rejoignez les hôteliers qui répondent à 100% de leurs avis grâce à Starlinko.

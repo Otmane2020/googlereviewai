@@ -321,7 +321,7 @@ const AvisAIGuide = () => {
                     <div className="grid gap-4 mb-8">
                       {[
                         { icon: Globe, text: "Centraliser vos avis Google et réseaux sociaux" },
-                        { icon: Bot, text: "Générer des réponses personnalisées automatiquement" },
+                        { icon: Bot, text: "Generate des réponses personnalisées automatiquement" },
                         { icon: Zap, text: "Répondre à 100 avis en un clic" },
                         { icon: MessageSquare, text: "Conserver une tonalité humaine et professionnelle" },
                         { icon: CheckCircle2, text: "Garder le contrôle (validation ou modification possible)" },

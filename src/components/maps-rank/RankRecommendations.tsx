@@ -141,7 +141,7 @@ export const RankRecommendations = ({ points, keyword, businessId }: RankRecomme
         title: "Optimisez votre profil Google",
         description: `Ajoutez "${keyword}" dans votre description et vos posts pour améliorer votre classement.`,
         action: {
-          label: "Générer du contenu",
+          label: "Generate du contenu",
           path: "/seo-auto-post",
           params: { keyword, business_id: businessId },
         },

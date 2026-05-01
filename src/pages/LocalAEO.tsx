@@ -58,7 +58,7 @@ const LocalAEO = () => {
 
   const benefits = [
     "Apparaître dans les réponses de ChatGPT pour les recherches locales",
-    "Générer du contenu Q&A optimisé automatiquement",
+    "Generate du contenu Q&A optimisé automatiquement",
     "Améliorer votre référencement Google My Business",
     "Attirer plus de clients via les assistants IA",
     "Devancer vos concurrents sur ce nouveau canal",
@@ -279,7 +279,7 @@ const LocalAEO = () => {
                   </div>
                 </div>
                 <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-4">
-                  Prêt à Dominer l'IA Locale ?
+                  Ready à Dominer l'IA Locale ?
                 </h2>
                 <p className="text-muted-foreground mb-6 max-w-xl mx-auto">
                   Rejoignez les entreprises qui utilisent déjà Starlinko pour apparaître 

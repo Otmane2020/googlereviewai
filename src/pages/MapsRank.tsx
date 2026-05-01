@@ -167,7 +167,7 @@ const MapsRank = () => {
 
   const handleScan = async () => {
     if (!selectedBusiness || !keyword.trim()) {
-      toast.error("Select a business et entrez un mot-clé");
+      toast.error("Select a business and enter a keyword");
       return;
     }
 
@@ -225,7 +225,7 @@ const MapsRank = () => {
         ...result,
         points: processedPoints,
       });
-      toast.success(`Scan terminé ! ${result.points.length} points analysés`);
+      toast.success(`Scan complete! ${result.points.length} points analyzed`);
 
       // Refresh history
       const { data: newHistory } = await supabase
@@ -297,7 +297,7 @@ const MapsRank = () => {
         // Fetch previous rank for this keyword
         await fetchPreviousRank(scanData.keyword);
         
-        toast.success("Scan chargé depuis l'historique");
+        toast.success("Scan loaded from history");
       }
     } catch (error) {
       toast.error("Error lors du chargement du scan");
@@ -373,7 +373,7 @@ const MapsRank = () => {
               Maps Rank
             </h1>
             <p className="text-muted-foreground mt-1">
-              Analysez votre positionnement sur Google Maps par zone géographique
+              Analyze your Google Maps ranking by geographic zone
             </p>
           </div>
         </div>
@@ -393,7 +393,7 @@ const MapsRank = () => {
                 <Label htmlFor="business" className="text-xs">Établissement</Label>
                 <Select value={selectedBusiness} onValueChange={setSelectedBusiness}>
                   <SelectTrigger className="h-9">
-                    <SelectValue placeholder="Sélectionner" />
+                    <SelectValue placeholder="Select" />
                   </SelectTrigger>
                   <SelectContent>
                     {businesses.map((b) => (
@@ -414,7 +414,7 @@ const MapsRank = () => {
               {/* Keywords Section */}
               {selectedBusiness && user && (
                 <div className="space-y-2 pt-2 border-t">
-                  <Label className="text-xs">Mot-clé</Label>
+                  <Label className="text-xs">Keyword</Label>
                   <div className="relative mb-2">
                     <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
                     <Input
@@ -539,7 +539,7 @@ const MapsRank = () => {
                 </CardTitle>
                 {scanResult && (
                   <CardDescription className="text-xs">
-                    Cliquez sur un point pour voir les détails • Labels : N=Nord, S=Sud, E=Est, O=Ouest
+                    Click a point to see details • Labels: N=North, S=South, E=East, W=West
                   </CardDescription>
                 )}
               </CardHeader>
@@ -600,7 +600,7 @@ const MapsRank = () => {
                     </Badge>
                   </div>
                   <CardDescription className="text-xs">
-                    {selectedPoint.total_results} établissements dans cette zone
+                    {selectedPoint.total_results} businesses in this zone
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -656,7 +656,7 @@ const MapsRank = () => {
                     Top Concurrents
                   </CardTitle>
                   <CardDescription className="text-xs">
-                    Les plus présents sur votre zone
+                    Most present in your area
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -704,7 +704,7 @@ const MapsRank = () => {
             {scanResult && (
               <Card>
                 <CardContent className="p-4">
-                  <h4 className="text-xs font-medium mb-3 text-muted-foreground">Légende</h4>
+                  <h4 className="text-xs font-medium mb-3 text-muted-foreground">Legend</h4>
                   <div className="grid grid-cols-2 gap-2 text-xs">
                     <div className="flex items-center gap-2">
                       <div className="w-4 h-4 rounded-full bg-green-500" />
@@ -724,7 +724,7 @@ const MapsRank = () => {
                     </div>
                     <div className="flex items-center gap-2 col-span-2">
                       <div className="w-4 h-4 rounded-full bg-muted-foreground/50" />
-                      <span>Non trouvé</span>
+                      <span>Not found</span>
                     </div>
                   </div>
                   <div className="mt-3 pt-3 border-t">

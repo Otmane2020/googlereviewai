@@ -235,7 +235,7 @@ const LandingFacebook = () => {
             </div>
             
             <h2 className="text-2xl sm:text-3xl font-bold text-card mb-4">
-              Prêt à automatiser vos avis Google ?
+              Ready à automatiser vos avis Google ?
             </h2>
             <p className="text-card/80 mb-8">
               Commencez votre essai gratuit de 2 mois maintenant. Aucune carte bancaire requise.

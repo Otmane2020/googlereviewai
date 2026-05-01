@@ -541,7 +541,7 @@ const Reviews = () => {
                     ) : businesses.length === 0 ? (
                       <div className="text-center py-8 text-muted-foreground">
                         <Building2 className="w-10 h-10 mx-auto mb-2 opacity-50" />
-                        <p className="text-sm">No business trouvé</p>
+                        <p className="text-sm">No business found</p>
                         <p className="text-xs mt-1">Connect your Google account to sync your businesses</p>
                       </div>
                     ) : (
@@ -781,7 +781,7 @@ const Reviews = () => {
         {businesses.length === 0 ? (
           <div className="bg-card rounded-xl border border-border p-12 text-center">
             <Building2 className="w-12 h-12 mx-auto mb-4 text-muted-foreground/30" />
-            <h2 className="text-lg font-semibold text-foreground mb-2">No business sélectionné</h2>
+            <h2 className="text-lg font-semibold text-foreground mb-2">No business selected</h2>
             <p className="text-muted-foreground text-sm mb-6">
               Select a business to view your Google reviews.
             </p>
@@ -1026,7 +1026,7 @@ const Reviews = () => {
                             <div className="flex items-center gap-1.5 text-xs text-primary font-medium mb-1">
                               <Sparkles className="w-3 h-3" /> AI response
                               {review.needs_new_response && (
-                                <span className="ml-2 text-destructive font-semibold">(avis modifié)</span>
+                                <span className="ml-2 text-destructive font-semibold">(edited review)</span>
                               )}
                             </div>
                             <p className="text-sm text-muted-foreground line-clamp-2">{review.ai_response}</p>
@@ -1039,7 +1039,7 @@ const Reviews = () => {
                               Avis de {review.author}
                             </DialogTitle>
                             <DialogDescription className="sr-only">
-                              Détails de l'avis et réponse IA.
+                              Review details and AI response.
                             </DialogDescription>
                           </DialogHeader>
                           <div className="space-y-4 pt-2">
@@ -1094,7 +1094,7 @@ const Reviews = () => {
                       ) : !review.ai_response ? (
                         <Button size="sm" onClick={() => generateAIResponse(review.id)} disabled={generatingId === review.id}>
                           {generatingId === review.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-                          <span className="ml-1.5">Générer</span>
+                          <span className="ml-1.5">Generate</span>
                         </Button>
                       ) : !review.published_to_google ? (
                         <>

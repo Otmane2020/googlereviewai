@@ -435,7 +435,7 @@ export default function GmbPost() {
                         </div>
                         <p className="text-sm line-clamp-2">{post.summary}</p>
                         <p className="text-xs text-muted-foreground mt-1">
-                          {format(new Date(post.posted_at || post.created_at), "d MMM yyyy 'à' HH:mm", { locale: fr })}
+                          {format(new Date(post.posted_at || post.created_at), "d MMM yyyy 'at' HH:mm", { locale: fr })}
                         </p>
                       </div>
                     </div>

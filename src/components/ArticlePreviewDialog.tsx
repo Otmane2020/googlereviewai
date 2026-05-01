@@ -43,7 +43,7 @@ export const ArticlePreviewDialog = ({
         <DialogHeader>
           <div className="flex items-center gap-2 mb-2">
             <Badge variant={article.status === "published" ? "default" : article.status === "generated" ? "secondary" : "outline"}>
-              {article.status === "published" ? "Published" : article.status === "generated" ? "Prêt" : isGenerating ? "Generating..." : "Planifié"}
+              {article.status === "published" ? "Published" : article.status === "generated" ? "Ready" : isGenerating ? "Generating..." : "Scheduled"}
             </Badge>
             <span className="text-xs text-muted-foreground flex items-center gap-1">
               <Calendar className="w-3 h-3" />
@@ -55,7 +55,7 @@ export const ArticlePreviewDialog = ({
           </DialogTitle>
           {article.keyword_used && (
             <DialogDescription className="text-left">
-              Mot-clé: <span className="text-primary font-medium">{article.keyword_used}</span>
+              Keyword: <span className="text-primary font-medium">{article.keyword_used}</span>
             </DialogDescription>
           )}
         </DialogHeader>
@@ -94,7 +94,7 @@ export const ArticlePreviewDialog = ({
                         Q&A pas encore généré
                       </p>
                       <p className="text-xs text-muted-foreground mb-4">
-                        Cliquez sur "Générer" pour créer la question et réponse maintenant, ou attendez la génération automatique.
+                        Cliquez sur "Generate" pour créer la question et réponse maintenant, ou attendez la génération automatique.
                       </p>
                     </div>
                     {onGenerate && (
@@ -104,7 +104,7 @@ export const ArticlePreviewDialog = ({
                         disabled={generating}
                       >
                         <Sparkles className="w-4 h-4" />
-                        Générer maintenant
+                        Generate maintenant
                       </Button>
                     )}
                   </>

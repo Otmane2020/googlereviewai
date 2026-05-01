@@ -228,7 +228,7 @@ export const ReviewCard = ({
               ) : (
                 <Sparkles className="w-4 h-4" />
               )}
-              {isGenerating ? "Generating..." : "Générer (1 crédit)"}
+              {isGenerating ? "Generating..." : "Generate (1 crédit)"}
             </Button>
           ) : !review.published_to_google ? (
             <>

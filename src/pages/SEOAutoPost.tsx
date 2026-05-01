@@ -169,7 +169,7 @@ const SEOAutoPost = () => {
       if (addData?.success) {
         toast({
           title: "Module activated!",
-          description: "Le module SEO a été ajouté à votre abonnement.",
+          description: "The SEO module was added to your subscription.",
         });
         setIsSubscribed(true);
         checkSubscription();
@@ -293,8 +293,8 @@ const SEOAutoPost = () => {
       });
 
       toast({ 
-        title: "Plan généré !", 
-        description: `30 titres d'articles planifiés avec ${keywords.length} keywords detected` 
+        title: "Plan generated!", 
+        description: `30 article titles planned with ${keywords.length} keywords detected` 
       });
     } catch (error: any) {
       console.error("Error generating plan:", error);
@@ -343,7 +343,7 @@ const SEOAutoPost = () => {
         .eq("id", item.id);
 
       await fetchScheduledContent(selectedBusiness!.id);
-      toast({ title: "Article généré !" });
+      toast({ title: "Article generated!" });
     } catch (error: any) {
       await supabase
         .from("scheduled_content")
@@ -357,7 +357,7 @@ const SEOAutoPost = () => {
 
   const publishToGMB = async (item: ScheduledContent) => {
     if (!item.content) {
-      toast({ title: "Error", description: "L'article doit d'abord être généré", variant: "destructive" });
+      toast({ title: "Error", description: "The article must be generated first", variant: "destructive" });
       return;
     }
 
@@ -390,7 +390,7 @@ const SEOAutoPost = () => {
       await fetchScheduledContent(selectedBusiness!.id);
       toast({ 
         title: "Published to Google!", 
-        description: "L'article a été publié sur votre fiche Google My Business" 
+        description: "The article was published on your Google Business Profile" 
       });
     } catch (error: any) {
       console.error("Error publishing:", error);
@@ -420,8 +420,8 @@ const SEOAutoPost = () => {
       });
     } else {
       toast({
-        title: "Heure mise à jour",
-        description: `La publication automatique sera effectuée à ${hour.toString().padStart(2, "0")}:00 UTC`,
+        title: "Time updated",
+        description: `Auto-publishing will run at ${hour.toString().padStart(2, "0")}:00 UTC`,
       });
     }
   };
@@ -447,14 +447,14 @@ const SEOAutoPost = () => {
       case "published":
         return <Badge className="bg-secondary text-secondary-foreground"><Check className="w-3 h-3 mr-1" />Published</Badge>;
       case "generated":
-        return <Badge className="bg-primary text-primary-foreground"><Sparkles className="w-3 h-3 mr-1" />Prêt</Badge>;
+        return <Badge className="bg-primary text-primary-foreground"><Sparkles className="w-3 h-3 mr-1" />Ready</Badge>;
       case "generating":
         return <Badge variant="outline"><Loader2 className="w-3 h-3 mr-1 animate-spin" />En cours</Badge>;
       case "failed":
       case "error":
         return <Badge variant="destructive"><AlertCircle className="w-3 h-3 mr-1" />Échec</Badge>;
       default:
-        return <Badge variant="secondary"><Clock className="w-3 h-3 mr-1" />Planifié</Badge>;
+        return <Badge variant="secondary"><Clock className="w-3 h-3 mr-1" />Scheduled</Badge>;
     }
   };
 
@@ -523,7 +523,7 @@ const SEOAutoPost = () => {
               Connectez d'abord votre Google My Business
             </p>
             <Button onClick={() => navigate("/businesses")} size="sm">
-              Ajouter un établissement
+              Add a business
             </Button>
           </Card>
         ) : (
@@ -709,10 +709,10 @@ const SEOAutoPost = () => {
                 {/* Legend */}
                 <div className="flex flex-wrap gap-4 mt-4 text-xs text-muted-foreground">
                   <div className="flex items-center gap-1">
-                    <Clock className="w-3 h-3" /> Planifié
+                    <Clock className="w-3 h-3" /> Scheduled
                   </div>
                   <div className="flex items-center gap-1">
-                    <Sparkles className="w-3 h-3 text-primary" /> Prêt
+                    <Sparkles className="w-3 h-3 text-primary" /> Ready
                   </div>
                   <div className="flex items-center gap-1">
                     <Check className="w-3 h-3 text-emerald-500" /> Published
@@ -725,9 +725,9 @@ const SEOAutoPost = () => {
                 {scheduledContent.filter(c => c.content_type === "seo_article").length === 0 ? (
                   <Card className="p-5 text-center">
                     <FileText className="w-8 h-8 mx-auto mb-2 text-muted-foreground/30" />
-                    <h3 className="text-sm font-medium text-foreground mb-1">Aucun article planifié</h3>
+                    <h3 className="text-sm font-medium text-foreground mb-1">No scheduled article</h3>
                     <p className="text-xs text-muted-foreground">
-                      Cliquez sur "Analyser & Planifier" pour générer 30 titres d'articles
+                      Click "Analyze & Plan" to generate 30 article titles
                     </p>
                   </Card>
                 ) : (
