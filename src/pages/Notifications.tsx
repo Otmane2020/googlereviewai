@@ -20,7 +20,6 @@ import {
   BellOff
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
-import { fr } from "date-fns/locale";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -48,7 +47,7 @@ const getNotificationIcon = (type: string) => {
 };
 
 const getTimeAgo = (dateString: string) => {
-  return formatDistanceToNow(new Date(dateString), { addSuffix: false, locale: fr });
+  return formatDistanceToNow(new Date(dateString), { addSuffix: false });
 };
 
 const Notifications = () => {
@@ -161,7 +160,7 @@ const Notifications = () => {
               markAsRead(notification.id);
             }}>
               <CheckCheck className="w-4 h-4 mr-2" />
-              Marquer comme lu
+              Mark as read
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -194,7 +193,7 @@ const Notifications = () => {
                   className="text-primary text-sm"
                   onClick={markAllAsRead}
                 >
-                  Tout lire
+                  Mark all read
                 </Button>
               )}
             </div>
@@ -206,7 +205,7 @@ const Notifications = () => {
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
-                  placeholder="Rechercher..."
+                  placeholder="Search..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10 rounded-xl"
@@ -227,10 +226,10 @@ const Notifications = () => {
                 )}
                 <span className="text-sm text-muted-foreground">
                   {pushPermission === "granted" 
-                    ? "Notifications activées" 
+                    ? "Notifications enabled" 
                     : pushPermission === "denied"
-                      ? "Notifications bloquées"
-                      : "Notifications non configurées"
+                      ? "Notifications blocked"
+                      : "Notifications not set up"
                   }
                 </span>
               </div>
@@ -241,13 +240,13 @@ const Notifications = () => {
                   onClick={() => window.location.reload()}
                   className="rounded-lg text-xs"
                 >
-                  Recharger
+                  Reload
                 </Button>
               )}
             </div>
             {pushPermission === "denied" && (
               <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
-                Cliquez sur 🔒 dans la barre d'adresse → Notifications → Autoriser
+                Click 🔒 in the address bar → Notifications → Allow
               </p>
             )}
           </div>
@@ -259,9 +258,9 @@ const Notifications = () => {
             <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mb-4">
               <Bell className="w-10 h-10 text-muted-foreground/50" />
             </div>
-            <h2 className="text-lg font-semibold text-foreground mb-1">Aucune notification</h2>
+            <h2 className="text-lg font-semibold text-foreground mb-1">No notifications</h2>
             <p className="text-sm text-muted-foreground">
-              Vous recevrez des notifications ici pour les nouvelles activités
+              You'll receive notifications here for new activity
             </p>
           </div>
         ) : (
@@ -269,7 +268,7 @@ const Notifications = () => {
             {newNotifications.length > 0 && (
               <div>
                 <div className="px-4 py-3 bg-muted/30">
-                  <h2 className="text-base font-bold text-foreground">Nouveau</h2>
+                  <h2 className="text-base font-bold text-foreground">New</h2>
                 </div>
                 <div className="divide-y divide-border/50">
                   {newNotifications.map((notification) => (
@@ -282,7 +281,7 @@ const Notifications = () => {
             {olderNotifications.length > 0 && (
               <div>
                 <div className="px-4 py-3 bg-muted/30">
-                  <h2 className="text-base font-bold text-foreground">Plus tôt</h2>
+                  <h2 className="text-base font-bold text-foreground">Earlier</h2>
                 </div>
                 <div className="divide-y divide-border/50">
                   {olderNotifications.map((notification) => (

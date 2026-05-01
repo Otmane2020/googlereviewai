@@ -32,7 +32,7 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
-interface Profile {
+interface Profilee {
   id: string;
   email: string;
   full_name: string | null;
@@ -53,7 +53,7 @@ const SettingsPage = () => {
   const [pushPermission, setPushPermission] = useState<NotificationPermission | "unsupported">("default");
   const [isSubscribedToPush, setIsSubscribedToPush] = useState<boolean>(true);
   const [testingSending, setTestingSending] = useState(false);
-  const [profile, setProfile] = useState<Profile | null>(null);
+  const [profile, setProfilee] = useState<Profilee | null>(null);
   const [fullName, setFullName] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -78,7 +78,7 @@ const SettingsPage = () => {
     }
   }, []);
 
-  const fetchProfileData = async () => {
+  const fetchProfileeData = async () => {
     if (!user) return;
     
     const { data, error } = await supabase
@@ -90,7 +90,7 @@ const SettingsPage = () => {
     if (error) {
       console.error("Error fetching profile:", error);
     } else if (data) {
-      setProfile(data);
+      setProfilee(data);
       setFullName(data.full_name || "");
     }
     
@@ -103,10 +103,10 @@ const SettingsPage = () => {
       return;
     }
 
-    fetchProfileData();
+    fetchProfileeData();
   }, [user, session, navigate]);
 
-  const handleSaveProfile = async () => {
+  const handleSaveProfilee = async () => {
     if (!user) return;
     setSaving(true);
 
@@ -117,14 +117,14 @@ const SettingsPage = () => {
 
     if (error) {
       toast({
-        title: "Erreur",
-        description: "Impossible de sauvegarder le profil.",
+        title: "Error",
+        description: "Could not save profile.",
         variant: "destructive",
       });
     } else {
       toast({
-        title: "Profil mis à jour",
-        description: "Vos informations ont été sauvegardées.",
+        title: "Profilee updated",
+        description: "Your information has been saved.",
       });
     }
     setSaving(false);
@@ -152,10 +152,10 @@ const SettingsPage = () => {
     } catch (error: any) {
       console.error("Portal error:", error);
       toast({
-        title: "Erreur",
+        title: "Error",
         description: error.message === "No customer found" 
-          ? "Aucun abonnement trouvé. Souscrivez d'abord à un plan."
-          : "Impossible d'ouvrir le portail de gestion",
+          ? "No subscription found. Please subscribe to a plan first."
+          : "Could not open management portal",
         variant: "destructive",
       });
     } finally {
@@ -187,9 +187,9 @@ const SettingsPage = () => {
               <SettingsIcon className="w-6 h-6 text-primary" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-foreground">Paramètres</h1>
+              <h1 className="text-2xl font-bold text-foreground">Settings</h1>
               <p className="text-sm text-muted-foreground">
-                Gérez votre compte et vos préférences
+                Manage your account and preferences
               </p>
             </div>
           </div>
@@ -197,21 +197,21 @@ const SettingsPage = () => {
       </div>
 
       <main className="max-w-4xl mx-auto p-6 space-y-8">
-        {/* Profile section */}
+        {/* Profilee section */}
         <div className="bg-card rounded-2xl border border-border p-6">
           <div className="flex items-center gap-3 mb-6">
             <User className="w-5 h-5 text-primary" />
-            <h2 className="font-semibold text-foreground">Profil</h2>
+            <h2 className="font-semibold text-foreground">Profile</h2>
           </div>
           
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="fullName">Nom complet</Label>
+              <Label htmlFor="fullName">Full name</Label>
               <Input
                 id="fullName"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
-                placeholder="Votre nom"
+                placeholder="Your name"
               />
             </div>
             
@@ -228,13 +228,13 @@ const SettingsPage = () => {
               </div>
             </div>
 
-            <Button onClick={handleSaveProfile} disabled={saving} className="gap-2">
+            <Button onClick={handleSaveProfilee} disabled={saving} className="gap-2">
               {saving ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
               ) : (
                 <Save className="w-4 h-4" />
               )}
-              Sauvegarder
+              Save
             </Button>
           </div>
         </div>
@@ -243,7 +243,7 @@ const SettingsPage = () => {
         <div className="bg-card rounded-2xl border border-border p-6">
           <div className="flex items-center gap-3 mb-6">
             <CreditCard className="w-5 h-5 text-primary" />
-            <h2 className="font-semibold text-foreground">Abonnement</h2>
+            <h2 className="font-semibold text-foreground">Subscription</h2>
           </div>
 
           <div className="mb-6 p-4 rounded-xl bg-primary/5 border border-primary/20">
@@ -254,7 +254,7 @@ const SettingsPage = () => {
                   Plan {profile?.plan_name?.charAt(0).toUpperCase()}{profile?.plan_name?.slice(1) || "Gratuit"}
                 </span>
                 {profile?.subscription_status === "trial" && (
-                  <Badge variant="secondary">Essai gratuit</Badge>
+                  <Badge variant="secondary">Free trial</Badge>
                 )}
               </div>
               <Button 
@@ -268,22 +268,22 @@ const SettingsPage = () => {
                 ) : (
                   <CreditCard className="w-4 h-4" />
                 )}
-                Gérer l'abonnement
+                Manage subscription
               </Button>
             </div>
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
-                <p className="text-muted-foreground">Crédits disponibles</p>
+                <p className="text-muted-foreground">Available credits</p>
                 <p className="text-xl font-bold text-foreground">{profile?.credits ?? 0}</p>
               </div>
               <div>
-                <p className="text-muted-foreground">Établissements max</p>
+                <p className="text-muted-foreground">Max locations</p>
                 <p className="text-xl font-bold text-foreground">{profile?.max_businesses ?? 1}</p>
               </div>
             </div>
             {profile?.trial_end && profile?.subscription_status === "trial" && (
               <p className="text-xs text-muted-foreground mt-3">
-                Essai gratuit jusqu'au {new Date(profile.trial_end).toLocaleDateString("fr-FR")}
+                Free trial jusqu'au {new Date(profile.trial_end).toLocaleDateString("fr-FR")}
               </p>
             )}
           </div>
@@ -293,7 +293,7 @@ const SettingsPage = () => {
             className="w-full gap-2"
           >
             <Sparkles className="w-4 h-4" />
-            Voir tous les plans
+            See all plans
           </Button>
         </div>
 
@@ -303,7 +303,7 @@ const SettingsPage = () => {
             <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
               <Link2 className="w-4 h-4 text-primary" />
             </div>
-            <h2 className="font-semibold text-foreground text-sm">Intégrations</h2>
+            <h2 className="font-semibold text-foreground text-sm">Integrations</h2>
           </div>
           
           {/* Google My Business */}
@@ -322,11 +322,11 @@ const SettingsPage = () => {
                   <p className="font-medium text-foreground text-sm">Google My Business</p>
                   <Badge className="bg-green-500/10 text-green-600 border-green-500/20 text-[10px] px-2 py-0.5">
                     <Check className="w-2.5 h-2.5 mr-0.5" />
-                    Connecté
+                    Connected
                   </Badge>
                 </div>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Synchronisation automatique des avis et établissements
+                  Automatic sync of reviews and locations
                 </p>
               </div>
             </div>
@@ -337,7 +337,7 @@ const SettingsPage = () => {
         <div className="bg-card rounded-2xl border border-border p-6">
           <div className="flex items-center gap-3 mb-6">
             <Shield className="w-5 h-5 text-primary" />
-            <h2 className="font-semibold text-foreground">Sécurité</h2>
+            <h2 className="font-semibold text-foreground">Security</h2>
           </div>
           
           <div className="space-y-4">
@@ -347,8 +347,8 @@ const SettingsPage = () => {
               onClick={async () => {
                 if (!user?.email) {
                   toast({
-                    title: "Erreur",
-                    description: "Email non disponible",
+                    title: "Error",
+                    description: "Email not available",
                     variant: "destructive",
                   });
                   return;
@@ -360,19 +360,19 @@ const SettingsPage = () => {
                 
                 if (error) {
                   toast({
-                    title: "Erreur",
+                    title: "Error",
                     description: error.message,
                     variant: "destructive",
                   });
                 } else {
                   toast({
-                    title: "Email envoyé",
-                    description: "Vérifiez votre boîte mail pour réinitialiser votre mot de passe.",
+                    title: "Email sent",
+                    description: "Check your inbox to reset your password.",
                   });
                 }
               }}
             >
-              Changer le mot de passe
+              Change password
             </Button>
             <div className="flex gap-2">
               <Button
@@ -380,7 +380,7 @@ const SettingsPage = () => {
                 className="flex-1 justify-start text-destructive hover:text-destructive"
                 onClick={handleSignOut}
               >
-                Se déconnecter
+                Sign out
               </Button>
               <SupportDialog userEmail={profile?.email} />
             </div>
@@ -404,10 +404,10 @@ const SettingsPage = () => {
                   </div>
                   <div>
                     <p className="font-medium text-foreground text-sm">
-                      Notifications Push
+                      Push Notifications
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      Gérées par le système Android
+                      Managed by Android system
                     </p>
                   </div>
                 </div>
@@ -421,15 +421,15 @@ const SettingsPage = () => {
                       window.open("intent:#Intent;action=android.settings.APP_NOTIFICATION_SETTINGS;extra=android.provider.extra.APP_PACKAGE=com.world.fi.starlinko;end", "_system");
                     } catch {
                       toast({
-                        title: "Paramètres Android",
-                        description: "Ouvrez Paramètres > Applications > Starlinko > Notifications",
+                        title: "Android Settings",
+                        description: "Open Settings > Apps > Starlinko > Notifications",
                       });
                     }
                   }}
                   className="rounded-xl h-9 shrink-0 gap-1"
                 >
                   <ExternalLink className="w-3 h-3" />
-                  Paramètres
+                  Settings
                 </Button>
               </div>
             ) : (
@@ -447,16 +447,16 @@ const SettingsPage = () => {
                   </div>
                   <div>
                     <p className="font-medium text-foreground text-sm">
-                      Notifications Push
+                      Push Notifications
                     </p>
                     <p className="text-xs text-muted-foreground">
                       {pushPermission === "unsupported"
-                        ? "Non supporté par ce navigateur"
+                        ? "Not supported by this browser"
                         : pushPermission === "granted" && isSubscribedToPush
-                          ? "Activées - Vous recevez les alertes"
+                          ? "Enabled — You receive alerts"
                           : pushPermission === "denied"
-                            ? "Bloquées - Autorisez dans le navigateur"
-                            : "Désactivées"
+                            ? "Blocked — Allow in your browser"
+                            : "Disabled"
                       }
                     </p>
                   </div>
@@ -472,15 +472,15 @@ const SettingsPage = () => {
                         (window as any).PushAlertCo.unsubscribe();
                         setIsSubscribedToPush(false);
                         toast({
-                          title: "Notifications désactivées",
-                          description: "Vous ne recevrez plus de notifications push.",
+                          title: "Notifications disabled",
+                          description: "You will no longer receive push notifications.",
                         });
                       }
                     }}
                     className="rounded-xl h-9 shrink-0"
                   >
                     <BellOff className="w-4 h-4 mr-1" />
-                    Désactiver
+                    Disable
                   </Button>
                 )}
                 {/* Force reactivation button - always visible when push permission granted but SDK issues */}
@@ -529,14 +529,14 @@ const SettingsPage = () => {
                             }
                             setIsSubscribedToPush(true);
                             toast({
-                              title: "Notifications réactivées ✅",
-                              description: "Vous recevrez à nouveau les alertes.",
+                              title: "Notifications reactivated ✅",
+                              description: "You will receive alerts again.",
                             });
                           },
                           onFailure: () => {
                             toast({
-                              title: "Échec de réactivation",
-                              description: "Vérifiez les permissions du navigateur.",
+                              title: "Reactivation failed",
+                              description: "Check browser permissions.",
                               variant: "destructive",
                             });
                           }
@@ -546,7 +546,7 @@ const SettingsPage = () => {
                     className="rounded-xl h-9 shrink-0"
                   >
                     <BellRing className="w-4 h-4 mr-1" />
-                    Réactiver
+                    Reactivate
                   </Button>
                 )}
                 {pushPermission === "default" && (
@@ -561,16 +561,16 @@ const SettingsPage = () => {
                           setPushPermission("granted");
                           setIsSubscribedToPush(true);
                           toast({
-                            title: "Notifications activées",
-                            description: "Vous recevrez les alertes de nouveaux avis.",
+                            title: "Notifications enabled",
+                            description: "You will receive new review alerts.",
                           });
                         }]);
                         (window as any).pushalertbyiw.push(['onFailure', (result: any) => {
                           if (result?.status === -1) {
                             setPushPermission("denied");
                             toast({
-                              title: "Notifications bloquées",
-                              description: "Autorisez dans les paramètres du navigateur.",
+                              title: "Notifications blocked",
+                              description: "Allow in browser settings.",
                               variant: "destructive",
                             });
                           }
@@ -581,7 +581,7 @@ const SettingsPage = () => {
                     className="rounded-xl h-9 shrink-0"
                   >
                     <Bell className="w-4 h-4 mr-1" />
-                    Activer
+                    Enable
                   </Button>
                 )}
                 {pushPermission === "denied" && (
@@ -591,7 +591,7 @@ const SettingsPage = () => {
                     onClick={() => window.location.reload()}
                     className="rounded-xl h-9 shrink-0"
                   >
-                    Recharger
+                    Reload
                   </Button>
                 )}
                 </div>
@@ -605,10 +605,10 @@ const SettingsPage = () => {
                 </div>
                 <div>
                   <p className="font-medium text-foreground text-sm">
-                    Notifications Email
+                    Email Notifications
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    Configurez dans Paramètres IA
+                    Configure in AI Settings
                   </p>
                 </div>
               </div>
@@ -618,7 +618,7 @@ const SettingsPage = () => {
                 onClick={() => navigate("/ai-settings")}
                 className="rounded-xl h-9"
               >
-                Configurer
+                Configure
               </Button>
             </div>
 
@@ -641,12 +641,12 @@ const SettingsPage = () => {
                     </p>
                     <p className="text-xs text-muted-foreground">
                       {!webPush.isSupported
-                        ? "Non supporté par ce navigateur"
+                        ? "Not supported by this browser"
                         : webPush.isSubscribed
-                          ? "Activé - Push natif actif"
+                          ? "Enabled — Native push active"
                           : webPush.permission === "denied"
-                            ? "Bloqué par le navigateur"
-                            : "Inactif - Activez pour recevoir les alertes"
+                            ? "Blocked by browser"
+                            : "Inactive — Enable to receive alerts"
                       }
                     </p>
                   </div>
@@ -660,17 +660,17 @@ const SettingsPage = () => {
                       onClick={async () => {
                         const ok = await webPush.subscribe();
                         toast({
-                          title: ok ? "Web Push activé ✅" : "Échec de l'activation",
+                          title: ok ? "Web Push enabled ✅" : "Activation failed",
                           description: ok 
-                            ? "Vous recevrez les notifications push natives." 
-                            : "Vérifiez les permissions du navigateur.",
+                            ? "You will receive native push notifications." 
+                            : "Check browser permissions.",
                           variant: ok ? "default" : "destructive",
                         });
                       }}
                       className="rounded-xl h-9"
                     >
                       {webPush.loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Bell className="w-4 h-4 mr-1" />}
-                      Activer
+                      Enable
                     </Button>
                   )}
                   {webPush.isSubscribed && (
@@ -681,14 +681,14 @@ const SettingsPage = () => {
                       onClick={async () => {
                         await webPush.unsubscribe();
                         toast({
-                          title: "Web Push désactivé",
-                          description: "Notifications push natives désactivées.",
+                          title: "Web Push disabled",
+                          description: "Native push notifications disabled.",
                         });
                       }}
                       className="rounded-xl h-9"
                     >
                       <BellOff className="w-4 h-4 mr-1" />
-                      Désactiver
+                      Disable
                     </Button>
                   )}
                 </div>
@@ -698,7 +698,7 @@ const SettingsPage = () => {
               {webPush.isSubscribed && (
                 <div className="flex items-center justify-between pt-2 border-t border-border/50">
                   <p className="text-xs text-muted-foreground">
-                    Envoyez une notification de test pour vérifier
+                    Send a test notification to verify
                   </p>
                   <Button
                     variant="secondary"
@@ -709,17 +709,17 @@ const SettingsPage = () => {
                       const ok = await webPush.sendTestNotification();
                       setTestingSending(false);
                       toast({
-                        title: ok ? "Notification envoyée 🔔" : "Échec de l'envoi",
+                        title: ok ? "Notification sent 🔔" : "Send failed",
                         description: ok 
-                          ? "Vous devriez recevoir la notification dans quelques secondes." 
-                          : "Vérifiez votre souscription push.",
+                          ? "You should receive the notification within a few seconds." 
+                          : "Check your push subscription.",
                         variant: ok ? "default" : "destructive",
                       });
                     }}
                     className="rounded-xl h-9 gap-1"
                   >
                     {testingSending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-                    Tester
+                    Test
                   </Button>
                 </div>
               )}

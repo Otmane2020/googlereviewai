@@ -57,15 +57,15 @@ interface PendingReviewsStats {
 }
 
 const toneOptions = [
-  { value: "professional", label: "Professionnel", icon: Briefcase },
-  { value: "friendly", label: "Amical", icon: Smile },
-  { value: "humorous", label: "Humoristique", icon: Sun },
-  { value: "warm", label: "Chaleureux", icon: Heart },
+  { value: "professional", label: "Professional", icon: Briefcase },
+  { value: "friendly", label: "Friendly", icon: Smile },
+  { value: "humorous", label: "Humorous", icon: Sun },
+  { value: "warm", label: "Warm", icon: Heart },
 ];
 
 const lengthOptions = [
-  { value: "S", label: "Court", desc: "2-3" },
-  { value: "M", label: "Moyen", desc: "4-5" },
+  { value: "S", label: "Short", desc: "2-3" },
+  { value: "M", label: "Medium", desc: "4-5" },
   { value: "L", label: "Long", desc: "6+" },
 ];
 
@@ -97,8 +97,8 @@ const OldReviewsSection = ({
 
       if (!profile || profile.credits < creditsNeeded) {
         toast({
-          title: "Crédits insuffisants",
-          description: `Vous avez ${profile?.credits || 0} crédits. Il vous faut ${creditsNeeded} crédits pour traiter tous les anciens avis.`,
+          title: "Insufficient credits",
+          description: `You have ${profile?.credits || 0} credits. You need ${creditsNeeded} credits to process all old reviews.`,
           variant: "destructive",
         });
         setUpgradeOpen(true);
@@ -114,16 +114,16 @@ const OldReviewsSection = ({
       if (error) throw error;
 
       toast({
-        title: "Traitement lancé",
-        description: `Génération des réponses pour ${oldReviewsCount} anciens avis en cours...`,
+        title: "Processing started",
+        description: `Generating replies for ${oldReviewsCount} old reviews in progress...`,
       });
       
       onComplete();
     } catch (error) {
       console.error("Error generating old reviews:", error);
       toast({
-        title: "Erreur",
-        description: "Impossible de lancer le traitement des anciens avis.",
+        title: "Error",
+        description: "Could not start old reviews processing.",
         variant: "destructive",
       });
     } finally {
@@ -139,19 +139,19 @@ const OldReviewsSection = ({
             <History className="w-5 h-5 text-amber-600" />
           </div>
           <div className="flex-1">
-            <h3 className="font-semibold text-sm text-foreground">Anciens avis sans réponse</h3>
-            <p className="text-xs text-muted-foreground">Avis reçus avant l'activation de l'IA</p>
+            <h3 className="font-semibold text-sm text-foreground">Old reviews without reply</h3>
+            <p className="text-xs text-muted-foreground">Reviews received before AI was enabled</p>
           </div>
         </div>
         
         <div className="bg-background/50 rounded-xl p-3 mb-3">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-muted-foreground">Avis à traiter</span>
+            <span className="text-sm text-muted-foreground">Reviews to process</span>
             <span className="font-bold text-lg text-foreground">{oldReviewsCount}</span>
           </div>
           <div className="flex items-center justify-between">
             <span className="text-sm text-muted-foreground flex items-center gap-1">
-              <Coins className="w-3.5 h-3.5" /> Crédits nécessaires
+              <Coins className="w-3.5 h-3.5" /> Credits required
             </span>
             <span className="font-bold text-lg text-primary">{creditsNeeded}</span>
           </div>
@@ -165,12 +165,12 @@ const OldReviewsSection = ({
           {loading ? (
             <>
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              Traitement...
+              Processing...
             </>
           ) : (
             <>
               <Sparkles className="w-4 h-4 mr-2" />
-              Générer les réponses ({creditsNeeded} crédits)
+              Generate replies ({creditsNeeded} credits)
             </>
           )}
         </Button>
@@ -193,7 +193,7 @@ const AISettingsPage = () => {
     tone: "friendly",
     response_length: "M",
     include_signature: true,
-    signature: "L'équipe {business_name}",
+    signature: "The {business_name} team",
     custom_template: "",
     auto_reply_delay: 5,
     only_positive_reviews: true,
@@ -266,7 +266,7 @@ const AISettingsPage = () => {
           tone: settingsRes.data.tone ?? "friendly",
           response_length: settingsRes.data.response_length ?? "M",
           include_signature: settingsRes.data.include_signature ?? true,
-          signature: settingsRes.data.signature ?? "L'équipe {business_name}",
+          signature: settingsRes.data.signature ?? "The {business_name} team",
           custom_template: settingsRes.data.custom_template || "",
           auto_reply_delay: settingsRes.data.auto_reply_delay ?? 5,
           only_positive_reviews: settingsRes.data.only_positive_reviews ?? true,
@@ -337,14 +337,14 @@ const AISettingsPage = () => {
     if (error) {
       console.error("Error saving AI settings:", error);
       toast({
-        title: "Erreur",
-        description: "Impossible de sauvegarder les paramètres.",
+        title: "Error",
+        description: "Could not save settings.",
         variant: "destructive",
       });
     } else {
       toast({
-        title: "Enregistré",
-        description: "Vos paramètres IA ont été sauvegardés.",
+        title: "Saved",
+        description: "Your AI settings have been saved.",
       });
       setHasChanges(false);
       initialSettingsRef.current = settings;
@@ -379,8 +379,8 @@ const AISettingsPage = () => {
               <Sparkles className="w-5 h-5 text-primary-foreground" />
             </div>
             <div className="flex-1">
-              <h1 className="text-lg font-bold text-foreground">Paramètres IA</h1>
-              <p className="text-xs text-muted-foreground">Personnalisez vos réponses</p>
+              <h1 className="text-lg font-bold text-foreground">AI Settings</h1>
+              <p className="text-xs text-muted-foreground">Customize your replies</p>
             </div>
             <Button
               onClick={handleSave}
@@ -393,7 +393,7 @@ const AISettingsPage = () => {
               ) : (
                 <>
                   <Check className="w-4 h-4 mr-1" />
-                  Enregistrer
+                  Save
                 </>
               )}
             </Button>
@@ -417,10 +417,10 @@ const AISettingsPage = () => {
               </div>
               <div>
                 <h3 className={`font-semibold ${settings.enabled ? "text-white" : "text-foreground"}`}>
-                  Réponses IA
+                  AI Replies
                 </h3>
                 <p className={`text-sm ${settings.enabled ? "text-white/70" : "text-muted-foreground"}`}>
-                  {settings.enabled ? `Auto après ${settings.auto_reply_delay || 5} min` : "Désactivé"}
+                  {settings.enabled ? `Auto after ${settings.auto_reply_delay || 5} min` : "Disabled"}
                 </p>
               </div>
             </div>
@@ -435,11 +435,11 @@ const AISettingsPage = () => {
           )}
         </div>
 
-        {/* Tone Selection - Pill Style */}
+        {/* Tonee Selection - Pill Style */}
         <div className="bg-card rounded-2xl border border-border/50 p-4 shadow-sm">
           <div className="flex items-center gap-2 mb-4">
             <MessageSquare className="w-4 h-4 text-primary" />
-            <h3 className="font-medium text-sm text-foreground">Ton</h3>
+            <h3 className="font-medium text-sm text-foreground">Tone</h3>
           </div>
           <div className="grid grid-cols-2 gap-2">
             {toneOptions.map((option) => (
@@ -463,7 +463,7 @@ const AISettingsPage = () => {
         <div className="bg-card rounded-2xl border border-border/50 p-4 shadow-sm">
           <div className="flex items-center gap-2 mb-4">
             <MessageSquare className="w-4 h-4 text-primary" />
-            <h3 className="font-medium text-sm text-foreground">Longueur</h3>
+            <h3 className="font-medium text-sm text-foreground">Length</h3>
           </div>
           <div className="flex gap-2 p-1 bg-muted/50 rounded-xl">
             {lengthOptions.map((option) => (
@@ -477,7 +477,7 @@ const AISettingsPage = () => {
                 }`}
               >
                 <div className="text-sm font-medium">{option.label}</div>
-                <div className="text-[10px] opacity-70">{option.desc} phrases</div>
+                <div className="text-[10px] opacity-70">{option.desc} sentences</div>
               </button>
             ))}
           </div>
@@ -505,7 +505,7 @@ const AISettingsPage = () => {
               <Input
                 value={settings.signature}
                 onChange={(e) => updateSettings({ signature: e.target.value })}
-                placeholder="L'équipe {business_name}"
+                placeholder="The {business_name} team"
                 className="mt-3 rounded-xl bg-muted/50 border-0"
               />
             )}
@@ -518,7 +518,7 @@ const AISettingsPage = () => {
                 <div className="w-8 h-8 rounded-lg bg-orange-500/10 flex items-center justify-center">
                   <Clock className="w-4 h-4 text-orange-500" />
                 </div>
-                <span className="font-medium text-sm text-foreground">Délai réponse</span>
+                <span className="font-medium text-sm text-foreground">Reply delay</span>
               </div>
               <div className="flex items-center gap-2">
                 <Input
@@ -544,8 +544,8 @@ const AISettingsPage = () => {
                   <ThumbsUp className="w-4 h-4 text-green-500" />
                 </div>
                 <div>
-                  <span className="font-medium text-sm text-foreground">Avis positifs seulement</span>
-                  <p className="text-xs text-muted-foreground">Note ≥ 4 étoiles</p>
+                  <span className="font-medium text-sm text-foreground">Positive reviews only</span>
+                  <p className="text-xs text-muted-foreground">Rating ≥ 4 stars</p>
                 </div>
               </div>
               <Switch
@@ -563,10 +563,10 @@ const AISettingsPage = () => {
                   <AlertTriangle className="w-4 h-4 text-amber-500 mt-0.5 shrink-0" />
                   <div className="flex-1">
                     <p className="text-xs text-amber-700 dark:text-amber-400 font-medium">
-                      {negativeReviewsCount} avis négatif{negativeReviewsCount > 1 ? 's' : ''} à traiter
+                      {negativeReviewsCount} negative review{negativeReviewsCount > 1 ? 's' : ''} à traiter
                     </p>
                     <p className="text-xs text-muted-foreground mt-1">
-                      Coût estimé : <span className="font-semibold text-foreground">{negativeReviewsCount} crédit{negativeReviewsCount > 1 ? 's' : ''}</span>
+                      Estimated cost : <span className="font-semibold text-foreground">{negativeReviewsCount} credit{negativeReviewsCount > 1 ? 's' : ''}</span>
                     </p>
                     {userCredits < negativeReviewsCount && (
                       <Button
@@ -576,7 +576,7 @@ const AISettingsPage = () => {
                         className="mt-2 h-7 text-xs rounded-lg border-amber-500/30 text-amber-600 hover:bg-amber-500/10"
                       >
                         <Coins className="w-3 h-3 mr-1" />
-                        Acheter des crédits ({userCredits} disponibles)
+                        Buy credits ({userCredits} available)
                       </Button>
                     )}
                   </div>
@@ -591,7 +591,7 @@ const AISettingsPage = () => {
               <div className="w-8 h-8 rounded-lg bg-yellow-500/10 flex items-center justify-center">
                 <Star className="w-4 h-4 text-yellow-500" />
               </div>
-              <span className="font-medium text-sm text-foreground">Note minimum</span>
+              <span className="font-medium text-sm text-foreground">Minimum rating</span>
             </div>
             <div className="flex gap-2 pl-11">
               {[1, 2, 3, 4, 5].map((rating) => (
@@ -621,7 +621,7 @@ const AISettingsPage = () => {
                 </div>
                 <div>
                   <span className="font-medium text-sm text-foreground block">Auto-sync</span>
-                  <span className="text-xs text-muted-foreground">Importer les avis</span>
+                  <span className="text-xs text-muted-foreground">Import reviews</span>
                 </div>
               </div>
               <Switch
@@ -642,7 +642,7 @@ const AISettingsPage = () => {
                 </div>
                 <div>
                   <span className="font-medium text-sm text-foreground block">Auto-publish</span>
-                  <span className="text-xs text-muted-foreground">Vers Google</span>
+                  <span className="text-xs text-muted-foreground">To Google</span>
                 </div>
               </div>
               <Switch
@@ -656,7 +656,7 @@ const AISettingsPage = () => {
               <div className="mt-3 ml-11 bg-amber-500/10 rounded-xl p-3 flex items-start gap-2">
                 <Bell className="w-4 h-4 text-amber-600 mt-0.5 shrink-0" />
                 <p className="text-xs text-amber-700 dark:text-amber-400">
-                  Réponses publiées après {settings.auto_reply_delay} min
+                  Replies published after {settings.auto_reply_delay} min
                 </p>
               </div>
             )}
@@ -672,8 +672,8 @@ const AISettingsPage = () => {
                   <Clock className="w-4 h-4 text-indigo-500" />
                 </div>
                 <div>
-                  <span className="font-medium text-sm text-foreground block">Heure publication SEO/AEO</span>
-                  <span className="text-xs text-muted-foreground">Articles & Q&A automatiques</span>
+                  <span className="font-medium text-sm text-foreground block">SEO/AEO publish time</span>
+                  <span className="text-xs text-muted-foreground">Automatic articles & Q&A</span>
                 </div>
               </div>
               <div className="flex items-center gap-2">
@@ -702,8 +702,8 @@ const AISettingsPage = () => {
                   </svg>
                 </div>
                 <div>
-                  <span className="font-medium text-sm text-foreground block">Fuseau horaire</span>
-                  <span className="text-xs text-muted-foreground">Pour les publications automatiques</span>
+                  <span className="font-medium text-sm text-foreground block">Timezone</span>
+                  <span className="text-xs text-muted-foreground">For automated publishing</span>
                 </div>
               </div>
               <select
@@ -754,7 +754,7 @@ const AISettingsPage = () => {
             <div className="mt-3 ml-11 bg-indigo-500/10 rounded-xl p-3 flex items-start gap-2">
               <Sparkles className="w-4 h-4 text-indigo-600 mt-0.5 shrink-0" />
               <p className="text-xs text-indigo-700 dark:text-indigo-400">
-                Les contenus SEO/AEO seront publiés à {settings.publication_hour.toString().padStart(2, "0")}:00 heure locale ({settings.timezone.split('/')[1]?.replace('_', ' ') || settings.timezone})
+                SEO/AEO content will be published at {settings.publication_hour.toString().padStart(2, "0")}:00 local time ({settings.timezone.split('/')[1]?.replace('_', ' ') || settings.timezone})
               </p>
             </div>
           </div>
@@ -769,8 +769,8 @@ const AISettingsPage = () => {
                   <PenLine className="w-4 h-4 text-orange-500" />
                 </div>
                 <div>
-                  <span className="font-medium text-sm text-foreground block">Avis modifiés</span>
-                  <span className="text-xs text-muted-foreground">Régénérer réponse IA</span>
+                  <span className="font-medium text-sm text-foreground block">Edited reviews</span>
+                  <span className="text-xs text-muted-foreground">Regenerate AI reply</span>
                 </div>
               </div>
               <Switch
@@ -784,7 +784,7 @@ const AISettingsPage = () => {
               <div className="mt-3 ml-11 bg-orange-500/10 rounded-xl p-3 flex items-start gap-2">
                 <Sparkles className="w-4 h-4 text-orange-600 mt-0.5 shrink-0" />
                 <p className="text-xs text-orange-700 dark:text-orange-400">
-                  Une nouvelle réponse sera générée si le client modifie son avis
+                  A new reply will be generated if the customer edits their review
                 </p>
               </div>
             )}
@@ -800,8 +800,8 @@ const AISettingsPage = () => {
                   <Bell className="w-4 h-4 text-destructive" />
                 </div>
                 <div>
-                  <span className="font-medium text-sm text-foreground block">Notifications email</span>
-                  <span className="text-xs text-muted-foreground">Nouveaux avis</span>
+                  <span className="font-medium text-sm text-foreground block">Email notifications</span>
+                  <span className="text-xs text-muted-foreground">New reviews</span>
                 </div>
               </div>
               <Switch
@@ -820,12 +820,12 @@ const AISettingsPage = () => {
             <div className="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center">
               <MessageSquare className="w-4 h-4 text-indigo-500" />
             </div>
-            <h3 className="font-medium text-sm text-foreground">Instructions personnalisées</h3>
+            <h3 className="font-medium text-sm text-foreground">Custom instructions</h3>
           </div>
           <Textarea
             value={settings.custom_template}
             onChange={(e) => updateSettings({ custom_template: e.target.value })}
-            placeholder="Ajoutez des instructions pour l'IA..."
+            placeholder="Add instructions for the AI..."
             rows={3}
             className="rounded-xl bg-muted/50 border-0 resize-none text-sm"
           />
