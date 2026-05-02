@@ -452,7 +452,7 @@ const Dashboard = () => {
   }
 
   return (
-    <DashboardLayout title="Overview">
+    <>
       <div className="bg-gradient-to-b from-background to-muted/20">
         {/* Mobile-only header (desktop uses sidebar layout) */}
         <div className="md:hidden">
@@ -898,7 +898,7 @@ const Dashboard = () => {
             />
           )}
       </div>
-    </DashboardLayout>
+    </>
   );
 };
 
