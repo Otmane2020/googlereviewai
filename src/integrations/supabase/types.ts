@@ -738,6 +738,89 @@ export type Database = {
           },
         ]
       }
+      order_items: {
+        Row: {
+          created_at: string
+          id: string
+          metadata: Json | null
+          order_id: string
+          price: number
+          product_key: string | null
+          product_name: string
+          quantity: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          order_id: string
+          price: number
+          product_key?: string | null
+          product_name: string
+          quantity?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          order_id?: string
+          price?: number
+          product_key?: string | null
+          product_name?: string
+          quantity?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orders: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          customer_email: string
+          customer_name: string | null
+          id: string
+          metadata: Json | null
+          status: string
+          stripe_session_id: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string
+          customer_email: string
+          customer_name?: string | null
+          id?: string
+          metadata?: Json | null
+          status?: string
+          stripe_session_id?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          customer_email?: string
+          customer_name?: string | null
+          id?: string
+          metadata?: Json | null
+          status?: string
+          stripe_session_id?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
