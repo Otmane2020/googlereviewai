@@ -189,100 +189,53 @@ const Checkout = () => {
     }
   };
 
+  const [paymentData, setPaymentData] = useState<{
+    clientSecret: string;
+    publishableKey: string;
+    amount: number;
+  } | null>(null);
+
   const handleProceedToPayment = async () => {
     if (!user || items.length === 0) return;
 
     setIsProcessing(true);
     try {
-      // Check if user already has an active subscription
       const { data: profile } = await supabase
         .from("profiles")
-        .select("plan_name, subscription_status")
+        .select("email, full_name")
         .eq("id", user.id)
         .maybeSingle();
 
-      const hasActiveSubscription = profile?.subscription_status === "active" || profile?.subscription_status === "trialing";
-      
-      // Separate plan items from module items
-      const planItems = items.filter((item) => item.type === "plan");
-      const moduleItems = items.filter((item) => item.type === "module");
-      const creditItems = items.filter((item) => item.type === "credits");
-
-      // If user has active subscription and only adding modules (no new plan), use add-subscription-item
-      if (hasActiveSubscription && planItems.length === 0 && moduleItems.length > 0) {
-        console.log("[Checkout] User has active subscription, adding modules to existing subscription");
-        
-        // Add each module to existing subscription
-        for (const moduleItem of moduleItems) {
-          const { data, error } = await supabase.functions.invoke("add-subscription-item", {
-            body: {
-              priceKey: moduleItem.priceKey,
-              quantity: moduleItem.quantity,
-            },
-          });
-
-          if (error) throw error;
-          if (!data?.success) throw new Error(data?.error || "Failed to add module");
+      const { data, error } = await supabase.functions.invoke(
+        "create-payment-intent",
+        {
+          body: {
+            email: profile?.email,
+            items: items.map((item) => ({
+              name: item.name,
+              productKey: item.priceKey,
+              price: item.price,
+              quantity: item.quantity,
+            })),
+          },
         }
-
-        // Handle credit packs separately if any (one-time purchase)
-        if (creditItems.length > 0) {
-          const { data, error } = await supabase.functions.invoke("create-checkout", {
-            body: {
-              items: creditItems.map((item) => ({
-                priceKey: item.priceKey,
-                quantity: item.quantity,
-              })),
-              successUrl: `${window.location.origin}/dashboard?success=true`,
-              cancelUrl: `${window.location.origin}/checkout?canceled=true`,
-            },
-          });
-
-          if (error) throw error;
-          if (data?.url) {
-            clearCart();
-            window.location.href = data.url;
-            return;
-          }
-        }
-
-        // Track LinkedIn conversion
-        if (typeof window !== 'undefined' && (window as any).lintrk) {
-          (window as any).lintrk('track', { conversion_id: 21122002 });
-        }
-
-        toast.success("Modules ajoutés à votre abonnement !");
-        clearCart();
-        navigate("/dashboard?success=true");
-        return;
-      }
-
-      // Standard checkout flow for new subscriptions or plans
-      const cartItems = items.map((item) => ({
-        priceKey: item.priceKey,
-        quantity: item.quantity,
-      }));
-
-      const { data, error } = await supabase.functions.invoke("create-checkout", {
-        body: {
-          items: cartItems,
-          successUrl: `${window.location.origin}/dashboard?success=true`,
-          cancelUrl: `${window.location.origin}/checkout?canceled=true`,
-        },
-      });
+      );
 
       if (error) throw error;
-      if (data?.url) {
-        // Track LinkedIn conversion for purchase
-        if (typeof window !== 'undefined' && (window as any).lintrk) {
-          (window as any).lintrk('track', { conversion_id: 21122002 });
-        }
-        clearCart();
-        window.location.href = data.url;
+      if (!data?.clientSecret) throw new Error("Missing client secret");
+
+      setPaymentData({
+        clientSecret: data.clientSecret,
+        publishableKey: data.publishableKey,
+        amount: data.amount,
+      });
+
+      if (typeof window !== "undefined" && (window as any).lintrk) {
+        (window as any).lintrk("track", { conversion_id: 21122002 });
       }
     } catch (error) {
       console.error("Checkout error:", error);
-      toast.error("Error lors du paiement. Veuillez réessayer.");
+      toast.error("Payment error. Please try again.");
     } finally {
       setIsProcessing(false);
     }
