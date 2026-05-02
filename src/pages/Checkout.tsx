@@ -183,7 +183,7 @@ const Checkout = () => {
         type: "credits",
         priceKey: pack.priceKey,
         name: pack.name,
-        description: `${pack.credits} crédits IA`,
+        description: `${pack.credits} AI credits`,
         price: pack.price,
         quantity: 1,
         isRecurring: false,
