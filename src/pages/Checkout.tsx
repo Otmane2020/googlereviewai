@@ -261,11 +261,11 @@ const Checkout = () => {
             className="flex items-center gap-1 text-primary font-medium"
           >
             <ArrowLeft className="h-5 w-5" />
-            <span className="hidden sm:inline">Retour</span>
+            <span className="hidden sm:inline">Back</span>
           </button>
           <div className="flex items-center gap-2">
             <ShoppingCart className="h-5 w-5 text-primary" />
-            <span className="font-semibold">Panier</span>
+            <span className="font-semibold">Cart</span>
           </div>
           <div className="flex items-center gap-1 text-muted-foreground">
             <Lock className="h-4 w-4" />
@@ -278,9 +278,9 @@ const Checkout = () => {
         <div className="bg-card rounded-2xl p-4 shadow-sm">
           <div className="flex items-center justify-between">
             <div>
-              <p className="font-semibold text-sm">Facturation</p>
+              <p className="font-semibold text-sm">Billing</p>
               <p className="text-xs text-muted-foreground">
-                -20% en annuel
+                -20% on yearly
               </p>
             </div>
             <div className="flex items-center gap-2 bg-muted rounded-full p-1">
@@ -292,7 +292,7 @@ const Checkout = () => {
                     : "text-muted-foreground"
                 }`}
               >
-                Mensuel
+                Monthly
               </button>
               <button
                 onClick={() => handleToggleBilling(true)}
@@ -302,7 +302,7 @@ const Checkout = () => {
                     : "text-muted-foreground"
                 }`}
               >
-                Annuel
+                Yearly
                 <Badge variant="secondary" className="text-[10px] px-1.5 py-0 bg-secondary/20 text-secondary">
                   -20%
                 </Badge>
@@ -317,7 +317,7 @@ const Checkout = () => {
             <div className="px-4 py-2 bg-secondary/10 border-b border-border/50">
               <div className="flex items-center gap-2 text-xs text-secondary font-medium">
                 <Check className="h-3.5 w-3.5" />
-                Plan sélectionné
+                Selected plan
               </div>
             </div>
             <div className="p-4">
@@ -327,14 +327,14 @@ const Checkout = () => {
                   <p className="text-xs text-muted-foreground mt-0.5">{planItem.description}</p>
                 </div>
                 <div className="text-right">
-                  <span className="text-lg font-bold text-primary">{planItem.price}€</span>
-                  <span className="text-xs text-muted-foreground">/{billingCycle === "yearly" ? "an" : "mois"}</span>
+                  <span className="text-lg font-bold text-primary">${planItem.price}</span>
+                  <span className="text-xs text-muted-foreground">/{billingCycle === "yearly" ? "yr" : "mo"}</span>
                 </div>
               </div>
               {hasTrialPlan && (
                 <div className="mt-3 flex items-center gap-2 bg-secondary/10 text-secondary text-xs font-medium rounded-lg px-3 py-2">
                   <Gift className="h-4 w-4" />
-                  3 jours d'essai gratuit
+                  3-day free trial
                 </div>
               )}
             </div>
@@ -346,7 +346,7 @@ const Checkout = () => {
           <div className="px-4 py-3 border-b border-border/50">
             <div className="flex items-center gap-2">
               <Sparkles className="h-4 w-4 text-accent" />
-              <span className="font-semibold text-sm">Options recommandées</span>
+              <span className="font-semibold text-sm">Recommended add-ons</span>
             </div>
           </div>
           <div className="divide-y divide-border/50">
