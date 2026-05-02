@@ -26,12 +26,18 @@ const Auth = () => {
   const { signInWithGoogle, signIn, signUp, user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
 
-  // Helper function to check subscription and redirect accordingly
-  // PAYMENT FIRST: Always redirect to choose-plan if no valid subscription
-  // Google connection happens AFTER payment on the dashboard
-  const checkSubscriptionAndRedirect = async (_userId: string) => {
-    // App is now free - always redirect to dashboard
-    navigate("/dashboard", { replace: true });
+  // Helper function to check onboarding state and redirect
+  const checkSubscriptionAndRedirect = async (userId: string) => {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("onboarding_completed")
+      .eq("id", userId)
+      .maybeSingle();
+    if (!profile?.onboarding_completed) {
+      navigate("/onboarding", { replace: true });
+    } else {
+      navigate("/dashboard", { replace: true });
+    }
   };
 
   // Handle OAuth callback and regular auth redirect
