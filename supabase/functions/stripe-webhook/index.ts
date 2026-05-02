@@ -431,6 +431,37 @@ serve(async (req) => {
         }
         break;
       }
+
+      case "payment_intent.succeeded": {
+        const pi = event.data.object as Stripe.PaymentIntent;
+        console.log("[payment_intent.succeeded] Processing", pi.id);
+
+        const { data: order, error: orderErr } = await supabaseAdmin
+          .from("orders")
+          .update({ status: "paid", updated_at: new Date().toISOString() })
+          .eq("stripe_session_id", pi.id)
+          .select()
+          .maybeSingle();
+
+        if (orderErr) {
+          console.error("[payment_intent.succeeded] DB error:", orderErr);
+        } else if (!order) {
+          console.warn("[payment_intent.succeeded] No matching order for PI:", pi.id);
+        } else {
+          console.log(`[payment_intent.succeeded] ✅ Order ${order.id} marked as paid`);
+        }
+        break;
+      }
+
+      case "payment_intent.payment_failed": {
+        const pi = event.data.object as Stripe.PaymentIntent;
+        console.log("[payment_intent.payment_failed]", pi.id);
+        await supabaseAdmin
+          .from("orders")
+          .update({ status: "failed", updated_at: new Date().toISOString() })
+          .eq("stripe_session_id", pi.id);
+        break;
+      }
     }
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Unknown error";
