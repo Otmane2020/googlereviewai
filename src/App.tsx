@@ -47,6 +47,8 @@ import LandingPremium from "./pages/LandingPremium";
 import LandingFacebook from "./pages/LandingFacebook";
 import Calendar from "./pages/Calendar";
 import Onboarding from "./pages/Onboarding";
+import PaymentSuccess from "./pages/PaymentSuccess";
+import PaymentCanceled from "./pages/PaymentCanceled";
 import { DashboardLayout } from "./components/DashboardLayout";
 
 // Wraps a page with the persistent dashboard sidebar (desktop) + bottom nav (mobile)
@@ -167,6 +169,8 @@ const AppContent = () => {
               <Route path="/select-plan" element={<ChoosePlan />} />
               <Route path="/choose-plan" element={<ChoosePlan />} />
               <Route path="/checkout" element={<Checkout />} />
+              <Route path="/payment-success" element={<PaymentSuccess />} />
+              <Route path="/payment-canceled" element={<PaymentCanceled />} />
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/onboarding" element={<Onboarding />} />
               <Route path="/dashboard" element={<Shell><Dashboard /></Shell>} />
