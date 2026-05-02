@@ -65,7 +65,7 @@ export const InstallPrompt = () => {
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in">
         <div className="bg-card rounded-2xl shadow-2xl w-full max-w-sm p-5 animate-scale-in">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-bold text-lg">Installer sur iPhone</h3>
+            <h3 className="font-bold text-lg">Install on iPhone</h3>
             <button onClick={() => setShowIOSGuide(false)} className="p-1 rounded-lg hover:bg-muted">
               <X className="w-5 h-5" />
             </button>
@@ -75,23 +75,23 @@ export const InstallPrompt = () => {
             <li className="flex items-start gap-3">
               <span className="flex-shrink-0 w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold">1</span>
               <div className="flex items-center gap-2 pt-1">
-                Appuyez sur <Share className="h-5 w-5 text-primary" /> en bas de Safari
+                Tap <Share className="h-5 w-5 text-primary" /> at the bottom of Safari
               </div>
             </li>
             <li className="flex items-start gap-3">
               <span className="flex-shrink-0 w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold">2</span>
               <div className="flex items-center gap-2 pt-1">
-                Faites défiler et appuyez sur "Sur l'écran d'accueil"
+                Scroll down and tap "Add to Home Screen"
               </div>
             </li>
             <li className="flex items-start gap-3">
               <span className="flex-shrink-0 w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold">3</span>
-              <span className="pt-1">Confirmez en appuyant sur "Ajouter"</span>
+              <span className="pt-1">Confirm by tapping "Add"</span>
             </li>
           </ol>
 
           <Button variant="outline" onClick={() => setShowIOSGuide(false)} className="w-full">
-            J'ai compris
+            Got it
           </Button>
         </div>
       </div>
@@ -105,13 +105,13 @@ export const InstallPrompt = () => {
         <div className="flex items-center gap-3 min-w-0">
           <img 
             src="/icon-192x192.svg" 
-            alt="Starlinko" 
+            alt="Ranki" 
             className="w-9 h-9 rounded-xl flex-shrink-0 shadow-md" 
           />
           <div className="min-w-0">
-            <p className="font-semibold text-sm truncate">Installer Starlinko</p>
+            <p className="font-semibold text-sm truncate">Install Ranki</p>
             <p className="text-xs opacity-90 truncate">
-              {isIOS ? "Requis pour les notifications" : "Accès rapide + notifications"}
+              {isIOS ? "Required for notifications" : "Quick access + notifications"}
             </p>
           </div>
         </div>
@@ -130,14 +130,14 @@ export const InstallPrompt = () => {
             ) : (
               <>
                 <Download className="w-3.5 h-3.5 mr-1" />
-                Installer
+                Install
               </>
             )}
           </Button>
           <button 
             onClick={handleDismiss} 
             className="p-1.5 rounded-lg hover:bg-white/20 transition-colors"
-            aria-label="Fermer"
+            aria-label="Close"
           >
             <X className="w-4 h-4" />
           </button>

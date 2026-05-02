@@ -209,16 +209,16 @@ export const NotificationPrompt = () => {
             setIsAlreadySubscribed(true);
             setDismissed(true);
             toast({
-              title: "Notifications activées",
-              description: "Vous recevrez les alertes pour vos avis Google",
+              title: "Notifications enabled",
+              description: "You'll get alerts for your Google reviews",
             });
           },
           onFailure: () => {
             clearTimeout(safetyTimeout);
             setIsSubscribing(false);
             toast({
-              title: "Notifications non activées",
-              description: "Vous pouvez les activer plus tard dans les paramètres",
+              title: "Notifications not enabled",
+              description: "You can enable them later in settings",
               variant: "destructive",
             });
           }
@@ -238,8 +238,8 @@ export const NotificationPrompt = () => {
         if (result === "granted") {
           setDismissed(true);
           toast({
-            title: "Notifications activées",
-            description: "Vous recevrez les alertes pour vos avis Google",
+            title: "Notifications enabled",
+            description: "You'll get alerts for your Google reviews",
           });
         }
       } catch (error) {
@@ -270,9 +270,9 @@ export const NotificationPrompt = () => {
               <Settings className="w-6 h-6 text-destructive" />
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-sm mb-1">Notifications bloquées</h3>
+              <h3 className="font-semibold text-sm mb-1">Notifications blocked</h3>
               <p className="text-xs text-muted-foreground mb-3">
-                Cliquez sur 🔒 dans la barre d'adresse → Notifications → Autoriser
+                Click 🔒 in the address bar → Notifications → Allow
               </p>
               <div className="flex gap-2">
                 <Button 
@@ -281,7 +281,7 @@ export const NotificationPrompt = () => {
                   className="flex-1 h-9"
                   variant="outline"
                 >
-                  Recharger
+                  Reload
                 </Button>
                 <Button size="sm" variant="ghost" onClick={handleDismiss} className="h-9 px-3">
                   <X className="w-4 h-4" />
@@ -303,9 +303,9 @@ export const NotificationPrompt = () => {
             <Bell className="w-6 h-6 text-primary" />
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-sm mb-1">Activer les notifications</h3>
+            <h3 className="font-semibold text-sm mb-1">Enable notifications</h3>
             <p className="text-xs text-muted-foreground mb-3">
-              Recevez une alerte à chaque nouvel avis Google
+              Get an alert for every new Google review
             </p>
             <div className="flex gap-2">
               <Button 
@@ -315,7 +315,7 @@ export const NotificationPrompt = () => {
                 className="h-9 px-4"
                 disabled={isSubscribing}
               >
-                Plus tard
+                Later
               </Button>
               <Button 
                 size="sm" 
@@ -323,7 +323,7 @@ export const NotificationPrompt = () => {
                 className="flex-1 h-9"
                 disabled={isSubscribing}
               >
-                {isSubscribing ? "Activation..." : "Activer"}
+                {isSubscribing ? "Enabling..." : "Enable"}
               </Button>
             </div>
           </div>

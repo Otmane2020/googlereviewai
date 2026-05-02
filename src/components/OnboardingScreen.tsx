@@ -15,23 +15,23 @@ const GoogleIcon = ({ className = "w-5 h-5" }: { className?: string }) => (
 const steps = [
   {
     icon: Sparkles,
-    title: "Bienvenue sur Starlinko !",
-    subtitle: "Votre assistant IA pour dominer le marché local",
-    description: "Répondez automatiquement aux avis, générez du contenu SEO et apparaissez dans ChatGPT.",
+    title: "Welcome to Ranki!",
+    subtitle: "Your AI assistant to dominate the local market",
+    description: "Auto-reply to reviews, generate SEO content, and rank in ChatGPT.",
     color: "from-primary to-secondary"
   },
   {
     icon: MessageCircle,
-    title: "Réponses IA automatiques",
-    subtitle: "Répondez à 100 avis en 1 clic",
-    description: "Notre IA analyse chaque avis et génère des réponses personnalisées et professionnelles.",
+    title: "Automatic AI replies",
+    subtitle: "Reply to 100 reviews in 1 click",
+    description: "Our AI analyzes every review and generates personalized, professional replies.",
     color: "from-accent to-primary"
   },
   {
     icon: TrendingUp,
-    title: "SEO & Visibilité",
-    subtitle: "Dominez les recherches locales",
-    description: "Articles SEO générés automatiquement et optimisation pour ChatGPT et Perplexity.",
+    title: "SEO & Visibility",
+    subtitle: "Dominate local search",
+    description: "Auto-generated SEO articles and optimization for ChatGPT and Perplexity.",
     color: "from-secondary to-accent"
   }
 ];
@@ -67,7 +67,7 @@ export const OnboardingScreen = ({ onComplete }: OnboardingScreenProps) => {
       {/* Skip button */}
       <div className="absolute top-4 right-4 z-10">
         <Button variant="ghost" size="sm" onClick={handleSkip} className="text-muted-foreground">
-          Passer
+          Skip
         </Button>
       </div>
 
@@ -111,7 +111,7 @@ export const OnboardingScreen = ({ onComplete }: OnboardingScreenProps) => {
               onClick={handleGetStarted}
             >
               <GoogleIcon className="w-5 h-5" />
-              Connecter avec Google
+              Connect with Google
             </Button>
             <Button
               variant="outline"
@@ -119,7 +119,7 @@ export const OnboardingScreen = ({ onComplete }: OnboardingScreenProps) => {
               onClick={handleGetStarted}
             >
               <Sparkles className="w-5 h-5" />
-              Commencer l'aventure IA
+              Start the AI journey
               <ArrowRight className="w-4 h-4" />
             </Button>
           </div>
@@ -128,7 +128,7 @@ export const OnboardingScreen = ({ onComplete }: OnboardingScreenProps) => {
             className="w-full h-12 gap-2 text-base"
             onClick={handleNext}
           >
-            Continuer
+            Continue
             <ChevronRight className="w-5 h-5" />
           </Button>
         )}
