@@ -9,8 +9,11 @@ const corsHeaders = {
 
 // Price IDs mapping
 const PRICE_IDS: Record<string, string> = {
-  // Monthly plans
-  starter_monthly: "price_1SrHtCEfti9t9nN9L8Fytsni",
+  // USD plans (current pricing)
+  starter_monthly: "price_1TSa8oEfti9t9nN9RCi6cW8y",  // $9
+  growth_monthly: "price_1TSa8pEfti9t9nN9JHI4owg3",   // $29
+  agency_monthly: "price_1TSa8rEfti9t9nN9c1Cr3THW",   // $79
+  // Legacy EUR plans (kept for backwards compat)
   pro_monthly: "price_1SrHtDEfti9t9nN96yIPGiOo",
   business_monthly: "price_1SrHtEEfti9t9nN9mq7MrV3G",
   aeo_monthly: "price_1SsBcUEfti9t9nN9aqWMiw7Y",
@@ -61,6 +64,7 @@ const PER_BUSINESS_MODULES = ["aeo_monthly", "aeo_yearly", "seo_monthly", "seo_y
 // Subscription price keys (recurring)
 const SUBSCRIPTION_PRICE_KEYS = [
   "starter_monthly", "starter_yearly",
+  "growth_monthly", "agency_monthly",
   "pro_monthly", "pro_yearly",
   "business_monthly", "business_yearly",
   "aeo_monthly", "aeo_yearly",
@@ -261,7 +265,7 @@ serve(async (req) => {
       customer: customerId,
       line_items: lineItems,
       mode: checkoutMode,
-      locale: "fr",
+      locale: "en",
       allow_promotion_codes: true, // Enable promo codes in checkout
       success_url: successUrl || `${req.headers.get("origin")}/dashboard?success=true`,
       cancel_url: cancelUrl || `${req.headers.get("origin")}/checkout?canceled=true`,
