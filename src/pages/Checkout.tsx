@@ -23,6 +23,8 @@ import {
   CreditCard,
   ChevronRight,
 } from "lucide-react";
+import StripePaymentForm from "@/components/StripePaymentForm";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 // Available modules for upsell
 const AVAILABLE_MODULES = [
@@ -30,18 +32,18 @@ const AVAILABLE_MODULES = [
     priceKeyMonthly: "aeo_monthly",
     priceKeyYearly: "aeo_yearly",
     name: "ChatGPT Rank (AEO)",
-    description: "Soyez cité par ChatGPT & Perplexity",
+    description: "Get cited by ChatGPT & Perplexity",
     priceMonthly: 49,
     priceYearly: 39.2,
     icon: Zap,
-    badge: "83% des pros",
+    badge: "83% of pros",
     preChecked: true,
   },
   {
     priceKeyMonthly: "seo_monthly",
     priceKeyYearly: "seo_yearly",
     name: "SEO AutoPost",
-    description: "1 article SEO/jour auto-publié",
+    description: "1 SEO article/day auto-published",
     priceMonthly: 49,
     priceYearly: 39.2,
     icon: FileText,
@@ -52,8 +54,8 @@ const AVAILABLE_MODULES = [
 
 // Credit packs for upsell
 const CREDIT_PACKS = [
-  { priceKey: "credits_100", name: "100 crédits", price: 29, credits: 100 },
-  { priceKey: "credits_330", name: "330 crédits", price: 89, credits: 330, badge: "Populaire" },
+  { priceKey: "credits_100", name: "100 credits", price: 29, credits: 100 },
+  { priceKey: "credits_330", name: "330 credits", price: 89, credits: 330, badge: "Popular" },
 ];
 
 const Checkout = () => {
