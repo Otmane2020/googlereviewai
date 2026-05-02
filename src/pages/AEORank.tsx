@@ -499,7 +499,7 @@ const AEORank = () => {
       console.error("Error saving publication hour:", error);
       toast({
         title: "Error",
-        description: "Impossible de sauvegarder l'heure de publication",
+        description: "Could not save the publication hour",
         variant: "destructive"
       });
     } else {
@@ -533,10 +533,10 @@ const AEORank = () => {
       case "generated":
         return <Badge className="bg-primary text-primary-foreground"><Sparkles className="w-3 h-3 mr-1" />Ready</Badge>;
       case "generating":
-        return <Badge variant="outline"><Loader2 className="w-3 h-3 mr-1 animate-spin" />En cours</Badge>;
+        return <Badge variant="outline"><Loader2 className="w-3 h-3 mr-1 animate-spin" />In progress</Badge>;
       case "failed":
       case "error":
-        return <Badge variant="destructive"><AlertCircle className="w-3 h-3 mr-1" />Échec</Badge>;
+        return <Badge variant="destructive"><AlertCircle className="w-3 h-3 mr-1" />Failed</Badge>;
       default:
         return <Badge variant="secondary"><Clock className="w-3 h-3 mr-1" />Scheduled</Badge>;
     }
@@ -575,7 +575,7 @@ const AEORank = () => {
                 <Badge variant="secondary" className="text-[10px] px-1.5">AEO</Badge>
               </h1>
               <p className="text-xs text-muted-foreground">
-                Planning automatique Q&A 30 jours
+                30-day automatic QPlanning automatique Q&A 30 joursA planning
               </p>
             </div>
           </div>
@@ -762,7 +762,7 @@ const AEORank = () => {
                       </option>
                     ))}
                   </select>
-                  <Badge variant="secondary" className="text-[10px]">Quotidien</Badge>
+                  <Badge variant="secondary" className="text-[10px]">Daily</Badge>
                 </div>
               </div>
 

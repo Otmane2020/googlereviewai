@@ -415,7 +415,7 @@ const SEOAutoPost = () => {
       console.error("Error saving publication hour:", error);
       toast({
         title: "Error",
-        description: "Impossible de sauvegarder l'heure de publication",
+        description: "Could not save the publication hour",
         variant: "destructive"
       });
     } else {
@@ -449,10 +449,10 @@ const SEOAutoPost = () => {
       case "generated":
         return <Badge className="bg-primary text-primary-foreground"><Sparkles className="w-3 h-3 mr-1" />Ready</Badge>;
       case "generating":
-        return <Badge variant="outline"><Loader2 className="w-3 h-3 mr-1 animate-spin" />En cours</Badge>;
+        return <Badge variant="outline"><Loader2 className="w-3 h-3 mr-1 animate-spin" />In progress</Badge>;
       case "failed":
       case "error":
-        return <Badge variant="destructive"><AlertCircle className="w-3 h-3 mr-1" />Échec</Badge>;
+        return <Badge variant="destructive"><AlertCircle className="w-3 h-3 mr-1" />Failed</Badge>;
       default:
         return <Badge variant="secondary"><Clock className="w-3 h-3 mr-1" />Scheduled</Badge>;
     }
@@ -486,7 +486,7 @@ const SEOAutoPost = () => {
             <div className="min-w-0">
               <h1 className="text-lg font-bold text-foreground truncate">SEO & AEO AutoPost</h1>
               <p className="text-xs text-muted-foreground">
-                Planning automatique 30 jours
+                30-day automatic planning
               </p>
             </div>
           </div>
@@ -656,7 +656,7 @@ const SEOAutoPost = () => {
                       </option>
                     ))}
                   </select>
-                  <Badge variant="secondary" className="text-[10px]">Quotidien</Badge>
+                  <Badge variant="secondary" className="text-[10px]">Daily</Badge>
                 </div>
               </div>
 
