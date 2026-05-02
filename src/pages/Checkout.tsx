@@ -384,7 +384,7 @@ const Checkout = () => {
                       {/* Quantity selector */}
                       {isSelected && (
                         <div className="mt-2 flex items-center gap-2">
-                          <span className="text-xs text-muted-foreground">Établissements:</span>
+                          <span className="text-xs text-muted-foreground">Locations:</span>
                           <div className="flex items-center gap-1 bg-muted rounded-lg">
                             <button
                               className="p-1.5 hover:bg-muted-foreground/10 rounded-l-lg transition-colors"
@@ -417,8 +417,8 @@ const Checkout = () => {
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
                       <div className="text-right">
-                        <span className="font-semibold text-sm">+{price}€</span>
-                        <span className="text-[10px] text-muted-foreground block">/{billingCycle === "yearly" ? "an" : "mois"}</span>
+                        <span className="font-semibold text-sm">+${price}</span>
+                        <span className="text-[10px] text-muted-foreground block">/{billingCycle === "yearly" ? "yr" : "mo"}</span>
                       </div>
                       <Switch 
                         checked={isSelected} 
@@ -438,8 +438,8 @@ const Checkout = () => {
           <div className="px-4 py-3 border-b border-border/50">
             <div className="flex items-center gap-2">
               <CreditCard className="h-4 w-4 text-primary" />
-              <span className="font-semibold text-sm">Crédits bonus</span>
-              <Badge variant="outline" className="text-[10px] ml-auto">Unique</Badge>
+              <span className="font-semibold text-sm">Bonus credits</span>
+              <Badge variant="outline" className="text-[10px] ml-auto">One-time</Badge>
             </div>
           </div>
           <div className="p-3 grid grid-cols-2 gap-2">
@@ -461,7 +461,7 @@ const Checkout = () => {
                       <Badge variant="secondary" className="text-[9px] px-1 py-0">{pack.badge}</Badge>
                     )}
                   </div>
-                  <span className="font-bold text-primary">{pack.price}€</span>
+                  <span className="font-bold text-primary">${pack.price}</span>
                 </button>
               );
             })}
@@ -470,7 +470,7 @@ const Checkout = () => {
 
         {/* Cart Summary - Mobile */}
         <div className="bg-card rounded-2xl p-4 shadow-sm">
-          <h3 className="font-semibold text-sm mb-3">Récapitulatif</h3>
+          <h3 className="font-semibold text-sm mb-3">Summary</h3>
           <div className="space-y-2">
             {items.map((item) => (
               <div key={item.id} className="flex items-center justify-between text-sm">
@@ -481,7 +481,7 @@ const Checkout = () => {
                   )}
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
-                  <span className="font-medium">{(item.price * item.quantity).toFixed(2)}€</span>
+                  <span className="font-medium">${(item.price * item.quantity).toFixed(2)}</span>
                   {item.type !== "plan" && (
                     <button
                       onClick={() => removeItem(item.id)}
@@ -504,21 +504,21 @@ const Checkout = () => {
           {hasTrialPlan && (
             <div className="flex items-center justify-center gap-2 text-secondary text-xs font-medium mb-3">
               <Gift className="h-4 w-4" />
-              <span>🎁 Essai gratuit 3 jours inclus</span>
+              <span>3-day free trial included</span>
             </div>
           )}
           
           {/* Pricing Summary */}
           <div className="flex items-end justify-between mb-3">
             <div>
-              <p className="text-xs text-muted-foreground">Total aujourd'hui</p>
+              <p className="text-xs text-muted-foreground">Total today</p>
               <p className="text-2xl font-bold">
-                {hasTrialPlan ? "0" : totalToday.toFixed(2)}€
+                ${hasTrialPlan ? "0" : totalToday.toFixed(2)}
               </p>
             </div>
             {totalRecurring > 0 && (
               <p className="text-sm text-muted-foreground">
-                Puis {totalRecurring.toFixed(2)}€/{billingCycle === "yearly" ? "an" : "mois"}
+                Then ${totalRecurring.toFixed(2)}/{billingCycle === "yearly" ? "yr" : "mo"}
               </p>
             )}
           </div>
@@ -535,17 +535,35 @@ const Checkout = () => {
             ) : (
               <>
                 <Lock className="mr-2 h-4 w-4" />
-                Continuer vers le paiement
+                Continue to payment
                 <ChevronRight className="ml-2 h-4 w-4" />
               </>
             )}
           </Button>
           
           <p className="text-[10px] text-center text-muted-foreground mt-2">
-           🔒 Paiement sécurisé Stripe · Annuler à tout moment
+            Secure payment by Stripe · Cancel anytime
           </p>
         </div>
       </div>
+
+      {/* Embedded Stripe Payment Dialog */}
+      <Dialog open={!!paymentData} onOpenChange={(o) => !o && setPaymentData(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Complete payment</DialogTitle>
+          </DialogHeader>
+          {paymentData && user?.email && (
+            <StripePaymentForm
+              clientSecret={paymentData.clientSecret}
+              publishableKey={paymentData.publishableKey}
+              amount={paymentData.amount}
+              email={user.email}
+              returnUrl={`${window.location.origin}/payment-success`}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
