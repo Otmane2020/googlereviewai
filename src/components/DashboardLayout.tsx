@@ -28,7 +28,7 @@ import {
   CreditCard,
   LogOut,
   HelpCircle,
-  PlusCircle,
+  CalendarDays,
 } from "lucide-react";
 import { RankiLogo } from "@/components/StarlinkoLogo";
 import { useAuth } from "@/contexts/AuthContext";
@@ -46,6 +46,7 @@ const productNav = [
   { label: "Maps Rank", href: "/maps-rank", icon: MapPin },
   { label: "Reviews", href: "/reviews", icon: Star },
   { label: "SEO Autopilot", href: "/seo-autopost", icon: Search },
+  { label: "Calendar", href: "/calendar", icon: CalendarDays },
   { label: "Locations", href: "/businesses", icon: Building2 },
 ];
 
