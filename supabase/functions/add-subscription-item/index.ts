@@ -71,7 +71,15 @@ serve(async (req) => {
     });
 
     if (customers.data.length === 0) {
-      throw new Error("No Stripe customer found. Please subscribe to a plan first.");
+      console.log("[add-subscription-item] No Stripe customer, requires checkout");
+      return new Response(JSON.stringify({
+        success: false,
+        requiresCheckout: true,
+        reason: "no_customer",
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      });
     }
 
     const customerId = customers.data[0].id;
@@ -93,7 +101,15 @@ serve(async (req) => {
     const activeSubscription = subscriptions.data[0] || trialingSubscriptions.data[0];
 
     if (!activeSubscription) {
-      throw new Error("No active subscription found. Please subscribe to a plan first.");
+      console.log("[add-subscription-item] No active subscription, requires checkout");
+      return new Response(JSON.stringify({
+        success: false,
+        requiresCheckout: true,
+        reason: "no_subscription",
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      });
     }
 
     console.log(`[add-subscription-item] Found subscription: ${activeSubscription.id}, status: ${activeSubscription.status}`);
