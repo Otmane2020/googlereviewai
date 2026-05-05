@@ -44,7 +44,7 @@ const CTA_TYPES = [
   { value: "BOOK", label: "Book" },
   { value: "ORDER", label: "Commander" },
   { value: "SHOP", label: "Acheter" },
-  { value: "SIGN_UP", label: "S'inscrire" },
+  { value: "SIGN_UP", label: "Sign up" },
   { value: "CALL", label: "Appeler" },
 ];
 
@@ -147,7 +147,7 @@ export default function GmbPost() {
 
       if (data?.success) {
         toast.success("Published successfully!", {
-          description: "Votre post est maintenant visible sur Google Business Profile",
+          description: "Your post is now live on your Google Business Profile",
           action: {
             label: "Voir",
             onClick: () => window.open("https://business.google.com", "_blank"),
@@ -230,7 +230,7 @@ export default function GmbPost() {
         {businesses.length > 1 && (
           <Card>
             <CardContent className="pt-4">
-              <Label className="text-sm font-medium mb-2 block">Établissement</Label>
+              <Label className="text-sm font-medium mb-2 block">Location</Label>
               <Select value={selectedBusinessId} onValueChange={setSelectedBusinessId}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select a business" />
@@ -269,7 +269,7 @@ export default function GmbPost() {
                 <div>
                   <p className="font-medium text-amber-700">No business</p>
                   <p className="text-sm text-muted-foreground mt-1">
-                    Connectez votre compte Google pour publier des posts.
+                    Connect your Google account to publish posts.
                   </p>
                   <Button 
                     variant="outline" 

@@ -29,7 +29,7 @@ const PasswordAuth = () => {
         if (error) {
           toast.error(error.message || "Error de connexion");
         } else {
-          toast.success("Connexion réussie !");
+          toast.success("Signed in successfully!");
           navigate("/dashboard");
         }
       } else {
@@ -42,7 +42,7 @@ const PasswordAuth = () => {
         if (error) {
           toast.error(error.message || "Error d'inscription");
         } else {
-          toast.success("Inscription réussie ! Vérifiez votre email.");
+          toast.success("Sign up réussie ! Vérifiez votre email.");
           setIsLogin(true);
         }
       }
@@ -66,10 +66,10 @@ const PasswordAuth = () => {
             >
               <ArrowLeft className="h-4 w-4" />
             </Button>
-            <span className="text-sm text-muted-foreground">Retour</span>
+            <span className="text-sm text-muted-foreground">Back</span>
           </div>
           <CardTitle className="text-2xl font-bold">
-            {isLogin ? "Connexion" : "Inscription"}
+            {isLogin ? "Connexion" : "Sign up"}
           </CardTitle>
           <CardDescription>
             {isLogin 
@@ -140,7 +140,7 @@ const PasswordAuth = () => {
             </div>
 
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Chargement..." : isLogin ? "Se connecter" : "S'inscrire"}
+              {loading ? "Loading..." : isLogin ? "Sign in" : "Sign up"}
             </Button>
           </form>
 
@@ -151,8 +151,8 @@ const PasswordAuth = () => {
               className="text-sm text-primary hover:underline"
             >
               {isLogin 
-                ? "Pas encore de compte ? S'inscrire" 
-                : "Déjà un compte ? Se connecter"}
+                ? "Pas encore de compte ? Sign up" 
+                : "Déjà un compte ? Sign in"}
             </button>
           </div>
 

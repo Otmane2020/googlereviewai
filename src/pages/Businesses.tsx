@@ -335,7 +335,7 @@ const BusinessesPage = () => {
       console.error("Error analyzing business:", error);
       toast({
         title: "Error",
-        description: "Impossible d'analyser le site web.",
+        description: "Unable to analyze the website.",
         variant: "destructive",
       });
     } finally {
@@ -555,7 +555,7 @@ const BusinessesPage = () => {
                             }}
                           >
                             <Edit className="w-4 h-4" />
-                            Modifier
+                            Edit
                           </Button>
                           <Button 
                             className="flex-1 gap-2 bg-primary hover:bg-primary/90 text-primary-foreground"
@@ -717,7 +717,7 @@ const BusinessesPage = () => {
                                 console.error('Error analyzing:', err);
                                 toast({
                                   title: "Error",
-                                  description: "Impossible d'analyser le site",
+                                  description: "Unable to analyze the site",
                                   variant: "destructive"
                                 });
                               } finally {
@@ -942,7 +942,7 @@ const BusinessesPage = () => {
               className="w-full"
             >
               {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-              Enregistrer
+              Save
             </Button>
           </div>
         </DialogContent>

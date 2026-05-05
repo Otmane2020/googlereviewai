@@ -105,7 +105,7 @@ const ResetPassword = () => {
         setIsSuccess(true);
         toast({
           title: "Mot de passe modifié !",
-          description: "Vous pouvez maintenant vous connecter.",
+          description: "You can now sign in.",
         });
       }
     } catch (error) {
@@ -194,7 +194,7 @@ const ResetPassword = () => {
 
             <Button type="button" variant="outline" className="w-full" onClick={() => navigate("/auth")}
             >
-              Retour à la connexion
+              Back to sign in
             </Button>
           </form>
         </div>
@@ -216,7 +216,7 @@ const ResetPassword = () => {
             </p>
           </div>
           <Button onClick={() => navigate("/auth")} className="w-full">
-            Se connecter
+            Sign in
           </Button>
         </div>
       </div>
@@ -295,7 +295,7 @@ const ResetPassword = () => {
             className="flex items-center justify-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
-            Retour à la connexion
+            Back to sign in
           </Link>
         </form>
       </div>

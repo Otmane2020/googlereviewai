@@ -173,7 +173,7 @@ const MapsRank = () => {
 
     const business = businesses.find(b => b.id === selectedBusiness);
     if (!business?.google_place_id) {
-      toast.error("This business isn't connected to Google. Reconnectez-le dans Établissements.");
+      toast.error("This business isn't connected to Google. Reconnect it from Locations.");
       return;
     }
 
@@ -390,7 +390,7 @@ const MapsRank = () => {
             <CardContent className="space-y-4">
               {/* Business selector */}
               <div className="space-y-2">
-                <Label htmlFor="business" className="text-xs">Établissement</Label>
+                <Label htmlFor="business" className="text-xs">Location</Label>
                 <Select value={selectedBusiness} onValueChange={setSelectedBusiness}>
                   <SelectTrigger className="h-9">
                     <SelectValue placeholder="Select" />

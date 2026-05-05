@@ -183,7 +183,7 @@ export const SelectBusinessesDialog = ({
             </Badge>
             <div className="flex gap-2">
               <Button variant="outline" onClick={() => onOpenChange(false)}>
-                Annuler
+                Cancel
               </Button>
               <Button onClick={handleSave} disabled={saving || selected.size === 0}>
                 {saving ? (

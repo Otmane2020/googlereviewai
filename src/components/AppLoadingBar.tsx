@@ -5,7 +5,7 @@ interface AppLoadingBarProps {
   message?: string;
 }
 
-export const AppLoadingBar = ({ message = "Chargement..." }: AppLoadingBarProps) => {
+export const AppLoadingBar = ({ message = "Loading..." }: AppLoadingBarProps) => {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {

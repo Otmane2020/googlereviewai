@@ -50,7 +50,7 @@ export const ConnectGMBDialog = ({ open, onOpenChange }: ConnectGMBDialogProps) 
             Connecter Google Business
           </DialogTitle>
           <DialogDescription>
-            Connectez votre compte Google pour synchroniser automatiquement vos avis
+            Connect your Google account to sync your reviews automatically
             and publish AI responses directly to Google.
           </DialogDescription>
         </DialogHeader>
@@ -75,7 +75,7 @@ export const ConnectGMBDialog = ({ open, onOpenChange }: ConnectGMBDialogProps) 
             {isConnecting ? (
               <>
                 <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                Connexion en cours...
+                Signing in...
               </>
             ) : (
               <>

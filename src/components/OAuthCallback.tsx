@@ -47,7 +47,7 @@ export const OAuthCallback = ({ children }: { children: React.ReactNode }) => {
             });
           } else {
             toast({
-              title: "Connexion réussie",
+              title: "Signed in",
               description: "Votre compte Google Business est connecté pour la synchronisation automatique.",
             });
             
@@ -112,7 +112,7 @@ export const OAuthCallback = ({ children }: { children: React.ReactNode }) => {
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Connexion Google en cours...</p>
+          <p className="text-muted-foreground">Google sign-in in progress...</p>
         </div>
       </div>
     );

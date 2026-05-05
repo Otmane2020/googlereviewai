@@ -46,7 +46,7 @@ export const AutoResponseToggle = () => {
       setEnabled(!newValue);
       toast({
         title: "Error",
-        description: "Impossible de modifier le paramètre.",
+        description: "Unable to update the setting.",
         variant: "destructive",
       });
     } else {
@@ -64,7 +64,7 @@ export const AutoResponseToggle = () => {
     return (
       <div className="flex items-center gap-3 px-4 py-2 bg-muted/50 rounded-lg">
         <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
-        <span className="text-sm text-muted-foreground">Chargement...</span>
+        <span className="text-sm text-muted-foreground">Loading...</span>
       </div>
     );
   }

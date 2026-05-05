@@ -50,7 +50,7 @@ export function GmbInsightsCard({ userId }: GmbInsightsCardProps) {
       }
     } catch (e) {
       console.error("[GmbInsights] Error:", e);
-      setError("Impossible de charger les statistiques");
+      setError("Unable to load stats");
     } finally {
       setLoading(false);
     }

@@ -77,7 +77,7 @@ const TermsOfService = () => {
             <h2 className="text-xl font-semibold text-foreground mb-4">3. Utilisation acceptable</h2>
             <h3 className="text-lg font-medium text-foreground mb-3">Utilisations interdites</h3>
             <ul className="list-disc list-inside text-muted-foreground space-y-2">
-              <li>Génération de faux avis ou manipulation de notations Google.</li>
+              <li>Generation of fake reviews or manipulation of Google ratings.</li>
               <li>Usage du service à des fins illégales, frauduleuses ou diffamatoires.</li>
               <li>Partage d'accès non autorisé ou revente du service.</li>
               <li>Tentative de contournement des restrictions de sécurité.</li>

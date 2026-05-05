@@ -100,7 +100,7 @@ const Install = () => {
           </CardHeader>
           <CardContent>
             <p className="text-muted-foreground mb-4">
-              Vous pouvez maintenant lancer l'application depuis votre écran d'accueil.
+              You can now launch the app from your home screen.
             </p>
             <Button onClick={() => navigate("/dashboard")} className="w-full">
               Continuer sur le web
@@ -114,7 +114,7 @@ const Install = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-background to-secondary/5 p-4 safe-area-insets">
       <Helmet>
-        <title>Installer Starlinko | Application PWA Avis Google</title>
+        <title>Install Ranki | Google Reviews PWA</title>
         <meta 
           name="description" 
           content="Installez l'application Starlinko sur votre téléphone. Accédez à vos avis Google depuis votre écran d'accueil, même hors ligne." 
@@ -122,7 +122,7 @@ const Install = () => {
         <meta name="keywords" content="installer starlinko, application avis google, PWA, mobile app" />
         <link rel="canonical" href="https://starlinko.app/install" />
         
-        <meta property="og:title" content="Installer Starlinko - App Avis Google" />
+        <meta property="og:title" content="Install Ranki - Google Reviews app" />
         <meta property="og:description" content="Installez l'app Starlinko pour gérer vos avis Google partout." />
         <meta property="og:url" content="https://starlinko.app/install" />
         <meta property="og:type" content="website" />
@@ -211,7 +211,7 @@ const Install = () => {
           )}
 
           <Button variant="outline" onClick={() => navigate("/")} className="w-full">
-            Retour à l'accueil
+            Back to home
           </Button>
         </CardContent>
       </Card>

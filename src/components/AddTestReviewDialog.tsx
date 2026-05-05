@@ -92,7 +92,7 @@ export const AddTestReviewDialog = ({
       if (error) throw error;
 
       toast({
-        title: "Avis ajouté !",
+        title: "Review added!",
         description: "L'avis de test a été créé avec succès.",
       });
 
@@ -105,7 +105,7 @@ export const AddTestReviewDialog = ({
       console.error("Error adding test review:", error);
       toast({
         title: "Error",
-        description: "Impossible d'ajouter l'avis.",
+        description: "Unable to add the review.",
         variant: "destructive",
       });
     } finally {
@@ -135,13 +135,13 @@ export const AddTestReviewDialog = ({
         <form onSubmit={handleSubmit} className="space-y-4">
           {businessOptions.length > 0 && (
             <div className="space-y-2">
-              <Label>Établissement</Label>
+              <Label>Location</Label>
               <Select value={locationId} onValueChange={setLocationId}>
                 <SelectTrigger>
                   <SelectValue placeholder="Choisir un établissement" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="test_location">Avis de test (global)</SelectItem>
+                  <SelectItem value="test_location">Test review (global)</SelectItem>
                   {businessOptions.map((b) => (
                     <SelectItem key={b.id} value={b.google_place_id!}>
                       <span className="flex items-center gap-2">
@@ -201,7 +201,7 @@ export const AddTestReviewDialog = ({
 
           <div className="flex gap-2 justify-end">
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>
-              Annuler
+              Cancel
             </Button>
             <Button type="submit" disabled={loading}>
               {loading ? "Ajout..." : "Ajouter l'avis"}

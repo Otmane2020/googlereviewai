@@ -90,7 +90,7 @@ export const SupportDialog = ({ userEmail, triggerClassName }: SupportDialogProp
       console.error("Error sending support request:", error);
       toast({
         title: "Error",
-        description: "Impossible d'envoyer le message. Réessayez plus tard.",
+        description: "Unable to send the message. Try again later.",
         variant: "destructive",
       });
     } finally {
@@ -176,7 +176,7 @@ export const SupportDialog = ({ userEmail, triggerClassName }: SupportDialogProp
 
             <div className="flex gap-2 justify-end pt-2">
               <Button type="button" variant="outline" onClick={() => setOpen(false)}>
-                Annuler
+                Cancel
               </Button>
               <Button type="submit" disabled={loading}>
                 {loading ? (
