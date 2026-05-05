@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Lock, Sparkles, Loader2 } from "lucide-react";
 import { format } from "date-fns";
-import { fr } from "date-fns/locale";
 
 interface ArticlePreviewDialogProps {
   open: boolean;
@@ -13,9 +12,11 @@ interface ArticlePreviewDialogProps {
     title: string | null;
     question: string | null;
     answer: string | null;
+    content?: string | null;
     scheduled_date: string;
     status: string;
     keyword_used: string | null;
+    content_type?: string;
   } | null;
   isSubscribed: boolean;
   onSubscribe: (annual?: boolean) => void;
@@ -34,12 +35,14 @@ export const ArticlePreviewDialog = ({
 }: ArticlePreviewDialogProps) => {
   if (!article) return null;
 
-  const hasContent = article.question || article.answer;
+  const isQA = !!(article.question || article.answer);
+  const isSEO = !!article.content;
+  const hasContent = isQA || isSEO;
   const isGenerating = article.status === "generating" || generating;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <div className="flex items-center gap-2 mb-2">
             <Badge variant={article.status === "published" ? "default" : article.status === "generated" ? "secondary" : "outline"}>
@@ -47,11 +50,11 @@ export const ArticlePreviewDialog = ({
             </Badge>
             <span className="text-xs text-muted-foreground flex items-center gap-1">
               <Calendar className="w-3 h-3" />
-              {format(new Date(article.scheduled_date), "d MMMM yyyy", { locale: fr })}
+              {format(new Date(article.scheduled_date), "MMM d, yyyy")}
             </span>
           </div>
           <DialogTitle className="text-left">
-            {article.question || article.title || "Contenu planifié"}
+            {article.question || article.title || "Scheduled content"}
           </DialogTitle>
           {article.keyword_used && (
             <DialogDescription className="text-left">
@@ -64,17 +67,28 @@ export const ArticlePreviewDialog = ({
           <div className="space-y-4 mt-4">
             {hasContent ? (
               <>
-                {article.question && (
+                {isQA && article.question && (
                   <div className="p-3 bg-primary/5 rounded-lg border border-primary/10">
-                    <p className="text-xs font-medium text-primary mb-1">❓ Question</p>
+                    <p className="text-xs font-semibold text-primary mb-1">Question</p>
                     <p className="text-foreground font-medium">{article.question}</p>
                   </div>
                 )}
-                {article.answer && (
+                {isQA && article.answer && (
                   <div className="p-3 bg-secondary/5 rounded-lg border border-secondary/10">
-                    <p className="text-xs font-medium text-secondary mb-1">✅ Response</p>
-                    <p className="text-muted-foreground text-sm leading-relaxed">{article.answer}</p>
+                    <p className="text-xs font-semibold text-secondary mb-1">Answer</p>
+                    <p className="text-muted-foreground text-sm leading-relaxed whitespace-pre-wrap">{article.answer}</p>
                   </div>
+                )}
+                {isSEO && article.content && (
+                  <div
+                    className="prose prose-sm dark:prose-invert max-w-none text-justify hyphens-auto
+                      prose-headings:font-bold prose-headings:text-foreground prose-headings:text-left
+                      prose-h2:mt-6 prose-h2:mb-2 prose-h2:text-xl
+                      prose-h3:mt-4 prose-h3:mb-2 prose-h3:text-lg
+                      prose-p:text-foreground/85 prose-p:leading-relaxed prose-p:mb-3
+                      prose-a:text-primary prose-strong:text-foreground"
+                    dangerouslySetInnerHTML={{ __html: article.content }}
+                  />
                 )}
               </>
             ) : (
@@ -82,29 +96,21 @@ export const ArticlePreviewDialog = ({
                 {isGenerating ? (
                   <>
                     <Loader2 className="w-10 h-10 mx-auto text-primary animate-spin" />
-                    <p className="text-sm text-muted-foreground">
-                      Génération du Q&A en cours...
-                    </p>
+                    <p className="text-sm text-muted-foreground">Generating content...</p>
                   </>
                 ) : (
                   <>
                     <Sparkles className="w-10 h-10 mx-auto text-muted-foreground/30" />
                     <div>
-                      <p className="text-sm font-medium text-foreground mb-1">
-                        Q&A pas encore généré
-                      </p>
+                      <p className="text-sm font-medium text-foreground mb-1">Not generated yet</p>
                       <p className="text-xs text-muted-foreground mb-4">
-                        Cliquez sur "Generate" pour créer la question et réponse maintenant, ou attendez la génération automatique.
+                        Click "Generate" to create the content now, or wait for automatic generation.
                       </p>
                     </div>
                     {onGenerate && (
-                      <Button 
-                        onClick={() => onGenerate(article.id)} 
-                        className="gap-2"
-                        disabled={generating}
-                      >
+                      <Button onClick={() => onGenerate(article.id)} className="gap-2" disabled={generating}>
                         <Sparkles className="w-4 h-4" />
-                        Generate maintenant
+                        Generate now
                       </Button>
                     )}
                   </>
@@ -115,13 +121,13 @@ export const ArticlePreviewDialog = ({
         ) : (
           <div className="mt-4 p-6 bg-muted/50 rounded-lg text-center">
             <Lock className="w-10 h-10 mx-auto mb-3 text-muted-foreground" />
-            <h3 className="font-semibold text-foreground mb-2">Passez au Quotidien pour débloquer</h3>
+            <h3 className="font-semibold text-foreground mb-2">Upgrade to unlock</h3>
             <p className="text-sm text-muted-foreground mb-4">
-              Le plan Gratuit inclut 1 post SEO et 1 Q&A AEO par semaine. Passez au Quotidien (9,99€/mois) pour publier tous les jours.
+              The Free plan includes 1 SEO post and 1 AEO Q&A per week. Upgrade to publish daily.
             </p>
             <Button onClick={() => onSubscribe(false)} className="gap-2">
               <Sparkles className="w-4 h-4" />
-              Passer au Quotidien
+              Upgrade
             </Button>
           </div>
         )}
