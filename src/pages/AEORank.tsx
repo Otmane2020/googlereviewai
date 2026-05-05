@@ -39,7 +39,7 @@ import {
   Settings
 } from "lucide-react";
 import { format, addDays, startOfToday, isSameDay } from "date-fns";
-import { fr } from "date-fns/locale";
+
 
 interface Business {
   id: string;
@@ -788,7 +788,7 @@ const AEORank = () => {
                       >
                         <div className="text-center">
                           <p className="text-[10px] text-muted-foreground uppercase">
-                            {format(day, "EEE", { locale: fr })}
+                            {format(day, "EEE")}
                           </p>
                           <p className={`text-lg font-bold ${isToday ? "text-primary" : "text-foreground"}`}>
                             {format(day, "d")}
@@ -842,7 +842,7 @@ const AEORank = () => {
                           <div className="flex items-center gap-1.5 flex-wrap">
                             {getStatusBadge(item.status)}
                             <span className="text-[10px] text-muted-foreground">
-                              {format(new Date(item.scheduled_date), "d MMM", { locale: fr })}
+                              {format(new Date(item.scheduled_date), "d MMM")}
                             </span>
                           </div>
                           <div className="flex gap-1.5 flex-shrink-0">

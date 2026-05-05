@@ -38,7 +38,7 @@ import {
   Settings
 } from "lucide-react";
 import { format, addDays, startOfToday, isSameDay } from "date-fns";
-import { fr } from "date-fns/locale";
+
 
 interface Business {
   id: string;
@@ -684,7 +684,7 @@ const SEOAutoPost = () => {
                       >
                         <div className="text-center">
                           <p className="text-[10px] text-muted-foreground uppercase">
-                            {format(date, "EEE", { locale: fr })}
+                            {format(date, "EEE")}
                           </p>
                           <p className={`text-lg font-bold ${isToday ? "text-primary" : "text-foreground"}`}>
                             {format(date, "d")}
@@ -744,7 +744,7 @@ const SEOAutoPost = () => {
                             <div className="flex items-center gap-1.5 flex-wrap">
                               {getStatusBadge(item.status)}
                               <span className="text-[10px] text-muted-foreground">
-                                {format(new Date(item.scheduled_date), "d MMM", { locale: fr })}
+                                {format(new Date(item.scheduled_date), "d MMM")}
                               </span>
                             </div>
                             <div className="flex items-center gap-1.5">
