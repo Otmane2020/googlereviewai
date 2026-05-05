@@ -505,7 +505,7 @@ const SEOAutoPost = () => {
               ) : (
                 <>
                   <RefreshCw className="w-4 h-4 mr-2" />
-                  Analyser & Planifier
+                  Analyze & Plan
                 </>
               )}
             </Button>
@@ -520,7 +520,7 @@ const SEOAutoPost = () => {
             <Building2 className="w-10 h-10 mx-auto mb-3 text-muted-foreground/30" />
             <h3 className="text-base font-medium text-foreground mb-2">No business</h3>
             <p className="text-xs text-muted-foreground mb-4">
-              Connectez d'abord votre Google My Business
+              Connect your Google Business Profile first
             </p>
             <Button onClick={() => navigate("/businesses")} size="sm">
               Add a business
@@ -642,7 +642,7 @@ const SEOAutoPost = () => {
               <div className="flex items-center justify-between mt-3 p-2 bg-muted/50 rounded-lg border border-border/50">
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   <Settings className="w-3.5 h-3.5" />
-                  <span>Publication auto:</span>
+                  <span>Auto-publish:</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <select
@@ -794,7 +794,7 @@ const SEOAutoPost = () => {
                           <div className="flex items-center gap-2">
                             {!isSubscribed && item.status !== "pending" && <Lock className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />}
                             <p className={`font-medium text-xs ${isSubscribed || item.status === "pending" ? "text-foreground" : "text-muted-foreground"} line-clamp-2`}>
-                              {item.title || "Article en attente"}
+                              {item.title || "Pending article"}
                             </p>
                           </div>
                           {item.keyword_used && (
