@@ -30,18 +30,16 @@ TITLE: ${article.title}
 META: ${article.meta_description ?? ""}
 BODY: ${article.body}`;
 
-  const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+  const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${OPENROUTER_API_KEY}`,
-      "HTTP-Referer": "https://ranki.ai",
-      "X-Title": "Ranki.ai Translator",
+      Authorization: `Bearer ${LOVABLE_API_KEY}`,
     },
     body: JSON.stringify({
       model: "google/gemini-2.5-flash",
       messages: [
-        { role: "system", content: "You translate French marketing/blog content into US English. Output strict JSON only." },
+        { role: "system", content: "You translate French marketing/blog content into US English. Output strict JSON only with keys title, body, meta_description." },
         { role: "user", content: prompt },
       ],
       response_format: { type: "json_object" },
