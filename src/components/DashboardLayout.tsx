@@ -28,7 +28,6 @@ import {
   CreditCard,
   LogOut,
   HelpCircle,
-  CalendarDays,
   MessageCircleQuestion,
   ListChecks,
 } from "lucide-react";
