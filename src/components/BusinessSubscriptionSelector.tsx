@@ -83,9 +83,9 @@ export const BusinessSubscriptionSelector = ({
           <div className="flex items-center gap-3 mb-3">
             <Lock className="w-6 h-6 text-primary flex-shrink-0" />
             <div className="min-w-0">
-              <p className="font-semibold text-sm text-foreground">Module Premium {moduleType.toUpperCase()}</p>
+              <p className="font-semibold text-sm text-foreground">Premium {moduleType.toUpperCase()} Module</p>
               <p className="text-xs text-muted-foreground">
-                $49/mo <span className="text-primary font-medium">(per location)</span>
+                $29/mo <span className="text-primary font-medium">(per location)</span>
               </p>
             </div>
           </div>
