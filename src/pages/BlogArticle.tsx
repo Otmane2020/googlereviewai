@@ -161,17 +161,22 @@ const BlogArticle = () => {
           </header>
 
           {/* Article content */}
-          <article className="container mx-auto px-4 pb-16 max-w-4xl">
-            <div 
-              className="prose prose-lg dark:prose-invert max-w-none
-                prose-headings:font-bold prose-headings:text-foreground
-                prose-p:text-muted-foreground prose-p:leading-relaxed
+          <article className="container mx-auto px-4 pb-16 max-w-3xl">
+            <div
+              className="magazine-article prose prose-lg dark:prose-invert max-w-none text-justify hyphens-auto
+                prose-headings:font-bold prose-headings:text-foreground prose-headings:text-left
+                prose-h2:mt-12 prose-h2:mb-4 prose-h2:text-3xl
+                prose-h3:mt-8 prose-h3:mb-3 prose-h3:text-2xl
+                prose-p:text-foreground/85 prose-p:leading-[1.85] prose-p:mb-5 prose-p:text-justify
                 prose-a:text-primary prose-a:no-underline hover:prose-a:underline
                 prose-strong:text-foreground
-                prose-ul:text-muted-foreground prose-ol:text-muted-foreground
-                prose-blockquote:border-l-primary prose-blockquote:text-muted-foreground
+                prose-ul:text-foreground/85 prose-ol:text-foreground/85
+                prose-li:my-2 prose-li:leading-relaxed
+                prose-blockquote:border-l-4 prose-blockquote:border-l-primary prose-blockquote:bg-muted/40 prose-blockquote:py-2 prose-blockquote:px-6 prose-blockquote:rounded-r-lg prose-blockquote:not-italic prose-blockquote:text-foreground
                 prose-code:bg-muted prose-code:px-1 prose-code:py-0.5 prose-code:rounded
-                prose-pre:bg-muted"
+                prose-pre:bg-muted
+                prose-img:rounded-xl prose-img:shadow-lg"
+              style={{ textAlign: 'justify', hyphens: 'auto', WebkitHyphens: 'auto' } as React.CSSProperties}
               dangerouslySetInnerHTML={{ __html: article.body }}
             />
           </article>
