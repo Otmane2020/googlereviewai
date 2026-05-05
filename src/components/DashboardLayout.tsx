@@ -48,6 +48,8 @@ const productNav = [
   { label: "Maps Rank", href: "/maps-rank", icon: MapPin },
   { label: "Reviews", href: "/reviews", icon: Star },
   { label: "SEO Autopilot", href: "/seo-autopost", icon: Search },
+  { label: "Q&A", href: "/gmb-post", icon: MessageCircleQuestion },
+  { label: "Planning", href: "/calendar", icon: ListChecks },
   { label: "Calendar", href: "/calendar", icon: CalendarDays },
   { label: "Locations", href: "/businesses", icon: Building2 },
 ];
