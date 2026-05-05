@@ -200,7 +200,7 @@ const BusinessesPage = () => {
     fetchBusinesses();
   };
 
-  // Force show selection dialog for "Modifier" button
+  // Force show selection dialog for "Edit" button
   const handleChangeBusinesses = async () => {
     // Pass true to force selection mode
     const result = await syncBusinesses(true);
@@ -367,7 +367,7 @@ const BusinessesPage = () => {
               <Building2 className="w-5 h-5 text-primary" />
             </div>
             <div className="min-w-0 flex-1">
-              <h1 className="text-lg font-bold text-foreground">Établissements</h1>
+              <h1 className="text-lg font-bold text-foreground">Locations</h1>
               <p className="text-xs text-muted-foreground">
                 Manage your Google profiles
               </p>
@@ -409,7 +409,7 @@ const BusinessesPage = () => {
                 <RefreshCw className="w-4 h-4" />
               )}
               <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent font-semibold">
-                {isSyncing ? "Sync..." : "Modifier"}
+                {isSyncing ? "Sync..." : "Edit"}
               </span>
             </Button>
           </div>
@@ -918,11 +918,11 @@ const BusinessesPage = () => {
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Modifier la description</DialogTitle>
+            <DialogTitle>Edit description</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label>Établissement</Label>
+              <Label>Location</Label>
               <p className="text-sm font-medium text-foreground">{editingBusiness?.name}</p>
             </div>
             <div className="space-y-2">

@@ -348,12 +348,12 @@ const Reviews = () => {
 
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
-      if (data?.success === false) throw new Error(data.message || "Impossible de publier.");
+      if (data?.success === false) throw new Error(data.message || "Unable to publish.");
 
       toast({ title: "Published to Google!" });
       // No need to fetchData - Realtime handles it
     } catch (error) {
-      toast({ title: "Error", description: error instanceof Error ? error.message : "Impossible de publier.", variant: "destructive" });
+      toast({ title: "Error", description: error instanceof Error ? error.message : "Unable to publish.", variant: "destructive" });
     } finally {
       setPublishingId(null);
     }
@@ -505,7 +505,7 @@ const Reviews = () => {
       <div className="bg-card border-b border-border">
         <div className="max-w-6xl mx-auto px-4 py-4">
           {/* Title */}
-          <h1 className="text-lg font-bold text-foreground mb-3">Avis Google</h1>
+          <h1 className="text-lg font-bold text-foreground mb-3">Google Reviews</h1>
           
           {/* Business card style selector */}
           <div className="bg-card rounded-2xl border border-border p-4">
@@ -789,7 +789,7 @@ const Reviews = () => {
               {isSyncingBusinesses ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Chargement...
+                  Loading...
                 </>
               ) : (
                 <>
@@ -938,7 +938,7 @@ const Reviews = () => {
                         food: "Cuisine",
                         value: "Value for money",
                         atmosphere: "Ambiance",
-                        amenities: "Équipements",
+                        amenities: "Amenities",
                       };
                       return (
                         <div className="flex flex-wrap gap-2 mt-3">
@@ -984,7 +984,7 @@ const Reviews = () => {
                           <DialogHeader>
                             <DialogTitle className="flex items-center gap-2">
                               <MessageSquare className="w-5 h-5 text-green-600" />
-                              Avis de {review.author}
+                              Review by {review.author}
                             </DialogTitle>
                             <DialogDescription className="sr-only">
                               Review details and existing response.
@@ -1002,7 +1002,7 @@ const Reviews = () => {
                             
                             {/* Client comment */}
                             <div className="p-3 bg-muted/50 rounded-lg">
-                              <p className="text-xs text-muted-foreground font-medium mb-1">Avis client :</p>
+                              <p className="text-xs text-muted-foreground font-medium mb-1">Customer review:</p>
                               <p className="text-sm text-foreground">{review.comment || "Aucun commentaire"}</p>
                             </div>
                             
@@ -1036,7 +1036,7 @@ const Reviews = () => {
                           <DialogHeader>
                             <DialogTitle className="flex items-center gap-2">
                               <MessageSquare className="w-5 h-5 text-primary" />
-                              Avis de {review.author}
+                              Review by {review.author}
                             </DialogTitle>
                             <DialogDescription className="sr-only">
                               Review details and AI response.
@@ -1054,7 +1054,7 @@ const Reviews = () => {
                             
                             {/* Client comment */}
                             <div className="p-3 bg-muted/50 rounded-lg">
-                              <p className="text-xs text-muted-foreground font-medium mb-1">Avis client :</p>
+                              <p className="text-xs text-muted-foreground font-medium mb-1">Customer review:</p>
                               <p className="text-sm text-foreground">{review.comment || "Aucun commentaire"}</p>
                             </div>
                             
