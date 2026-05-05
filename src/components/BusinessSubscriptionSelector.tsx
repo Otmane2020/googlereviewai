@@ -108,8 +108,8 @@ export const BusinessSubscriptionSelector = ({
           <DialogHeader>
             <DialogTitle>Subscribe to {moduleName}</DialogTitle>
             <DialogDescription>
-              Choose how many locations to include. 
-              <span className="font-medium text-foreground"> $49/mo per location.</span>
+              Choose how many locations to include.
+              <span className="font-medium text-foreground"> $29/mo per location.</span>
             </DialogDescription>
           </DialogHeader>
 
