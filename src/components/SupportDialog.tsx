@@ -25,11 +25,11 @@ import { toast } from "@/hooks/use-toast";
 const SUPPORT_PHONE = "01 85 09 91 15";
 
 const issueTypes = [
-  { value: "bug", label: "🐛 Bug / Problème technique" },
+  { value: "bug", label: "🐛 Bug / Technical issue" },
   { value: "sync", label: "🔄 Synchronisation Google" },
   { value: "billing", label: "💳 Facturation / Abonnement" },
-  { value: "feature", label: "💡 Suggestion de fonctionnalité" },
-  { value: "account", label: "👤 Problème de compte" },
+  { value: "feature", label: "💡 Feature suggestion" },
+  { value: "account", label: "👤 Account issue" },
   { value: "other", label: "❓ Autre" },
 ];
 
@@ -74,8 +74,8 @@ export const SupportDialog = ({ userEmail, triggerClassName }: SupportDialogProp
 
       setSubmitted(true);
       toast({
-        title: "Message envoyé !",
-        description: "Notre équipe vous répondra dans les plus brefs délais.",
+        title: "Message sent!",
+        description: "Our team will get back to you shortly.",
       });
 
       // Reset after 2s and close
@@ -113,7 +113,7 @@ export const SupportDialog = ({ userEmail, triggerClassName }: SupportDialogProp
             Contacter le support
           </DialogTitle>
           <DialogDescription>
-            Décrivez votre problème ou question et nous vous répondrons rapidement.
+            Describe your issue or question and we'll get back to you quickly.
           </DialogDescription>
           <div className="flex items-center gap-2 mt-2 p-2 bg-muted/50 rounded-lg">
             <Phone className="w-4 h-4 text-primary" />
@@ -128,9 +128,9 @@ export const SupportDialog = ({ userEmail, triggerClassName }: SupportDialogProp
             <div className="w-16 h-16 rounded-full bg-secondary/20 flex items-center justify-center mx-auto mb-4">
               <CheckCircle className="w-8 h-8 text-secondary" />
             </div>
-            <h3 className="font-semibold text-foreground mb-2">Message envoyé !</h3>
+            <h3 className="font-semibold text-foreground mb-2">Message sent!</h3>
             <p className="text-sm text-muted-foreground">
-              Nous vous répondrons par email.
+              We'll reply by email.
             </p>
           </div>
         ) : (
@@ -155,7 +155,7 @@ export const SupportDialog = ({ userEmail, triggerClassName }: SupportDialogProp
               <Label htmlFor="title">Titre</Label>
               <Input
                 id="title"
-                placeholder="Résumez votre demande..."
+                placeholder="Summarize your request..."
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 required
@@ -166,7 +166,7 @@ export const SupportDialog = ({ userEmail, triggerClassName }: SupportDialogProp
               <Label htmlFor="description">Description</Label>
               <Textarea
                 id="description"
-                placeholder="Décrivez le problème en détail..."
+                placeholder="Describe the issue in detail..."
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 rows={5}

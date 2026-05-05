@@ -93,7 +93,7 @@ export const AddTestReviewDialog = ({
 
       toast({
         title: "Review added!",
-        description: "L'avis de test a été créé avec succès.",
+        description: "The test review has been created.",
       });
 
       setAuthor("");
@@ -128,7 +128,7 @@ export const AddTestReviewDialog = ({
             Ajouter un avis de test
           </DialogTitle>
           <DialogDescription>
-            Créez un avis fictif pour tester la génération de réponses IA.
+            Create a fake review to test AI response generation.
           </DialogDescription>
         </DialogHeader>
 
@@ -138,7 +138,7 @@ export const AddTestReviewDialog = ({
               <Label>Location</Label>
               <Select value={locationId} onValueChange={setLocationId}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Choisir un établissement" />
+                  <SelectValue placeholder="Choose a location" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="test_location">Test review (global)</SelectItem>
