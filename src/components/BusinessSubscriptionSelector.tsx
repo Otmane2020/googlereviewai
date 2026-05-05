@@ -42,7 +42,7 @@ export const BusinessSubscriptionSelector = ({
   // Allow user to select more stores than they have
   const [quantity, setQuantity] = useState(Math.max(1, businesses.length));
 
-  const pricePerBusiness = 49;
+  const pricePerBusiness = 29;
   const annualDiscountRate = 0.8; // 20% discount
   const monthlyTotal = pricePerBusiness * quantity;
   const annualMonthlyTotal = Math.round(pricePerBusiness * annualDiscountRate * quantity);
