@@ -299,7 +299,7 @@ const AEORank = () => {
         description: `30 days planned with ${keywords.length} keywords` 
       });
 
-      // ÉTAPE 5: Generate tous les Q&A en batch avec websiteContent
+      // STEP 5: Generate all Q&As in batch with websiteContent
       const { data: newItems } = await supabase
         .from("scheduled_content")
         .select("*")
@@ -571,11 +571,11 @@ const AEORank = () => {
             </div>
             <div className="min-w-0">
               <h1 className="text-lg font-bold text-foreground flex items-center gap-2">
-                ChatGPT Rank
+                GEO Rank AI
                 <Badge variant="secondary" className="text-[10px] px-1.5">AEO</Badge>
               </h1>
               <p className="text-xs text-muted-foreground">
-                30-day automatic QPlanning automatique Q&A 30 joursA planning
+                30-day automatic Q&A planning for ChatGPT, Perplexity & Google AI
               </p>
             </div>
           </div>
@@ -603,30 +603,13 @@ const AEORank = () => {
       </div>
 
       <main className="px-4 py-4 space-y-4">
-        {/* Info Card - Compact Mobile */}
-        <Card className="bg-gradient-to-br from-primary/5 to-secondary/5 border-primary/20">
-          <CardContent className="p-3">
-            <div className="flex items-start gap-3">
-              <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                <TrendingUp className="w-4 h-4 text-primary" />
-              </div>
-              <div className="min-w-0">
-                <h3 className="font-semibold text-sm text-foreground mb-0.5">Qu'est-ce que l'AEO ?</h3>
-                <p className="text-xs text-muted-foreground">
-                  Optimize your content to be cited by ChatGPT, Perplexity and Google AI.
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
         {/* Business Selection */}
         {businesses.length === 0 ? (
           <Card className="p-6 text-center">
             <Building2 className="w-10 h-10 mx-auto mb-3 text-muted-foreground/30" />
             <h3 className="text-base font-medium text-foreground mb-2">No business</h3>
             <p className="text-xs text-muted-foreground mb-4">
-              Connectez d'abord votre Google My Business
+              Connect your Google Business Profile first
             </p>
             <Button onClick={() => navigate("/businesses")} size="sm">
               Add a business
@@ -748,7 +731,7 @@ const AEORank = () => {
               <div className="flex items-center justify-between mt-3 p-2 bg-muted/50 rounded-lg border border-border/50">
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   <Settings className="w-3.5 h-3.5" />
-                  <span>Publication auto:</span>
+                  <span>Auto-publish:</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <select
