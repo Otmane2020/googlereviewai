@@ -161,15 +161,12 @@ const AEORank = () => {
   const handleSubscribe = async (selectedBusinessIds: string[], annual: boolean = false, quantity: number = 1) => {
     try {
       const priceKey = annual ? "aeo_yearly" : "aeo_monthly";
-      
+
       // First try to add to existing subscription
       const { data: addData, error: addError } = await supabase.functions.invoke("add-subscription-item", {
-        body: { 
-          priceKey,
-          quantity,
-        }
+        body: { priceKey, quantity }
       });
-      
+
       if (addData?.success) {
         toast({
           title: "Module activated!",
@@ -179,17 +176,17 @@ const AEORank = () => {
         checkSubscription();
         return;
       }
-      
-      // If no existing subscription, create checkout
-      if (addError?.message?.includes("No active subscription") || addError?.message?.includes("No Stripe customer")) {
+
+      // If no active subscription/customer → fallback to checkout
+      const needsCheckout =
+        addData?.requiresCheckout ||
+        addError?.message?.includes("No active subscription") ||
+        addError?.message?.includes("No Stripe customer");
+
+      if (needsCheckout) {
         const { data, error } = await supabase.functions.invoke("create-checkout", {
-          body: { 
-            priceKey,
-            quantity,
-            selectedBusinessIds,
-          }
+          body: { priceKey, quantity, selectedBusinessIds }
         });
-        
         if (error) throw error;
         if (data?.url) {
           window.location.href = data.url;
