@@ -42,7 +42,7 @@ interface DashboardLayoutProps {
 
 const productNav = [
   { label: "Overview", href: "/dashboard", icon: LayoutDashboard },
-  { label: "GEO Rank", href: "/aeo-rank", icon: Sparkles, badge: "AI" },
+  { label: "GEO Rank AI", href: "/aeo-rank", icon: Sparkles, badge: "AI" },
   { label: "Maps Rank", href: "/maps-rank", icon: MapPin },
   { label: "Reviews", href: "/reviews", icon: Star },
   { label: "SEO Autopilot", href: "/seo-autopost", icon: Search },
