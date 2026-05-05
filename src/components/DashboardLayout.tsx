@@ -29,6 +29,8 @@ import {
   LogOut,
   HelpCircle,
   CalendarDays,
+  MessageCircleQuestion,
+  ListChecks,
 } from "lucide-react";
 import { RankiLogo } from "@/components/StarlinkoLogo";
 import { useAuth } from "@/contexts/AuthContext";
