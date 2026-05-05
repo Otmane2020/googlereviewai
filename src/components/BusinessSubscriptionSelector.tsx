@@ -85,7 +85,7 @@ export const BusinessSubscriptionSelector = ({
             <div className="min-w-0">
               <p className="font-semibold text-sm text-foreground">Module Premium {moduleType.toUpperCase()}</p>
               <p className="text-xs text-muted-foreground">
-                49€/mois <span className="text-primary font-medium">(par établissement)</span>
+                $49/mo <span className="text-primary font-medium">(per location)</span>
               </p>
             </div>
           </div>
@@ -97,7 +97,7 @@ export const BusinessSubscriptionSelector = ({
             disabled={isLoading}
           >
             <Plus className="w-4 h-4 mr-2" />
-            Choisir mes établissements
+            Choose my locations
           </Button>
         </CardContent>
       </Card>
@@ -106,16 +106,16 @@ export const BusinessSubscriptionSelector = ({
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>S'abonner à {moduleName}</DialogTitle>
+            <DialogTitle>Subscribe to {moduleName}</DialogTitle>
             <DialogDescription>
-              Choisissez le nombre d'établissements à inclure. 
-              <span className="font-medium text-foreground"> 49€/mois par établissement.</span>
+              Choose how many locations to include. 
+              <span className="font-medium text-foreground"> $49/mo per location.</span>
             </DialogDescription>
           </DialogHeader>
 
           {/* Quantity Selector */}
           <div className="bg-muted/50 rounded-lg p-4 mb-4">
-            <Label className="text-sm font-medium mb-3 block">Nombre d'établissements</Label>
+            <Label className="text-sm font-medium mb-3 block">Number of locations</Label>
             <div className="flex items-center justify-center gap-4">
               <Button
                 variant="outline"
@@ -129,7 +129,7 @@ export const BusinessSubscriptionSelector = ({
               <div className="text-center min-w-[80px]">
                 <span className="text-3xl font-bold text-primary">{quantity}</span>
                 <p className="text-xs text-muted-foreground">
-                  {quantity === 1 ? "établissement" : "établissements"}
+                  {quantity === 1 ? "location" : "locations"}
                 </p>
               </div>
               <Button
@@ -177,7 +177,7 @@ export const BusinessSubscriptionSelector = ({
               </div>
               {quantity > businesses.length && (
                 <p className="text-xs text-muted-foreground italic">
-                  + {quantity - businesses.length} établissement{quantity - businesses.length > 1 ? "s" : ""} supplémentaire{quantity - businesses.length > 1 ? "s" : ""} à ajouter plus tard
+                  + {quantity - businesses.length} location{quantity - businesses.length > 1 ? "s" : ""} additional{quantity - businesses.length > 1 ? "s" : ""} to add later
                 </p>
               )}
             </div>
@@ -187,7 +187,7 @@ export const BusinessSubscriptionSelector = ({
             <div className="text-center py-4">
               <Building2 className="w-10 h-10 mx-auto text-muted-foreground/30 mb-2" />
               <p className="text-sm text-muted-foreground">
-                Vous pourrez ajouter vos établissements après l'abonnement
+                You can add locations after subscribing
               </p>
             </div>
           )}
@@ -196,7 +196,7 @@ export const BusinessSubscriptionSelector = ({
           <div className="bg-muted/50 rounded-lg p-3 space-y-2 mt-2">
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">Locations</span>
-              <span className="font-medium">{quantity} × 49€</span>
+              <span className="font-medium">{quantity} × $49</span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">Total mensuel</span>

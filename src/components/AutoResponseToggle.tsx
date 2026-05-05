@@ -51,10 +51,10 @@ export const AutoResponseToggle = () => {
       });
     } else {
       toast({
-        title: newValue ? "Auto-réponse activée" : "Auto-réponse désactivée",
+        title: newValue ? "Auto-reply enabled" : "Auto-reply disabled",
         description: newValue 
-          ? "Les nouvelles réponses seront générées automatiquement."
-          : "Vous devrez générer les réponses manuellement.",
+          ? "New replies will be generated automatically."
+          : "You'll need to generate replies manually.",
       });
     }
     setSaving(false);
@@ -76,7 +76,7 @@ export const AutoResponseToggle = () => {
         : "bg-muted/50 border-border"
     }`}>
       <Sparkles className={`w-4 h-4 ${enabled ? "text-primary" : "text-muted-foreground"}`} />
-      <span className="text-sm font-medium">Auto-réponse IA</span>
+      <span className="text-sm font-medium">AI auto-reply</span>
       <Switch
         checked={enabled}
         onCheckedChange={handleToggle}

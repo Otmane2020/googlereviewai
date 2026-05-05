@@ -42,7 +42,7 @@ const PasswordAuth = () => {
         if (error) {
           toast.error(error.message || "Error d'inscription");
         } else {
-          toast.success("Sign up réussie ! Vérifiez votre email.");
+          toast.success("Sign up successful! Check your email.");
           setIsLogin(true);
         }
       }
@@ -73,8 +73,8 @@ const PasswordAuth = () => {
           </CardTitle>
           <CardDescription>
             {isLogin 
-              ? "Entrez vos identifiants pour accéder à votre compte" 
-              : "Créez un compte pour commencer"}
+              ? "Enter your credentials to access your account" 
+              : "Create an account to get started"}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -163,7 +163,7 @@ const PasswordAuth = () => {
                 onClick={() => navigate("/reset-password")}
                 className="text-sm text-muted-foreground hover:underline"
               >
-                Mot de passe oublié ?
+                Forgot password??
               </button>
             </div>
           )}

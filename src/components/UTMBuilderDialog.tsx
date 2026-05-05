@@ -23,8 +23,8 @@ const DYNAMIC_PARAMS = {
     { value: "{{adset.name}}", label: "Nom d'ensemble" },
   ],
   ad: [
-    { value: "{{ad.id}}", label: "ID de publicité" },
-    { value: "{{ad.name}}", label: "Nom de publicité" },
+    { value: "{{ad.id}}", label: "Ad ID" },
+    { value: "{{ad.name}}", label: "Ad name" },
   ],
   placement: [
     { value: "{{placement}}", label: "Placement" },
@@ -133,7 +133,7 @@ export const UTMBuilderDialog = ({ trigger, open, onOpenChange }: UTMBuilderDial
     try {
       await navigator.clipboard.writeText(generatedUrl);
       setCopied(true);
-      toast.success("URL copiée !");
+      toast.success("URL copied!");
       setTimeout(() => setCopied(false), 2000);
     } catch {
       toast.error("Error lors de la copie");

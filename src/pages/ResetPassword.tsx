@@ -83,7 +83,7 @@ const ResetPassword = () => {
 
     if (password !== confirmPassword) {
       toast({
-        title: "Mots de passe différents",
+        title: "Passwords don't match",
         description: "Les deux mots de passe ne correspondent pas.",
         variant: "destructive",
       });
@@ -104,7 +104,7 @@ const ResetPassword = () => {
       } else {
         setIsSuccess(true);
         toast({
-          title: "Mot de passe modifié !",
+          title: "Password updated!",
           description: "You can now sign in.",
         });
       }
@@ -128,10 +128,10 @@ const ResetPassword = () => {
   }
 
   if (!isValidSession) {
-    const title = resetError?.code === "otp_expired" ? "Lien expiré" : "Lien invalide";
+    const title = resetError?.code === "otp_expired" ? "Link expired" : "Invalid link";
     const description = resetError?.description
       ? resetError.description
-      : "Ce lien de réinitialisation n'est plus valide. Demandez un nouveau lien.";
+      : "This reset link is no longer valid. Request a new one.";
 
     const resendLink = async (e: React.FormEvent) => {
       e.preventDefault();
@@ -153,8 +153,8 @@ const ResetPassword = () => {
           toast({ title: "Error", description: error.message, variant: "destructive" });
         } else {
           toast({
-            title: "Email envoyé",
-            description: "Ouvrez le dernier email reçu pour réinitialiser votre mot de passe.",
+            title: "Email sent",
+            description: "Open the latest email to reset your password.",
           });
         }
       } finally {
@@ -210,9 +210,9 @@ const ResetPassword = () => {
             <CheckCircle className="w-8 h-8 text-secondary" />
           </div>
           <div className="space-y-2">
-            <h1 className="text-2xl font-bold text-foreground">Mot de passe modifié !</h1>
+            <h1 className="text-2xl font-bold text-foreground">Password updated!</h1>
             <p className="text-muted-foreground">
-              Votre mot de passe a été réinitialisé avec succès.
+              Your password has been reset successfully.
             </p>
           </div>
           <Button onClick={() => navigate("/auth")} className="w-full">
@@ -235,7 +235,7 @@ const ResetPassword = () => {
             Nouveau mot de passe
           </h2>
           <p className="text-muted-foreground mt-2 text-center">
-            Choisissez un nouveau mot de passe sécurisé
+            Choose a new secure password
           </p>
         </div>
 
@@ -286,7 +286,7 @@ const ResetPassword = () => {
             {isLoading ? (
               <Loader2 className="w-5 h-5 animate-spin" />
             ) : (
-              "Réinitialiser le mot de passe"
+              "Reset password"
             )}
           </Button>
 
