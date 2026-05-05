@@ -196,15 +196,15 @@ export const BusinessSubscriptionSelector = ({
           <div className="bg-muted/50 rounded-lg p-3 space-y-2 mt-2">
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">Locations</span>
-              <span className="font-medium">{quantity} × $49</span>
+              <span className="font-medium">{quantity} × $29</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Total mensuel</span>
-              <span className="text-lg font-bold text-primary">{monthlyTotal}€/mois</span>
+              <span className="text-sm text-muted-foreground">Monthly total</span>
+              <span className="text-lg font-bold text-primary">${monthlyTotal}/mo</span>
             </div>
             <div className="flex items-center justify-between text-xs text-muted-foreground">
-              <span>Annuel (-20%)</span>
-              <span className="text-secondary font-medium">{annualMonthlyTotal}€/mois</span>
+              <span>Annual (-20%)</span>
+              <span className="text-secondary font-medium">${annualMonthlyTotal}/mo</span>
             </div>
           </div>
 
@@ -218,7 +218,7 @@ export const BusinessSubscriptionSelector = ({
               disabled={quantity === 0 || isLoading}
               className="flex-1"
             >
-              Annuel - {annualMonthlyTotal}€/mois
+              Annual - ${annualMonthlyTotal}/mo
             </Button>
             <Button
               onClick={() => {
@@ -228,7 +228,7 @@ export const BusinessSubscriptionSelector = ({
               disabled={quantity === 0 || isLoading}
               className="flex-1"
             >
-              Mensuel - {monthlyTotal}€/mois
+              Monthly - ${monthlyTotal}/mo
             </Button>
           </DialogFooter>
         </DialogContent>
