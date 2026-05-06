@@ -87,9 +87,9 @@ export const BusinessSubscriptionSelector = ({
           <div className="flex items-center gap-3 mb-3">
             <Lock className="w-6 h-6 text-primary flex-shrink-0" />
             <div className="min-w-0">
-              <p className="font-semibold text-sm text-foreground">Module {moduleLabel} Premium</p>
+              <p className="font-semibold text-sm text-foreground">{t(`Module ${moduleLabel} Premium`, `Premium ${moduleLabel} Module`)}</p>
               <p className="text-xs text-muted-foreground">
-                Inclus dans <span className="text-primary font-medium">Quotidien (9,99€/mois)</span> ou Agence
+                {isEN ? <>Included in <span className="text-primary font-medium">Daily ($9.99/month)</span> or Agency</> : <>Inclus dans <span className="text-primary font-medium">Quotidien (9,99€/mois)</span> ou Agence</>}
               </p>
             </div>
           </div>
@@ -104,7 +104,7 @@ export const BusinessSubscriptionSelector = ({
             disabled={isLoading}
           >
             <Plus className="w-4 h-4 mr-2" />
-            Voir les abonnements
+            {t("Voir les abonnements", "View subscriptions")}
           </Button>
         </CardContent>
       </Card>
