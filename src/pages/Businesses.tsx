@@ -758,7 +758,7 @@ const BusinessesPage = () => {
                                 <Map className="w-5 h-5 text-destructive" />
                                 <div>
                                   <p className="text-sm font-medium">Google Maps</p>
-                                  <p className="text-xs text-muted-foreground">Voir sur la carte</p>
+                                  <p className="text-xs text-muted-foreground">{t("Voir sur la carte", "View on map")}</p>
                                 </div>
                               </div>
                               <Button size="sm" variant="outline" asChild>
