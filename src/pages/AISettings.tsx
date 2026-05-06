@@ -784,7 +784,7 @@ const AISettingsPage = () => {
               <div className="mt-3 ml-11 bg-orange-500/10 rounded-xl p-3 flex items-start gap-2">
                 <Sparkles className="w-4 h-4 text-orange-600 mt-0.5 shrink-0" />
                 <p className="text-xs text-orange-700 dark:text-orange-400">
-                  A new reply will be generated if the customer edits their review
+                  Une nouvelle réponse sera générée si le client modifie son avis
                 </p>
               </div>
             )}
