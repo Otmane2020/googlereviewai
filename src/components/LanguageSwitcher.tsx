@@ -31,8 +31,8 @@ const BritishFlag = () => (
 );
 
 const languages = [
-  { code: "fr", label: "Français", Flag: FrenchFlag },
-  { code: "en", label: "English", Flag: BritishFlag },
+  { code: "fr", label: "Français", short: "FR", Flag: FrenchFlag },
+  { code: "en", label: "English", short: "EN", Flag: BritishFlag },
 ];
 
 interface LanguageSwitcherProps {
@@ -60,7 +60,7 @@ export const LanguageSwitcher = ({ variant = "flags", className = "" }: Language
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="sm" className={`gap-2 ${className}`}>
             <CurrentFlag />
-            <span className="hidden sm:inline text-sm">{currentLanguage.label}</span>
+            <span className="text-sm font-semibold">{currentLanguage.short}</span>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
@@ -73,7 +73,7 @@ export const LanguageSwitcher = ({ variant = "flags", className = "" }: Language
                 className={`gap-2 cursor-pointer ${currentLang === lang.code ? "bg-accent" : ""}`}
               >
                 <LangFlag />
-                <span>{lang.label}</span>
+                <span><span className="font-semibold mr-1">{lang.short}</span>{lang.label}</span>
               </DropdownMenuItem>
             );
           })}
@@ -99,7 +99,10 @@ export const LanguageSwitcher = ({ variant = "flags", className = "" }: Language
             title={lang.label}
             aria-label={`Switch to ${lang.label}`}
           >
-            <LangFlag />
+            <span className="flex items-center gap-1">
+              <LangFlag />
+              <span className="text-xs font-semibold">{lang.short}</span>
+            </span>
           </button>
         );
       })}
