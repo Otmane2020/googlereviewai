@@ -139,14 +139,14 @@ const OldReviewsSection = ({
             <History className="w-5 h-5 text-amber-600" />
           </div>
           <div className="flex-1">
-            <h3 className="font-semibold text-sm text-foreground">Old reviews without reply</h3>
-            <p className="text-xs text-muted-foreground">Reviews received before AI was enabled</p>
+            <h3 className="font-semibold text-sm text-foreground">Anciens avis sans réponse</h3>
+            <p className="text-xs text-muted-foreground">Avis reçus avant l'activation de l'IA</p>
           </div>
         </div>
         
         <div className="bg-background/50 rounded-xl p-3 mb-3">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-muted-foreground">Reviews to process</span>
+            <span className="text-sm text-muted-foreground">Avis à traiter</span>
             <span className="font-bold text-lg text-foreground">{oldReviewsCount}</span>
           </div>
           <div className="flex items-center justify-between">
@@ -379,8 +379,8 @@ const AISettingsPage = () => {
               <Sparkles className="w-5 h-5 text-primary-foreground" />
             </div>
             <div className="flex-1">
-              <h1 className="text-lg font-bold text-foreground">AI Settings</h1>
-              <p className="text-xs text-muted-foreground">Customize your replies</p>
+              <h1 className="text-lg font-bold text-foreground">Paramètres IA</h1>
+              <p className="text-xs text-muted-foreground">Personnalisez vos réponses</p>
             </div>
             <Button
               onClick={handleSave}
@@ -544,7 +544,7 @@ const AISettingsPage = () => {
                   <ThumbsUp className="w-4 h-4 text-green-500" />
                 </div>
                 <div>
-                  <span className="font-medium text-sm text-foreground">Positive reviews only</span>
+                  <span className="font-medium text-sm text-foreground">Avis positifs uniquement</span>
                   <p className="text-xs text-muted-foreground">Rating ≥ 4 stars</p>
                 </div>
               </div>
@@ -703,7 +703,7 @@ const AISettingsPage = () => {
                 </div>
                 <div>
                   <span className="font-medium text-sm text-foreground block">Fuseau horaire</span>
-                  <span className="text-xs text-muted-foreground">For automated publishing</span>
+                  <span className="text-xs text-muted-foreground">Pour la publication automatisée</span>
                 </div>
               </div>
               <select
@@ -731,7 +731,7 @@ const AISettingsPage = () => {
                   <option value="America/Toronto">Toronto (Canada)</option>
                   <option value="America/Martinique">Martinique</option>
                   <option value="America/Guadeloupe">Guadeloupe</option>
-                  <option value="America/Cayenne">French Guiana</option>
+                  <option value="America/Cayenne">Guyane française</option>
                 </optgroup>
                 <optgroup label="Africa">
                   <option value="Africa/Casablanca">Casablanca (Morocco)</option>
@@ -741,12 +741,12 @@ const AISettingsPage = () => {
                   <option value="Africa/Abidjan">Abidjan (Ivory Coast)</option>
                 </optgroup>
                 <optgroup label="Indian Ocean">
-                  <option value="Indian/Reunion">Reunion Island</option>
-                  <option value="Indian/Mauritius">Mauritius</option>
+                  <option value="Indian/Reunion">La Réunion</option>
+                  <option value="Indian/Mauritius">Maurice</option>
                   <option value="Indian/Mayotte">Mayotte</option>
                 </optgroup>
                 <optgroup label="Pacifique">
-                  <option value="Pacific/Noumea">New Caledonia</option>
+                  <option value="Pacific/Noumea">Nouvelle-Calédonie</option>
                   <option value="Pacific/Tahiti">Tahiti</option>
                 </optgroup>
               </select>
@@ -770,7 +770,7 @@ const AISettingsPage = () => {
                 </div>
                 <div>
                   <span className="font-medium text-sm text-foreground block">Avis modifiés</span>
-                  <span className="text-xs text-muted-foreground">Regenerate AI reply</span>
+                  <span className="text-xs text-muted-foreground">Régénérer la réponse IA</span>
                 </div>
               </div>
               <Switch
