@@ -663,7 +663,7 @@ const BusinessesPage = () => {
                           <div className="space-y-2">
                             <Label className="flex items-center gap-2 text-sm font-medium">
                               <Globe className="w-4 h-4 text-primary" />
-                              URL du site web
+                              {t("URL du site web", "Website URL")}
                             </Label>
                             <div className="flex gap-2">
                               <Input
