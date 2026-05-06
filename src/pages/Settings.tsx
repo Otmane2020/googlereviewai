@@ -115,6 +115,14 @@ const SettingsPage = () => {
     } else if (data) {
       setProfilee(data);
       setFullName(data.full_name || "");
+      const pl = (data as any).preferred_language;
+      if (pl === "fr" || pl === "en") {
+        setCurrentLang(pl);
+        if (i18n.language !== pl) {
+          i18n.changeLanguage(pl);
+          try { localStorage.setItem("i18nextLng", pl); } catch {}
+        }
+      }
     }
     
     setLoading(false);
