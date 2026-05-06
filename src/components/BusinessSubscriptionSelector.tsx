@@ -106,7 +106,7 @@ export const BusinessSubscriptionSelector = ({
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>S'abonner à {moduleLabel}</DialogTitle>
+            <DialogTitle>{`S'abonner à ${moduleLabel}`}</DialogTitle>
             <DialogDescription>
               Choisissez le nombre d'établissements à inclure.
               <span className="font-medium text-foreground"> 29 €/mois par établissement.</span>
