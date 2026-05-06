@@ -375,9 +375,9 @@ const BusinessesPage = () => {
               <Building2 className="w-5 h-5 text-primary" />
             </div>
             <div className="min-w-0 flex-1">
-              <h1 className="text-lg font-bold text-foreground">Établissements</h1>
+              <h1 className="text-lg font-bold text-foreground">{t("Établissements", "Businesses")}</h1>
               <p className="text-xs text-muted-foreground">
-                Manage your Google profiles
+                {t("Gérez vos profils Google", "Manage your Google profiles")}
               </p>
             </div>
             <Badge variant="outline" className="gap-1 flex-shrink-0 bg-gradient-to-r from-primary/10 to-secondary/10 border-primary/30">
