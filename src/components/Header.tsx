@@ -3,6 +3,7 @@ import { Button } from "./ui/button";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { LanguageSwitcher } from "./LanguageSwitcher";
 
 export const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -35,6 +36,7 @@ export const Header = () => {
           </div>
 
           <div className="hidden md:flex items-center gap-2">
+            <LanguageSwitcher variant="flags" />
             <Link to="/auth">
               <Button variant="outline" size="sm">Sign in</Button>
             </Link>
@@ -44,6 +46,7 @@ export const Header = () => {
           </div>
 
           <div className="flex md:hidden items-center gap-2">
+            <LanguageSwitcher variant="flags" />
             <button
               className="p-2 rounded-lg text-foreground hover:bg-muted"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
