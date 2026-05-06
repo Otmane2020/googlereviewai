@@ -480,7 +480,7 @@ const AISettingsPage = () => {
         <div className="bg-card rounded-2xl border border-border/50 p-4 shadow-sm">
           <div className="flex items-center gap-2 mb-4">
             <MessageSquare className="w-4 h-4 text-primary" />
-            <h3 className="font-medium text-sm text-foreground">Longueur</h3>
+            <h3 className="font-medium text-sm text-foreground">{isEN ? "Length" : "Longueur"}</h3>
           </div>
           <div className="flex gap-2 p-1 bg-muted/50 rounded-xl">
             {lengthOptions.map((option) => (
