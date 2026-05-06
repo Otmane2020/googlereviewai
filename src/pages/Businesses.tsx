@@ -648,7 +648,7 @@ const BusinessesPage = () => {
                       <SheetTrigger asChild>
                         <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs">
                           <Link className="w-3.5 h-3.5" />
-                          Liens
+                          {t("Liens", "Links")}
                         </Button>
                       </SheetTrigger>
                       <SheetContent side="bottom" className="max-h-[70vh] overflow-y-auto">
