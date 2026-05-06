@@ -199,6 +199,10 @@ const OldReviewsSection = ({
 };
 
 const AISettingsPage = () => {
+  const { i18n } = useTranslation();
+  const isEN = i18n.language?.toLowerCase().startsWith("en");
+  const toneOptions = getToneOptions(isEN);
+  const lengthOptions = getLengthOptions(isEN);
   const { user } = useAuth();
   const navigate = useNavigate();
   const [settings, setSettings] = useState<AISettings>({
