@@ -36,10 +36,18 @@ const issueTypes = [
 interface SupportDialogProps {
   userEmail?: string;
   triggerClassName?: string;
+  hideTrigger?: boolean;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
-export const SupportDialog = ({ userEmail, triggerClassName }: SupportDialogProps) => {
-  const [open, setOpen] = useState(false);
+export const SupportDialog = ({ userEmail, triggerClassName, hideTrigger, open: openProp, onOpenChange }: SupportDialogProps) => {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = openProp ?? internalOpen;
+  const setOpen = (v: boolean) => {
+    if (onOpenChange) onOpenChange(v);
+    else setInternalOpen(v);
+  };
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [title, setTitle] = useState("");
