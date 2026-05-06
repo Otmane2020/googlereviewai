@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { callOpenRouterWithFallback } from "../_shared/openrouter.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -50,30 +51,18 @@ ${customTemplate ? `Additional instructions: ${customTemplate}` : ""}
 ${includeSignature && signature ? `End with this signature: ${signature}` : ""}
 Do not include any greeting like "Cher client" - start directly with the response.`;
 
-  const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${OPENROUTER_API_KEY}`,
-      "Content-Type": "application/json",
-      "HTTP-Referer": "https://starlinko.com",
-    },
-    body: JSON.stringify({
-      model: "google/gemini-2.5-flash",
+  try {
+    const content = await callOpenRouterWithFallback({
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: `Generate a response for this ${review.rating}-star review from ${review.author}: "${review.comment || "No comment provided"}"` },
       ],
-    }),
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    console.error("[OldReviewsBatch] OpenRouter error:", response.status, errorText);
+    });
+    return content || null;
+  } catch (err) {
+    console.error("[OldReviewsBatch] OpenRouter all-models error:", err);
     return null;
   }
-
-  const data = await response.json();
-  return data.choices?.[0]?.message?.content || null;
 }
 
 serve(async (req) => {
