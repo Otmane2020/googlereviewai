@@ -632,7 +632,7 @@ const SEOAutoPost = () => {
               <div className="flex items-center justify-between mt-3 p-2 bg-muted/50 rounded-lg border border-border/50">
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   <Settings className="w-3.5 h-3.5" />
-                  <span>Publication auto :</span>
+                  <span>{t("Publication auto :", "Auto publish:")}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <select
@@ -646,7 +646,7 @@ const SEOAutoPost = () => {
                       </option>
                     ))}
                   </select>
-                  <Badge variant="secondary" className="text-[10px]">Quotidien</Badge>
+                  <Badge variant="secondary" className="text-[10px]">{t("Quotidien", "Daily")}</Badge>
                 </div>
               </div>
 
