@@ -3,24 +3,24 @@ import { Star, MessageSquareReply } from "lucide-react";
 const examples = [
   {
     industry: "Restaurant",
-    location: "Brooklyn, NY",
+    location: "Paris 11e",
     rating: 5,
-    review: "Hands down the best carbonara in the neighborhood. Service was warm and the patio is magical.",
-    reply: "Thank you so much, Maria! We're thrilled the carbonara hit the spot — Chef Marco will be smiling all week. We can't wait to welcome you back to our patio soon.",
+    review: "Sans hésiter la meilleure carbonara du quartier. Service chaleureux et la terrasse est magique.",
+    reply: "Merci infiniment, Maria ! Ravis que la carbonara vous ait régalée — Chef Marco va sourire toute la semaine. À très vite sur notre terrasse.",
   },
   {
-    industry: "Boutique Hotel",
-    location: "Austin, TX",
+    industry: "Hôtel boutique",
+    location: "Lyon",
     rating: 5,
-    review: "Stayed two nights for a wedding. The room was stunning and the concierge went above and beyond.",
-    reply: "Thanks for choosing us for such a special weekend, Daniel. We've passed your kind words on to our concierge team — they'll be over the moon. Come back anytime.",
+    review: "Deux nuits pour un mariage. Chambre magnifique et conciergerie incroyable.",
+    reply: "Merci de nous avoir choisis pour ce moment si spécial, Daniel. Nous transmettons vos mots à toute l'équipe — ils seront aux anges. Revenez quand vous voulez.",
   },
   {
-    industry: "Auto Repair",
-    location: "Santa Monica, CA",
+    industry: "Garage auto",
+    location: "Marseille",
     rating: 4,
-    review: "Quick turnaround, fair pricing. Wish the waiting area was a bit more comfortable.",
-    reply: "Appreciate the honest feedback, Jen. Glad we got you back on the road quickly. Good news — our waiting lounge gets a full refresh next month, hope to see you then.",
+    review: "Intervention rapide, prix juste. Salle d'attente à améliorer.",
+    reply: "Merci pour ce retour honnête, Jen. Heureux de vous avoir remis sur la route rapidement. Bonne nouvelle : notre salle d'attente est entièrement rénovée le mois prochain.",
   },
 ];
 
@@ -30,13 +30,13 @@ export const ReviewsAISection = () => {
       <div className="container mx-auto px-4 sm:px-6">
         <div className="max-w-2xl mx-auto text-center mb-14">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-background border border-border text-foreground text-xs font-semibold mb-4">
-            <MessageSquareReply className="w-3.5 h-3.5" /> Reviews AI
+            <MessageSquareReply className="w-3.5 h-3.5" /> Avis IA
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-foreground tracking-tight">
-            Every review answered. <span className="text-primary">Automatically.</span>
+            Tous vos avis reçus. <span className="text-primary">Répondus automatiquement.</span>
           </h2>
           <p className="mt-4 text-lg text-muted-foreground">
-            On-brand AI replies published to Google Business in minutes — fueling both your reputation and your AI ranking.
+            Des réponses IA fidèles à votre marque, publiées sur Google en quelques minutes — pour booster votre réputation et votre référencement IA.
           </p>
         </div>
 
