@@ -136,11 +136,11 @@ export const UpgradeDialog = ({ open, onOpenChange, currentPlan }: UpgradeDialog
             </div>
             <DialogHeader>
               <DialogTitle className="text-xl font-bold text-foreground">
-                Passez au <span className="text-primary">Quotidien</span>
+                {isEN ? <>Upgrade to <span className="text-primary">Daily</span></> : <>Passez au <span className="text-primary">Quotidien</span></>}
               </DialogTitle>
             </DialogHeader>
             <p className="text-sm text-muted-foreground mt-2">
-              Publiez tous les jours sur Google pour maximiser votre visibilité
+              {isEN ? "Post every day on Google to maximize your visibility" : "Publiez tous les jours sur Google pour maximiser votre visibilité"}
             </p>
           </div>
         </div>
