@@ -86,8 +86,8 @@ export const RankiHero = () => {
                 <MapPin className="w-4 h-4 text-foreground" />
               </div>
               <div className="text-left">
-                <div className="text-[10px] uppercase font-semibold text-muted-foreground">Rank #1</div>
-                <div className="text-xs font-bold text-foreground">in ChatGPT</div>
+                <div className="text-[10px] uppercase font-semibold text-muted-foreground">{t("landingUI.hero.rank")}</div>
+                <div className="text-xs font-bold text-foreground">{t("landingUI.hero.inChatGPT")}</div>
               </div>
             </div>
 
