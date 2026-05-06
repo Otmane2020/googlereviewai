@@ -34,6 +34,7 @@ import ResetPassword from "./pages/ResetPassword";
 import MobileAds from "./pages/MobileAds";
 import PasswordAuth from "./pages/PasswordAuth";
 import Admin from "./pages/Admin";
+import Checklist from "./pages/Checklist";
 import LocalAEO from "./pages/LocalAEO";
 import GmbPost from "./pages/GmbPost";
 import GmbAutopostingGuide from "./pages/GmbAutopostingGuide";
@@ -199,6 +200,7 @@ const AppContent = () => {
               <Route path="/blog/:slug" element={<BlogArticle />} />
               <Route path="/landing" element={<LandingPremium />} />
               <Route path="/lp/facebook" element={<LandingFacebook />} />
+              <Route path="/checklist" element={<Checklist />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </OAuthCallback>
