@@ -209,8 +209,16 @@ const Auth = () => {
               <ArrowLeft className="w-5 h-5" />
               <span>{t("auth.back")}</span>
             </Link>
-            <StarlinkoLogo showBadge={false} />
+            <div className="flex items-center gap-2">
+              <LanguageSwitcher variant="flags" />
+              <StarlinkoLogo showBadge={false} />
+            </div>
           </div>
+        </div>
+
+        {/* Desktop language switcher */}
+        <div className="hidden lg:flex justify-end p-4">
+          <LanguageSwitcher variant="flags" />
         </div>
 
         <div className="flex-1 flex items-center justify-center p-6">
