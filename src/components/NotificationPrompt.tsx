@@ -192,71 +192,52 @@ export const NotificationPrompt = () => {
 
   const handleSubscribe = async () => {
     setIsSubscribing(true);
-    
-    // Add a safety timeout to reset state if nothing happens
-    const safetyTimeout = setTimeout(() => {
-      setIsSubscribing(false);
-    }, 10000);
-    
-    if (window.PushAlertCo) {
-      try {
-        window.PushAlertCo.forceSubscribe({
-          onSuccess: async () => {
-            clearTimeout(safetyTimeout);
-            
-            // Get the subscriber ID and register it with our backend
-            try {
-              const info = window.PushAlertCo?.getSubsInfo();
-              if (info?.subs_id) {
-                console.log("[PushAlert] Got subscriber ID:", info.subs_id);
-                await registerSubscriberId(info.subs_id);
-              }
-            } catch (e) {
-              console.error("[PushAlert] Error getting subscriber info:", e);
-            }
-            
-            setIsSubscribing(false);
-            setIsAlreadySubscribed(true);
-            setDismissed(true);
-            toast({
-              title: "Notifications activées",
-              description: "Vous recevrez des alertes pour vos avis Google",
-            });
-          },
-          onFailure: () => {
-            clearTimeout(safetyTimeout);
-            setIsSubscribing(false);
-            toast({
-              title: "Notifications non activées",
-              description: "Vous pourrez les activer plus tard dans les paramètres",
-              variant: "destructive",
-            });
-          }
+    try {
+      // iOS Safari requires PWA install before push works
+      if (isIOS && !isStandalone && !isInstalled) {
+        toast({
+          title: "Installez l'app d'abord",
+          description: "Sur iPhone, ajoutez Ranki à l'écran d'accueil pour activer les notifications.",
+          variant: "destructive",
         });
-      } catch (error) {
-        clearTimeout(safetyTimeout);
         setIsSubscribing(false);
-        console.error("PushAlert error:", error);
+        return;
       }
-    } else {
-      // Fallback: request native permission
-      try {
-        const result = await Notification.requestPermission();
-        clearTimeout(safetyTimeout);
-        setIsSubscribing(false);
-        setPermission(result);
-        if (result === "granted") {
-          setDismissed(true);
+
+      const ok = await webPushSubscribe();
+      setIsSubscribing(false);
+
+      if (ok) {
+        setIsAlreadySubscribed(true);
+        setDismissed(true);
+        toast({
+          title: "Notifications activées",
+          description: "Vous recevrez une alerte à chaque nouvel avis Google.",
+        });
+      } else {
+        if (typeof Notification !== "undefined" && Notification.permission === "denied") {
+          setPermission("denied");
           toast({
-            title: "Notifications activées",
-            description: "Vous recevrez des alertes pour vos avis Google",
+            title: "Notifications bloquées",
+            description: "Autorisez les notifications dans les réglages du navigateur.",
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Activation impossible",
+            description: "Vérifiez votre navigateur ou réessayez plus tard.",
+            variant: "destructive",
           });
         }
-      } catch (error) {
-        clearTimeout(safetyTimeout);
-        setIsSubscribing(false);
-        console.error("Permission error:", error);
       }
+    } catch (error) {
+      setIsSubscribing(false);
+      console.error("[NotificationPrompt] Subscribe error:", error);
+      toast({
+        title: "Erreur",
+        description: "Impossible d'activer les notifications.",
+        variant: "destructive",
+      });
     }
   };
 
