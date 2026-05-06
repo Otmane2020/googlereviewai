@@ -363,10 +363,10 @@ export default function GmbPost() {
                 <div className="space-y-3 p-3 rounded-xl border border-primary/20 bg-primary/5">
                   <div>
                     <Label className="text-sm font-medium mb-2 block">
-                      {postType === "EVENT" ? "Titre de l'événement" : "Titre de l'offre"}
+                      {postType === "EVENT" ? t("Titre de l'événement", "Event title") : t("Titre de l'offre", "Offer title")}
                     </Label>
                     <Input
-                      placeholder={postType === "EVENT" ? "Ex : Soirée portes ouvertes" : "Ex : -20% sur tout le menu"}
+                      placeholder={postType === "EVENT" ? t("Ex : Soirée portes ouvertes", "E.g. Open house evening") : t("Ex : -20% sur tout le menu", "E.g. -20% on the entire menu")}
                       value={eventTitle}
                       onChange={(e) => setEventTitle(e.target.value.slice(0, 58))}
                       maxLength={58}
@@ -374,7 +374,7 @@ export default function GmbPost() {
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <Label className="text-sm font-medium mb-2 block">Début</Label>
+                      <Label className="text-sm font-medium mb-2 block">{t("Début", "Start")}</Label>
                       <Input
                         type="datetime-local"
                         value={startDate}
@@ -382,7 +382,7 @@ export default function GmbPost() {
                       />
                     </div>
                     <div>
-                      <Label className="text-sm font-medium mb-2 block">Fin</Label>
+                      <Label className="text-sm font-medium mb-2 block">{t("Fin", "End")}</Label>
                       <Input
                         type="datetime-local"
                         value={endDate}
