@@ -102,6 +102,8 @@ interface Business {
 const REVIEWS_PER_PAGE = 10;
 
 const Reviews = () => {
+  const { t, i18n } = useTranslation();
+  const dateLocale = i18n.language?.startsWith("fr") ? "fr-FR" : "en-US";
   const { user } = useAuth();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
