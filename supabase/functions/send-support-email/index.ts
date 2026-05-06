@@ -126,9 +126,8 @@ serve(async (req) => {
         Authorization: `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: "Ranki.ai Support <support@ranki.ai>",
+        from: FROM_EMAIL,
         to: [SUPPORT_EMAIL],
-        cc: ["oben.rockman@gmail.com"],
         reply_to: email || undefined,
         subject: `[Support] ${issueLabels[issueType] || issueType}: ${title}`,
         html: emailHtml,
