@@ -109,8 +109,8 @@ const AEORank = () => {
       .eq("id", user.id)
       .single();
     
-    const hasPaidPlan = profile?.plan_name && ["pro", "business"].includes(profile.plan_name.toLowerCase());
-    setIsSubscribed(!!subscription || hasPaidPlan);
+    const hasPaidPlan = profile?.plan_name && ["pro", "business", "quotidien", "agence", "pro annuel", "business annuel"].includes(profile.plan_name.toLowerCase());
+    setIsSubscribed(!!subscription || !!hasPaidPlan);
   };
 
   const fetchData = async () => {
