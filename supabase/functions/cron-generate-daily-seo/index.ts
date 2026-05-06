@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { callOpenRouterWithFallback } from "../_shared/openrouter.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -171,34 +172,23 @@ ${business.website_content ? `\nContexte du site web:\n${business.website_conten
 Génère UNIQUEMENT le contenu de l'article (pas le titre), prêt à être publié sur Google.`;
 
           try {
-            const aiResponse = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-              method: "POST",
-              headers: {
-                "Authorization": `Bearer ${openRouterApiKey}`,
-                "Content-Type": "application/json",
-                "HTTP-Referer": "https://starlinko.com",
-                "X-Title": "Starlinko SEO Generator",
-              },
-              body: JSON.stringify({
-                model: "google/gemini-2.5-flash",
+            let content: string;
+            try {
+              content = (await callOpenRouterWithFallback({
                 messages: [
                   { role: "system", content: systemPrompt },
                   { role: "user", content: userPrompt },
                 ],
                 max_tokens: 1000,
                 temperature: 0.7,
-              }),
-            });
-
-            if (!aiResponse.ok) {
-              const errorText = await aiResponse.text();
-              console.error(`[CRON-SEO] OpenRouter error for ${business.name}:`, errorText);
+                title: "Starlinko SEO Generator",
+                apiKey: openRouterApiKey,
+              })).trim();
+            } catch (err) {
+              console.error(`[CRON-SEO] OpenRouter all-models error for ${business.name}:`, err);
               errorCount++;
               continue;
             }
-
-            const aiData = await aiResponse.json();
-            const content = aiData.choices?.[0]?.message?.content?.trim();
 
             if (!content) {
               console.error(`[CRON-SEO] No content generated for article ${article.id}`);
