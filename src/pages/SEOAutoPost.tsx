@@ -487,7 +487,7 @@ const SEOAutoPost = () => {
             <div className="min-w-0">
               <h1 className="text-lg font-bold text-foreground truncate">SEO & AEO AutoPost</h1>
               <p className="text-xs text-muted-foreground">
-                30-day automatic planning
+                {t("Planification automatique sur 30 jours", "30-day automatic planning")}
               </p>
             </div>
           </div>
@@ -501,12 +501,12 @@ const SEOAutoPost = () => {
               {generating ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Analyzing...
+                  {t("Analyse en cours...", "Analyzing...")}
                 </>
               ) : (
                 <>
                   <RefreshCw className="w-4 h-4 mr-2" />
-                  Analyze & Plan
+                  {t("Analyser & Planifier", "Analyze & Plan")}
                 </>
               )}
             </Button>
