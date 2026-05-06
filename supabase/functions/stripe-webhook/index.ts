@@ -12,13 +12,16 @@ const supabaseAdmin = createClient(
 );
 
 // Plan configurations
-const PLAN_CONFIG: Record<string, { credits: number; maxBusinesses: number; planName: string }> = {
+// agencyPoolCredits: total credits added to the user's agency pool (to be allocated per business)
+const PLAN_CONFIG: Record<string, { credits: number; maxBusinesses: number; planName: string; agencyPoolCredits?: number }> = {
   "price_1SrHtCEfti9t9nN9L8Fytsni": { credits: 10, maxBusinesses: 1, planName: "Starter" },
   "price_1SrHtDEfti9t9nN96yIPGiOo": { credits: 100, maxBusinesses: 2, planName: "Pro" },
   "price_1SrHtEEfti9t9nN9mq7MrV3G": { credits: 400, maxBusinesses: 999, planName: "Business" },
   "price_1SrHtOEfti9t9nN9fG4lSroa": { credits: 10, maxBusinesses: 1, planName: "Starter Annuel" },
   "price_1SrHtPEfti9t9nN9dnZ0sXpi": { credits: 100, maxBusinesses: 2, planName: "Pro Annuel" },
   "price_1SrHtQEfti9t9nN9GKvr4NSt": { credits: 400, maxBusinesses: 999, planName: "Business Annuel" },
+  // Agence - 49€/mois - 10+ établissements, pool de 1000 crédits à allouer par établissement
+  "price_1TTuIpEfti9t9nN9sy6pUNgU": { credits: 0, maxBusinesses: 999, planName: "Agence", agencyPoolCredits: 1000 },
 };
 
 // Helper function to safely convert Unix timestamp to ISO string
