@@ -655,9 +655,9 @@ const SEOAutoPost = () => {
                 {scheduledContent.filter(c => c.content_type === "seo_article").length === 0 ? (
                   <Card className="p-5 text-center">
                     <FileText className="w-8 h-8 mx-auto mb-2 text-muted-foreground/30" />
-                    <h3 className="text-sm font-medium text-foreground mb-1">No scheduled article</h3>
+                    <h3 className="text-sm font-medium text-foreground mb-1">{t("Aucun article planifié", "No scheduled article")}</h3>
                     <p className="text-xs text-muted-foreground">
-                      Click "Analyze & Plan" to generate 30 article titles
+                      {t("Cliquez sur « Analyser & Planifier » pour générer 30 titres d'articles", "Click \"Analyze & Plan\" to generate 30 article titles")}
                     </p>
                   </Card>
                 ) : (
