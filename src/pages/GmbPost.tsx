@@ -136,6 +136,22 @@ export default function GmbPost() {
       return;
     }
 
+    // Validations spécifiques
+    if (postType === "EVENT" || postType === "OFFER") {
+      if (!eventTitle.trim()) {
+        toast.error(postType === "EVENT" ? "Titre de l'événement requis" : "Titre de l'offre requis");
+        return;
+      }
+      if (!startDate || !endDate) {
+        toast.error("Dates de début et de fin requises");
+        return;
+      }
+      if (new Date(endDate) < new Date(startDate)) {
+        toast.error("La date de fin doit être après la date de début");
+        return;
+      }
+    }
+
     setIsPublishing(true);
 
     try {
@@ -146,6 +162,11 @@ export default function GmbPost() {
           topic_type: postType,
           cta_type: ctaType && ctaType !== "NONE" ? ctaType : undefined,
           cta_url: ctaType && ctaType !== "NONE" ? ctaUrl : undefined,
+          event_title: (postType === "EVENT" || postType === "OFFER") ? eventTitle : undefined,
+          start_date: (postType === "EVENT" || postType === "OFFER") ? startDate : undefined,
+          end_date: (postType === "EVENT" || postType === "OFFER") ? endDate : undefined,
+          coupon_code: postType === "OFFER" ? couponCode || undefined : undefined,
+          terms_conditions: postType === "OFFER" ? terms || undefined : undefined,
         },
       });
 
@@ -162,6 +183,11 @@ export default function GmbPost() {
         setContent("");
         setCtaType("NONE");
         setCtaUrl("");
+        setEventTitle("");
+        setStartDate("");
+        setEndDate("");
+        setCouponCode("");
+        setTerms("");
         fetchRecentPosts();
       } else if (data?.requires_reconnect) {
         toast.error("Reconnexion Google requise", {
