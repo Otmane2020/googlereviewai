@@ -7,7 +7,7 @@ interface RankiLogoProps {
 /**
  * Ranki.ai logo — geo pin + ranking bars motif inside.
  * Filename kept as Ranki.aiLogo.tsx to avoid breaking imports across the app.
- * Exported as both Ranki.aiLogo (compat) and RankiLogo.
+ * Exported as both RankiLogo.
  */
 const RankiMark = ({ className = "w-8 h-8" }: { className?: string }) => (
   <svg
@@ -51,4 +51,4 @@ export const RankiLogo = ({ className = "", showBadge = true, variant = "default
 };
 
 // Backwards-compatible export — many files still import Ranki.aiLogo by name.
-export const Ranki.aiLogo = RankiLogo;
+
