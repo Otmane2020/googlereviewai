@@ -172,7 +172,7 @@ const RankiSidebar = () => {
               <Button
                 size="sm"
                 className="w-full h-7 text-xs"
-                onClick={() => navigate("/choose-plan")}
+                onClick={() => setUpgradeOpen(true)}
               >
                 <Sparkles className="w-3 h-3 mr-1" /> {t("sidebar.upgrade")}
               </Button>
