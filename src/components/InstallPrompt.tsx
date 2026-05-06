@@ -15,8 +15,8 @@ export const InstallPrompt = () => {
     const lastDismissed = localStorage.getItem("install-prompt-dismissed");
     if (lastDismissed) {
       const dismissedTime = parseInt(lastDismissed, 10);
-      // Don't show for 24 hours after dismissal
-      if (Date.now() - dismissedTime < 24 * 60 * 60 * 1000) {
+      // Don't show for 1 hour after dismissal (was 24h, too long)
+      if (Date.now() - dismissedTime < 60 * 60 * 1000) {
         setDismissed(true);
       }
     }
