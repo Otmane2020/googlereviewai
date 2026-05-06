@@ -74,8 +74,12 @@ export const OnboardingScreen = ({ onComplete }: OnboardingScreenProps) => {
       {/* Content */}
       <div className="flex-1 flex flex-col items-center justify-center px-6 pb-32">
         {/* Icon */}
-        <div className={`w-24 h-24 rounded-3xl bg-gradient-to-br ${step.color} flex items-center justify-center mb-8 shadow-xl`}>
-          <step.icon className="w-12 h-12 text-white" />
+        <div className={`w-24 h-24 rounded-3xl ${currentStep === 0 ? "bg-white border border-border" : `bg-gradient-to-br ${step.color}`} flex items-center justify-center mb-8 shadow-xl`}>
+          {currentStep === 0 ? (
+            <img src="/favicon.svg" alt="Ranki.ai" className="w-14 h-14" />
+          ) : (
+            <step.icon className="w-12 h-12 text-white" />
+          )}
         </div>
 
         {/* Text */}
