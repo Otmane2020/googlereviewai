@@ -126,20 +126,20 @@ const Calendar = () => {
             <CalendarDays className="w-5 h-5 text-primary" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Calendrier de contenu</h1>
-            <p className="text-sm text-muted-foreground">Tous vos articles SEO et Q&R GEO planifiés en un coup d'œil.</p>
+            <h1 className="text-2xl font-bold text-foreground">{t("Calendrier de contenu", "Content calendar")}</h1>
+            <p className="text-sm text-muted-foreground">{t("Tous vos articles SEO et Q&R GEO planifiés en un coup d'œil.", "All your scheduled SEO articles and GEO Q&A at a glance.")}</p>
           </div>
         </div>
 
         <Card className="rounded-2xl border-border/60 shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between pb-4">
-            <CardTitle className="text-lg">{format(cursor, "MMMM yyyy")}</CardTitle>
+            <CardTitle className="text-lg">{format(cursor, "MMMM yyyy", { locale: dateLocale })}</CardTitle>
             <div className="flex items-center gap-2">
               <Button variant="outline" size="icon" onClick={() => setCursor(subMonths(cursor, 1))}>
                 <ChevronLeft className="w-4 h-4" />
               </Button>
               <Button variant="outline" size="sm" onClick={() => { setCursor(new Date()); setSelectedDay(new Date()); }}>
-                Aujourd'hui
+                {t("Aujourd'hui", "Today")}
               </Button>
               <Button variant="outline" size="icon" onClick={() => setCursor(addMonths(cursor, 1))}>
                 <ChevronRight className="w-4 h-4" />
@@ -148,7 +148,7 @@ const Calendar = () => {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-7 gap-1 mb-2">
-              {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((d) => (
+              {(isEN ? ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] : ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"]).map((d) => (
                 <div key={d} className="text-[11px] font-semibold text-muted-foreground text-center py-1">
                   {d}
                 </div>
