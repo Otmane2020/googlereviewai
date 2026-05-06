@@ -327,13 +327,13 @@ export default function GmbPost() {
             <CardHeader className="pb-3">
               <CardTitle className="text-base flex items-center gap-2">
                 <Megaphone className="w-5 h-5 text-primary" />
-                Nouveau post
+                {t("Nouveau post", "New post")}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               {/* Post Type */}
               <div>
-                <Label className="text-sm font-medium mb-2 block">Type de publication</Label>
+                <Label className="text-sm font-medium mb-2 block">{t("Type de publication", "Post type")}</Label>
                 <div className="grid grid-cols-3 gap-2">
                   {POST_TYPES.map((type) => {
                     const Icon = type.icon;
