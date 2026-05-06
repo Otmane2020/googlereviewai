@@ -347,12 +347,12 @@ const Calendar = () => {
                     <Button variant="outline" size="sm" asChild>
                       <a href={`https://business.google.com/`} target="_blank" rel="noopener noreferrer">
                         <ExternalLink className="w-3.5 h-3.5 mr-1.5" />
-                        Voir sur Google
+                        {t("Voir sur Google", "View on Google")}
                       </a>
                     </Button>
                   )}
                   <Button variant="default" size="sm" onClick={() => setDetail(null)}>
-                    Fermer
+                    {t("Fermer", "Close")}
                   </Button>
                 </DialogFooter>
               </>
