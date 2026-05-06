@@ -37,7 +37,7 @@ serve(async (req) => {
     const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
     const body: PublishRequest = await req.json();
-    const { business_id, summary, topic_type = "STANDARD", cta_type, cta_url, media_url, post_id, user_id: cronUserId } = body;
+    const { business_id, summary, topic_type = "STANDARD", cta_type, cta_url, media_url, post_id, user_id: cronUserId, event_title, start_date, end_date, coupon_code, terms_conditions } = body;
 
     let userId: string;
 
