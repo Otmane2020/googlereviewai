@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { Button } from "./ui/button";
+import { supabase } from "@/integrations/supabase/client";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -44,10 +45,16 @@ export const LanguageSwitcher = ({ variant = "flags", className = "" }: Language
   const { i18n } = useTranslation();
   const currentLang = i18n.language?.substring(0, 2) || "en";
 
-  const handleLanguageChange = (langCode: string) => {
+  const handleLanguageChange = async (langCode: string) => {
     i18n.changeLanguage(langCode);
     try { localStorage.setItem("i18nextLng", langCode); } catch {}
-    // Force a full reload so every component (incl. those without t()) re-renders in the new language
+    // Persist to profile so server-side emails/notifications use the right language
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase.from("profiles").update({ preferred_language: langCode }).eq("id", user.id);
+      }
+    } catch {}
     setTimeout(() => window.location.reload(), 50);
   };
 
