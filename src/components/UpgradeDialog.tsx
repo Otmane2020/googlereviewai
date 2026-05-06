@@ -152,12 +152,12 @@ export const UpgradeDialog = ({ open, onOpenChange, currentPlan }: UpgradeDialog
                 <Star className="w-7 h-7 text-destructive" />
               </div>
               <div className="flex-1">
-                <h3 className="font-bold text-lg text-foreground">Quotidien</h3>
-                <p className="text-sm text-muted-foreground">SEO + AEO tous les jours</p>
+                <h3 className="font-bold text-lg text-foreground">{isEN ? "Daily" : "Quotidien"}</h3>
+                <p className="text-sm text-muted-foreground">{isEN ? "SEO + AEO every day" : "SEO + AEO tous les jours"}</p>
               </div>
               <div className="text-right">
-                <div className="text-2xl font-bold text-foreground">9,99€</div>
-                <div className="text-xs text-muted-foreground">/mois</div>
+                <div className="text-2xl font-bold text-foreground">{priceLabel}</div>
+                <div className="text-xs text-muted-foreground">{isEN ? "/month" : "/mois"}</div>
               </div>
             </div>
 
