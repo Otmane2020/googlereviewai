@@ -66,7 +66,7 @@ export const GeoRankSection = () => {
                       <div className="text-sm font-bold text-foreground flex items-center gap-1">
                         <MapPin className="w-3 h-3 text-primary" /> {q.your.name}
                       </div>
-                      <div className="text-[10px] uppercase font-semibold text-muted-foreground">Votre établissement</div>
+                      <div className="text-[10px] uppercase font-semibold text-muted-foreground">{t("landingUI.geoRank.yourBusiness")}</div>
                     </div>
                   </div>
                   <div className="flex items-center gap-1 text-primary text-xs font-bold">
