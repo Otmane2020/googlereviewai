@@ -561,8 +561,8 @@ const AISettingsPage = () => {
                   <ThumbsUp className="w-4 h-4 text-green-500" />
                 </div>
                 <div>
-                  <span className="font-medium text-sm text-foreground">Avis positifs uniquement</span>
-                  <p className="text-xs text-muted-foreground">Note ≥ 4 étoiles</p>
+                  <span className="font-medium text-sm text-foreground">{isEN ? "Positive reviews only" : "Avis positifs uniquement"}</span>
+                  <p className="text-xs text-muted-foreground">{isEN ? "Rating ≥ 4 stars" : "Note ≥ 4 étoiles"}</p>
                 </div>
               </div>
               <Switch
