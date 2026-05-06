@@ -698,7 +698,7 @@ const Dashboard = () => {
           <div className="bg-card rounded-2xl p-4 border border-border">
             <div className="flex items-center gap-2 mb-2">
               <Sparkles className="w-4 h-4 text-secondary" />
-              <span className="text-xs text-muted-foreground">AI responses</span>
+              <span className="text-xs text-muted-foreground">Réponses IA</span>
             </div>
             <div className="text-2xl font-bold text-foreground">{stats.aiResponses}</div>
           </div>
