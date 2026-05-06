@@ -9,7 +9,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Crown, Shield, Sparkles, Coins, ChevronDown, Loader2, Check, ArrowRight, Star, Zap } from "lucide-react";
+import { Crown, Shield, Sparkles, Coins, ChevronDown, Loader2, Check, ArrowRight, Star, Zap, Building2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
