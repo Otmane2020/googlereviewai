@@ -42,7 +42,9 @@ export const useWebPush = () => {
         const reg = await navigator.serviceWorker.getRegistration("/");
         if (reg) {
           const sub = await reg.pushManager.getSubscription();
-          setIsSubscribed(!!sub);
+          // Legacy FCM endpoints are decommissioned — treat as not subscribed
+          const isLegacyFcm = sub?.endpoint?.includes("fcm.googleapis.com/fcm/send/");
+          setIsSubscribed(!!sub && !isLegacyFcm);
         }
       } catch (e) {
         console.warn("[WebPush] Error checking subscription:", e);
