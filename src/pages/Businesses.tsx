@@ -555,7 +555,7 @@ const BusinessesPage = () => {
                           </div>
                         ) : (
                           <div className="p-4 bg-muted/30 rounded-xl border border-dashed border-muted-foreground/20">
-                            <p className="text-sm text-muted-foreground italic text-center">Aucune description disponible</p>
+                            <p className="text-sm text-muted-foreground italic text-center">{t("Aucune description disponible", "No description available")}</p>
                           </div>
                         )}
                         
