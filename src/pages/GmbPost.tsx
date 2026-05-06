@@ -33,18 +33,18 @@ interface GmbPost {
 }
 
 const POST_TYPES = [
-  { value: "STANDARD", label: "News", icon: Megaphone, description: "Share an update" },
-  { value: "OFFER", label: "Offer", icon: Gift, description: "Special promotion" },
-  { value: "EVENT", label: "Event", icon: Calendar, description: "Announce an event" },
+  { value: "STANDARD", label: "Actualité", icon: Megaphone, description: "Partager une nouveauté" },
+  { value: "OFFER", label: "Offre", icon: Gift, description: "Promotion spéciale" },
+  { value: "EVENT", label: "Événement", icon: Calendar, description: "Annoncer un événement" },
 ];
 
 const CTA_TYPES = [
   { value: "NONE", label: "Aucun" },
   { value: "LEARN_MORE", label: "En savoir plus" },
-  { value: "BOOK", label: "Book" },
+  { value: "BOOK", label: "Réserver" },
   { value: "ORDER", label: "Commander" },
   { value: "SHOP", label: "Acheter" },
-  { value: "SIGN_UP", label: "Sign up" },
+  { value: "SIGN_UP", label: "S'inscrire" },
   { value: "CALL", label: "Appeler" },
 ];
 
