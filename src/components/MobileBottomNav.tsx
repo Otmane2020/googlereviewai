@@ -26,7 +26,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 
 export const MobileBottomNav = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
 
