@@ -787,7 +787,7 @@ const BusinessesPage = () => {
                       <SheetTrigger asChild>
                         <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs">
                           <Tag className="w-3.5 h-3.5" />
-                          Keywords
+                          {t("Mots-clés", "Keywords")}
                           {business.auto_keywords && business.auto_keywords.length > 0 && (
                             <Badge variant="secondary" className="ml-1 h-4 px-1.5 text-[10px]">
                               {business.auto_keywords.length}
