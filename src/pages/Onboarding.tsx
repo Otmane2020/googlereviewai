@@ -98,6 +98,12 @@ const Onboarding = () => {
 
   const handleChoosePlan = async (priceKey: string) => {
     if (!user) return;
+    // Free plan → no checkout, go straight to dashboard
+    if (!priceKey) {
+      await supabase.from("profiles").update({ onboarding_completed: true } as any).eq("id", user.id);
+      navigate("/dashboard", { replace: true });
+      return;
+    }
     setPlanLoading(priceKey);
     try {
       await supabase.from("profiles").update({ onboarding_completed: true } as any).eq("id", user.id);
