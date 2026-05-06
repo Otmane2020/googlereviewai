@@ -37,7 +37,7 @@ serve(async (req) => {
 
     // Configure web-push with VAPID details
     webpush.setVapidDetails(
-      "mailto:contact@starlinko.app",
+      "mailto:contact@ranki.ai",
       vapidPublicKey,
       vapidPrivateKey
     );

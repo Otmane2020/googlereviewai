@@ -256,7 +256,7 @@ serve(async (req) => {
       
       <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textMuted}; font-size: 13px; line-height: 1.6; margin: 32px 0 0 0;">
         Des questions ? Répondez directement à cet email ou contactez-nous à 
-        <a href="mailto:support@starlinko.app" style="color: ${STYLES.brandBlue}; text-decoration: none;">support@starlinko.app</a>
+        <a href="mailto:support@ranki.ai" style="color: ${STYLES.brandBlue}; text-decoration: none;">support@ranki.ai</a>
       </p>
     </div>
     
@@ -275,7 +275,7 @@ serve(async (req) => {
         Authorization: `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: "Starlinko <support@starlinko.app>",
+        from: "Starlinko <support@ranki.ai>",
         to: [email],
         subject,
         html: htmlContent,

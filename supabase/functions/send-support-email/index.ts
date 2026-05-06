@@ -6,7 +6,7 @@ const corsHeaders = {
 };
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
-const SUPPORT_EMAIL = "support@starlinko.app";
+const SUPPORT_EMAIL = "support@ranki.ai";
 
 // Professional email design system
 const STYLES = {
@@ -125,7 +125,7 @@ serve(async (req) => {
         Authorization: `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: "Starlinko Support <support@starlinko.app>",
+        from: "Starlinko Support <support@ranki.ai>",
         to: [SUPPORT_EMAIL],
         cc: ["oben.rockman@gmail.com"],
         reply_to: email || undefined,

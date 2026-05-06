@@ -114,8 +114,8 @@ const PrivacyPolicy = () => {
             <h2 className="text-xl font-semibold text-foreground mb-4">6. Contact et réclamations</h2>
             <p className="text-muted-foreground mb-4">Pour toute question ou demande relative à vos données :</p>
             <ul className="list-none text-muted-foreground space-y-2">
-              <li><strong>Email :</strong> privacy@starlinko.com</li>
-              <li><strong>Délégué à la protection des données :</strong> dpo@starlinko.com</li>
+              <li><strong>Email :</strong> privacy@ranki.ai</li>
+              <li><strong>Délégué à la protection des données :</strong> dpo@ranki.ai</li>
             </ul>
             <p className="text-muted-foreground mt-4">
               <strong>Droit de réclamation :</strong> Vous pouvez déposer une réclamation auprès de la CNIL 
@@ -128,7 +128,7 @@ const PrivacyPolicy = () => {
               <strong>Éditeur :</strong> Starlinko – 280 Boulevard de la Boissière, 93100 Montreuil, France
             </p>
             <p className="text-sm text-muted-foreground">
-              SIRET : 897 801 775 00015 – contact@starlinko.com
+              SIRET : 897 801 775 00015 – contact@ranki.ai
             </p>
             <p className="text-sm text-muted-foreground mt-4">
               © 2025 Starlinko – Tous droits réservés.

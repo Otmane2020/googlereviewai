@@ -192,7 +192,7 @@ serve(async (req) => {
         Authorization: `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: "Starlinko <support@starlinko.app>",
+        from: "Starlinko <support@ranki.ai>",
         to: [email],
         subject,
         html: htmlContent,

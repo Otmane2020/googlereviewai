@@ -32,7 +32,7 @@ serve(async (req) => {
     const from = data.from || payload.from || "Expéditeur inconnu";
     const subject = data.subject || payload.subject || "(sans objet)";
     const textBody = data.text || data.html || payload.text || payload.html || "(aucun contenu)";
-    const to = Array.isArray(data.to) ? data.to.join(", ") : (data.to || payload.to || "support@starlinko.app");
+    const to = Array.isArray(data.to) ? data.to.join(", ") : (data.to || payload.to || "support@ranki.ai");
 
     // Extract sender email for reply_to
     const senderEmail = typeof from === "string" 
@@ -109,7 +109,7 @@ serve(async (req) => {
         Authorization: `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: "Starlinko Support <support@starlinko.app>",
+        from: "Starlinko Support <support@ranki.ai>",
         to: [NOTIFY_EMAIL],
         reply_to: senderEmail || undefined,
         subject: `[Support] ${subject}`,
