@@ -854,6 +854,7 @@ export type Database = {
           total_points: number | null
           trial_end: string | null
           updated_at: string | null
+          welcome_content_delivered: boolean
         }
         Insert: {
           agency_total_credits?: number
@@ -881,6 +882,7 @@ export type Database = {
           total_points?: number | null
           trial_end?: string | null
           updated_at?: string | null
+          welcome_content_delivered?: boolean
         }
         Update: {
           agency_total_credits?: number
@@ -908,6 +910,7 @@ export type Database = {
           total_points?: number | null
           trial_end?: string | null
           updated_at?: string | null
+          welcome_content_delivered?: boolean
         }
         Relationships: []
       }
