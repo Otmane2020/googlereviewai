@@ -91,7 +91,7 @@ export const BusinessSubscriptionSelector = ({
           </div>
 
           <Button
-            onClick={() => { window.location.href = "/#pricing"; }}
+            onClick={() => { window.location.href = "/choose-plan"; }}
             size="sm"
             className="w-full"
             disabled={isLoading}
