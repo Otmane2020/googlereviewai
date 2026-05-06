@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { StarlinkoLogo } from "@/components/StarlinkoLogo";
 import { AppLoadingBar } from "@/components/AppLoadingBar";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
