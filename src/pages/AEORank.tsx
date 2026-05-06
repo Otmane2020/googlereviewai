@@ -793,13 +793,13 @@ const AEORank = () => {
                 {/* Legend */}
                 <div className="flex flex-wrap gap-4 mt-4 text-xs text-muted-foreground">
                   <div className="flex items-center gap-1">
-                    <Clock className="w-3 h-3" /> Scheduled
+                    <Clock className="w-3 h-3" /> Planifié
                   </div>
                   <div className="flex items-center gap-1">
-                    <Sparkles className="w-3 h-3 text-primary" /> Ready
+                    <Sparkles className="w-3 h-3 text-primary" /> Prêt
                   </div>
                   <div className="flex items-center gap-1">
-                    <Check className="w-3 h-3 text-emerald-500" /> Published
+                    <Check className="w-3 h-3 text-emerald-500" /> Publié
                   </div>
                 </div>
               </TabsContent>
@@ -809,9 +809,9 @@ const AEORank = () => {
                 {scheduledContent.length === 0 ? (
                   <Card className="p-5 text-center">
                     <HelpCircle className="w-8 h-8 mx-auto mb-2 text-muted-foreground/30" />
-                    <h3 className="text-sm font-medium text-foreground mb-1">No scheduled Q&A</h3>
+                    <h3 className="text-sm font-medium text-foreground mb-1">Aucune Q&R planifiée</h3>
                     <p className="text-xs text-muted-foreground">
-                      Click "Analyze & Plan" to generate your 30-day plan
+                      Cliquez sur « Analyser & Générer » pour créer votre plan sur 30 jours
                     </p>
                   </Card>
                 ) : (
