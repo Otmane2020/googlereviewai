@@ -533,7 +533,7 @@ const BusinessesPage = () => {
                       {business.description ? (
                         <div className="mb-3 p-3 bg-muted/50 rounded-xl cursor-pointer hover:bg-muted/70 transition-colors">
                           <p className="text-sm text-muted-foreground line-clamp-3">{business.description}</p>
-                          <p className="text-xs text-primary mt-1">Voir plus →</p>
+                          <p className="text-xs text-primary mt-1">{t("Voir plus", "See more")} →</p>
                         </div>
                       ) : (
                         <div className="mb-3 p-3 bg-muted/30 rounded-xl border border-dashed border-muted-foreground/20 cursor-pointer hover:bg-muted/40 transition-colors">
