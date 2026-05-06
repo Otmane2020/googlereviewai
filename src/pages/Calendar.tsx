@@ -108,7 +108,7 @@ const Calendar = () => {
                 <ChevronLeft className="w-4 h-4" />
               </Button>
               <Button variant="outline" size="sm" onClick={() => { setCursor(new Date()); setSelectedDay(new Date()); }}>
-                Today
+                Aujourd'hui
               </Button>
               <Button variant="outline" size="icon" onClick={() => setCursor(addMonths(cursor, 1))}>
                 <ChevronRight className="w-4 h-4" />
