@@ -112,7 +112,7 @@ export const MobileBottomNav = () => {
             <SheetHeader>
               <SheetTitle className="text-left">Menu</SheetTitle>
             </SheetHeader>
-            <div className="grid grid-cols-3 gap-3 mt-4">
+            <div className="grid grid-cols-3 gap-2.5 mt-3">
               {menuItems.map((item) => {
                 const isActive = location.pathname === item.href;
                 return (
@@ -120,14 +120,18 @@ export const MobileBottomNav = () => {
                     key={item.href}
                     to={item.href}
                     onClick={() => setMenuOpen(false)}
-                    className={`flex flex-col items-center justify-center gap-2 p-4 rounded-2xl border transition-all ${
+                    className={`group flex flex-col items-center justify-center gap-2 p-3 rounded-2xl border transition-all active:scale-95 ${
                       isActive
-                        ? "bg-primary/10 border-primary/30 text-primary"
-                        : "bg-card border-border text-foreground hover:bg-muted/50"
+                        ? "bg-primary/5 border-primary/40 ring-1 ring-primary/20"
+                        : "bg-card border-border/60 hover:bg-muted/40"
                     }`}
                   >
-                    <item.icon className="w-6 h-6" />
-                    <span className="text-xs font-medium text-center leading-tight">{item.label}</span>
+                    <div className={`w-11 h-11 rounded-2xl flex items-center justify-center ${item.color}`}>
+                      <item.icon className="w-5 h-5" />
+                    </div>
+                    <span className={`text-[11px] font-medium text-center leading-tight ${isActive ? "text-primary" : "text-foreground"}`}>
+                      {item.label}
+                    </span>
                   </Link>
                 );
               })}
