@@ -87,7 +87,7 @@ export const DashboardHeader = () => {
           >
             <Sparkles className="w-4 h-4 text-primary" />
             <span className="text-sm font-medium text-foreground">
-              {profile?.credits ?? 0} credits
+              {profile?.credits ?? 0} crédits
             </span>
             {profile?.plan_name && (
               <Badge variant="secondary" className="text-[10px] px-1.5 py-0 ml-1">
@@ -130,7 +130,7 @@ export const DashboardHeader = () => {
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-0.5">
                   <p className="text-sm font-medium truncate">
-                    {profile?.full_name || "User"}
+                    {profile?.full_name || "Utilisateur"}
                   </p>
                   <p className="text-xs text-muted-foreground truncate">
                     {user?.email}
@@ -139,17 +139,17 @@ export const DashboardHeader = () => {
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => navigate("/settings")}>
-                <UserIcon className="w-4 h-4 mr-2" /> Settings
+                <UserIcon className="w-4 h-4 mr-2" /> Paramètres
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setUpgradeDialogOpen(true)}>
-                <Sparkles className="w-4 h-4 mr-2" /> Upgrade plan
+                <Sparkles className="w-4 h-4 mr-2" /> Passer Premium
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={handleSignOut}
                 className="text-destructive focus:text-destructive"
               >
-                <LogOut className="w-4 h-4 mr-2" /> Sign out
+                <LogOut className="w-4 h-4 mr-2" /> Se déconnecter
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

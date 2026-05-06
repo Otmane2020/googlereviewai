@@ -10,9 +10,9 @@ export const Header = () => {
 
   const navLinks = [
     { label: "GEO Rank", href: "#geo-rank" },
-    { label: "Reviews AI", href: "#reviews-ai" },
-    { label: "How it works", href: "#how-it-works" },
-    { label: "Pricing", href: "#pricing" },
+    { label: "Avis IA", href: "#reviews-ai" },
+    { label: "Comment ça marche", href: "#how-it-works" },
+    { label: "Tarifs", href: "#pricing" },
   ];
 
   return (
