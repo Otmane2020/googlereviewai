@@ -151,7 +151,7 @@ export const UpgradeDialog = ({ open, onOpenChange, currentPlan }: UpgradeDialog
             <div className="absolute -top-3 left-1/2 -translate-x-1/2">
               <Badge className="bg-destructive text-white shadow-lg px-3 py-1 text-xs font-semibold">
                 <Sparkles className="w-3 h-3 mr-1" />
-                PUBLICATION QUOTIDIENNE
+                {isEN ? "DAILY PUBLISHING" : "PUBLICATION QUOTIDIENNE"}
               </Badge>
             </div>
 
