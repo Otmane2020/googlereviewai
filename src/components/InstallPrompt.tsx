@@ -132,7 +132,7 @@ export const InstallPrompt = () => {
   // Bottom banner (au-dessus de la bottom nav, ne masque pas le header)
   return (
     <div className="fixed left-2 right-2 bottom-[80px] md:bottom-4 z-40 bg-primary text-primary-foreground shadow-2xl rounded-2xl animate-fade-in">
-      <div className="container mx-auto px-3 py-2.5 flex items-center justify-between gap-3">
+      <div className="px-3 py-2.5 flex items-center justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0">
           <img
             src="/icon-192x192.svg"
