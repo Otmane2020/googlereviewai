@@ -396,8 +396,8 @@ const AISettingsPage = () => {
               <Sparkles className="w-5 h-5 text-primary-foreground" />
             </div>
             <div className="flex-1">
-              <h1 className="text-lg font-bold text-foreground">Paramètres IA</h1>
-              <p className="text-xs text-muted-foreground">Personnalisez vos réponses</p>
+              <h1 className="text-lg font-bold text-foreground">{isEN ? "AI Settings" : "Paramètres IA"}</h1>
+              <p className="text-xs text-muted-foreground">{isEN ? "Customize your replies" : "Personnalisez vos réponses"}</p>
             </div>
             <Button
               onClick={handleSave}
@@ -410,7 +410,7 @@ const AISettingsPage = () => {
               ) : (
                 <>
                   <Check className="w-4 h-4 mr-1" />
-                  Enregistrer
+                  {isEN ? "Save" : "Enregistrer"}
                 </>
               )}
             </Button>
