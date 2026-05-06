@@ -31,18 +31,24 @@ export const InstallPrompt = () => {
   };
 
   const handleInstall = async () => {
+    // iOS Safari ne supporte pas l'installation programmatique → guide obligatoire
     if (isIOS) {
       setShowIOSGuide(true);
       return;
     }
-    // Android: try native prompt, otherwise show manual guide
+    // Android / Desktop : toujours tenter le prompt natif si dispo
     if (canInstall) {
-      const installed = await promptInstall();
-      if (installed) handleDismiss();
-      else setShowAndroidGuide(true);
-    } else {
-      setShowAndroidGuide(true);
+      try {
+        const installed = await promptInstall();
+        if (installed) handleDismiss();
+        // si refusé : ne rien faire, l'utilisateur a choisi
+      } catch {
+        setShowAndroidGuide(true);
+      }
+      return;
     }
+    // Pas de prompt natif disponible (critères PWA non remplis ou déjà installée)
+    setShowAndroidGuide(true);
   };
 
   if (isInstalled || isStandalone || dismissed) return null;
