@@ -114,25 +114,85 @@ export const UpgradeDialog = ({ open, onOpenChange, currentPlan }: UpgradeDialog
     }
   };
 
-  const upgradeFeatures = isEN
+  const handleAgency = async () => {
+    setLoadingAgency(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("create-checkout", {
+        body: {
+          priceKey: agencyPriceKey,
+          successUrl: `${window.location.origin}/dashboard?success=true`,
+          cancelUrl: `${window.location.origin}/settings?canceled=true`,
+        },
+      });
+      if (error) throw error;
+      if (data?.url) window.location.href = data.url;
+    } catch (error) {
+      console.error("Agency checkout error:", error);
+      toast({
+        title: isEN ? "Error" : "Erreur",
+        description: isEN ? "Unable to create payment session." : "Impossible de créer la session de paiement.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoadingAgency(false);
+    }
+  };
+
+  const starterFeatures = isEN
     ? [
-        "Daily SEO posts",
-        "Daily AEO Q&A (ChatGPT)",
-        "100 credits/month",
-        "2 locations",
+        "1 location",
+        "Weekly GEO reports (3 keywords)",
+        "AI replies to Google reviews",
+        "25 free credits / month",
+      ]
+    : [
+        "1 établissement",
+        "Rapports GEO hebdomadaires (3 mots-clés)",
+        "Réponses IA aux avis Google",
+        "25 crédits gratuits / mois",
+      ];
+
+  const dailyFeatures = isEN
+    ? [
+        "Up to 3 locations",
+        "Daily GEO tracking (unlimited keywords)",
+        "Daily SEO posts + AEO Q&A on Google",
+        "Competitor analysis",
         "Priority support",
       ]
     : [
-        "Posts SEO quotidiens",
-        "Q&A AEO quotidiens (ChatGPT)",
-        "100 crédits/mois",
-        "2 établissements",
+        "Jusqu'à 3 établissements",
+        "Suivi GEO quotidien (mots-clés illimités)",
+        "Posts SEO + Q&A AEO quotidiens sur Google",
+        "Analyse de la concurrence",
         "Support prioritaire",
       ];
 
+  const agencyFeatures = isEN
+    ? [
+        "Unlimited locations",
+        "Per-location usage tracking",
+        "1000 credits / month (pool)",
+        "White-label reports",
+        "API access",
+        "Dedicated account manager",
+      ]
+    : [
+        "Établissements illimités",
+        "Suivi de consommation par établissement",
+        "1000 crédits / mois (pool à allouer)",
+        "Rapports en marque blanche",
+        "Accès API",
+        "Account manager dédié",
+      ];
+
+  const isStarter = !currentPlan || currentPlan?.toLowerCase() === "free" || currentPlan?.toLowerCase() === "starter";
+  const isDaily = currentPlan?.toLowerCase() === "daily" || currentPlan?.toLowerCase() === "pro";
+  const isAgency = currentPlan?.toLowerCase() === "agency" || currentPlan?.toLowerCase() === "business";
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg p-0 overflow-hidden bg-gradient-to-b from-background to-muted/30 max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl p-0 overflow-hidden bg-gradient-to-b from-background to-muted/30 max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="relative px-6 pt-8 pb-6 text-center bg-gradient-to-br from-primary/10 via-primary/5 to-transparent">
           <div className="relative">
@@ -141,63 +201,121 @@ export const UpgradeDialog = ({ open, onOpenChange, currentPlan }: UpgradeDialog
             </div>
             <DialogHeader>
               <DialogTitle className="text-xl font-bold text-foreground">
-                {isEN ? <>Upgrade to <span className="text-primary">Daily</span></> : <>Passez au <span className="text-primary">Quotidien</span></>}
+                {isEN ? "Choose your plan" : "Choisissez votre plan"}
               </DialogTitle>
             </DialogHeader>
             <p className="text-sm text-muted-foreground mt-2">
-              {isEN ? "Post every day on Google to maximize your visibility" : "Publiez tous les jours sur Google pour maximiser votre visibilité"}
+              {isEN ? "Simple pricing. Massive AI visibility." : "Une tarification simple. Une visibilité IA massive."}
             </p>
           </div>
         </div>
 
-        {/* Upgrade Card */}
-        <div className="px-4 pb-4 pt-2">
-          <div className="relative rounded-2xl border-2 border-destructive/50 bg-destructive/5 p-5">
-            <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-              <Badge className="bg-destructive text-white shadow-lg px-3 py-1 text-xs font-semibold">
-                <Sparkles className="w-3 h-3 mr-1" />
-                {isEN ? "DAILY PUBLISHING" : "PUBLICATION QUOTIDIENNE"}
-              </Badge>
+        {/* Plans Grid */}
+        <div className="px-4 pb-4 pt-2 grid md:grid-cols-3 gap-4">
+          {/* Starter (Free) */}
+          <div className="relative rounded-2xl border border-border bg-card p-5 flex flex-col">
+            <h3 className="font-bold text-base text-foreground">Starter</h3>
+            <div className="mt-2 flex items-baseline gap-1">
+              <span className="text-2xl font-extrabold text-foreground">{isEN ? "Free" : "Gratuit"}</span>
             </div>
-
-            <div className="flex items-center gap-4 mt-3 mb-4">
-              <div className="w-14 h-14 rounded-xl bg-destructive/20 flex items-center justify-center shrink-0">
-                <Star className="w-7 h-7 text-destructive" />
-              </div>
-              <div className="flex-1">
-                <h3 className="font-bold text-lg text-foreground">{isEN ? "Daily" : "Quotidien"}</h3>
-                <p className="text-sm text-muted-foreground">{isEN ? "SEO + AEO every day" : "SEO + AEO tous les jours"}</p>
-              </div>
-              <div className="text-right">
-                <div className="text-2xl font-bold text-foreground">{priceLabel}</div>
-                <div className="text-xs text-muted-foreground">{isEN ? "/month" : "/mois"}</div>
-              </div>
-            </div>
-
-            <ul className="space-y-2 mb-4">
-              {upgradeFeatures.map((feature) => (
-                <li key={feature} className="flex items-center gap-2.5">
-                  <div className="w-5 h-5 rounded-full bg-secondary/20 flex items-center justify-center flex-shrink-0">
-                    <Check className="w-3 h-3 text-secondary" />
-                  </div>
-                  <span className="text-foreground text-sm">{feature}</span>
+            <p className="mt-2 text-xs text-muted-foreground">
+              {isEN
+                ? "Track your AI ranking and reply to reviews — free forever."
+                : "Suivez votre positionnement IA et répondez aux avis — gratuit à vie."}
+            </p>
+            <ul className="mt-4 space-y-2 flex-1">
+              {starterFeatures.map((f) => (
+                <li key={f} className="flex items-start gap-2 text-xs">
+                  <Check className="w-3.5 h-3.5 mt-0.5 text-primary flex-shrink-0" />
+                  <span className="text-foreground">{f}</span>
                 </li>
               ))}
             </ul>
+            <Button
+              variant="outline"
+              className="w-full mt-5 rounded-xl h-10 font-semibold"
+              disabled={isStarter}
+              onClick={() => { onOpenChange(false); navigate("/dashboard"); }}
+            >
+              {isStarter ? (isEN ? "✓ Current plan" : "✓ Plan actuel") : (isEN ? "Get started free" : "Commencer gratuitement")}
+            </Button>
+          </div>
 
+          {/* Daily (highlight) */}
+          <div className="relative rounded-2xl border-2 border-destructive/50 bg-destructive/5 p-5 flex flex-col md:scale-[1.02]">
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+              <Badge className="bg-destructive text-white shadow-lg px-3 py-1 text-[10px] font-semibold">
+                <Sparkles className="w-3 h-3 mr-1" />
+                {isEN ? "MOST POPULAR" : "LE PLUS POPULAIRE"}
+              </Badge>
+            </div>
+            <h3 className="font-bold text-base text-foreground mt-2">{isEN ? "Daily" : "Quotidien"}</h3>
+            <div className="mt-2 flex items-baseline gap-1">
+              <span className="text-2xl font-extrabold text-foreground">{priceLabel}</span>
+              <span className="text-xs text-muted-foreground">{isEN ? "/month" : "/mois"}</span>
+            </div>
+            <p className="mt-2 text-xs text-muted-foreground">
+              {isEN
+                ? "Win the AI search war on autopilot."
+                : "Gagnez la guerre du référencement IA en pilote automatique."}
+            </p>
+            <ul className="mt-4 space-y-2 flex-1">
+              {dailyFeatures.map((f) => (
+                <li key={f} className="flex items-start gap-2 text-xs">
+                  <Check className="w-3.5 h-3.5 mt-0.5 text-secondary flex-shrink-0" />
+                  <span className="text-foreground">{f}</span>
+                </li>
+              ))}
+            </ul>
             <Button
               onClick={handleUpgrade}
-              disabled={isLoading || isAlreadyUpgraded}
-              className="w-full rounded-xl h-12 font-semibold bg-destructive hover:bg-destructive/90 text-white shadow-lg"
+              disabled={isLoading || isDaily || isAgency}
+              className="w-full mt-5 rounded-xl h-10 font-semibold bg-destructive hover:bg-destructive/90 text-white shadow-lg"
             >
               {isLoading ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
-              ) : isAlreadyUpgraded ? (
-                "✓ Déjà activé"
+              ) : isDaily ? (
+                isEN ? "✓ Current plan" : "✓ Plan actuel"
+              ) : (
+                isEN ? "Free 7-day trial" : "Essai gratuit 7 jours"
+              )}
+            </Button>
+          </div>
+
+          {/* Agency */}
+          <div className="relative rounded-2xl border border-border bg-card p-5 flex flex-col">
+            <h3 className="font-bold text-base text-foreground">{isEN ? "Agency" : "Agence"}</h3>
+            <div className="mt-2 flex items-baseline gap-1">
+              <span className="text-2xl font-extrabold text-foreground">{agencyPriceLabel}</span>
+              <span className="text-xs text-muted-foreground">{isEN ? "/month" : "/mois"}</span>
+            </div>
+            <p className="mt-2 text-xs text-muted-foreground">
+              {isEN
+                ? "For multi-location brands and agencies (10+ locations)."
+                : "Pour les marques multi-établissements et agences (10+ établissements)."}
+            </p>
+            <ul className="mt-4 space-y-2 flex-1">
+              {agencyFeatures.map((f) => (
+                <li key={f} className="flex items-start gap-2 text-xs">
+                  <Check className="w-3.5 h-3.5 mt-0.5 text-primary flex-shrink-0" />
+                  <span className="text-foreground">{f}</span>
+                </li>
+              ))}
+            </ul>
+            <Button
+              variant="outline"
+              className="w-full mt-5 rounded-xl h-10 font-semibold"
+              onClick={handleAgency}
+              disabled={loadingAgency || isAgency}
+            >
+              {loadingAgency ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : isAgency ? (
+                isEN ? "✓ Current plan" : "✓ Plan actuel"
               ) : (
                 <>
-                  <ArrowRight className="w-4 h-4 mr-2" />
-                  {isEN ? "Upgrade to Daily" : "Passer au Quotidien"}
+                  <Building2 className="w-4 h-4 mr-2" />
+                  {isEN ? "Get started" : "Démarrer"}
                 </>
               )}
             </Button>
