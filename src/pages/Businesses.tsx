@@ -521,7 +521,7 @@ const BusinessesPage = () => {
                       <div className="flex items-center gap-1.5 mt-1.5">
                         <span className="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
                           <Coins className="w-3 h-3" />
-                          {business.credits ?? 0} crédits
+                          {business.credits ?? 0} {t("crédits", "credits")}
                         </span>
                       </div>
                     </div>
