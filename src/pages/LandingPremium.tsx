@@ -27,7 +27,7 @@ import { FAQSection } from "@/components/FAQSection";
    Users,
    Loader2
  } from "lucide-react";
- import { Ranki.aiLogo } from "@/components/StarlinkoLogo";
+ import { RankiLogo } from "@/components/StarlinkoLogo";
  import { useAuth } from "@/contexts/AuthContext";
  import { supabase } from "@/integrations/supabase/client";
  import { toast } from "@/hooks/use-toast";
@@ -184,7 +184,7 @@ const LandingPremium = () => {
        {/* Header */}
        <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
          <div className="container mx-auto px-5 py-4 flex items-center justify-between">
-           <Link to="/"><Ranki.aiLogo className="h-8" /></Link>
+           <Link to="/"><RankiLogo className="h-8" /></Link>
            <Button 
              variant="outline" 
              size="sm"

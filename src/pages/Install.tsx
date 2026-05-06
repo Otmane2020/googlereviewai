@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Download, Smartphone, Check, Share, Plus, MoreVertical } from "lucide-react";
-import { Ranki.aiLogo } from "@/components/StarlinkoLogo";
+import { RankiLogo } from "@/components/StarlinkoLogo";
 import { useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet";
 
@@ -64,7 +64,7 @@ const Install = () => {
         <Card className="w-full max-w-md text-center">
           <CardHeader>
             <div className="flex justify-center mb-4">
-              <Ranki.aiLogo className="h-16 w-auto" />
+              <RankiLogo className="h-16 w-auto" />
             </div>
             <CardTitle className="text-2xl">Application installée !</CardTitle>
             <CardDescription>
@@ -91,7 +91,7 @@ const Install = () => {
         <Card className="w-full max-w-md text-center">
           <CardHeader>
             <div className="flex justify-center mb-4">
-              <Ranki.aiLogo className="h-16 w-auto" />
+              <RankiLogo className="h-16 w-auto" />
             </div>
             <CardTitle className="text-2xl text-secondary">Installation réussie !</CardTitle>
             <CardDescription>
@@ -130,7 +130,7 @@ const Install = () => {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
-            <Ranki.aiLogo className="h-16 w-auto" />
+            <RankiLogo className="h-16 w-auto" />
           </div>
           <CardTitle className="text-2xl">Installer Ranki.ai</CardTitle>
           <CardDescription>

@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Star, Zap, Check, MessageSquare, TrendingUp, Clock, Sparkles, Gift } from "lucide-react";
-import { Ranki.aiLogo } from "@/components/StarlinkoLogo";
+import { RankiLogo } from "@/components/StarlinkoLogo";
 
 const MobileAds = () => {
   const navigate = useNavigate();
@@ -19,7 +19,7 @@ const MobileAds = () => {
       {/* Header */}
       <header className="py-4 px-4">
         <div className="flex justify-center">
-          <Ranki.aiLogo className="h-8" />
+          <RankiLogo className="h-8" />
         </div>
       </header>
 

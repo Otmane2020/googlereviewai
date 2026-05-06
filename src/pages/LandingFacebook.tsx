@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Ranki.aiLogo } from "@/components/StarlinkoLogo";
+import { RankiLogo } from "@/components/StarlinkoLogo";
 import { 
   Zap, Star, Check, ArrowRight, Gift, ShieldCheck, Clock, 
   MessageSquare, TrendingUp, Search, Sparkles, Bot, Users, 
@@ -74,7 +74,7 @@ const LandingFacebook = () => {
       {/* Sticky Header */}
       <header className="sticky top-0 z-50 bg-card/95 backdrop-blur-sm border-b border-border/50">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-          <Ranki.aiLogo />
+          <RankiLogo />
           <Button size="sm" onClick={() => navigate("/auth")} className="gap-1.5">
             <Zap className="w-4 h-4" />
             Essai gratuit
@@ -268,7 +268,7 @@ const LandingFacebook = () => {
       {/* Minimal Footer */}
       <footer className="py-6 bg-card border-t border-border">
         <div className="container mx-auto px-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
-          <Ranki.aiLogo />
+          <RankiLogo />
           <div className="flex gap-4">
             <a href="/privacy" className="hover:text-foreground transition-colors">Confidentialité</a>
             <a href="/terms" className="hover:text-foreground transition-colors">CGU</a>

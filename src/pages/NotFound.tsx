@@ -2,7 +2,7 @@ import { useLocation, Link } from "react-router-dom";
 import { useEffect } from "react";
 import { Home, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Ranki.aiLogo } from "@/components/StarlinkoLogo";
+import { RankiLogo } from "@/components/StarlinkoLogo";
 import { useTranslation } from "react-i18next";
 
 const NotFound = () => {
@@ -17,7 +17,7 @@ const NotFound = () => {
     <div className="flex min-h-screen items-center justify-center bg-muted/30">
       <div className="text-center px-4">
         <Link to="/" className="inline-block mb-8">
-          <Ranki.aiLogo showBadge={false} />
+          <RankiLogo showBadge={false} />
         </Link>
         <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-primary/10 flex items-center justify-center">
           <span className="text-5xl font-bold text-primary">404</span>

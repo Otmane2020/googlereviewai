@@ -52,3 +52,4 @@ export const RankiLogo = ({ className = "", showBadge = true, variant = "default
 
 // Backwards-compatible export — many files still import Ranki.aiLogo by name.
 
+export { RankiLogo as StarlinkoLogo };

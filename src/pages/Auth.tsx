@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { Ranki.aiLogo } from "@/components/StarlinkoLogo";
+import { RankiLogo } from "@/components/StarlinkoLogo";
 import { AppLoadingBar } from "@/components/AppLoadingBar";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { Button } from "@/components/ui/button";
@@ -170,7 +170,7 @@ const Auth = () => {
       <div className="hidden lg:flex lg:w-1/2 gradient-hero p-12 flex-col justify-between">
         <div>
           <Link to="/">
-            <Ranki.aiLogo showBadge={false} className="text-card" />
+            <RankiLogo showBadge={false} className="text-card" />
           </Link>
         </div>
         
@@ -212,7 +212,7 @@ const Auth = () => {
             </Link>
             <div className="flex items-center gap-2">
               <LanguageSwitcher variant="flags" />
-              <Ranki.aiLogo showBadge={false} />
+              <RankiLogo showBadge={false} />
             </div>
           </div>
         </div>
