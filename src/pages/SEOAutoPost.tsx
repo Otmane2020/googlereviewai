@@ -556,7 +556,7 @@ const SEOAutoPost = () => {
                       </DialogTrigger>
                       <DialogContent className="sm:max-w-md">
                         <DialogHeader>
-                          <DialogTitle>Vos établissements</DialogTitle>
+                          <DialogTitle>{t("Vos établissements", "Your businesses")}</DialogTitle>
                         </DialogHeader>
                         <div className="space-y-1 mt-4">
                           {businesses.map((business) => {
