@@ -200,6 +200,7 @@ const RankiSidebar = () => {
           </div>
         )}
       </SidebarFooter>
+      <SupportDialog userEmail={profile?.email} hideTrigger open={supportOpen} onOpenChange={setSupportOpen} />
     </Sidebar>
   );
 };
