@@ -266,10 +266,10 @@ export default function GmbPost() {
         {businesses.length > 1 && (
           <Card>
             <CardContent className="pt-4">
-              <Label className="text-sm font-medium mb-2 block">Établissement</Label>
+              <Label className="text-sm font-medium mb-2 block">{t("Établissement", "Business")}</Label>
               <Select value={selectedBusinessId} onValueChange={setSelectedBusinessId}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select a business" />
+                  <SelectValue placeholder={t("Sélectionner un établissement", "Select a business")} />
                 </SelectTrigger>
                 <SelectContent>
                   {businesses.map((business) => (
