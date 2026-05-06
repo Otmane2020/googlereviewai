@@ -191,7 +191,7 @@ const SEOAutoPost = () => {
     } catch (error: any) {
       console.error("Subscription error:", error);
       toast({
-        title: "Error",
+        title: "Erreur",
         description: error?.message || "Unable to create payment session",
         variant: "destructive"
       });
@@ -294,7 +294,7 @@ const SEOAutoPost = () => {
     } catch (error: any) {
       console.error("Error generating plan:", error);
       toast({ 
-        title: "Error", 
+        title: "Erreur", 
         description: error.message || "Unable to generate plan", 
         variant: "destructive" 
       });
@@ -346,13 +346,13 @@ const SEOAutoPost = () => {
         .eq("id", item.id);
       
       await fetchScheduledContent(selectedBusiness!.id);
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      toast({ title: "Erreur", description: error.message, variant: "destructive" });
     }
   };
 
   const publishToGMB = async (item: ScheduledContent) => {
     if (!item.content) {
-      toast({ title: "Error", description: "The article must be generated first", variant: "destructive" });
+      toast({ title: "Erreur", description: "The article must be generated first", variant: "destructive" });
       return;
     }
 
@@ -409,7 +409,7 @@ const SEOAutoPost = () => {
     if (error) {
       console.error("Error saving publication hour:", error);
       toast({
-        title: "Error",
+        title: "Erreur",
         description: "Could not save the publication hour",
         variant: "destructive"
       });

@@ -122,7 +122,7 @@ const OldReviewsSection = ({
     } catch (error) {
       console.error("Error generating old reviews:", error);
       toast({
-        title: "Error",
+        title: "Erreur",
         description: "Could not start old reviews processing.",
         variant: "destructive",
       });
@@ -337,13 +337,13 @@ const AISettingsPage = () => {
     if (error) {
       console.error("Error saving AI settings:", error);
       toast({
-        title: "Error",
+        title: "Erreur",
         description: "Could not save settings.",
         variant: "destructive",
       });
     } else {
       toast({
-        title: "Saved",
+        title: "Enregistré",
         description: "Your AI settings have been saved.",
       });
       setHasChanges(false);
