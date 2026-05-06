@@ -3,16 +3,18 @@ import { Button } from "./ui/button";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 
 export const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { t } = useTranslation();
 
   const navLinks = [
-    { label: "GEO Rank", href: "#geo-rank" },
-    { label: "Avis IA", href: "#reviews-ai" },
-    { label: "Comment ça marche", href: "#how-it-works" },
-    { label: "Tarifs", href: "#pricing" },
+    { label: t("header.geoRank"), href: "#geo-rank" },
+    { label: t("header.reviewsAI"), href: "#reviews-ai" },
+    { label: t("header.howItWorks"), href: "#how-it-works" },
+    { label: t("header.pricing"), href: "#pricing" },
   ];
 
   return (
@@ -38,10 +40,10 @@ export const Header = () => {
           <div className="hidden md:flex items-center gap-2">
             <LanguageSwitcher variant="flags" />
             <Link to="/auth">
-              <Button variant="outline" size="sm">Se connecter</Button>
+              <Button variant="outline" size="sm">{t("header.signIn")}</Button>
             </Link>
             <Link to="/auth">
-              <Button size="sm">Commencer gratuitement</Button>
+              <Button size="sm">{t("header.startFree")}</Button>
             </Link>
           </div>
 
@@ -50,7 +52,7 @@ export const Header = () => {
             <button
               className="p-2 rounded-lg text-foreground hover:bg-muted"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              aria-label="Menu"
+              aria-label={t("header.menu")}
             >
               {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
@@ -73,10 +75,10 @@ export const Header = () => {
               <hr className="border-border my-3" />
               <div className="flex flex-col gap-2">
                 <Link to="/auth" onClick={() => setMobileMenuOpen(false)}>
-                  <Button variant="outline" className="w-full h-12 text-base">Se connecter</Button>
+                  <Button variant="outline" className="w-full h-12 text-base">{t("header.signIn")}</Button>
                 </Link>
                 <Link to="/auth" onClick={() => setMobileMenuOpen(false)}>
-                  <Button variant="default" className="w-full h-12 text-base">Commencer gratuitement</Button>
+                  <Button variant="default" className="w-full h-12 text-base">{t("header.startFree")}</Button>
                 </Link>
               </div>
             </div>
