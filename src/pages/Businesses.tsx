@@ -799,7 +799,7 @@ const BusinessesPage = () => {
                         <SheetHeader>
                           <SheetTitle className="flex items-center gap-2">
                             <Tag className="w-5 h-5" />
-                            Keywords de {business.name}
+                            {t("Mots-clés de", "Keywords of")} {business.name}
                           </SheetTitle>
                         </SheetHeader>
                         <div className="py-4">
