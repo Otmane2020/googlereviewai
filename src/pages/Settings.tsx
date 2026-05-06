@@ -433,10 +433,10 @@ const SettingsPage = () => {
                   </div>
                   <div>
                     <p className="font-medium text-foreground text-sm">
-                      Push Notifications
+                      Notifications push
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      Managed by Android system
+                      Gérées par le système Android
                     </p>
                   </div>
                 </div>
@@ -444,21 +444,19 @@ const SettingsPage = () => {
                   variant="outline"
                   size="sm"
                   onClick={() => {
-                    // Try to open Android app settings
-                    // This works in Capacitor WebView
                     try {
                       window.open("intent:#Intent;action=android.settings.APP_NOTIFICATION_SETTINGS;extra=android.provider.extra.APP_PACKAGE=com.world.fi.starlinko;end", "_system");
                     } catch {
                       toast({
-                        title: "Android Settings",
-                        description: "Open Settings > Apps > Starlinko > Notifications",
+                        title: "Paramètres Android",
+                        description: "Ouvrez Paramètres > Applications > Starlinko > Notifications",
                       });
                     }
                   }}
                   className="rounded-xl h-9 shrink-0 gap-1"
                 >
                   <ExternalLink className="w-3 h-3" />
-                  Settings
+                  Paramètres
                 </Button>
               </div>
             ) : (
