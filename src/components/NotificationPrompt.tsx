@@ -24,12 +24,21 @@ export const NotificationPrompt = () => {
   const { user, loading: authLoading } = useAuth();
   const location = useLocation();
   const { isInstalled, isStandalone, isIOS, canInstall } = usePWA();
-  const { isNativeApp, canUsePushAlert } = useDeviceDetection();
+  const { isNativeApp } = useDeviceDetection();
+  const { isSubscribed: webPushSubscribed, subscribe: webPushSubscribe, permission: webPushPermission, loading: webPushLoading } = useWebPush();
   const [dismissed, setDismissed] = useState(false);
   const [showDelayed, setShowDelayed] = useState(false);
   const [permission, setPermission] = useState<NotificationPermission | "unsupported">("default");
   const [isSubscribing, setIsSubscribing] = useState(false);
   const [isAlreadySubscribed, setIsAlreadySubscribed] = useState(false);
+
+  // Sync state with native web push hook
+  useEffect(() => {
+    if (webPushSubscribed) setIsAlreadySubscribed(true);
+  }, [webPushSubscribed]);
+  useEffect(() => {
+    setPermission(webPushPermission);
+  }, [webPushPermission]);
 
   // ✅ All hooks MUST be called before any conditional return
   // Check notification permission and PushAlert subscription status
