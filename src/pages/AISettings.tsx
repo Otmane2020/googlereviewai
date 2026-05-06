@@ -545,7 +545,7 @@ const AISettingsPage = () => {
                 </div>
                 <div>
                   <span className="font-medium text-sm text-foreground">Avis positifs uniquement</span>
-                  <p className="text-xs text-muted-foreground">Rating ≥ 4 stars</p>
+                  <p className="text-xs text-muted-foreground">Note ≥ 4 étoiles</p>
                 </div>
               </div>
               <Switch
