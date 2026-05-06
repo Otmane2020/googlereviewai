@@ -48,16 +48,16 @@ const useNavItems = () => {
   const { t } = useTranslation();
   const mainNav = [
     { label: t("sidebar.overview"), href: "/dashboard", icon: LayoutDashboard },
-    { label: "Avis Google", href: "/reviews", icon: Star },
-    { label: "Post Google", href: "/gmb-post", icon: MessageCircleQuestion },
+    { label: t("sidebar.googleReviews"), href: "/reviews", icon: Star },
+    { label: t("sidebar.googlePost"), href: "/gmb-post", icon: MessageCircleQuestion },
   ];
   const visibilityNav = [
-    { label: "GEO Rank AI", href: "/aeo-rank", icon: Sparkles, badge: "AI" },
-    { label: "SEO Autopilot", href: "/seo-autopost", icon: Search },
-    { label: "Planning", href: "/calendar", icon: ListChecks },
+    { label: t("sidebar.geoRankAi"), href: "/aeo-rank", icon: Sparkles, badge: "AI" },
+    { label: t("sidebar.seoAutopilot"), href: "/seo-autopost", icon: Search },
+    { label: t("sidebar.planning"), href: "/calendar", icon: ListChecks },
   ];
   const businessNav = [
-    { label: "Établissements", href: "/businesses", icon: Building2 },
+    { label: t("sidebar.locations"), href: "/businesses", icon: Building2 },
   ];
   const accountNav = [
     { label: t("sidebar.aiSettings"), href: "/ai-settings", icon: Sparkles },
@@ -132,21 +132,21 @@ const RankiSidebar = () => {
 
       <SidebarContent>
         <SidebarGroup>
-          {!collapsed && <SidebarGroupLabel>Espace de travail</SidebarGroupLabel>}
+          {!collapsed && <SidebarGroupLabel>{t("sidebar.workspace")}</SidebarGroupLabel>}
           <SidebarGroupContent>
             <SidebarMenu>{mainNav.map(renderItem)}</SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
 
         <SidebarGroup>
-          {!collapsed && <SidebarGroupLabel>Visibilité Boost</SidebarGroupLabel>}
+          {!collapsed && <SidebarGroupLabel>{t("sidebar.visibilityBoost")}</SidebarGroupLabel>}
           <SidebarGroupContent>
             <SidebarMenu>{visibilityNav.map(renderItem)}</SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
 
         <SidebarGroup>
-          {!collapsed && <SidebarGroupLabel>Mon entreprise</SidebarGroupLabel>}
+          {!collapsed && <SidebarGroupLabel>{t("sidebar.myCompany")}</SidebarGroupLabel>}
           <SidebarGroupContent>
             <SidebarMenu>{businessNav.map(renderItem)}</SidebarMenu>
           </SidebarGroupContent>
