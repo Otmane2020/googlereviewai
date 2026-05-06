@@ -196,9 +196,9 @@ const SettingsPage = () => {
               <SettingsIcon className="w-6 h-6 text-primary" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-foreground">Paramètres</h1>
+              <h1 className="text-2xl font-bold text-foreground">{t("settingsPage.title")}</h1>
               <p className="text-sm text-muted-foreground">
-                Gérez votre compte et vos préférences
+                {t("settingsPage.subtitle")}
               </p>
             </div>
           </div>
@@ -210,22 +210,22 @@ const SettingsPage = () => {
         <div className="bg-card rounded-2xl border border-border p-6">
           <div className="flex items-center gap-3 mb-6">
             <User className="w-5 h-5 text-primary" />
-            <h2 className="font-semibold text-foreground">Profil</h2>
+            <h2 className="font-semibold text-foreground">{t("settingsPage.profile")}</h2>
           </div>
           
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="fullName">Nom complet</Label>
+              <Label htmlFor="fullName">{t("settingsPage.fullName")}</Label>
               <Input
                 id="fullName"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
-                placeholder="Votre nom"
+                placeholder={t("settingsPage.fullNamePlaceholder")}
               />
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="email">E-mail</Label>
+              <Label htmlFor="email">{t("settingsPage.email")}</Label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <Input
@@ -243,7 +243,7 @@ const SettingsPage = () => {
               ) : (
                 <Save className="w-4 h-4" />
               )}
-              Enregistrer
+              {t("settingsPage.save")}
             </Button>
           </div>
         </div>
@@ -272,7 +272,7 @@ const SettingsPage = () => {
         <div className="bg-card rounded-2xl border border-border p-6">
           <div className="flex items-center gap-3 mb-6">
             <CreditCard className="w-5 h-5 text-primary" />
-            <h2 className="font-semibold text-foreground">Abonnement</h2>
+            <h2 className="font-semibold text-foreground">{t("settingsPage.subscription")}</h2>
           </div>
 
           <div className="mb-6 p-4 rounded-xl bg-primary/5 border border-primary/20">
@@ -283,7 +283,7 @@ const SettingsPage = () => {
                   Plan {profile?.plan_name?.charAt(0).toUpperCase()}{profile?.plan_name?.slice(1) || "Gratuit"}
                 </span>
                 {profile?.subscription_status === "trial" && (
-                  <Badge variant="secondary">Essai gratuit</Badge>
+                  <Badge variant="secondary">{t("settingsPage.freeTrial")}</Badge>
                 )}
               </div>
               <Button 
@@ -297,22 +297,22 @@ const SettingsPage = () => {
                 ) : (
                   <CreditCard className="w-4 h-4" />
                 )}
-                Gérer l'abonnement
+                {t("settingsPage.manageSubscription")}
               </Button>
             </div>
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
-                <p className="text-muted-foreground">Crédits disponibles</p>
+                <p className="text-muted-foreground">{t("settingsPage.creditsAvailable")}</p>
                 <p className="text-xl font-bold text-foreground">{profile?.credits ?? 0}</p>
               </div>
               <div>
-                <p className="text-muted-foreground">Établissements max</p>
+                <p className="text-muted-foreground">{t("settingsPage.maxLocations")}</p>
                 <p className="text-xl font-bold text-foreground">{profile?.max_businesses ?? 1}</p>
               </div>
             </div>
             {profile?.trial_end && profile?.subscription_status === "trial" && (
               <p className="text-xs text-muted-foreground mt-3">
-                Essai gratuit jusqu'au {new Date(profile.trial_end).toLocaleDateString("fr-FR")}
+                {t("settingsPage.trialUntil", { date: new Date(profile.trial_end).toLocaleDateString(i18n.language === "fr" ? "fr-FR" : "en-US") })}
               </p>
             )}
           </div>
@@ -322,7 +322,7 @@ const SettingsPage = () => {
             className="w-full gap-2"
           >
             <Sparkles className="w-4 h-4" />
-            Voir toutes les offres
+            {t("settingsPage.viewAllPlans")}
           </Button>
         </div>
 
