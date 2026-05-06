@@ -754,7 +754,7 @@ const AISettingsPage = () => {
             <div className="mt-3 ml-11 bg-indigo-500/10 rounded-xl p-3 flex items-start gap-2">
               <Sparkles className="w-4 h-4 text-indigo-600 mt-0.5 shrink-0" />
               <p className="text-xs text-indigo-700 dark:text-indigo-400">
-                SEO/AEO content will be published at {settings.publication_hour.toString().padStart(2, "0")}:00 local time ({settings.timezone.split('/')[1]?.replace('_', ' ') || settings.timezone})
+                Le contenu SEO/AEO sera publié à {settings.publication_hour.toString().padStart(2, "0")}:00 heure locale ({settings.timezone.split('/')[1]?.replace('_', ' ') || settings.timezone})
               </p>
             </div>
           </div>
