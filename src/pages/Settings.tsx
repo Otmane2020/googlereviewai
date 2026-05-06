@@ -687,17 +687,17 @@ const SettingsPage = () => {
                       onClick={async () => {
                         const ok = await webPush.subscribe();
                         toast({
-                          title: ok ? "Web Push enabled ✅" : "Activation failed",
+                          title: ok ? "Web Push activé ✅" : "Échec d'activation",
                           description: ok 
-                            ? "You will receive native push notifications." 
-                            : "Check browser permissions.",
+                            ? "Vous recevrez les notifications push natives." 
+                            : "Vérifiez les autorisations du navigateur.",
                           variant: ok ? "default" : "destructive",
                         });
                       }}
                       className="rounded-xl h-9"
                     >
                       {webPush.loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Bell className="w-4 h-4 mr-1" />}
-                      Enable
+                      Activer
                     </Button>
                   )}
                   {webPush.isSubscribed && (
@@ -708,14 +708,14 @@ const SettingsPage = () => {
                       onClick={async () => {
                         await webPush.unsubscribe();
                         toast({
-                          title: "Web Push disabled",
-                          description: "Native push notifications disabled.",
+                          title: "Web Push désactivé",
+                          description: "Notifications push natives désactivées.",
                         });
                       }}
                       className="rounded-xl h-9"
                     >
                       <BellOff className="w-4 h-4 mr-1" />
-                      Disable
+                      Désactiver
                     </Button>
                   )}
                 </div>
