@@ -41,16 +41,21 @@ interface ContentDetail extends ContentItem {
   error_message: string | null;
 }
 
-const STATUS_STYLE: Record<string, { label: string; className: string; icon: any }> = {
-  published: { label: "Publié", className: "bg-emerald-500/15 text-emerald-600 border-emerald-500/30", icon: Check },
-  generated: { label: "Prêt", className: "bg-primary/15 text-primary border-primary/30", icon: Sparkles },
-  generating: { label: "Génération", className: "bg-blue-500/15 text-blue-600 border-blue-500/30", icon: Loader2 },
-  failed: { label: "Échec", className: "bg-destructive/15 text-destructive border-destructive/30", icon: AlertCircle },
-  pending: { label: "Planifié", className: "bg-muted text-muted-foreground border-border", icon: Clock },
-};
-
 const Calendar = () => {
   const { user } = useAuth();
+  const { i18n } = useTranslation();
+  const isEN = i18n.language?.toLowerCase().startsWith("en");
+  const t = (fr: string, en: string) => (isEN ? en : fr);
+  const dateLocale = isEN ? enUS : fr;
+
+  const STATUS_STYLE: Record<string, { label: string; className: string; icon: any }> = {
+    published: { label: t("Publié", "Published"), className: "bg-emerald-500/15 text-emerald-600 border-emerald-500/30", icon: Check },
+    generated: { label: t("Prêt", "Ready"), className: "bg-primary/15 text-primary border-primary/30", icon: Sparkles },
+    generating: { label: t("Génération", "Generating"), className: "bg-blue-500/15 text-blue-600 border-blue-500/30", icon: Loader2 },
+    failed: { label: t("Échec", "Failed"), className: "bg-destructive/15 text-destructive border-destructive/30", icon: AlertCircle },
+    pending: { label: t("Planifié", "Scheduled"), className: "bg-muted text-muted-foreground border-border", icon: Clock },
+  };
+
   const [items, setItems] = useState<ContentItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [cursor, setCursor] = useState(new Date());
