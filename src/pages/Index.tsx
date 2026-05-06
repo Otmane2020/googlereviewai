@@ -33,39 +33,39 @@ const Index = () => {
 
   const faqs = [
     {
-      question: "What is GEO (Generative Engine Optimization)?",
+      question: "Qu'est-ce que le GEO (Generative Engine Optimization) ?",
       answer:
-        "GEO is the discipline of making sure your business shows up — and ranks first — inside answers from generative AI engines like ChatGPT, Gemini, Perplexity and Claude. It's the AI-era successor to local SEO.",
+        "Le GEO est la discipline qui consiste à faire apparaître — et classer en premier — votre établissement dans les réponses des IA génératives comme ChatGPT, Gemini, Perplexity et Claude. C'est le successeur du SEO local à l'ère de l'IA.",
     },
     {
-      question: "How does Ranki.ai know my rank in ChatGPT or Gemini?",
+      question: "Comment Starlinko connaît-il mon classement sur ChatGPT ou Gemini ?",
       answer:
-        "Ranki runs real prompts on each AI engine for the local queries you care about (e.g. 'best dentist in Miami'), parses the answers, and tracks whether your business is mentioned, where in the list, and against which competitors.",
+        "Starlinko envoie de vraies requêtes sur chaque IA pour les recherches locales qui comptent pour vous (ex : « meilleur dentiste à Lyon »), analyse les réponses et suit si votre établissement est mentionné, à quelle position et face à quels concurrents.",
     },
     {
-      question: "Will Ranki actually improve my AI ranking?",
+      question: "Starlinko va-t-il vraiment améliorer mon positionnement IA ?",
       answer:
-        "Yes. Ranki auto-publishes AI-optimized Q&A and SEO posts on your Google Business Profile — the very content sources LLMs index — and answers reviews on-brand. Over a few weeks this dramatically increases your share-of-voice in AI answers.",
+        "Oui. Starlinko publie automatiquement des Q&R et des posts SEO optimisés pour l'IA sur votre fiche Google Business — exactement les sources qu'indexent les LLM — et répond aux avis dans le ton de votre marque. En quelques semaines, votre part de voix dans les réponses IA augmente fortement, ce qui booste votre visibilité et vos ventes.",
     },
     {
-      question: "Do I need a Google Business Profile?",
+      question: "Ai-je besoin d'une fiche Google Business ?",
       answer:
-        "Yes. Ranki connects to Google Business Profile to pull reviews, publish content and align signals across Google Search, Google Maps and AI search engines.",
+        "Oui. Starlinko se connecte à votre fiche Google Business pour récupérer les avis, publier du contenu et aligner vos signaux entre Google Search, Google Maps et les moteurs IA.",
     },
     {
-      question: "Is there a free plan?",
+      question: "Existe-t-il une offre gratuite ?",
       answer:
-        "Yes. The Starter plan is free forever and includes weekly GEO rank reports, AI review replies and 25 monthly credits. Upgrade to Daily ($9.99/mo) for daily tracking and daily auto-publishing.",
+        "Oui. L'offre Starter est gratuite à vie : rapport hebdomadaire de classement GEO, réponses IA aux avis et 25 crédits par mois. Passez à l'offre Quotidien (9,99 €/mois) pour le suivi quotidien et la publication automatique chaque jour.",
     },
   ];
 
   return (
     <div className="min-h-screen bg-background">
       <Helmet>
-        <title>Ranki.ai – Rank Locally in ChatGPT, Gemini & Perplexity</title>
+        <title>Starlinko – Boostez vos ventes et votre visibilité sur ChatGPT, Gemini & Perplexity</title>
         <meta
           name="description"
-          content="Ranki.ai is the GEO platform that tracks and boosts your local business ranking inside ChatGPT, Gemini and Perplexity. Reviews AI, GEO rank, local SEO – all in one."
+          content="Starlinko booste votre visibilité, améliore votre positionnement sur Google et les IA (ChatGPT, Gemini, Perplexity) et augmente vos ventes grâce à une stratégie de référencement naturel automatisée."
         />
         <link rel="canonical" href="https://starlinko.app/" />
       </Helmet>
@@ -79,8 +79,8 @@ const Index = () => {
         <RankiPricingSection />
         <FAQSection
           faqs={faqs}
-          title="Everything about Ranki.ai"
-          subtitle="The GEO platform built for local businesses."
+          title="Tout savoir sur Starlinko"
+          subtitle="La plateforme GEO conçue pour les commerces et professionnels locaux."
           badgeText="FAQ"
         />
         <CTASection />
