@@ -27,7 +27,7 @@ interface UserProfile {
   email?: string;
 }
 
-export const DashboardHeader = () => {
+export const DashboardHeader = ({ className }: { className?: string } = {}) => {
   const { user, signOut } = useAuth();
   const { t } = useTranslation();
   const navigate = useNavigate();
