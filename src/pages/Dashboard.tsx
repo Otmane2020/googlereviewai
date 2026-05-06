@@ -801,7 +801,7 @@ const Dashboard = () => {
             </div>
             <Link to="/reviews">
               <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground text-xs">
-                View all
+                Tout voir
                 <ChevronRight className="w-3 h-3 ml-1" />
               </Button>
             </Link>
