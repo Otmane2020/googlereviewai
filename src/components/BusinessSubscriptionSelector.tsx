@@ -35,6 +35,9 @@ export const BusinessSubscriptionSelector = ({
   onSubscribe,
   isLoading = false,
 }: BusinessSubscriptionSelectorProps) => {
+  const { i18n } = useTranslation();
+  const isEN = i18n.language?.toLowerCase().startsWith("en");
+  const t = (fr: string, en: string) => (isEN ? en : fr);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>(
     businesses.map(b => b.id) // Default: all selected
