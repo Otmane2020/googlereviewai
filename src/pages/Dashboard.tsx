@@ -755,7 +755,7 @@ const Dashboard = () => {
                 <div className="bg-white/15 backdrop-blur rounded-xl p-3 flex items-center gap-2">
                   <Clock className="w-4 h-4 text-white shrink-0" />
                   <p className="text-xs text-white">
-                    Next post: <span className="font-semibold">{new Date(aeoStats.nextDate).toLocaleDateString("en-US", { month: "short", day: "numeric" })}</span>
+                    Prochain post : <span className="font-semibold">{new Date(aeoStats.nextDate).toLocaleDateString("fr-FR", { month: "short", day: "numeric" })}</span>
                   </p>
                 </div>
               ) : (
