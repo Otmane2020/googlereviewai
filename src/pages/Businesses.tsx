@@ -32,7 +32,8 @@ import {
   Tag,
   Link,
   Map,
-  X
+  X,
+  Coins
 } from "lucide-react";
 import {
   Sheet,
