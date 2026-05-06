@@ -45,12 +45,16 @@ interface UpgradeDialogProps {
 
 export const UpgradeDialog = ({ open, onOpenChange, currentPlan }: UpgradeDialogProps) => {
   const { i18n } = useTranslation();
+  const navigate = useNavigate();
   const isEN = i18n.language?.toLowerCase().startsWith("en");
   const currencySymbol = isEN ? "$" : "€";
   const priceLabel = isEN ? "$9.99" : "9,99€";
+  const agencyPriceLabel = isEN ? "$49" : "49€";
   const dailyPriceKey = isEN ? "daily_monthly_usd" : "daily_monthly_eur";
+  const agencyPriceKey = "agency_eu_monthly";
 
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingAgency, setLoadingAgency] = useState(false);
   const [loadingCredits, setLoadingCredits] = useState(false);
 
   const isAlreadyUpgraded = currentPlan?.toLowerCase() === "daily" || currentPlan?.toLowerCase() === "pro" || currentPlan?.toLowerCase() === "business";
