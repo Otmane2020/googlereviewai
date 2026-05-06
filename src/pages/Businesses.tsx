@@ -545,7 +545,7 @@ const BusinessesPage = () => {
                       <SheetHeader>
                         <SheetTitle className="flex items-center gap-2">
                           <FileText className="w-5 h-5" />
-                          Description de {business.name}
+                          {t("Description de", "Description of")} {business.name}
                         </SheetTitle>
                       </SheetHeader>
                       <div className="py-4 space-y-4">
