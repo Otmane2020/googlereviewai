@@ -184,7 +184,9 @@ export const BusinessSubscriptionSelector = ({
               </div>
               {quantity > businesses.length && (
                 <p className="text-xs text-muted-foreground italic">
-                  + {quantity - businesses.length} établissement{quantity - businesses.length > 1 ? "s" : ""} supplémentaire{quantity - businesses.length > 1 ? "s" : ""} à ajouter plus tard
+                  {isEN
+                    ? `+ ${quantity - businesses.length} additional business${quantity - businesses.length > 1 ? "es" : ""} to add later`
+                    : `+ ${quantity - businesses.length} établissement${quantity - businesses.length > 1 ? "s" : ""} supplémentaire${quantity - businesses.length > 1 ? "s" : ""} à ajouter plus tard`}
                 </p>
               )}
             </div>
