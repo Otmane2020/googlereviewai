@@ -67,6 +67,8 @@ const RankiSidebar = () => {
   const collapsed = state === "collapsed";
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
+  const { productNav, accountNav } = useNavItems();
   const [profile, setProfile] = useState<{ full_name: string | null; email: string; credits: number; plan_name: string | null } | null>(null);
 
   useEffect(() => {
