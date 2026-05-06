@@ -1,4 +1,5 @@
 import { TrendingUp, Search, Bot, MapPin } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const queries = [
   {
@@ -22,6 +23,7 @@ const queries = [
 ];
 
 export const GeoRankSection = () => {
+  const { t } = useTranslation();
   return (
     <section id="geo-rank" className="py-20 sm:py-28 bg-card">
       <div className="container mx-auto px-4 sm:px-6">
