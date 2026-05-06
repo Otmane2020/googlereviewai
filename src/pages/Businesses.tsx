@@ -893,7 +893,7 @@ const BusinessesPage = () => {
                                     </p>
                                   ) : null}
                                   <p className="text-[10px] text-muted-foreground mt-2">
-                                    {new Date(post.scheduled_date || post.created_at).toLocaleDateString("fr-FR")}
+                                    {new Date(post.scheduled_date || post.created_at).toLocaleDateString(isEN ? "en-US" : "fr-FR")}
                                   </p>
                                 </div>
                               ))}
