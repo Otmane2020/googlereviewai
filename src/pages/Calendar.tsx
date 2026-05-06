@@ -296,6 +296,54 @@ const Calendar = () => {
         </Card>
       </div>
 
+      {/* Popup multi-items pour un jour */}
+      <Dialog open={!!dayPopup} onOpenChange={(o) => !o && setDayPopup(null)}>
+        <DialogContent className="max-w-md">
+          {dayPopup && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="text-base capitalize">
+                  {format(dayPopup.day, "EEEE d MMMM yyyy", { locale: dateLocale })}
+                </DialogTitle>
+                <DialogDescription className="text-xs">
+                  {dayPopup.items.length} {t("contenus planifiés", "scheduled items")}
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-2 max-h-[60vh] overflow-y-auto">
+                {dayPopup.items.map((item) => {
+                  const s = STATUS_STYLE[item.status] || STATUS_STYLE.pending;
+                  const Icon = s.icon;
+                  const isGeo = item.content_type === "aeo_qa";
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => { setDayPopup(null); openDetail(item); }}
+                      className="w-full flex items-center gap-3 p-3 rounded-xl border border-border bg-card hover:border-primary/50 hover:bg-muted/40 transition-all text-left"
+                    >
+                      <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${isGeo ? "bg-emerald-500/10 text-emerald-600" : "bg-primary/10 text-primary"}`}>
+                        {isGeo ? <Sparkles className="w-4 h-4" /> : <FileText className="w-4 h-4" />}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-foreground truncate">
+                          {item.title || item.question || (isGeo ? t("Q&R GEO", "GEO Q&A") : t("Article SEO", "SEO Article"))}
+                        </p>
+                        <p className="text-[11px] text-muted-foreground uppercase tracking-wide">
+                          {isGeo ? "GEO" : "SEO"}
+                        </p>
+                      </div>
+                      <Badge variant="outline" className={`${s.className} text-[10px] gap-1 shrink-0`}>
+                        <Icon className={`w-3 h-3 ${item.status === "generating" ? "animate-spin" : ""}`} />
+                        {s.label}
+                      </Badge>
+                    </button>
+                  );
+                })}
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+
       <Dialog open={!!detail} onOpenChange={(o) => !o && setDetail(null)}>
         <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col">
           {detail && (() => {
