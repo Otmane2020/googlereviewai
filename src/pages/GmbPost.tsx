@@ -255,8 +255,8 @@ export default function GmbPost() {
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div>
-            <h1 className="text-lg font-semibold">Créer une publication GMB</h1>
-            <p className="text-xs text-muted-foreground">Publiez sur Google Business Profile</p>
+            <h1 className="text-lg font-semibold">{t("Créer une publication GMB", "Create a GMB post")}</h1>
+            <p className="text-xs text-muted-foreground">{t("Publiez sur Google Business Profile", "Publish on Google Business Profile")}</p>
           </div>
         </div>
       </header>
