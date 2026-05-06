@@ -266,10 +266,10 @@ const Calendar = () => {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
-                        {isGeo ? "GEO · Q&R Google" : "SEO · Post Google"}
+                        {isGeo ? t("GEO · Q&R Google", "GEO · Google Q&A") : t("SEO · Post Google", "SEO · Google Post")}
                       </p>
                       <DialogTitle className="text-base text-left truncate">
-                        {detail.title || detail.question || (isGeo ? "Q&R GEO" : "Article SEO")}
+                        {detail.title || detail.question || (isGeo ? t("Q&R GEO", "GEO Q&A") : t("Article SEO", "SEO Article"))}
                       </DialogTitle>
                     </div>
                     <Badge variant="outline" className={`${s.className} text-[10px] gap-1 shrink-0`}>
@@ -278,8 +278,8 @@ const Calendar = () => {
                     </Badge>
                   </div>
                   <DialogDescription className="text-xs">
-                    Planifié le {format(new Date(detail.scheduled_date), "EEEE d MMMM yyyy", { locale: fr })}
-                    {detail.published_at && ` · Publié le ${format(new Date(detail.published_at), "d MMM yyyy 'à' HH:mm", { locale: fr })}`}
+                    {t("Planifié le", "Scheduled on")} {format(new Date(detail.scheduled_date), "EEEE d MMMM yyyy", { locale: dateLocale })}
+                    {detail.published_at && ` · ${t("Publié le", "Published on")} ${format(new Date(detail.published_at), isEN ? "MMM d, yyyy 'at' HH:mm" : "d MMM yyyy 'à' HH:mm", { locale: dateLocale })}`}
                   </DialogDescription>
                 </DialogHeader>
 
