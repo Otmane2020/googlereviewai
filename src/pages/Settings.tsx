@@ -351,11 +351,11 @@ const SettingsPage = () => {
                   <p className="font-medium text-foreground text-sm">Google My Business</p>
                   <Badge className="bg-green-500/10 text-green-600 border-green-500/20 text-[10px] px-2 py-0.5">
                     <Check className="w-2.5 h-2.5 mr-0.5" />
-                    Connected
+                    Connecté
                   </Badge>
                 </div>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Automatic sync of reviews and locations
+                  Synchronisation automatique des avis et établissements
                 </p>
               </div>
             </div>
