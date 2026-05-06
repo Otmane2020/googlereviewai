@@ -16,6 +16,12 @@ interface PublishRequest {
   media_url?: string;
   post_id?: string; // If provided, update existing scheduled post
   user_id?: string; // For cron/admin calls
+  // EVENT / OFFER fields
+  event_title?: string;
+  start_date?: string; // ISO datetime
+  end_date?: string;   // ISO datetime
+  coupon_code?: string;
+  terms_conditions?: string;
 }
 
 serve(async (req) => {
