@@ -342,7 +342,7 @@ const SEOAutoPost = () => {
         .eq("id", item.id);
 
       await fetchScheduledContent(selectedBusiness!.id);
-      toast({ title: "Article généré !" });
+      toast({ title: t("Article généré !", "Article generated!") });
     } catch (error: any) {
       await supabase
         .from("scheduled_content")
@@ -350,7 +350,7 @@ const SEOAutoPost = () => {
         .eq("id", item.id);
       
       await fetchScheduledContent(selectedBusiness!.id);
-      toast({ title: "Erreur", description: error.message, variant: "destructive" });
+      toast({ title: t("Erreur", "Error"), description: error.message, variant: "destructive" });
     }
   };
 
