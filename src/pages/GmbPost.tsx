@@ -393,17 +393,17 @@ export default function GmbPost() {
                   {postType === "OFFER" && (
                     <>
                       <div>
-                        <Label className="text-sm font-medium mb-2 block">Code promo (optionnel)</Label>
+                        <Label className="text-sm font-medium mb-2 block">{t("Code promo (optionnel)", "Promo code (optional)")}</Label>
                         <Input
-                          placeholder="Ex : PROMO20"
+                          placeholder={t("Ex : PROMO20", "E.g. PROMO20")}
                           value={couponCode}
                           onChange={(e) => setCouponCode(e.target.value.slice(0, 58))}
                         />
                       </div>
                       <div>
-                        <Label className="text-sm font-medium mb-2 block">Conditions (optionnel)</Label>
+                        <Label className="text-sm font-medium mb-2 block">{t("Conditions (optionnel)", "Terms (optional)")}</Label>
                         <Textarea
-                          placeholder="Ex : Valable jusqu'au... Hors boissons..."
+                          placeholder={t("Ex : Valable jusqu'au... Hors boissons...", "E.g. Valid until... Excludes drinks...")}
                           value={terms}
                           onChange={(e) => setTerms(e.target.value.slice(0, 5000))}
                           className="min-h-[60px] resize-none"
