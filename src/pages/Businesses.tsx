@@ -805,7 +805,7 @@ const BusinessesPage = () => {
                         <div className="py-4">
                           <div className="flex items-center justify-between mb-4">
                             <p className="text-sm text-muted-foreground">
-                              {business.auto_keywords?.length || 0} keywords detected
+                              {business.auto_keywords?.length || 0} {t("mots-clés détectés", "keywords detected")}
                             </p>
                             <Button 
                               variant="default" 
