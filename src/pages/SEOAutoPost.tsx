@@ -39,6 +39,7 @@ import {
   Settings
 } from "lucide-react";
 import { format, addDays, startOfToday, isSameDay } from "date-fns";
+import { fr, enUS } from "date-fns/locale";
 
 
 interface Business {
