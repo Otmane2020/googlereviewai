@@ -878,7 +878,7 @@ const BusinessesPage = () => {
                                 <div key={post.id} className="p-3 bg-muted/50 rounded-xl">
                                   <div className="flex items-start justify-between mb-1">
                                     <p className="text-sm font-medium text-foreground line-clamp-2">
-                                      {post.title || post.question || "Post sans titre"}
+                                      {post.title || post.question || t("Post sans titre", "Untitled post")}
                                     </p>
                                     <Badge 
                                       variant={post.status === "published" ? "default" : "secondary"}
