@@ -66,7 +66,7 @@ const PasswordAuth = () => {
             >
               <ArrowLeft className="h-4 w-4" />
             </Button>
-            <span className="text-sm text-muted-foreground">Back</span>
+            <span className="text-sm text-muted-foreground">Retour</span>
           </div>
           <CardTitle className="text-2xl font-bold">
             {isLogin ? "Connexion" : "Sign up"}

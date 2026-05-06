@@ -195,7 +195,7 @@ export const BusinessSubscriptionSelector = ({
           {/* Pricing Summary */}
           <div className="bg-muted/50 rounded-lg p-3 space-y-2 mt-2">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Locations</span>
+              <span className="text-muted-foreground">Établissements</span>
               <span className="font-medium">{quantity} × $29</span>
             </div>
             <div className="flex items-center justify-between">

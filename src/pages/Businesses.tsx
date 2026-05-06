@@ -367,7 +367,7 @@ const BusinessesPage = () => {
               <Building2 className="w-5 h-5 text-primary" />
             </div>
             <div className="min-w-0 flex-1">
-              <h1 className="text-lg font-bold text-foreground">Locations</h1>
+              <h1 className="text-lg font-bold text-foreground">Établissements</h1>
               <p className="text-xs text-muted-foreground">
                 Manage your Google profiles
               </p>

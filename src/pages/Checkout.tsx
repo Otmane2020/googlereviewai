@@ -261,7 +261,7 @@ const Checkout = () => {
             className="flex items-center gap-1 text-primary font-medium"
           >
             <ArrowLeft className="h-5 w-5" />
-            <span className="hidden sm:inline">Back</span>
+            <span className="hidden sm:inline">Retour</span>
           </button>
           <div className="flex items-center gap-2">
             <ShoppingCart className="h-5 w-5 text-primary" />

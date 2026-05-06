@@ -173,7 +173,7 @@ const Onboarding = () => {
                 )}
 
                 <div className="flex justify-between pt-2">
-                  <Button variant="ghost" onClick={back}>Back</Button>
+                  <Button variant="ghost" onClick={back}>Retour</Button>
                   <Button onClick={next}>Continue <ArrowRight className="w-4 h-4 ml-2" /></Button>
                 </div>
               </div>
@@ -211,7 +211,7 @@ const Onboarding = () => {
                 )}
 
                 <div className="flex justify-between pt-2">
-                  <Button variant="ghost" onClick={back}>Back</Button>
+                  <Button variant="ghost" onClick={back}>Retour</Button>
                   <Button onClick={next}>Continue <ArrowRight className="w-4 h-4 ml-2" /></Button>
                 </div>
               </div>
@@ -251,7 +251,7 @@ const Onboarding = () => {
                 </div>
 
                 <div className="flex justify-between pt-2">
-                  <Button variant="ghost" onClick={back}>Back</Button>
+                  <Button variant="ghost" onClick={back}>Retour</Button>
                   <Button onClick={handleSaveAI} disabled={loading}>
                     {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <>Save & continue <ArrowRight className="w-4 h-4 ml-2" /></>}
                   </Button>
@@ -292,7 +292,7 @@ const Onboarding = () => {
                 </div>
 
                 <div className="flex justify-between items-center pt-2">
-                  <Button variant="ghost" onClick={back}>Back</Button>
+                  <Button variant="ghost" onClick={back}>Retour</Button>
                   <Button variant="link" onClick={handleSkipPlan} className="text-muted-foreground">
                     Skip for now
                   </Button>
