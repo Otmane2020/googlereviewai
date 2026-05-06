@@ -470,7 +470,27 @@ const Dashboard = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted-foreground">{t("dashboardPage.welcomeBack")}</p>
-              <h1 className="text-xl md:text-2xl font-bold text-foreground">{primaryBusinessName || profile?.full_name?.split(" ")[0] || "👋"}</h1>
+              {allBusinesses.length > 1 ? (
+                <Select
+                  value={selectedBusinessId ?? allBusinesses[0]?.id}
+                  onValueChange={(v) => {
+                    setSelectedBusinessId(v);
+                    const found = allBusinesses.find(b => b.id === v);
+                    if (found) setPrimaryBusinessName(found.name);
+                  }}
+                >
+                  <SelectTrigger className="h-auto p-0 border-0 bg-transparent shadow-none focus:ring-0 text-xl md:text-2xl font-bold text-foreground hover:opacity-80 [&>svg]:opacity-60 max-w-[70vw] md:max-w-md">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="max-w-[90vw]">
+                    {allBusinesses.map((b) => (
+                      <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : (
+                <h1 className="text-xl md:text-2xl font-bold text-foreground">{primaryBusinessName || profile?.full_name?.split(" ")[0] || "👋"}</h1>
+              )}
             </div>
             <div className="flex items-center gap-2">
               <div className="text-center px-4 py-2 bg-primary/10 rounded-xl md:hidden">
