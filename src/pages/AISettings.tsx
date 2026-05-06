@@ -82,6 +82,8 @@ const OldReviewsSection = ({
   currentPlan?: string | null;
   onComplete: () => void;
 }) => {
+  const { i18n } = useTranslation();
+  const isEN = i18n.language?.toLowerCase().startsWith("en");
   const [loading, setLoading] = useState(false);
   const [upgradeOpen, setUpgradeOpen] = useState(false);
   const creditsNeeded = oldReviewsCount;
@@ -98,8 +100,10 @@ const OldReviewsSection = ({
 
       if (!profile || profile.credits < creditsNeeded) {
         toast({
-          title: "Crédits insuffisants",
-          description: `Vous avez ${profile?.credits || 0} crédits. Il vous faut ${creditsNeeded} crédits pour traiter tous les anciens avis.`,
+          title: isEN ? "Insufficient credits" : "Crédits insuffisants",
+          description: isEN
+            ? `You have ${profile?.credits || 0} credits. You need ${creditsNeeded} credits to process all old reviews.`
+            : `Vous avez ${profile?.credits || 0} crédits. Il vous faut ${creditsNeeded} crédits pour traiter tous les anciens avis.`,
           variant: "destructive",
         });
         setUpgradeOpen(true);
@@ -115,16 +119,20 @@ const OldReviewsSection = ({
       if (error) throw error;
 
       toast({
-        title: "Traitement démarré",
-        description: `Génération des réponses pour ${oldReviewsCount} anciens avis en cours...`,
+        title: isEN ? "Processing started" : "Traitement démarré",
+        description: isEN
+          ? `Generating replies for ${oldReviewsCount} old reviews...`
+          : `Génération des réponses pour ${oldReviewsCount} anciens avis en cours...`,
       });
       
       onComplete();
     } catch (error) {
       console.error("Error generating old reviews:", error);
       toast({
-        title: "Erreur",
-        description: "Impossible de démarrer le traitement des anciens avis.",
+        title: isEN ? "Error" : "Erreur",
+        description: isEN
+          ? "Unable to start processing old reviews."
+          : "Impossible de démarrer le traitement des anciens avis.",
         variant: "destructive",
       });
     } finally {
@@ -140,19 +148,23 @@ const OldReviewsSection = ({
             <History className="w-5 h-5 text-amber-600" />
           </div>
           <div className="flex-1">
-            <h3 className="font-semibold text-sm text-foreground">Anciens avis sans réponse</h3>
-            <p className="text-xs text-muted-foreground">Avis reçus avant l'activation de l'IA</p>
+            <h3 className="font-semibold text-sm text-foreground">
+              {isEN ? "Old reviews without reply" : "Anciens avis sans réponse"}
+            </h3>
+            <p className="text-xs text-muted-foreground">
+              {isEN ? "Reviews received before AI activation" : "Avis reçus avant l'activation de l'IA"}
+            </p>
           </div>
         </div>
         
         <div className="bg-background/50 rounded-xl p-3 mb-3">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-muted-foreground">Avis à traiter</span>
+            <span className="text-sm text-muted-foreground">{isEN ? "Reviews to process" : "Avis à traiter"}</span>
             <span className="font-bold text-lg text-foreground">{oldReviewsCount}</span>
           </div>
           <div className="flex items-center justify-between">
             <span className="text-sm text-muted-foreground flex items-center gap-1">
-              <Coins className="w-3.5 h-3.5" /> Credits required
+              <Coins className="w-3.5 h-3.5" /> {isEN ? "Credits required" : "Crédits requis"}
             </span>
             <span className="font-bold text-lg text-primary">{creditsNeeded}</span>
           </div>
@@ -166,12 +178,12 @@ const OldReviewsSection = ({
           {loading ? (
             <>
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              Processing...
+              {isEN ? "Processing..." : "Traitement..."}
             </>
           ) : (
             <>
               <Sparkles className="w-4 h-4 mr-2" />
-              Generate replies ({creditsNeeded} credits)
+              {isEN ? `Generate replies (${creditsNeeded} credits)` : `Générer les réponses (${creditsNeeded} crédits)`}
             </>
           )}
         </Button>
