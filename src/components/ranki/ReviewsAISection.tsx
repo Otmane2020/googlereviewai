@@ -32,13 +32,13 @@ export const ReviewsAISection = () => {
       <div className="container mx-auto px-4 sm:px-6">
         <div className="max-w-2xl mx-auto text-center mb-14">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-background border border-border text-foreground text-xs font-semibold mb-4">
-            <MessageSquareReply className="w-3.5 h-3.5" /> Avis IA
+            <MessageSquareReply className="w-3.5 h-3.5" /> {t("landingUI.reviewsAI.badge")}
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-foreground tracking-tight">
-            Tous vos avis reçus. <span className="text-primary">Répondus automatiquement.</span>
+            {t("landingUI.reviewsAI.title1")} <span className="text-primary">{t("landingUI.reviewsAI.title2")}</span>
           </h2>
           <p className="mt-4 text-lg text-muted-foreground">
-            Des réponses IA fidèles à votre marque, publiées sur Google en quelques minutes — pour booster votre réputation et votre référencement IA.
+            {t("landingUI.reviewsAI.subtitle")}
           </p>
         </div>
 
