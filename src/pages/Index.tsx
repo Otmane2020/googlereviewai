@@ -7,6 +7,7 @@ import { RankiHero } from "@/components/ranki/RankiHero";
 import { GeoRankSection } from "@/components/ranki/GeoRankSection";
 import { HowItWorksSection } from "@/components/ranki/HowItWorksSection";
 import { ReviewsAISection } from "@/components/ranki/ReviewsAISection";
+import { DashboardPreviewSection } from "@/components/ranki/DashboardPreviewSection";
 import { RankiPricingSection } from "@/components/ranki/RankiPricingSection";
 import { FAQSection } from "@/components/FAQSection";
 import { CTASection } from "@/components/CTASection";
