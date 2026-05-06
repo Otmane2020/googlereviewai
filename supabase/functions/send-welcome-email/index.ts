@@ -139,7 +139,7 @@ serve(async (req) => {
 
     const firstName = name?.split(" ")[0] || "";
     const hasSubscription = !!plan_name;
-    const displayCredits = credits ?? 10;
+    const displayCredits = credits ?? 25;
     const displayPlan = plan_name || t.freePlan;
 
     console.log(`Sending welcome email to ${email} (lang=${lang}, plan: ${displayPlan})`);
