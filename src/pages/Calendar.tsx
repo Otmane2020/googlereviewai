@@ -244,6 +244,116 @@ const Calendar = () => {
           </CardContent>
         </Card>
       </div>
+
+      <Dialog open={!!detail} onOpenChange={(o) => !o && setDetail(null)}>
+        <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col">
+          {detail && (() => {
+            const isGeo = detail.content_type === "aeo_qa";
+            const s = STATUS_STYLE[detail.status] || STATUS_STYLE.pending;
+            const Icon = s.icon;
+            return (
+              <>
+                <DialogHeader>
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isGeo ? "bg-emerald-500/10 text-emerald-600" : "bg-primary/10 text-primary"}`}>
+                      {isGeo ? <Sparkles className="w-5 h-5" /> : <FileText className="w-5 h-5" />}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                        {isGeo ? "GEO · Q&R Google" : "SEO · Post Google"}
+                      </p>
+                      <DialogTitle className="text-base text-left truncate">
+                        {detail.title || detail.question || (isGeo ? "Q&R GEO" : "Article SEO")}
+                      </DialogTitle>
+                    </div>
+                    <Badge variant="outline" className={`${s.className} text-[10px] gap-1 shrink-0`}>
+                      <Icon className={`w-3 h-3 ${detail.status === "generating" ? "animate-spin" : ""}`} />
+                      {s.label}
+                    </Badge>
+                  </div>
+                  <DialogDescription className="text-xs">
+                    Planifié le {format(new Date(detail.scheduled_date), "EEEE d MMMM yyyy", { locale: fr })}
+                    {detail.published_at && ` · Publié le ${format(new Date(detail.published_at), "d MMM yyyy 'à' HH:mm", { locale: fr })}`}
+                  </DialogDescription>
+                </DialogHeader>
+
+                <ScrollArea className="flex-1 -mx-6 px-6">
+                  {detailLoading ? (
+                    <div className="py-12 flex justify-center">
+                      <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                    </div>
+                  ) : (
+                    <div className="space-y-4 py-2">
+                      {detail.keyword_used && (
+                        <div>
+                          <p className="text-[11px] font-semibold uppercase text-muted-foreground mb-1">Mot-clé ciblé</p>
+                          <Badge variant="secondary" className="text-xs">{detail.keyword_used}</Badge>
+                        </div>
+                      )}
+
+                      {isGeo && detail.question && (
+                        <div>
+                          <p className="text-[11px] font-semibold uppercase text-muted-foreground mb-1">Question</p>
+                          <p className="text-sm font-medium text-foreground">{detail.question}</p>
+                        </div>
+                      )}
+
+                      {isGeo && detail.answer && (
+                        <div>
+                          <p className="text-[11px] font-semibold uppercase text-muted-foreground mb-1">Réponse</p>
+                          <div className="text-sm text-foreground whitespace-pre-wrap leading-relaxed p-3 rounded-lg bg-muted/40 border border-border/50">
+                            {detail.answer}
+                          </div>
+                        </div>
+                      )}
+
+                      {!isGeo && detail.content && (
+                        <div>
+                          <p className="text-[11px] font-semibold uppercase text-muted-foreground mb-1">Contenu de l'article</p>
+                          <div className="text-sm text-foreground whitespace-pre-wrap leading-relaxed p-3 rounded-lg bg-muted/40 border border-border/50">
+                            {detail.content}
+                          </div>
+                        </div>
+                      )}
+
+                      {!detail.content && !detail.answer && !detail.error_message && !detailLoading && (
+                        <div className="py-8 text-center text-sm text-muted-foreground">
+                          {detail.status === "pending"
+                            ? "Le contenu n'a pas encore été généré."
+                            : detail.status === "generating"
+                              ? "Génération en cours..."
+                              : "Aucun contenu disponible."}
+                        </div>
+                      )}
+
+                      {detail.error_message && (
+                        <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/30">
+                          <p className="text-[11px] font-semibold uppercase text-destructive mb-1">Erreur</p>
+                          <p className="text-sm text-destructive">{detail.error_message}</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </ScrollArea>
+
+                <DialogFooter className="gap-2 sm:gap-2">
+                  {detail.google_post_id && (
+                    <Button variant="outline" size="sm" asChild>
+                      <a href={`https://business.google.com/`} target="_blank" rel="noopener noreferrer">
+                        <ExternalLink className="w-3.5 h-3.5 mr-1.5" />
+                        Voir sur Google
+                      </a>
+                    </Button>
+                  )}
+                  <Button variant="default" size="sm" onClick={() => setDetail(null)}>
+                    Fermer
+                  </Button>
+                </DialogFooter>
+              </>
+            );
+          })()}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
