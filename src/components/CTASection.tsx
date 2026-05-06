@@ -13,10 +13,10 @@ export const CTASection = () => {
             <Target className="w-7 h-7 text-foreground" />
           </div>
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Start ranking in AI search today
+            Boostez vos ventes dès aujourd'hui
           </h2>
           <p className="text-muted-foreground text-sm sm:text-base mb-7 max-w-xl mx-auto">
-            Join hundreds of local businesses using Ranki.ai to dominate ChatGPT, Gemini and Perplexity. Free forever — no credit card required.
+            Rejoignez les centaines d'établissements qui utilisent Starlinko pour améliorer leur positionnement et dominer ChatGPT, Gemini et Perplexity. Gratuit à vie — sans carte bancaire.
           </p>
 
           <Button
@@ -25,14 +25,14 @@ export const CTASection = () => {
             onClick={() => navigate("/auth")}
           >
             <Sparkles className="w-5 h-5" />
-            Start free with Ranki.ai
+            Commencer gratuitement
             <ArrowRight className="w-4 h-4 ml-1" />
           </Button>
 
           <div className="flex flex-wrap items-center justify-center gap-4 mt-5 text-muted-foreground text-xs">
-            <span className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-primary" /> 100% free plan</span>
-            <span className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-primary" /> No credit card</span>
-            <span className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-primary" /> Cancel anytime</span>
+            <span className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-primary" /> Offre 100% gratuite</span>
+            <span className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-primary" /> Sans carte bancaire</span>
+            <span className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-primary" /> Annulable à tout moment</span>
           </div>
         </div>
       </div>
