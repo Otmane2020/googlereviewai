@@ -724,7 +724,7 @@ const SEOAutoPost = () => {
                           <div className="flex items-center gap-2">
                             {!isSubscribed && item.status !== "pending" && <Lock className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />}
                             <p className={`font-medium text-xs ${isSubscribed || item.status === "pending" ? "text-foreground" : "text-muted-foreground"} line-clamp-2`}>
-                              {item.title || "Pending article"}
+                              {item.title || t("Article en attente", "Pending article")}
                             </p>
                           </div>
                           {item.keyword_used && (
