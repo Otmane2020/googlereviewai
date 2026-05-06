@@ -35,28 +35,32 @@ import { RankiLogo } from "@/components/StarlinkoLogo";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
+import { useTranslation } from "react-i18next";
 
 interface DashboardLayoutProps {
   children: ReactNode;
   title?: string;
 }
 
-const productNav = [
-  { label: "Overview", href: "/dashboard", icon: LayoutDashboard },
-  { label: "GEO Rank AI", href: "/aeo-rank", icon: Sparkles, badge: "AI" },
-  { label: "Maps Rank", href: "/maps-rank", icon: MapPin },
-  { label: "Reviews", href: "/reviews", icon: Star },
-  { label: "SEO Autopilot", href: "/seo-autopost", icon: Search },
-  { label: "Q&A", href: "/gmb-post", icon: MessageCircleQuestion },
-  { label: "Planning", href: "/calendar", icon: ListChecks },
-  { label: "Locations", href: "/businesses", icon: Building2 },
-];
-
-const accountNav = [
-  { label: "AI Settings", href: "/ai-settings", icon: Sparkles },
-  { label: "Notifications", href: "/notifications", icon: Bell },
-  { label: "Settings", href: "/settings", icon: Settings },
-];
+const useNavItems = () => {
+  const { t } = useTranslation();
+  const productNav = [
+    { label: t("sidebar.overview"), href: "/dashboard", icon: LayoutDashboard },
+    { label: t("sidebar.geoRankAi"), href: "/aeo-rank", icon: Sparkles, badge: "AI" },
+    { label: t("sidebar.mapsRank"), href: "/maps-rank", icon: MapPin },
+    { label: t("sidebar.reviews"), href: "/reviews", icon: Star },
+    { label: t("sidebar.seoAutopilot"), href: "/seo-autopost", icon: Search },
+    { label: t("sidebar.qa"), href: "/gmb-post", icon: MessageCircleQuestion },
+    { label: t("sidebar.planning"), href: "/calendar", icon: ListChecks },
+    { label: t("sidebar.locations"), href: "/businesses", icon: Building2 },
+  ];
+  const accountNav = [
+    { label: t("sidebar.aiSettings"), href: "/ai-settings", icon: Sparkles },
+    { label: t("sidebar.notifications"), href: "/notifications", icon: Bell },
+    { label: t("sidebar.settings"), href: "/settings", icon: Settings },
+  ];
+  return { productNav, accountNav };
+};
 
 const RankiSidebar = () => {
   const { state } = useSidebar();
