@@ -72,7 +72,7 @@ const RankiSidebar = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { productNav, accountNav } = useNavItems();
+  const { mainNav, visibilityNav, businessNav, accountNav } = useNavItems();
   const [profile, setProfile] = useState<{ full_name: string | null; email: string; credits: number; plan_name: string | null } | null>(null);
 
   useEffect(() => {
@@ -129,9 +129,23 @@ const RankiSidebar = () => {
 
       <SidebarContent>
         <SidebarGroup>
-          {!collapsed && <SidebarGroupLabel>{t("sidebar.workspace")}</SidebarGroupLabel>}
+          {!collapsed && <SidebarGroupLabel>Espace de travail</SidebarGroupLabel>}
           <SidebarGroupContent>
-            <SidebarMenu>{productNav.map(renderItem)}</SidebarMenu>
+            <SidebarMenu>{mainNav.map(renderItem)}</SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          {!collapsed && <SidebarGroupLabel>Visibilité Boost</SidebarGroupLabel>}
+          <SidebarGroupContent>
+            <SidebarMenu>{visibilityNav.map(renderItem)}</SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          {!collapsed && <SidebarGroupLabel>Mon entreprise</SidebarGroupLabel>}
+          <SidebarGroupContent>
+            <SidebarMenu>{businessNav.map(renderItem)}</SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
 
