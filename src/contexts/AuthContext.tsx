@@ -21,16 +21,34 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
+
+        // Sync language between profile and i18n (deferred)
+        if (session?.user) {
+          setTimeout(async () => {
+            try {
+              const { data } = await supabase
+                .from("profiles")
+                .select("preferred_language")
+                .eq("id", session.user.id)
+                .maybeSingle();
+              const pl = (data as any)?.preferred_language;
+              if (pl && pl !== i18n.language) {
+                await i18n.changeLanguage(pl);
+              } else if (!pl) {
+                const cur = (i18n.language || "fr").startsWith("en") ? "en" : "fr";
+                await supabase.from("profiles").update({ preferred_language: cur }).eq("id", session.user.id);
+              }
+            } catch (_) { /* silent */ }
+          }, 0);
+        }
       }
     );
 
-    // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
@@ -42,7 +60,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signUp = async (email: string, password: string, fullName: string) => {
     const redirectUrl = `${window.location.origin}/`;
-    
+    const lang = (i18n.language || "fr").startsWith("en") ? "en" : "fr";
+
     const { error } = await supabase.auth.signUp({
       email,
       password,
@@ -50,6 +69,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         emailRedirectTo: redirectUrl,
         data: {
           full_name: fullName,
+          preferred_language: lang,
         },
       },
     });
