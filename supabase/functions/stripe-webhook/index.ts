@@ -20,7 +20,9 @@ const PLAN_CONFIG: Record<string, { credits: number; maxBusinesses: number; plan
   "price_1SrHtOEfti9t9nN9fG4lSroa": { credits: 10, maxBusinesses: 1, planName: "Starter Annuel" },
   "price_1SrHtPEfti9t9nN9dnZ0sXpi": { credits: 100, maxBusinesses: 2, planName: "Pro Annuel" },
   "price_1SrHtQEfti9t9nN9GKvr4NSt": { credits: 400, maxBusinesses: 999, planName: "Business Annuel" },
-  // Agence - 49€/mois - 10+ établissements, pool de 1000 crédits à allouer par établissement
+  // Quotidien - 9,99€/mois - jusqu'à 3 établissements, 200 crédits/mois (avis + AEO + SEO)
+  "price_1TSa8pEfti9t9nN9JHI4owg3": { credits: 200, maxBusinesses: 3, planName: "Quotidien" },
+  // Agence - 49€/mois - illimité, pool 1000 crédits à allouer par établissement
   "price_1TTuIpEfti9t9nN9sy6pUNgU": { credits: 0, maxBusinesses: 999, planName: "Agence", agencyPoolCredits: 1000 },
 };
 
