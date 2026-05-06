@@ -672,8 +672,8 @@ const AISettingsPage = () => {
                   <Clock className="w-4 h-4 text-indigo-500" />
                 </div>
                 <div>
-                  <span className="font-medium text-sm text-foreground block">SEO/AEO publish time</span>
-                  <span className="text-xs text-muted-foreground">Automatic articles & Q&A</span>
+                  <span className="font-medium text-sm text-foreground block">Heure de publication SEO/AEO</span>
+                  <span className="text-xs text-muted-foreground">Articles & Q&R automatiques</span>
                 </div>
               </div>
               <div className="flex items-center gap-2">
