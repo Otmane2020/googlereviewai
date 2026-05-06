@@ -747,7 +747,11 @@ const AEORank = () => {
                   </Card>
                 ) : (
                   scheduledContent.map((item) => (
-                    <Card key={item.id} className="active:bg-muted/50 transition-colors">
+                    <Card 
+                      key={item.id} 
+                      className="active:bg-muted/50 hover:bg-muted/30 transition-colors cursor-pointer"
+                      onClick={() => handlePreviewArticle(item)}
+                    >
                       <CardContent className="p-3">
                         <div className="flex items-center justify-between gap-2 mb-2">
                           <div className="flex items-center gap-1.5 flex-wrap">
@@ -756,17 +760,15 @@ const AEORank = () => {
                               {format(new Date(item.scheduled_date), "d MMM")}
                             </span>
                           </div>
-                          <div className="flex gap-1.5 flex-shrink-0">
-                            {item.question && (
-                              <Button 
-                                variant="outline" 
-                                size="sm"
-                                className="h-7 px-2"
-                                onClick={() => handlePreviewArticle(item)}
-                              >
-                                <Eye className="w-3 h-3" />
-                              </Button>
-                            )}
+                          <div className="flex gap-1.5 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              className="h-7 px-2"
+                              onClick={() => handlePreviewArticle(item)}
+                            >
+                              <Eye className="w-3 h-3" />
+                            </Button>
                             
                             {!item.question && item.status !== "generating" && (
                               <Button 
