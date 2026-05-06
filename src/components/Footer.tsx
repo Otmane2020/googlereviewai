@@ -1,27 +1,30 @@
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { RankiLogo } from "./StarlinkoLogo";
 
 export const Footer = () => {
+  const { t } = useTranslation();
+
   const sections = [
     {
-      title: "Product",
+      title: t("landingUI.footer.product"),
       links: [
-        { label: "GEO Rank Tracker", href: "#geo-rank" },
-        { label: "Reviews AI", href: "#reviews-ai" },
-        { label: "Local SEO Autopilot", href: "#how-it-works" },
-        { label: "Pricing", href: "#pricing" },
+        { label: t("landingUI.footer.geoRankTracker"), href: "#geo-rank" },
+        { label: t("landingUI.footer.reviewsAI"), href: "#reviews-ai" },
+        { label: t("landingUI.footer.localSeoAuto"), href: "#how-it-works" },
+        { label: t("landingUI.footer.pricing"), href: "#pricing" },
       ],
     },
     {
-      title: "Company",
+      title: t("landingUI.footer.company"),
       links: [
-        { label: "Blog", href: "/blog" },
-        { label: "Privacy", href: "/privacy" },
-        { label: "Terms", href: "/terms" },
+        { label: t("landingUI.footer.blog"), href: "/blog" },
+        { label: t("landingUI.footer.privacy"), href: "/privacy" },
+        { label: t("landingUI.footer.terms"), href: "/terms" },
       ],
     },
     {
-      title: "Support",
+      title: t("landingUI.footer.support"),
       links: [
         { label: "support@ranki.ai", href: "mailto:support@ranki.ai" },
       ],
@@ -37,11 +40,11 @@ export const Footer = () => {
               <RankiLogo className="text-card scale-90 sm:scale-100" />
             </div>
             <p className="text-card/60 text-xs sm:text-sm mb-4 sm:mb-6 max-w-xs">
-              Rank locally in ChatGPT, Gemini and Perplexity. The GEO platform built for local businesses.
+              {t("landingUI.footer.tagline")}
             </p>
             <div className="flex items-center gap-2 text-xs text-card/60">
               <span className="w-2 h-2 rounded-full bg-secondary animate-pulse" />
-              <span>All systems operational</span>
+              <span>{t("landingUI.footer.operational")}</span>
             </div>
           </div>
 
@@ -69,10 +72,10 @@ export const Footer = () => {
 
         <div className="pt-6 sm:pt-8 border-t border-card/10 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs sm:text-sm text-card/60 text-center sm:text-left">
-            © {new Date().getFullYear()} Ranki.ai – All rights reserved.
+            © {new Date().getFullYear()} Ranki.ai – {t("landingUI.footer.rights")}.
           </p>
           <div className="text-xs sm:text-sm text-card/60">
-            GEO · Local SEO · Reviews AI
+            {t("landingUI.footer.tagShort")}
           </div>
         </div>
       </div>
