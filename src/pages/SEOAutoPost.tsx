@@ -446,16 +446,16 @@ const SEOAutoPost = () => {
     
     switch (status) {
       case "published":
-        return <Badge className="bg-secondary text-secondary-foreground"><Check className="w-3 h-3 mr-1" />Publié</Badge>;
+        return <Badge className="bg-secondary text-secondary-foreground"><Check className="w-3 h-3 mr-1" />{t("Publié", "Published")}</Badge>;
       case "generated":
-        return <Badge className="bg-primary text-primary-foreground"><Sparkles className="w-3 h-3 mr-1" />Prêt</Badge>;
+        return <Badge className="bg-primary text-primary-foreground"><Sparkles className="w-3 h-3 mr-1" />{t("Prêt", "Ready")}</Badge>;
       case "generating":
-        return <Badge variant="outline"><Loader2 className="w-3 h-3 mr-1 animate-spin" />En cours</Badge>;
+        return <Badge variant="outline"><Loader2 className="w-3 h-3 mr-1 animate-spin" />{t("En cours", "In progress")}</Badge>;
       case "failed":
       case "error":
-        return <Badge variant="destructive"><AlertCircle className="w-3 h-3 mr-1" />Échec</Badge>;
+        return <Badge variant="destructive"><AlertCircle className="w-3 h-3 mr-1" />{t("Échec", "Failed")}</Badge>;
       default:
-        return <Badge variant="secondary"><Clock className="w-3 h-3 mr-1" />Planifié</Badge>;
+        return <Badge variant="secondary"><Clock className="w-3 h-3 mr-1" />{t("Planifié", "Scheduled")}</Badge>;
     }
   };
 
