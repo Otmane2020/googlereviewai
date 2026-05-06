@@ -227,7 +227,7 @@ export const BusinessSubscriptionSelector = ({
               disabled={quantity === 0 || isLoading}
               className="flex-1"
             >
-              Annuel - {annualMonthlyTotal} €/mois
+              {t("Annuel", "Yearly")} - {isEN ? `$${annualMonthlyTotal}` : `${annualMonthlyTotal} €`}{t("/mois", "/mo")}
             </Button>
             <Button
               onClick={() => {
@@ -237,7 +237,7 @@ export const BusinessSubscriptionSelector = ({
               disabled={quantity === 0 || isLoading}
               className="flex-1"
             >
-              Mensuel - {monthlyTotal} €/mois
+              {t("Mensuel", "Monthly")} - {isEN ? `$${monthlyTotal}` : `${monthlyTotal} €`}{t("/mois", "/mo")}
             </Button>
           </DialogFooter>
         </DialogContent>
