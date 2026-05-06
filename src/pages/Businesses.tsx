@@ -417,7 +417,7 @@ const BusinessesPage = () => {
                 <RefreshCw className="w-4 h-4" />
               )}
               <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent font-semibold">
-                {isSyncing ? "Sync..." : "Edit"}
+                {isSyncing ? t("Sync...", "Sync...") : t("Modifier", "Edit")}
               </span>
             </Button>
           </div>
