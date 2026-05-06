@@ -83,9 +83,9 @@ export const BusinessSubscriptionSelector = ({
           <div className="flex items-center gap-3 mb-3">
             <Lock className="w-6 h-6 text-primary flex-shrink-0" />
             <div className="min-w-0">
-              <p className="font-semibold text-sm text-foreground">Premium {moduleType.toUpperCase()} Module</p>
+              <p className="font-semibold text-sm text-foreground">Module {moduleType.toUpperCase()} Premium</p>
               <p className="text-xs text-muted-foreground">
-                $29/mo <span className="text-primary font-medium">(per location)</span>
+                29 €/mois <span className="text-primary font-medium">(par établissement)</span>
               </p>
             </div>
           </div>
@@ -97,7 +97,7 @@ export const BusinessSubscriptionSelector = ({
             disabled={isLoading}
           >
             <Plus className="w-4 h-4 mr-2" />
-            Choose my locations
+            Choisir mes établissements
           </Button>
         </CardContent>
       </Card>
