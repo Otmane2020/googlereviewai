@@ -632,10 +632,10 @@ const SettingsPage = () => {
                 </div>
                 <div>
                   <p className="font-medium text-foreground text-sm">
-                    Email Notifications
+                    Notifications e-mail
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    Configure in AI Settings
+                    À configurer dans Paramètres IA
                   </p>
                 </div>
               </div>
@@ -645,7 +645,7 @@ const SettingsPage = () => {
                 onClick={() => navigate("/ai-settings")}
                 className="rounded-xl h-9"
               >
-                Configure
+                Configurer
               </Button>
             </div>
 
