@@ -82,8 +82,8 @@ export const PricingSection = () => {
       if (data?.url) window.location.href = data.url;
     } catch (e: unknown) {
       toast({
-        title: "Error",
-        description: e instanceof Error ? e.message : "Checkout failed",
+        title: "Erreur",
+        description: e instanceof Error ? e.message : "Paiement échoué",
         variant: "destructive",
       });
     } finally {

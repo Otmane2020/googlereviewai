@@ -67,10 +67,10 @@ export const ResponsePreviewDialog = ({
       if (error) throw error;
 
       setHasChanges(false);
-      toast({ title: "Response sauvegardée" });
+      toast({ title: "Réponse sauvegardée" });
     } catch (error) {
       toast({
-        title: "Error",
+        title: "Erreur",
         description: "Impossible de sauvegarder la réponse.",
         variant: "destructive",
       });
@@ -93,7 +93,7 @@ export const ResponsePreviewDialog = ({
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(editedResponse);
-    toast({ title: "Copied!" });
+    toast({ title: "Copié !" });
   };
 
   if (!review) return null;

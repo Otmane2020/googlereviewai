@@ -75,7 +75,7 @@ const ResetPassword = () => {
     if (password.length < 6) {
       toast({
         title: "Mot de passe trop court",
-        description: "Le mot de passe doit contenir au moins 6 characters.",
+        description: "Le mot de passe doit contenir au moins 6 caractères.",
         variant: "destructive",
       });
       return;
@@ -83,7 +83,7 @@ const ResetPassword = () => {
 
     if (password !== confirmPassword) {
       toast({
-        title: "Passwords don't match",
+        title: "Les mots de passe ne correspondent pas",
         description: "Les deux mots de passe ne correspondent pas.",
         variant: "destructive",
       });
@@ -97,20 +97,20 @@ const ResetPassword = () => {
 
       if (error) {
         toast({
-          title: "Error",
+          title: "Erreur",
           description: error.message,
           variant: "destructive",
         });
       } else {
         setIsSuccess(true);
         toast({
-          title: "Password updated!",
-          description: "You can now sign in.",
+          title: "Mot de passe mis à jour !",
+          description: "Vous pouvez maintenant vous connecter.",
         });
       }
     } catch (error) {
       toast({
-        title: "Error",
+        title: "Erreur",
         description: "Une erreur inattendue s'est produite.",
         variant: "destructive",
       });
@@ -150,11 +150,11 @@ const ResetPassword = () => {
         });
 
         if (error) {
-          toast({ title: "Error", description: error.message, variant: "destructive" });
+          toast({ title: "Erreur", description: error.message, variant: "destructive" });
         } else {
           toast({
-            title: "Email sent",
-            description: "Open the latest email to reset your password.",
+            title: "E-mail envoyé",
+            description: "Ouvrez le dernier e-mail pour réinitialiser votre mot de passe.",
           });
         }
       } finally {

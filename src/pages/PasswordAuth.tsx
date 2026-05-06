@@ -27,9 +27,9 @@ const PasswordAuth = () => {
       if (isLogin) {
         const { error } = await signIn(email, password);
         if (error) {
-          toast.error(error.message || "Error de connexion");
+          toast.error(error.message || "Erreur de connexion");
         } else {
-          toast.success("Signed in successfully!");
+          toast.success("Connexion réussie !");
           navigate("/dashboard");
         }
       } else {
@@ -40,9 +40,9 @@ const PasswordAuth = () => {
         }
         const { error } = await signUp(email, password, fullName);
         if (error) {
-          toast.error(error.message || "Error d'inscription");
+          toast.error(error.message || "Erreur d'inscription");
         } else {
-          toast.success("Sign up successful! Check your email.");
+          toast.success("Inscription réussie ! Vérifiez votre e-mail.");
           setIsLogin(true);
         }
       }

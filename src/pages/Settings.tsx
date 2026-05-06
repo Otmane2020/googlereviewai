@@ -126,14 +126,14 @@ const SettingsPage = () => {
 
     if (error) {
       toast({
-        title: "Error",
-        description: "Could not save profile.",
+        title: "Erreur",
+        description: "Impossible d'enregistrer le profil.",
         variant: "destructive",
       });
     } else {
       toast({
-        title: "Profilee updated",
-        description: "Your information has been saved.",
+        title: "Profil mis à jour",
+        description: "Vos informations ont été enregistrées.",
       });
     }
     setSaving(false);
@@ -161,9 +161,9 @@ const SettingsPage = () => {
     } catch (error: any) {
       console.error("Portal error:", error);
       toast({
-        title: "Error",
+        title: "Erreur",
         description: error.message === "No customer found" 
-          ? "No subscription found. Please subscribe to a plan first."
+          ? "Aucun abonnement trouvé. Veuillez d'abord souscrire à un plan."
           : "Could not open management portal",
         variant: "destructive",
       });
@@ -736,9 +736,9 @@ const SettingsPage = () => {
                       const ok = await webPush.sendTestNotification();
                       setTestingSending(false);
                       toast({
-                        title: ok ? "Notification sent 🔔" : "Send failed",
+                        title: ok ? "Notification envoyée 🔔" : "Échec de l'envoi",
                         description: ok 
-                          ? "You should receive the notification within a few seconds." 
+                          ? "Vous devriez recevoir la notification dans quelques secondes." 
                           : "Check your push subscription.",
                         variant: ok ? "default" : "destructive",
                       });

@@ -92,8 +92,8 @@ export const AddTestReviewDialog = ({
       if (error) throw error;
 
       toast({
-        title: "Review added!",
-        description: "The test review has been created.",
+        title: "Avis ajouté !",
+        description: "L'avis de test a été créé.",
       });
 
       setAuthor("");
@@ -105,7 +105,7 @@ export const AddTestReviewDialog = ({
       console.error("Error adding test review:", error);
       toast({
         title: "Error",
-        description: "Unable to add the review.",
+        description: "Impossible d'ajouter l'avis.",
         variant: "destructive",
       });
     } finally {

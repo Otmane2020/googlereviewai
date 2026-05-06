@@ -215,7 +215,7 @@ const BusinessesPage = () => {
       fetchBusinesses();
       toast({
         title: "Synchronisation",
-        description: "No Google business found on your account.",
+        description: "Aucun établissement Google trouvé sur votre compte.",
         variant: "destructive",
       });
     }
@@ -224,8 +224,8 @@ const BusinessesPage = () => {
   const handleBusinessSelectionSuccess = () => {
     fetchBusinesses();
     toast({
-      title: "Businesses updated",
-      description: "Your businesses have been synced.",
+      title: "Établissements mis à jour",
+      description: "Vos établissements ont été synchronisés.",
     });
   };
 
@@ -245,14 +245,14 @@ const BusinessesPage = () => {
 
     if (error) {
       toast({
-        title: "Error",
-        description: "Unable to add the business.",
+        title: "Erreur",
+        description: "Impossible d'ajouter l'établissement.",
         variant: "destructive",
       });
     } else {
       toast({
-        title: "Business added",
-        description: `${newBusiness.name} was added successfully.`,
+        title: "Établissement ajouté",
+        description: `${newBusiness.name} a été ajouté avec succès.`,
       });
       setNewBusiness({ name: "", address: "", phone: "", website: "" });
       setDialogOpen(false);
@@ -271,14 +271,14 @@ const BusinessesPage = () => {
 
     if (error) {
       toast({
-        title: "Error",
-        description: "Unable to delete the business.",
+        title: "Erreur",
+        description: "Impossible de supprimer l'établissement.",
         variant: "destructive",
       });
     } else {
       toast({
-        title: "Business deleted",
-        description: `${name} was deleted.`,
+        title: "Établissement supprimé",
+        description: `${name} a été supprimé.`,
       });
       fetchBusinesses();
     }
@@ -295,14 +295,14 @@ const BusinessesPage = () => {
 
     if (error) {
       toast({
-        title: "Error",
-        description: "Unable to update description.",
+        title: "Erreur",
+        description: "Impossible de mettre à jour la description.",
         variant: "destructive",
       });
     } else {
       toast({
-        title: "Description updated",
-        description: "Description saved.",
+        title: "Description mise à jour",
+        description: "Description enregistrée.",
       });
       setEditDialogOpen(false);
       setEditingBusiness(null);
@@ -327,15 +327,15 @@ const BusinessesPage = () => {
       if (error) throw error;
 
       toast({
-        title: "Analysis complete",
-        description: "Keywords extracted successfully.",
+        title: "Analyse terminée",
+        description: "Mots-clés extraits avec succès.",
       });
       fetchBusinesses();
     } catch (error) {
       console.error("Error analyzing business:", error);
       toast({
-        title: "Error",
-        description: "Unable to analyze the website.",
+        title: "Erreur",
+        description: "Impossible d'analyser le site web.",
         variant: "destructive",
       });
     } finally {
@@ -575,21 +575,21 @@ const BusinessesPage = () => {
                                     b.id === business.id ? { ...b, description: data.description, auto_keywords: data.keywords || b.auto_keywords } : b
                                   ));
                                   toast({
-                                    title: "Description generated ✨",
-                                    description: "Description created with AI",
+                                    title: "Description générée ✨",
+                                    description: "Description créée par l'IA",
                                   });
                                 } else {
                                   toast({
-                                    title: "Generation complete",
-                                    description: data?.message || "Check the business info",
+                                    title: "Génération terminée",
+                                    description: data?.message || "Vérifiez les informations de l'établissement",
                                     variant: "destructive"
                                   });
                                 }
                               } catch (err) {
                                 console.error('Error generating description:', err);
                                 toast({
-                                  title: "Error",
-                                  description: "Unable to generate description",
+                                  title: "Erreur",
+                                  description: "Impossible de générer la description",
                                   variant: "destructive"
                                 });
                               } finally {
@@ -672,7 +672,7 @@ const BusinessesPage = () => {
                                     setBusinesses(prev => prev.map(b => 
                                       b.id === business.id ? { ...b, website: newUrl } : b
                                     ));
-                                    toast({ title: "URL saved ✓" });
+                                    toast({ title: "URL enregistrée ✓" });
                                   }
                                 }}
                               >
@@ -710,14 +710,14 @@ const BusinessesPage = () => {
                                 ));
                                 
                                 toast({
-                                  title: "Analysis complete ✨",
-                                  description: `${data?.keywords?.length || 0} keywords + ${data?.aeo_questions?.length || 0} AEO questions generated`,
+                                  title: "Analyse terminée ✨",
+                                  description: `${data?.keywords?.length || 0} mots-clés + ${data?.aeo_questions?.length || 0} questions AEO générées`,
                                 });
                               } catch (err) {
                                 console.error('Error analyzing:', err);
                                 toast({
-                                  title: "Error",
-                                  description: "Unable to analyze the site",
+                                  title: "Erreur",
+                                  description: "Impossible d'analyser le site",
                                   variant: "destructive"
                                 });
                               } finally {

@@ -115,13 +115,13 @@ export default function GmbPost() {
     }
 
     if (!selectedBusinessId) {
-      toast.error("Please select a business");
+      toast.error("Veuillez sélectionner un établissement");
       return;
     }
 
     const selectedBusiness = businesses.find(b => b.id === selectedBusinessId);
     if (!selectedBusiness?.google_place_id) {
-      toast.error("This business isn't connected to Google");
+      toast.error("Cet établissement n'est pas connecté à Google");
       return;
     }
 
@@ -146,8 +146,8 @@ export default function GmbPost() {
       if (error) throw error;
 
       if (data?.success) {
-        toast.success("Published successfully!", {
-          description: "Your post is now live on your Google Business Profile",
+        toast.success("Publication réussie !", {
+          description: "Votre publication est désormais visible sur votre fiche Google Business",
           action: {
             label: "Voir",
             onClick: () => window.open("https://business.google.com", "_blank"),
@@ -169,7 +169,7 @@ export default function GmbPost() {
       }
     } catch (error) {
       console.error("Publish error:", error);
-      toast.error("Error lors de la publication");
+      toast.error("Erreur lors de la publication");
     } finally {
       setIsPublishing(false);
     }

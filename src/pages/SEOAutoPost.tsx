@@ -164,8 +164,8 @@ const SEOAutoPost = () => {
 
       if (addData?.success) {
         toast({
-          title: "Module activated!",
-          description: "The SEO module was added to your subscription.",
+          title: "Module activé !",
+          description: "Le module SEO a été ajouté à votre abonnement.",
         });
         setIsSubscribed(true);
         checkSubscription();
@@ -192,7 +192,7 @@ const SEOAutoPost = () => {
       console.error("Subscription error:", error);
       toast({
         title: "Erreur",
-        description: error?.message || "Unable to create payment session",
+        description: error?.message || "Impossible de créer la session de paiement",
         variant: "destructive"
       });
     }
@@ -288,7 +288,7 @@ const SEOAutoPost = () => {
       });
 
       toast({ 
-        title: "Plan generated!", 
+        title: "Plan généré !", 
         description: `30 article titles planned with ${keywords.length} keywords detected` 
       });
     } catch (error: any) {
@@ -338,7 +338,7 @@ const SEOAutoPost = () => {
         .eq("id", item.id);
 
       await fetchScheduledContent(selectedBusiness!.id);
-      toast({ title: "Article generated!" });
+      toast({ title: "Article généré !" });
     } catch (error: any) {
       await supabase
         .from("scheduled_content")
@@ -352,7 +352,7 @@ const SEOAutoPost = () => {
 
   const publishToGMB = async (item: ScheduledContent) => {
     if (!item.content) {
-      toast({ title: "Erreur", description: "The article must be generated first", variant: "destructive" });
+      toast({ title: "Erreur", description: "L'article doit d'abord être généré", variant: "destructive" });
       return;
     }
 
@@ -370,8 +370,8 @@ const SEOAutoPost = () => {
       
       if (data?.requires_reconnect) {
         toast({ 
-          title: "Reconnect required", 
-          description: "Reconnect with Google from the Dashboard", 
+          title: "Reconnexion requise", 
+          description: "Reconnectez-vous avec Google depuis le Tableau de bord", 
           variant: "destructive" 
         });
         setPublishing(null);
@@ -385,13 +385,13 @@ const SEOAutoPost = () => {
       await fetchScheduledContent(selectedBusiness!.id);
       toast({ 
         title: "Publié sur Google !", 
-        description: "The article was published on your Google Business Profile" 
+        description: "L'article a été publié sur votre fiche Google Business" 
       });
     } catch (error: any) {
       console.error("Error publishing:", error);
       toast({ 
-        title: "Publishing error", 
-        description: error.message || "Unable to publish to Google", 
+        title: "Erreur de publication", 
+        description: error.message || "Impossible de publier sur Google", 
         variant: "destructive" 
       });
     }
@@ -410,12 +410,12 @@ const SEOAutoPost = () => {
       console.error("Error saving publication hour:", error);
       toast({
         title: "Erreur",
-        description: "Could not save the publication hour",
+        description: "Impossible d'enregistrer l'heure de publication",
         variant: "destructive"
       });
     } else {
       toast({
-        title: "Time updated",
+        title: "Heure mise à jour",
         description: `La publication automatique aura lieu à ${hour.toString().padStart(2, "0")}:00 UTC`,
       });
     }

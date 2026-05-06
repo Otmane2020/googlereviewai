@@ -42,13 +42,13 @@ export const OAuthCallback = ({ children }: { children: React.ReactNode }) => {
             console.error("OAuth callback error:", error || data?.error);
             toast({
               title: "Erreur de connexion",
-              description: data?.error || "Google Business sign-in failed.",
+              description: data?.error || "Échec de la connexion Google Business.",
               variant: "destructive",
             });
           } else {
             toast({
-              title: "Signed in",
-              description: "Your Google Business account is connected for automatic sync.",
+              title: "Connecté",
+              description: "Votre compte Google Business est connecté pour la synchronisation automatique.",
             });
             
             // Notify parent window (if opened via window.open) that OAuth succeeded

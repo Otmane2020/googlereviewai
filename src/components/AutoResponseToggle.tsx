@@ -45,15 +45,15 @@ export const AutoResponseToggle = () => {
     if (error) {
       setEnabled(!newValue);
       toast({
-        title: "Error",
-        description: "Unable to update the setting.",
+        title: "Erreur",
+        description: "Impossible de mettre à jour le paramètre.",
         variant: "destructive",
       });
     } else {
       toast({
-        title: newValue ? "Auto-reply enabled" : "Auto-reply disabled",
+        title: newValue ? "Réponse automatique activée" : "Réponse automatique désactivée",
         description: newValue 
-          ? "New replies will be generated automatically."
+          ? "Les nouvelles réponses seront générées automatiquement."
           : "You'll need to generate replies manually.",
       });
     }

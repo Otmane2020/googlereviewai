@@ -169,8 +169,8 @@ const AEORank = () => {
 
       if (addData?.success) {
         toast({
-          title: "Module activated!",
-          description: "The AEO module was added to your subscription.",
+          title: "Module activé !",
+          description: "Le module AEO a été ajouté à votre abonnement.",
         });
         setIsSubscribed(true);
         checkSubscription();
@@ -198,7 +198,7 @@ const AEORank = () => {
       console.error("Subscription error:", error);
       toast({
         title: "Erreur",
-        description: error?.message || "Unable to create payment session",
+        description: error?.message || "Impossible de créer la session de paiement",
         variant: "destructive"
       });
     }
@@ -224,8 +224,8 @@ const AEORank = () => {
         .neq("status", "published");
 
       toast({ 
-        title: "Analyzing...", 
-        description: "Scraping the website with Firecrawl..." 
+        title: "Analyse en cours...", 
+        description: "Analyse du site web avec Firecrawl..." 
       });
 
       // STEP 2: Call analyze-business-website to scrape with Firecrawl
@@ -292,7 +292,7 @@ const AEORank = () => {
       if (insertError) throw insertError;
 
       toast({ 
-        title: "Plan created! Generating Q&As...", 
+        title: "Plan créé ! Génération des Q&R...", 
         description: `30 days planned with ${keywords.length} keywords` 
       });
 
@@ -366,7 +366,7 @@ const AEORank = () => {
       }
 
       toast({ 
-        title: "Done!", 
+        title: "Terminé !", 
         description: `${generatedCount} Q&As generated with ${keywords.length} keywords`
       });
     } catch (error: any) {
@@ -410,7 +410,7 @@ const AEORank = () => {
           .update({ status: "failed", error_message: msg })
           .eq("id", item.id);
         await fetchScheduledContent(selectedBusiness!.id);
-        toast({ title: "Generation failed", description: msg, variant: "destructive" });
+        toast({ title: "Échec de la génération", description: msg, variant: "destructive" });
         return;
       }
 
@@ -440,7 +440,7 @@ const AEORank = () => {
 
   const publishToGMB = async (item: ScheduledContent) => {
     if (!item.question || !item.answer) {
-      toast({ title: "Erreur", description: "The Q&A must be generated first", variant: "destructive" });
+      toast({ title: "Erreur", description: "La Q&R doit d'abord être générée", variant: "destructive" });
       return;
     }
 
@@ -456,8 +456,8 @@ const AEORank = () => {
       
       if (data?.requires_reconnect) {
         toast({ 
-          title: "Reconnect required", 
-          description: "Reconnect with Google from the Dashboard", 
+          title: "Reconnexion requise", 
+          description: "Reconnectez-vous avec Google depuis le Tableau de bord", 
           variant: "destructive" 
         });
         setPublishing(null);
@@ -470,14 +470,14 @@ const AEORank = () => {
 
       await fetchScheduledContent(selectedBusiness!.id);
       toast({ 
-        title: "Published to Google!", 
+        title: "Publié sur Google !", 
         description: "The Q&A was published on your Google Business Profile" 
       });
     } catch (error: any) {
       console.error("Error publishing:", error);
       toast({ 
-        title: "Publishing error", 
-        description: error.message || "Unable to publish to Google", 
+        title: "Erreur de publication", 
+        description: error.message || "Impossible de publier sur Google", 
         variant: "destructive" 
       });
     }
@@ -496,12 +496,12 @@ const AEORank = () => {
       console.error("Error saving publication hour:", error);
       toast({
         title: "Erreur",
-        description: "Could not save the publication hour",
+        description: "Impossible d'enregistrer l'heure de publication",
         variant: "destructive"
       });
     } else {
       toast({
-        title: "Time updated",
+        title: "Heure mise à jour",
         description: `Auto-publishing will run at ${hour.toString().padStart(2, "0")}:00 UTC`,
       });
     }

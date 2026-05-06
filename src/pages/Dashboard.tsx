@@ -155,7 +155,7 @@ const Dashboard = () => {
           const success = await handleOAuthCallback(code);
           
           if (success) {
-            toast.success("Google Business connected successfully!");
+            toast.success("Google Business connecté avec succès !");
             // Trigger sync after successful connection
             setShowSyncProgress(true);
             setSyncStep("businesses");
@@ -174,11 +174,11 @@ const Dashboard = () => {
               setLoading(false);
             }
           } else {
-            toast.error("Google connection failed. Please try again.");
+            toast.error("Échec de la connexion Google. Veuillez réessayer.");
           }
         } catch (error) {
           console.error("[Dashboard] OAuth callback error:", error);
-          toast.error("Error connecting to Google");
+          toast.error("Erreur lors de la connexion à Google");
         }
       }
     };

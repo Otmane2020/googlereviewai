@@ -50,7 +50,7 @@ export const SelectBusinessesDialog = ({
       if (newSelected.size >= maxBusinesses) {
         toast({
           title: "Limite atteinte",
-          description: `Your plan allows up to ${maxBusinesses} business${maxBusinesses > 1 ? "es" : ""}.`,
+          description: `Votre plan autorise jusqu'à ${maxBusinesses} établissement${maxBusinesses > 1 ? "s" : ""}.`,
           variant: "destructive",
         });
         return;
@@ -63,8 +63,8 @@ export const SelectBusinessesDialog = ({
   const handleSave = async () => {
     if (selected.size === 0) {
       toast({
-        title: "Selection required",
-        description: "Please select at least one business.",
+        title: "Sélection requise",
+        description: "Veuillez sélectionner au moins un établissement.",
         variant: "destructive",
       });
       return;
@@ -86,7 +86,7 @@ export const SelectBusinessesDialog = ({
       if (error) throw error;
 
       toast({
-        title: "Businesses synced",
+        title: "Établissements synchronisés",
         description: `${selected.size} business${selected.size > 1 ? "es" : ""} added.`,
       });
 
@@ -96,7 +96,7 @@ export const SelectBusinessesDialog = ({
       console.error("Error saving businesses:", error);
       toast({
         title: "Error",
-        description: "Unable to save businesses.",
+        description: "Impossible d'enregistrer les établissements.",
         variant: "destructive",
       });
     } finally {

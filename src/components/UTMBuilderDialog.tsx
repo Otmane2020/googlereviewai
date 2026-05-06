@@ -133,10 +133,10 @@ export const UTMBuilderDialog = ({ trigger, open, onOpenChange }: UTMBuilderDial
     try {
       await navigator.clipboard.writeText(generatedUrl);
       setCopied(true);
-      toast.success("URL copied!");
+      toast.success("URL copiée !");
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      toast.error("Error lors de la copie");
+      toast.error("Erreur lors de la copie");
     }
   };
 

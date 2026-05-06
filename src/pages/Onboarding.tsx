@@ -77,7 +77,7 @@ const Onboarding = () => {
     try {
       await initiateOAuth();
     } catch (e) {
-      toast({ title: "Error", description: "Could not start Google connection", variant: "destructive" });
+      toast({ title: "Erreur", description: "Impossible de démarrer la connexion Google", variant: "destructive" });
       setLoading(false);
     }
   };
@@ -90,7 +90,7 @@ const Onboarding = () => {
       .upsert({ user_id: user.id, tone, signature, enabled: true } as any, { onConflict: "user_id" });
     setLoading(false);
     if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      toast({ title: "Erreur", description: error.message, variant: "destructive" });
       return;
     }
     next();
@@ -111,7 +111,7 @@ const Onboarding = () => {
       if (error) throw error;
       if (data?.url) window.location.href = data.url;
     } catch (e: unknown) {
-      toast({ title: "Error", description: e instanceof Error ? e.message : "Checkout failed", variant: "destructive" });
+      toast({ title: "Erreur", description: e instanceof Error ? e.message : "Paiement échoué", variant: "destructive" });
       setPlanLoading(null);
     }
   };

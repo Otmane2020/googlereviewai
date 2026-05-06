@@ -167,13 +167,13 @@ const MapsRank = () => {
 
   const handleScan = async () => {
     if (!selectedBusiness || !keyword.trim()) {
-      toast.error("Select a business and enter a keyword");
+      toast.error("Sélectionnez un établissement et saisissez un mot-clé");
       return;
     }
 
     const business = businesses.find(b => b.id === selectedBusiness);
     if (!business?.google_place_id) {
-      toast.error("This business isn't connected to Google. Reconnect it from Locations.");
+      toast.error("Cet établissement n'est pas connecté à Google. Reconnectez-le depuis Établissements.");
       return;
     }
 
@@ -225,7 +225,7 @@ const MapsRank = () => {
         ...result,
         points: processedPoints,
       });
-      toast.success(`Scan complete! ${result.points.length} points analyzed`);
+      toast.success(`Scan terminé ! ${result.points.length} points analysés`);
 
       // Refresh history
       const { data: newHistory } = await supabase
@@ -297,10 +297,10 @@ const MapsRank = () => {
         // Fetch previous rank for this keyword
         await fetchPreviousRank(scanData.keyword);
         
-        toast.success("Scan loaded from history");
+        toast.success("Scan chargé depuis l'historique");
       }
     } catch (error) {
-      toast.error("Error lors du chargement du scan");
+      toast.error("Erreur lors du chargement du scan");
     }
   };
 

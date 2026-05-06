@@ -237,7 +237,7 @@ const Checkout = () => {
       }
     } catch (error) {
       console.error("Checkout error:", error);
-      toast.error("Payment error. Please try again.");
+      toast.error("Erreur de paiement. Veuillez réessayer.");
     } finally {
       setIsProcessing(false);
     }

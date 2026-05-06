@@ -82,8 +82,8 @@ export const SupportDialog = ({ userEmail, triggerClassName, hideTrigger, open: 
 
       setSubmitted(true);
       toast({
-        title: "Message sent!",
-        description: "Our team will get back to you shortly.",
+        title: "Message envoyé !",
+        description: "Notre équipe vous répondra rapidement.",
       });
 
       // Reset after 2s and close
@@ -97,8 +97,8 @@ export const SupportDialog = ({ userEmail, triggerClassName, hideTrigger, open: 
     } catch (error) {
       console.error("Error sending support request:", error);
       toast({
-        title: "Error",
-        description: "Unable to send the message. Try again later.",
+        title: "Erreur",
+        description: "Impossible d'envoyer le message. Réessayez plus tard.",
         variant: "destructive",
       });
     } finally {

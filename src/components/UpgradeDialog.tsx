@@ -65,8 +65,8 @@ export const UpgradeDialog = ({ open, onOpenChange, currentPlan }: UpgradeDialog
     } catch (error) {
       console.error("Checkout error:", error);
       toast({
-        title: "Error",
-        description: "Unable to create payment session.",
+        title: "Erreur",
+        description: "Impossible de créer la session de paiement.",
         variant: "destructive",
       });
     } finally {
@@ -93,8 +93,8 @@ export const UpgradeDialog = ({ open, onOpenChange, currentPlan }: UpgradeDialog
     } catch (error) {
       console.error("Credits checkout error:", error);
       toast({
-        title: "Error",
-        description: "Unable to create payment session.",
+        title: "Erreur",
+        description: "Impossible de créer la session de paiement.",
         variant: "destructive",
       });
     } finally {

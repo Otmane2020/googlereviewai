@@ -97,8 +97,8 @@ const OldReviewsSection = ({
 
       if (!profile || profile.credits < creditsNeeded) {
         toast({
-          title: "Insufficient credits",
-          description: `You have ${profile?.credits || 0} credits. You need ${creditsNeeded} credits to process all old reviews.`,
+          title: "Crédits insuffisants",
+          description: `Vous avez ${profile?.credits || 0} crédits. Il vous faut ${creditsNeeded} crédits pour traiter tous les anciens avis.`,
           variant: "destructive",
         });
         setUpgradeOpen(true);
@@ -114,8 +114,8 @@ const OldReviewsSection = ({
       if (error) throw error;
 
       toast({
-        title: "Processing started",
-        description: `Generating replies for ${oldReviewsCount} old reviews in progress...`,
+        title: "Traitement démarré",
+        description: `Génération des réponses pour ${oldReviewsCount} anciens avis en cours...`,
       });
       
       onComplete();
@@ -123,7 +123,7 @@ const OldReviewsSection = ({
       console.error("Error generating old reviews:", error);
       toast({
         title: "Erreur",
-        description: "Could not start old reviews processing.",
+        description: "Impossible de démarrer le traitement des anciens avis.",
         variant: "destructive",
       });
     } finally {
@@ -338,13 +338,13 @@ const AISettingsPage = () => {
       console.error("Error saving AI settings:", error);
       toast({
         title: "Erreur",
-        description: "Could not save settings.",
+        description: "Impossible d'enregistrer les paramètres.",
         variant: "destructive",
       });
     } else {
       toast({
         title: "Enregistré",
-        description: "Your AI settings have been saved.",
+        description: "Vos paramètres IA ont été enregistrés.",
       });
       setHasChanges(false);
       initialSettingsRef.current = settings;

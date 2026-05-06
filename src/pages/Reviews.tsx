@@ -305,9 +305,9 @@ const Reviews = () => {
         setPreviewDialogOpen(true);
       }
       
-      toast({ title: "Response generated!", description: `Credits left: ${data.credits_remaining}` });
+      toast({ title: "Réponse générée !", description: `Crédits restants : ${data.credits_remaining}` });
     } catch (error) {
-      toast({ title: "Error", description: error instanceof Error ? error.message : "Unable to generate response.", variant: "destructive" });
+      toast({ title: "Erreur", description: error instanceof Error ? error.message : "Impossible de générer la réponse.", variant: "destructive" });
     } finally {
       setGeneratingId(null);
     }
@@ -332,8 +332,8 @@ const Reviews = () => {
 
         if (!refreshData?.success || refreshData?.requires_reconnect || !refreshData?.access_token) {
           toast({
-            title: "Reconnect required",
-            description: "Go to Settings → Connect Google to reconnect your account.",
+            title: "Reconnexion requise",
+            description: "Allez dans Paramètres → Connecter Google pour reconnecter votre compte.",
             variant: "destructive",
           });
           return;
@@ -348,12 +348,12 @@ const Reviews = () => {
 
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
-      if (data?.success === false) throw new Error(data.message || "Unable to publish.");
+      if (data?.success === false) throw new Error(data.message || "Impossible de publier.");
 
-      toast({ title: "Published to Google!" });
+      toast({ title: "Publié sur Google !" });
       // No need to fetchData - Realtime handles it
     } catch (error) {
-      toast({ title: "Error", description: error instanceof Error ? error.message : "Unable to publish.", variant: "destructive" });
+      toast({ title: "Erreur", description: error instanceof Error ? error.message : "Impossible de publier.", variant: "destructive" });
     } finally {
       setPublishingId(null);
     }
@@ -361,7 +361,7 @@ const Reviews = () => {
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
-    toast({ title: "Copied!" });
+    toast({ title: "Copié !" });
   };
 
   // Get selected business - use useMemo to ensure it updates when businesses or selectedBusinessId changes
@@ -447,8 +447,8 @@ const Reviews = () => {
     }
     if (result?.requires_reconnect) {
       toast({
-        title: "Reconnect required",
-        description: "Your Google session has expired. Please reconnect.",
+        title: "Reconnexion requise",
+        description: "Votre session Google a expiré. Veuillez vous reconnecter.",
         variant: "destructive",
       });
     }
@@ -471,7 +471,7 @@ const Reviews = () => {
   const handleBusinessSelectionSuccess = () => {
     setShowSelectBusinessesDialog(false);
     fetchData(false);
-    toast({ title: "Business selected!", description: "Your reviews will be synced." });
+    toast({ title: "Établissement sélectionné !", description: "Vos avis vont être synchronisés." });
   };
 
   // Format time ago

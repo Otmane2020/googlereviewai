@@ -209,16 +209,16 @@ export const NotificationPrompt = () => {
             setIsAlreadySubscribed(true);
             setDismissed(true);
             toast({
-              title: "Notifications enabled",
-              description: "You'll get alerts for your Google reviews",
+              title: "Notifications activées",
+              description: "Vous recevrez des alertes pour vos avis Google",
             });
           },
           onFailure: () => {
             clearTimeout(safetyTimeout);
             setIsSubscribing(false);
             toast({
-              title: "Notifications not enabled",
-              description: "You can enable them later in settings",
+              title: "Notifications non activées",
+              description: "Vous pourrez les activer plus tard dans les paramètres",
               variant: "destructive",
             });
           }
@@ -238,8 +238,8 @@ export const NotificationPrompt = () => {
         if (result === "granted") {
           setDismissed(true);
           toast({
-            title: "Notifications enabled",
-            description: "You'll get alerts for your Google reviews",
+            title: "Notifications activées",
+            description: "Vous recevrez des alertes pour vos avis Google",
           });
         }
       } catch (error) {
