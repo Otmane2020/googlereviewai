@@ -639,7 +639,7 @@ const Dashboard = () => {
                 </div>
                 <div>
                   <p className="text-white/80 text-sm font-medium">
-                    {urgencyLevel === "green" ? "All caught up!" : "Unanswered reviews"}
+                    {urgencyLevel === "green" ? "Tout est à jour !" : "Avis sans réponse"}
                   </p>
                   <div className="text-3xl font-bold text-white">{stats.pending}</div>
                 </div>
