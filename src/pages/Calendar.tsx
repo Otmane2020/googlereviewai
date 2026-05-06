@@ -54,6 +54,20 @@ const Calendar = () => {
   const [loading, setLoading] = useState(true);
   const [cursor, setCursor] = useState(new Date());
   const [selectedDay, setSelectedDay] = useState<Date | null>(new Date());
+  const [detail, setDetail] = useState<ContentDetail | null>(null);
+  const [detailLoading, setDetailLoading] = useState(false);
+
+  const openDetail = async (item: ContentItem) => {
+    setDetailLoading(true);
+    setDetail({ ...item, content: null, answer: null, keyword_used: null, google_post_id: null, published_at: null, error_message: null });
+    const { data } = await supabase
+      .from("scheduled_content")
+      .select("id, content_type, scheduled_date, status, title, question, business_id, content, answer, keyword_used, google_post_id, published_at, error_message")
+      .eq("id", item.id)
+      .maybeSingle();
+    if (data) setDetail(data as ContentDetail);
+    setDetailLoading(false);
+  };
 
   useEffect(() => {
     if (!user) return;
