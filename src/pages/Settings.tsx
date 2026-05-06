@@ -28,9 +28,11 @@ import {
   Link2,
   Sparkles,
   ExternalLink,
-  Send
+  Send,
+  Globe
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { useTranslation } from "react-i18next";
 
 interface Profilee {
   id: string;
@@ -48,6 +50,13 @@ interface Profilee {
 const SettingsPage = () => {
   const { user, session, signOut } = useAuth();
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
+  const [currentLang, setCurrentLang] = useState(i18n.language?.startsWith("fr") ? "fr" : "en");
+  const handleLanguageChange = (lng: "fr" | "en") => {
+    setCurrentLang(lng);
+    i18n.changeLanguage(lng);
+    try { localStorage.setItem("i18nextLng", lng); } catch {}
+  };
   const { isNativeApp, canUsePushAlert } = useDeviceDetection();
   const webPush = useWebPush();
   const [pushPermission, setPushPermission] = useState<NotificationPermission | "unsupported">("default");
