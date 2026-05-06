@@ -13,6 +13,7 @@ const PRICE_IDS: Record<string, string> = {
   starter_monthly: "price_1TSa8oEfti9t9nN9RCi6cW8y",  // $9
   growth_monthly: "price_1TSa8pEfti9t9nN9JHI4owg3",   // $29
   agency_monthly: "price_1TSa8rEfti9t9nN9c1Cr3THW",   // $79
+  agency_eu_monthly: "price_1TTuIpEfti9t9nN9sy6pUNgU", // 49€/mois - Plan Agence (10+ établissements)
   // Legacy EUR plans (kept for backwards compat)
   pro_monthly: "price_1SrHtDEfti9t9nN96yIPGiOo",
   business_monthly: "price_1SrHtEEfti9t9nN9mq7MrV3G",
@@ -64,7 +65,7 @@ const PER_BUSINESS_MODULES = ["aeo_monthly", "aeo_yearly", "seo_monthly", "seo_y
 // Subscription price keys (recurring)
 const SUBSCRIPTION_PRICE_KEYS = [
   "starter_monthly", "starter_yearly",
-  "growth_monthly", "agency_monthly",
+  "growth_monthly", "agency_monthly", "agency_eu_monthly",
   "pro_monthly", "pro_yearly",
   "business_monthly", "business_yearly",
   "aeo_monthly", "aeo_yearly",
