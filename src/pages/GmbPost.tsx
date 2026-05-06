@@ -120,38 +120,38 @@ export default function GmbPost() {
 
   const handlePublish = async () => {
     if (!content.trim()) {
-      toast.error("Veuillez saisir du contenu");
+      toast.error(t("Veuillez saisir du contenu", "Please enter content"));
       return;
     }
 
     if (!selectedBusinessId) {
-      toast.error("Veuillez sélectionner un établissement");
+      toast.error(t("Veuillez sélectionner un établissement", "Please select a business"));
       return;
     }
 
     const selectedBusiness = businesses.find(b => b.id === selectedBusinessId);
     if (!selectedBusiness?.google_place_id) {
-      toast.error("Cet établissement n'est pas connecté à Google");
+      toast.error(t("Cet établissement n'est pas connecté à Google", "This business is not connected to Google"));
       return;
     }
 
     if (ctaType && ctaType !== "NONE" && !ctaUrl) {
-      toast.error("Veuillez saisir une URL pour le bouton d'action");
+      toast.error(t("Veuillez saisir une URL pour le bouton d'action", "Please enter a URL for the action button"));
       return;
     }
 
     // Validations spécifiques
     if (postType === "EVENT" || postType === "OFFER") {
       if (!eventTitle.trim()) {
-        toast.error(postType === "EVENT" ? "Titre de l'événement requis" : "Titre de l'offre requis");
+        toast.error(postType === "EVENT" ? t("Titre de l'événement requis", "Event title required") : t("Titre de l'offre requis", "Offer title required"));
         return;
       }
       if (!startDate || !endDate) {
-        toast.error("Dates de début et de fin requises");
+        toast.error(t("Dates de début et de fin requises", "Start and end dates required"));
         return;
       }
       if (new Date(endDate) < new Date(startDate)) {
-        toast.error("La date de fin doit être après la date de début");
+        toast.error(t("La date de fin doit être après la date de début", "End date must be after start date"));
         return;
       }
     }
@@ -177,10 +177,10 @@ export default function GmbPost() {
       if (error) throw error;
 
       if (data?.success) {
-        toast.success("Publication réussie !", {
-          description: "Votre publication est désormais visible sur votre fiche Google Business",
+        toast.success(t("Publication réussie !", "Successfully published!"), {
+          description: t("Votre publication est désormais visible sur votre fiche Google Business", "Your post is now visible on your Google Business profile"),
           action: {
-            label: "Voir",
+            label: t("Voir", "View"),
             onClick: () => window.open("https://business.google.com", "_blank"),
           },
         });
@@ -194,9 +194,9 @@ export default function GmbPost() {
         setTerms("");
         fetchRecentPosts();
       } else if (data?.requires_reconnect) {
-        toast.error("Reconnexion Google requise", {
+        toast.error(t("Reconnexion Google requise", "Google reconnection required"), {
           action: {
-            label: "Reconnecter",
+            label: t("Reconnecter", "Reconnect"),
             onClick: () => navigate("/settings"),
           },
         });
@@ -205,7 +205,7 @@ export default function GmbPost() {
       }
     } catch (error) {
       console.error("Publish error:", error);
-      toast.error("Erreur lors de la publication");
+      toast.error(t("Erreur lors de la publication", "Error while publishing"));
     } finally {
       setIsPublishing(false);
     }
@@ -226,14 +226,14 @@ export default function GmbPost() {
       return (
         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-emerald-500/20 text-emerald-600">
           <Check className="w-3 h-3" />
-          Published
+          {t("Publié", "Published")}
         </span>
       );
     }
     return (
       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-amber-500/20 text-amber-600">
         <Clock className="w-3 h-3" />
-        En attente
+        {t("En attente", "Pending")}
       </span>
     );
   };
