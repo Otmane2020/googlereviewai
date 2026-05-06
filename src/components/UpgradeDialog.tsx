@@ -195,8 +195,8 @@ export const UpgradeDialog = ({ open, onOpenChange, currentPlan }: UpgradeDialog
         <div className="px-4 pb-6 border-t border-border/50 pt-4">
           <div className="flex items-center gap-2 mb-3">
             <Coins className="w-4 h-4 text-primary" />
-            <span className="font-medium text-sm text-foreground">Recharger des crédits</span>
-            <Badge variant="outline" className="text-[10px] ml-auto">~0.30€/crédit</Badge>
+            <span className="font-medium text-sm text-foreground">{isEN ? "Top up credits" : "Recharger des crédits"}</span>
+            <Badge variant="outline" className="text-[10px] ml-auto">~0.30{currencySymbol}/{isEN ? "credit" : "crédit"}</Badge>
           </div>
           
           <DropdownMenu>
