@@ -747,8 +747,8 @@ const BusinessesPage = () => {
                               <Sparkles className="w-4 h-4" />
                             )}
                             {analyzingId === business.id 
-                              ? "Analyzing..." 
-                              : "Analyser avec Firecrawl + IA"}
+                              ? t("Analyse...", "Analyzing...") 
+                              : t("Analyser avec Firecrawl + IA", "Analyze with Firecrawl + AI")}
                           </Button>
 
                           {/* Google Maps link */}
