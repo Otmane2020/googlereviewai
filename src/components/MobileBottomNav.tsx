@@ -37,14 +37,17 @@ export const MobileBottomNav = () => {
     { icon: Building2, label: t("dashboard.businesses"), href: "/businesses" },
   ];
 
+  const isFr = !(i18n.language || "").toLowerCase().startsWith("en");
+  const planningLabel = isFr ? "Planning" : "Planning";
+
   const menuItems = [
-    { icon: CalendarIcon, label: t("dashboard.calendar") || "Calendrier", href: "/calendar" },
-    { icon: FileText, label: t("dashboard.seoAuto"), href: "/seo-autopost" },
-    { icon: Sparkles, label: t("dashboard.aeoRank"), href: "/aeo-rank" },
-    { icon: MapPin, label: t("dashboard.mapsRank"), href: "/maps-rank" },
-    { icon: TrendingUp, label: t("dashboard.aiSettings"), href: "/ai-settings" },
-    { icon: Bell, label: t("dashboard.notifications"), href: "/notifications" },
-    { icon: Settings, label: t("dashboard.settings"), href: "/settings" },
+    { icon: FileText, label: t("dashboard.seoAuto"), href: "/seo-autopost", color: "text-blue-600 bg-blue-500/10" },
+    { icon: Sparkles, label: t("dashboard.aeoRank"), href: "/aeo-rank", color: "text-purple-600 bg-purple-500/10" },
+    { icon: CalendarIcon, label: planningLabel, href: "/calendar", color: "text-emerald-600 bg-emerald-500/10" },
+    { icon: MapPin, label: t("dashboard.mapsRank"), href: "/maps-rank", color: "text-orange-600 bg-orange-500/10" },
+    { icon: TrendingUp, label: t("dashboard.aiSettings"), href: "/ai-settings", color: "text-pink-600 bg-pink-500/10" },
+    { icon: Bell, label: t("dashboard.notifications"), href: "/notifications", color: "text-amber-600 bg-amber-500/10" },
+    { icon: Settings, label: t("dashboard.settings"), href: "/settings", color: "text-slate-600 bg-slate-500/10" },
   ];
 
   const handleSignOut = async () => {
