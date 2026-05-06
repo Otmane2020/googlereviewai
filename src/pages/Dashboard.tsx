@@ -852,7 +852,7 @@ const Dashboard = () => {
           ) : (
             <div className="p-8 text-center">
               <CheckCircle2 className="w-10 h-10 mx-auto mb-3 text-green-500" />
-              <p className="text-sm text-muted-foreground">No pending reviews</p>
+              <p className="text-sm text-muted-foreground">Aucun avis en attente</p>
               <Button 
                 variant="outline" 
                 size="sm" 
