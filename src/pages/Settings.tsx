@@ -272,7 +272,7 @@ const SettingsPage = () => {
         <div className="bg-card rounded-2xl border border-border p-6">
           <div className="flex items-center gap-3 mb-6">
             <CreditCard className="w-5 h-5 text-primary" />
-            <h2 className="font-semibold text-foreground">Subscription</h2>
+            <h2 className="font-semibold text-foreground">Abonnement</h2>
           </div>
 
           <div className="mb-6 p-4 rounded-xl bg-primary/5 border border-primary/20">
@@ -283,7 +283,7 @@ const SettingsPage = () => {
                   Plan {profile?.plan_name?.charAt(0).toUpperCase()}{profile?.plan_name?.slice(1) || "Gratuit"}
                 </span>
                 {profile?.subscription_status === "trial" && (
-                  <Badge variant="secondary">Free trial</Badge>
+                  <Badge variant="secondary">Essai gratuit</Badge>
                 )}
               </div>
               <Button 
@@ -302,17 +302,17 @@ const SettingsPage = () => {
             </div>
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
-                <p className="text-muted-foreground">Available credits</p>
+                <p className="text-muted-foreground">Crédits disponibles</p>
                 <p className="text-xl font-bold text-foreground">{profile?.credits ?? 0}</p>
               </div>
               <div>
-                <p className="text-muted-foreground">Max locations</p>
+                <p className="text-muted-foreground">Établissements max</p>
                 <p className="text-xl font-bold text-foreground">{profile?.max_businesses ?? 1}</p>
               </div>
             </div>
             {profile?.trial_end && profile?.subscription_status === "trial" && (
               <p className="text-xs text-muted-foreground mt-3">
-                Free trial jusqu'au {new Date(profile.trial_end).toLocaleDateString("fr-FR")}
+                Essai gratuit jusqu'au {new Date(profile.trial_end).toLocaleDateString("fr-FR")}
               </p>
             )}
           </div>
@@ -332,7 +332,7 @@ const SettingsPage = () => {
             <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
               <Link2 className="w-4 h-4 text-primary" />
             </div>
-            <h2 className="font-semibold text-foreground text-sm">Integrations</h2>
+            <h2 className="font-semibold text-foreground text-sm">Intégrations</h2>
           </div>
           
           {/* Google My Business */}
