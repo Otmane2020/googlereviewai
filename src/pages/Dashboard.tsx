@@ -468,7 +468,7 @@ const Dashboard = () => {
             <div className="flex items-center gap-2">
               <div className="text-center px-4 py-2 bg-primary/10 rounded-xl md:hidden">
                 <div className="text-lg font-bold text-primary">{profile?.credits || 0}</div>
-                <div className="text-[10px] text-muted-foreground">Credits</div>
+                <div className="text-[10px] text-muted-foreground">Crédits</div>
               </div>
               <Button 
               variant="outline" 
@@ -498,7 +498,7 @@ const Dashboard = () => {
                 <Sparkles className="w-5 h-5 text-primary" />
               </div>
               <div className="flex-1">
-                <p className="font-medium text-foreground text-sm">Free trial</p>
+                <p className="font-medium text-foreground text-sm">Essai gratuit</p>
                 <p className="text-xs text-muted-foreground">10 free credits to test</p>
               </div>
               <Link to="/settings">
@@ -665,7 +665,7 @@ const Dashboard = () => {
                 : responseRateColor === "orange" ? "text-orange-500" 
                 : "text-red-500"
               }`} />
-              <span className="text-xs text-muted-foreground">Response rate</span>
+              <span className="text-xs text-muted-foreground">Taux de réponse</span>
             </div>
             <div className={`text-2xl font-bold ${
               responseRateColor === "green" ? "text-green-600" 
@@ -680,7 +680,7 @@ const Dashboard = () => {
           <div className="bg-card rounded-2xl p-4 border border-border">
             <div className="flex items-center gap-2 mb-2">
               <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-              <span className="text-xs text-muted-foreground">Average rating</span>
+              <span className="text-xs text-muted-foreground">Note moyenne</span>
             </div>
             <div className="text-2xl font-bold text-foreground">{stats.avgRating || "-"}</div>
           </div>
@@ -689,7 +689,7 @@ const Dashboard = () => {
           <div className="bg-card rounded-2xl p-4 border border-border">
             <div className="flex items-center gap-2 mb-2">
               <MessageSquare className="w-4 h-4 text-primary" />
-              <span className="text-xs text-muted-foreground">Total reviews</span>
+              <span className="text-xs text-muted-foreground">Total des avis</span>
             </div>
             <div className="text-2xl font-bold text-foreground">{stats.total}</div>
           </div>
@@ -722,7 +722,7 @@ const Dashboard = () => {
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <p className="text-white font-bold text-base">GEO Autoposting</p>
+                      <p className="text-white font-bold text-base">Publication automatique GEO</p>
                       <span className="text-[10px] bg-white/20 text-white px-2 py-0.5 rounded-full font-semibold uppercase tracking-wide">AI</span>
                     </div>
                     <p className="text-white/70 text-xs">Auto Q&A on Google · ChatGPT-ready</p>
@@ -734,15 +734,15 @@ const Dashboard = () => {
               <div className="grid grid-cols-3 gap-2 mb-4">
                 <div className="bg-white/10 backdrop-blur rounded-xl p-2.5 text-center">
                   <div className="text-xl font-bold text-white">{aeoStats.planned}</div>
-                  <div className="text-[10px] text-white/70 uppercase tracking-wide">Scheduled</div>
+                  <div className="text-[10px] text-white/70 uppercase tracking-wide">Planifié</div>
                 </div>
                 <div className="bg-white/10 backdrop-blur rounded-xl p-2.5 text-center">
                   <div className="text-xl font-bold text-white">{aeoStats.ready}</div>
-                  <div className="text-[10px] text-white/70 uppercase tracking-wide">Ready</div>
+                  <div className="text-[10px] text-white/70 uppercase tracking-wide">Prêt</div>
                 </div>
                 <div className="bg-white/10 backdrop-blur rounded-xl p-2.5 text-center">
                   <div className="text-xl font-bold text-white">{aeoStats.published}</div>
-                  <div className="text-[10px] text-white/70 uppercase tracking-wide">Published</div>
+                  <div className="text-[10px] text-white/70 uppercase tracking-wide">Publié</div>
                 </div>
               </div>
 
@@ -797,7 +797,7 @@ const Dashboard = () => {
           <div className="p-4 border-b border-border flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Clock className="w-4 h-4 text-muted-foreground" />
-              <h2 className="font-semibold text-foreground text-sm">Priority queue</h2>
+              <h2 className="font-semibold text-foreground text-sm">File prioritaire</h2>
             </div>
             <Link to="/reviews">
               <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground text-xs">

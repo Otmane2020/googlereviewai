@@ -571,7 +571,7 @@ const Reviews = () => {
                             <div className="flex-1 text-left min-w-0">
                               <div className="font-medium break-words">{business.name}</div>
                               {business.google_place_id && (
-                                <div className="text-xs text-muted-foreground">Connected to Google</div>
+                                <div className="text-xs text-muted-foreground">Connecté à Google</div>
                               )}
                             </div>
                             {isSelected && (
@@ -802,7 +802,7 @@ const Reviews = () => {
         ) : !selectedBusinessId ? (
           <div className="bg-card rounded-xl border border-border p-12 text-center">
             <Building2 className="w-12 h-12 mx-auto mb-4 text-muted-foreground/30" />
-            <h2 className="text-lg font-semibold text-foreground mb-2">Select a business</h2>
+            <h2 className="text-lg font-semibold text-foreground mb-2">Sélectionnez un établissement</h2>
             <p className="text-muted-foreground text-sm">
               Choose a business above to view its reviews.
             </p>

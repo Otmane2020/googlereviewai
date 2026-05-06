@@ -219,7 +219,7 @@ export default function GmbPost() {
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div>
-            <h1 className="text-lg font-semibold">Create a GMB post</h1>
+            <h1 className="text-lg font-semibold">Créer une publication GMB</h1>
             <p className="text-xs text-muted-foreground">Publiez sur Google Business Profile</p>
           </div>
         </div>
@@ -407,7 +407,7 @@ export default function GmbPost() {
               <div className="text-center py-8 text-muted-foreground">
                 <Megaphone className="w-10 h-10 mx-auto mb-3 opacity-30" />
                 <p className="text-sm">Aucune publication pour le moment</p>
-                <p className="text-xs mt-1">Create your first Google Business post</p>
+                <p className="text-xs mt-1">Créez votre première publication Google Business</p>
               </div>
             ) : (
               <div className="space-y-3">
