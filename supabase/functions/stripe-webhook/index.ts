@@ -142,7 +142,7 @@ serve(async (req) => {
             try {
               const { data: profile } = await supabaseAdmin
                 .from("profiles")
-                .select("email, full_name")
+                .select("email, full_name, preferred_language")
                 .eq("id", userId)
                 .single();
 
