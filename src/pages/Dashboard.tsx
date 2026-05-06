@@ -772,9 +772,9 @@ const Dashboard = () => {
         <div className="overflow-x-auto -mx-4 px-4 pb-2">
           <div className="flex gap-3 min-w-max">
             {[
-              { icon: Star, label: "Reviews", desc: `${stats.pending} pending`, href: "/reviews", color: "bg-yellow-500" },
-              { icon: Building2, label: "Business", desc: `${stats.businesses} active`, href: "/businesses", color: "bg-violet-500" },
-              { icon: Sparkles, label: "AI", desc: "Settings", href: "/ai-settings", color: "bg-primary" },
+              { icon: Star, label: "Avis", desc: `${stats.pending} en attente`, href: "/reviews", color: "bg-yellow-500" },
+              { icon: Building2, label: "Établissements", desc: `${stats.businesses} actif${stats.businesses > 1 ? 's' : ''}`, href: "/businesses", color: "bg-violet-500" },
+              { icon: Sparkles, label: "IA", desc: "Paramètres", href: "/ai-settings", color: "bg-primary" },
               { icon: TrendingUp, label: "SEO", desc: "Auto-post", href: "/seo-autopost", color: "bg-green-500" },
             ].map((action) => (
               <Link
