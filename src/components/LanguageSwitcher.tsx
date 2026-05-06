@@ -41,6 +41,9 @@ interface LanguageSwitcherProps {
 }
 
 export const LanguageSwitcher = ({ variant = "flags", className = "" }: LanguageSwitcherProps) => {
+  // App is FR-only for now. Component kept for future re-activation.
+  return null;
+  // eslint-disable-next-line no-unreachable
   const { i18n } = useTranslation();
   const currentLang = i18n.language?.substring(0, 2) || "en";
 

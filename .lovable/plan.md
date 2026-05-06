@@ -1,59 +1,41 @@
+## Goal
+Passer l'app **100 % en français**, tout en conservant le bundle anglais (`en.json`) dans le code pour pouvoir réactiver le switcher plus tard sans re-traduire.
 
+## Changements
 
-## Diagnostic : Pourquoi les push notifications VAPID ne sont jamais reçues
+1. **`src/i18n/config.ts`** — forcer le français
+   - `lng: "fr"`, `fallbackLng: "fr"`
+   - Garder `en.json` importé et listé dans `supportedLngs: ["fr", "en"]` (prêt à réactiver)
+   - Supprimer la détection automatique navigateur/timezone
+   - Écrire `localStorage.i18nextLng = "fr"` au boot (écrase tout choix EN précédent)
+   - `isLikelyFrench()` retourne `true`
 
-### Problèmes identifiés
+2. **Masquer le switcher de langue** (sans le supprimer)
+   - `src/components/LanguageSwitcher.tsx` : early return `null` (composant conservé pour réactivation future)
+   - Aucun changement aux endroits qui l'importent (Header landing, page Auth, etc.)
 
-**1. Aucun abonnement en base de données**
-La table `push_subscriptions` est **vide** (0 lignes). Aucun utilisateur n'a jamais réussi à s'abonner aux notifications push. Sans abonnement enregistré, aucune notification ne peut être envoyée.
+3. **Settings — bloc Langue**
+   - `src/pages/Settings.tsx` : masquer la carte « Langue / English / Français » (commenter le JSX, garder le code) puisqu'il n'y a plus de choix à offrir
 
-**2. Implémentation crypto incorrecte dans `send-push-notification`**
-Le code d'envoi Web Push a plusieurs bugs critiques :
+4. **Sidebar dashboard**
+   - Aucun changement de code : les libellés passent automatiquement en français via les clés `sidebar.*` déjà présentes dans `fr.json` (Vue d'ensemble, Avis, Établissements, etc.)
 
-- **JWK mal construit (ligne 52-53)** : Le code fait `vapidPublicKey.slice(0, 43)` et `.slice(43)` pour extraire x/y du public key. Mais la clé publique VAPID en base64url fait 87 caractères (65 bytes non compressés avec préfixe 0x04). Il faut d'abord décoder, retirer le byte 0x04, puis séparer en x (32 bytes) et y (32 bytes).
+5. **Pages encore en anglais en dur** (sweep ciblé)
+   - `src/components/DashboardHeader.tsx` : `Settings`, `Upgrade plan`, `Sign out`, `User`, `credits` → français
+   - `src/pages/Settings.tsx` : `Save`, `Subscription`, `Free trial`, `Manage subscription`, `Available credits`, `Max locations`, `See all plans`, `Integrations`, etc.
+   - `src/components/Header.tsx` (landing) : `Sign in`, `Start free`, libellés `navLinks`
+   - `src/components/HeroSection.tsx` : badges « 100% gratuit / Sans carte bancaire / +500 entreprises » déjà FR ; vérifier les boutons
+   - Vérifier rapidement les autres pages dashboard (`AEORank`, `SEOAutoPost`, `Reviews`, `Businesses`, `MapsRank`, `GmbPost`, `Calendar`, `Notifications`, `AISettings`) et remplacer les chaînes EN restantes par leurs équivalents FR (ou clés `t()` quand la clé existe déjà dans `fr.json`)
 
-- **Payload non chiffré (ligne 202)** : Le commentaire dit "send without encryption first" et envoie le JSON en clair. **Les push services (FCM, Mozilla) rejettent les payloads non chiffrés** — ils exigent `Content-Encoding: aes128gcm`. C'est la raison principale pour laquelle les notifications échouent silencieusement.
+6. **Landing page**
+   - `HeroSection`, `FeaturesSection`, `PricingSection`, `FAQSection`, `Footer`, `CTASection`, `TestimonialsSection`, sections Ranki (`RankiHero`, `GeoRankSection`, `ReviewsAISection`, `HowItWorksSection`, `RankiPricingSection`) : remplacer toute chaîne EN en dur par du français (la plupart utilisent déjà `t()` qui basculera tout seul)
 
-- **Content-Type incorrect** : Le header `Content-Type: application/json` devrait être `application/octet-stream` pour un payload chiffré.
+7. **Mémoire projet**
+   - Mettre à jour `mem://brand/language-purity-constraint` : « App 100 % FR. Bundle EN conservé mais désactivé via `lng:"fr"` figé. Pour réactiver : retirer le `return null` dans `LanguageSwitcher` et restaurer la détection dans `i18n/config.ts`. »
 
-**3. Aucun log d'exécution**
-Les fonctions `send-push-notification` et `test-push-notification` n'ont **aucun log**, ce qui confirme qu'elles n'ont jamais été appelées (ou que l'appel échoue avant d'atteindre ces fonctions).
+## Hors scope
+- Articles de blog (déjà bilingues côté DB, l'UI pivote selon `i18n.language`)
+- Edge functions (réponses IA générées dans la langue de l'avis)
 
-### Plan de correction
-
-#### Etape 1 — Utiliser la librairie `web-push` au lieu d'une crypto maison
-Remplacer toute l'implémentation crypto manuelle dans `send-push-notification` par la librairie NPM `web-push` disponible via esm.sh. Cette librairie gère correctement :
-- La signature VAPID JWT (ECDSA P-256)
-- Le chiffrement aes128gcm du payload
-- Les headers corrects (Content-Encoding, Crypto-Key, TTL, etc.)
-
-#### Etape 2 — Vérifier le format des clés VAPID stockées
-S'assurer que `VAPID_PUBLIC_KEY` et `VAPID_PRIVATE_KEY` sont au bon format (base64url, 65 bytes pour public, 32 bytes pour private). Si les clés sont mal formatées, les régénérer.
-
-#### Etape 3 — Débugger le flux d'abonnement
-Vérifier pourquoi `useWebPush.subscribe()` ne sauvegarde pas d'abonnement :
-- Tester si l'appel à `register-push-subscription` avec `action: "get-vapid-key"` retourne bien la clé
-- Vérifier que `pushManager.subscribe()` réussit
-- Ajouter des logs console dans le hook pour tracer chaque étape
-
-#### Etape 4 — Tester le flux complet
-- S'abonner via la page Settings
-- Vérifier qu'une ligne apparaît dans `push_subscriptions`
-- Envoyer une notification test et vérifier les logs de la edge function
-
-### Détails techniques
-
-```text
-Flux actuel (cassé) :
-  Settings → useWebPush.subscribe()
-    → get-vapid-key ✅ (retourne la clé)
-    → pushManager.subscribe() ❓ (peut échouer si clé mal formatée)
-    → register-push-subscription (subscribe) ❓ (jamais appelé vu table vide)
-
-  Test notification → test-push-notification
-    → send-push-notification
-      → fetch(endpoint) ❌ (payload non chiffré = rejeté par push service)
-```
-
-La correction principale est de **remplacer l'envoi Web Push fait main par une librairie éprouvée** et de **vérifier que le flux d'abonnement fonctionne**.
-
+## Note technique
+Le bundle EN reste chargé en mémoire (~quelques Ko gzip). Coût négligeable, gain : réactivation instantanée du multilingue plus tard sans refaire les traductions.

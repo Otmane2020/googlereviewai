@@ -4,51 +4,25 @@ import { initReactI18next } from "react-i18next";
 import en from "./locales/en.json";
 import fr from "./locales/fr.json";
 
-const FRENCH_LOCALES = ["fr", "fr-FR", "fr-BE", "fr-CH", "fr-CA", "fr-LU", "fr-MC"];
-const FRENCH_REGIONS = ["FR", "BE", "CH", "CA", "LU", "MC", "SN", "CI", "MA", "TN", "DZ"];
-
-const detectLanguage = (): "fr" | "en" => {
-  try {
-    const stored = localStorage.getItem("i18nextLng");
-    if (stored === "fr" || stored === "en") return stored;
-  } catch {}
-
-  try {
-    const langs = (typeof navigator !== "undefined" && (navigator.languages || [navigator.language])) || [];
-    for (const l of langs) {
-      if (!l) continue;
-      const lower = l.toLowerCase();
-      if (lower.startsWith("fr")) return "fr";
-      const region = lower.split("-")[1]?.toUpperCase();
-      if (region && FRENCH_REGIONS.includes(region)) return "fr";
-    }
-    try {
-      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "";
-      if (/Paris|Brussels|Geneva|Zurich|Luxembourg|Monaco|Montreal|Dakar|Abidjan|Casablanca|Tunis|Algiers/i.test(tz)) {
-        return "fr";
-      }
-    } catch {}
-  } catch {}
-  return "en";
-};
-
-const initial = detectLanguage();
-
+// App is French-only for now. English bundle is kept loaded so we can
+// re-enable the switcher later without re-translating everything.
+// To re-enable multilingual: restore navigator/timezone detection here
+// and remove the early-return in src/components/LanguageSwitcher.tsx.
 i18n.use(initReactI18next).init({
   resources: {
-    en: { translation: en },
     fr: { translation: fr },
+    en: { translation: en },
   },
-  lng: initial,
-  fallbackLng: "en",
-  supportedLngs: ["en", "fr"],
+  lng: "fr",
+  fallbackLng: "fr",
+  supportedLngs: ["fr", "en"],
   interpolation: { escapeValue: false },
   react: { useSuspense: false },
 });
 
 try {
-  localStorage.setItem("i18nextLng", initial);
+  localStorage.setItem("i18nextLng", "fr");
 } catch {}
 
-export const isLikelyFrench = () => i18n.language?.startsWith("fr") ?? false;
+export const isLikelyFrench = () => true;
 export default i18n;
