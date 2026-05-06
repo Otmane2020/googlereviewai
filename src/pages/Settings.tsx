@@ -287,7 +287,7 @@ const SettingsPage = () => {
               onClick={() => handleLanguageChange("fr")}
               className={`flex items-center gap-3 rounded-xl border p-3 text-left transition-all ${currentLang === "fr" ? "border-primary bg-primary/5 ring-2 ring-primary/30" : "border-border hover:bg-muted/50"}`}
             >
-              <span className="text-2xl">🇫🇷</span>
+              <svg width="28" height="20" viewBox="0 0 3 2" className="rounded-sm shrink-0"><rect width="1" height="2" x="0" fill="#002654" /><rect width="1" height="2" x="1" fill="#FFFFFF" /><rect width="1" height="2" x="2" fill="#CE1126" /></svg>
               <div><p className="text-sm font-semibold text-foreground">Français</p><p className="text-xs text-muted-foreground">FR</p></div>
               {currentLang === "fr" && <Check className="w-4 h-4 text-primary ml-auto" />}
             </button>
