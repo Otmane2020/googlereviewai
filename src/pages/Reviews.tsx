@@ -505,7 +505,7 @@ const Reviews = () => {
       <div className="bg-card border-b border-border">
         <div className="max-w-6xl mx-auto px-4 py-4">
           {/* Title */}
-          <h1 className="text-lg font-bold text-foreground mb-3">Google Reviews</h1>
+          <h1 className="text-lg font-bold text-foreground mb-3">Avis Google</h1>
           
           {/* Business card style selector */}
           <div className="bg-card rounded-2xl border border-border p-4">
@@ -531,7 +531,7 @@ const Reviews = () => {
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-md">
                   <DialogHeader>
-                    <DialogTitle>Your businesses</DialogTitle>
+                    <DialogTitle>Vos établissements</DialogTitle>
                   </DialogHeader>
                   <div className="space-y-1 mt-4">
                     {loading ? (
@@ -605,7 +605,7 @@ const Reviews = () => {
                     {isLive && lastUpdate && (
                       <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                         <span className="w-2 h-2 rounded-full bg-secondary animate-pulse" />
-                        <span className="hidden sm:inline">Live</span>
+                        <span className="hidden sm:inline">En direct</span>
                       </div>
                     )}
                     <Button 
@@ -758,8 +758,8 @@ const Reviews = () => {
                 <SelectContent className="bg-popover">
                   <SelectItem value="all">Tous les statuts</SelectItem>
                   <SelectItem value="pending">En attente</SelectItem>
-                  <SelectItem value="ready">Ready</SelectItem>
-                  <SelectItem value="published">Publisheds</SelectItem>
+                  <SelectItem value="ready">Prêt</SelectItem>
+                  <SelectItem value="published">Publiés</SelectItem>
                 </SelectContent>
               </Select>
               {filterRating !== "all" && (
@@ -1094,7 +1094,7 @@ const Reviews = () => {
                       ) : !review.ai_response ? (
                         <Button size="sm" onClick={() => generateAIResponse(review.id)} disabled={generatingId === review.id}>
                           {generatingId === review.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-                          <span className="ml-1.5">Generate</span>
+                          <span className="ml-1.5">Générer</span>
                         </Button>
                       ) : !review.published_to_google ? (
                         <>

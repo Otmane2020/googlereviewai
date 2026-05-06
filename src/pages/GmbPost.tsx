@@ -230,7 +230,7 @@ export default function GmbPost() {
         {businesses.length > 1 && (
           <Card>
             <CardContent className="pt-4">
-              <Label className="text-sm font-medium mb-2 block">Location</Label>
+              <Label className="text-sm font-medium mb-2 block">Établissement</Label>
               <Select value={selectedBusinessId} onValueChange={setSelectedBusinessId}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select a business" />
@@ -267,7 +267,7 @@ export default function GmbPost() {
               <div className="flex items-start gap-3">
                 <AlertCircle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
                 <div>
-                  <p className="font-medium text-amber-700">No business</p>
+                  <p className="font-medium text-amber-700">Aucun établissement</p>
                   <p className="text-sm text-muted-foreground mt-1">
                     Connect your Google account to publish posts.
                   </p>
@@ -392,7 +392,7 @@ export default function GmbPost() {
         {/* Recent Posts */}
         <Card>
           <CardHeader className="pb-3 flex flex-row items-center justify-between">
-            <CardTitle className="text-base">Recent posts</CardTitle>
+            <CardTitle className="text-base">Publications récentes</CardTitle>
             <Button 
               variant="ghost" 
               size="sm" 

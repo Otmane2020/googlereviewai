@@ -390,7 +390,7 @@ const MapsRank = () => {
             <CardContent className="space-y-4">
               {/* Business selector */}
               <div className="space-y-2">
-                <Label htmlFor="business" className="text-xs">Location</Label>
+                <Label htmlFor="business" className="text-xs">Établissement</Label>
                 <Select value={selectedBusiness} onValueChange={setSelectedBusiness}>
                   <SelectTrigger className="h-9">
                     <SelectValue placeholder="Select" />
@@ -414,7 +414,7 @@ const MapsRank = () => {
               {/* Keywords Section */}
               {selectedBusiness && user && (
                 <div className="space-y-2 pt-2 border-t">
-                  <Label className="text-xs">Keyword</Label>
+                  <Label className="text-xs">Mot-clé</Label>
                   <div className="relative mb-2">
                     <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
                     <Input
@@ -704,7 +704,7 @@ const MapsRank = () => {
             {scanResult && (
               <Card>
                 <CardContent className="p-4">
-                  <h4 className="text-xs font-medium mb-3 text-muted-foreground">Legend</h4>
+                  <h4 className="text-xs font-medium mb-3 text-muted-foreground">Légende</h4>
                   <div className="grid grid-cols-2 gap-2 text-xs">
                     <div className="flex items-center gap-2">
                       <div className="w-4 h-4 rounded-full bg-green-500" />
@@ -724,7 +724,7 @@ const MapsRank = () => {
                     </div>
                     <div className="flex items-center gap-2 col-span-2">
                       <div className="w-4 h-4 rounded-full bg-muted-foreground/50" />
-                      <span>Not found</span>
+                      <span>Introuvable</span>
                     </div>
                   </div>
                   <div className="mt-3 pt-3 border-t">

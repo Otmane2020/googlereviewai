@@ -918,11 +918,11 @@ const BusinessesPage = () => {
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Edit description</DialogTitle>
+            <DialogTitle>Modifier la description</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label>Location</Label>
+              <Label>Établissement</Label>
               <p className="text-sm font-medium text-foreground">{editingBusiness?.name}</p>
             </div>
             <div className="space-y-2">

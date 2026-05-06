@@ -439,7 +439,7 @@ const AISettingsPage = () => {
         <div className="bg-card rounded-2xl border border-border/50 p-4 shadow-sm">
           <div className="flex items-center gap-2 mb-4">
             <MessageSquare className="w-4 h-4 text-primary" />
-            <h3 className="font-medium text-sm text-foreground">Tone</h3>
+            <h3 className="font-medium text-sm text-foreground">Ton</h3>
           </div>
           <div className="grid grid-cols-2 gap-2">
             {toneOptions.map((option) => (
@@ -463,7 +463,7 @@ const AISettingsPage = () => {
         <div className="bg-card rounded-2xl border border-border/50 p-4 shadow-sm">
           <div className="flex items-center gap-2 mb-4">
             <MessageSquare className="w-4 h-4 text-primary" />
-            <h3 className="font-medium text-sm text-foreground">Length</h3>
+            <h3 className="font-medium text-sm text-foreground">Longueur</h3>
           </div>
           <div className="flex gap-2 p-1 bg-muted/50 rounded-xl">
             {lengthOptions.map((option) => (
@@ -518,7 +518,7 @@ const AISettingsPage = () => {
                 <div className="w-8 h-8 rounded-lg bg-orange-500/10 flex items-center justify-center">
                   <Clock className="w-4 h-4 text-orange-500" />
                 </div>
-                <span className="font-medium text-sm text-foreground">Reply delay</span>
+                <span className="font-medium text-sm text-foreground">Délai de réponse</span>
               </div>
               <div className="flex items-center gap-2">
                 <Input
@@ -591,7 +591,7 @@ const AISettingsPage = () => {
               <div className="w-8 h-8 rounded-lg bg-yellow-500/10 flex items-center justify-center">
                 <Star className="w-4 h-4 text-yellow-500" />
               </div>
-              <span className="font-medium text-sm text-foreground">Minimum rating</span>
+              <span className="font-medium text-sm text-foreground">Note minimale</span>
             </div>
             <div className="flex gap-2 pl-11">
               {[1, 2, 3, 4, 5].map((rating) => (
@@ -621,7 +621,7 @@ const AISettingsPage = () => {
                 </div>
                 <div>
                   <span className="font-medium text-sm text-foreground block">Auto-sync</span>
-                  <span className="text-xs text-muted-foreground">Import reviews</span>
+                  <span className="text-xs text-muted-foreground">Importer les avis</span>
                 </div>
               </div>
               <Switch
@@ -642,7 +642,7 @@ const AISettingsPage = () => {
                 </div>
                 <div>
                   <span className="font-medium text-sm text-foreground block">Auto-publish</span>
-                  <span className="text-xs text-muted-foreground">To Google</span>
+                  <span className="text-xs text-muted-foreground">Vers Google</span>
                 </div>
               </div>
               <Switch
@@ -702,7 +702,7 @@ const AISettingsPage = () => {
                   </svg>
                 </div>
                 <div>
-                  <span className="font-medium text-sm text-foreground block">Timezone</span>
+                  <span className="font-medium text-sm text-foreground block">Fuseau horaire</span>
                   <span className="text-xs text-muted-foreground">For automated publishing</span>
                 </div>
               </div>
@@ -769,7 +769,7 @@ const AISettingsPage = () => {
                   <PenLine className="w-4 h-4 text-orange-500" />
                 </div>
                 <div>
-                  <span className="font-medium text-sm text-foreground block">Edited reviews</span>
+                  <span className="font-medium text-sm text-foreground block">Avis modifiés</span>
                   <span className="text-xs text-muted-foreground">Regenerate AI reply</span>
                 </div>
               </div>
@@ -800,8 +800,8 @@ const AISettingsPage = () => {
                   <Bell className="w-4 h-4 text-destructive" />
                 </div>
                 <div>
-                  <span className="font-medium text-sm text-foreground block">Email notifications</span>
-                  <span className="text-xs text-muted-foreground">New reviews</span>
+                  <span className="font-medium text-sm text-foreground block">Notifications e-mail</span>
+                  <span className="text-xs text-muted-foreground">Nouveaux avis</span>
                 </div>
               </div>
               <Switch
@@ -820,7 +820,7 @@ const AISettingsPage = () => {
             <div className="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center">
               <MessageSquare className="w-4 h-4 text-indigo-500" />
             </div>
-            <h3 className="font-medium text-sm text-foreground">Custom instructions</h3>
+            <h3 className="font-medium text-sm text-foreground">Instructions personnalisées</h3>
           </div>
           <Textarea
             value={settings.custom_template}

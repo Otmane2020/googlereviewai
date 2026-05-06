@@ -258,7 +258,7 @@ const Notifications = () => {
             <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mb-4">
               <Bell className="w-10 h-10 text-muted-foreground/50" />
             </div>
-            <h2 className="text-lg font-semibold text-foreground mb-1">No notifications</h2>
+            <h2 className="text-lg font-semibold text-foreground mb-1">Aucune notification</h2>
             <p className="text-sm text-muted-foreground">
               You'll receive notifications here for new activity
             </p>
@@ -268,7 +268,7 @@ const Notifications = () => {
             {newNotifications.length > 0 && (
               <div>
                 <div className="px-4 py-3 bg-muted/30">
-                  <h2 className="text-base font-bold text-foreground">New</h2>
+                  <h2 className="text-base font-bold text-foreground">Nouveau</h2>
                 </div>
                 <div className="divide-y divide-border/50">
                   {newNotifications.map((notification) => (
@@ -281,7 +281,7 @@ const Notifications = () => {
             {olderNotifications.length > 0 && (
               <div>
                 <div className="px-4 py-3 bg-muted/30">
-                  <h2 className="text-base font-bold text-foreground">Earlier</h2>
+                  <h2 className="text-base font-bold text-foreground">Plus ancien</h2>
                 </div>
                 <div className="divide-y divide-border/50">
                   {olderNotifications.map((notification) => (

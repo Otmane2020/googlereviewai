@@ -526,16 +526,16 @@ const AEORank = () => {
     
     switch (status) {
       case "published":
-        return <Badge className="bg-secondary text-secondary-foreground"><Check className="w-3 h-3 mr-1" />Published</Badge>;
+        return <Badge className="bg-secondary text-secondary-foreground"><Check className="w-3 h-3 mr-1" />Publié</Badge>;
       case "generated":
-        return <Badge className="bg-primary text-primary-foreground"><Sparkles className="w-3 h-3 mr-1" />Ready</Badge>;
+        return <Badge className="bg-primary text-primary-foreground"><Sparkles className="w-3 h-3 mr-1" />Prêt</Badge>;
       case "generating":
-        return <Badge variant="outline"><Loader2 className="w-3 h-3 mr-1 animate-spin" />In progress</Badge>;
+        return <Badge variant="outline"><Loader2 className="w-3 h-3 mr-1 animate-spin" />En cours</Badge>;
       case "failed":
       case "error":
-        return <Badge variant="destructive"><AlertCircle className="w-3 h-3 mr-1" />Failed</Badge>;
+        return <Badge variant="destructive"><AlertCircle className="w-3 h-3 mr-1" />Échec</Badge>;
       default:
-        return <Badge variant="secondary"><Clock className="w-3 h-3 mr-1" />Scheduled</Badge>;
+        return <Badge variant="secondary"><Clock className="w-3 h-3 mr-1" />Planifié</Badge>;
     }
   };
 
@@ -604,7 +604,7 @@ const AEORank = () => {
         {businesses.length === 0 ? (
           <Card className="p-6 text-center">
             <Building2 className="w-10 h-10 mx-auto mb-3 text-muted-foreground/30" />
-            <h3 className="text-base font-medium text-foreground mb-2">No business</h3>
+            <h3 className="text-base font-medium text-foreground mb-2">Aucun établissement</h3>
             <p className="text-xs text-muted-foreground mb-4">
               Connect your Google Business Profile first
             </p>
@@ -641,7 +641,7 @@ const AEORank = () => {
                       </DialogTrigger>
                       <DialogContent className="sm:max-w-md">
                         <DialogHeader>
-                          <DialogTitle>Your businesses</DialogTitle>
+                          <DialogTitle>Vos établissements</DialogTitle>
                         </DialogHeader>
                         <div className="space-y-1 mt-4">
                           {businesses.map((business) => {
@@ -742,7 +742,7 @@ const AEORank = () => {
                       </option>
                     ))}
                   </select>
-                  <Badge variant="secondary" className="text-[10px]">Daily</Badge>
+                  <Badge variant="secondary" className="text-[10px]">Quotidien</Badge>
                 </div>
               </div>
 
