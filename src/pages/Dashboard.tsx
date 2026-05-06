@@ -16,6 +16,7 @@ import { LowCreditsBanner } from "@/components/LowCreditsBanner";
 import { UTMBuilderDialog } from "@/components/UTMBuilderDialog";
 import { GmbInsightsCard } from "@/components/GmbInsightsCard";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 // LinkedIn Insight Tag tracking for dashboard
 declare global {
@@ -71,6 +72,7 @@ interface SyncStatus {
 }
 
 const Dashboard = () => {
+  const { t, i18n } = useTranslation();
   const { user, session } = useAuth();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -462,13 +464,13 @@ const Dashboard = () => {
         <main className="max-w-7xl mx-auto px-4 md:px-6 py-5 md:py-8 space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-muted-foreground">Bon retour,</p>
+              <p className="text-sm text-muted-foreground">{t("dashboardPage.welcomeBack")}</p>
               <h1 className="text-xl md:text-2xl font-bold text-foreground">{profile?.full_name?.split(" ")[0] || "👋"}</h1>
             </div>
             <div className="flex items-center gap-2">
               <div className="text-center px-4 py-2 bg-primary/10 rounded-xl md:hidden">
                 <div className="text-lg font-bold text-primary">{profile?.credits || 0}</div>
-                <div className="text-[10px] text-muted-foreground">Crédits</div>
+                <div className="text-[10px] text-muted-foreground">{t("dashboardPage.credits")}</div>
               </div>
               <Button 
               variant="outline" 
@@ -498,12 +500,12 @@ const Dashboard = () => {
                 <Sparkles className="w-5 h-5 text-primary" />
               </div>
               <div className="flex-1">
-                <p className="font-medium text-foreground text-sm">Essai gratuit</p>
-                <p className="text-xs text-muted-foreground">10 free credits to test</p>
+                <p className="font-medium text-foreground text-sm">{t("dashboardPage.trial")}</p>
+                <p className="text-xs text-muted-foreground">{t("dashboardPage.trialDesc")}</p>
               </div>
               <Link to="/settings">
                 <Button size="sm" variant="outline" className="rounded-xl text-xs">
-                  Upgrade
+                  {t("dashboardPage.upgrade")}
                 </Button>
               </Link>
             </div>
@@ -665,7 +667,7 @@ const Dashboard = () => {
                 : responseRateColor === "orange" ? "text-orange-500" 
                 : "text-red-500"
               }`} />
-              <span className="text-xs text-muted-foreground">Taux de réponse</span>
+              <span className="text-xs text-muted-foreground">{t("dashboardPage.responseRate")}</span>
             </div>
             <div className={`text-2xl font-bold ${
               responseRateColor === "green" ? "text-green-600" 
@@ -680,7 +682,7 @@ const Dashboard = () => {
           <div className="bg-card rounded-2xl p-4 border border-border">
             <div className="flex items-center gap-2 mb-2">
               <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-              <span className="text-xs text-muted-foreground">Note moyenne</span>
+              <span className="text-xs text-muted-foreground">{t("dashboardPage.averageRating")}</span>
             </div>
             <div className="text-2xl font-bold text-foreground">{stats.avgRating || "-"}</div>
           </div>
@@ -689,7 +691,7 @@ const Dashboard = () => {
           <div className="bg-card rounded-2xl p-4 border border-border">
             <div className="flex items-center gap-2 mb-2">
               <MessageSquare className="w-4 h-4 text-primary" />
-              <span className="text-xs text-muted-foreground">Total des avis</span>
+              <span className="text-xs text-muted-foreground">{t("dashboardPage.totalReviews")}</span>
             </div>
             <div className="text-2xl font-bold text-foreground">{stats.total}</div>
           </div>
@@ -698,7 +700,7 @@ const Dashboard = () => {
           <div className="bg-card rounded-2xl p-4 border border-border">
             <div className="flex items-center gap-2 mb-2">
               <Sparkles className="w-4 h-4 text-secondary" />
-              <span className="text-xs text-muted-foreground">Réponses IA</span>
+              <span className="text-xs text-muted-foreground">{t("dashboardPage.aiResponses")}</span>
             </div>
             <div className="text-2xl font-bold text-foreground">{stats.aiResponses}</div>
           </div>
@@ -722,10 +724,10 @@ const Dashboard = () => {
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <p className="text-white font-bold text-base">Publication automatique GEO</p>
+                      <p className="text-white font-bold text-base">{t("dashboardPage.geoAutoTitle")}</p>
                       <span className="text-[10px] bg-white/20 text-white px-2 py-0.5 rounded-full font-semibold uppercase tracking-wide">AI</span>
                     </div>
-                    <p className="text-white/70 text-xs">Q&R auto sur Google · Prêt pour ChatGPT</p>
+                    <p className="text-white/70 text-xs">{t("dashboardPage.geoAutoDesc")}</p>
                   </div>
                 </div>
                 <ArrowUpRight className="w-5 h-5 text-white/80" />
@@ -734,34 +736,34 @@ const Dashboard = () => {
               <div className="grid grid-cols-3 gap-2 mb-4">
                 <div className="bg-white/10 backdrop-blur rounded-xl p-2.5 text-center">
                   <div className="text-xl font-bold text-white">{aeoStats.planned}</div>
-                  <div className="text-[10px] text-white/70 uppercase tracking-wide">Planifié</div>
+                  <div className="text-[10px] text-white/70 uppercase tracking-wide">{t("dashboardPage.planned")}</div>
                 </div>
                 <div className="bg-white/10 backdrop-blur rounded-xl p-2.5 text-center">
                   <div className="text-xl font-bold text-white">{aeoStats.ready}</div>
-                  <div className="text-[10px] text-white/70 uppercase tracking-wide">Prêt</div>
+                  <div className="text-[10px] text-white/70 uppercase tracking-wide">{t("dashboardPage.ready")}</div>
                 </div>
                 <div className="bg-white/10 backdrop-blur rounded-xl p-2.5 text-center">
                   <div className="text-xl font-bold text-white">{aeoStats.published}</div>
-                  <div className="text-[10px] text-white/70 uppercase tracking-wide">Publié</div>
+                  <div className="text-[10px] text-white/70 uppercase tracking-wide">{t("dashboardPage.published")}</div>
                 </div>
               </div>
 
               {aeoStats.planned === 0 ? (
                 <div className="bg-white/15 backdrop-blur rounded-xl p-3 flex items-center gap-2">
                   <Sparkles className="w-4 h-4 text-white shrink-0" />
-                  <p className="text-xs text-white font-medium">Generate your first 30-day GEO plan with AI →</p>
+                  <p className="text-xs text-white font-medium">{t("dashboardPage.generateFirstPlan")}</p>
                 </div>
               ) : aeoStats.nextDate ? (
                 <div className="bg-white/15 backdrop-blur rounded-xl p-3 flex items-center gap-2">
                   <Clock className="w-4 h-4 text-white shrink-0" />
                   <p className="text-xs text-white">
-                    Prochain post : <span className="font-semibold">{new Date(aeoStats.nextDate).toLocaleDateString("fr-FR", { month: "short", day: "numeric" })}</span>
+                    {t("dashboardPage.nextPost")} <span className="font-semibold">{new Date(aeoStats.nextDate).toLocaleDateString(i18n.language === "fr" ? "fr-FR" : "en-US", { month: "short", day: "numeric" })}</span>
                   </p>
                 </div>
               ) : (
                 <div className="bg-white/15 backdrop-blur rounded-xl p-3 flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-white shrink-0" />
-                  <p className="text-xs text-white font-medium">All Q&As published — generate a new plan</p>
+                  <p className="text-xs text-white font-medium">{t("dashboardPage.allPublished")}</p>
                 </div>
               )}
             </div>
@@ -772,10 +774,10 @@ const Dashboard = () => {
         <div className="overflow-x-auto -mx-4 px-4 pb-2">
           <div className="flex gap-3 min-w-max">
             {[
-              { icon: Star, label: "Avis", desc: `${stats.pending} en attente`, href: "/reviews", color: "bg-yellow-500" },
-              { icon: Building2, label: "Établissements", desc: `${stats.businesses} actif${stats.businesses > 1 ? 's' : ''}`, href: "/businesses", color: "bg-violet-500" },
-              { icon: Sparkles, label: "IA", desc: "Paramètres", href: "/ai-settings", color: "bg-primary" },
-              { icon: TrendingUp, label: "SEO", desc: "Auto-post", href: "/seo-autopost", color: "bg-green-500" },
+              { icon: Star, label: t("dashboardPage.actionReviews"), desc: t("dashboardPage.actionPending", { count: stats.pending }), href: "/reviews", color: "bg-yellow-500" },
+              { icon: Building2, label: t("dashboardPage.actionLocations"), desc: t("dashboardPage.actionLocationsActive", { count: stats.businesses, plural: stats.businesses > 1 ? "s" : "" }), href: "/businesses", color: "bg-violet-500" },
+              { icon: Sparkles, label: t("dashboardPage.actionAi"), desc: t("dashboardPage.actionAiDesc"), href: "/ai-settings", color: "bg-primary" },
+              { icon: TrendingUp, label: t("dashboardPage.actionSeo"), desc: t("dashboardPage.actionSeoDesc"), href: "/seo-autopost", color: "bg-green-500" },
             ].map((action) => (
               <Link
                 key={action.href}
@@ -797,11 +799,11 @@ const Dashboard = () => {
           <div className="p-4 border-b border-border flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Clock className="w-4 h-4 text-muted-foreground" />
-              <h2 className="font-semibold text-foreground text-sm">File prioritaire</h2>
+              <h2 className="font-semibold text-foreground text-sm">{t("dashboardPage.priorityQueue")}</h2>
             </div>
             <Link to="/reviews">
               <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground text-xs">
-                Tout voir
+                {t("dashboardPage.viewAll")}
                 <ChevronRight className="w-3 h-3 ml-1" />
               </Button>
             </Link>
@@ -852,7 +854,7 @@ const Dashboard = () => {
           ) : (
             <div className="p-8 text-center">
               <CheckCircle2 className="w-10 h-10 mx-auto mb-3 text-green-500" />
-              <p className="text-sm text-muted-foreground">Aucun avis en attente</p>
+              <p className="text-sm text-muted-foreground">{t("dashboardPage.noPending")}</p>
               <Button 
                 variant="outline" 
                 size="sm" 
