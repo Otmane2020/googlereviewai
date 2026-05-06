@@ -243,7 +243,7 @@ const SettingsPage = () => {
               ) : (
                 <Save className="w-4 h-4" />
               )}
-              Save
+              Enregistrer
             </Button>
           </div>
         </div>
@@ -297,7 +297,7 @@ const SettingsPage = () => {
                 ) : (
                   <CreditCard className="w-4 h-4" />
                 )}
-                Manage subscription
+                Gérer l'abonnement
               </Button>
             </div>
             <div className="grid grid-cols-2 gap-4 text-sm">
@@ -322,7 +322,7 @@ const SettingsPage = () => {
             className="w-full gap-2"
           >
             <Sparkles className="w-4 h-4" />
-            See all plans
+            Voir toutes les offres
           </Button>
         </div>
 
