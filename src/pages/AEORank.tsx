@@ -572,7 +572,7 @@ const AEORank = () => {
                 <Badge variant="secondary" className="text-[10px] px-1.5">AEO</Badge>
               </h1>
               <p className="text-xs text-muted-foreground">
-                30-day automatic Q&A planning for ChatGPT, Perplexity & Google AI
+                30 jours de Q&R automatiques pour ChatGPT, Perplexity & Google AI
               </p>
             </div>
           </div>
@@ -586,12 +586,12 @@ const AEORank = () => {
               {generating ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Generating...
+                  Génération...
                 </>
               ) : (
                 <>
                   <Sparkles className="w-4 h-4 mr-2" />
-                  Analyze & Generate
+                  Analyser & Générer
                 </>
               )}
             </Button>
