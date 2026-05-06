@@ -317,6 +317,28 @@
     "totalReviews": "total reviews",
     "averageRating": "Average rating"
   },
+  "sidebar": {
+    "workspace": "Workspace",
+    "overview": "Overview",
+    "geoRankAi": "GEO Rank AI",
+    "mapsRank": "Maps Rank",
+    "reviews": "Reviews",
+    "seoAutopilot": "SEO Autopilot",
+    "qa": "Q&A",
+    "planning": "Planning",
+    "locations": "Locations",
+    "account": "Account",
+    "aiSettings": "AI Settings",
+    "notifications": "Notifications",
+    "settings": "Settings",
+    "credits": "credits",
+    "freePlan": "Free plan",
+    "plan": "Plan",
+    "upgrade": "Upgrade",
+    "helpSupport": "Help & support",
+    "signOut": "Sign out",
+    "language": "Language"
+  },
   "settings": {
     "title": "Settings",
     "account": "Account",

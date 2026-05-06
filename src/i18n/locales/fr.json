@@ -317,6 +317,28 @@
     "totalReviews": "avis au total",
     "averageRating": "Note moyenne"
   },
+  "sidebar": {
+    "workspace": "Espace de travail",
+    "overview": "Vue d'ensemble",
+    "geoRankAi": "GEO Rank AI",
+    "mapsRank": "Classement Maps",
+    "reviews": "Avis",
+    "seoAutopilot": "SEO Autopilot",
+    "qa": "Questions & Réponses",
+    "planning": "Planning",
+    "locations": "Établissements",
+    "account": "Compte",
+    "aiSettings": "Paramètres IA",
+    "notifications": "Notifications",
+    "settings": "Paramètres",
+    "credits": "crédits",
+    "freePlan": "Offre gratuite",
+    "plan": "Offre",
+    "upgrade": "Passer Premium",
+    "helpSupport": "Aide & support",
+    "signOut": "Se déconnecter",
+    "language": "Langue"
+  },
   "settings": {
     "title": "Paramètres",
     "account": "Compte",
