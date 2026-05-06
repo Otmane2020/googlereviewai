@@ -303,9 +303,9 @@ export default function GmbPost() {
               <div className="flex items-start gap-3">
                 <AlertCircle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
                 <div>
-                  <p className="font-medium text-amber-700">Aucun établissement</p>
+                  <p className="font-medium text-amber-700">{t("Aucun établissement", "No business")}</p>
                   <p className="text-sm text-muted-foreground mt-1">
-                    Connect your Google account to publish posts.
+                    {t("Connectez votre compte Google pour publier des posts.", "Connect your Google account to publish posts.")}
                   </p>
                   <Button 
                     variant="outline" 
@@ -313,7 +313,7 @@ export default function GmbPost() {
                     className="mt-3"
                     onClick={() => navigate("/businesses")}
                   >
-                    Manage businesses
+                    {t("Gérer les établissements", "Manage businesses")}
                   </Button>
                 </div>
               </div>
