@@ -618,7 +618,7 @@ const SettingsPage = () => {
                     onClick={() => window.location.reload()}
                     className="rounded-xl h-9 shrink-0"
                   >
-                    Reload
+                    Recharger
                   </Button>
                 )}
                 </div>
