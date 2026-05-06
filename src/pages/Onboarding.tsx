@@ -24,9 +24,9 @@ import { useGoogleOAuth } from "@/hooks/useGoogleOAuth";
 const STEPS = ["Welcome", "Connect Google", "Choose location", "AI tone", "Pick a plan"];
 
 const PLANS = [
-  { key: "starter_monthly", name: "Starter", price: "$9", desc: "1 location · Weekly tracking" },
-  { key: "growth_monthly", name: "Growth", price: "$29", desc: "3 locations · Daily AI posts", highlight: true },
-  { key: "agency_monthly", name: "Agency", price: "$79", desc: "Unlimited · White-label" },
+  { key: "", name: "Starter", price: "Gratuit", desc: "1 établissement · Suivi hebdo · 25 crédits/mois" },
+  { key: "daily_monthly_eur", name: "Quotidien", price: "9,99€", desc: "3 établissements · Posts IA quotidiens", highlight: true },
+  { key: "agency_eu_monthly", name: "Agence", price: "49€", desc: "Établissements illimités · Marque blanche" },
 ];
 
 const TONES = [
