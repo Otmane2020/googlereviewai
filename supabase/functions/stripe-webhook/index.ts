@@ -166,6 +166,7 @@ serve(async (req) => {
                       billing_cycle: subscription.items.data[0]?.price.recurring?.interval || "month",
                       is_trial: isTrial,
                       trial_days: 3,
+                      lang: (profile as any).preferred_language || "fr",
                     }),
                   }
                 );
