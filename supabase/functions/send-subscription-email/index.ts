@@ -182,16 +182,8 @@ serve(async (req) => {
       );
     }
 
-    const { 
-      email, 
-      name, 
-      plan_name, 
-      credits, 
-      max_businesses, 
-      billing_cycle,
-      is_trial,
-      trial_days = 3
-    }: SubscriptionEmailRequest = await req.json();
+    const body: SubscriptionEmailRequest = await req.json();
+    const { email, name, plan_name, credits, max_businesses, billing_cycle, is_trial, trial_days = 3 } = body;
 
     if (!email || !plan_name) {
       return new Response(
@@ -200,110 +192,49 @@ serve(async (req) => {
       );
     }
 
+    const lang = await resolveEmailLang(email, body.lang);
+    const t = T[lang];
     const firstName = name?.split(" ")[0] || "";
     const planColor = getPlanColor(plan_name);
-    const features = getPlanFeatures(plan_name, credits, max_businesses);
-    const billingText = billing_cycle === "year" ? "annuel" : "mensuel";
-    
-    const subject = is_trial 
-      ? `🎉 Votre essai gratuit ${plan_name} est activé !`
-      : `Bienvenue dans votre abonnement ${plan_name} !`;
+    const features = getPlanFeatures(plan_name, credits, max_businesses, t);
+
+    const subject = is_trial ? t.subjTrial(plan_name) : t.subjActive(plan_name);
 
     const htmlContent = `
 <!DOCTYPE html>
-<html lang="fr">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
+<html lang="${lang}">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
 <body style="margin: 0; padding: 0; background-color: ${STYLES.bgLight};">
   <div style="max-width: 600px; margin: 0 auto; background-color: ${STYLES.bgWhite};">
     ${getProHeader()}
-    
     <div style="padding: 40px 32px;">
-      <!-- Success Banner -->
       <div style="background: linear-gradient(135deg, ${planColor}15 0%, ${planColor}05 100%); border-radius: 12px; padding: 24px; margin-bottom: 32px; text-align: center; border: 1px solid ${planColor}30;">
-        ${is_trial ? `
-        <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textSecondary}; font-size: 14px; margin: 0 0 12px 0;">
-          🎁 Essai gratuit de ${trial_days} jours
-        </p>
-        ` : ""}
-        <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textPrimary}; font-size: 28px; font-weight: 700; margin: 0 0 12px 0;">
-          ${plan_name}
-        </p>
-        <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textSecondary}; font-size: 14px; margin: 0;">
-          Abonnement ${billingText}
-        </p>
+        ${is_trial ? `<p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textSecondary}; font-size: 14px; margin: 0 0 12px 0;">${t.trialBanner(trial_days)}</p>` : ""}
+        <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textPrimary}; font-size: 28px; font-weight: 700; margin: 0 0 12px 0;">${plan_name}</p>
+        <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textSecondary}; font-size: 14px; margin: 0;">${t.billing(billing_cycle)}</p>
       </div>
-
-      <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textSecondary}; font-size: 16px; line-height: 1.6; margin: 0 0 24px 0;">
-        Bonjour${firstName ? ` ${firstName}` : ""} 👋
-      </p>
-      
-      <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textSecondary}; font-size: 15px; line-height: 1.6; margin: 0 0 24px 0;">
-        ${is_trial 
-          ? `Merci d'avoir choisi Ranki.ai ! Votre essai gratuit de <strong>${trial_days} jours</strong> est maintenant actif.`
-          : `Félicitations ! Votre abonnement <strong>${plan_name}</strong> est maintenant actif.`
-        }
-      </p>
-
-      <!-- Plan Features -->
+      <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textSecondary}; font-size: 16px; line-height: 1.6; margin: 0 0 24px 0;">${t.hello}${firstName ? ` ${firstName}` : ""} 👋</p>
+      <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textSecondary}; font-size: 15px; line-height: 1.6; margin: 0 0 24px 0;">${is_trial ? t.introTrial(trial_days) : t.introActive(plan_name)}</p>
       <div style="background: ${STYLES.bgLight}; border-radius: 8px; padding: 24px; margin: 24px 0;">
-        <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textPrimary}; font-size: 15px; font-weight: 600; margin: 0 0 16px 0;">
-          Ce qui est inclus :
-        </p>
+        <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textPrimary}; font-size: 15px; font-weight: 600; margin: 0 0 16px 0;">${t.included}</p>
         <table cellpadding="0" cellspacing="0" border="0" style="width: 100%;">
-          ${features.map(feature => `
-          <tr>
-            <td style="padding: 8px 0; font-family: ${STYLES.fontFamily}; color: ${STYLES.textSecondary}; font-size: 14px; line-height: 1.6;">
-              <span style="color: ${STYLES.successText}; margin-right: 8px;">✓</span> ${feature}
-            </td>
-          </tr>
-          `).join("")}
+          ${features.map(f => `<tr><td style="padding: 8px 0; font-family: ${STYLES.fontFamily}; color: ${STYLES.textSecondary}; font-size: 14px; line-height: 1.6;"><span style="color: ${STYLES.successText}; margin-right: 8px;">✓</span> ${f}</td></tr>`).join("")}
         </table>
       </div>
-
-      <!-- Credits Display -->
       <div style="background: ${STYLES.successBg}; border-radius: 8px; padding: 20px; margin: 24px 0; text-align: center;">
-        <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.successText}; font-size: 12px; margin: 0 0 4px 0; text-transform: uppercase; letter-spacing: 0.5px;">
-          Crédits disponibles
-        </p>
-        <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textPrimary}; font-size: 36px; font-weight: 700; margin: 0;">
-          ${credits}
-        </p>
+        <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.successText}; font-size: 12px; margin: 0 0 4px 0; text-transform: uppercase; letter-spacing: 0.5px;">${t.creditsAvail}</p>
+        <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textPrimary}; font-size: 36px; font-weight: 700; margin: 0;">${credits}</p>
       </div>
-
-      <!-- Next Steps -->
-      <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textPrimary}; font-size: 15px; font-weight: 600; margin: 32px 0 16px 0;">
-        Prochaines étapes :
-      </p>
-      <table cellpadding="0" cellspacing="0" border="0" style="width: 100%;">
-        ${getNextSteps(plan_name)}
-      </table>
-      
-      <div style="text-align: center; margin: 40px 0;">
-        ${getProButton("Commencer maintenant", "https://ranki.ai/dashboard")}
-      </div>
-
-      ${is_trial ? `
-      <div style="background: #fef3c7; border-radius: 6px; padding: 16px; margin: 24px 0; border-left: 3px solid #f59e0b;">
-        <p style="font-family: ${STYLES.fontFamily}; color: #92400e; font-size: 14px; margin: 0;">
-          ⏰ Votre essai se termine dans <strong>${trial_days} jours</strong>. Après cette période, votre carte sera automatiquement débitée.
-        </p>
-      </div>
-      ` : ""}
-      
-      <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textMuted}; font-size: 13px; line-height: 1.6; margin: 32px 0 0 0;">
-        Des questions ? Répondez directement à cet email ou contactez-nous à 
-        <a href="mailto:support@ranki.ai" style="color: ${STYLES.brandBlue}; text-decoration: none;">support@ranki.ai</a>
-      </p>
+      <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textPrimary}; font-size: 15px; font-weight: 600; margin: 32px 0 16px 0;">${t.nextSteps}</p>
+      <table cellpadding="0" cellspacing="0" border="0" style="width: 100%;">${getNextSteps(plan_name, t)}</table>
+      <div style="text-align: center; margin: 40px 0;">${getProButton(t.cta, "https://ranki.ai/dashboard")}</div>
+      ${is_trial ? `<div style="background: #fef3c7; border-radius: 6px; padding: 16px; margin: 24px 0; border-left: 3px solid #f59e0b;"><p style="font-family: ${STYLES.fontFamily}; color: #92400e; font-size: 14px; margin: 0;">${t.trialEnd(trial_days)}</p></div>` : ""}
+      <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textMuted}; font-size: 13px; line-height: 1.6; margin: 32px 0 0 0;">${t.questions} <a href="mailto:support@ranki.ai" style="color: ${STYLES.brandBlue}; text-decoration: none;">support@ranki.ai</a></p>
     </div>
-    
-    ${getProFooter()}
+    ${getProFooter(t)}
   </div>
 </body>
-</html>
-    `;
+</html>`;
 
     console.log(`Sending subscription email to ${email} for plan ${plan_name} (trial: ${is_trial})`);
 
