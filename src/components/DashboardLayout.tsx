@@ -51,7 +51,7 @@ const useNavItems = () => {
   const visibilityNav = [
     { label: "GEO Rank AI", href: "/aeo-rank", icon: Sparkles, badge: "AI" },
     { label: "SEO Autopilot", href: "/seo-autopost", icon: Search },
-    { label: "Maps Rank", href: "/maps-rank", icon: MapPin },
+    
     { label: "Q&A", href: "/gmb-post", icon: MessageCircleQuestion },
     { label: "Planning", href: "/calendar", icon: ListChecks },
   ];
