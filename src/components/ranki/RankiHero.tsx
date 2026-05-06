@@ -65,6 +65,7 @@ export const RankiHero = () => {
                 ))}
               </div>
             </div>
+          </div>
 
           {/* Visual */}
           <div className="relative">
