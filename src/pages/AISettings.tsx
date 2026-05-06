@@ -477,7 +477,7 @@ const AISettingsPage = () => {
                 }`}
               >
                 <div className="text-sm font-medium">{option.label}</div>
-                <div className="text-[10px] opacity-70">{option.desc} sentences</div>
+                <div className="text-[10px] opacity-70">{option.desc} phrases</div>
               </button>
             ))}
           </div>
