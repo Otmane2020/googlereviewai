@@ -556,14 +556,14 @@ const SettingsPage = () => {
                             }
                             setIsSubscribedToPush(true);
                             toast({
-                              title: "Notifications reactivated ✅",
-                              description: "You will receive alerts again.",
+                              title: "Notifications réactivées ✅",
+                              description: "Vous recevrez à nouveau les alertes.",
                             });
                           },
                           onFailure: () => {
                             toast({
-                              title: "Reactivation failed",
-                              description: "Check browser permissions.",
+                              title: "Échec de la réactivation",
+                              description: "Vérifiez les autorisations du navigateur.",
                               variant: "destructive",
                             });
                           }
@@ -573,7 +573,7 @@ const SettingsPage = () => {
                     className="rounded-xl h-9 shrink-0"
                   >
                     <BellRing className="w-4 h-4 mr-1" />
-                    Reactivate
+                    Réactiver
                   </Button>
                 )}
                 {pushPermission === "default" && (
