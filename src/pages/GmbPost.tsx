@@ -33,26 +33,29 @@ interface GmbPost {
   cta_url: string | null;
 }
 
-const POST_TYPES = [
-  { value: "STANDARD", label: "Actualité", icon: Megaphone, description: "Partager une nouveauté" },
-  { value: "OFFER", label: "Offre", icon: Gift, description: "Promotion spéciale" },
-  { value: "EVENT", label: "Événement", icon: Calendar, description: "Annoncer un événement" },
-];
-
-const CTA_TYPES = [
-  { value: "NONE", label: "Aucun" },
-  { value: "LEARN_MORE", label: "En savoir plus" },
-  { value: "BOOK", label: "Réserver" },
-  { value: "ORDER", label: "Commander" },
-  { value: "SHOP", label: "Acheter" },
-  { value: "SIGN_UP", label: "S'inscrire" },
-  { value: "CALL", label: "Appeler" },
-];
-
 export default function GmbPost() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  
+  const { i18n } = useTranslation();
+  const isEN = i18n.language?.toLowerCase().startsWith("en");
+  const t = (fr: string, en: string) => (isEN ? en : fr);
+
+  const POST_TYPES = [
+    { value: "STANDARD", label: t("Actualité", "News"), icon: Megaphone, description: t("Partager une nouveauté", "Share an update") },
+    { value: "OFFER", label: t("Offre", "Offer"), icon: Gift, description: t("Promotion spéciale", "Special promotion") },
+    { value: "EVENT", label: t("Événement", "Event"), icon: Calendar, description: t("Annoncer un événement", "Announce an event") },
+  ];
+
+  const CTA_TYPES = [
+    { value: "NONE", label: t("Aucun", "None") },
+    { value: "LEARN_MORE", label: t("En savoir plus", "Learn more") },
+    { value: "BOOK", label: t("Réserver", "Book") },
+    { value: "ORDER", label: t("Commander", "Order") },
+    { value: "SHOP", label: t("Acheter", "Shop") },
+    { value: "SIGN_UP", label: t("S'inscrire", "Sign up") },
+    { value: "CALL", label: t("Appeler", "Call") },
+  ];
+
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [selectedBusinessId, setSelectedBusinessId] = useState<string>("");
   const [postType, setPostType] = useState("STANDARD");
