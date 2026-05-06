@@ -26,6 +26,7 @@ const examples = [
 ];
 
 export const ReviewsAISection = () => {
+  const { t } = useTranslation();
   return (
     <section id="reviews-ai" className="py-20 sm:py-28 bg-card">
       <div className="container mx-auto px-4 sm:px-6">
