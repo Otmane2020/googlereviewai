@@ -138,10 +138,10 @@ export const MobileBottomNav = () => {
             </div>
             <button
               onClick={handleSignOut}
-              className="mt-6 w-full flex items-center justify-center gap-2 p-4 rounded-2xl border border-destructive/30 text-destructive hover:bg-destructive/10 transition-all"
+              className="mt-5 w-full flex items-center justify-center gap-2 p-3.5 rounded-2xl border border-destructive/20 bg-destructive/5 text-destructive hover:bg-destructive/10 transition-all active:scale-[0.98]"
             >
-              <LogOut className="w-5 h-5" />
-              <span className="text-sm font-medium">{t("auth.signOut") || "Déconnexion"}</span>
+              <LogOut className="w-4 h-4" />
+              <span className="text-sm font-semibold">{isFr ? "Déconnexion" : "Sign out"}</span>
             </button>
           </SheetContent>
         </Sheet>
