@@ -97,7 +97,7 @@ export const RankiHero = () => {
               </div>
               <div className="text-left">
                 <div className="text-[10px] uppercase font-semibold text-muted-foreground">+247%</div>
-                <div className="text-xs font-bold text-foreground">AI mentions</div>
+                <div className="text-xs font-bold text-foreground">{t("landingUI.hero.aiMentions")}</div>
               </div>
             </div>
           </div>
