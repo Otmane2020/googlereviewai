@@ -234,21 +234,21 @@
     "freeTrial": "Essai gratuit 3 jours",
     "noCreditCard": "Sans CB",
     "cancelAnytime": "Sans engagement",
-     "allinone": {
-       "badge": "Offre Unique",
-       "title": "Une offre. Tout inclus.",
-       "subtitle": "Visibilité Google, ChatGPT et gestion des avis. Tout ce qu'il vous faut pour dominer votre marché local.",
-       "name": "Starlinko Tout-en-Un",
-       "description": "Pack complet SEO + AEO + Réponses IA",
-       "feature1": "Réponses IA illimitées aux avis Google",
-       "feature2": "Articles SEO générés automatiquement",
-       "feature3": "Visibilité ChatGPT & moteurs IA",
-       "feature4": "Synchronisation Google My Business",
-       "feature5": "Statistiques détaillées",
-       "feature6": "Support prioritaire",
-       "freeMonths": "2 mois offerts",
-       "savings": "Économisez 78€ par an"
-     },
+    "allinone": {
+      "badge": "Offre Unique",
+      "title": "Une offre. Tout inclus.",
+      "subtitle": "Visibilité Google, ChatGPT et gestion des avis. Tout ce qu'il vous faut pour dominer votre marché local.",
+      "name": "Starlinko Tout-en-Un",
+      "description": "Pack complet SEO + AEO + Réponses IA",
+      "feature1": "Réponses IA illimitées aux avis Google",
+      "feature2": "Articles SEO générés automatiquement",
+      "feature3": "Visibilité ChatGPT & moteurs IA",
+      "feature4": "Synchronisation Google My Business",
+      "feature5": "Statistiques détaillées",
+      "feature6": "Support prioritaire",
+      "freeMonths": "2 mois offerts",
+      "savings": "Économisez 78€ par an"
+    },
     "features": {
       "aiResponses": "Réponses IA illimitées",
       "locations": "{{count}} établissement(s)",
@@ -337,7 +337,11 @@
     "upgrade": "Passer Premium",
     "helpSupport": "Aide & support",
     "signOut": "Se déconnecter",
-    "language": "Langue"
+    "language": "Langue",
+    "visibilityBoost": "Visibilité Boost",
+    "myCompany": "Mon entreprise",
+    "googleReviews": "Avis Google",
+    "googlePost": "Post Google"
   },
   "settings": {
     "title": "Paramètres",
