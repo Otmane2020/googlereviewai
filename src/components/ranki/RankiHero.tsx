@@ -19,43 +19,43 @@ export const RankiHero = () => {
           <div className="text-center lg:text-left">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted border border-border text-foreground text-xs font-semibold mb-6">
               <Sparkles className="w-3.5 h-3.5" />
-              GEO · Référencement IA générative
+              {t("landingUI.hero.badge")}
             </div>
 
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-foreground leading-[1.05]">
-              Boostez vos ventes et votre visibilité sur{" "}
+              {t("landingUI.hero.title1")}{" "}
               <span className="text-primary">
-                ChatGPT, Gemini & Perplexity
+                {t("landingUI.hero.title2")}
               </span>
             </h1>
 
             <p className="mt-6 text-lg sm:text-xl text-muted-foreground max-w-xl mx-auto lg:mx-0">
-              Ranki.ai améliore votre positionnement local, optimise votre stratégie de référencement naturel et augmente vos ventes en publiant automatiquement le contenu qui vous fait recommander en #1 par les IA et Google.
+              {t("landingUI.hero.subtitle")}
             </p>
 
             <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
               <Link to="/auth">
                 <Button size="lg" className="h-12 px-7 text-base font-semibold gap-2 group">
-                  Booster ma visibilité — Gratuit
+                  {t("landingUI.hero.ctaPrimary")}
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </Link>
               <a href="#geo-rank">
                 <Button size="lg" variant="outline" className="h-12 px-7 text-base font-semibold">
-                  Voir comment ça marche
+                  {t("landingUI.hero.ctaSecondary")}
                 </Button>
               </a>
             </div>
 
             <div className="mt-6 flex flex-wrap items-center justify-center lg:justify-start gap-x-5 gap-y-2 text-xs text-muted-foreground">
-              <div className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-primary" /> Sans carte bancaire</div>
-              <div className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-primary" /> 25 crédits offerts</div>
-              <div className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-primary" /> Configuré en 2 min</div>
+              <div className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-primary" /> {t("landingUI.hero.noCard")}</div>
+              <div className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-primary" /> {t("landingUI.hero.freeCredits")}</div>
+              <div className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-primary" /> {t("landingUI.hero.setup")}</div>
             </div>
 
             {/* AI engines pills */}
             <div className="mt-10">
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Suivi de votre classement sur</p>
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">{t("landingUI.hero.trackedOn")}</p>
               <div className="flex flex-wrap gap-2 justify-center lg:justify-start">
                 {aiEngines.map((name) => (
                   <span
