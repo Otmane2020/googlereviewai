@@ -125,14 +125,14 @@ const RankiSidebar = () => {
 
       <SidebarContent>
         <SidebarGroup>
-          {!collapsed && <SidebarGroupLabel>Workspace</SidebarGroupLabel>}
+          {!collapsed && <SidebarGroupLabel>{t("sidebar.workspace")}</SidebarGroupLabel>}
           <SidebarGroupContent>
             <SidebarMenu>{productNav.map(renderItem)}</SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
 
         <SidebarGroup>
-          {!collapsed && <SidebarGroupLabel>Account</SidebarGroupLabel>}
+          {!collapsed && <SidebarGroupLabel>{t("sidebar.account")}</SidebarGroupLabel>}
           <SidebarGroupContent>
             <SidebarMenu>{accountNav.map(renderItem)}</SidebarMenu>
           </SidebarGroupContent>
@@ -143,17 +143,17 @@ const RankiSidebar = () => {
             <div className="rounded-xl border border-primary/20 bg-gradient-to-br from-primary/5 to-secondary/5 p-3">
               <div className="flex items-center gap-2 mb-1">
                 <CreditCard className="w-4 h-4 text-primary" />
-                <span className="text-xs font-bold text-foreground">{profile?.credits ?? 0} credits</span>
+                <span className="text-xs font-bold text-foreground">{profile?.credits ?? 0} {t("sidebar.credits")}</span>
               </div>
               <p className="text-[11px] text-muted-foreground mb-2">
-                {profile?.plan_name ? `Plan: ${profile.plan_name}` : "Free plan"}
+                {profile?.plan_name ? `${t("sidebar.plan")}: ${profile.plan_name}` : t("sidebar.freePlan")}
               </p>
               <Button
                 size="sm"
                 className="w-full h-7 text-xs"
                 onClick={() => navigate("/choose-plan")}
               >
-                <Sparkles className="w-3 h-3 mr-1" /> Upgrade
+                <Sparkles className="w-3 h-3 mr-1" /> {t("sidebar.upgrade")}
               </Button>
             </div>
           </div>
@@ -163,17 +163,17 @@ const RankiSidebar = () => {
       <SidebarFooter className="border-t border-sidebar-border">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip="Help">
+            <SidebarMenuButton asChild tooltip={t("sidebar.helpSupport")}>
               <a href="mailto:support@ranki.ai" className="flex items-center gap-3">
                 <HelpCircle className="h-4 w-4" />
-                {!collapsed && <span>Help & support</span>}
+                {!collapsed && <span>{t("sidebar.helpSupport")}</span>}
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton onClick={signOut} tooltip="Sign out">
+            <SidebarMenuButton onClick={signOut} tooltip={t("sidebar.signOut")}>
               <LogOut className="h-4 w-4" />
-              {!collapsed && <span>Sign out</span>}
+              {!collapsed && <span>{t("sidebar.signOut")}</span>}
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
