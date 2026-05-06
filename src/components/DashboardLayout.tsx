@@ -76,6 +76,7 @@ const RankiSidebar = () => {
   const { mainNav, visibilityNav, businessNav, accountNav } = useNavItems();
   const [profile, setProfile] = useState<{ full_name: string | null; email: string; credits: number; plan_name: string | null } | null>(null);
   const [supportOpen, setSupportOpen] = useState(false);
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
 
   useEffect(() => {
     if (!user) return;
