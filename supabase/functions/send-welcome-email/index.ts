@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -11,7 +12,48 @@ interface WelcomeEmailRequest {
   plan_name?: string;
   credits?: number;
   is_trial?: boolean;
+  lang?: "fr" | "en";
 }
+
+const T = {
+  fr: {
+    footerRights: "Tous droits réservés.",
+    welcomeTitle: "Bienvenue sur Starlinko ! 🚀",
+    hello: "Bonjour",
+    thanksSub: (plan: string) => `Merci pour votre confiance ! Votre abonnement <strong>${plan}</strong> est maintenant actif.`,
+    accountCreated: "Votre compte a été créé avec succès. Vous pouvez désormais gérer vos avis Google et générer des réponses professionnelles grâce à l'intelligence artificielle.",
+    trialActivated: "🎁 Essai gratuit activé",
+    creditsAvailable: "Crédits disponibles",
+    toStart: "Pour commencer :",
+    step1: "Connectez votre compte Google My Business",
+    step2: "Synchronisez vos avis clients",
+    step3: "Générez des réponses personnalisées en un clic",
+    cta: "Accéder au tableau de bord",
+    questions: "Des questions ? Répondez directement à cet email, nous sommes là pour vous aider.",
+    subjectSub: (name: string, plan: string) => `🎉 Bienvenue ${name ? name + " " : ""}! Votre abonnement ${plan} est actif`,
+    subjectFree: "Bienvenue sur Starlinko - Gérez vos avis avec l'IA",
+    freePlan: "Gratuit",
+  },
+  en: {
+    footerRights: "All rights reserved.",
+    welcomeTitle: "Welcome to Starlinko! 🚀",
+    hello: "Hello",
+    thanksSub: (plan: string) => `Thank you for your trust! Your <strong>${plan}</strong> subscription is now active.`,
+    accountCreated: "Your account was created successfully. You can now manage your Google reviews and generate professional AI-powered responses.",
+    trialActivated: "🎁 Free trial activated",
+    creditsAvailable: "Available credits",
+    toStart: "To get started:",
+    step1: "Connect your Google My Business account",
+    step2: "Sync your customer reviews",
+    step3: "Generate personalized replies in one click",
+    cta: "Go to dashboard",
+    questions: "Questions? Just reply to this email — we're here to help.",
+    subjectSub: (name: string, plan: string) => `🎉 Welcome ${name ? name + " " : ""}! Your ${plan} subscription is active`,
+    subjectFree: "Welcome to Starlinko — manage your reviews with AI",
+    freePlan: "Free",
+  },
+};
+
 
 // Professional email design system
 const STYLES = {
