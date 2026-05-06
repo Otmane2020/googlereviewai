@@ -462,7 +462,7 @@ const Dashboard = () => {
         <main className="max-w-7xl mx-auto px-4 md:px-6 py-5 md:py-8 space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-muted-foreground">Welcome back,</p>
+              <p className="text-sm text-muted-foreground">Bon retour,</p>
               <h1 className="text-xl md:text-2xl font-bold text-foreground">{profile?.full_name?.split(" ")[0] || "👋"}</h1>
             </div>
             <div className="flex items-center gap-2">
