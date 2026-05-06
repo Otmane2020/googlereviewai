@@ -43,6 +43,12 @@ interface UpgradeDialogProps {
 }
 
 export const UpgradeDialog = ({ open, onOpenChange, currentPlan }: UpgradeDialogProps) => {
+  const { i18n } = useTranslation();
+  const isEN = i18n.language?.toLowerCase().startsWith("en");
+  const currencySymbol = isEN ? "$" : "€";
+  const priceLabel = isEN ? "$9.99" : "9,99€";
+  const dailyPriceKey = isEN ? "daily_monthly_usd" : "daily_monthly_eur";
+
   const [isLoading, setIsLoading] = useState(false);
   const [loadingCredits, setLoadingCredits] = useState(false);
 
@@ -53,7 +59,7 @@ export const UpgradeDialog = ({ open, onOpenChange, currentPlan }: UpgradeDialog
     try {
       const { data, error } = await supabase.functions.invoke("create-checkout", {
         body: {
-          priceKey: "daily_monthly",
+          priceKey: dailyPriceKey,
           successUrl: `${window.location.origin}/dashboard?success=true`,
           cancelUrl: `${window.location.origin}/settings?canceled=true`,
         },
@@ -66,8 +72,8 @@ export const UpgradeDialog = ({ open, onOpenChange, currentPlan }: UpgradeDialog
     } catch (error) {
       console.error("Checkout error:", error);
       toast({
-        title: "Erreur",
-        description: "Impossible de créer la session de paiement.",
+        title: isEN ? "Error" : "Erreur",
+        description: isEN ? "Unable to create payment session." : "Impossible de créer la session de paiement.",
         variant: "destructive",
       });
     } finally {
