@@ -38,8 +38,8 @@ export const HeroSection = () => {
 
           {/* Main headline */}
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-card leading-tight mb-5 animate-fade-in" style={{ animationDelay: "0.1s" }}>
-            Gérez vos avis Google
-            <span className="block text-accent-gold mt-2">gratuitement avec l'IA</span>
+            {t("hero.title")}
+            <span className="block text-accent-gold mt-2">{t("hero.titleHighlight")}</span>
           </h1>
 
           {/* Subtitle */}
@@ -65,7 +65,7 @@ export const HeroSection = () => {
               <>
               <Button variant="hero" size="xl" className="gap-2 w-full sm:w-auto" onClick={() => navigate("/auth")}>
                   <Zap className="w-5 h-5" />
-                  Commencer gratuitement
+                  {t("hero.cta")}
                 </Button>
                 <Button 
                   variant="outline" 
