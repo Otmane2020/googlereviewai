@@ -1,41 +1,36 @@
-## Goal
-Passer l'app **100 % en français**, tout en conservant le bundle anglais (`en.json`) dans le code pour pouvoir réactiver le switcher plus tard sans re-traduire.
+## Objectif
 
-## Changements
+Traduire en français les 6 templates email d'authentification utilisés par Starlinko (signup, recovery, magic-link, email-change, invite, reauthentication), puis redéployer la fonction `auth-email-hook` pour que les changements prennent effet.
 
-1. **`src/i18n/config.ts`** — forcer le français
-   - `lng: "fr"`, `fallbackLng: "fr"`
-   - Garder `en.json` importé et listé dans `supportedLngs: ["fr", "en"]` (prêt à réactiver)
-   - Supprimer la détection automatique navigateur/timezone
-   - Écrire `localStorage.i18nextLng = "fr"` au boot (écrase tout choix EN précédent)
-   - `isLikelyFrench()` retourne `true`
+Les toasts et notifications de l'interface (142 chaînes dans 23 fichiers) ont déjà été traduits dans cette session. Ce plan ne couvre que les emails, qui nécessitent le mode build.
 
-2. **Masquer le switcher de langue** (sans le supprimer)
-   - `src/components/LanguageSwitcher.tsx` : early return `null` (composant conservé pour réactivation future)
-   - Aucun changement aux endroits qui l'importent (Header landing, page Auth, etc.)
+## Ce qui sera modifié
 
-3. **Settings — bloc Langue**
-   - `src/pages/Settings.tsx` : masquer la carte « Langue / English / Français » (commenter le JSX, garder le code) puisqu'il n'y a plus de choix à offrir
+Tous les fichiers dans `supabase/functions/_shared/email-templates/` :
 
-4. **Sidebar dashboard**
-   - Aucun changement de code : les libellés passent automatiquement en français via les clés `sidebar.*` déjà présentes dans `fr.json` (Vue d'ensemble, Avis, Établissements, etc.)
+| Template | Sujet (Preview) FR | Titre FR | Bouton FR |
+|---|---|---|---|
+| `signup.tsx` | « Confirmez votre e-mail pour commencer à être visible sur l'IA » | Confirmez votre e-mail | Vérifier l'e-mail |
+| `recovery.tsx` | « Réinitialisez votre mot de passe Starlinko » | Réinitialiser votre mot de passe | Réinitialiser le mot de passe |
+| `magic-link.tsx` | « Votre lien de connexion Starlinko » | Connectez-vous à Starlinko | Se connecter |
+| `email-change.tsx` | « Confirmez le changement d'e-mail Starlinko » | Confirmez le changement d'e-mail | Confirmer le changement |
+| `invite.tsx` | « Vous avez été invité sur Starlinko » | Vous avez été invité | Accepter l'invitation |
+| `reauthentication.tsx` | « Votre code de vérification Starlinko » | Confirmez que c'est bien vous | (code OTP) |
 
-5. **Pages encore en anglais en dur** (sweep ciblé)
-   - `src/components/DashboardHeader.tsx` : `Settings`, `Upgrade plan`, `Sign out`, `User`, `credits` → français
-   - `src/pages/Settings.tsx` : `Save`, `Subscription`, `Free trial`, `Manage subscription`, `Available credits`, `Max locations`, `See all plans`, `Integrations`, etc.
-   - `src/components/Header.tsx` (landing) : `Sign in`, `Start free`, libellés `navLinks`
-   - `src/components/HeroSection.tsx` : badges « 100% gratuit / Sans carte bancaire / +500 entreprises » déjà FR ; vérifier les boutons
-   - Vérifier rapidement les autres pages dashboard (`AEORank`, `SEOAutoPost`, `Reviews`, `Businesses`, `MapsRank`, `GmbPost`, `Calendar`, `Notifications`, `AISettings`) et remplacer les chaînes EN restantes par leurs équivalents FR (ou clés `t()` quand la clé existe déjà dans `fr.json`)
+Pour chaque template :
+- `<Html lang="en">` → `<Html lang="fr">`
+- Marque « Ranki.ai » → « Starlinko » dans les textes visibles
+- Tous les textes (Preview, Heading, paragraphes, bouton, footer) traduits en français
+- Aucun changement de structure, props, ou styles
 
-6. **Landing page**
-   - `HeroSection`, `FeaturesSection`, `PricingSection`, `FAQSection`, `Footer`, `CTASection`, `TestimonialsSection`, sections Ranki (`RankiHero`, `GeoRankSection`, `ReviewsAISection`, `HowItWorksSection`, `RankiPricingSection`) : remplacer toute chaîne EN en dur par du français (la plupart utilisent déjà `t()` qui basculera tout seul)
+## Étapes techniques
 
-7. **Mémoire projet**
-   - Mettre à jour `mem://brand/language-purity-constraint` : « App 100 % FR. Bundle EN conservé mais désactivé via `lng:"fr"` figé. Pour réactiver : retirer le `return null` dans `LanguageSwitcher` et restaurer la détection dans `i18n/config.ts`. »
+1. Réécrire chacun des 6 fichiers `.tsx` ci-dessus avec les traductions FR.
+2. Redéployer la fonction edge `auth-email-hook` (obligatoire pour que les nouveaux templates soient servis).
+3. Confirmer à l'utilisateur que les emails partent désormais en français.
 
-## Hors scope
-- Articles de blog (déjà bilingues côté DB, l'UI pivote selon `i18n.language`)
-- Edge functions (réponses IA générées dans la langue de l'avis)
+## Hors périmètre
 
-## Note technique
-Le bundle EN reste chargé en mémoire (~quelques Ko gzip). Coût négligeable, gain : réactivation instantanée du multilingue plus tard sans refaire les traductions.
+- Aucune modification d'infrastructure email, de domaine, ou de DNS.
+- Aucun changement aux toasts UI (déjà traduits).
+- Pas de nouveaux templates ni de nouveaux types d'email.

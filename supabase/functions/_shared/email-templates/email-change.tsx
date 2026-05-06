@@ -24,27 +24,27 @@ interface EmailChangeEmailProps {
 }
 
 export const EmailChangeEmail = ({ oldEmail, newEmail, confirmationUrl }: EmailChangeEmailProps) => (
-  <Html lang="en" dir="ltr">
+  <Html lang="fr" dir="ltr">
     <Head />
-    <Preview>Confirm your Ranki.ai email change</Preview>
+    <Preview>Confirmez le changement d'e-mail Starlinko</Preview>
     <Body style={main}>
       <Container style={container}>
         <Section style={brand}>
-          <Text style={brandText}>Ranki.ai</Text>
+          <Text style={brandText}>Starlinko</Text>
         </Section>
-        <Heading style={h1}>Confirm your email change</Heading>
+        <Heading style={h1}>Confirmez le changement d'e-mail</Heading>
         <Text style={text}>
-          You requested to change the email address on your Ranki.ai account from{' '}
+          Vous avez demandé à changer l'adresse e-mail de votre compte Starlinko de{' '}
           <Link href={`mailto:${oldEmail}`} style={link}>{oldEmail}</Link>{' '}
-          to{' '}
+          vers{' '}
           <Link href={`mailto:${newEmail}`} style={link}>{newEmail}</Link>.
         </Text>
-        <Text style={text}>Click the button below to confirm this change:</Text>
+        <Text style={text}>Cliquez sur le bouton ci-dessous pour confirmer ce changement :</Text>
         <Button style={button} href={confirmationUrl}>
-          Confirm email change
+          Confirmer le changement
         </Button>
         <Text style={footer}>
-          If you didn't request this change, please secure your account immediately.
+          Si vous n'êtes pas à l'origine de cette demande, sécurisez votre compte immédiatement.
         </Text>
       </Container>
     </Body>

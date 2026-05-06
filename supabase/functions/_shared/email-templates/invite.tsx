@@ -22,28 +22,28 @@ interface InviteEmailProps {
 }
 
 export const InviteEmail = ({ siteUrl, confirmationUrl }: InviteEmailProps) => (
-  <Html lang="en" dir="ltr">
+  <Html lang="fr" dir="ltr">
     <Head />
-    <Preview>You've been invited to Ranki.ai</Preview>
+    <Preview>Vous avez été invité sur Starlinko</Preview>
     <Body style={main}>
       <Container style={container}>
         <Section style={brand}>
-          <Text style={brandText}>Ranki.ai</Text>
+          <Text style={brandText}>Starlinko</Text>
         </Section>
-        <Heading style={h1}>You've been invited</Heading>
+        <Heading style={h1}>Vous avez été invité</Heading>
         <Text style={text}>
-          You've been invited to join{' '}
+          Vous avez été invité à rejoindre{' '}
           <Link href={siteUrl} style={link}>
-            <strong>Ranki.ai</strong>
+            <strong>Starlinko</strong>
           </Link>
-          , the GEO platform for ranking inside ChatGPT, Gemini and Perplexity.
-          Accept the invitation to create your account.
+          , la plateforme pour vous positionner dans ChatGPT, Gemini et Perplexity.
+          Acceptez l'invitation pour créer votre compte.
         </Text>
         <Button style={button} href={confirmationUrl}>
-          Accept invitation
+          Accepter l'invitation
         </Button>
         <Text style={footer}>
-          If you weren't expecting this invitation, you can safely ignore this email.
+          Si vous n'attendiez pas cette invitation, vous pouvez ignorer cet e-mail en toute sécurité.
         </Text>
       </Container>
     </Body>

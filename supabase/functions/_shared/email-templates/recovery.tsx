@@ -20,24 +20,24 @@ interface RecoveryEmailProps {
 }
 
 export const RecoveryEmail = ({ confirmationUrl }: RecoveryEmailProps) => (
-  <Html lang="en" dir="ltr">
+  <Html lang="fr" dir="ltr">
     <Head />
-    <Preview>Reset your Ranki.ai password</Preview>
+    <Preview>Réinitialisez votre mot de passe Starlinko</Preview>
     <Body style={main}>
       <Container style={container}>
         <Section style={brand}>
-          <Text style={brandText}>Ranki.ai</Text>
+          <Text style={brandText}>Starlinko</Text>
         </Section>
-        <Heading style={h1}>Reset your password</Heading>
+        <Heading style={h1}>Réinitialiser votre mot de passe</Heading>
         <Text style={text}>
-          We received a request to reset the password for your Ranki.ai account.
-          Click the button below to choose a new one.
+          Nous avons reçu une demande de réinitialisation du mot de passe de votre compte Starlinko.
+          Cliquez sur le bouton ci-dessous pour en choisir un nouveau.
         </Text>
         <Button style={button} href={confirmationUrl}>
-          Reset password
+          Réinitialiser le mot de passe
         </Button>
         <Text style={footer}>
-          If you didn't request a password reset, you can safely ignore this email — your password will not be changed.
+          Si vous n'êtes pas à l'origine de cette demande, vous pouvez ignorer cet e-mail en toute sécurité — votre mot de passe restera inchangé.
         </Text>
       </Container>
     </Body>

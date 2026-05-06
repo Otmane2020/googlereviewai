@@ -28,35 +28,35 @@ export const SignupEmail = ({
   recipient,
   confirmationUrl,
 }: SignupEmailProps) => (
-  <Html lang="en" dir="ltr">
+  <Html lang="fr" dir="ltr">
     <Head />
-    <Preview>Confirm your email to start ranking on AI search</Preview>
+    <Preview>Confirmez votre e-mail pour commencer à être visible sur l'IA</Preview>
     <Body style={main}>
       <Container style={container}>
         <Section style={brand}>
-          <Text style={brandText}>Ranki.ai</Text>
+          <Text style={brandText}>Starlinko</Text>
         </Section>
-        <Heading style={h1}>Confirm your email</Heading>
+        <Heading style={h1}>Confirmez votre e-mail</Heading>
         <Text style={text}>
-          Welcome to{' '}
+          Bienvenue sur{' '}
           <Link href={siteUrl} style={link}>
-            <strong>Ranki.ai</strong>
+            <strong>Starlinko</strong>
           </Link>{' '}
-          — the GEO platform that helps your business rank inside ChatGPT,
-          Gemini and Perplexity.
+          — la plateforme qui aide votre établissement à se positionner dans
+          ChatGPT, Gemini et Perplexity.
         </Text>
         <Text style={text}>
-          Please confirm your email address (
+          Veuillez confirmer votre adresse e-mail (
           <Link href={`mailto:${recipient}`} style={link}>
             {recipient}
           </Link>
-          ) to activate your account:
+          ) pour activer votre compte :
         </Text>
         <Button style={button} href={confirmationUrl}>
-          Verify email
+          Vérifier l'e-mail
         </Button>
         <Text style={footer}>
-          If you didn't create a Ranki.ai account, you can safely ignore this email.
+          Si vous n'avez pas créé de compte Starlinko, vous pouvez ignorer cet e-mail en toute sécurité.
         </Text>
       </Container>
     </Body>
