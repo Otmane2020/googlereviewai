@@ -494,7 +494,7 @@ const AISettingsPage = () => {
                 }`}
               >
                 <div className="text-sm font-medium">{option.label}</div>
-                <div className="text-[10px] opacity-70">{option.desc} phrases</div>
+                <div className="text-[10px] opacity-70">{option.desc} {isEN ? "sentences" : "phrases"}</div>
               </button>
             ))}
           </div>
