@@ -38,10 +38,10 @@ export const Header = () => {
           <div className="hidden md:flex items-center gap-2">
             <LanguageSwitcher variant="flags" />
             <Link to="/auth">
-              <Button variant="outline" size="sm">Sign in</Button>
+              <Button variant="outline" size="sm">Se connecter</Button>
             </Link>
             <Link to="/auth">
-              <Button size="sm">Start free</Button>
+              <Button size="sm">Commencer gratuitement</Button>
             </Link>
           </div>
 
@@ -73,10 +73,10 @@ export const Header = () => {
               <hr className="border-border my-3" />
               <div className="flex flex-col gap-2">
                 <Link to="/auth" onClick={() => setMobileMenuOpen(false)}>
-                  <Button variant="outline" className="w-full h-12 text-base">Sign in</Button>
+                  <Button variant="outline" className="w-full h-12 text-base">Se connecter</Button>
                 </Link>
                 <Link to="/auth" onClick={() => setMobileMenuOpen(false)}>
-                  <Button variant="default" className="w-full h-12 text-base">Start free</Button>
+                  <Button variant="default" className="w-full h-12 text-base">Commencer gratuitement</Button>
                 </Link>
               </div>
             </div>
