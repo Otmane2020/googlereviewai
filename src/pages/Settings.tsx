@@ -198,7 +198,7 @@ const SettingsPage = () => {
             <div>
               <h1 className="text-2xl font-bold text-foreground">Paramètres</h1>
               <p className="text-sm text-muted-foreground">
-                Manage your account and preferences
+                Gérez votre compte et vos préférences
               </p>
             </div>
           </div>
@@ -210,22 +210,22 @@ const SettingsPage = () => {
         <div className="bg-card rounded-2xl border border-border p-6">
           <div className="flex items-center gap-3 mb-6">
             <User className="w-5 h-5 text-primary" />
-            <h2 className="font-semibold text-foreground">Profile</h2>
+            <h2 className="font-semibold text-foreground">Profil</h2>
           </div>
           
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="fullName">Full name</Label>
+              <Label htmlFor="fullName">Nom complet</Label>
               <Input
                 id="fullName"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
-                placeholder="Your name"
+                placeholder="Votre nom"
               />
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">E-mail</Label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <Input
