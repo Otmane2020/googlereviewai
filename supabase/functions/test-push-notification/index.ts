@@ -40,8 +40,8 @@ serve(async (req) => {
 
     console.log(`[test-push] Sending test notification to user: ${user.id}`);
 
-    // Call the send-pushalert-notification function
-    const pushResponse = await fetch(`${supabaseUrl}/functions/v1/send-pushalert-notification`, {
+    // Call the VAPID send-push-notification function
+    const pushResponse = await fetch(`${supabaseUrl}/functions/v1/send-push-notification`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -49,10 +49,10 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         user_id: user.id,
-        title: "🔔 Test Starlinko",
-        message: "Si vous voyez cette notification, tout fonctionne parfaitement !",
-        url: "https://starlinko.app/notifications",
-        icon: "https://starlinko.app/icon-512x512.png",
+        title: "🔔 Test Ranki.ai",
+        body: "Si vous voyez cette notification, tout fonctionne parfaitement !",
+        url: "/notifications",
+        icon: "/icon-512x512.png",
       }),
     });
 
