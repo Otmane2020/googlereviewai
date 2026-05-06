@@ -4,7 +4,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CalendarDays, ChevronLeft, ChevronRight, FileText, Sparkles, Check, Clock, AlertCircle, Loader2 } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { CalendarDays, ChevronLeft, ChevronRight, FileText, Sparkles, Check, Clock, AlertCircle, Loader2, ExternalLink } from "lucide-react";
 import {
   format,
   startOfMonth,
@@ -16,8 +18,8 @@ import {
   subMonths,
   isSameMonth,
   isSameDay,
-  parseISO,
 } from "date-fns";
+import { fr } from "date-fns/locale";
 
 interface ContentItem {
   id: string;
@@ -27,6 +29,15 @@ interface ContentItem {
   title: string | null;
   question: string | null;
   business_id: string;
+}
+
+interface ContentDetail extends ContentItem {
+  content: string | null;
+  answer: string | null;
+  keyword_used: string | null;
+  google_post_id: string | null;
+  published_at: string | null;
+  error_message: string | null;
 }
 
 const STATUS_STYLE: Record<string, { label: string; className: string; icon: any }> = {
