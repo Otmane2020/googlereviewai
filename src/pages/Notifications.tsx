@@ -122,8 +122,40 @@ const Notifications = () => {
     }
   };
 
+  const isEN = i18n.language?.toLowerCase().startsWith("en");
+
+  const translateNotification = (n: typeof notifications[0]) => {
+    if (!isEN) return { title: n.title, message: n.message };
+    let title = n.title;
+    let message = n.message;
+
+    // Title translations
+    title = title
+      .replace(/Nouveau\s*:/i, "New:")
+      .replace(/Avis supprimé/i, "Review deleted")
+      .replace(/Découvrez SEO AutoPost/i, "Discover SEO AutoPost")
+      .replace(/Découvrez AEO/i, "Discover AEO")
+      .replace(/Avis en attente/i, "Pending reviews")
+      .replace(/Réponse publiée/i, "Reply published")
+      .replace(/Email envoyé/i, "Email sent")
+      .replace(/Nouvel avis/i, "New review");
+
+    // Message translations (patterns)
+    message = message
+      .replace(/Apparaissez dans les réponses de ChatGPT et autres IA\.?\s*Découvrez AEO\s*!?/i, "Appear in answers from ChatGPT and other AIs. Discover AEO!")
+      .replace(/L'avis de (.+?) \((\d+) étoiles?\) a été supprimé de Google/i, "Review by $1 ($2 stars) was deleted from Google")
+      .replace(/Publiez automatiquement des articles optimisés pour Google\.?\s*Essayez maintenant\s*!?/i, "Automatically publish Google-optimized articles. Try it now!")
+      .replace(/Vous avez (\d+) avis sans réponse\.?\s*Générez des réponses IA maintenant\s*!?/i, "You have $1 unanswered reviews. Generate AI replies now!")
+      .replace(/Réponse à (.+?) publiée sur Google\.?/i, "Reply to $1 published on Google.")
+      .replace(/Email avis en attente \((\d+)\) envoyé/i, "Pending reviews email ($1) sent")
+      .replace(/Réponse générée pour l'avis de (.+)/i, "Response generated for review by $1");
+
+    return { title, message };
+  };
+
   const NotificationItem = ({ notification }: { notification: typeof notifications[0] }) => {
     const { icon: Icon, color, iconColor } = getNotificationIcon(notification.type);
+    const { title, message } = translateNotification(notification);
     
     return (
       <div
@@ -143,9 +175,9 @@ const Notifications = () => {
 
         <div className="flex-1 min-w-0">
           <p className={`text-sm leading-snug ${!notification.read ? "font-semibold" : "font-medium"}`}>
-            <span className="text-foreground">{notification.title}</span>
+            <span className="text-foreground">{title}</span>
             {" "}
-            <span className="text-muted-foreground">{notification.message}</span>
+            <span className="text-muted-foreground">{message}</span>
           </p>
           <p className="text-xs text-muted-foreground mt-1">
             {getTimeAgo(notification.created_at)}
