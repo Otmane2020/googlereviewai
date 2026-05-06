@@ -332,7 +332,7 @@ const SettingsPage = () => {
             <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
               <Link2 className="w-4 h-4 text-primary" />
             </div>
-            <h2 className="font-semibold text-foreground text-sm">Intégrations</h2>
+            <h2 className="font-semibold text-foreground text-sm">{t("settingsPage.integrations")}</h2>
           </div>
           
           {/* Google My Business */}
@@ -351,11 +351,11 @@ const SettingsPage = () => {
                   <p className="font-medium text-foreground text-sm">Google My Business</p>
                   <Badge className="bg-green-500/10 text-green-600 border-green-500/20 text-[10px] px-2 py-0.5">
                     <Check className="w-2.5 h-2.5 mr-0.5" />
-                    Connecté
+                    {t("settingsPage.connected")}
                   </Badge>
                 </div>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Synchronisation automatique des avis et établissements
+                  {t("settingsPage.gmbDesc")}
                 </p>
               </div>
             </div>
@@ -366,7 +366,7 @@ const SettingsPage = () => {
         <div className="bg-card rounded-2xl border border-border p-6">
           <div className="flex items-center gap-3 mb-6">
             <Shield className="w-5 h-5 text-primary" />
-            <h2 className="font-semibold text-foreground">Sécurité</h2>
+            <h2 className="font-semibold text-foreground">{t("settingsPage.security")}</h2>
           </div>
           
           <div className="space-y-4">
@@ -376,8 +376,8 @@ const SettingsPage = () => {
               onClick={async () => {
                 if (!user?.email) {
                   toast({
-                    title: "Erreur",
-                    description: "E-mail indisponible",
+                    title: t("common.error"),
+                    description: t("settingsPage.errorEmail"),
                     variant: "destructive",
                   });
                   return;
@@ -389,19 +389,19 @@ const SettingsPage = () => {
                 
                 if (error) {
                   toast({
-                    title: "Erreur",
+                    title: t("common.error"),
                     description: error.message,
                     variant: "destructive",
                   });
                 } else {
                   toast({
-                    title: "E-mail envoyé",
-                    description: "Consultez votre boîte de réception pour réinitialiser votre mot de passe.",
+                    title: t("settingsPage.emailSent"),
+                    description: t("settingsPage.emailSentDesc"),
                   });
                 }
               }}
             >
-              Changer le mot de passe
+              {t("settingsPage.changePassword")}
             </Button>
             <div className="flex gap-2">
               <Button
@@ -409,7 +409,7 @@ const SettingsPage = () => {
                 className="flex-1 justify-start text-destructive hover:text-destructive"
                 onClick={handleSignOut}
               >
-                Se déconnecter
+                {t("settingsPage.signOut")}
               </Button>
               <SupportDialog userEmail={profile?.email} />
             </div>
@@ -420,7 +420,7 @@ const SettingsPage = () => {
         <div className="bg-card rounded-2xl border border-border p-6">
           <div className="flex items-center gap-3 mb-6">
             <Bell className="w-5 h-5 text-primary" />
-            <h2 className="font-semibold text-foreground">Notifications</h2>
+            <h2 className="font-semibold text-foreground">{t("settingsPage.notifications")}</h2>
           </div>
           
           <div className="space-y-4">
@@ -433,10 +433,10 @@ const SettingsPage = () => {
                   </div>
                   <div>
                     <p className="font-medium text-foreground text-sm">
-                      Notifications push
+                      {t("settingsPage.pushNotifications")}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      Gérées par le système Android
+                      {t("settingsPage.androidManaged")}
                     </p>
                   </div>
                 </div>
@@ -448,15 +448,15 @@ const SettingsPage = () => {
                       window.open("intent:#Intent;action=android.settings.APP_NOTIFICATION_SETTINGS;extra=android.provider.extra.APP_PACKAGE=com.world.fi.starlinko;end", "_system");
                     } catch {
                       toast({
-                        title: "Paramètres Android",
-                        description: "Ouvrez Paramètres > Applications > Starlinko > Notifications",
+                        title: t("settingsPage.androidSettings"),
+                        description: t("settingsPage.androidSettingsDesc"),
                       });
                     }
                   }}
                   className="rounded-xl h-9 shrink-0 gap-1"
                 >
                   <ExternalLink className="w-3 h-3" />
-                  Paramètres
+                  {t("settingsPage.androidSettings")}
                 </Button>
               </div>
             ) : (
@@ -474,16 +474,16 @@ const SettingsPage = () => {
                   </div>
                   <div>
                     <p className="font-medium text-foreground text-sm">
-                      Notifications push
+                      {t("settingsPage.pushNotifications")}
                     </p>
                     <p className="text-xs text-muted-foreground">
                       {pushPermission === "unsupported"
-                        ? "Non pris en charge par ce navigateur"
+                        ? t("settingsPage.pushUnsupported")
                         : pushPermission === "granted" && isSubscribedToPush
-                          ? "Activées — Vous recevez les alertes"
+                          ? t("settingsPage.pushActiveDesc")
                           : pushPermission === "denied"
-                            ? "Bloquées — Autorisez dans votre navigateur"
-                            : "Désactivées"
+                            ? t("settingsPage.pushBlocked")
+                            : t("settingsPage.pushDisabled")
                       }
                     </p>
                   </div>
@@ -499,15 +499,15 @@ const SettingsPage = () => {
                         (window as any).PushAlertCo.unsubscribe();
                         setIsSubscribedToPush(false);
                         toast({
-                          title: "Notifications désactivées",
-                          description: "Vous ne recevrez plus de notifications push.",
+                          title: t("settingsPage.pushDisabledTitle"),
+                          description: t("settingsPage.pushDisabledDesc"),
                         });
                       }
                     }}
                     className="rounded-xl h-9 shrink-0"
                   >
                     <BellOff className="w-4 h-4 mr-1" />
-                    Désactiver
+                    {t("settingsPage.disable")}
                   </Button>
                 )}
                 {/* Force reactivation button - always visible when push permission granted but SDK issues */}
@@ -556,14 +556,14 @@ const SettingsPage = () => {
                             }
                             setIsSubscribedToPush(true);
                             toast({
-                              title: "Notifications réactivées ✅",
-                              description: "Vous recevrez à nouveau les alertes.",
+                              title: t("settingsPage.pushReactivated"),
+                              description: t("settingsPage.pushReactivatedDesc"),
                             });
                           },
                           onFailure: () => {
                             toast({
-                              title: "Échec de la réactivation",
-                              description: "Vérifiez les autorisations du navigateur.",
+                              title: t("settingsPage.pushFailed"),
+                              description: t("settingsPage.pushFailedDesc"),
                               variant: "destructive",
                             });
                           }
@@ -573,7 +573,7 @@ const SettingsPage = () => {
                     className="rounded-xl h-9 shrink-0"
                   >
                     <BellRing className="w-4 h-4 mr-1" />
-                    Réactiver
+                    {t("settingsPage.reactivate")}
                   </Button>
                 )}
                 {pushPermission === "default" && (
@@ -588,16 +588,16 @@ const SettingsPage = () => {
                           setPushPermission("granted");
                           setIsSubscribedToPush(true);
                           toast({
-                            title: "Notifications activées",
-                            description: "Vous recevrez les alertes pour les nouveaux avis.",
+                            title: t("settingsPage.pushEnabled"),
+                            description: t("settingsPage.pushEnabledDesc"),
                           });
                         }]);
                         (window as any).pushalertbyiw.push(['onFailure', (result: any) => {
                           if (result?.status === -1) {
                             setPushPermission("denied");
                             toast({
-                              title: "Notifications bloquées",
-                              description: "Autorisez dans les paramètres du navigateur.",
+                              title: t("settingsPage.pushBlockedToast"),
+                              description: t("settingsPage.pushBlockedDesc"),
                               variant: "destructive",
                             });
                           }
@@ -608,7 +608,7 @@ const SettingsPage = () => {
                     className="rounded-xl h-9 shrink-0"
                   >
                     <Bell className="w-4 h-4 mr-1" />
-                    Activer
+                    {t("settingsPage.enable")}
                   </Button>
                 )}
                 {pushPermission === "denied" && (
@@ -618,7 +618,7 @@ const SettingsPage = () => {
                     onClick={() => window.location.reload()}
                     className="rounded-xl h-9 shrink-0"
                   >
-                    Recharger
+                    {t("settingsPage.reload")}
                   </Button>
                 )}
                 </div>
@@ -632,10 +632,10 @@ const SettingsPage = () => {
                 </div>
                 <div>
                   <p className="font-medium text-foreground text-sm">
-                    Notifications e-mail
+                    {t("settingsPage.emailNotifications")}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    À configurer dans Paramètres IA
+                    {t("settingsPage.emailToConfigure")}
                   </p>
                 </div>
               </div>
@@ -645,7 +645,7 @@ const SettingsPage = () => {
                 onClick={() => navigate("/ai-settings")}
                 className="rounded-xl h-9"
               >
-                Configurer
+                {t("settingsPage.configure")}
               </Button>
             </div>
 
@@ -664,16 +664,16 @@ const SettingsPage = () => {
                   </div>
                   <div>
                     <p className="font-medium text-foreground text-sm">
-                      Web Push (VAPID)
+                      {t("settingsPage.webPushTitle")}
                     </p>
                     <p className="text-xs text-muted-foreground">
                       {!webPush.isSupported
-                        ? "Non pris en charge par ce navigateur"
+                        ? t("settingsPage.pushUnsupported")
                         : webPush.isSubscribed
-                          ? "Activé — Push natif actif"
+                          ? t("settingsPage.webPushActive")
                           : webPush.permission === "denied"
-                            ? "Bloqué par le navigateur"
-                            : "Inactif — Activez pour recevoir les alertes"
+                            ? t("settingsPage.webPushBlocked")
+                            : t("settingsPage.webPushInactive")
                       }
                     </p>
                   </div>
@@ -687,17 +687,17 @@ const SettingsPage = () => {
                       onClick={async () => {
                         const ok = await webPush.subscribe();
                         toast({
-                          title: ok ? "Web Push activé ✅" : "Échec d'activation",
+                          title: ok ? t("settingsPage.webPushEnabled") : t("settingsPage.webPushFailed"),
                           description: ok 
-                            ? "Vous recevrez les notifications push natives." 
-                            : "Vérifiez les autorisations du navigateur.",
+                            ? t("settingsPage.webPushEnabledDesc")
+                            : t("settingsPage.webPushFailedDesc"),
                           variant: ok ? "default" : "destructive",
                         });
                       }}
                       className="rounded-xl h-9"
                     >
                       {webPush.loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Bell className="w-4 h-4 mr-1" />}
-                      Activer
+                      {t("settingsPage.enable")}
                     </Button>
                   )}
                   {webPush.isSubscribed && (
@@ -708,14 +708,14 @@ const SettingsPage = () => {
                       onClick={async () => {
                         await webPush.unsubscribe();
                         toast({
-                          title: "Web Push désactivé",
-                          description: "Notifications push natives désactivées.",
+                          title: t("settingsPage.webPushDisabled"),
+                          description: t("settingsPage.webPushDisabledDesc"),
                         });
                       }}
                       className="rounded-xl h-9"
                     >
                       <BellOff className="w-4 h-4 mr-1" />
-                      Désactiver
+                      {t("settingsPage.disable")}
                     </Button>
                   )}
                 </div>
@@ -725,7 +725,7 @@ const SettingsPage = () => {
               {webPush.isSubscribed && (
                 <div className="flex items-center justify-between pt-2 border-t border-border/50">
                   <p className="text-xs text-muted-foreground">
-                    Send a test notification to verify
+                    {t("settingsPage.testNotificationDesc")}
                   </p>
                   <Button
                     variant="secondary"
@@ -736,17 +736,17 @@ const SettingsPage = () => {
                       const ok = await webPush.sendTestNotification();
                       setTestingSending(false);
                       toast({
-                        title: ok ? "Notification envoyée 🔔" : "Échec de l'envoi",
+                        title: ok ? t("settingsPage.testSent") : t("settingsPage.testFailed"),
                         description: ok 
-                          ? "Vous devriez recevoir la notification dans quelques secondes." 
-                          : "Check your push subscription.",
+                          ? t("settingsPage.testSentDesc")
+                          : t("settingsPage.testFailedDesc"),
                         variant: ok ? "default" : "destructive",
                       });
                     }}
                     className="rounded-xl h-9 gap-1"
                   >
                     {testingSending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-                    Test
+                    {t("settingsPage.test")}
                   </Button>
                 </div>
               )}
