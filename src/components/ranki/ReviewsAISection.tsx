@@ -71,7 +71,7 @@ export const ReviewsAISection = () => {
                   <div className="w-4 h-4 rounded-full bg-primary flex items-center justify-center">
                     <span className="text-[8px] font-bold text-primary-foreground">AI</span>
                   </div>
-                  <div className="text-[10px] uppercase font-bold text-primary">Ranki AI Reply</div>
+                  <div className="text-[10px] uppercase font-bold text-primary">Réponse IA Starlinko</div>
                 </div>
                 <p className="text-sm text-foreground leading-snug">{e.reply}</p>
               </div>
