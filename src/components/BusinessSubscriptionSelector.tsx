@@ -106,16 +106,16 @@ export const BusinessSubscriptionSelector = ({
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Subscribe to {moduleName}</DialogTitle>
+            <DialogTitle>S'abonner à {moduleName}</DialogTitle>
             <DialogDescription>
-              Choose how many locations to include.
-              <span className="font-medium text-foreground"> $29/mo per location.</span>
+              Choisissez le nombre d'établissements à inclure.
+              <span className="font-medium text-foreground"> 29 €/mois par établissement.</span>
             </DialogDescription>
           </DialogHeader>
 
           {/* Quantity Selector */}
           <div className="bg-muted/50 rounded-lg p-4 mb-4">
-            <Label className="text-sm font-medium mb-3 block">Number of locations</Label>
+            <Label className="text-sm font-medium mb-3 block">Nombre d'établissements</Label>
             <div className="flex items-center justify-center gap-4">
               <Button
                 variant="outline"
@@ -129,7 +129,7 @@ export const BusinessSubscriptionSelector = ({
               <div className="text-center min-w-[80px]">
                 <span className="text-3xl font-bold text-primary">{quantity}</span>
                 <p className="text-xs text-muted-foreground">
-                  {quantity === 1 ? "location" : "locations"}
+                  {quantity === 1 ? "établissement" : "établissements"}
                 </p>
               </div>
               <Button
@@ -146,7 +146,7 @@ export const BusinessSubscriptionSelector = ({
           {/* Business List (optional selection) */}
           {businesses.length > 0 && (
             <div className="space-y-2">
-              <Label className="text-sm font-medium">Your current locations</Label>
+              <Label className="text-sm font-medium">Vos établissements actuels</Label>
               <div className="max-h-[200px] overflow-y-auto space-y-2">
                 {businesses.map((business) => {
                   const isSelected = selectedIds.includes(business.id);
