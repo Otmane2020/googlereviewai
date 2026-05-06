@@ -179,38 +179,72 @@ const Calendar = () => {
                   const isSelected = selectedDay && isSameDay(day, selectedDay);
                   const seoCount = dayItems.filter((i) => i.content_type === "seo_article").length;
                   const geoCount = dayItems.filter((i) => i.content_type === "aeo_qa").length;
+                  const hasPublished = dayItems.some((i) => i.status === "published");
+                  const hasFailed = dayItems.some((i) => i.status === "failed");
                   return (
                     <button
                       key={key}
                       onClick={() => handleDayClick(day, dayItems)}
-                      className={`min-h-[84px] rounded-lg border p-2 text-left transition-all ${
+                      className={`relative aspect-square sm:min-h-[64px] sm:aspect-auto rounded-lg border p-1.5 text-left transition-all flex flex-col ${
                         isSelected
                           ? "border-primary ring-2 ring-primary/20 bg-primary/5"
-                          : "border-border hover:border-primary/40 hover:bg-muted/40"
-                      } ${!inMonth ? "opacity-40" : ""}`}
+                          : "border-border/60 hover:border-primary/40 hover:bg-muted/40"
+                      } ${!inMonth ? "opacity-30" : ""}`}
                     >
-                      <div className={`flex items-center justify-between mb-1 ${isToday ? "text-primary font-bold" : "text-foreground"}`}>
-                        <span className="text-xs font-semibold">{format(day, "d")}</span>
-                        {isToday && <span className="w-1.5 h-1.5 rounded-full bg-primary" />}
-                      </div>
-                      <div className="space-y-1">
+                      <span className={`text-[11px] font-semibold ${isToday ? "text-primary" : "text-foreground"}`}>
+                        {format(day, "d")}
+                      </span>
+                      {isToday && (
+                        <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-primary" />
+                      )}
+                      <div className="flex-1 flex items-end justify-center gap-1 pb-0.5">
                         {seoCount > 0 && (
-                          <div className="flex items-center gap-1 text-[10px] text-primary">
-                            <FileText className="w-2.5 h-2.5" />
-                            <span className="font-semibold">{seoCount} SEO</span>
-                          </div>
+                          <span
+                            className="flex items-center justify-center min-w-[14px] h-3.5 px-1 rounded-full bg-primary text-primary-foreground text-[9px] font-bold leading-none"
+                            title={`${seoCount} SEO`}
+                          >
+                            {seoCount}
+                          </span>
                         )}
                         {geoCount > 0 && (
-                          <div className="flex items-center gap-1 text-[10px] text-emerald-600">
-                            <Sparkles className="w-2.5 h-2.5" />
-                            <span className="font-semibold">{geoCount} GEO</span>
-                          </div>
+                          <span
+                            className="flex items-center justify-center min-w-[14px] h-3.5 px-1 rounded-full bg-emerald-500 text-white text-[9px] font-bold leading-none"
+                            title={`${geoCount} GEO`}
+                          >
+                            {geoCount}
+                          </span>
+                        )}
+                        {hasPublished && !seoCount && !geoCount && (
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                        )}
+                        {hasFailed && (
+                          <span className="w-1.5 h-1.5 rounded-full bg-destructive" />
                         )}
                       </div>
                     </button>
                   );
                 })
               )}
+            </div>
+
+            {/* Légende */}
+            <div className="flex flex-wrap items-center justify-center gap-3 mt-4 pt-3 border-t border-border/40 text-[11px]">
+              <div className="flex items-center gap-1.5">
+                <span className="flex items-center justify-center min-w-[16px] h-4 px-1 rounded-full bg-primary text-primary-foreground text-[9px] font-bold">1</span>
+                <span className="text-muted-foreground">SEO</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="flex items-center justify-center min-w-[16px] h-4 px-1 rounded-full bg-emerald-500 text-white text-[9px] font-bold">1</span>
+                <span className="text-muted-foreground">GEO</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+                <span className="text-muted-foreground">{t("Aujourd'hui", "Today")}</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-destructive" />
+                <span className="text-muted-foreground">{t("Échec", "Failed")}</span>
+              </div>
             </div>
           </CardContent>
         </Card>
