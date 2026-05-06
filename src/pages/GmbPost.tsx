@@ -484,7 +484,7 @@ export default function GmbPost() {
         {/* Recent Posts */}
         <Card>
           <CardHeader className="pb-3 flex flex-row items-center justify-between">
-            <CardTitle className="text-base">Publications récentes</CardTitle>
+            <CardTitle className="text-base">{t("Publications récentes", "Recent posts")}</CardTitle>
             <Button 
               variant="ghost" 
               size="sm" 
