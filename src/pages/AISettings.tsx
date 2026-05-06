@@ -563,10 +563,10 @@ const AISettingsPage = () => {
                   <AlertTriangle className="w-4 h-4 text-amber-500 mt-0.5 shrink-0" />
                   <div className="flex-1">
                     <p className="text-xs text-amber-700 dark:text-amber-400 font-medium">
-                      {negativeReviewsCount} negative review{negativeReviewsCount > 1 ? 's' : ''} to process
+                      {negativeReviewsCount} avis négatif{negativeReviewsCount > 1 ? 's' : ''} à traiter
                     </p>
                     <p className="text-xs text-muted-foreground mt-1">
-                      Estimated cost : <span className="font-semibold text-foreground">{negativeReviewsCount} credit{negativeReviewsCount > 1 ? 's' : ''}</span>
+                      Coût estimé : <span className="font-semibold text-foreground">{negativeReviewsCount} crédit{negativeReviewsCount > 1 ? 's' : ''}</span>
                     </p>
                     {userCredits < negativeReviewsCount && (
                       <Button
@@ -576,7 +576,7 @@ const AISettingsPage = () => {
                         className="mt-2 h-7 text-xs rounded-lg border-amber-500/30 text-amber-600 hover:bg-amber-500/10"
                       >
                         <Coins className="w-3 h-3 mr-1" />
-                        Buy credits ({userCredits} available)
+                        Acheter des crédits ({userCredits} disponibles)
                       </Button>
                     )}
                   </div>
