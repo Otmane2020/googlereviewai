@@ -197,10 +197,10 @@ const Calendar = () => {
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-semibold text-foreground truncate">
-                          {item.title || item.question || (isGeo ? "GEO Q&A" : "SEO Article")}
+                          {item.title || item.question || (isGeo ? "Q&R GEO" : "Article SEO")}
                         </p>
                         <p className="text-[11px] text-muted-foreground uppercase tracking-wide">
-                          {isGeo ? "GEO · Google Q&A" : "SEO · Google Post"}
+                          {isGeo ? "GEO · Google Q&R" : "SEO · Post Google"}
                         </p>
                       </div>
                       <Badge variant="outline" className={`${s.className} text-[10px] gap-1`}>
