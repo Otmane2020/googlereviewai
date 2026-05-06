@@ -696,7 +696,7 @@ const BusinessesPage = () => {
                               </Button>
                             </div>
                             <p className="text-xs text-muted-foreground">
-                              This URL will be analyzed by AI to enrich your keywords
+                              {t("Cette URL sera analysée par l'IA pour enrichir vos mots-clés", "This URL will be analyzed by AI to enrich your keywords")}
                             </p>
                           </div>
 
