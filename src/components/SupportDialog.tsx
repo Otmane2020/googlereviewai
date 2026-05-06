@@ -108,12 +108,14 @@ export const SupportDialog = ({ userEmail, triggerClassName, hideTrigger, open: 
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline" className={triggerClassName}>
-          <HelpCircle className="w-4 h-4 mr-2" />
-          Support
-        </Button>
-      </DialogTrigger>
+      {!hideTrigger && (
+        <DialogTrigger asChild>
+          <Button variant="outline" className={triggerClassName}>
+            <HelpCircle className="w-4 h-4 mr-2" />
+            Support
+          </Button>
+        </DialogTrigger>
+      )}
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
@@ -121,7 +123,7 @@ export const SupportDialog = ({ userEmail, triggerClassName, hideTrigger, open: 
             Contacter le support
           </DialogTitle>
           <DialogDescription>
-            Describe your issue or question and we'll get back to you quickly.
+            Décrivez votre problème ou question, nous vous répondrons rapidement.
           </DialogDescription>
           <div className="flex items-center gap-2 mt-2 p-2 bg-muted/50 rounded-lg">
             <Phone className="w-4 h-4 text-primary" />
