@@ -588,16 +588,16 @@ const SettingsPage = () => {
                           setPushPermission("granted");
                           setIsSubscribedToPush(true);
                           toast({
-                            title: "Notifications enabled",
-                            description: "You will receive new review alerts.",
+                            title: "Notifications activées",
+                            description: "Vous recevrez les alertes pour les nouveaux avis.",
                           });
                         }]);
                         (window as any).pushalertbyiw.push(['onFailure', (result: any) => {
                           if (result?.status === -1) {
                             setPushPermission("denied");
                             toast({
-                              title: "Notifications blocked",
-                              description: "Allow in browser settings.",
+                              title: "Notifications bloquées",
+                              description: "Autorisez dans les paramètres du navigateur.",
                               variant: "destructive",
                             });
                           }
@@ -608,7 +608,7 @@ const SettingsPage = () => {
                     className="rounded-xl h-9 shrink-0"
                   >
                     <Bell className="w-4 h-4 mr-1" />
-                    Enable
+                    Activer
                   </Button>
                 )}
                 {pushPermission === "denied" && (
