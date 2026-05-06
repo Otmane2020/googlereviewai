@@ -142,6 +142,40 @@ serve(async (req) => {
       }];
     }
 
+    // EVENT / OFFER : ajouter event { title, schedule { startDate, endDate, startTime, endTime } }
+    const buildDateTime = (iso?: string) => {
+      if (!iso) return null;
+      const d = new Date(iso);
+      if (isNaN(d.getTime())) return null;
+      return {
+        date: { year: d.getUTCFullYear(), month: d.getUTCMonth() + 1, day: d.getUTCDate() },
+        time: { hours: d.getUTCHours(), minutes: d.getUTCMinutes(), seconds: 0, nanos: 0 },
+      };
+    };
+
+    if ((topic_type === "EVENT" || topic_type === "OFFER") && event_title && start_date && end_date) {
+      const start = buildDateTime(start_date);
+      const end = buildDateTime(end_date);
+      if (start && end) {
+        postBody.event = {
+          title: event_title,
+          schedule: {
+            startDate: start.date,
+            startTime: start.time,
+            endDate: end.date,
+            endTime: end.time,
+          },
+        };
+      }
+    }
+
+    if (topic_type === "OFFER") {
+      postBody.offer = {
+        ...(coupon_code ? { couponCode: coupon_code } : {}),
+        ...(terms_conditions ? { termsConditions: terms_conditions } : {}),
+      };
+    }
+
     let publishedPost = null;
     let publishError = null;
 
