@@ -29,13 +29,13 @@ export const GeoRankSection = () => {
       <div className="container mx-auto px-4 sm:px-6">
         <div className="max-w-2xl mx-auto text-center mb-14">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-background border border-border text-foreground text-xs font-semibold mb-4">
-            <Bot className="w-3.5 h-3.5" /> Suivi de classement GEO
+            <Bot className="w-3.5 h-3.5" /> {t("landingUI.geoRank.badge")}
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-foreground tracking-tight">
-            Améliorez votre positionnement dans les <span className="text-primary">réponses des IA</span>
+            {t("landingUI.geoRank.title1")} <span className="text-primary">{t("landingUI.geoRank.title2")}</span>
           </h2>
           <p className="mt-4 text-lg text-muted-foreground">
-            Nous interrogeons chaque jour ChatGPT, Gemini et Perplexity sur vos mots-clés locaux pour booster votre visibilité, surveiller vos concurrents et augmenter vos ventes.
+            {t("landingUI.geoRank.subtitle")}
           </p>
         </div>
 
