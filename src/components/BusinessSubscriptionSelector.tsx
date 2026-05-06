@@ -153,7 +153,7 @@ export const BusinessSubscriptionSelector = ({
           {/* Business List (optional selection) */}
           {businesses.length > 0 && (
             <div className="space-y-2">
-              <Label className="text-sm font-medium">Vos établissements actuels</Label>
+              <Label className="text-sm font-medium">{t("Vos établissements actuels", "Your current businesses")}</Label>
               <div className="max-h-[200px] overflow-y-auto space-y-2">
                 {businesses.map((business) => {
                   const isSelected = selectedIds.includes(business.id);
