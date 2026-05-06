@@ -841,7 +841,7 @@ const AISettingsPage = () => {
             <div className="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center">
               <MessageSquare className="w-4 h-4 text-indigo-500" />
             </div>
-            <h3 className="font-medium text-sm text-foreground">Instructions personnalisées</h3>
+            <h3 className="font-medium text-sm text-foreground">{isEN ? "Custom instructions" : "Instructions personnalisées"}</h3>
           </div>
           <Textarea
             value={settings.custom_template}
