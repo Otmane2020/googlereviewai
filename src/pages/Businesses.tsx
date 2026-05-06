@@ -934,20 +934,20 @@ const BusinessesPage = () => {
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Modifier la description</DialogTitle>
+            <DialogTitle>{t("Modifier la description", "Edit description")}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label>Établissement</Label>
+              <Label>{t("Établissement", "Business")}</Label>
               <p className="text-sm font-medium text-foreground">{editingBusiness?.name}</p>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description">{t("Description", "Description")}</Label>
               <Textarea
                 id="description"
                 value={editDescription}
                 onChange={(e) => setEditDescription(e.target.value)}
-                placeholder="Describe your business..."
+                placeholder={t("Décrivez votre établissement...", "Describe your business...")}
                 rows={4}
                 className="resize-none"
               />
@@ -958,7 +958,7 @@ const BusinessesPage = () => {
               className="w-full"
             >
               {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-              Save
+              {t("Enregistrer", "Save")}
             </Button>
           </div>
         </DialogContent>
