@@ -52,10 +52,24 @@ const SettingsPage = () => {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const [currentLang, setCurrentLang] = useState(i18n.language?.startsWith("fr") ? "fr" : "en");
-  const handleLanguageChange = (lng: "fr" | "en") => {
+  const handleLanguageChange = async (lng: "fr" | "en") => {
     setCurrentLang(lng);
     i18n.changeLanguage(lng);
     try { localStorage.setItem("i18nextLng", lng); } catch {}
+    if (user) {
+      const { error } = await supabase
+        .from("profiles")
+        .update({ preferred_language: lng })
+        .eq("id", user.id);
+      if (!error) {
+        toast({
+          title: lng === "fr" ? "Langue mise à jour" : "Language updated",
+          description: lng === "fr"
+            ? "Les emails et notifications seront en français."
+            : "Emails and notifications will be in English.",
+        });
+      }
+    }
   };
   const { isNativeApp, canUsePushAlert } = useDeviceDetection();
   const webPush = useWebPush();
