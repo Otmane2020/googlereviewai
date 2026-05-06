@@ -292,14 +292,14 @@ const SEOAutoPost = () => {
       });
 
       toast({ 
-        title: "Plan généré !", 
-        description: `30 article titles planned with ${keywords.length} keywords detected` 
+        title: t("Plan généré !", "Plan generated!"), 
+        description: t(`30 titres d'articles planifiés avec ${keywords.length} mots-clés détectés`, `30 article titles planned with ${keywords.length} keywords detected`)
       });
     } catch (error: any) {
       console.error("Error generating plan:", error);
       toast({ 
-        title: "Erreur", 
-        description: error.message || "Unable to generate plan", 
+        title: t("Erreur", "Error"), 
+        description: error.message || t("Impossible de générer le plan", "Unable to generate plan"), 
         variant: "destructive" 
       });
     }
