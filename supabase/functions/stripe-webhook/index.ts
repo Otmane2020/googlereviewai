@@ -108,7 +108,7 @@ serve(async (req) => {
           if (config) {
             const isTrial = subscription.status === "trialing";
             
-            const updateData = {
+            const updateData: Record<string, unknown> = {
               plan_name: config.planName,
               plan_id: priceId,
               credits: config.credits,
@@ -119,6 +119,11 @@ serve(async (req) => {
               current_period_end: safeTimestampToISO(subscription.current_period_end),
               billing_cycle: subscription.items.data[0]?.price.recurring?.interval || "month",
             };
+
+            // For Agence plan, refill the agency pool of credits
+            if (config.agencyPoolCredits && config.agencyPoolCredits > 0) {
+              updateData.agency_total_credits = config.agencyPoolCredits;
+            }
 
             console.log("[checkout.session.completed] Updating profile with:", updateData);
 
