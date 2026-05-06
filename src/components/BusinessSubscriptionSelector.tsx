@@ -113,16 +113,16 @@ export const BusinessSubscriptionSelector = ({
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>{`S'abonner à ${moduleLabel}`}</DialogTitle>
+            <DialogTitle>{isEN ? `Subscribe to ${moduleLabel}` : `S'abonner à ${moduleLabel}`}</DialogTitle>
             <DialogDescription>
-              Choisissez le nombre d'établissements à inclure.
-              <span className="font-medium text-foreground"> 29 €/mois par établissement.</span>
+              {t("Choisissez le nombre d'établissements à inclure.", "Choose the number of businesses to include.")}
+              <span className="font-medium text-foreground"> {t("29 €/mois par établissement.", "€29/month per business.")}</span>
             </DialogDescription>
           </DialogHeader>
 
           {/* Quantity Selector */}
           <div className="bg-muted/50 rounded-lg p-4 mb-4">
-            <Label className="text-sm font-medium mb-3 block">Nombre d'établissements</Label>
+            <Label className="text-sm font-medium mb-3 block">{t("Nombre d'établissements", "Number of businesses")}</Label>
             <div className="flex items-center justify-center gap-4">
               <Button
                 variant="outline"
