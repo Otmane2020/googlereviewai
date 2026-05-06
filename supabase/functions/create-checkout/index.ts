@@ -75,6 +75,7 @@ const SUBSCRIPTION_PRICE_KEYS = [
   "aeo_monthly", "aeo_yearly",
   "seo_monthly", "seo_yearly",
    "allinone_monthly", "allinone_yearly",
+   "daily_monthly", "daily_monthly_eur", "daily_monthly_usd",
 ];
 
 interface CartItem {
