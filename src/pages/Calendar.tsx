@@ -20,7 +20,7 @@ import {
   isSameMonth,
   isSameDay,
 } from "date-fns";
-import { fr } from "date-fns/locale";
+import { fr, enUS } from "date-fns/locale";
 
 interface ContentItem {
   id: string;
