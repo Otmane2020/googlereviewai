@@ -232,8 +232,21 @@ const BusinessesPage = () => {
   const handleBusinessSelectionSuccess = () => {
     fetchBusinesses();
     toast({
-      title: "Établissements mis à jour",
-      description: "Vos établissements ont été synchronisés.",
+      title: t("Établissements mis à jour", "Businesses updated"),
+      description: t("Vos établissements ont été synchronisés.", "Your businesses have been synced."),
+    });
+    // Trigger welcome SEO + GEO content pack (free, only on first ever delivery)
+    supabase.functions.invoke("welcome-content-pack").then(({ data, error }) => {
+      if (error || !data?.success) return;
+      if (data?.seo?.published || data?.qa?.published) {
+        toast({
+          title: t("🎁 Contenu offert publié sur Google", "🎁 Free content published on Google"),
+          description: t(
+            "1 article SEO + 1 Q&R GEO viennent d'être créés et partagés sur votre fiche Google.",
+            "1 SEO article + 1 GEO Q&A were just created and shared on your Google profile."
+          ),
+        });
+      }
     });
   };
 
