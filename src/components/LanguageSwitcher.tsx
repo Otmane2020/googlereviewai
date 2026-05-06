@@ -46,7 +46,9 @@ export const LanguageSwitcher = ({ variant = "flags", className = "" }: Language
 
   const handleLanguageChange = (langCode: string) => {
     i18n.changeLanguage(langCode);
-    localStorage.setItem("i18nextLng", langCode);
+    try { localStorage.setItem("i18nextLng", langCode); } catch {}
+    // Force a full reload so every component (incl. those without t()) re-renders in the new language
+    setTimeout(() => window.location.reload(), 50);
   };
 
   if (variant === "dropdown") {
