@@ -308,9 +308,9 @@ const Reviews = () => {
         setPreviewDialogOpen(true);
       }
       
-      toast({ title: "Réponse générée !", description: `Crédits restants : ${data.credits_remaining}` });
+      toast({ title: t("reviewsPage.toastReady"), description: t("reviewsPage.toastReadyDesc", { n: data.credits_remaining }) });
     } catch (error) {
-      toast({ title: "Erreur", description: error instanceof Error ? error.message : "Impossible de générer la réponse.", variant: "destructive" });
+      toast({ title: t("reviewsPage.toastError"), description: error instanceof Error ? error.message : t("reviewsPage.toastGenFail"), variant: "destructive" });
     } finally {
       setGeneratingId(null);
     }
@@ -335,8 +335,8 @@ const Reviews = () => {
 
         if (!refreshData?.success || refreshData?.requires_reconnect || !refreshData?.access_token) {
           toast({
-            title: "Reconnexion requise",
-            description: "Allez dans Paramètres → Connecter Google pour reconnecter votre compte.",
+            title: t("reviewsPage.toastReconnect"),
+            description: t("reviewsPage.toastReconnectDesc"),
             variant: "destructive",
           });
           return;
@@ -353,10 +353,10 @@ const Reviews = () => {
       if (data?.error) throw new Error(data.error);
       if (data?.success === false) throw new Error(data.message || "Impossible de publier.");
 
-      toast({ title: "Publié sur Google !" });
+      toast({ title: t("reviewsPage.toastPublished") });
       // No need to fetchData - Realtime handles it
     } catch (error) {
-      toast({ title: "Erreur", description: error instanceof Error ? error.message : "Impossible de publier.", variant: "destructive" });
+      toast({ title: t("reviewsPage.toastError"), description: error instanceof Error ? error.message : t("reviewsPage.toastPublishFail"), variant: "destructive" });
     } finally {
       setPublishingId(null);
     }
@@ -364,7 +364,7 @@ const Reviews = () => {
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
-    toast({ title: "Copié !" });
+    toast({ title: t("reviewsPage.toastCopied") });
   };
 
   // Get selected business - use useMemo to ensure it updates when businesses or selectedBusinessId changes
@@ -451,7 +451,7 @@ const Reviews = () => {
     if (result?.requires_reconnect) {
       toast({
         title: "Reconnexion requise",
-        description: "Votre session Google a expiré. Veuillez vous reconnecter.",
+        description: t("reviewsPage.toastSessionExpired"),
         variant: "destructive",
       });
     }
@@ -474,7 +474,7 @@ const Reviews = () => {
   const handleBusinessSelectionSuccess = () => {
     setShowSelectBusinessesDialog(false);
     fetchData(false);
-    toast({ title: "Établissement sélectionné !", description: "Vos avis vont être synchronisés." });
+    toast({ title: t("reviewsPage.toastBusinessSelected"), description: t("reviewsPage.toastBusinessSelectedDesc") });
   };
 
   // Format time ago
@@ -508,7 +508,7 @@ const Reviews = () => {
       <div className="bg-card border-b border-border">
         <div className="max-w-6xl mx-auto px-4 py-4">
           {/* Title */}
-          <h1 className="text-lg font-bold text-foreground mb-3">Avis Google</h1>
+          <h1 className="text-lg font-bold text-foreground mb-3">{t("reviewsPage.title")}</h1>
           
           {/* Business card style selector */}
           <div className="bg-card rounded-2xl border border-border p-4">
@@ -534,7 +534,7 @@ const Reviews = () => {
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-md">
                   <DialogHeader>
-                    <DialogTitle>Vos établissements</DialogTitle>
+                    <DialogTitle>{t("reviewsPage.yourBusinesses")}</DialogTitle>
                   </DialogHeader>
                   <div className="space-y-1 mt-4">
                     {loading ? (
@@ -544,8 +544,8 @@ const Reviews = () => {
                     ) : businesses.length === 0 ? (
                       <div className="text-center py-8 text-muted-foreground">
                         <Building2 className="w-10 h-10 mx-auto mb-2 opacity-50" />
-                        <p className="text-sm">No business found</p>
-                        <p className="text-xs mt-1">Connect your Google account to sync your businesses</p>
+                        <p className="text-sm">{t("reviewsPage.noBusinessFound")}</p>
+                        <p className="text-xs mt-1">{t("reviewsPage.connectGoogleHint")}</p>
                       </div>
                     ) : (
                       businesses.map((business) => {
@@ -574,7 +574,7 @@ const Reviews = () => {
                             <div className="flex-1 text-left min-w-0">
                               <div className="font-medium break-words">{business.name}</div>
                               {business.google_place_id && (
-                                <div className="text-xs text-muted-foreground">Connecté à Google</div>
+                                <div className="text-xs text-muted-foreground">{t("reviewsPage.connectedToGoogle")}</div>
                               )}
                             </div>
                             {isSelected && (
@@ -598,9 +598,7 @@ const Reviews = () => {
                       Google
                     </span>
                   ) : selectedBusiness ? (
-                    <span className="flex items-center gap-1 text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
-                      Manuel
-                    </span>
+                    <span className="flex items-center gap-1 text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">{t("reviewsPage.manual")}</span>
                   ) : null}
                   
                   {/* Live + Sync on the right */}
@@ -608,7 +606,7 @@ const Reviews = () => {
                     {isLive && lastUpdate && (
                       <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                         <span className="w-2 h-2 rounded-full bg-secondary animate-pulse" />
-                        <span className="hidden sm:inline">En direct</span>
+                        <span className="hidden sm:inline">{t("reviewsPage.live")}</span>
                       </div>
                     )}
                     <Button 
@@ -628,7 +626,7 @@ const Reviews = () => {
                   <DialogTrigger asChild>
                     <button className="flex items-center gap-1 hover:opacity-70 transition-opacity text-left">
                       <h3 className="font-semibold text-foreground text-base leading-tight line-clamp-2">
-                        {selectedBusiness ? selectedBusiness.name : "Select a business"}
+                        {selectedBusiness ? selectedBusiness.name : t("reviewsPage.selectBusiness")}
                       </h3>
                       <ChevronDown className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                     </button>
@@ -647,14 +645,14 @@ const Reviews = () => {
                         />
                       ))}
                     </div>
-                    <span className="text-xs text-muted-foreground">({stats.total} avis)</span>
+                    <span className="text-xs text-muted-foreground">({t("reviewsPage.averageReviews", { count: stats.total })})</span>
                   </div>
                 )}
 
                 {/* Last sync time */}
                 {lastSyncTime && (
                   <p className="text-xs text-muted-foreground mt-1">
-                    Sync {formatTimeAgo(lastSyncTime)}
+                    {t("reviewsPage.syncTime", { time: formatTimeAgo(lastSyncTime) })}
                   </p>
                 )}
               </div>
@@ -664,10 +662,10 @@ const Reviews = () => {
           {/* Stats - Clickable Filters */}
           <div className="grid grid-cols-4 gap-3 mt-4">
             {[
-              { label: "Total", value: stats.total, bgGradient: "from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900", textColor: "text-slate-700 dark:text-slate-200", status: "all" },
-              { label: "Unanswered", value: stats.pending, bgGradient: "from-red-100 to-orange-100 dark:from-red-900/40 dark:to-orange-900/40", textColor: "text-red-600 dark:text-red-400", status: "pending" },
-              { label: "AI response", value: stats.ready, bgGradient: "from-blue-100 to-indigo-100 dark:from-blue-900/40 dark:to-indigo-900/40", textColor: "text-primary", status: "ready" },
-              { label: "Published", value: stats.published, bgGradient: "from-green-100 to-emerald-100 dark:from-green-900/40 dark:to-emerald-900/40", textColor: "text-green-600 dark:text-green-400", status: "published" },
+              { label: t("reviewsPage.total"), value: stats.total, bgGradient: "from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900", textColor: "text-slate-700 dark:text-slate-200", status: "all" },
+              { label: t("reviewsPage.unanswered"), value: stats.pending, bgGradient: "from-red-100 to-orange-100 dark:from-red-900/40 dark:to-orange-900/40", textColor: "text-red-600 dark:text-red-400", status: "pending" },
+              { label: t("reviewsPage.aiResponse"), value: stats.ready, bgGradient: "from-blue-100 to-indigo-100 dark:from-blue-900/40 dark:to-indigo-900/40", textColor: "text-primary", status: "ready" },
+              { label: t("reviewsPage.published"), value: stats.published, bgGradient: "from-green-100 to-emerald-100 dark:from-green-900/40 dark:to-emerald-900/40", textColor: "text-green-600 dark:text-green-400", status: "published" },
             ].map((stat) => (
               <button
                 key={stat.label}
@@ -696,7 +694,7 @@ const Reviews = () => {
             <div className="flex items-center gap-3">
               <Star className="w-5 h-5 text-accent" />
               <span className="text-sm font-medium">
-                Showing a specific review from a notification
+                {t("reviewsPage.showingFromNotif")}
               </span>
             </div>
             <Button 
@@ -705,7 +703,7 @@ const Reviews = () => {
               onClick={clearReviewIdFilter}
               className="gap-1.5"
             >
-              Voir tous les avis
+              {t("reviewsPage.seeAllReviews")}
             </Button>
           </div>
         )}
@@ -748,7 +746,7 @@ const Reviews = () => {
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
-                  placeholder="Rechercher..."
+                  placeholder={t("reviewsPage.search")}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-9"
@@ -756,13 +754,13 @@ const Reviews = () => {
               </div>
               <Select value={filterStatus} onValueChange={setFilterStatus}>
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Statut" />
+                  <SelectValue placeholder={t("reviewsPage.status")} />
                 </SelectTrigger>
                 <SelectContent className="bg-popover">
-                  <SelectItem value="all">Tous les statuts</SelectItem>
-                  <SelectItem value="pending">En attente</SelectItem>
-                  <SelectItem value="ready">Prêt</SelectItem>
-                  <SelectItem value="published">Publiés</SelectItem>
+                  <SelectItem value="all">{t("reviewsPage.allStatuses")}</SelectItem>
+                  <SelectItem value="pending">{t("reviewsPage.pending")}</SelectItem>
+                  <SelectItem value="ready">{t("reviewsPage.ready")}</SelectItem>
+                  <SelectItem value="published">{t("reviewsPage.publishedBadge")}</SelectItem>
                 </SelectContent>
               </Select>
               {filterRating !== "all" && (
@@ -771,9 +769,7 @@ const Reviews = () => {
                   size="sm" 
                   className="w-full text-muted-foreground"
                   onClick={() => setFilterRating("all")}
-                >
-                  Reset filter
-                </Button>
+                >{t("reviewsPage.resetFilter")}</Button>
               )}
             </div>
           </div>
@@ -784,38 +780,34 @@ const Reviews = () => {
         {businesses.length === 0 ? (
           <div className="bg-card rounded-xl border border-border p-12 text-center">
             <Building2 className="w-12 h-12 mx-auto mb-4 text-muted-foreground/30" />
-            <h2 className="text-lg font-semibold text-foreground mb-2">No business selected</h2>
+            <h2 className="text-lg font-semibold text-foreground mb-2">{t("reviewsPage.noBusinessSelectedTitle")}</h2>
             <p className="text-muted-foreground text-sm mb-6">
-              Select a business to view your Google reviews.
+              {t("reviewsPage.noBusinessSelectedDesc")}
             </p>
             <Button onClick={handleSelectBusiness} disabled={isSyncingBusinesses}>
               {isSyncingBusinesses ? (
                 <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Loading...
-                </>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />{t("reviewsPage.loading")}</>
               ) : (
                 <>
-                  <Building2 className="w-4 h-4 mr-2" />
-                  Select a business
-                </>
+                  <Building2 className="w-4 h-4 mr-2" />{t("reviewsPage.selectABusiness")}</>
               )}
             </Button>
           </div>
         ) : !selectedBusinessId ? (
           <div className="bg-card rounded-xl border border-border p-12 text-center">
             <Building2 className="w-12 h-12 mx-auto mb-4 text-muted-foreground/30" />
-            <h2 className="text-lg font-semibold text-foreground mb-2">Sélectionnez un établissement</h2>
+            <h2 className="text-lg font-semibold text-foreground mb-2">{t("reviewsPage.selectBusiness")}</h2>
             <p className="text-muted-foreground text-sm">
-              Choose a business above to view its reviews.
+              {t("reviewsPage.chooseBusinessAbove")}
             </p>
           </div>
         ) : paginatedReviews.length === 0 ? (
           <div className="bg-card rounded-xl border border-border p-12 text-center">
             <MessageSquare className="w-12 h-12 mx-auto mb-4 text-muted-foreground/30" />
-            <h2 className="text-lg font-semibold text-foreground mb-2">Aucun avis</h2>
+            <h2 className="text-lg font-semibold text-foreground mb-2">{t("reviewsPage.noReviews")}</h2>
             <p className="text-muted-foreground text-sm">
-              {businessReviews.length === 0 ? "Sync your Google reviews to get started." : "No results for these filters."}
+              {businessReviews.length === 0 ? t("reviewsPage.syncToStart") : t("reviewsPage.noResultsFilters")}
             </p>
           </div>
         ) : (
@@ -843,22 +835,22 @@ const Reviews = () => {
                             variant="outline"
                             className="text-xs gap-1 border-destructive/30 text-destructive bg-destructive/5"
                           >
-                            <RefreshCw className="w-3 h-3" /> Regenerate
+                            <RefreshCw className="w-3 h-3" /> {t("reviewsPage.regenerate")}
                           </Badge>
                         )}
                         {/* Status Badge */}
                         {review.published_to_google ? (
-                          <Badge variant="secondary" className="text-xs gap-1 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"><CheckCircle className="w-3 h-3" /> Published</Badge>
+                          <Badge variant="secondary" className="text-xs gap-1 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"><CheckCircle className="w-3 h-3" /> {t("reviewsPage.publishedBadge")}</Badge>
                         ) : review.google_reply ? (
-                          <Badge variant="secondary" className="text-xs gap-1 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"><MessageSquare className="w-3 h-3" /> Replied</Badge>
+                          <Badge variant="secondary" className="text-xs gap-1 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"><MessageSquare className="w-3 h-3" /> {t("reviewsPage.replied")}</Badge>
                         ) : review.ai_response ? (
-                          <Badge className="text-xs gap-1 bg-primary/10 text-primary hover:bg-primary/20"><Sparkles className="w-3 h-3" /> AI ready</Badge>
+                          <Badge className="text-xs gap-1 bg-primary/10 text-primary hover:bg-primary/20"><Sparkles className="w-3 h-3" /> {t("reviewsPage.aiReady")}</Badge>
                         ) : (
-                          <Badge variant="outline" className="text-xs gap-1"><Clock className="w-3 h-3" /> En attente</Badge>
+                          <Badge variant="outline" className="text-xs gap-1"><Clock className="w-3 h-3" /> {t("reviewsPage.pending")}</Badge>
                         )}
                       </div>
                       <span className="text-xs text-muted-foreground">
-                        {new Date(review.review_date).toLocaleDateString("fr-FR")}
+                        {new Date(review.review_date).toLocaleDateString(dateLocale)}
                       </span>
                     </div>
 
@@ -888,7 +880,7 @@ const Reviews = () => {
                           <div className="mt-2">
                             <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">{review.comment}</p>
                             <p className="text-xs text-muted-foreground/60 mt-3">
-                              {new Date(review.review_date).toLocaleDateString("fr-FR", {
+                              {new Date(review.review_date).toLocaleDateString(dateLocale, {
                                 day: "numeric",
                                 month: "long",
                                 year: "numeric"
@@ -934,14 +926,14 @@ const Reviews = () => {
                       const criteria = parseCriteria(review.criteria);
                       if (!criteria || Object.keys(criteria).length === 0) return null;
                       const labelMap: Record<string, string> = {
-                        rooms: "Chambres",
-                        service: "Service",
-                        location: "Emplacement",
-                        cleanliness: "Cleanliness",
-                        food: "Cuisine",
-                        value: "Value for money",
-                        atmosphere: "Ambiance",
-                        amenities: "Amenities",
+                        rooms: t("reviewsPage.criteria.rooms"),
+                        service: t("reviewsPage.criteria.service"),
+                        location: t("reviewsPage.criteria.location"),
+                        cleanliness: t("reviewsPage.criteria.cleanliness"),
+                        food: t("reviewsPage.criteria.food"),
+                        value: t("reviewsPage.criteria.value"),
+                        atmosphere: t("reviewsPage.criteria.atmosphere"),
+                        amenities: t("reviewsPage.criteria.amenities"),
                       };
                       return (
                         <div className="flex flex-wrap gap-2 mt-3">
@@ -978,7 +970,7 @@ const Reviews = () => {
                         <DialogTrigger asChild>
                           <div className="mt-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800 cursor-pointer hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors">
                             <div className="flex items-center gap-1.5 text-xs text-green-700 dark:text-green-400 font-medium mb-1">
-                              <CheckCircle className="w-3 h-3" /> Response
+                              <CheckCircle className="w-3 h-3" /> {t("reviewsPage.response")}
                             </div>
                             <p className="text-sm text-muted-foreground line-clamp-2">{review.google_reply}</p>
                           </div>
@@ -987,7 +979,7 @@ const Reviews = () => {
                           <DialogHeader>
                             <DialogTitle className="flex items-center gap-2">
                               <MessageSquare className="w-5 h-5 text-green-600" />
-                              Review by {review.author}
+                              {t("reviewsPage.reviewBy", { name: review.author })}
                             </DialogTitle>
                             <DialogDescription className="sr-only">
                               Review details and existing response.
@@ -1000,19 +992,19 @@ const Reviews = () => {
                                 <Star key={i} className={`w-5 h-5 ${i < review.rating ? "text-yellow-500 fill-yellow-500" : "text-muted-foreground/20"}`} />
                               ))}
                               <span className="text-sm font-medium">{review.rating}/5</span>
-                              <span className="text-sm text-muted-foreground">• {new Date(review.review_date).toLocaleDateString("fr-FR")}</span>
+                              <span className="text-sm text-muted-foreground">• {new Date(review.review_date).toLocaleDateString(dateLocale)}</span>
                             </div>
                             
                             {/* Client comment */}
                             <div className="p-3 bg-muted/50 rounded-lg">
-                              <p className="text-xs text-muted-foreground font-medium mb-1">Customer review:</p>
-                              <p className="text-sm text-foreground">{review.comment || "Aucun commentaire"}</p>
+                              <p className="text-xs text-muted-foreground font-medium mb-1">{t("reviewsPage.customerReview")}</p>
+                              <p className="text-sm text-foreground">{review.comment || t("reviewsPage.noComment")}</p>
                             </div>
                             
                             {/* Existing Google Response */}
                             <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
                               <div className="flex items-center gap-1.5 text-xs text-green-700 dark:text-green-400 font-medium mb-2">
-                                <CheckCircle className="w-3 h-3" /> Existing response
+                                <CheckCircle className="w-3 h-3" /> {t("reviewsPage.existingResponse")}
                               </div>
                               <p className="text-sm text-foreground whitespace-pre-wrap leading-relaxed">{review.google_reply}</p>
                             </div>
@@ -1027,9 +1019,9 @@ const Reviews = () => {
                         <DialogTrigger asChild>
                           <div className="mt-3 p-3 bg-primary/5 rounded-lg border border-primary/10 cursor-pointer hover:bg-primary/10 transition-colors">
                             <div className="flex items-center gap-1.5 text-xs text-primary font-medium mb-1">
-                              <Sparkles className="w-3 h-3" /> AI response
+                              <Sparkles className="w-3 h-3" /> {t("reviewsPage.aiResponseLabel")}
                               {review.needs_new_response && (
-                                <span className="ml-2 text-destructive font-semibold">(edited review)</span>
+                                <span className="ml-2 text-destructive font-semibold">{t("reviewsPage.editedReview")}</span>
                               )}
                             </div>
                             <p className="text-sm text-muted-foreground line-clamp-2">{review.ai_response}</p>
@@ -1039,7 +1031,7 @@ const Reviews = () => {
                           <DialogHeader>
                             <DialogTitle className="flex items-center gap-2">
                               <MessageSquare className="w-5 h-5 text-primary" />
-                              Review by {review.author}
+                              {t("reviewsPage.reviewBy", { name: review.author })}
                             </DialogTitle>
                             <DialogDescription className="sr-only">
                               Review details and AI response.
@@ -1052,19 +1044,19 @@ const Reviews = () => {
                                 <Star key={i} className={`w-5 h-5 ${i < review.rating ? "text-yellow-500 fill-yellow-500" : "text-muted-foreground/20"}`} />
                               ))}
                               <span className="text-sm font-medium">{review.rating}/5</span>
-                              <span className="text-sm text-muted-foreground">• {new Date(review.review_date).toLocaleDateString("fr-FR")}</span>
+                              <span className="text-sm text-muted-foreground">• {new Date(review.review_date).toLocaleDateString(dateLocale)}</span>
                             </div>
                             
                             {/* Client comment */}
                             <div className="p-3 bg-muted/50 rounded-lg">
-                              <p className="text-xs text-muted-foreground font-medium mb-1">Customer review:</p>
-                              <p className="text-sm text-foreground">{review.comment || "Aucun commentaire"}</p>
+                              <p className="text-xs text-muted-foreground font-medium mb-1">{t("reviewsPage.customerReview")}</p>
+                              <p className="text-sm text-foreground">{review.comment || t("reviewsPage.noComment")}</p>
                             </div>
                             
                             {/* AI Response */}
                             <div className="p-4 bg-primary/5 rounded-lg border border-primary/20">
                               <div className="flex items-center gap-1.5 text-xs text-primary font-medium mb-2">
-                                <Sparkles className="w-3 h-3" /> AI response
+                                <Sparkles className="w-3 h-3" /> {t("reviewsPage.aiResponseLabel")}
                               </div>
                               <p className="text-sm text-foreground whitespace-pre-wrap leading-relaxed">{review.ai_response}</p>
                             </div>
@@ -1072,7 +1064,7 @@ const Reviews = () => {
                             {/* Actions */}
                             <div className="flex gap-2">
                               <Button size="sm" variant="outline" className="flex-1" onClick={() => copyToClipboard(review.ai_response!)}>
-                                <Copy className="w-4 h-4 mr-2" /> Copier
+                                <Copy className="w-4 h-4 mr-2" /> {t("reviewsPage.copy")}
                               </Button>
                               {!review.published_to_google && (
                                 <Button size="sm" className="flex-1" onClick={() => publishToGoogle(review.id)} disabled={publishingId === review.id}>
@@ -1092,18 +1084,18 @@ const Reviews = () => {
                       {review.google_reply && !review.ai_response ? (
                         <Button size="sm" variant="outline" onClick={() => generateAIResponse(review.id)} disabled={generatingId === review.id}>
                           {generatingId === review.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-                          <span className="ml-1.5">IA Response</span>
+                          <span className="ml-1.5">{t("reviewsPage.iaResponseBtn")}</span>
                         </Button>
                       ) : !review.ai_response ? (
                         <Button size="sm" onClick={() => generateAIResponse(review.id)} disabled={generatingId === review.id}>
                           {generatingId === review.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-                          <span className="ml-1.5">Générer</span>
+                          <span className="ml-1.5">{t("reviewsPage.generate")}</span>
                         </Button>
                       ) : !review.published_to_google ? (
                         <>
                           <Button size="sm" variant="secondary" onClick={() => publishToGoogle(review.id)} disabled={publishingId === review.id}>
                             {publishingId === review.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-                            <span className="ml-1.5">Publier</span>
+                            <span className="ml-1.5">{t("reviewsPage.publish")}</span>
                           </Button>
                           <Button size="sm" variant="ghost" onClick={() => copyToClipboard(review.ai_response!)}>
                             <Copy className="w-4 h-4" />
@@ -1114,7 +1106,7 @@ const Reviews = () => {
                         </>
                       ) : (
                         <Button size="sm" variant="ghost" onClick={() => copyToClipboard(review.ai_response!)}>
-                          <Copy className="w-4 h-4 mr-1.5" /> Copier
+                          <Copy className="w-4 h-4 mr-1.5" /> {t("reviewsPage.copy")}
                         </Button>
                       )}
                     </div>
