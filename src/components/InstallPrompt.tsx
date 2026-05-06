@@ -27,11 +27,6 @@ export const InstallPrompt = () => {
   if (isNativeApp) {
     return null;
   }
-  
-  // Don't show on Android - they should use Google Play
-  if (isAndroid) {
-    return null;
-  }
 
   const handleDismiss = () => {
     setDismissed(true);
