@@ -1,4 +1,5 @@
 import { Star, MessageSquareReply } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const examples = [
   {
