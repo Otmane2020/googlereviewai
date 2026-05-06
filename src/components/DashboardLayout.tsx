@@ -36,6 +36,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { SupportDialog } from "@/components/SupportDialog";
+import { UpgradeDialog } from "@/components/UpgradeDialog";
 import { useTranslation } from "react-i18next";
 
 interface DashboardLayoutProps {
