@@ -468,12 +468,12 @@ export default function GmbPost() {
                 {isPublishing ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                    Publication...
+                    {t("Publication...", "Publishing...")}
                   </>
                 ) : (
                   <>
                     <Send className="w-4 h-4 mr-2" />
-                    Publier sur Google
+                    {t("Publier sur Google", "Publish on Google")}
                   </>
                 )}
               </Button>
