@@ -63,6 +63,13 @@ serve(async (req) => {
         );
       }
 
+      // Purge legacy FCM endpoints (decommissioned June 2024) for this user
+      await supabase
+        .from("push_subscriptions")
+        .delete()
+        .eq("user_id", user.id)
+        .like("endpoint", "%fcm.googleapis.com/fcm/send/%");
+
       const { error: upsertError } = await supabase
         .from("push_subscriptions")
         .upsert({
