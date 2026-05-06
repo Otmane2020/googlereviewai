@@ -116,12 +116,15 @@ const AppContent = () => {
     return () => clearTimeout(timer);
   }, [hasRunInit]);
 
-  const handleSplashComplete = () => {
+  const handleSplashComplete = async () => {
     setShowSplash(false);
     const hasSeenOnboarding = localStorage.getItem("ranki.ai_onboarding_completed");
-    if (!hasSeenOnboarding) {
+    // Skip onboarding for already authenticated users
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!hasSeenOnboarding && !session) {
       setShowOnboarding(true);
     } else {
+      if (session) localStorage.setItem("ranki.ai_onboarding_completed", "true");
       setIsInitialized(true);
     }
   };
