@@ -292,21 +292,21 @@ const Calendar = () => {
                     <div className="space-y-4 py-2">
                       {detail.keyword_used && (
                         <div>
-                          <p className="text-[11px] font-semibold uppercase text-muted-foreground mb-1">Mot-clé ciblé</p>
+                          <p className="text-[11px] font-semibold uppercase text-muted-foreground mb-1">{t("Mot-clé ciblé", "Target keyword")}</p>
                           <Badge variant="secondary" className="text-xs">{detail.keyword_used}</Badge>
                         </div>
                       )}
 
                       {isGeo && detail.question && (
                         <div>
-                          <p className="text-[11px] font-semibold uppercase text-muted-foreground mb-1">Question</p>
+                          <p className="text-[11px] font-semibold uppercase text-muted-foreground mb-1">{t("Question", "Question")}</p>
                           <p className="text-sm font-medium text-foreground">{detail.question}</p>
                         </div>
                       )}
 
                       {isGeo && detail.answer && (
                         <div>
-                          <p className="text-[11px] font-semibold uppercase text-muted-foreground mb-1">Réponse</p>
+                          <p className="text-[11px] font-semibold uppercase text-muted-foreground mb-1">{t("Réponse", "Answer")}</p>
                           <div className="text-sm text-foreground whitespace-pre-wrap leading-relaxed p-3 rounded-lg bg-muted/40 border border-border/50">
                             {detail.answer}
                           </div>
@@ -315,7 +315,7 @@ const Calendar = () => {
 
                       {!isGeo && detail.content && (
                         <div>
-                          <p className="text-[11px] font-semibold uppercase text-muted-foreground mb-1">Contenu de l'article</p>
+                          <p className="text-[11px] font-semibold uppercase text-muted-foreground mb-1">{t("Contenu de l'article", "Article content")}</p>
                           <div className="text-sm text-foreground whitespace-pre-wrap leading-relaxed p-3 rounded-lg bg-muted/40 border border-border/50">
                             {detail.content}
                           </div>
@@ -325,16 +325,16 @@ const Calendar = () => {
                       {!detail.content && !detail.answer && !detail.error_message && !detailLoading && (
                         <div className="py-8 text-center text-sm text-muted-foreground">
                           {detail.status === "pending"
-                            ? "Le contenu n'a pas encore été généré."
+                            ? t("Le contenu n'a pas encore été généré.", "Content has not been generated yet.")
                             : detail.status === "generating"
-                              ? "Génération en cours..."
-                              : "Aucun contenu disponible."}
+                              ? t("Génération en cours...", "Generating...")
+                              : t("Aucun contenu disponible.", "No content available.")}
                         </div>
                       )}
 
                       {detail.error_message && (
                         <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/30">
-                          <p className="text-[11px] font-semibold uppercase text-destructive mb-1">Erreur</p>
+                          <p className="text-[11px] font-semibold uppercase text-destructive mb-1">{t("Erreur", "Error")}</p>
                           <p className="text-sm text-destructive">{detail.error_message}</p>
                         </div>
                       )}
