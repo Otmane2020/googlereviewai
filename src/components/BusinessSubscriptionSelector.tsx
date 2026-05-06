@@ -204,16 +204,16 @@ export const BusinessSubscriptionSelector = ({
           {/* Pricing Summary */}
           <div className="bg-muted/50 rounded-lg p-3 space-y-2 mt-2">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Établissements</span>
-              <span className="font-medium">{quantity} × 29 €</span>
+              <span className="text-muted-foreground">{t("Établissements", "Businesses")}</span>
+              <span className="font-medium">{quantity} × {isEN ? "$29" : "29 €"}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Total mensuel</span>
-              <span className="text-lg font-bold text-primary">{monthlyTotal} €/mois</span>
+              <span className="text-sm text-muted-foreground">{t("Total mensuel", "Monthly total")}</span>
+              <span className="text-lg font-bold text-primary">{isEN ? `$${monthlyTotal}` : `${monthlyTotal} €`}{t("/mois", "/mo")}</span>
             </div>
             <div className="flex items-center justify-between text-xs text-muted-foreground">
-              <span>Annuel (-20%)</span>
-              <span className="text-secondary font-medium">{annualMonthlyTotal} €/mois</span>
+              <span>{t("Annuel (-20%)", "Yearly (-20%)")}</span>
+              <span className="text-secondary font-medium">{isEN ? `$${annualMonthlyTotal}` : `${annualMonthlyTotal} €`}{t("/mois", "/mo")}</span>
             </div>
           </div>
 
