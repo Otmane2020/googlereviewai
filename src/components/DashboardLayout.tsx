@@ -47,12 +47,11 @@ const useNavItems = () => {
   const mainNav = [
     { label: t("sidebar.overview"), href: "/dashboard", icon: LayoutDashboard },
     { label: "Avis Google", href: "/reviews", icon: Star },
+    { label: "Post Google", href: "/gmb-post", icon: MessageCircleQuestion },
   ];
   const visibilityNav = [
     { label: "GEO Rank AI", href: "/aeo-rank", icon: Sparkles, badge: "AI" },
     { label: "SEO Autopilot", href: "/seo-autopost", icon: Search },
-    
-    { label: "Q&A", href: "/gmb-post", icon: MessageCircleQuestion },
     { label: "Planning", href: "/calendar", icon: ListChecks },
   ];
   const businessNav = [
