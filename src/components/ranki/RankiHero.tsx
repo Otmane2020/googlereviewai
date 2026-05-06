@@ -17,43 +17,43 @@ export const RankiHero = () => {
           <div className="text-center lg:text-left">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted border border-border text-foreground text-xs font-semibold mb-6">
               <Sparkles className="w-3.5 h-3.5" />
-              GEO · Generative Engine Optimization
+              GEO · Référencement IA générative
             </div>
 
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-foreground leading-[1.05]">
-              Rank locally inside{" "}
+              Boostez vos ventes et votre visibilité sur{" "}
               <span className="text-primary">
                 ChatGPT, Gemini & Perplexity
               </span>
             </h1>
 
             <p className="mt-6 text-lg sm:text-xl text-muted-foreground max-w-xl mx-auto lg:mx-0">
-              Ranki.ai tracks where your business shows up in AI search answers — and auto-publishes the content that makes you the #1 recommended local pick.
+              Starlinko améliore votre positionnement local, optimise votre stratégie de référencement naturel et augmente vos ventes en publiant automatiquement le contenu qui vous fait recommander en #1 par les IA et Google.
             </p>
 
             <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
               <Link to="/auth">
                 <Button size="lg" className="h-12 px-7 text-base font-semibold gap-2 group">
-                  Start tracking — Free
+                  Booster ma visibilité — Gratuit
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </Link>
               <a href="#geo-rank">
                 <Button size="lg" variant="outline" className="h-12 px-7 text-base font-semibold">
-                  See how it works
+                  Voir comment ça marche
                 </Button>
               </a>
             </div>
 
             <div className="mt-6 flex flex-wrap items-center justify-center lg:justify-start gap-x-5 gap-y-2 text-xs text-muted-foreground">
-              <div className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-primary" /> No credit card</div>
-              <div className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-primary" /> 25 free credits</div>
-              <div className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-primary" /> Setup in 2 min</div>
+              <div className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-primary" /> Sans carte bancaire</div>
+              <div className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-primary" /> 25 crédits offerts</div>
+              <div className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-primary" /> Configuré en 2 min</div>
             </div>
 
             {/* AI engines pills */}
             <div className="mt-10">
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Tracking your rank across</p>
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Suivi de votre classement sur</p>
               <div className="flex flex-wrap gap-2 justify-center lg:justify-start">
                 {aiEngines.map((name) => (
                   <span
@@ -65,7 +65,6 @@ export const RankiHero = () => {
                 ))}
               </div>
             </div>
-          </div>
 
           {/* Visual */}
           <div className="relative">
