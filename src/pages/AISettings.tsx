@@ -790,8 +790,8 @@ const AISettingsPage = () => {
                   <PenLine className="w-4 h-4 text-orange-500" />
                 </div>
                 <div>
-                  <span className="font-medium text-sm text-foreground block">Avis modifiés</span>
-                  <span className="text-xs text-muted-foreground">Régénérer la réponse IA</span>
+                  <span className="font-medium text-sm text-foreground block">{isEN ? "Edited reviews" : "Avis modifiés"}</span>
+                  <span className="text-xs text-muted-foreground">{isEN ? "Regenerate AI reply" : "Régénérer la réponse IA"}</span>
                 </div>
               </div>
               <Switch
