@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { callOpenRouterWithFallback } from "../_shared/openrouter.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -244,43 +245,27 @@ ${signature && !brandVoice?.signature_style ? `${brandVoice ? "5" : "6"}. ${resp
 
 ${responseT.important}`;
 
-    console.log("Calling OpenRouter... Language:", responseLanguage);
-    
-    // Use OpenRouter API with optimized settings for speed
-    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${OPENROUTER_API_KEY}`,
-        "Content-Type": "application/json",
-        "HTTP-Referer": "https://starlinko.com",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-flash", // Fast and reliable model
-        messages: [
-          { 
-            role: "user", 
-            content: prompt 
-          },
-        ],
-        temperature: 0.5, // Lower temp = faster + more deterministic
-        max_tokens: 250, // Slightly more for better responses
-      }),
-    });
+    console.log("Calling OpenRouter (with fallback)... Language:", responseLanguage);
 
-    if (!response.ok) {
-      if (response.status === 429) {
+    let aiResponse: string;
+    try {
+      aiResponse = (await callOpenRouterWithFallback({
+        messages: [{ role: "user", content: prompt }],
+        temperature: 0.5,
+        max_tokens: 250,
+      })).trim();
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      console.error("OpenRouter all-models error:", msg);
+      if (msg.includes("429")) {
         return new Response(JSON.stringify({ error: t.rateLimited }), {
           status: 429,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      const errorText = await response.text();
-      console.error("OpenRouter error:", response.status, errorText);
       throw new Error("OpenRouter API error");
     }
 
-    const data = await response.json();
-    let aiResponse = data.choices?.[0]?.message?.content?.trim();
     console.log("AI response generated:", aiResponse?.substring(0, 80));
 
     if (!aiResponse) {
