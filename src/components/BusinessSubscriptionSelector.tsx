@@ -136,7 +136,7 @@ export const BusinessSubscriptionSelector = ({
               <div className="text-center min-w-[80px]">
                 <span className="text-3xl font-bold text-primary">{quantity}</span>
                 <p className="text-xs text-muted-foreground">
-                  {quantity === 1 ? "établissement" : "établissements"}
+                  {isEN ? (quantity === 1 ? "business" : "businesses") : (quantity === 1 ? "établissement" : "établissements")}
                 </p>
               </div>
               <Button
