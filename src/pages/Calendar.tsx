@@ -60,23 +60,17 @@ const Calendar = () => {
   const [loading, setLoading] = useState(true);
   const [cursor, setCursor] = useState(new Date());
   const [selectedDay, setSelectedDay] = useState<Date | null>(new Date());
-  const [dayDialog, setDayDialog] = useState<{ date: Date; items: ContentItem[] } | null>(null);
   const [detail, setDetail] = useState<ContentDetail | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
 
   const handleDayClick = (day: Date, dayItems: ContentItem[]) => {
     setSelectedDay(day);
-    if (dayItems.length === 1) {
+    if (dayItems.length > 0) {
       openDetail(dayItems[0]);
-      return;
-    }
-    if (dayItems.length > 1) {
-      setDayDialog({ date: day, items: dayItems });
     }
   };
 
   const openDetail = async (item: ContentItem) => {
-    setDayDialog(null);
     setDetailLoading(true);
     setDetail({ ...item, content: null, answer: null, keyword_used: null, google_post_id: null, published_at: null, error_message: null });
     const { data } = await supabase
