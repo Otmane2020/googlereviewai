@@ -680,12 +680,12 @@ const Dashboard = () => {
         {/* Stats Grid - 2x2 */}
         <div className="grid grid-cols-2 gap-3">
           {/* Response Rate */}
-          <div className={`rounded-2xl p-4 border ${
+          <Link to="/reviews" className={`rounded-2xl p-4 border transition-all hover:scale-[1.02] active:scale-[0.98] ${
             responseRateColor === "green" 
-              ? "bg-green-500/5 border-green-500/20" 
+              ? "bg-green-500/5 border-green-500/20 hover:bg-green-500/10" 
               : responseRateColor === "orange"
-              ? "bg-orange-500/5 border-orange-500/20"
-              : "bg-red-500/5 border-red-500/20"
+              ? "bg-orange-500/5 border-orange-500/20 hover:bg-orange-500/10"
+              : "bg-red-500/5 border-red-500/20 hover:bg-red-500/10"
           }`}>
             <div className="flex items-center gap-2 mb-2">
               <Percent className={`w-4 h-4 ${
@@ -702,34 +702,34 @@ const Dashboard = () => {
             }`}>
               {stats.responseRate}%
             </div>
-          </div>
+          </Link>
 
           {/* Average Rating */}
-          <div className="bg-card rounded-2xl p-4 border border-border">
+          <Link to="/reviews" className="bg-card rounded-2xl p-4 border border-border transition-all hover:scale-[1.02] active:scale-[0.98] hover:border-primary/40">
             <div className="flex items-center gap-2 mb-2">
               <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
               <span className="text-xs text-muted-foreground">{t("dashboardPage.averageRating")}</span>
             </div>
             <div className="text-2xl font-bold text-foreground">{stats.avgRating || "-"}</div>
-          </div>
+          </Link>
 
           {/* Total Reviews */}
-          <div className="bg-card rounded-2xl p-4 border border-border">
+          <Link to="/reviews" className="bg-card rounded-2xl p-4 border border-border transition-all hover:scale-[1.02] active:scale-[0.98] hover:border-primary/40">
             <div className="flex items-center gap-2 mb-2">
               <MessageSquare className="w-4 h-4 text-primary" />
               <span className="text-xs text-muted-foreground">{t("dashboardPage.totalReviews")}</span>
             </div>
             <div className="text-2xl font-bold text-foreground">{stats.total}</div>
-          </div>
+          </Link>
 
           {/* AI Responses */}
-          <div className="bg-card rounded-2xl p-4 border border-border">
+          <Link to="/ai-settings" className="bg-card rounded-2xl p-4 border border-border transition-all hover:scale-[1.02] active:scale-[0.98] hover:border-primary/40">
             <div className="flex items-center gap-2 mb-2">
               <Sparkles className="w-4 h-4 text-secondary" />
               <span className="text-xs text-muted-foreground">{t("dashboardPage.aiResponses")}</span>
             </div>
             <div className="text-2xl font-bold text-foreground">{stats.aiResponses}</div>
-          </div>
+          </Link>
         </div>
 
         {/* GMB Performance Stats */}
