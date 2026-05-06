@@ -668,12 +668,12 @@ const SettingsPage = () => {
                     </p>
                     <p className="text-xs text-muted-foreground">
                       {!webPush.isSupported
-                        ? "Not supported by this browser"
+                        ? "Non pris en charge par ce navigateur"
                         : webPush.isSubscribed
-                          ? "Enabled — Native push active"
+                          ? "Activé — Push natif actif"
                           : webPush.permission === "denied"
-                            ? "Blocked by browser"
-                            : "Inactive — Enable to receive alerts"
+                            ? "Bloqué par le navigateur"
+                            : "Inactif — Activez pour recevoir les alertes"
                       }
                     </p>
                   </div>
