@@ -223,7 +223,6 @@ export const DashboardLayout = ({ children, title }: DashboardLayoutProps) => {
           <div className="hidden md:flex sticky top-2 z-40 px-3 -mb-2 items-center">
             <SidebarTrigger className="text-foreground bg-card/90 backdrop-blur border border-border rounded-lg shadow-sm" />
             {title && <h1 className="ml-3 self-center text-sm font-semibold text-foreground">{title}</h1>}
-            <div className="ml-auto"><LanguageSwitcher variant="dropdown" /></div>
           </div>
 
           <main className="flex-1 min-w-0 pb-20 md:pb-0">{children}</main>
