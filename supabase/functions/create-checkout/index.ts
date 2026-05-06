@@ -27,6 +27,10 @@ const PRICE_IDS: Record<string, string> = {
   aeo_yearly: "price_1SsBcVEfti9t9nN9oFgHq9x8",
   seo_yearly: "price_1SrHtSEfti9t9nN9rXMfteyT",
    allinone_yearly: "price_1SxGZxEfti9t9nN97rkyb8F1",
+  // Daily plan (Quotidien) — bilingual
+  daily_monthly: "price_1TU9QcEfti9t9nN9MwGBzftO",      // 9.99€ EUR
+  daily_monthly_eur: "price_1TU9QcEfti9t9nN9MwGBzftO",  // 9.99€ EUR
+  daily_monthly_usd: "price_1TU9PkEfti9t9nN9gSl8RirX",  // $9.99 USD
   // Credit packs (one-time purchases)
   credits_10: "price_1SrrYEEfti9t9nN9N8l9AaA1",
   credits_100: "price_1SrrYFEfti9t9nN9Y4zxBb3p",
