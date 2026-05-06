@@ -610,7 +610,7 @@ const AISettingsPage = () => {
               <div className="w-8 h-8 rounded-lg bg-yellow-500/10 flex items-center justify-center">
                 <Star className="w-4 h-4 text-yellow-500" />
               </div>
-              <span className="font-medium text-sm text-foreground">Note minimale</span>
+              <span className="font-medium text-sm text-foreground">{isEN ? "Minimum rating" : "Note minimale"}</span>
             </div>
             <div className="flex gap-2 pl-11">
               {[1, 2, 3, 4, 5].map((rating) => (
