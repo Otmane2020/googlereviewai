@@ -1,5 +1,14 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" fill="none">
-  <rect width="192" height="192" rx="24" fill="#2563eb"/>
-  <polygon points="96,24 112,72 164,72 122,104 138,152 96,120 54,152 70,104 28,72 80,72" fill="#FACC15"/>
-  <circle cx="132" cy="52" r="14" fill="#22C55E"/>
+<svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#3B82F6"/>
+      <stop offset="100%" stop-color="#10B981"/>
+    </linearGradient>
+  </defs>
+  <path d="M16 2C9.925 2 5 6.925 5 13c0 7.5 11 17 11 17s11-9.5 11-17c0-6.075-4.925-11-11-11z" fill="url(#g)"/>
+  <rect x="10.5" y="11" width="2.5" height="6" rx="0.6" fill="#ffffff" opacity="0.95"/>
+  <rect x="14.75" y="8.5" width="2.5" height="8.5" rx="0.6" fill="#ffffff"/>
+  <rect x="19" y="13" width="2.5" height="4" rx="0.6" fill="#ffffff" opacity="0.85"/>
+  <circle cx="23.5" cy="7.5" r="2.2" fill="#F5B800"/>
+  <circle cx="23.5" cy="7.5" r="0.9" fill="#ffffff"/>
 </svg>
