@@ -96,7 +96,7 @@ const Calendar = () => {
           </div>
           <div>
             <h1 className="text-2xl font-bold text-foreground">Calendrier de contenu</h1>
-            <p className="text-sm text-muted-foreground">All your scheduled SEO articles & GEO Q&As in one view.</p>
+            <p className="text-sm text-muted-foreground">Tous vos articles SEO et Q&R GEO planifiés en un coup d'œil.</p>
           </div>
         </div>
 
