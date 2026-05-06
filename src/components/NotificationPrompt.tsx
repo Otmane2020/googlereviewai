@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { usePWA } from "@/hooks/usePWA";
 import { useDeviceDetection } from "@/hooks/useDeviceDetection";
+import { useWebPush } from "@/hooks/useWebPush";
 import { Button } from "@/components/ui/button";
 import { X, Bell, Settings } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
