@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { StarlinkoLogo } from "@/components/StarlinkoLogo";
+import { Ranki.aiLogo } from "@/components/StarlinkoLogo";
 import { 
   Zap, Star, Check, ArrowRight, Gift, ShieldCheck, Clock, 
   MessageSquare, TrendingUp, Search, Sparkles, Bot, Users, 
@@ -15,7 +15,7 @@ const TESTIMONIALS = [
   {
     name: "Marc D.",
     business: "Restaurant Le Provençal",
-    text: "Depuis Starlinko, je réponds à tous mes avis en 2 minutes au lieu de 30. Mes clients adorent !",
+    text: "Depuis Ranki.ai, je réponds à tous mes avis en 2 minutes au lieu de 30. Mes clients adorent !",
     rating: 5,
   },
   {
@@ -65,16 +65,16 @@ const LandingFacebook = () => {
   return (
     <div className="min-h-screen bg-background">
       <Helmet>
-        <title>Starlinko - Automatisez vos Avis Google avec l'IA | 2 Mois Gratuits</title>
-        <meta name="description" content="Répondez à tous vos avis Google en 1 clic grâce à l'IA. Essai gratuit 2 mois, sans carte bancaire. +500 entreprises utilisent Starlinko." />
+        <title>Ranki.ai - Automatisez vos Avis Google avec l'IA | 2 Mois Gratuits</title>
+        <meta name="description" content="Répondez à tous vos avis Google en 1 clic grâce à l'IA. Essai gratuit 2 mois, sans carte bancaire. +500 entreprises utilisent Ranki.ai." />
         <meta name="robots" content="noindex, nofollow" />
-        <link rel="canonical" href="https://starlinko.app/lp/facebook" />
+        <link rel="canonical" href="https://ranki.ai/lp/facebook" />
       </Helmet>
 
       {/* Sticky Header */}
       <header className="sticky top-0 z-50 bg-card/95 backdrop-blur-sm border-b border-border/50">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-          <StarlinkoLogo />
+          <Ranki.aiLogo />
           <Button size="sm" onClick={() => navigate("/auth")} className="gap-1.5">
             <Zap className="w-4 h-4" />
             Essai gratuit
@@ -105,7 +105,7 @@ const LandingFacebook = () => {
             </h1>
 
             <p className="text-lg sm:text-xl text-card/85 max-w-xl mx-auto mb-8 leading-relaxed animate-fade-in">
-              Starlinko répond à chaque avis en quelques secondes. 
+              Ranki.ai répond à chaque avis en quelques secondes. 
               Plus de temps perdu, plus de clients satisfaits.
             </p>
 
@@ -268,12 +268,12 @@ const LandingFacebook = () => {
       {/* Minimal Footer */}
       <footer className="py-6 bg-card border-t border-border">
         <div className="container mx-auto px-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
-          <StarlinkoLogo />
+          <Ranki.aiLogo />
           <div className="flex gap-4">
             <a href="/privacy" className="hover:text-foreground transition-colors">Confidentialité</a>
             <a href="/terms" className="hover:text-foreground transition-colors">CGU</a>
           </div>
-          <span>© 2025 Starlinko</span>
+          <span>© 2025 Ranki.ai</span>
         </div>
       </footer>
     </div>

@@ -22,15 +22,15 @@ interface RecoveryEmailProps {
 export const RecoveryEmail = ({ confirmationUrl }: RecoveryEmailProps) => (
   <Html lang="fr" dir="ltr">
     <Head />
-    <Preview>Réinitialisez votre mot de passe Starlinko</Preview>
+    <Preview>Réinitialisez votre mot de passe Ranki.ai</Preview>
     <Body style={main}>
       <Container style={container}>
         <Section style={brand}>
-          <Text style={brandText}>Starlinko</Text>
+          <Text style={brandText}>Ranki.ai</Text>
         </Section>
         <Heading style={h1}>Réinitialiser votre mot de passe</Heading>
         <Text style={text}>
-          Nous avons reçu une demande de réinitialisation du mot de passe de votre compte Starlinko.
+          Nous avons reçu une demande de réinitialisation du mot de passe de votre compte Ranki.ai.
           Cliquez sur le bouton ci-dessous pour en choisir un nouveau.
         </Text>
         <Button style={button} href={confirmationUrl}>

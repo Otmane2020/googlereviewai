@@ -112,7 +112,7 @@ const Dashboard = () => {
   useEffect(() => {
     if (!user) return;
     
-    const storageKey = `starlinko_visits_${user.id}`;
+    const storageKey = `ranki.ai_visits_${user.id}`;
     const now = new Date().toISOString();
     
     try {
@@ -341,7 +341,7 @@ const Dashboard = () => {
         hasSyncedRef.current = true;
         
         // Check if this is the first sync ever for this user
-        const hasInitialSynced = localStorage.getItem(`starlinko_initial_sync_${user.id}`);
+        const hasInitialSynced = localStorage.getItem(`ranki.ai_initial_sync_${user.id}`);
         
         if (!hasInitialSynced) {
           // First time: show animation (only if not already synced from Auth)
@@ -362,7 +362,7 @@ const Dashboard = () => {
           setSyncStep("reviews");
           await syncReviews();
           setSyncStep("complete");
-          localStorage.setItem(`starlinko_initial_sync_${user.id}`, "true");
+          localStorage.setItem(`ranki.ai_initial_sync_${user.id}`, "true");
         } else {
           // Silent sync in background
           const businessResult = await syncBusinesses();
@@ -393,7 +393,7 @@ const Dashboard = () => {
     
     // Mark initial sync as complete
     if (user) {
-      localStorage.setItem(`starlinko_initial_sync_${user.id}`, "true");
+      localStorage.setItem(`ranki.ai_initial_sync_${user.id}`, "true");
     }
     
     fetchData();

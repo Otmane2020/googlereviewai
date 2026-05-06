@@ -16,7 +16,7 @@ export const CTASection = () => {
             Boostez vos ventes dès aujourd'hui
           </h2>
           <p className="text-muted-foreground text-sm sm:text-base mb-7 max-w-xl mx-auto">
-            Rejoignez les centaines d'établissements qui utilisent Starlinko pour améliorer leur positionnement et dominer ChatGPT, Gemini et Perplexity. Gratuit à vie — sans carte bancaire.
+            Rejoignez les centaines d'établissements qui utilisent Ranki.ai pour améliorer leur positionnement et dominer ChatGPT, Gemini et Perplexity. Gratuit à vie — sans carte bancaire.
           </p>
 
           <Button

@@ -71,22 +71,22 @@ const AvisAIHotel = () => {
   const hotelFaqs = [
     {
       question: "Comment répondre aux avis Google d'un hôtel en plusieurs langues ?",
-      answer: "Starlinko détecte automatiquement la langue de l'avis et génère une réponse dans la même langue. L'IA supporte 12 langues dont le français, l'anglais, l'allemand, l'espagnol, l'italien, le portugais et le néerlandais, idéal pour les hôtels avec une clientèle internationale."
+      answer: "Ranki.ai détecte automatiquement la langue de l'avis et génère une réponse dans la même langue. L'IA supporte 12 langues dont le français, l'anglais, l'allemand, l'espagnol, l'italien, le portugais et le néerlandais, idéal pour les hôtels avec une clientèle internationale."
     },
     {
       question: "L'IA peut-elle répondre aux avis d'un hôtel 24h/24 ?",
-      answer: "Oui, Starlinko fonctionne 24h/24 et 7j/7. Les avis reçus la nuit, le week-end ou pendant les vacances reçoivent une réponse automatique personnalisée. C'est particulièrement utile pour les hôtels dont les clients publient des avis à toute heure."
+      answer: "Oui, Ranki.ai fonctionne 24h/24 et 7j/7. Les avis reçus la nuit, le week-end ou pendant les vacances reçoivent une réponse automatique personnalisée. C'est particulièrement utile pour les hôtels dont les clients publient des avis à toute heure."
     },
     {
       question: "Comment l'IA adapte-t-elle le ton pour l'hôtellerie de luxe ?",
-      answer: "L'IA de Starlinko permet de configurer le ton de réponse selon le positionnement de votre hôtel : luxe raffiné, boutique-hôtel chaleureux, familial décontracté. Les réponses respectent les standards de service attendus dans l'hôtellerie haut de gamme."
+      answer: "L'IA de Ranki.ai permet de configurer le ton de réponse selon le positionnement de votre hôtel : luxe raffiné, boutique-hôtel chaleureux, familial décontracté. Les réponses respectent les standards de service attendus dans l'hôtellerie haut de gamme."
     },
     {
       question: "Répondre aux avis améliore-t-il le classement d'un hôtel sur Google ?",
       answer: "Oui, Google favorise les fiches actives avec des réponses régulières aux avis. Les hôtels qui répondent à 100% de leurs avis gagnent en moyenne +0.3 étoile sur leur note globale et améliorent leur positionnement sur Google Maps et dans les résultats locaux."
     },
     {
-      question: "Starlinko gère-t-il les plaintes et avis négatifs d'un hôtel ?",
+      question: "Ranki.ai gère-t-il les plaintes et avis négatifs d'un hôtel ?",
       answer: "Oui, l'IA génère des réponses professionnelles et empathiques aux avis négatifs. Elle reconnaît le problème spécifique (bruit, propreté, service), présente des excuses sincères et propose une solution concrète, limitant l'impact sur votre réputation en ligne."
     }
   ];
@@ -95,22 +95,22 @@ const AvisAIHotel = () => {
     <>
       <FAQPageSchema faqs={hotelFaqs} />
       <BreadcrumbSchema items={[
-        { name: "Accueil", url: "https://starlinko.app" },
-        { name: "Avis IA Hôtel", url: "https://starlinko.app/avis-ai-hotel" }
+        { name: "Accueil", url: "https://ranki.ai" },
+        { name: "Avis IA Hôtel", url: "https://ranki.ai/avis-ai-hotel" }
       ]} />
       <Helmet>
-        <title>Avis Google Hôtel IA - Réponses Automatiques Multilingues | Starlinko</title>
+        <title>Avis Google Hôtel IA - Réponses Automatiques Multilingues | Ranki.ai</title>
         <meta 
           name="description" 
           content="Automatisez la gestion des avis Google de votre hôtel avec l'IA. Réponses multilingues 24h/24, ton hôtelier professionnel. Essai gratuit 7 jours." 
         />
         <meta name="keywords" content="avis google hotel, réponse automatique avis hotel, IA hôtellerie, gestion avis hotel, réputation hôtel" />
-        <link rel="canonical" href="https://starlinko.app/avis-ai-hotel" />
+        <link rel="canonical" href="https://ranki.ai/avis-ai-hotel" />
         
         {/* Open Graph */}
         <meta property="og:title" content="Gestion des Avis Google Hôtel avec l'IA" />
         <meta property="og:description" content="Répondez automatiquement aux avis de votre hôtel en 12 langues. Professionnel et personnalisé." />
-        <meta property="og:url" content="https://starlinko.app/avis-ai-hotel" />
+        <meta property="og:url" content="https://ranki.ai/avis-ai-hotel" />
         <meta property="og:type" content="website" />
         
         {/* Structured Data */}
@@ -118,7 +118,7 @@ const AvisAIHotel = () => {
           {JSON.stringify({
             "@context": "https://schema.org",
             "@type": "SoftwareApplication",
-            "name": "Starlinko pour Hôtels",
+            "name": "Ranki.ai pour Hôtels",
             "applicationCategory": "BusinessApplication",
             "operatingSystem": "Web",
             "description": "Solution IA de gestion automatique des avis Google pour hôtels et hébergements",
@@ -319,7 +319,7 @@ const AvisAIHotel = () => {
                 Ready à améliorer votre réputation ?
               </h2>
               <p className="text-blue-100 mb-8 max-w-xl mx-auto">
-                Rejoignez les hôteliers qui répondent à 100% de leurs avis grâce à Starlinko.
+                Rejoignez les hôteliers qui répondent à 100% de leurs avis grâce à Ranki.ai.
               </p>
               <Button size="lg" variant="secondary" asChild>
                 <Link to="/auth">

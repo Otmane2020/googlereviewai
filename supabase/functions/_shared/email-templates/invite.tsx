@@ -24,17 +24,17 @@ interface InviteEmailProps {
 export const InviteEmail = ({ siteUrl, confirmationUrl }: InviteEmailProps) => (
   <Html lang="fr" dir="ltr">
     <Head />
-    <Preview>Vous avez été invité sur Starlinko</Preview>
+    <Preview>Vous avez été invité sur Ranki.ai</Preview>
     <Body style={main}>
       <Container style={container}>
         <Section style={brand}>
-          <Text style={brandText}>Starlinko</Text>
+          <Text style={brandText}>Ranki.ai</Text>
         </Section>
         <Heading style={h1}>Vous avez été invité</Heading>
         <Text style={text}>
           Vous avez été invité à rejoindre{' '}
           <Link href={siteUrl} style={link}>
-            <strong>Starlinko</strong>
+            <strong>Ranki.ai</strong>
           </Link>
           , la plateforme pour vous positionner dans ChatGPT, Gemini et Perplexity.
           Acceptez l'invitation pour créer votre compte.

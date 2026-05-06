@@ -76,8 +76,8 @@ serve(async (req) => {
     const postData = new URLSearchParams({
       title: title,
       message: message || "",
-      url: url || "https://starlinko.app/reviews",
-      icon: icon || "https://starlinko.app/icon-512x512.png",
+      url: url || "https://ranki.ai/reviews",
+      icon: icon || "https://ranki.ai/icon-512x512.png",
       subscriber: subscriberId, // Target specific subscriber
     });
 

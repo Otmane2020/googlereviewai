@@ -117,7 +117,7 @@ const AppContent = () => {
 
   const handleSplashComplete = () => {
     setShowSplash(false);
-    const hasSeenOnboarding = localStorage.getItem("starlinko_onboarding_completed");
+    const hasSeenOnboarding = localStorage.getItem("ranki.ai_onboarding_completed");
     if (!hasSeenOnboarding) {
       setShowOnboarding(true);
     } else {
@@ -128,7 +128,7 @@ const AppContent = () => {
   const handleOnboardingComplete = () => {
     setShowOnboarding(false);
     setIsInitialized(true);
-    localStorage.setItem("starlinko_onboarding_completed", "true");
+    localStorage.setItem("ranki.ai_onboarding_completed", "true");
   };
 
   // Show minimal loader while we determine standalone status (instead of null for old devices)

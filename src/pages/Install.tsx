@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Download, Smartphone, Check, Share, Plus, MoreVertical } from "lucide-react";
-import { StarlinkoLogo } from "@/components/StarlinkoLogo";
+import { Ranki.aiLogo } from "@/components/StarlinkoLogo";
 import { useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet";
 
@@ -64,11 +64,11 @@ const Install = () => {
         <Card className="w-full max-w-md text-center">
           <CardHeader>
             <div className="flex justify-center mb-4">
-              <StarlinkoLogo className="h-16 w-auto" />
+              <Ranki.aiLogo className="h-16 w-auto" />
             </div>
             <CardTitle className="text-2xl">Application installée !</CardTitle>
             <CardDescription>
-              Vous utilisez déjà Starlinko en tant qu'application
+              Vous utilisez déjà Ranki.ai en tant qu'application
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -91,11 +91,11 @@ const Install = () => {
         <Card className="w-full max-w-md text-center">
           <CardHeader>
             <div className="flex justify-center mb-4">
-              <StarlinkoLogo className="h-16 w-auto" />
+              <Ranki.aiLogo className="h-16 w-auto" />
             </div>
             <CardTitle className="text-2xl text-secondary">Installation réussie !</CardTitle>
             <CardDescription>
-              Starlinko a été ajouté à votre écran d'accueil
+              Ranki.ai a été ajouté à votre écran d'accueil
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -117,22 +117,22 @@ const Install = () => {
         <title>Install Ranki | Google Reviews PWA</title>
         <meta 
           name="description" 
-          content="Installez l'application Starlinko sur votre téléphone. Accédez à vos avis Google depuis votre écran d'accueil, même hors ligne." 
+          content="Installez l'application Ranki.ai sur votre téléphone. Accédez à vos avis Google depuis votre écran d'accueil, même hors ligne." 
         />
-        <meta name="keywords" content="installer starlinko, application avis google, PWA, mobile app" />
-        <link rel="canonical" href="https://starlinko.app/install" />
+        <meta name="keywords" content="installer ranki.ai, application avis google, PWA, mobile app" />
+        <link rel="canonical" href="https://ranki.ai/install" />
         
         <meta property="og:title" content="Install Ranki - Google Reviews app" />
-        <meta property="og:description" content="Installez l'app Starlinko pour gérer vos avis Google partout." />
-        <meta property="og:url" content="https://starlinko.app/install" />
+        <meta property="og:description" content="Installez l'app Ranki.ai pour gérer vos avis Google partout." />
+        <meta property="og:url" content="https://ranki.ai/install" />
         <meta property="og:type" content="website" />
       </Helmet>
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
-            <StarlinkoLogo className="h-16 w-auto" />
+            <Ranki.aiLogo className="h-16 w-auto" />
           </div>
-          <CardTitle className="text-2xl">Installer Starlinko</CardTitle>
+          <CardTitle className="text-2xl">Installer Ranki.ai</CardTitle>
           <CardDescription>
             Installez l'application sur votre appareil pour un accès rapide
           </CardDescription>

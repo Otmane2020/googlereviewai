@@ -7,17 +7,17 @@ const TermsOfService = () => {
   return (
     <div className="min-h-screen bg-background">
       <Helmet>
-        <title>Conditions Générales d'Utilisation | Starlinko</title>
+        <title>Conditions Générales d'Utilisation | Ranki.ai</title>
         <meta 
           name="description" 
-          content="Consultez les conditions générales d'utilisation de Starlinko. Règles d'abonnement, facturation, propriété intellectuelle et responsabilités." 
+          content="Consultez les conditions générales d'utilisation de Ranki.ai. Règles d'abonnement, facturation, propriété intellectuelle et responsabilités." 
         />
-        <meta name="keywords" content="CGU, conditions générales, termes service, abonnement, Starlinko" />
-        <link rel="canonical" href="https://starlinko.app/terms" />
+        <meta name="keywords" content="CGU, conditions générales, termes service, abonnement, Ranki.ai" />
+        <link rel="canonical" href="https://ranki.ai/terms" />
         
-        <meta property="og:title" content="CGU - Conditions Générales | Starlinko" />
-        <meta property="og:description" content="Conditions d'utilisation de la plateforme Starlinko." />
-        <meta property="og:url" content="https://starlinko.app/terms" />
+        <meta property="og:title" content="CGU - Conditions Générales | Ranki.ai" />
+        <meta property="og:description" content="Conditions d'utilisation de la plateforme Ranki.ai." />
+        <meta property="og:url" content="https://ranki.ai/terms" />
         <meta property="og:type" content="website" />
       </Helmet>
       <div className="container max-w-4xl mx-auto px-4 py-12">
@@ -35,7 +35,7 @@ const TermsOfService = () => {
           <section className="mb-10">
             <h2 className="text-xl font-semibold text-foreground mb-4">Acceptation des conditions</h2>
             <p className="text-muted-foreground">
-              En accédant ou en utilisant le service Starlinko, développé et exploité par la société Starlinko, 
+              En accédant ou en utilisant le service Ranki.ai, développé et exploité par la société Ranki.ai, 
               vous acceptez sans réserve les présentes Conditions Générales d'Utilisation (CGU). 
               Si vous n'acceptez pas ces conditions, vous ne devez pas utiliser la plateforme.
             </p>
@@ -44,7 +44,7 @@ const TermsOfService = () => {
           <section className="mb-10">
             <h2 className="text-xl font-semibold text-foreground mb-4">1. Objet du service</h2>
             <p className="text-muted-foreground mb-4">
-              Starlinko est une application SaaS qui permet aux entreprises de connecter leurs comptes 
+              Ranki.ai est une application SaaS qui permet aux entreprises de connecter leurs comptes 
               Google Business Profile afin de :
             </p>
             <ul className="list-disc list-inside text-muted-foreground space-y-2">
@@ -97,7 +97,7 @@ const TermsOfService = () => {
           <section className="mb-10">
             <h2 className="text-xl font-semibold text-foreground mb-4">5. Propriété intellectuelle</h2>
             <ul className="list-disc list-inside text-muted-foreground space-y-2">
-              <li>Starlinko et son contenu sont la propriété exclusive de Starlinko.</li>
+              <li>Ranki.ai et son contenu sont la propriété exclusive de Ranki.ai.</li>
               <li>Les utilisateurs conservent la propriété de leurs données et établissements.</li>
               <li>Toute reproduction, copie ou diffusion non autorisée du logiciel est interdite.</li>
             </ul>
@@ -106,7 +106,7 @@ const TermsOfService = () => {
           <section className="mb-10">
             <h2 className="text-xl font-semibold text-foreground mb-4">6. Limitation de responsabilité</h2>
             <p className="text-muted-foreground">
-              Le service est fourni "tel quel". Starlinko ne saurait être tenue responsable de tout dommage indirect, 
+              Le service est fourni "tel quel". Ranki.ai ne saurait être tenue responsable de tout dommage indirect, 
               perte de données ou interruption due à des causes externes (pannes réseau, API Google, etc.).
             </p>
           </section>
@@ -114,8 +114,8 @@ const TermsOfService = () => {
           <section className="mb-10">
             <h2 className="text-xl font-semibold text-foreground mb-4">7. Résiliation</h2>
             <ul className="list-disc list-inside text-muted-foreground space-y-2">
-              <li>L'utilisateur peut supprimer son compte à tout moment via l'interface Starlinko.</li>
-              <li>Starlinko peut suspendre un compte en cas de fraude, non-paiement ou violation des présentes conditions.</li>
+              <li>L'utilisateur peut supprimer son compte à tout moment via l'interface Ranki.ai.</li>
+              <li>Ranki.ai peut suspendre un compte en cas de fraude, non-paiement ou violation des présentes conditions.</li>
               <li>Les données seront supprimées dans un délai maximum de 30 jours après résiliation.</li>
             </ul>
           </section>
@@ -123,7 +123,7 @@ const TermsOfService = () => {
           <section className="mb-10">
             <h2 className="text-xl font-semibold text-foreground mb-4">8. Modifications et droit applicable</h2>
             <p className="text-muted-foreground">
-              Starlinko se réserve le droit de modifier les présentes CGU à tout moment. 
+              Ranki.ai se réserve le droit de modifier les présentes CGU à tout moment. 
               Les utilisateurs seront informés par e-mail avant leur entrée en vigueur. 
               Le présent contrat est régi par le droit français. En cas de litige, 
               les tribunaux compétents seront ceux du ressort de Paris, France.
@@ -140,13 +140,13 @@ const TermsOfService = () => {
 
           <footer className="border-t border-border pt-6 mt-10">
             <p className="text-sm text-muted-foreground">
-              <strong>Éditeur :</strong> Starlinko PRO – 280 Boulevard de la Boissière, 93100 Montreuil, France
+              <strong>Éditeur :</strong> Ranki.ai PRO – 280 Boulevard de la Boissière, 93100 Montreuil, France
             </p>
             <p className="text-sm text-muted-foreground">
               SIRET : 897 801 775 00015 – contact@ranki.ai
             </p>
             <p className="text-sm text-muted-foreground mt-4">
-              © 2025 Starlinko – Tous droits réservés.
+              © 2025 Ranki.ai – Tous droits réservés.
             </p>
           </footer>
         </div>

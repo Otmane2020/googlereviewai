@@ -22,15 +22,15 @@ interface MagicLinkEmailProps {
 export const MagicLinkEmail = ({ confirmationUrl }: MagicLinkEmailProps) => (
   <Html lang="fr" dir="ltr">
     <Head />
-    <Preview>Votre lien de connexion Starlinko</Preview>
+    <Preview>Votre lien de connexion Ranki.ai</Preview>
     <Body style={main}>
       <Container style={container}>
         <Section style={brand}>
-          <Text style={brandText}>Starlinko</Text>
+          <Text style={brandText}>Ranki.ai</Text>
         </Section>
-        <Heading style={h1}>Connectez-vous à Starlinko</Heading>
+        <Heading style={h1}>Connectez-vous à Ranki.ai</Heading>
         <Text style={text}>
-          Cliquez sur le bouton ci-dessous pour accéder en toute sécurité à votre tableau de bord Starlinko.
+          Cliquez sur le bouton ci-dessous pour accéder en toute sécurité à votre tableau de bord Ranki.ai.
           Ce lien expirera prochainement.
         </Text>
         <Button style={button} href={confirmationUrl}>

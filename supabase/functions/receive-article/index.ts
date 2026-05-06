@@ -101,7 +101,7 @@ Deno.serve(async (req) => {
           slug: sanitizedSlug,
           source_id: articleSourceId || null,
           meta_description: articleMetaDescription || null,
-          author: author || 'Équipe Starlinko',
+          author: author || 'Équipe Ranki.ai',
           updated_at: new Date().toISOString(),
         },
         { onConflict: 'slug' }

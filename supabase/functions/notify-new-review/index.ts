@@ -71,10 +71,10 @@ const getProHeader = () => `
     <table cellpadding="0" cellspacing="0" border="0">
       <tr>
         <td style="vertical-align: middle;">
-          <img src="https://starlinko.app/favicon.png" width="32" height="32" alt="Starlinko" style="display: block;" />
+          <img src="https://ranki.ai/favicon.png" width="32" height="32" alt="Ranki.ai" style="display: block;" />
         </td>
         <td style="vertical-align: middle; padding-left: 12px;">
-          <span style="font-family: ${STYLES.fontFamily}; font-weight: 600; font-size: 18px; color: ${STYLES.textPrimary};">Starlinko</span>
+          <span style="font-family: ${STYLES.fontFamily}; font-weight: 600; font-size: 18px; color: ${STYLES.textPrimary};">Ranki.ai</span>
         </td>
       </tr>
     </table>
@@ -84,10 +84,10 @@ const getProHeader = () => `
 const getProFooter = (t: typeof emailTranslations.fr) => `
   <div style="padding: 24px; text-align: center; border-top: 1px solid ${STYLES.borderLight};">
     <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textMuted}; font-size: 12px; margin: 0 0 8px 0;">
-      © 2025 Starlinko. ${t.allRightsReserved}
+      © 2025 Ranki.ai. ${t.allRightsReserved}
     </p>
     <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textMuted}; font-size: 12px; margin: 0;">
-      <a href="https://starlinko.app" style="color: ${STYLES.brandBlue}; text-decoration: none;">starlinko.app</a>
+      <a href="https://ranki.ai" style="color: ${STYLES.brandBlue}; text-decoration: none;">ranki.ai</a>
     </p>
   </div>
 `;
@@ -128,7 +128,7 @@ serve(async (req) => {
       );
     }
 
-    const fullReviewUrl = `https://starlinko.app/reviews?review_id=${review_id}`;
+    const fullReviewUrl = `https://ranki.ai/reviews?review_id=${review_id}`;
 
     // Fetch settings, profile, and business language
     const [settingsResult, profileResult] = await Promise.all([
@@ -239,7 +239,7 @@ serve(async (req) => {
       </div>
       
       <div style="text-align: left; margin: 32px 0;">
-        ${getProButton(t.rechargeCredits, "https://starlinko.app/select-plan")}
+        ${getProButton(t.rechargeCredits, "https://ranki.ai/select-plan")}
       </div>
       
       <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textMuted}; font-size: 13px; line-height: 1.6; margin: 24px 0 0 0;">
@@ -262,7 +262,7 @@ serve(async (req) => {
               to: userEmail,
               subject: t.noCreditsSubject(rating),
               html: noCreditsEmailHtml,
-              from_name: "Starlinko",
+              from_name: "Ranki.ai",
             }),
           });
 
@@ -329,7 +329,7 @@ serve(async (req) => {
               to: userEmail,
               subject: t.normalSubject(rating),
               html: emailHtml,
-              from_name: "Starlinko",
+              from_name: "Ranki.ai",
             }),
           });
 
@@ -358,7 +358,7 @@ serve(async (req) => {
           title: notificationTitle,
           message: notificationMessage,
           url: fullReviewUrl,
-          icon: "https://starlinko.app/icon-512x512.png",
+          icon: "https://ranki.ai/icon-512x512.png",
         }),
       });
 

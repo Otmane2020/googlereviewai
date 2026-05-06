@@ -58,7 +58,7 @@ export const ConnectGMBDialog = ({ open, onOpenChange }: ConnectGMBDialogProps) 
         <div className="space-y-4 mt-4">
           <div className="bg-muted/50 rounded-lg p-4 space-y-2">
             <p className="text-sm text-muted-foreground">
-              This connection allows Starlinko to:
+              This connection allows Ranki.ai to:
             </p>
             <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
               <li>Fetch your Google My Business reviews</li>

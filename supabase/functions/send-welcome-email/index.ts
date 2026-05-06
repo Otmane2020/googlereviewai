@@ -18,7 +18,7 @@ interface WelcomeEmailRequest {
 const T = {
   fr: {
     footerRights: "Tous droits réservés.",
-    welcomeTitle: "Bienvenue sur Starlinko ! 🚀",
+    welcomeTitle: "Bienvenue sur Ranki.ai ! 🚀",
     hello: "Bonjour",
     thanksSub: (plan: string) => `Merci pour votre confiance ! Votre abonnement <strong>${plan}</strong> est maintenant actif.`,
     accountCreated: "Votre compte a été créé avec succès. Vous pouvez désormais gérer vos avis Google et générer des réponses professionnelles grâce à l'intelligence artificielle.",
@@ -31,12 +31,12 @@ const T = {
     cta: "Accéder au tableau de bord",
     questions: "Des questions ? Répondez directement à cet email, nous sommes là pour vous aider.",
     subjectSub: (name: string, plan: string) => `🎉 Bienvenue ${name ? name + " " : ""}! Votre abonnement ${plan} est actif`,
-    subjectFree: "Bienvenue sur Starlinko - Gérez vos avis avec l'IA",
+    subjectFree: "Bienvenue sur Ranki.ai - Gérez vos avis avec l'IA",
     freePlan: "Gratuit",
   },
   en: {
     footerRights: "All rights reserved.",
-    welcomeTitle: "Welcome to Starlinko! 🚀",
+    welcomeTitle: "Welcome to Ranki.ai! 🚀",
     hello: "Hello",
     thanksSub: (plan: string) => `Thank you for your trust! Your <strong>${plan}</strong> subscription is now active.`,
     accountCreated: "Your account was created successfully. You can now manage your Google reviews and generate professional AI-powered responses.",
@@ -49,7 +49,7 @@ const T = {
     cta: "Go to dashboard",
     questions: "Questions? Just reply to this email — we're here to help.",
     subjectSub: (name: string, plan: string) => `🎉 Welcome ${name ? name + " " : ""}! Your ${plan} subscription is active`,
-    subjectFree: "Welcome to Starlinko — manage your reviews with AI",
+    subjectFree: "Welcome to Ranki.ai — manage your reviews with AI",
     freePlan: "Free",
   },
 };
@@ -74,10 +74,10 @@ const getProHeader = () => `
     <table cellpadding="0" cellspacing="0" border="0">
       <tr>
         <td style="vertical-align: middle;">
-          <img src="https://starlinko.app/favicon.png" width="32" height="32" alt="Starlinko" style="display: block;" />
+          <img src="https://ranki.ai/favicon.png" width="32" height="32" alt="Ranki.ai" style="display: block;" />
         </td>
         <td style="vertical-align: middle; padding-left: 12px;">
-          <span style="font-family: ${STYLES.fontFamily}; font-weight: 600; font-size: 18px; color: ${STYLES.textPrimary};">Starlinko</span>
+          <span style="font-family: ${STYLES.fontFamily}; font-weight: 600; font-size: 18px; color: ${STYLES.textPrimary};">Ranki.ai</span>
         </td>
       </tr>
     </table>
@@ -87,10 +87,10 @@ const getProHeader = () => `
 const getProFooter = (rights: string) => `
   <div style="padding: 24px; text-align: center; border-top: 1px solid ${STYLES.borderLight};">
     <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textMuted}; font-size: 12px; margin: 0 0 8px 0;">
-      © 2025 Starlinko. ${rights}
+      © 2025 Ranki.ai. ${rights}
     </p>
     <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textMuted}; font-size: 12px; margin: 0;">
-      <a href="https://starlinko.app" style="color: ${STYLES.brandBlue}; text-decoration: none;">starlinko.app</a>
+      <a href="https://ranki.ai" style="color: ${STYLES.brandBlue}; text-decoration: none;">ranki.ai</a>
     </p>
   </div>
 `;
@@ -175,7 +175,7 @@ serve(async (req) => {
         <tr><td style="padding: 8px 0; font-family: ${STYLES.fontFamily}; color: ${STYLES.textSecondary}; font-size: 14px; line-height: 1.6;"><span style="margin-right: 8px;">2️⃣</span> ${t.step2}</td></tr>
         <tr><td style="padding: 8px 0; font-family: ${STYLES.fontFamily}; color: ${STYLES.textSecondary}; font-size: 14px; line-height: 1.6;"><span style="margin-right: 8px;">3️⃣</span> ${t.step3}</td></tr>
       </table>
-      <div style="text-align: center; margin: 32px 0;">${getProButton(t.cta, "https://starlinko.app/dashboard")}</div>
+      <div style="text-align: center; margin: 32px 0;">${getProButton(t.cta, "https://ranki.ai/dashboard")}</div>
       <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textMuted}; font-size: 13px; line-height: 1.6; margin: 32px 0 0 0;">${t.questions}</p>
     </div>
     ${getProFooter(t.footerRights)}
@@ -192,7 +192,7 @@ serve(async (req) => {
         Authorization: `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: "Starlinko <support@ranki.ai>",
+        from: "Ranki.ai <support@ranki.ai>",
         to: [email],
         subject,
         html: htmlContent,

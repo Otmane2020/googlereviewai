@@ -28,7 +28,7 @@ serve(async (req) => {
       );
     }
 
-    const { to, subject, html, from_name = "Starlinko" }: EmailRequest = await req.json();
+    const { to, subject, html, from_name = "Ranki.ai" }: EmailRequest = await req.json();
 
     if (!to || !subject || !html) {
       return new Response(

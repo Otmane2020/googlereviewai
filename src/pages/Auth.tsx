@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { StarlinkoLogo } from "@/components/StarlinkoLogo";
+import { Ranki.aiLogo } from "@/components/StarlinkoLogo";
 import { AppLoadingBar } from "@/components/AppLoadingBar";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { Button } from "@/components/ui/button";
@@ -170,7 +170,7 @@ const Auth = () => {
       <div className="hidden lg:flex lg:w-1/2 gradient-hero p-12 flex-col justify-between">
         <div>
           <Link to="/">
-            <StarlinkoLogo showBadge={false} className="text-card" />
+            <Ranki.aiLogo showBadge={false} className="text-card" />
           </Link>
         </div>
         
@@ -197,7 +197,7 @@ const Auth = () => {
         </div>
 
         <p className="text-card/60 text-sm">
-          © {new Date().getFullYear()} Starlinko. {t("common.allRightsReserved")}
+          © {new Date().getFullYear()} Ranki.ai. {t("common.allRightsReserved")}
         </p>
       </div>
 
@@ -212,7 +212,7 @@ const Auth = () => {
             </Link>
             <div className="flex items-center gap-2">
               <LanguageSwitcher variant="flags" />
-              <StarlinkoLogo showBadge={false} />
+              <Ranki.aiLogo showBadge={false} />
             </div>
           </div>
         </div>

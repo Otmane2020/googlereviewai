@@ -90,5 +90,5 @@ export const getDeviceInfo = (): DeviceInfo => {
   };
 };
 
-// Google Play Store URL for Starlinko
+// Google Play Store URL for Ranki.ai
 export const GOOGLE_PLAY_URL = "https://play.google.com/store/apps/details?id=com.world.fi.starlinko";

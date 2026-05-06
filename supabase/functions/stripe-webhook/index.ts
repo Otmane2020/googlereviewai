@@ -283,8 +283,8 @@ serve(async (req) => {
     <div style="background: #ffffff; padding: 32px 24px; border-bottom: 1px solid #e5e7eb;">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td style="vertical-align: middle;"><img src="https://starlinko.app/favicon.png" width="32" height="32" alt="Starlinko" /></td>
-          <td style="vertical-align: middle; padding-left: 12px;"><span style="font-family: -apple-system, sans-serif; font-weight: 600; font-size: 18px; color: #111827;">Starlinko</span></td>
+          <td style="vertical-align: middle;"><img src="https://ranki.ai/favicon.png" width="32" height="32" alt="Ranki.ai" /></td>
+          <td style="vertical-align: middle; padding-left: 12px;"><span style="font-family: -apple-system, sans-serif; font-weight: 600; font-size: 18px; color: #111827;">Ranki.ai</span></td>
         </tr>
       </table>
     </div>
@@ -304,7 +304,7 @@ serve(async (req) => {
         </p>
       </div>
       <div style="text-align: left; margin: 32px 0;">
-        <a href="https://starlinko.app/select-plan" style="display: inline-block; background-color: #2563eb; color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 6px; font-family: -apple-system, sans-serif; font-size: 15px; font-weight: 500;">
+        <a href="https://ranki.ai/select-plan" style="display: inline-block; background-color: #2563eb; color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 6px; font-family: -apple-system, sans-serif; font-size: 15px; font-weight: 500;">
           Voir les offres
         </a>
       </div>
@@ -313,13 +313,13 @@ serve(async (req) => {
       </p>
     </div>
     <div style="padding: 24px; text-align: center; border-top: 1px solid #e5e7eb;">
-      <p style="font-family: -apple-system, sans-serif; color: #9ca3af; font-size: 12px; margin: 0;">© 2025 Starlinko</p>
+      <p style="font-family: -apple-system, sans-serif; color: #9ca3af; font-size: 12px; margin: 0;">© 2025 Ranki.ai</p>
     </div>
   </div>
 </body>
 </html>
                   `,
-                  from_name: "Starlinko",
+                  from_name: "Ranki.ai",
                 }),
               }
             );
@@ -391,8 +391,8 @@ serve(async (req) => {
     <div style="background: #ffffff; padding: 32px 24px; border-bottom: 1px solid #e5e7eb;">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td style="vertical-align: middle;"><img src="https://starlinko.app/favicon.png" width="32" height="32" alt="Starlinko" /></td>
-          <td style="vertical-align: middle; padding-left: 12px;"><span style="font-family: -apple-system, sans-serif; font-weight: 600; font-size: 18px; color: #111827;">Starlinko</span></td>
+          <td style="vertical-align: middle;"><img src="https://ranki.ai/favicon.png" width="32" height="32" alt="Ranki.ai" /></td>
+          <td style="vertical-align: middle; padding-left: 12px;"><span style="font-family: -apple-system, sans-serif; font-weight: 600; font-size: 18px; color: #111827;">Ranki.ai</span></td>
         </tr>
       </table>
     </div>
@@ -415,19 +415,19 @@ serve(async (req) => {
         </p>
       </div>
       <div style="text-align: center; margin: 32px 0;">
-        <a href="https://starlinko.app/dashboard" style="display: inline-block; background-color: #2563eb; color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 6px; font-family: -apple-system, sans-serif; font-size: 15px; font-weight: 500;">
+        <a href="https://ranki.ai/dashboard" style="display: inline-block; background-color: #2563eb; color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 6px; font-family: -apple-system, sans-serif; font-size: 15px; font-weight: 500;">
           Voir mon tableau de bord
         </a>
       </div>
     </div>
     <div style="padding: 24px; text-align: center; border-top: 1px solid #e5e7eb;">
-      <p style="font-family: -apple-system, sans-serif; color: #9ca3af; font-size: 12px; margin: 0;">© 2025 Starlinko</p>
+      <p style="font-family: -apple-system, sans-serif; color: #9ca3af; font-size: 12px; margin: 0;">© 2025 Ranki.ai</p>
     </div>
   </div>
 </body>
 </html>
                         `,
-                        from_name: "Starlinko",
+                        from_name: "Ranki.ai",
                       }),
                     }
                   );

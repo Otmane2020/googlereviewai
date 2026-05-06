@@ -130,7 +130,7 @@ const MobileAIDemoSection = () => {
                   {showAnswer && activeDemo === "chatgpt" && (
                     <div className="mt-6 p-3 bg-[#10a37f]/10 border border-[#10a37f]/30 rounded-xl animate-fade-in">
                       <p className="text-xs text-center text-[#10a37f] font-medium">
-                        ✨ Starlinko optimise votre présence pour les recommandations IA
+                        ✨ Ranki.ai optimise votre présence pour les recommandations IA
                       </p>
                     </div>
                   )}

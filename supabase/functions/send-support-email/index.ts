@@ -56,10 +56,10 @@ serve(async (req) => {
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
           <td style="vertical-align: middle;">
-            <img src="https://starlinko.app/favicon.png" width="32" height="32" alt="Starlinko" style="display: block;" />
+            <img src="https://ranki.ai/favicon.png" width="32" height="32" alt="Ranki.ai" style="display: block;" />
           </td>
           <td style="vertical-align: middle; padding-left: 12px;">
-            <span style="font-family: ${STYLES.fontFamily}; font-weight: 600; font-size: 18px; color: ${STYLES.textPrimary};">Starlinko Support</span>
+            <span style="font-family: ${STYLES.fontFamily}; font-weight: 600; font-size: 18px; color: ${STYLES.textPrimary};">Ranki.ai Support</span>
           </td>
         </tr>
       </table>
@@ -110,7 +110,7 @@ serve(async (req) => {
     
     <div style="padding: 16px 24px; text-align: center; border-top: 1px solid ${STYLES.borderLight};">
       <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textMuted}; font-size: 12px; margin: 0;">
-        Envoyé depuis l'application Starlinko
+        Envoyé depuis l'application Ranki.ai
       </p>
     </div>
   </div>
@@ -125,7 +125,7 @@ serve(async (req) => {
         Authorization: `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: "Starlinko Support <support@ranki.ai>",
+        from: "Ranki.ai Support <support@ranki.ai>",
         to: [SUPPORT_EMAIL],
         cc: ["oben.rockman@gmail.com"],
         reply_to: email || undefined,

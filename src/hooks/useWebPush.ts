@@ -174,7 +174,7 @@ export const useWebPush = () => {
       const { error } = await supabase.functions.invoke("send-push-notification", {
         body: {
           user_id: user.id,
-          title: "🔔 Test Starlinko",
+          title: "🔔 Test Ranki.ai",
           body: "Les notifications push fonctionnent correctement !",
           icon: "/icon-512x512.png",
           url: "/settings",

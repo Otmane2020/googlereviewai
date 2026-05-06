@@ -28,7 +28,7 @@ export const RankiHero = () => {
             </h1>
 
             <p className="mt-6 text-lg sm:text-xl text-muted-foreground max-w-xl mx-auto lg:mx-0">
-              Starlinko améliore votre positionnement local, optimise votre stratégie de référencement naturel et augmente vos ventes en publiant automatiquement le contenu qui vous fait recommander en #1 par les IA et Google.
+              Ranki.ai améliore votre positionnement local, optimise votre stratégie de référencement naturel et augmente vos ventes en publiant automatiquement le contenu qui vous fait recommander en #1 par les IA et Google.
             </p>
 
             <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">

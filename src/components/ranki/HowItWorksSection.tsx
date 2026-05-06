@@ -14,7 +14,7 @@ const steps = [
   {
     icon: Zap,
     title: "3. Publication GEO automatique",
-    desc: "Starlinko génère et publie des Q&R, posts et réponses aux avis optimisés IA sur votre fiche Google — les signaux exacts indexés par les LLM.",
+    desc: "Ranki.ai génère et publie des Q&R, posts et réponses aux avis optimisés IA sur votre fiche Google — les signaux exacts indexés par les LLM.",
   },
   {
     icon: Repeat,

@@ -1,6 +1,6 @@
-// Starlinko Service Worker - VAPID Web Push + PushAlert Integration
+// Ranki.ai Service Worker - VAPID Web Push + PushAlert Integration
 // Cache version: 2026-02-22-v4
-var CACHE_VERSION = 'starlinko-v4';
+var CACHE_VERSION = 'ranki.ai-v4';
 
 // Listen for skip waiting message from client
 self.addEventListener('message', function(event) {
@@ -45,18 +45,18 @@ self.addEventListener('push', function(event) {
     try {
       data = event.data.json();
     } catch (e) {
-      data = { title: 'Starlinko', body: event.data.text() };
+      data = { title: 'Ranki.ai', body: event.data.text() };
     }
   }
 
-  var title = data.title || 'Starlinko';
+  var title = data.title || 'Ranki.ai';
   var options = {
     body: data.body || '',
     icon: data.icon || '/icon-512x512.png',
     badge: '/icon-192x192.svg',
     data: { url: data.url || '/reviews' },
     vibrate: [200, 100, 200],
-    tag: 'starlinko-' + Date.now(),
+    tag: 'ranki.ai-' + Date.now(),
     renotify: true,
   };
 

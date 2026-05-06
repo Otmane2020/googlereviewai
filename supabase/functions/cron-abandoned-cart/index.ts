@@ -28,8 +28,8 @@ function emailTemplate1(name: string, cartSummary: string): string {
     <div style="background:#ffffff;padding:32px 24px;border-bottom:1px solid #e5e7eb;">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td style="vertical-align:middle;"><img src="https://starlinko.app/favicon.png" width="32" height="32" alt="Starlinko" /></td>
-          <td style="vertical-align:middle;padding-left:12px;"><span style="font-family:-apple-system,sans-serif;font-weight:600;font-size:18px;color:#111827;">Starlinko</span></td>
+          <td style="vertical-align:middle;"><img src="https://ranki.ai/favicon.png" width="32" height="32" alt="Ranki.ai" /></td>
+          <td style="vertical-align:middle;padding-left:12px;"><span style="font-family:-apple-system,sans-serif;font-weight:600;font-size:18px;color:#111827;">Ranki.ai</span></td>
         </tr>
       </table>
     </div>
@@ -50,13 +50,13 @@ function emailTemplate1(name: string, cartSummary: string): string {
         Plus vous attendez, plus vos concurrents prennent de l'avance sur Google Maps. Finalisez votre commande maintenant !
       </p>
       <div style="text-align:center;margin:32px 0;">
-        <a href="https://starlinko.app/choose-plan" style="display:inline-block;background-color:#2563eb;color:#ffffff;text-decoration:none;padding:14px 32px;border-radius:8px;font-family:-apple-system,sans-serif;font-size:16px;font-weight:600;">
+        <a href="https://ranki.ai/choose-plan" style="display:inline-block;background-color:#2563eb;color:#ffffff;text-decoration:none;padding:14px 32px;border-radius:8px;font-family:-apple-system,sans-serif;font-size:16px;font-weight:600;">
           Finaliser ma commande →
         </a>
       </div>
     </div>
     <div style="padding:24px;text-align:center;border-top:1px solid #e5e7eb;">
-      <p style="font-family:-apple-system,sans-serif;color:#9ca3af;font-size:12px;margin:0;">© 2025 Starlinko · <a href="https://starlinko.app" style="color:#9ca3af;">starlinko.app</a></p>
+      <p style="font-family:-apple-system,sans-serif;color:#9ca3af;font-size:12px;margin:0;">© 2025 Ranki.ai · <a href="https://ranki.ai" style="color:#9ca3af;">ranki.ai</a></p>
     </div>
   </div>
 </body>
@@ -74,8 +74,8 @@ function emailTemplate2(name: string, cartSummary: string, couponCode: string, d
     <div style="background:#ffffff;padding:32px 24px;border-bottom:1px solid #e5e7eb;">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td style="vertical-align:middle;"><img src="https://starlinko.app/favicon.png" width="32" height="32" alt="Starlinko" /></td>
-          <td style="vertical-align:middle;padding-left:12px;"><span style="font-family:-apple-system,sans-serif;font-weight:600;font-size:18px;color:#111827;">Starlinko</span></td>
+          <td style="vertical-align:middle;"><img src="https://ranki.ai/favicon.png" width="32" height="32" alt="Ranki.ai" /></td>
+          <td style="vertical-align:middle;padding-left:12px;"><span style="font-family:-apple-system,sans-serif;font-weight:600;font-size:18px;color:#111827;">Ranki.ai</span></td>
         </tr>
       </table>
     </div>
@@ -100,13 +100,13 @@ function emailTemplate2(name: string, cartSummary: string, couponCode: string, d
         <p style="font-family:-apple-system,sans-serif;color:#92400e;font-size:12px;margin:8px 0 0 0;">⏰ Valable 48h seulement</p>
       </div>
       <div style="text-align:center;margin:32px 0;">
-        <a href="https://starlinko.app/choose-plan" style="display:inline-block;background:linear-gradient(135deg,#2563eb,#7c3aed);color:#ffffff;text-decoration:none;padding:14px 32px;border-radius:8px;font-family:-apple-system,sans-serif;font-size:16px;font-weight:600;">
+        <a href="https://ranki.ai/choose-plan" style="display:inline-block;background:linear-gradient(135deg,#2563eb,#7c3aed);color:#ffffff;text-decoration:none;padding:14px 32px;border-radius:8px;font-family:-apple-system,sans-serif;font-size:16px;font-weight:600;">
           Profiter de -${discountPercent}% maintenant →
         </a>
       </div>
     </div>
     <div style="padding:24px;text-align:center;border-top:1px solid #e5e7eb;">
-      <p style="font-family:-apple-system,sans-serif;color:#9ca3af;font-size:12px;margin:0;">© 2025 Starlinko · <a href="https://starlinko.app" style="color:#9ca3af;">starlinko.app</a></p>
+      <p style="font-family:-apple-system,sans-serif;color:#9ca3af;font-size:12px;margin:0;">© 2025 Ranki.ai · <a href="https://ranki.ai" style="color:#9ca3af;">ranki.ai</a></p>
     </div>
   </div>
 </body>
@@ -124,8 +124,8 @@ function emailTemplate3(name: string, cartSummary: string, couponCode: string): 
     <div style="background:#ffffff;padding:32px 24px;border-bottom:1px solid #e5e7eb;">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td style="vertical-align:middle;"><img src="https://starlinko.app/favicon.png" width="32" height="32" alt="Starlinko" /></td>
-          <td style="vertical-align:middle;padding-left:12px;"><span style="font-family:-apple-system,sans-serif;font-weight:600;font-size:18px;color:#111827;">Starlinko</span></td>
+          <td style="vertical-align:middle;"><img src="https://ranki.ai/favicon.png" width="32" height="32" alt="Ranki.ai" /></td>
+          <td style="vertical-align:middle;padding-left:12px;"><span style="font-family:-apple-system,sans-serif;font-weight:600;font-size:18px;color:#111827;">Ranki.ai</span></td>
         </tr>
       </table>
     </div>
@@ -139,7 +139,7 @@ function emailTemplate3(name: string, cartSummary: string, couponCode: string): 
         Dernière chance${firstName ? `, ${firstName}` : ""} ! ⏰
       </h1>
       <p style="font-family:-apple-system,sans-serif;color:#6b7280;font-size:15px;line-height:1.6;margin:0 0 24px 0;">
-        C'est notre <strong>meilleure offre</strong> : un mois entier gratuit pour essayer Starlinko sans risque.
+        C'est notre <strong>meilleure offre</strong> : un mois entier gratuit pour essayer Ranki.ai sans risque.
         Après ça, on ne pourra plus vous la proposer.
       </p>
       <div style="background:#f3f4f6;border-radius:8px;padding:20px;margin:24px 0;">
@@ -156,7 +156,7 @@ function emailTemplate3(name: string, cartSummary: string, couponCode: string): 
         </p>
       </div>
       <div style="text-align:center;margin:32px 0;">
-        <a href="https://starlinko.app/choose-plan" style="display:inline-block;background:linear-gradient(135deg,#dc2626,#ea580c);color:#ffffff;text-decoration:none;padding:16px 36px;border-radius:8px;font-family:-apple-system,sans-serif;font-size:18px;font-weight:700;">
+        <a href="https://ranki.ai/choose-plan" style="display:inline-block;background:linear-gradient(135deg,#dc2626,#ea580c);color:#ffffff;text-decoration:none;padding:16px 36px;border-radius:8px;font-family:-apple-system,sans-serif;font-size:18px;font-weight:700;">
           Réclamer mon mois gratuit →
         </a>
       </div>
@@ -165,7 +165,7 @@ function emailTemplate3(name: string, cartSummary: string, couponCode: string): 
       </p>
     </div>
     <div style="padding:24px;text-align:center;border-top:1px solid #e5e7eb;">
-      <p style="font-family:-apple-system,sans-serif;color:#9ca3af;font-size:12px;margin:0;">© 2025 Starlinko · <a href="https://starlinko.app" style="color:#9ca3af;">starlinko.app</a></p>
+      <p style="font-family:-apple-system,sans-serif;color:#9ca3af;font-size:12px;margin:0;">© 2025 Ranki.ai · <a href="https://ranki.ai" style="color:#9ca3af;">ranki.ai</a></p>
     </div>
   </div>
 </body>
@@ -174,7 +174,7 @@ function emailTemplate3(name: string, cartSummary: string, couponCode: string): 
 
 // ─── Cart Summary HTML ─────────────────────────────────────────────
 function buildCartSummary(items: any[], billingCycle: string): string {
-  if (!items || items.length === 0) return "<p>Votre sélection Starlinko</p>";
+  if (!items || items.length === 0) return "<p>Votre sélection Ranki.ai</p>";
   
   return items.map((item: any) => `
     <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #e5e7eb;">
@@ -233,7 +233,7 @@ async function sendEmail(to: string, subject: string, html: string): Promise<boo
           "Content-Type": "application/json",
           "Authorization": `Bearer ${Deno.env.get("SUPABASE_ANON_KEY")}`,
         },
-        body: JSON.stringify({ to, subject, html, from_name: "Starlinko" }),
+        body: JSON.stringify({ to, subject, html, from_name: "Ranki.ai" }),
       }
     );
     const result = await response.json();

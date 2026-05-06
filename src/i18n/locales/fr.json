@@ -58,7 +58,7 @@
   "hero": {
     "title": "Répondez à vos avis Google",
     "titleHighlight": "en quelques secondes grâce à l'IA",
-    "subtitle": "Starlinko génère des réponses personnalisées et professionnelles pour chaque avis Google de votre établissement. Gagnez du temps et améliorez votre e-réputation.",
+    "subtitle": "Ranki.ai génère des réponses personnalisées et professionnelles pour chaque avis Google de votre établissement. Gagnez du temps et améliorez votre e-réputation.",
     "cta": "Essai gratuit 3 jours",
     "ctaSecondary": "Voir la démo",
     "installApp": "Installer l'app",
@@ -84,7 +84,7 @@
   },
   "cta": {
     "title": "Prêt à transformer vos avis Google ?",
-    "subtitle": "Rejoignez des centaines d'établissements qui utilisent Starlinko pour gérer leurs avis clients automatiquement.",
+    "subtitle": "Rejoignez des centaines d'établissements qui utilisent Ranki.ai pour gérer leurs avis clients automatiquement.",
     "button": "Commencer maintenant",
     "installApp": "Installer l'app"
   },
@@ -124,7 +124,7 @@
     "learnMore": "En savoir plus",
     "keyBenefits": "Avantages clés",
     "gotIt": "Compris !",
-    "whyStarlinko": "Pourquoi Starlinko ?",
+    "whyStarlinko": "Pourquoi Ranki.ai ?",
     "benefitsDesc": "Les avantages qui font la différence",
     "stayAhead": "Devancez vos concurrents",
     "stayAheadDesc": "Soyez visible là où ils ne sont pas encore",
@@ -139,7 +139,7 @@
     "step1Title": "Connectez-vous",
     "step1Desc": "Liez votre Google My Business en un clic avec votre compte Google.",
     "step2Title": "L'IA travaille",
-    "step2Desc": "Starlinko génère automatiquement des réponses personnalisées.",
+    "step2Desc": "Ranki.ai génère automatiquement des réponses personnalisées.",
     "step3Title": "Publiez",
     "step3Desc": "Validez et publiez en un clic, ou activez le mode automatique.",
     "autoSync": "Synchronisation automatique",
@@ -154,11 +154,11 @@
   "testimonials": {
     "badge": "Témoignages clients",
     "title": "Ils nous font confiance",
-    "subtitle": "+500 entreprises utilisent Starlinko pour dominer leur marché local",
+    "subtitle": "+500 entreprises utilisent Ranki.ai pour dominer leur marché local",
     "role1": "Gérante",
     "role2": "Directeur Marketing",
     "role3": "Directrice",
-    "text1": "Starlinko a révolutionné notre gestion des avis. On répond à 50 avis par semaine en 5 minutes au lieu de 2 heures !",
+    "text1": "Ranki.ai a révolutionné notre gestion des avis. On répond à 50 avis par semaine en 5 minutes au lieu de 2 heures !",
     "text2": "Grâce à l'AEO, nous apparaissons maintenant dans les réponses de ChatGPT. Nos demandes de devis ont explosé.",
     "text3": "Les articles SEO générés automatiquement nous ont fait passer en première page Google sur 12 mots-clés locaux.",
     "highlight1": "+85% de réponses",
@@ -177,7 +177,7 @@
   "sectors": {
     "badge": "Tous secteurs",
     "title": "Une solution pour chaque métier",
-    "subtitle": "Starlinko s'adapte à votre secteur d'activité avec un ton et des réponses personnalisées qui correspondent à votre image de marque.",
+    "subtitle": "Ranki.ai s'adapte à votre secteur d'activité avec un ton et des réponses personnalisées qui correspondent à votre image de marque.",
     "restaurants": "Restaurants",
     "restaurantsDesc": "Pizzerias, brasseries, gastronomiques, fast-food... Répondez à chaque avis avec le ton adapté à votre cuisine.",
     "hotels": "Hôtels",
@@ -238,7 +238,7 @@
       "badge": "Offre Unique",
       "title": "Une offre. Tout inclus.",
       "subtitle": "Visibilité Google, ChatGPT et gestion des avis. Tout ce qu'il vous faut pour dominer votre marché local.",
-      "name": "Starlinko Tout-en-Un",
+      "name": "Ranki.ai Tout-en-Un",
       "description": "Pack complet SEO + AEO + Réponses IA",
       "feature1": "Réponses IA illimitées aux avis Google",
       "feature2": "Articles SEO générés automatiquement",
@@ -429,7 +429,7 @@
     },
     "success": {
       "loginSuccess": "Connexion réussie !",
-      "welcomeBack": "Bienvenue sur Starlinko",
+      "welcomeBack": "Bienvenue sur Ranki.ai",
       "signupSuccess": "Inscription réussie !",
       "canNowLogin": "Vous pouvez maintenant vous connecter"
     },
@@ -500,13 +500,13 @@
     "insights": "Statistiques"
   },
   "onboarding": {
-    "welcome": "Bienvenue sur Starlinko",
+    "welcome": "Bienvenue sur Ranki.ai",
     "step1Title": "Connectez votre compte Google",
     "step1Desc": "Liez votre Google Business Profile pour synchroniser vos avis.",
     "step2Title": "Configurez vos préférences",
     "step2Desc": "Personnalisez le ton et le style des réponses IA.",
     "step3Title": "Laissez l'IA travailler",
-    "step3Desc": "Starlinko génère et publie des réponses automatiquement.",
+    "step3Desc": "Ranki.ai génère et publie des réponses automatiquement.",
     "getStarted": "Commencer"
   },
   "credits": {
@@ -524,10 +524,10 @@
   },
   "demo": {
     "badge": "Démo en direct",
-    "title": "Voyez Starlinko en action",
+    "title": "Voyez Ranki.ai en action",
     "subtitle": "Notre IA génère des réponses personnalisées à chaque avis Google en quelques secondes",
     "tab": "Avis {{num}}",
-    "aiLabel": "Réponse IA Starlinko",
+    "aiLabel": "Réponse IA Ranki.ai",
     "typing": "Rédaction...",
     "published": "✓ Publiée",
     "reviews": {
@@ -563,11 +563,11 @@
   },
   "sectorDemo": {
     "description": "Les réponses ci-dessous à des avis positifs ou négatifs ont été générées par",
-    "brandName": "Starlinko IA",
+    "brandName": "Ranki.ai IA",
     "selectIndustry": "Sélectionnez une industrie et un type d'avis.",
     "positiveReview": "Avis positif",
     "negativeReview": "Avis négatif",
-    "aiResponseLabel": "Réponse Starlinko",
+    "aiResponseLabel": "Réponse Ranki.ai",
     "typing": "Rédaction...",
     "sectors": {
       "restaurant": "Restauration",
@@ -719,9 +719,9 @@
     }
   },
   "landing": {
-    "title": "Starlinko – Boostez vos ventes et votre visibilité sur ChatGPT, Gemini & Perplexity",
-    "description": "Starlinko booste votre visibilité, améliore votre positionnement sur Google et les IA (ChatGPT, Gemini, Perplexity) et augmente vos ventes grâce à une stratégie de référencement naturel automatisée.",
-    "faqTitle": "Tout savoir sur Starlinko",
+    "title": "Ranki.ai – Boostez vos ventes et votre visibilité sur ChatGPT, Gemini & Perplexity",
+    "description": "Ranki.ai booste votre visibilité, améliore votre positionnement sur Google et les IA (ChatGPT, Gemini, Perplexity) et augmente vos ventes grâce à une stratégie de référencement naturel automatisée.",
+    "faqTitle": "Tout savoir sur Ranki.ai",
     "faqSubtitle": "La plateforme GEO conçue pour les commerces et professionnels locaux.",
     "faqBadge": "FAQ",
     "faq": [
@@ -730,16 +730,16 @@
         "a": "Le GEO est la discipline qui consiste à faire apparaître — et classer en premier — votre établissement dans les réponses des IA génératives comme ChatGPT, Gemini, Perplexity et Claude. C'est le successeur du SEO local à l'ère de l'IA."
       },
       {
-        "q": "Comment Starlinko connaît-il mon classement sur ChatGPT ou Gemini ?",
-        "a": "Starlinko envoie de vraies requêtes sur chaque IA pour les recherches locales qui comptent pour vous (ex : « meilleur dentiste à Lyon »), analyse les réponses et suit si votre établissement est mentionné, à quelle position et face à quels concurrents."
+        "q": "Comment Ranki.ai connaît-il mon classement sur ChatGPT ou Gemini ?",
+        "a": "Ranki.ai envoie de vraies requêtes sur chaque IA pour les recherches locales qui comptent pour vous (ex : « meilleur dentiste à Lyon »), analyse les réponses et suit si votre établissement est mentionné, à quelle position et face à quels concurrents."
       },
       {
-        "q": "Starlinko va-t-il vraiment améliorer mon positionnement IA ?",
-        "a": "Oui. Starlinko publie automatiquement des Q&R et des posts SEO optimisés pour l'IA sur votre fiche Google Business — exactement les sources qu'indexent les LLM — et répond aux avis dans le ton de votre marque. En quelques semaines, votre part de voix dans les réponses IA augmente fortement, ce qui booste votre visibilité et vos ventes."
+        "q": "Ranki.ai va-t-il vraiment améliorer mon positionnement IA ?",
+        "a": "Oui. Ranki.ai publie automatiquement des Q&R et des posts SEO optimisés pour l'IA sur votre fiche Google Business — exactement les sources qu'indexent les LLM — et répond aux avis dans le ton de votre marque. En quelques semaines, votre part de voix dans les réponses IA augmente fortement, ce qui booste votre visibilité et vos ventes."
       },
       {
         "q": "Ai-je besoin d'une fiche Google Business ?",
-        "a": "Oui. Starlinko se connecte à votre fiche Google Business pour récupérer les avis, publier du contenu et aligner vos signaux entre Google Search, Google Maps et les moteurs IA."
+        "a": "Oui. Ranki.ai se connecte à votre fiche Google Business pour récupérer les avis, publier du contenu et aligner vos signaux entre Google Search, Google Maps et les moteurs IA."
       },
       {
         "q": "Existe-t-il une offre gratuite ?",
@@ -805,7 +805,7 @@
     "pushNotifications": "Notifications push",
     "androidManaged": "Gérées par le système Android",
     "androidSettings": "Paramètres",
-    "androidSettingsDesc": "Ouvrez Paramètres > Applications > Starlinko > Notifications",
+    "androidSettingsDesc": "Ouvrez Paramètres > Applications > Ranki.ai > Notifications",
     "pushUnsupported": "Non pris en charge par ce navigateur",
     "pushActiveDesc": "Activées — Vous recevez les alertes",
     "pushBlocked": "Bloquées — Autorisez dans votre navigateur",

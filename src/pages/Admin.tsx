@@ -107,7 +107,7 @@ const Admin = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `starlinko-analytics-${new Date().toISOString().split("T")[0]}.json`;
+    a.download = `ranki.ai-analytics-${new Date().toISOString().split("T")[0]}.json`;
     a.click();
   };
 

@@ -27,7 +27,7 @@ export const DashboardPreviewSection = () => {
               <span className="w-3 h-3 rounded-full bg-green-400" />
             </div>
             <div className="flex-1 text-center text-xs text-muted-foreground font-medium">
-              starlinko.app — Tableau de bord
+              ranki.ai — Tableau de bord
             </div>
           </div>
 

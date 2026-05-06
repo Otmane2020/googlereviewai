@@ -27,7 +27,7 @@ import { FAQSection } from "@/components/FAQSection";
    Users,
    Loader2
  } from "lucide-react";
- import { StarlinkoLogo } from "@/components/StarlinkoLogo";
+ import { Ranki.aiLogo } from "@/components/StarlinkoLogo";
  import { useAuth } from "@/contexts/AuthContext";
  import { supabase } from "@/integrations/supabase/client";
  import { toast } from "@/hooks/use-toast";
@@ -147,16 +147,16 @@ const LandingPremium = () => {
 
     const landingFaqs = [
       {
-        question: "Que comprend le Pack Complet Starlinko ?",
-        answer: "Le Pack Complet Starlinko inclut toutes les fonctionnalités : réponses automatiques IA aux avis Google, SEO local automatisé avec publications quotidiennes, AEO pour apparaître dans ChatGPT et les IA, dashboard de suivi et statistiques complètes. Un seul prix, aucune option cachée."
+        question: "Que comprend le Pack Complet Ranki.ai ?",
+        answer: "Le Pack Complet Ranki.ai inclut toutes les fonctionnalités : réponses automatiques IA aux avis Google, SEO local automatisé avec publications quotidiennes, AEO pour apparaître dans ChatGPT et les IA, dashboard de suivi et statistiques complètes. Un seul prix, aucune option cachée."
       },
       {
-        question: "Combien coûte Starlinko ?",
-        answer: "Starlinko est à 39€/mois en mensuel, ou 32,50€/mois en engagement annuel (soit 390€/an avec 2 mois offerts). Toutes les fonctionnalités sont incluses sans option ni add-on supplémentaire."
+        question: "Combien coûte Ranki.ai ?",
+        answer: "Ranki.ai est à 39€/mois en mensuel, ou 32,50€/mois en engagement annuel (soit 390€/an avec 2 mois offerts). Toutes les fonctionnalités sont incluses sans option ni add-on supplémentaire."
       },
       {
-        question: "Puis-je essayer Starlinko gratuitement ?",
-        answer: "Oui, Starlinko propose un essai gratuit de 7 jours sans carte bancaire. Vous pouvez tester toutes les fonctionnalités et annuler à tout moment si la solution ne vous convient pas."
+        question: "Puis-je essayer Ranki.ai gratuitement ?",
+        answer: "Oui, Ranki.ai propose un essai gratuit de 7 jours sans carte bancaire. Vous pouvez tester toutes les fonctionnalités et annuler à tout moment si la solution ne vous convient pas."
       },
       {
         question: "Combien de temps faut-il pour voir des résultats ?",
@@ -167,24 +167,24 @@ const LandingPremium = () => {
    return (
      <div className="min-h-screen bg-background">
        <Helmet>
-         <title>Starlinko Pack Complet – SEO + AEO + Avis IA | Tout-en-Un</title>
+         <title>Ranki.ai Pack Complet – SEO + AEO + Avis IA | Tout-en-Un</title>
          <meta
            name="description"
-           content="Boostez votre visibilité sur Google & ChatGPT avec le Pack Complet Starlinko. Réponses IA aux avis, SEO local, AEO ChatGPT. À partir de 32,50€/mois."
+           content="Boostez votre visibilité sur Google & ChatGPT avec le Pack Complet Ranki.ai. Réponses IA aux avis, SEO local, AEO ChatGPT. À partir de 32,50€/mois."
          />
-         <link rel="canonical" href="https://starlinko.app/landing" />
-         <meta property="og:title" content="Starlinko Pack Complet – Visibilité Google & ChatGPT" />
+         <link rel="canonical" href="https://ranki.ai/landing" />
+         <meta property="og:title" content="Ranki.ai Pack Complet – Visibilité Google & ChatGPT" />
          <meta property="og:description" content="Un seul pack, un seul prix. SEO + AEO + Avis Google IA. Passez devant vos concurrents en 60 jours." />
-         <meta property="og:url" content="https://starlinko.app/landing" />
+         <meta property="og:url" content="https://ranki.ai/landing" />
          <meta property="og:type" content="product" />
-         <meta property="og:image" content="https://starlinko.app/og-image.png" />
+         <meta property="og:image" content="https://ranki.ai/og-image.png" />
        </Helmet>
         <ProductSchema />
         <FAQPageSchema faqs={landingFaqs} />
        {/* Header */}
        <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
          <div className="container mx-auto px-5 py-4 flex items-center justify-between">
-           <Link to="/"><StarlinkoLogo className="h-8" /></Link>
+           <Link to="/"><Ranki.aiLogo className="h-8" /></Link>
            <Button 
              variant="outline" 
              size="sm"
@@ -272,7 +272,7 @@ const LandingPremium = () => {
          </div>
        </section>
  
-       {/* Why Starlinko */}
+       {/* Why Ranki.ai */}
        <section className="py-16 sm:py-24 bg-background">
          <div className="container mx-auto px-5">
            <div className="text-center mb-12">
@@ -281,7 +281,7 @@ const LandingPremium = () => {
                <span className="text-primary text-sm font-semibold">Pourquoi ça fonctionne</span>
              </div>
              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-4">
-               Starlinko automatise ce que vos concurrents font encore à la main
+               Ranki.ai automatise ce que vos concurrents font encore à la main
              </h2>
            </div>
  
@@ -307,7 +307,7 @@ const LandingPremium = () => {
            <div className="text-center mb-12">
              <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-secondary/10 rounded-full mb-4">
                <Sparkles className="w-4 h-4 text-secondary" />
-               <span className="text-secondary text-sm font-semibold">L'offre unique Starlinko</span>
+               <span className="text-secondary text-sm font-semibold">L'offre unique Ranki.ai</span>
              </div>
              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-4">
                Tous les leviers activés
@@ -483,7 +483,7 @@ const LandingPremium = () => {
                <span className="text-primary text-sm font-semibold">SEO + AEO = Visibilité maximale</span>
              </div>
              <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-6">
-               Starlinko ne fait pas que du SEO classique
+               Ranki.ai ne fait pas que du SEO classique
              </h2>
              <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
                Il vous rend <span className="text-foreground font-semibold">visible ET recommandé</span> sur Google, dans ChatGPT, et dans les moteurs IA nouvelle génération.
@@ -524,7 +524,7 @@ const LandingPremium = () => {
         <FAQSection
           faqs={landingFaqs}
           title="Questions fréquentes"
-          subtitle="Les réponses aux questions que vous vous posez sur Starlinko"
+          subtitle="Les réponses aux questions que vous vous posez sur Ranki.ai"
           badgeText="FAQ"
         />
   
@@ -535,7 +535,7 @@ const LandingPremium = () => {
              Ready à passer devant vos concurrents ?
            </h2>
            <p className="text-card/80 text-lg mb-8 max-w-xl mx-auto">
-             Rejoignez +2000 entreprises qui utilisent Starlinko pour leur visibilité en ligne.
+             Rejoignez +2000 entreprises qui utilisent Ranki.ai pour leur visibilité en ligne.
            </p>
            <Button 
              variant="hero" 

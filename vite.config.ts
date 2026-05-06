@@ -26,8 +26,8 @@ export default defineConfig(({ mode }) => ({
       injectRegister: false,
       includeAssets: ["favicon.ico", "robots.txt", "sitemap.xml", "icon-512x512.png", "splash.png", "pwa-192x192.png"],
       manifest: {
-        name: "Starlinko - Gestion des avis Google",
-        short_name: "Starlinko",
+        name: "Ranki.ai - Gestion des avis Google",
+        short_name: "Ranki.ai",
         description: "Gérez et répondez automatiquement à vos avis Google My Business",
         theme_color: "#ffffff",
         background_color: "#ffffff",

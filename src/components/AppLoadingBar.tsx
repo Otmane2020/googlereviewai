@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { StarlinkoLogo } from "./StarlinkoLogo";
+import { Ranki.aiLogo } from "./StarlinkoLogo";
 
 interface AppLoadingBarProps {
   message?: string;
@@ -29,7 +29,7 @@ export const AppLoadingBar = ({ message = "Loading..." }: AppLoadingBarProps) =>
       <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/50">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center h-14">
-            <StarlinkoLogo showBadge={false} />
+            <Ranki.aiLogo showBadge={false} />
           </div>
         </div>
         

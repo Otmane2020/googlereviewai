@@ -4,7 +4,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Gift, Star, Zap, X, Clock, ShieldCheck } from "lucide-react";
 
-const STORAGE_KEY = "starlinko_exit_popup_shown";
+const STORAGE_KEY = "ranki.ai_exit_popup_shown";
 const COOLDOWN_HOURS = 24;
 
 export const ExitIntentPopup = () => {
@@ -98,7 +98,7 @@ export const ExitIntentPopup = () => {
             <p className="text-sm text-muted-foreground mb-1">Offer spéciale</p>
             <p className="text-3xl font-bold text-foreground">2 mois GRATUITS</p>
             <p className="text-sm text-muted-foreground mt-1">
-              Essayez Starlinko sans risque pendant 60 jours
+              Essayez Ranki.ai sans risque pendant 60 jours
             </p>
           </div>
 

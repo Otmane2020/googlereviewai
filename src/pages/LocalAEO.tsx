@@ -86,7 +86,7 @@ const LocalAEO = () => {
   const aeoFaqs = [
     {
       question: "Comment apparaître dans les réponses de ChatGPT pour les recherches locales ?",
-      answer: "Pour apparaître dans ChatGPT pour les recherches locales, il faut publier du contenu structuré en format question-réponse sur votre fiche Google Business Profile. Starlinko automatise ce processus via son module AEO qui génère et publie quotidiennement des Q&A optimisés spécifiquement pour les moteurs de réponse IA."
+      answer: "Pour apparaître dans ChatGPT pour les recherches locales, il faut publier du contenu structuré en format question-réponse sur votre fiche Google Business Profile. Ranki.ai automatise ce processus via son module AEO qui génère et publie quotidiennement des Q&A optimisés spécifiquement pour les moteurs de réponse IA."
     },
     {
       question: "Qu'est-ce que l'AEO (Answer Engine Optimization) ?",
@@ -94,41 +94,41 @@ const LocalAEO = () => {
     },
     {
       question: "Quelle est la différence entre SEO local et AEO local ?",
-      answer: "Le SEO local optimise votre positionnement dans Google Maps et les résultats de recherche locaux. L'AEO local optimise votre contenu pour que les assistants IA (ChatGPT, Gemini) recommandent votre entreprise lorsque les utilisateurs posent des questions sur des services près de chez eux. Starlinko combine les deux pour maximiser votre visibilité."
+      answer: "Le SEO local optimise votre positionnement dans Google Maps et les résultats de recherche locaux. L'AEO local optimise votre contenu pour que les assistants IA (ChatGPT, Gemini) recommandent votre entreprise lorsque les utilisateurs posent des questions sur des services près de chez eux. Ranki.ai combine les deux pour maximiser votre visibilité."
     },
     {
-      question: "Comment Starlinko génère-t-il des Q&A pour ChatGPT ?",
-      answer: "Starlinko utilise l'IA pour analyser votre activité, vos mots-clés et votre zone géographique. Il génère ensuite des questions-réponses pertinentes en format structuré et les publie automatiquement sur votre fiche Google Business Profile chaque jour, maximisant vos chances d'être cité par les IA."
+      question: "Comment Ranki.ai génère-t-il des Q&A pour ChatGPT ?",
+      answer: "Ranki.ai utilise l'IA pour analyser votre activité, vos mots-clés et votre zone géographique. Il génère ensuite des questions-réponses pertinentes en format structuré et les publie automatiquement sur votre fiche Google Business Profile chaque jour, maximisant vos chances d'être cité par les IA."
     },
     {
       question: "Combien de temps faut-il pour apparaître dans les réponses IA ?",
-      answer: "Les premiers résultats sont généralement visibles en 30 à 60 jours. Starlinko publie du contenu AEO quotidiennement, créant un effet cumulatif. Plus votre contenu est riche et régulier, plus les chances d'être cité par ChatGPT et les autres IA augmentent."
+      answer: "Les premiers résultats sont généralement visibles en 30 à 60 jours. Ranki.ai publie du contenu AEO quotidiennement, créant un effet cumulatif. Plus votre contenu est riche et régulier, plus les chances d'être cité par ChatGPT et les autres IA augmentent."
     },
     {
       question: "L'AEO fonctionne-t-il pour tous les secteurs d'activité ?",
-      answer: "Oui, l'AEO est efficace pour toutes les entreprises locales : restaurants, hôtels, salons de coiffure, garages, professionnels de santé, commerces, artisans. Starlinko adapte le contenu Q&A à chaque secteur pour répondre aux questions que les utilisateurs posent réellement aux assistants IA."
+      answer: "Oui, l'AEO est efficace pour toutes les entreprises locales : restaurants, hôtels, salons de coiffure, garages, professionnels de santé, commerces, artisans. Ranki.ai adapte le contenu Q&A à chaque secteur pour répondre aux questions que les utilisateurs posent réellement aux assistants IA."
     }
   ];
 
   return (
     <div className="min-h-screen bg-background">
       <Helmet>
-        <title>Local AEO – Apparaissez dans ChatGPT & Gemini | Starlinko</title>
+        <title>Local AEO – Apparaissez dans ChatGPT & Gemini | Ranki.ai</title>
         <meta
           name="description"
           content="Optimisez votre visibilité locale dans ChatGPT, Gemini et les assistants IA. Générez automatiquement des Q&A AEO pour être recommandé par l'IA. Essai gratuit."
         />
-        <link rel="canonical" href="https://starlinko.app/local-aeo" />
+        <link rel="canonical" href="https://ranki.ai/local-aeo" />
         <meta property="og:title" content="Local AEO – Apparaissez dans ChatGPT & Gemini" />
         <meta property="og:description" content="Optimisez votre présence pour les moteurs de réponse IA. Q&A automatiques publiés sur Google Business Profile." />
-        <meta property="og:url" content="https://starlinko.app/local-aeo" />
+        <meta property="og:url" content="https://ranki.ai/local-aeo" />
         <meta property="og:type" content="website" />
-        <meta property="og:image" content="https://starlinko.app/og-image.png" />
+        <meta property="og:image" content="https://ranki.ai/og-image.png" />
       </Helmet>
       <FAQPageSchema faqs={aeoFaqs} />
       <BreadcrumbSchema items={[
-        { name: "Accueil", url: "https://starlinko.app" },
-        { name: "Local AEO", url: "https://starlinko.app/local-aeo" }
+        { name: "Accueil", url: "https://ranki.ai" },
+        { name: "Local AEO", url: "https://ranki.ai/local-aeo" }
       ]} />
       <Header />
       
@@ -221,7 +221,7 @@ const LocalAEO = () => {
                 Comment ça Fonctionne ?
               </h2>
               <p className="text-muted-foreground max-w-2xl mx-auto">
-                Starlinko génère et publie automatiquement du contenu optimisé pour l'IA sur votre fiche Google My Business
+                Ranki.ai génère et publie automatiquement du contenu optimisé pour l'IA sur votre fiche Google My Business
               </p>
             </div>
 
@@ -282,7 +282,7 @@ const LocalAEO = () => {
                   Ready à Dominer l'IA Locale ?
                 </h2>
                 <p className="text-muted-foreground mb-6 max-w-xl mx-auto">
-                  Rejoignez les entreprises qui utilisent déjà Starlinko pour apparaître 
+                  Rejoignez les entreprises qui utilisent déjà Ranki.ai pour apparaître 
                   dans les réponses de ChatGPT et des autres assistants IA.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">

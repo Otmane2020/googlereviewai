@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Star, Zap, Check, MessageSquare, TrendingUp, Clock, Sparkles, Gift } from "lucide-react";
-import { StarlinkoLogo } from "@/components/StarlinkoLogo";
+import { Ranki.aiLogo } from "@/components/StarlinkoLogo";
 
 const MobileAds = () => {
   const navigate = useNavigate();
@@ -19,7 +19,7 @@ const MobileAds = () => {
       {/* Header */}
       <header className="py-4 px-4">
         <div className="flex justify-center">
-          <StarlinkoLogo className="h-8" />
+          <Ranki.aiLogo className="h-8" />
         </div>
       </header>
 
@@ -46,7 +46,7 @@ const MobileAds = () => {
 
         {/* Subheadline - Solution + Résultat */}
         <p className="text-muted-foreground text-base mb-6 max-w-xs leading-relaxed">
-          Starlinko répond <span className="font-semibold text-foreground">automatiquement</span> à vos avis Google avec l'IA pour renforcer la confiance et attirer plus de clients.
+          Ranki.ai répond <span className="font-semibold text-foreground">automatiquement</span> à vos avis Google avec l'IA pour renforcer la confiance et attirer plus de clients.
         </p>
 
         {/* CTA Button */}
@@ -56,7 +56,7 @@ const MobileAds = () => {
           className="w-full max-w-xs gap-2 text-base h-14 rounded-2xl shadow-lg mb-4"
         >
           <Zap className="w-5 h-5" />
-          Essayer Starlinko gratuitement
+          Essayer Ranki.ai gratuitement
         </Button>
 
         {/* Trust Indicators + Offer */}
@@ -93,10 +93,10 @@ const MobileAds = () => {
           </span>
         </div>
 
-        {/* Why Starlinko - Optimized order */}
+        {/* Why Ranki.ai - Optimized order */}
         <div className="w-full max-w-xs bg-muted/50 rounded-2xl p-4 text-left">
           <p className="text-sm font-semibold text-foreground mb-3 text-center">
-            🧠 Pourquoi Starlinko ?
+            🧠 Pourquoi Ranki.ai ?
           </p>
           <div className="space-y-2.5">
             <div className="flex items-center gap-3">

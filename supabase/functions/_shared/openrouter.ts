@@ -78,8 +78,8 @@ async function tryEndpoint(
 export async function callOpenRouterWithFallback(opts: CallOpts): Promise<string> {
   const openrouterKey = opts.apiKey ?? Deno.env.get("OPENROUTER_API_KEY");
   const lovableKey = Deno.env.get("LOVABLE_API_KEY");
-  const referer = opts.referer ?? "https://starlinko.app";
-  const title = opts.title ?? "Starlinko";
+  const referer = opts.referer ?? "https://ranki.ai";
+  const title = opts.title ?? "Ranki.ai";
 
   let lastError = "no provider available";
   let lastStatus: number | undefined;

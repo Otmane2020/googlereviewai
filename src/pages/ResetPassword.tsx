@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { StarlinkoLogo } from "@/components/StarlinkoLogo";
+import { Ranki.aiLogo } from "@/components/StarlinkoLogo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -166,7 +166,7 @@ const ResetPassword = () => {
       <div className="min-h-screen bg-background flex items-center justify-center p-6">
         <div className="w-full max-w-md space-y-6">
           <div className="text-center">
-            <StarlinkoLogo showBadge={false} className="mx-auto" />
+            <Ranki.aiLogo showBadge={false} className="mx-auto" />
           </div>
 
           <div className="text-center space-y-2">
@@ -227,7 +227,7 @@ const ResetPassword = () => {
     <div className="min-h-screen bg-background flex items-center justify-center p-6">
       <div className="w-full max-w-md space-y-8">
         <div className="text-center">
-          <StarlinkoLogo showBadge={false} className="mx-auto" />
+          <Ranki.aiLogo showBadge={false} className="mx-auto" />
         </div>
 
         <div>

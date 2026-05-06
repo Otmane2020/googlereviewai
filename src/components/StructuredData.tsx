@@ -7,17 +7,17 @@ export const OrganizationSchema = () => (
       {JSON.stringify({
         "@context": "https://schema.org",
         "@type": "Organization",
-        "name": "Starlinko",
-        "url": "https://starlinko.app",
-        "logo": "https://starlinko.app/og-image.png",
-        "description": "Starlinko est une plateforme IA pour la gestion automatique des avis Google, le SEO local et l'optimisation AEO (Answer Engine Optimization) pour les entreprises locales.",
+        "name": "Ranki.ai",
+        "url": "https://ranki.ai",
+        "logo": "https://ranki.ai/og-image.png",
+        "description": "Ranki.ai est une plateforme IA pour la gestion automatique des avis Google, le SEO local et l'optimisation AEO (Answer Engine Optimization) pour les entreprises locales.",
         "foundingDate": "2024",
         "sameAs": [],
         "contactPoint": {
           "@type": "ContactPoint",
           "contactType": "customer support",
           "availableLanguage": ["French", "English"],
-          "url": "https://starlinko.app"
+          "url": "https://ranki.ai"
         },
         "offers": {
           "@type": "AggregateOffer",
@@ -45,13 +45,13 @@ export const WebSiteSchema = () => (
       {JSON.stringify({
         "@context": "https://schema.org",
         "@type": "WebSite",
-        "name": "Starlinko",
-        "url": "https://starlinko.app",
+        "name": "Ranki.ai",
+        "url": "https://ranki.ai",
         "description": "IA pour Google Business Profile & Avis Google – Réponses automatiques, SEO local, AEO ChatGPT",
         "inLanguage": ["fr", "en"],
         "publisher": {
           "@type": "Organization",
-          "name": "Starlinko"
+          "name": "Ranki.ai"
         }
       })}
     </script>
@@ -60,7 +60,7 @@ export const WebSiteSchema = () => (
 
 // SoftwareApplication schema - used on homepage and product pages
 export const SoftwareApplicationSchema = ({
-  name = "Starlinko",
+  name = "Ranki.ai",
   description = "Plateforme IA tout-en-un pour la gestion des avis Google, le SEO local automatisé et l'optimisation AEO pour ChatGPT et les moteurs de réponse IA.",
   price = "0",
   priceCurrency = "EUR",
@@ -86,7 +86,7 @@ export const SoftwareApplicationSchema = ({
         "applicationSubCategory": "Reputation Management",
         "operatingSystem": operatingSystem,
         "description": description,
-        "url": "https://starlinko.app",
+        "url": "https://ranki.ai",
         "offers": {
           "@type": "Offer",
           "price": price,
@@ -153,7 +153,7 @@ export const BreadcrumbSchema = ({ items }: { items: { name: string; url: string
 
 // Product schema for pricing pages
 export const ProductSchema = ({
-  name = "Starlinko Pack Complet",
+  name = "Ranki.ai Pack Complet",
   description = "Solution IA tout-en-un : réponses aux avis Google, SEO local, AEO ChatGPT, publications automatiques.",
   price = "32.50",
   priceCurrency = "EUR",
@@ -172,7 +172,7 @@ export const ProductSchema = ({
         "description": description,
         "brand": {
           "@type": "Brand",
-          "name": "Starlinko"
+          "name": "Ranki.ai"
         },
         "offers": {
           "@type": "Offer",
@@ -180,7 +180,7 @@ export const ProductSchema = ({
           "priceCurrency": priceCurrency,
           "availability": "https://schema.org/InStock",
           "priceValidUntil": "2027-12-31",
-          "url": "https://starlinko.app/select-plan"
+          "url": "https://ranki.ai/select-plan"
         },
         "aggregateRating": {
           "@type": "AggregateRating",
@@ -214,7 +214,7 @@ export const ProductSchema = ({
               "@type": "Person",
               "name": "Pierre L."
             },
-            "reviewBody": "Starlinko a transformé notre gestion des avis. Gain de temps considérable et réponses de qualité."
+            "reviewBody": "Ranki.ai a transformé notre gestion des avis. Gain de temps considérable et réponses de qualité."
           }
         ]
       })}

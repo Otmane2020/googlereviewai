@@ -36,7 +36,7 @@ const EMAIL_TEMPLATES: Record<string, React.ComponentType<any>> = {
 }
 
 // Configuration
-const SITE_NAME = "starlinko"
+const SITE_NAME = "ranki.ai"
 const SENDER_DOMAIN = "notify.ranki.ai"
 const ROOT_DOMAIN = "ranki.ai"
 const FROM_DOMAIN = "ranki.ai" // Domain shown in From address (may be root or sender subdomain)
