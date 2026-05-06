@@ -720,7 +720,7 @@ const AEORank = () => {
                 </TabsTrigger>
                 <TabsTrigger value="articles" className="gap-1.5 text-xs">
                   <List className="w-3.5 h-3.5" />
-                  Q&A
+                  Q&R
                 </TabsTrigger>
               </TabsList>
 
