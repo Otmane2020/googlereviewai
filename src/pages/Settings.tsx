@@ -474,16 +474,16 @@ const SettingsPage = () => {
                   </div>
                   <div>
                     <p className="font-medium text-foreground text-sm">
-                      Push Notifications
+                      Notifications push
                     </p>
                     <p className="text-xs text-muted-foreground">
                       {pushPermission === "unsupported"
-                        ? "Not supported by this browser"
+                        ? "Non pris en charge par ce navigateur"
                         : pushPermission === "granted" && isSubscribedToPush
-                          ? "Enabled — You receive alerts"
+                          ? "Activées — Vous recevez les alertes"
                           : pushPermission === "denied"
-                            ? "Blocked — Allow in your browser"
-                            : "Disabled"
+                            ? "Bloquées — Autorisez dans votre navigateur"
+                            : "Désactivées"
                       }
                     </p>
                   </div>
