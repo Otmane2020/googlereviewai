@@ -41,7 +41,82 @@
     "compliance": "Conformité",
     "pricing": "Tarifs",
     "signIn": "Se connecter",
-    "createAccount": "Créer un compte"
+    "createAccount": "Créer un compte",
+    "geoRank": "GEO Rank",
+    "reviewsAI": "Avis IA",
+    "howItWorks": "Comment ça marche",
+    "startFree": "Commencer gratuitement",
+    "menu": "Menu"
+  },
+  "landingUI": {
+    "hero": {
+      "badge": "GEO · Référencement IA générative",
+      "title1": "Boostez vos ventes et votre visibilité sur",
+      "title2": "ChatGPT, Gemini & Perplexity",
+      "subtitle": "Ranki.ai améliore votre positionnement local, optimise votre stratégie de référencement naturel et augmente vos ventes en publiant automatiquement le contenu qui vous fait recommander en #1 par les IA et Google.",
+      "ctaPrimary": "Booster ma visibilité — Gratuit",
+      "ctaSecondary": "Voir comment ça marche",
+      "noCard": "Sans carte bancaire",
+      "freeCredits": "25 crédits offerts",
+      "setup": "Configuré en 2 min",
+      "trackedOn": "Suivi de votre classement sur",
+      "rank": "Rang #1",
+      "inChatGPT": "dans ChatGPT",
+      "aiMentions": "mentions IA"
+    },
+    "geoRank": {
+      "badge": "Suivi de classement GEO",
+      "title1": "Améliorez votre positionnement dans les",
+      "title2": "réponses des IA",
+      "subtitle": "Nous interrogeons chaque jour ChatGPT, Gemini et Perplexity sur vos mots-clés locaux pour booster votre visibilité, surveiller vos concurrents et augmenter vos ventes.",
+      "yourBusiness": "Votre établissement"
+    },
+    "howItWorks": {
+      "badge": "Comment ça marche",
+      "title1": "D'invisible à",
+      "title2": "#1 dans les IA",
+      "subtitle": "Une boucle GEO complète — suivi, optimisation, publication, mesure — en pilotage automatique pour booster votre référencement naturel.",
+      "step1Title": "1. Connectez & ciblez",
+      "step1Desc": "Reliez votre fiche Google Business et choisissez les requêtes locales sur lesquelles vous voulez gagner sur ChatGPT, Gemini et Perplexity.",
+      "step2Title": "2. Mesurez votre positionnement",
+      "step2Desc": "Nous lançons chaque jour de vraies requêtes et analysons votre place, votre part de voix et la présence de vos concurrents sur toutes les IA.",
+      "step3Title": "3. Publication GEO automatique",
+      "step3Desc": "Ranki.ai génère et publie des Q&R, posts et réponses aux avis optimisés IA sur votre fiche Google — les signaux exacts indexés par les LLM.",
+      "step4Title": "4. Augmentez vos ventes",
+      "step4Desc": "Votre visibilité grimpe semaine après semaine. Plus de clics, plus d'appels, plus de clients qui passent la porte."
+    },
+    "reviewsAI": {
+      "badge": "Avis IA",
+      "title1": "Tous vos avis reçus.",
+      "title2": "Répondus automatiquement.",
+      "subtitle": "Des réponses IA fidèles à votre marque, publiées sur Google en quelques minutes — pour booster votre réputation et votre référencement IA.",
+      "customerReview": "Avis client",
+      "aiReply": "Réponse IA Ranki.ai"
+    },
+    "cta": {
+      "title": "Boostez vos ventes dès aujourd'hui",
+      "subtitle": "Rejoignez les centaines d'établissements qui utilisent Ranki.ai pour améliorer leur positionnement et dominer ChatGPT, Gemini et Perplexity. Gratuit à vie — sans carte bancaire.",
+      "button": "Commencer gratuitement",
+      "free": "Offre 100% gratuite",
+      "noCard": "Sans carte bancaire",
+      "cancelAnytime": "Annulable à tout moment"
+    },
+    "footer": {
+      "tagline": "Classez-vous localement sur ChatGPT, Gemini et Perplexity. La plateforme GEO conçue pour les commerces locaux.",
+      "operational": "Tous les systèmes opérationnels",
+      "product": "Produit",
+      "company": "Entreprise",
+      "support": "Support",
+      "geoRankTracker": "Suivi GEO Rank",
+      "reviewsAI": "Avis IA",
+      "localSeoAuto": "SEO local automatisé",
+      "pricing": "Tarifs",
+      "blog": "Blog",
+      "privacy": "Confidentialité",
+      "terms": "Conditions",
+      "rights": "Tous droits réservés",
+      "tagShort": "GEO · SEO Local · Avis IA"
+    }
   },
   "dashboard": {
     "title": "Dashboard",
