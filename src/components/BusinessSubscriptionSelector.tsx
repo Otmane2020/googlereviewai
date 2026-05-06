@@ -73,31 +73,31 @@ export const BusinessSubscriptionSelector = ({
     onSubscribe(selectedIds, isAnnual, quantity);
   };
 
-  const moduleName = moduleType === "aeo" ? "ChatGPT Rank (AEO)" : "SEO AutoPost";
+  const moduleLabel = moduleType === "aeo" ? "AEO" : "SEO";
 
   return (
     <>
-      {/* Compact Banner */}
+      {/* Compact Banner — redirige vers la page Tarifs (Quotidien 9,99€ / Agence 49€) */}
       <Card className="border-primary/30 bg-primary/5">
         <CardContent className="p-3">
           <div className="flex items-center gap-3 mb-3">
             <Lock className="w-6 h-6 text-primary flex-shrink-0" />
             <div className="min-w-0">
-              <p className="font-semibold text-sm text-foreground">Module {moduleType.toUpperCase()} Premium</p>
+              <p className="font-semibold text-sm text-foreground">Module {moduleLabel} Premium</p>
               <p className="text-xs text-muted-foreground">
-                29 €/mois <span className="text-primary font-medium">(par établissement)</span>
+                Inclus dans <span className="text-primary font-medium">Quotidien (9,99€/mois)</span> ou Agence
               </p>
             </div>
           </div>
-          
-          <Button 
-            onClick={() => setDialogOpen(true)} 
-            size="sm" 
+
+          <Button
+            onClick={() => { window.location.href = "/#pricing"; }}
+            size="sm"
             className="w-full"
             disabled={isLoading}
           >
             <Plus className="w-4 h-4 mr-2" />
-            Choisir mes établissements
+            Voir les abonnements
           </Button>
         </CardContent>
       </Card>
