@@ -37,6 +37,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { SupportDialog } from "@/components/SupportDialog";
 import { UpgradeDialog } from "@/components/UpgradeDialog";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useTranslation } from "react-i18next";
 
 interface DashboardLayoutProps {
