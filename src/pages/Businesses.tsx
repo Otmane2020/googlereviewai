@@ -487,7 +487,7 @@ const BusinessesPage = () => {
                         ) : (
                           <span className="flex items-center gap-1 text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
                             <AlertCircle className="w-3 h-3" />
-                            Manuel
+                            {t("Manuel", "Manual")}
                           </span>
                         )}
                         <Button
