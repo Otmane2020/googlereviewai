@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { callOpenRouterWithFallback } from "../_shared/openrouter.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -119,32 +120,18 @@ IMPORTANT: Réponds UNIQUEMENT avec un objet JSON valide, sans texte avant ou ap
   "recurring_phrases": ["phrase1", "phrase2", "phrase3"]
 }`;
 
-    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${OPENROUTER_API_KEY}`,
-        "Content-Type": "application/json",
-        "HTTP-Referer": "https://starlinko.com",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
-        messages: [
-          { role: "user", content: analysisPrompt }
-        ],
+    let analysisText: string;
+    try {
+      analysisText = (await callOpenRouterWithFallback({
+        messages: [{ role: "user", content: analysisPrompt }],
         temperature: 0.3,
         max_tokens: 800,
-      }),
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("[AnalyzeBrandVoice] OpenRouter error:", response.status, errorText);
+      })).trim();
+    } catch (err) {
+      console.error("[AnalyzeBrandVoice] OpenRouter all-models error:", err);
       throw new Error("Failed to analyze brand voice");
     }
 
-    const data = await response.json();
-    let analysisText = data.choices?.[0]?.message?.content?.trim();
-    
     if (!analysisText) {
       throw new Error("No analysis generated");
     }
