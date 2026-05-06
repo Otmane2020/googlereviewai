@@ -401,7 +401,7 @@ const BusinessesPage = () => {
                 ) : (
                   <PlusCircle className="w-4 h-4 mr-2" />
                 )}
-                Ajouter
+                {t("Ajouter", "Add")}
               </Button>
             )}
             <Button
