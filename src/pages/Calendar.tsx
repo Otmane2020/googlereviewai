@@ -63,10 +63,14 @@ const Calendar = () => {
   const [detail, setDetail] = useState<ContentDetail | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
 
+  const [dayPopup, setDayPopup] = useState<{ day: Date; items: ContentItem[] } | null>(null);
+
   const handleDayClick = (day: Date, dayItems: ContentItem[]) => {
     setSelectedDay(day);
-    if (dayItems.length > 0) {
+    if (dayItems.length === 1) {
       openDetail(dayItems[0]);
+    } else if (dayItems.length > 1) {
+      setDayPopup({ day, items: dayItems });
     }
   };
 
