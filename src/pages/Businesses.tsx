@@ -618,7 +618,7 @@ const BusinessesPage = () => {
                             ) : (
                               <Sparkles className="w-4 h-4" />
                             )}
-                            {analyzingId === business.id ? "Generating..." : "Regenerate with AI"}
+                            {analyzingId === business.id ? t("Génération...", "Generating...") : t("Régénérer avec IA", "Regenerate with AI")}
                           </Button>
                         </div>
                       </div>
