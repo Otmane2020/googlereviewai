@@ -326,13 +326,13 @@ export default function GmbPost() {
               <div>
                 <Label className="text-sm font-medium mb-2 block">Contenu</Label>
                 <Textarea
-                  placeholder="Update your customers: news, events, special offers..."
+                  placeholder="Informez vos clients : actualités, événements, offres spéciales..."
                   value={content}
                   onChange={(e) => setContent(e.target.value.slice(0, 1500))}
                   className="min-h-[120px] resize-none"
                 />
                 <p className="text-xs text-muted-foreground text-right mt-1">
-                  {content.length}/1500 characters
+                  {content.length}/1500 caractères
                 </p>
               </div>
 
