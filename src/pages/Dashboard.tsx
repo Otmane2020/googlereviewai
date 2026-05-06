@@ -251,6 +251,9 @@ const Dashboard = () => {
     const googleTotal = businessesList.reduce((sum: number, b: { total_reviews?: number | null }) => sum + (b.total_reviews || 0), 0);
     const googleAvgRating = businessesList.reduce((sum: number, b: { rating?: number | null }) => sum + (b.rating || 0), 0) / (businessesList.length || 1);
     setPrimaryBusinessName((businessesList[0] as { name?: string })?.name || null);
+    const bizListTyped = businessesList.map((b: any) => ({ id: b.id, name: b.name }));
+    setAllBusinesses(bizListTyped);
+    setSelectedBusinessId((prev) => prev && bizListTyped.some(b => b.id === prev) ? prev : (bizListTyped[0]?.id ?? null));
     
     // Use Google's count if available and greater than 0, otherwise fall back to local count
     const displayTotal = googleTotal > 0 ? googleTotal : total;
