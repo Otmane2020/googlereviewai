@@ -675,7 +675,7 @@ const SEOAutoPost = () => {
                             <div className="flex items-center gap-1.5 flex-wrap">
                               {getStatusBadge(item.status)}
                               <span className="text-[10px] text-muted-foreground">
-                                {format(new Date(item.scheduled_date), "d MMM")}
+                                {format(new Date(item.scheduled_date), "d MMM", { locale: isEN ? enUS : fr })}
                               </span>
                             </div>
                             <div className="flex items-center gap-1.5">
