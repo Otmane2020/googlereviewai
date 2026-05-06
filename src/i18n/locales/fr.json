@@ -717,5 +717,34 @@
       "atmosphere": "Ambiance",
       "amenities": "Équipements"
     }
+  },
+  "landing": {
+    "title": "Starlinko – Boostez vos ventes et votre visibilité sur ChatGPT, Gemini & Perplexity",
+    "description": "Starlinko booste votre visibilité, améliore votre positionnement sur Google et les IA (ChatGPT, Gemini, Perplexity) et augmente vos ventes grâce à une stratégie de référencement naturel automatisée.",
+    "faqTitle": "Tout savoir sur Starlinko",
+    "faqSubtitle": "La plateforme GEO conçue pour les commerces et professionnels locaux.",
+    "faqBadge": "FAQ",
+    "faq": [
+      {
+        "q": "Qu'est-ce que le GEO (Generative Engine Optimization) ?",
+        "a": "Le GEO est la discipline qui consiste à faire apparaître — et classer en premier — votre établissement dans les réponses des IA génératives comme ChatGPT, Gemini, Perplexity et Claude. C'est le successeur du SEO local à l'ère de l'IA."
+      },
+      {
+        "q": "Comment Starlinko connaît-il mon classement sur ChatGPT ou Gemini ?",
+        "a": "Starlinko envoie de vraies requêtes sur chaque IA pour les recherches locales qui comptent pour vous (ex : « meilleur dentiste à Lyon »), analyse les réponses et suit si votre établissement est mentionné, à quelle position et face à quels concurrents."
+      },
+      {
+        "q": "Starlinko va-t-il vraiment améliorer mon positionnement IA ?",
+        "a": "Oui. Starlinko publie automatiquement des Q&R et des posts SEO optimisés pour l'IA sur votre fiche Google Business — exactement les sources qu'indexent les LLM — et répond aux avis dans le ton de votre marque. En quelques semaines, votre part de voix dans les réponses IA augmente fortement, ce qui booste votre visibilité et vos ventes."
+      },
+      {
+        "q": "Ai-je besoin d'une fiche Google Business ?",
+        "a": "Oui. Starlinko se connecte à votre fiche Google Business pour récupérer les avis, publier du contenu et aligner vos signaux entre Google Search, Google Maps et les moteurs IA."
+      },
+      {
+        "q": "Existe-t-il une offre gratuite ?",
+        "a": "Oui. L'offre Starter est gratuite à vie : rapport hebdomadaire de classement GEO, réponses IA aux avis et 25 crédits par mois. Passez à l'offre Quotidien (9,99 €/mois) pour le suivi quotidien et la publication automatique chaque jour."
+      }
+    ]
   }
 }

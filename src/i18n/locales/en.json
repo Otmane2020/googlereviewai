@@ -717,5 +717,34 @@
       "atmosphere": "Atmosphere",
       "amenities": "Amenities"
     }
+  },
+  "landing": {
+    "title": "Starlinko – Boost your sales and visibility in ChatGPT, Gemini & Perplexity",
+    "description": "Starlinko boosts your visibility, improves your ranking on Google and AI engines (ChatGPT, Gemini, Perplexity) and grows your sales with an automated SEO strategy.",
+    "faqTitle": "Everything about Starlinko",
+    "faqSubtitle": "The GEO platform built for local businesses and professionals.",
+    "faqBadge": "FAQ",
+    "faq": [
+      {
+        "q": "What is GEO (Generative Engine Optimization)?",
+        "a": "GEO is the practice of getting your business to appear — and rank first — in answers from generative AI engines like ChatGPT, Gemini, Perplexity and Claude. It's the successor to local SEO in the AI era."
+      },
+      {
+        "q": "How does Starlinko know my ranking in ChatGPT or Gemini?",
+        "a": "Starlinko sends real queries to each AI for the local searches that matter to you (e.g. 'best dentist in Lyon'), analyzes the responses and tracks whether your business is mentioned, at what position, and against which competitors."
+      },
+      {
+        "q": "Will Starlinko really improve my AI ranking?",
+        "a": "Yes. Starlinko automatically publishes AI-optimized Q&A and SEO posts on your Google Business Profile — exactly the sources LLMs index — and replies to reviews in your brand's voice. Within weeks, your share of voice in AI answers grows significantly, boosting visibility and sales."
+      },
+      {
+        "q": "Do I need a Google Business Profile?",
+        "a": "Yes. Starlinko connects to your Google Business Profile to fetch reviews, publish content and align your signals across Google Search, Google Maps and AI engines."
+      },
+      {
+        "q": "Is there a free plan?",
+        "a": "Yes. The Starter plan is free forever: weekly GEO ranking report, AI replies to reviews and 25 credits per month. Upgrade to Daily (€9.99/month) for daily tracking and automatic daily publishing."
+      }
+    ]
   }
 }
