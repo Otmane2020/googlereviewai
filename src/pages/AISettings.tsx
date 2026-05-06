@@ -660,8 +660,8 @@ const AISettingsPage = () => {
                   <Upload className="w-4 h-4 text-emerald-500" />
                 </div>
                 <div>
-                  <span className="font-medium text-sm text-foreground block">Publication auto</span>
-                  <span className="text-xs text-muted-foreground">Vers Google</span>
+                  <span className="font-medium text-sm text-foreground block">{isEN ? "Auto publish" : "Publication auto"}</span>
+                  <span className="text-xs text-muted-foreground">{isEN ? "To Google" : "Vers Google"}</span>
                 </div>
               </div>
               <Switch
