@@ -57,17 +57,17 @@ interface PendingReviewsStats {
   newReviews: number; // Reviews without AI response that are newer than enabled_at
 }
 
-const toneOptions = [
-  { value: "professional", label: "Professionnel", icon: Briefcase },
-  { value: "friendly", label: "Amical", icon: Smile },
-  { value: "humorous", label: "Humoristique", icon: Sun },
-  { value: "warm", label: "Chaleureux", icon: Heart },
+const getToneOptions = (isEN: boolean) => [
+  { value: "professional", label: isEN ? "Professional" : "Professionnel", icon: Briefcase },
+  { value: "friendly", label: isEN ? "Friendly" : "Amical", icon: Smile },
+  { value: "humorous", label: isEN ? "Humorous" : "Humoristique", icon: Sun },
+  { value: "warm", label: isEN ? "Warm" : "Chaleureux", icon: Heart },
 ];
 
-const lengthOptions = [
-  { value: "S", label: "Court", desc: "2-3" },
-  { value: "M", label: "Moyen", desc: "4-5" },
-  { value: "L", label: "Long", desc: "6+" },
+const getLengthOptions = (isEN: boolean) => [
+  { value: "S", label: isEN ? "Short" : "Court", desc: "2-3" },
+  { value: "M", label: isEN ? "Medium" : "Moyen", desc: "4-5" },
+  { value: "L", label: isEN ? "Long" : "Long", desc: "6+" },
 ];
 
 // Subcomponent for old reviews
