@@ -216,7 +216,7 @@ const Dashboard = () => {
 
     const [profileRes, businessesRes, syncStatusRes] = await Promise.all([
       supabase.from("profiles").select("*").eq("id", user.id).maybeSingle(),
-      supabase.from("businesses").select("id, total_reviews, rating", { count: "exact" }).eq("user_id", user.id).eq("is_active", true),
+      supabase.from("businesses").select("id, name, total_reviews, rating", { count: "exact" }).eq("user_id", user.id).eq("is_active", true),
       supabase.from("ai_settings").select("last_sync_at, last_sync_status, last_sync_error, reviews_synced_count").eq("user_id", user.id).maybeSingle()
     ]);
     
