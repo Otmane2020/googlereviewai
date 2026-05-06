@@ -177,7 +177,7 @@ export const BusinessSubscriptionSelector = ({
               </div>
               {quantity > businesses.length && (
                 <p className="text-xs text-muted-foreground italic">
-                  + {quantity - businesses.length} additional location{quantity - businesses.length > 1 ? "s" : ""} to add later
+                  + {quantity - businesses.length} établissement{quantity - businesses.length > 1 ? "s" : ""} supplémentaire{quantity - businesses.length > 1 ? "s" : ""} à ajouter plus tard
                 </p>
               )}
             </div>
@@ -187,7 +187,7 @@ export const BusinessSubscriptionSelector = ({
             <div className="text-center py-4">
               <Building2 className="w-10 h-10 mx-auto text-muted-foreground/30 mb-2" />
               <p className="text-sm text-muted-foreground">
-                You can add locations after subscribing
+                Vous pourrez ajouter des établissements après l'abonnement
               </p>
             </div>
           )}
@@ -196,15 +196,15 @@ export const BusinessSubscriptionSelector = ({
           <div className="bg-muted/50 rounded-lg p-3 space-y-2 mt-2">
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">Établissements</span>
-              <span className="font-medium">{quantity} × $29</span>
+              <span className="font-medium">{quantity} × 29 €</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Monthly total</span>
-              <span className="text-lg font-bold text-primary">${monthlyTotal}/mo</span>
+              <span className="text-sm text-muted-foreground">Total mensuel</span>
+              <span className="text-lg font-bold text-primary">{monthlyTotal} €/mois</span>
             </div>
             <div className="flex items-center justify-between text-xs text-muted-foreground">
-              <span>Annual (-20%)</span>
-              <span className="text-secondary font-medium">${annualMonthlyTotal}/mo</span>
+              <span>Annuel (-20%)</span>
+              <span className="text-secondary font-medium">{annualMonthlyTotal} €/mois</span>
             </div>
           </div>
 
@@ -218,7 +218,7 @@ export const BusinessSubscriptionSelector = ({
               disabled={quantity === 0 || isLoading}
               className="flex-1"
             >
-              Annual - ${annualMonthlyTotal}/mo
+              Annuel - {annualMonthlyTotal} €/mois
             </Button>
             <Button
               onClick={() => {
@@ -228,7 +228,7 @@ export const BusinessSubscriptionSelector = ({
               disabled={quantity === 0 || isLoading}
               className="flex-1"
             >
-              Monthly - ${monthlyTotal}/mo
+              Mensuel - {monthlyTotal} €/mois
             </Button>
           </DialogFooter>
         </DialogContent>
