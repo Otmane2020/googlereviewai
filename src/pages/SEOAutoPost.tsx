@@ -66,6 +66,9 @@ interface ScheduledContent {
 const SEOAutoPost = () => {
   const { user, session } = useAuth();
   const navigate = useNavigate();
+  const { i18n } = useTranslation();
+  const isEN = i18n.language?.toLowerCase().startsWith("en");
+  const t = (fr: string, en: string) => (isEN ? en : fr);
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [scheduledContent, setScheduledContent] = useState<ScheduledContent[]>([]);
   const [loading, setLoading] = useState(true);
