@@ -4,25 +4,38 @@ import { initReactI18next } from "react-i18next";
 import en from "./locales/en.json";
 import fr from "./locales/fr.json";
 
-// App is French-only for now. English bundle is kept loaded so we can
-// re-enable the switcher later without re-translating everything.
-// To re-enable multilingual: restore navigator/timezone detection here
-// and remove the early-return in src/components/LanguageSwitcher.tsx.
+const detectInitialLang = (): "fr" | "en" => {
+  try {
+    const stored = localStorage.getItem("i18nextLng");
+    if (stored === "fr" || stored === "en") return stored;
+  } catch {}
+  if (typeof navigator !== "undefined") {
+    const nav = (navigator.language || "fr").toLowerCase();
+    if (nav.startsWith("en")) return "en";
+  }
+  return "fr";
+};
+
+const initialLng = detectInitialLang();
+
 i18n.use(initReactI18next).init({
   resources: {
     fr: { translation: fr },
     en: { translation: en },
   },
-  lng: "fr",
+  lng: initialLng,
   fallbackLng: "fr",
   supportedLngs: ["fr", "en"],
   interpolation: { escapeValue: false },
   react: { useSuspense: false },
 });
 
-try {
-  localStorage.setItem("i18nextLng", "fr");
-} catch {}
+i18n.on("languageChanged", (lng) => {
+  try { localStorage.setItem("i18nextLng", lng); } catch {}
+  if (typeof document !== "undefined") document.documentElement.lang = lng;
+});
 
-export const isLikelyFrench = () => true;
+if (typeof document !== "undefined") document.documentElement.lang = initialLng;
+
+export const isLikelyFrench = () => i18n.language?.startsWith("fr") ?? true;
 export default i18n;
