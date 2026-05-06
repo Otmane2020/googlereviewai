@@ -821,8 +821,8 @@ const AISettingsPage = () => {
                   <Bell className="w-4 h-4 text-destructive" />
                 </div>
                 <div>
-                  <span className="font-medium text-sm text-foreground block">Notifications e-mail</span>
-                  <span className="text-xs text-muted-foreground">Nouveaux avis</span>
+                  <span className="font-medium text-sm text-foreground block">{isEN ? "Email notifications" : "Notifications e-mail"}</span>
+                  <span className="text-xs text-muted-foreground">{isEN ? "New reviews" : "Nouveaux avis"}</span>
                 </div>
               </div>
               <Switch
