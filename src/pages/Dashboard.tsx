@@ -837,7 +837,7 @@ const Dashboard = () => {
                         ) : (
                           <span className="text-[10px] bg-orange-500/10 text-orange-600 px-2 py-0.5 rounded-full font-medium flex items-center gap-1 animate-pulse">
                             <AlertCircle className="w-2.5 h-2.5" />
-                            To answer
+                            À répondre
                           </span>
                         )}
                       </div>
