@@ -207,13 +207,13 @@ const Calendar = () => {
         <Card className="rounded-2xl border-border/60 shadow-sm">
           <CardHeader>
             <CardTitle className="text-base">
-              {selectedDay ? format(selectedDay, "EEEE d MMMM yyyy", { locale: fr }) : "Choisissez un jour"}
+              {selectedDay ? format(selectedDay, "EEEE d MMMM yyyy", { locale: dateLocale }) : t("Choisissez un jour", "Pick a day")}
             </CardTitle>
           </CardHeader>
           <CardContent>
             {selectedItems.length === 0 ? (
               <div className="py-10 text-center text-sm text-muted-foreground">
-                Rien de planifié pour ce jour.
+                {t("Rien de planifié pour ce jour.", "Nothing scheduled for this day.")}
               </div>
             ) : (
               <div className="space-y-2">
