@@ -17,6 +17,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { useTranslation } from "react-i18next";
 
 interface UserProfile {
   credits: number;
@@ -27,6 +29,7 @@ interface UserProfile {
 
 export const DashboardHeader = () => {
   const { user, signOut } = useAuth();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [upgradeDialogOpen, setUpgradeDialogOpen] = useState(false);
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -87,7 +90,7 @@ export const DashboardHeader = () => {
           >
             <Sparkles className="w-4 h-4 text-primary" />
             <span className="text-sm font-medium text-foreground">
-              {profile?.credits ?? 0} crédits
+              {profile?.credits ?? 0} {t("common.credits")}
             </span>
             {profile?.plan_name && (
               <Badge variant="secondary" className="text-[10px] px-1.5 py-0 ml-1">
@@ -96,6 +99,9 @@ export const DashboardHeader = () => {
             )}
             <Plus className="w-3.5 h-3.5 text-muted-foreground" />
           </button>
+
+          {/* Language switcher */}
+          <LanguageSwitcher variant="dropdown" />
 
           {/* Notifications */}
           <Button
@@ -130,7 +136,7 @@ export const DashboardHeader = () => {
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-0.5">
                   <p className="text-sm font-medium truncate">
-                    {profile?.full_name || "Utilisateur"}
+                    {profile?.full_name || t("common.user")}
                   </p>
                   <p className="text-xs text-muted-foreground truncate">
                     {user?.email}
@@ -139,17 +145,17 @@ export const DashboardHeader = () => {
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => navigate("/settings")}>
-                <UserIcon className="w-4 h-4 mr-2" /> Paramètres
+                <UserIcon className="w-4 h-4 mr-2" /> {t("common.settings")}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setUpgradeDialogOpen(true)}>
-                <Sparkles className="w-4 h-4 mr-2" /> Passer Premium
+                <Sparkles className="w-4 h-4 mr-2" /> {t("common.upgrade")}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={handleSignOut}
                 className="text-destructive focus:text-destructive"
               >
-                <LogOut className="w-4 h-4 mr-2" /> Se déconnecter
+                <LogOut className="w-4 h-4 mr-2" /> {t("common.signOut")}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
