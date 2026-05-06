@@ -1,4 +1,33 @@
 {
+  "supportDialog": {
+    "trigger": "Support",
+    "title": "Contacter le support",
+    "description": "Décrivez votre problème ou question, nous vous répondrons rapidement.",
+    "type": "Type de demande",
+    "typePlaceholder": "Choisir un type",
+    "titleLabel": "Titre",
+    "titlePlaceholder": "Résumez votre demande...",
+    "descLabel": "Description",
+    "descPlaceholder": "Décrivez le problème en détail...",
+    "cancel": "Annuler",
+    "send": "Envoyer",
+    "sent": "Message envoyé !",
+    "sentDesc": "Nous vous répondrons par e-mail.",
+    "requiredTitle": "Champs requis",
+    "requiredDesc": "Veuillez remplir tous les champs.",
+    "successTitle": "Message envoyé !",
+    "successDesc": "Notre équipe vous répondra rapidement.",
+    "errorTitle": "Erreur",
+    "errorDesc": "Impossible d'envoyer le message. Réessayez plus tard.",
+    "types": {
+      "bug": "🐛 Bug / Problème technique",
+      "sync": "🔄 Synchronisation Google",
+      "billing": "💳 Facturation / Abonnement",
+      "feature": "💡 Suggestion de fonctionnalité",
+      "account": "👤 Problème de compte",
+      "other": "❓ Autre"
+    }
+  },
   "common": {
     "loading": "Chargement...",
     "save": "Enregistrer",

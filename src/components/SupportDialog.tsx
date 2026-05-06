@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -24,14 +25,7 @@ import { toast } from "@/hooks/use-toast";
 
 const SUPPORT_PHONE = "01 85 09 91 15";
 
-const issueTypes = [
-  { value: "bug", label: "🐛 Bug / Technical issue" },
-  { value: "sync", label: "🔄 Synchronisation Google" },
-  { value: "billing", label: "💳 Facturation / Abonnement" },
-  { value: "feature", label: "💡 Feature suggestion" },
-  { value: "account", label: "👤 Account issue" },
-  { value: "other", label: "❓ Autre" },
-];
+const ISSUE_KEYS = ["bug", "sync", "billing", "feature", "account", "other"] as const;
 
 interface SupportDialogProps {
   userEmail?: string;
@@ -42,6 +36,7 @@ interface SupportDialogProps {
 }
 
 export const SupportDialog = ({ userEmail, triggerClassName, hideTrigger, open: openProp, onOpenChange }: SupportDialogProps) => {
+  const { t } = useTranslation();
   const [internalOpen, setInternalOpen] = useState(false);
   const open = openProp ?? internalOpen;
   const setOpen = (v: boolean) => {
@@ -56,11 +51,11 @@ export const SupportDialog = ({ userEmail, triggerClassName, hideTrigger, open: 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!title.trim() || !description.trim() || !issueType) {
       toast({
-        title: "Champs requis",
-        description: "Veuillez remplir tous les champs.",
+        title: t("supportDialog.requiredTitle"),
+        description: t("supportDialog.requiredDesc"),
         variant: "destructive",
       });
       return;
@@ -68,8 +63,7 @@ export const SupportDialog = ({ userEmail, triggerClassName, hideTrigger, open: 
 
     setLoading(true);
     try {
-      // Send support email via edge function
-      const { error } = await supabase.functions.invoke("send-support-email", {
+      const { data, error } = await supabase.functions.invoke("send-support-email", {
         body: {
           email: userEmail,
           title: title.trim(),
@@ -79,14 +73,14 @@ export const SupportDialog = ({ userEmail, triggerClassName, hideTrigger, open: 
       });
 
       if (error) throw error;
+      if (data && (data as any).error) throw new Error((data as any).error);
 
       setSubmitted(true);
       toast({
-        title: "Message envoyé !",
-        description: "Notre équipe vous répondra rapidement.",
+        title: t("supportDialog.successTitle"),
+        description: t("supportDialog.successDesc"),
       });
 
-      // Reset after 2s and close
       setTimeout(() => {
         setOpen(false);
         setSubmitted(false);
@@ -97,8 +91,8 @@ export const SupportDialog = ({ userEmail, triggerClassName, hideTrigger, open: 
     } catch (error) {
       console.error("Error sending support request:", error);
       toast({
-        title: "Erreur",
-        description: "Impossible d'envoyer le message. Réessayez plus tard.",
+        title: t("supportDialog.errorTitle"),
+        description: t("supportDialog.errorDesc"),
         variant: "destructive",
       });
     } finally {
@@ -112,7 +106,7 @@ export const SupportDialog = ({ userEmail, triggerClassName, hideTrigger, open: 
         <DialogTrigger asChild>
           <Button variant="outline" className={triggerClassName}>
             <HelpCircle className="w-4 h-4 mr-2" />
-            Support
+            {t("supportDialog.trigger")}
           </Button>
         </DialogTrigger>
       )}
@@ -120,10 +114,10 @@ export const SupportDialog = ({ userEmail, triggerClassName, hideTrigger, open: 
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <HelpCircle className="w-5 h-5 text-primary" />
-            Contacter le support
+            {t("supportDialog.title")}
           </DialogTitle>
           <DialogDescription>
-            Décrivez votre problème ou question, nous vous répondrons rapidement.
+            {t("supportDialog.description")}
           </DialogDescription>
           <div className="flex items-center gap-2 mt-2 p-2 bg-muted/50 rounded-lg">
             <Phone className="w-4 h-4 text-primary" />
@@ -138,23 +132,23 @@ export const SupportDialog = ({ userEmail, triggerClassName, hideTrigger, open: 
             <div className="w-16 h-16 rounded-full bg-secondary/20 flex items-center justify-center mx-auto mb-4">
               <CheckCircle className="w-8 h-8 text-secondary" />
             </div>
-            <h3 className="font-semibold text-foreground mb-2">Message sent!</h3>
+            <h3 className="font-semibold text-foreground mb-2">{t("supportDialog.sent")}</h3>
             <p className="text-sm text-muted-foreground">
-              We'll reply by email.
+              {t("supportDialog.sentDesc")}
             </p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="issueType">Type de demande</Label>
+              <Label htmlFor="issueType">{t("supportDialog.type")}</Label>
               <Select value={issueType} onValueChange={setIssueType}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Choisir un type" />
+                  <SelectValue placeholder={t("supportDialog.typePlaceholder")} />
                 </SelectTrigger>
                 <SelectContent>
-                  {issueTypes.map((type) => (
-                    <SelectItem key={type.value} value={type.value}>
-                      {type.label}
+                  {ISSUE_KEYS.map((key) => (
+                    <SelectItem key={key} value={key}>
+                      {t(`supportDialog.types.${key}`)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -162,10 +156,10 @@ export const SupportDialog = ({ userEmail, triggerClassName, hideTrigger, open: 
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="title">Titre</Label>
+              <Label htmlFor="title">{t("supportDialog.titleLabel")}</Label>
               <Input
                 id="title"
-                placeholder="Summarize your request..."
+                placeholder={t("supportDialog.titlePlaceholder")}
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 required
@@ -173,10 +167,10 @@ export const SupportDialog = ({ userEmail, triggerClassName, hideTrigger, open: 
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description">{t("supportDialog.descLabel")}</Label>
               <Textarea
                 id="description"
-                placeholder="Describe the issue in detail..."
+                placeholder={t("supportDialog.descPlaceholder")}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 rows={5}
@@ -186,7 +180,7 @@ export const SupportDialog = ({ userEmail, triggerClassName, hideTrigger, open: 
 
             <div className="flex gap-2 justify-end pt-2">
               <Button type="button" variant="outline" onClick={() => setOpen(false)}>
-                Cancel
+                {t("supportDialog.cancel")}
               </Button>
               <Button type="submit" disabled={loading}>
                 {loading ? (
@@ -194,7 +188,7 @@ export const SupportDialog = ({ userEmail, triggerClassName, hideTrigger, open: 
                 ) : (
                   <Send className="w-4 h-4 mr-2" />
                 )}
-                Envoyer
+                {t("supportDialog.send")}
               </Button>
             </div>
           </form>
