@@ -46,8 +46,9 @@ export const LanguageSwitcher = ({ variant = "flags", className = "" }: Language
   const currentLang = i18n.language?.substring(0, 2) || "en";
 
   const handleLanguageChange = async (langCode: string) => {
-    i18n.changeLanguage(langCode);
+    await i18n.changeLanguage(langCode);
     try { localStorage.setItem("i18nextLng", langCode); } catch {}
+    try { document.documentElement.lang = langCode; } catch {}
     // Persist to profile so server-side emails/notifications use the right language
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -55,7 +56,7 @@ export const LanguageSwitcher = ({ variant = "flags", className = "" }: Language
         await supabase.from("profiles").update({ preferred_language: langCode }).eq("id", user.id);
       }
     } catch {}
-    setTimeout(() => window.location.reload(), 50);
+    // No reload — i18next triggers re-render of all components using useTranslation
   };
 
   if (variant === "dropdown") {
