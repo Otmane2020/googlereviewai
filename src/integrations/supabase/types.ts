@@ -224,6 +224,7 @@ export type Database = {
           auto_keywords: string[] | null
           categories: string[] | null
           created_at: string | null
+          credits: number
           description: string | null
           gmb_language: string | null
           google_place_id: string | null
@@ -246,6 +247,7 @@ export type Database = {
           auto_keywords?: string[] | null
           categories?: string[] | null
           created_at?: string | null
+          credits?: number
           description?: string | null
           gmb_language?: string | null
           google_place_id?: string | null
@@ -268,6 +270,7 @@ export type Database = {
           auto_keywords?: string[] | null
           categories?: string[] | null
           created_at?: string | null
+          credits?: number
           description?: string | null
           gmb_language?: string | null
           google_place_id?: string | null
@@ -297,6 +300,7 @@ export type Database = {
       credits_history: {
         Row: {
           amount: number
+          business_id: string | null
           created_at: string
           description: string | null
           id: string
@@ -305,6 +309,7 @@ export type Database = {
         }
         Insert: {
           amount: number
+          business_id?: string | null
           created_at?: string
           description?: string | null
           id?: string
@@ -313,6 +318,7 @@ export type Database = {
         }
         Update: {
           amount?: number
+          business_id?: string | null
           created_at?: string
           description?: string | null
           id?: string
@@ -823,6 +829,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          agency_total_credits: number
           avatar_url: string | null
           billing_cycle: string | null
           created_at: string | null
@@ -849,6 +856,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          agency_total_credits?: number
           avatar_url?: string | null
           billing_cycle?: string | null
           created_at?: string | null
@@ -875,6 +883,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          agency_total_credits?: number
           avatar_url?: string | null
           billing_cycle?: string | null
           created_at?: string | null
@@ -1324,6 +1333,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      allocate_business_credits: {
+        Args: { _amount: number; _business_id: string }
+        Returns: boolean
+      }
+      consume_business_credit: {
+        Args: { _business_id: string; _description?: string }
+        Returns: boolean
+      }
       delete_email: {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
