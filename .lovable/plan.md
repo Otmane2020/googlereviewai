@@ -1,58 +1,67 @@
-## Goal
+## Audit des onglets sidebar
 
-Make the app fully bilingual (FR / EN) with a visible flag switcher in the top bar of the app, on the home page, on `/auth`, and in Settings. Default stays French; user choice persists.
+| Page | Lignes | useTranslation | Chaînes en dur |
+|---|---|---|---|
+| Dashboard (Overview) | 905 | ❌ Non | ~150+ |
+| Reviews (Google Reviews) | 1166 | ⚠️ Partiel (2x) | ~200+ |
+| GmbPost (Google Post) | 541 | ❌ Non | ~80 |
+| AEORank (GEO Rank AI) | 854 | ❌ Non | ~120 |
+| SEOAutoPost (SEO Autopilot) | 753 | ❌ Non | ~100 |
+| Calendar (Planning) | 361 | ❌ Non | ~40 |
+| Businesses (Locations) | 980 | ❌ Non | ~140 |
+| AISettings | 855 | ❌ Non | ~180 |
+| Notifications | 302 | ❌ Non | ~40 |
+| Settings | 769 | ⚠️ Partiel (2x) | ~80 |
 
-## Current State
+**Total : ~7500 lignes, ~1200+ chaînes à traduire.**
 
-- `src/i18n/config.ts` is hard-locked to `lng: "fr"` and forces `localStorage` to `fr`. `isLikelyFrench()` always returns `true`.
-- `src/components/LanguageSwitcher.tsx` has an early `return null` — switcher is hidden everywhere.
-- Only 14 of ~150 components use `useTranslation`. The rest are hardcoded French strings (Dashboard, Reviews, Businesses, AEORank, SEOAutoPost, MapsRank, Calendar, Notifications, AISettings, Admin, Checkout, Onboarding, all Ranki sections, etc.).
-- `en.json` already exists (647 lines) but only mirrors the keys that components actually use; the rest of the app has no English source.
+## Stratégie d'exécution
 
-## Plan
+Vu la taille, je propose de procéder **par lots** dans les prochains messages, en respectant cet ordre de priorité (impact utilisateur visible) :
 
-### 1. Re-enable the i18n engine
-- `src/i18n/config.ts`: detect language from `localStorage` first, then `navigator.language`; fall back to `fr`. Replace the forced `localStorage.setItem("fr")` and the always-true `isLikelyFrench`.
+### Lot 1 — Pages les plus visibles (prioritaire)
+1. **Dashboard (Overview)** — page d'accueil après login
+2. **Reviews** — fonctionnalité principale
+3. **Settings** — déjà partiellement traduit, finir
+4. **Notifications**
 
-### 2. Re-enable the LanguageSwitcher
-- `src/components/LanguageSwitcher.tsx`: remove the `return null` early-exit so the existing flags/dropdown variants render.
+### Lot 2 — Pages secondaires
+5. **Businesses (Locations)**
+6. **AISettings** — beaucoup de texte technique
+7. **GmbPost**
 
-### 3. Place the switcher where requested
-- **App top bar** (logged-in): add to `src/components/DashboardHeader.tsx` (right side, next to credits/avatar) using `variant="dropdown"`.
-- **Home page top bar**: already wired in `src/components/Header.tsx` — verify it shows on desktop + mobile.
-- **/auth page**: add to `src/pages/Auth.tsx` (top-right of the auth card).
-- **Settings page**: add a "Langue / Language" row in `src/pages/Settings.tsx` with the dropdown variant.
+### Lot 3 — Pages spécialisées
+8. **AEORank (GEO Rank AI)**
+9. **SEOAutoPost**
+10. **Calendar (Planning)**
 
-### 4. Translate the rest of the app to English
+## Méthode pour chaque page
 
-Two layers:
+1. Ajouter section dédiée dans `src/i18n/locales/fr.json` et `en.json` (ex : `"dashboardPage": {...}`)
+2. Ajouter `import { useTranslation } from "react-i18next"` + `const { t } = useTranslation()`
+3. Remplacer tous les textes JSX, placeholders, titres, toasts, labels de boutons par `{t("...")}`
+4. Vérifier les sous-composants importés (cards, dialogs) et étendre la traduction si nécessaire
 
-**a. Components already using `useTranslation`** — extend `en.json` and `fr.json` with any missing keys those files reference (audit by `rg "t\(['\"]"`).
+## Composants partagés à traduire en parallèle
 
-**b. Components with hardcoded French** — convert to `t("...")` and add the keys to both locale files. Priority order (highest user-visible first):
-1. `Dashboard.tsx`, `DashboardHeader.tsx`, `MobileBottomNav.tsx`, `Sidebar` items
-2. `Reviews.tsx`, `Businesses.tsx`, `Calendar.tsx`, `Notifications.tsx`
-3. `AEORank.tsx`, `SEOAutoPost.tsx`, `MapsRank.tsx`, `AISettings.tsx`
-4. `Auth.tsx` (extend), `Settings.tsx` (extend), `Checkout.tsx`, `PaymentSuccess.tsx`, `PaymentCanceled.tsx`, `Onboarding.tsx`, `ChoosePlan.tsx`
-5. Landing sections under `src/components/ranki/*` (Hero, GeoRank, HowItWorks, ReviewsAI, DashboardPreview, Pricing) + `FAQSection`, `CTASection`, `Footer`, `PricingSection`
-6. Dialogs/toasts/banners (`UpgradeDialog`, `InstallPrompt`, `NotificationPrompt`, `LowCreditsBanner`, `ReconnectGoogleBanner`, etc.)
+Plusieurs composants utilisés dans ces pages contiennent aussi des chaînes en dur :
+- `GmbInsightsCard`, `SyncProgressOverlay`, `SyncStatusCard`
+- `ReviewCard`, `AutoResponseToggle`, `ResponsePreviewDialog`
+- `CreditsDisplay`, `LowCreditsBanner`, `UpgradeDialog`
+- `RankingMap`, `maps-rank/*`
+- `ConnectGMBDialog`, `SelectBusinessesDialog`
+- `SupportDialog`
 
-Each converted file gets a namespaced section in the locale JSON (e.g. `dashboard.welcomeBack`, `reviews.toReply`, `aeoRank.title`).
+Je les traduirai en même temps que les pages qui les utilisent.
 
-### 5. Update memory
-- Replace the "100% French UI enforced" core rule with "Bilingual FR/EN; default FR, user-switchable; no mixed-language strings within a single screen."
+## Toasts & notifications
 
-## Technical notes
+Tous les `toast.success(...)` / `toast.error(...)` avec messages en dur seront convertis. Les notifications push (envoyées par edge functions) sont déjà gérées par les edge functions et utilisent la `preferred_language` de la table `profiles`.
 
-- Toast messages (sonner) inside event handlers also need `t()` wrapping.
-- `Helmet` `<title>` and `<meta description>` should switch with language on Home / key pages.
-- Date formatting (`date-fns`) — pass `locale: i18n.language === "en" ? enUS : fr`.
-- Edge function content (AI-generated posts, replies) stays in the user's business language, independent of UI language.
+## Livrables
 
-## Scope warning
+À la fin de chaque lot je donnerai un récapitulatif des fichiers modifiés et un changelog FR/EN.
 
-This is a large change touching ~50 files and adding several hundred translation keys. I'll do it in one pass but expect a long diff. If you want, I can ship it in two phases:
-- **Phase 1 (fast)**: switcher works everywhere + already-translated components + Dashboard / Auth / Settings / Header / Footer.
-- **Phase 2**: remaining inner pages (Reviews, Businesses, AEO, SEO, Maps, Calendar, etc.).
+## Confirmation requise
 
-Tell me **"phase 1 only"** or **"tout d'un coup"** when you approve.
+**Approuvez-vous ce plan et l'ordre des lots ?** Si oui, je démarre directement le **Lot 1** (Dashboard + Reviews + Settings + Notifications) au prochain message.
