@@ -465,7 +465,7 @@ const Dashboard = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted-foreground">{t("dashboardPage.welcomeBack")}</p>
-              <h1 className="text-xl md:text-2xl font-bold text-foreground">{profile?.full_name?.split(" ")[0] || "👋"}</h1>
+              <h1 className="text-xl md:text-2xl font-bold text-foreground">{(businesses[0] as any)?.name || profile?.full_name?.split(" ")[0] || "👋"}</h1>
             </div>
             <div className="flex items-center gap-2">
               <div className="text-center px-4 py-2 bg-primary/10 rounded-xl md:hidden">
