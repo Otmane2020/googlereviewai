@@ -901,7 +901,7 @@ const BusinessesPage = () => {
                           ) : (
                             <div className="text-center py-8">
                               <FileText className="w-12 h-12 mx-auto mb-3 text-muted-foreground/30" />
-                              <p className="text-sm text-muted-foreground">Aucun post pour le moment</p>
+                              <p className="text-sm text-muted-foreground">{t("Aucun post pour le moment", "No posts yet")}</p>
                             </div>
                           )}
                         </div>
