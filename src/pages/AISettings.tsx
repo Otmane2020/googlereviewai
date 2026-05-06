@@ -731,41 +731,41 @@ const AISettingsPage = () => {
                 className="h-9 px-3 rounded-xl bg-muted/50 border-0 text-sm font-medium text-foreground focus:ring-2 focus:ring-primary max-w-[180px]"
               >
                 <optgroup label="Europe">
-                  <option value="Europe/Paris">Paris (France)</option>
-                  <option value="Europe/Brussels">Bruxelles (Belgique)</option>
-                  <option value="Europe/Zurich">Zurich (Suisse)</option>
+                  <option value="Europe/Paris">{isEN ? "Paris (France)" : "Paris (France)"}</option>
+                  <option value="Europe/Brussels">{isEN ? "Brussels (Belgium)" : "Bruxelles (Belgique)"}</option>
+                  <option value="Europe/Zurich">{isEN ? "Zurich (Switzerland)" : "Zurich (Suisse)"}</option>
                   <option value="Europe/Luxembourg">Luxembourg</option>
                   <option value="Europe/Monaco">Monaco</option>
-                  <option value="Europe/London">Londres (Royaume-Uni)</option>
-                  <option value="Europe/Berlin">Berlin (Allemagne)</option>
-                  <option value="Europe/Madrid">Madrid (Espagne)</option>
-                  <option value="Europe/Rome">Rome (Italie)</option>
-                  <option value="Europe/Amsterdam">Amsterdam (Pays-Bas)</option>
+                  <option value="Europe/London">{isEN ? "London (UK)" : "Londres (Royaume-Uni)"}</option>
+                  <option value="Europe/Berlin">{isEN ? "Berlin (Germany)" : "Berlin (Allemagne)"}</option>
+                  <option value="Europe/Madrid">{isEN ? "Madrid (Spain)" : "Madrid (Espagne)"}</option>
+                  <option value="Europe/Rome">{isEN ? "Rome (Italy)" : "Rome (Italie)"}</option>
+                  <option value="Europe/Amsterdam">{isEN ? "Amsterdam (Netherlands)" : "Amsterdam (Pays-Bas)"}</option>
                 </optgroup>
-                <optgroup label="Amériques">
-                  <option value="America/Montreal">Montréal (Canada)</option>
-                  <option value="America/New_York">New York (États-Unis)</option>
-                  <option value="America/Los_Angeles">Los Angeles (États-Unis)</option>
-                  <option value="America/Chicago">Chicago (États-Unis)</option>
-                  <option value="America/Toronto">Toronto (Canada)</option>
+                <optgroup label={isEN ? "Americas" : "Amériques"}>
+                  <option value="America/Montreal">{isEN ? "Montreal (Canada)" : "Montréal (Canada)"}</option>
+                  <option value="America/New_York">{isEN ? "New York (USA)" : "New York (États-Unis)"}</option>
+                  <option value="America/Los_Angeles">{isEN ? "Los Angeles (USA)" : "Los Angeles (États-Unis)"}</option>
+                  <option value="America/Chicago">{isEN ? "Chicago (USA)" : "Chicago (États-Unis)"}</option>
+                  <option value="America/Toronto">{isEN ? "Toronto (Canada)" : "Toronto (Canada)"}</option>
                   <option value="America/Martinique">Martinique</option>
                   <option value="America/Guadeloupe">Guadeloupe</option>
-                  <option value="America/Cayenne">Guyane française</option>
+                  <option value="America/Cayenne">{isEN ? "French Guiana" : "Guyane française"}</option>
                 </optgroup>
-                <optgroup label="Afrique">
-                  <option value="Africa/Casablanca">Casablanca (Maroc)</option>
-                  <option value="Africa/Algiers">Alger (Algérie)</option>
-                  <option value="Africa/Tunis">Tunis (Tunisie)</option>
-                  <option value="Africa/Dakar">Dakar (Sénégal)</option>
-                  <option value="Africa/Abidjan">Abidjan (Côte d'Ivoire)</option>
+                <optgroup label={isEN ? "Africa" : "Afrique"}>
+                  <option value="Africa/Casablanca">{isEN ? "Casablanca (Morocco)" : "Casablanca (Maroc)"}</option>
+                  <option value="Africa/Algiers">{isEN ? "Algiers (Algeria)" : "Alger (Algérie)"}</option>
+                  <option value="Africa/Tunis">{isEN ? "Tunis (Tunisia)" : "Tunis (Tunisie)"}</option>
+                  <option value="Africa/Dakar">{isEN ? "Dakar (Senegal)" : "Dakar (Sénégal)"}</option>
+                  <option value="Africa/Abidjan">{isEN ? "Abidjan (Ivory Coast)" : "Abidjan (Côte d'Ivoire)"}</option>
                 </optgroup>
-                <optgroup label="Océan Indien">
-                  <option value="Indian/Reunion">La Réunion</option>
-                  <option value="Indian/Mauritius">Maurice</option>
+                <optgroup label={isEN ? "Indian Ocean" : "Océan Indien"}>
+                  <option value="Indian/Reunion">{isEN ? "Réunion" : "La Réunion"}</option>
+                  <option value="Indian/Mauritius">{isEN ? "Mauritius" : "Maurice"}</option>
                   <option value="Indian/Mayotte">Mayotte</option>
                 </optgroup>
-                <optgroup label="Pacifique">
-                  <option value="Pacific/Noumea">Nouvelle-Calédonie</option>
+                <optgroup label={isEN ? "Pacific" : "Pacifique"}>
+                  <option value="Pacific/Noumea">{isEN ? "New Caledonia" : "Nouvelle-Calédonie"}</option>
                   <option value="Pacific/Tahiti">Tahiti</option>
                 </optgroup>
               </select>
