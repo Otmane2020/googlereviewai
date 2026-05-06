@@ -51,6 +51,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
+import { AgencyCreditsPanel } from "@/components/AgencyCreditsPanel";
+
 interface Business {
   id: string;
   name: string;
@@ -65,6 +67,7 @@ interface Business {
   auto_keywords: string[] | null;
   maps_url: string | null;
   profile_image_url: string | null;
+  credits: number | null;
 }
 
 const BusinessesPage = () => {
@@ -417,6 +420,7 @@ const BusinessesPage = () => {
       </div>
 
       <main className="px-4 py-4 space-y-4">
+        <AgencyCreditsPanel onChange={fetchBusinesses} />
 
         {/* Businesses grid */}
         {businesses.length === 0 ? (
