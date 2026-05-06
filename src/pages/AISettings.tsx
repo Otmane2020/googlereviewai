@@ -57,15 +57,15 @@ interface PendingReviewsStats {
 }
 
 const toneOptions = [
-  { value: "professional", label: "Professional", icon: Briefcase },
-  { value: "friendly", label: "Friendly", icon: Smile },
-  { value: "humorous", label: "Humorous", icon: Sun },
-  { value: "warm", label: "Warm", icon: Heart },
+  { value: "professional", label: "Professionnel", icon: Briefcase },
+  { value: "friendly", label: "Amical", icon: Smile },
+  { value: "humorous", label: "Humoristique", icon: Sun },
+  { value: "warm", label: "Chaleureux", icon: Heart },
 ];
 
 const lengthOptions = [
-  { value: "S", label: "Short", desc: "2-3" },
-  { value: "M", label: "Medium", desc: "4-5" },
+  { value: "S", label: "Court", desc: "2-3" },
+  { value: "M", label: "Moyen", desc: "4-5" },
   { value: "L", label: "Long", desc: "6+" },
 ];
 
