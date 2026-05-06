@@ -819,7 +819,7 @@ const BusinessesPage = () => {
                               ) : (
                                 <Sparkles className="w-4 h-4" />
                               )}
-                              {analyzingId === business.id ? "Analyse..." : "Analyser"}
+                              {analyzingId === business.id ? t("Analyse...", "Analyzing...") : t("Analyser", "Analyze")}
                             </Button>
                           </div>
                           {business.auto_keywords && business.auto_keywords.length > 0 ? (
