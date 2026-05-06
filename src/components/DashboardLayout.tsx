@@ -44,22 +44,26 @@ interface DashboardLayoutProps {
 
 const useNavItems = () => {
   const { t } = useTranslation();
-  const productNav = [
+  const mainNav = [
     { label: t("sidebar.overview"), href: "/dashboard", icon: LayoutDashboard },
-    { label: t("sidebar.geoRankAi"), href: "/aeo-rank", icon: Sparkles, badge: "AI" },
-    { label: t("sidebar.mapsRank"), href: "/maps-rank", icon: MapPin },
-    { label: t("sidebar.reviews"), href: "/reviews", icon: Star },
-    { label: t("sidebar.seoAutopilot"), href: "/seo-autopost", icon: Search },
-    { label: t("sidebar.qa"), href: "/gmb-post", icon: MessageCircleQuestion },
-    { label: t("sidebar.planning"), href: "/calendar", icon: ListChecks },
-    { label: t("sidebar.locations"), href: "/businesses", icon: Building2 },
+    { label: "Avis Google", href: "/reviews", icon: Star },
+  ];
+  const visibilityNav = [
+    { label: "GEO Rank AI", href: "/aeo-rank", icon: Sparkles, badge: "AI" },
+    { label: "SEO Autopilot", href: "/seo-autopost", icon: Search },
+    { label: "Maps Rank", href: "/maps-rank", icon: MapPin },
+    { label: "Q&A", href: "/gmb-post", icon: MessageCircleQuestion },
+    { label: "Planning", href: "/calendar", icon: ListChecks },
+  ];
+  const businessNav = [
+    { label: "Établissements", href: "/businesses", icon: Building2 },
   ];
   const accountNav = [
     { label: t("sidebar.aiSettings"), href: "/ai-settings", icon: Sparkles },
     { label: t("sidebar.notifications"), href: "/notifications", icon: Bell },
     { label: t("sidebar.settings"), href: "/settings", icon: Settings },
   ];
-  return { productNav, accountNav };
+  return { mainNav, visibilityNav, businessNav, accountNav };
 };
 
 const RankiSidebar = () => {
