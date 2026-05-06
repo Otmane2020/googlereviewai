@@ -535,7 +535,7 @@ const AISettingsPage = () => {
                 <div className="w-8 h-8 rounded-lg bg-orange-500/10 flex items-center justify-center">
                   <Clock className="w-4 h-4 text-orange-500" />
                 </div>
-                <span className="font-medium text-sm text-foreground">Délai de réponse</span>
+                <span className="font-medium text-sm text-foreground">{isEN ? "Reply delay" : "Délai de réponse"}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Input
