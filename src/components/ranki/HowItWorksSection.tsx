@@ -1,41 +1,28 @@
 import { Target, Zap, Repeat, BarChart3 } from "lucide-react";
-
-const steps = [
-  {
-    icon: Target,
-    title: "1. Connectez & ciblez",
-    desc: "Reliez votre fiche Google Business et choisissez les requêtes locales sur lesquelles vous voulez gagner sur ChatGPT, Gemini et Perplexity.",
-  },
-  {
-    icon: BarChart3,
-    title: "2. Mesurez votre positionnement",
-    desc: "Nous lançons chaque jour de vraies requêtes et analysons votre place, votre part de voix et la présence de vos concurrents sur toutes les IA.",
-  },
-  {
-    icon: Zap,
-    title: "3. Publication GEO automatique",
-    desc: "Ranki.ai génère et publie des Q&R, posts et réponses aux avis optimisés IA sur votre fiche Google — les signaux exacts indexés par les LLM.",
-  },
-  {
-    icon: Repeat,
-    title: "4. Augmentez vos ventes",
-    desc: "Votre visibilité grimpe semaine après semaine. Plus de clics, plus d'appels, plus de clients qui passent la porte.",
-  },
-];
+import { useTranslation } from "react-i18next";
 
 export const HowItWorksSection = () => {
+  const { t } = useTranslation();
+
+  const steps = [
+    { icon: Target, title: t("landingUI.howItWorks.step1Title"), desc: t("landingUI.howItWorks.step1Desc") },
+    { icon: BarChart3, title: t("landingUI.howItWorks.step2Title"), desc: t("landingUI.howItWorks.step2Desc") },
+    { icon: Zap, title: t("landingUI.howItWorks.step3Title"), desc: t("landingUI.howItWorks.step3Desc") },
+    { icon: Repeat, title: t("landingUI.howItWorks.step4Title"), desc: t("landingUI.howItWorks.step4Desc") },
+  ];
+
   return (
     <section id="how-it-works" className="py-20 sm:py-28 bg-background">
       <div className="container mx-auto px-4 sm:px-6">
         <div className="max-w-2xl mx-auto text-center mb-14">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-card border border-border text-foreground text-xs font-semibold mb-4">
-            Comment ça marche
+            {t("landingUI.howItWorks.badge")}
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-foreground tracking-tight">
-            D'invisible à <span className="text-primary">#1 dans les IA</span>
+            {t("landingUI.howItWorks.title1")} <span className="text-primary">{t("landingUI.howItWorks.title2")}</span>
           </h2>
           <p className="mt-4 text-lg text-muted-foreground">
-            Une boucle GEO complète — suivi, optimisation, publication, mesure — en pilotage automatique pour booster votre référencement naturel.
+            {t("landingUI.howItWorks.subtitle")}
           </p>
         </div>
 
