@@ -182,11 +182,9 @@ const RankiSidebar = () => {
       <SidebarFooter className="border-t border-sidebar-border">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip={t("sidebar.helpSupport")}>
-              <a href="mailto:support@ranki.ai" className="flex items-center gap-3">
-                <HelpCircle className="h-4 w-4" />
-                {!collapsed && <span>{t("sidebar.helpSupport")}</span>}
-              </a>
+            <SidebarMenuButton onClick={() => setSupportOpen(true)} tooltip={t("sidebar.helpSupport")}>
+              <HelpCircle className="h-4 w-4" />
+              {!collapsed && <span>{t("sidebar.helpSupport")}</span>}
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
