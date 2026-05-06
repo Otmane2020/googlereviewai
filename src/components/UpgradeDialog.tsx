@@ -109,13 +109,21 @@ export const UpgradeDialog = ({ open, onOpenChange, currentPlan }: UpgradeDialog
     }
   };
 
-  const upgradeFeatures = [
-    "Posts SEO quotidiens",
-    "Q&A AEO quotidiens (ChatGPT)",
-    "100 crédits/mois",
-    "2 établissements",
-    "Support prioritaire",
-  ];
+  const upgradeFeatures = isEN
+    ? [
+        "Daily SEO posts",
+        "Daily AEO Q&A (ChatGPT)",
+        "100 credits/month",
+        "2 locations",
+        "Priority support",
+      ]
+    : [
+        "Posts SEO quotidiens",
+        "Q&A AEO quotidiens (ChatGPT)",
+        "100 crédits/mois",
+        "2 établissements",
+        "Support prioritaire",
+      ];
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
