@@ -499,15 +499,15 @@ const SettingsPage = () => {
                         (window as any).PushAlertCo.unsubscribe();
                         setIsSubscribedToPush(false);
                         toast({
-                          title: "Notifications disabled",
-                          description: "You will no longer receive push notifications.",
+                          title: "Notifications désactivées",
+                          description: "Vous ne recevrez plus de notifications push.",
                         });
                       }
                     }}
                     className="rounded-xl h-9 shrink-0"
                   >
                     <BellOff className="w-4 h-4 mr-1" />
-                    Disable
+                    Désactiver
                   </Button>
                 )}
                 {/* Force reactivation button - always visible when push permission granted but SDK issues */}
