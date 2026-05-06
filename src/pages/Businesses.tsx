@@ -921,7 +921,7 @@ const BusinessesPage = () => {
                     }
                   >
                     <MessageSquare className="w-4 h-4" />
-                    Voir les avis
+                    {t("Voir les avis", "View reviews")}
                   </Button>
                 </div>
               );
