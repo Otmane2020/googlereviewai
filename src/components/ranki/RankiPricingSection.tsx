@@ -68,7 +68,21 @@ const plans: Plan[] = [
 
 export const RankiPricingSection = () => {
   const navigate = useNavigate();
+  const { i18n } = useTranslation();
+  const isEN = i18n.language?.toLowerCase().startsWith("en");
   const [loadingKey, setLoadingKey] = useState<string | null>(null);
+
+  // Adapt the Daily plan price + checkout key to current language/currency
+  const localizedPlans = plans.map((p) => {
+    if (p.priceKey === "daily_monthly") {
+      return {
+        ...p,
+        price: isEN ? "$9.99" : "9,99€",
+        priceKey: isEN ? "daily_monthly_usd" : "daily_monthly_eur",
+      };
+    }
+    return p;
+  });
 
   const handleCta = async (plan: Plan) => {
     if (!plan.priceKey) {
