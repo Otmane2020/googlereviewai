@@ -416,25 +416,25 @@ export default function GmbPost() {
 
               {/* Content */}
               <div>
-                <Label className="text-sm font-medium mb-2 block">Contenu</Label>
+                <Label className="text-sm font-medium mb-2 block">{t("Contenu", "Content")}</Label>
                 <Textarea
-                  placeholder="Informez vos clients : actualités, événements, offres spéciales..."
+                  placeholder={t("Informez vos clients : actualités, événements, offres spéciales...", "Inform your customers: news, events, special offers...")}
                   value={content}
                   onChange={(e) => setContent(e.target.value.slice(0, 1500))}
                   className="min-h-[120px] resize-none"
                 />
                 <p className="text-xs text-muted-foreground text-right mt-1">
-                  {content.length}/1500 caractères
+                  {content.length}/1500 {t("caractères", "characters")}
                 </p>
               </div>
 
               {/* CTA */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <Label className="text-sm font-medium mb-2 block">Bouton d'action</Label>
+                  <Label className="text-sm font-medium mb-2 block">{t("Bouton d'action", "Action button")}</Label>
                   <Select value={ctaType} onValueChange={setCtaType}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Aucun" />
+                      <SelectValue placeholder={t("Aucun", "None")} />
                     </SelectTrigger>
                     <SelectContent>
                       {CTA_TYPES.map((cta) => (
