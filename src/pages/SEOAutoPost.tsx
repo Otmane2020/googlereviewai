@@ -519,12 +519,12 @@ const SEOAutoPost = () => {
         {businesses.length === 0 ? (
           <Card className="p-6 text-center">
             <Building2 className="w-10 h-10 mx-auto mb-3 text-muted-foreground/30" />
-            <h3 className="text-base font-medium text-foreground mb-2">Aucun établissement</h3>
+            <h3 className="text-base font-medium text-foreground mb-2">{t("Aucun établissement", "No business")}</h3>
             <p className="text-xs text-muted-foreground mb-4">
-              Connect your Google Business Profile first
+              {t("Connectez d'abord votre fiche Google Business", "Connect your Google Business Profile first")}
             </p>
             <Button onClick={() => navigate("/businesses")} size="sm">
-              Add a business
+              {t("Ajouter un établissement", "Add a business")}
             </Button>
           </Card>
         ) : (
