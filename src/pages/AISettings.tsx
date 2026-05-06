@@ -721,8 +721,8 @@ const AISettingsPage = () => {
                   </svg>
                 </div>
                 <div>
-                  <span className="font-medium text-sm text-foreground block">Fuseau horaire</span>
-                  <span className="text-xs text-muted-foreground">Pour la publication automatisée</span>
+                  <span className="font-medium text-sm text-foreground block">{isEN ? "Time zone" : "Fuseau horaire"}</span>
+                  <span className="text-xs text-muted-foreground">{isEN ? "For automated publishing" : "Pour la publication automatisée"}</span>
                 </div>
               </div>
               <select
