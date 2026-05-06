@@ -41,7 +41,82 @@
     "compliance": "Compliance",
     "pricing": "Pricing",
     "signIn": "Sign in",
-    "createAccount": "Create account"
+    "createAccount": "Create account",
+    "geoRank": "GEO Rank",
+    "reviewsAI": "Reviews AI",
+    "howItWorks": "How it works",
+    "startFree": "Start for free",
+    "menu": "Menu"
+  },
+  "landingUI": {
+    "hero": {
+      "badge": "GEO · Generative AI Optimization",
+      "title1": "Boost your sales and visibility on",
+      "title2": "ChatGPT, Gemini & Perplexity",
+      "subtitle": "Ranki.ai improves your local ranking, optimizes your SEO strategy and grows your sales by automatically publishing the content that gets you recommended #1 by AI engines and Google.",
+      "ctaPrimary": "Boost my visibility — Free",
+      "ctaSecondary": "See how it works",
+      "noCard": "No credit card",
+      "freeCredits": "25 free credits",
+      "setup": "Set up in 2 min",
+      "trackedOn": "Tracking your ranking on",
+      "rank": "Rank #1",
+      "inChatGPT": "in ChatGPT",
+      "aiMentions": "AI mentions"
+    },
+    "geoRank": {
+      "badge": "GEO rank tracking",
+      "title1": "Improve your ranking in",
+      "title2": "AI answers",
+      "subtitle": "We query ChatGPT, Gemini and Perplexity every day on your local keywords to boost your visibility, monitor competitors and grow your sales.",
+      "yourBusiness": "Your business"
+    },
+    "howItWorks": {
+      "badge": "How it works",
+      "title1": "From invisible to",
+      "title2": "#1 in AI answers",
+      "subtitle": "A complete GEO loop — tracking, optimization, publishing, measurement — fully automated to boost your natural ranking.",
+      "step1Title": "1. Connect & target",
+      "step1Desc": "Link your Google Business profile and pick the local queries you want to win on ChatGPT, Gemini and Perplexity.",
+      "step2Title": "2. Measure your ranking",
+      "step2Desc": "We run real queries every day and analyze your position, share of voice and competitors across all AI engines.",
+      "step3Title": "3. Automatic GEO publishing",
+      "step3Desc": "Ranki.ai generates and publishes AI-optimized Q&As, posts and review replies on your Google profile — the exact signals indexed by LLMs.",
+      "step4Title": "4. Grow your sales",
+      "step4Desc": "Your visibility climbs week after week. More clicks, more calls, more customers walking through the door."
+    },
+    "reviewsAI": {
+      "badge": "Reviews AI",
+      "title1": "All your reviews handled.",
+      "title2": "Replied to automatically.",
+      "subtitle": "On-brand AI replies, published to Google in minutes — to boost your reputation and your AI ranking.",
+      "customerReview": "Customer review",
+      "aiReply": "Ranki.ai AI reply"
+    },
+    "cta": {
+      "title": "Boost your sales today",
+      "subtitle": "Join hundreds of businesses using Ranki.ai to improve their ranking and dominate ChatGPT, Gemini and Perplexity. Free forever — no credit card.",
+      "button": "Start for free",
+      "free": "100% free plan",
+      "noCard": "No credit card",
+      "cancelAnytime": "Cancel anytime"
+    },
+    "footer": {
+      "tagline": "Rank locally in ChatGPT, Gemini and Perplexity. The GEO platform built for local businesses.",
+      "operational": "All systems operational",
+      "product": "Product",
+      "company": "Company",
+      "support": "Support",
+      "geoRankTracker": "GEO Rank Tracker",
+      "reviewsAI": "Reviews AI",
+      "localSeoAuto": "Local SEO Autopilot",
+      "pricing": "Pricing",
+      "blog": "Blog",
+      "privacy": "Privacy",
+      "terms": "Terms",
+      "rights": "All rights reserved",
+      "tagShort": "GEO · Local SEO · Reviews AI"
+    }
   },
   "dashboard": {
     "title": "Dashboard",
