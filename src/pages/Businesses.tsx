@@ -774,7 +774,7 @@ const BusinessesPage = () => {
                             <Button variant="outline" className="w-full gap-2" asChild>
                               <a href={business.website} target="_blank" rel="noopener noreferrer">
                                 <ExternalLink className="w-4 h-4" />
-                                Ouvrir le site web
+                                {t("Ouvrir le site web", "Open website")}
                               </a>
                             </Button>
                           )}
