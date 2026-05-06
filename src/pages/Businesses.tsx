@@ -835,8 +835,8 @@ const BusinessesPage = () => {
                               <Sparkles className="w-12 h-12 mx-auto mb-3 text-muted-foreground/30" />
                               <p className="text-sm text-muted-foreground">
                                 {business.website || business.description 
-                                  ? "Click Analyze to extract keywords automatically" 
-                                  : "Add a website or description to detect keywords"}
+                                  ? t("Cliquez sur Analyser pour extraire les mots-clés automatiquement", "Click Analyze to extract keywords automatically") 
+                                  : t("Ajoutez un site web ou une description pour détecter les mots-clés", "Add a website or description to detect keywords")}
                               </p>
                             </div>
                           )}
