@@ -3,21 +3,21 @@ import { TrendingUp, Search, Bot, MapPin } from "lucide-react";
 const queries = [
   {
     engine: "ChatGPT",
-    query: "Best Italian restaurant in Brooklyn with outdoor seating?",
+    query: "Meilleur restaurant italien à Paris avec terrasse ?",
     your: { name: "Trattoria Romana", rank: 1, change: "+4" },
-    competitors: ["Lucia's Kitchen", "Forno Vecchio", "Pasta Bar 11"],
+    competitors: ["Cucina Lucia", "Forno Vecchio", "Pasta Bar 11"],
   },
   {
     engine: "Perplexity",
-    query: "Top boutique hotels in Austin for a weekend?",
-    your: { name: "The Driskill House", rank: 2, change: "+1" },
-    competitors: ["Hotel Saint Cecilia", "South Congress Hotel"],
+    query: "Meilleurs hôtels boutique à Lyon pour un week-end ?",
+    your: { name: "Maison Driskill", rank: 2, change: "+1" },
+    competitors: ["Hôtel Sainte-Cécile", "South Hôtel"],
   },
   {
     engine: "Gemini",
-    query: "Affordable car repair shop near Santa Monica?",
-    your: { name: "Westside Auto Care", rank: 1, change: "+6" },
-    competitors: ["Ocean Auto", "SM Mechanics", "Pier Garage"],
+    query: "Garage automobile pas cher à Marseille ?",
+    your: { name: "Westside Auto", rank: 1, change: "+6" },
+    competitors: ["Océan Auto", "SM Mécanique", "Garage du Port"],
   },
 ];
 
@@ -27,13 +27,13 @@ export const GeoRankSection = () => {
       <div className="container mx-auto px-4 sm:px-6">
         <div className="max-w-2xl mx-auto text-center mb-14">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-background border border-border text-foreground text-xs font-semibold mb-4">
-            <Bot className="w-3.5 h-3.5" /> The GEO Rank Tracker
+            <Bot className="w-3.5 h-3.5" /> Suivi de classement GEO
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-foreground tracking-tight">
-            See exactly where you rank in <span className="text-primary">AI answers</span>
+            Améliorez votre positionnement dans les <span className="text-primary">réponses des IA</span>
           </h2>
           <p className="mt-4 text-lg text-muted-foreground">
-            We run real queries on ChatGPT, Gemini and Perplexity for your local keywords — every day — and show you who's winning the AI recommendation game.
+            Nous interrogeons chaque jour ChatGPT, Gemini et Perplexity sur vos mots-clés locaux pour booster votre visibilité, surveiller vos concurrents et augmenter vos ventes.
           </p>
         </div>
 
