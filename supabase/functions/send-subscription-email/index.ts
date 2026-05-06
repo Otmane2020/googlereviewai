@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { resolveEmailLang, type Lang } from "../_shared/email-lang.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -14,6 +15,7 @@ interface SubscriptionEmailRequest {
   billing_cycle: "month" | "year";
   is_trial: boolean;
   trial_days?: number;
+  lang?: Lang;
 }
 
 // Professional email design system
