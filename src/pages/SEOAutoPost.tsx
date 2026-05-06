@@ -413,14 +413,16 @@ const SEOAutoPost = () => {
     if (error) {
       console.error("Error saving publication hour:", error);
       toast({
-        title: "Erreur",
-        description: "Impossible d'enregistrer l'heure de publication",
+        title: t("Erreur", "Error"),
+        description: t("Impossible d'enregistrer l'heure de publication", "Unable to save publication time"),
         variant: "destructive"
       });
     } else {
       toast({
-        title: "Heure mise à jour",
-        description: `La publication automatique aura lieu à ${hour.toString().padStart(2, "0")}:00 UTC`,
+        title: t("Heure mise à jour", "Time updated"),
+        description: isEN
+          ? `Automatic publishing will happen at ${hour.toString().padStart(2, "0")}:00 UTC`
+          : `La publication automatique aura lieu à ${hour.toString().padStart(2, "0")}:00 UTC`,
       });
     }
   };
