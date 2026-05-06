@@ -201,13 +201,13 @@ const Calendar = () => {
         <Card className="rounded-2xl border-border/60 shadow-sm">
           <CardHeader>
             <CardTitle className="text-base">
-              {selectedDay ? format(selectedDay, "EEEE, MMMM d, yyyy") : "Pick a day"}
+              {selectedDay ? format(selectedDay, "EEEE d MMMM yyyy", { locale: fr }) : "Choisissez un jour"}
             </CardTitle>
           </CardHeader>
           <CardContent>
             {selectedItems.length === 0 ? (
               <div className="py-10 text-center text-sm text-muted-foreground">
-                Nothing scheduled for this day.
+                Rien de planifié pour ce jour.
               </div>
             ) : (
               <div className="space-y-2">
@@ -216,7 +216,11 @@ const Calendar = () => {
                   const Icon = s.icon;
                   const isGeo = item.content_type === "aeo_qa";
                   return (
-                    <div key={item.id} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-card">
+                    <button
+                      key={item.id}
+                      onClick={() => openDetail(item)}
+                      className="w-full flex items-center gap-3 p-3 rounded-xl border border-border bg-card hover:border-primary/50 hover:bg-muted/40 transition-all text-left"
+                    >
                       <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${isGeo ? "bg-emerald-500/10 text-emerald-600" : "bg-primary/10 text-primary"}`}>
                         {isGeo ? <Sparkles className="w-4 h-4" /> : <FileText className="w-4 h-4" />}
                       </div>
@@ -225,14 +229,14 @@ const Calendar = () => {
                           {item.title || item.question || (isGeo ? "Q&R GEO" : "Article SEO")}
                         </p>
                         <p className="text-[11px] text-muted-foreground uppercase tracking-wide">
-                          {isGeo ? "GEO · Google Q&R" : "SEO · Post Google"}
+                          {isGeo ? "GEO · Q&R Google" : "SEO · Post Google"}
                         </p>
                       </div>
                       <Badge variant="outline" className={`${s.className} text-[10px] gap-1`}>
                         <Icon className={`w-3 h-3 ${item.status === "generating" ? "animate-spin" : ""}`} />
                         {s.label}
                       </Badge>
-                    </div>
+                    </button>
                   );
                 })}
               </div>
