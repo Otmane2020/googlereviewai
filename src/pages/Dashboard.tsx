@@ -725,7 +725,7 @@ const Dashboard = () => {
                       <p className="text-white font-bold text-base">Publication automatique GEO</p>
                       <span className="text-[10px] bg-white/20 text-white px-2 py-0.5 rounded-full font-semibold uppercase tracking-wide">AI</span>
                     </div>
-                    <p className="text-white/70 text-xs">Auto Q&A on Google · ChatGPT-ready</p>
+                    <p className="text-white/70 text-xs">Q&R auto sur Google · Prêt pour ChatGPT</p>
                   </div>
                 </div>
                 <ArrowUpRight className="w-5 h-5 text-white/80" />
