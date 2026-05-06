@@ -196,7 +196,7 @@ export const BusinessSubscriptionSelector = ({
             <div className="text-center py-4">
               <Building2 className="w-10 h-10 mx-auto text-muted-foreground/30 mb-2" />
               <p className="text-sm text-muted-foreground">
-                Vous pourrez ajouter des établissements après l'abonnement
+                {t("Vous pourrez ajouter des établissements après l'abonnement", "You will be able to add businesses after subscribing")}
               </p>
             </div>
           )}
