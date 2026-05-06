@@ -571,7 +571,7 @@ const BusinessesPage = () => {
                             }}
                           >
                             <Edit className="w-4 h-4" />
-                            Edit
+                            {t("Modifier", "Edit")}
                           </Button>
                           <Button 
                             className="flex-1 gap-2 bg-primary hover:bg-primary/90 text-primary-foreground"
