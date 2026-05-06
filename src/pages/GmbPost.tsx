@@ -58,6 +58,12 @@ export default function GmbPost() {
   const [content, setContent] = useState("");
   const [ctaType, setCtaType] = useState("NONE");
   const [ctaUrl, setCtaUrl] = useState("");
+  // Champs spécifiques EVENT / OFFER
+  const [eventTitle, setEventTitle] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [couponCode, setCouponCode] = useState("");
+  const [terms, setTerms] = useState("");
   const [isPublishing, setIsPublishing] = useState(false);
   const [recentPosts, setRecentPosts] = useState<GmbPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
