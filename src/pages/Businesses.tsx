@@ -655,7 +655,7 @@ const BusinessesPage = () => {
                         <SheetHeader>
                           <SheetTitle className="flex items-center gap-2">
                             <Link className="w-5 h-5" />
-                            Liens de {business.name}
+                            {t("Liens de", "Links of")} {business.name}
                           </SheetTitle>
                         </SheetHeader>
                         <div className="space-y-4 py-4">
