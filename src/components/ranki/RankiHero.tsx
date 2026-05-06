@@ -1,11 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Sparkles, MapPin, ArrowRight, Check } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import heroImg from "@/assets/ranki-hero.jpg";
 
 const aiEngines = ["ChatGPT", "Gemini", "Perplexity", "Claude"];
 
 export const RankiHero = () => {
+  const { t } = useTranslation();
   return (
     <section className="relative pt-24 pb-16 sm:pt-32 sm:pb-24 overflow-hidden bg-background">
       {/* Subtle grid only */}
