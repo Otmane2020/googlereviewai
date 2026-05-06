@@ -354,14 +354,14 @@ const AISettingsPage = () => {
     if (error) {
       console.error("Error saving AI settings:", error);
       toast({
-        title: "Erreur",
-        description: "Impossible d'enregistrer les paramètres.",
+        title: isEN ? "Error" : "Erreur",
+        description: isEN ? "Unable to save settings." : "Impossible d'enregistrer les paramètres.",
         variant: "destructive",
       });
     } else {
       toast({
-        title: "Enregistré",
-        description: "Vos paramètres IA ont été enregistrés.",
+        title: isEN ? "Saved" : "Enregistré",
+        description: isEN ? "Your AI settings have been saved." : "Vos paramètres IA ont été enregistrés.",
       });
       setHasChanges(false);
       initialSettingsRef.current = settings;
