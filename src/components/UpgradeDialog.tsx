@@ -184,7 +184,7 @@ export const UpgradeDialog = ({ open, onOpenChange, currentPlan }: UpgradeDialog
               ) : (
                 <>
                   <ArrowRight className="w-4 h-4 mr-2" />
-                  Passer au Quotidien
+                  {isEN ? "Upgrade to Daily" : "Passer au Quotidien"}
                 </>
               )}
             </Button>
