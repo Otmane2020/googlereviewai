@@ -168,8 +168,8 @@ const SEOAutoPost = () => {
 
       if (addData?.success) {
         toast({
-          title: "Module activé !",
-          description: "Le module SEO a été ajouté à votre abonnement.",
+          title: t("Module activé !", "Module activated!"),
+          description: t("Le module SEO a été ajouté à votre abonnement.", "The SEO module has been added to your subscription."),
         });
         setIsSubscribed(true);
         checkSubscription();
@@ -195,8 +195,8 @@ const SEOAutoPost = () => {
     } catch (error: any) {
       console.error("Subscription error:", error);
       toast({
-        title: "Erreur",
-        description: error?.message || "Impossible de créer la session de paiement",
+        title: t("Erreur", "Error"),
+        description: error?.message || t("Impossible de créer la session de paiement", "Unable to create payment session"),
         variant: "destructive"
       });
     }
