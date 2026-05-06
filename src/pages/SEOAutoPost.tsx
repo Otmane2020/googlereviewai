@@ -356,7 +356,7 @@ const SEOAutoPost = () => {
 
   const publishToGMB = async (item: ScheduledContent) => {
     if (!item.content) {
-      toast({ title: "Erreur", description: "L'article doit d'abord être généré", variant: "destructive" });
+      toast({ title: t("Erreur", "Error"), description: t("L'article doit d'abord être généré", "The article must be generated first"), variant: "destructive" });
       return;
     }
 
@@ -374,8 +374,8 @@ const SEOAutoPost = () => {
       
       if (data?.requires_reconnect) {
         toast({ 
-          title: "Reconnexion requise", 
-          description: "Reconnectez-vous avec Google depuis le Tableau de bord", 
+          title: t("Reconnexion requise", "Reconnection required"), 
+          description: t("Reconnectez-vous avec Google depuis le Tableau de bord", "Reconnect with Google from the Dashboard"), 
           variant: "destructive" 
         });
         setPublishing(null);
@@ -388,14 +388,14 @@ const SEOAutoPost = () => {
 
       await fetchScheduledContent(selectedBusiness!.id);
       toast({ 
-        title: "Publié sur Google !", 
-        description: "L'article a été publié sur votre fiche Google Business" 
+        title: t("Publié sur Google !", "Published on Google!"), 
+        description: t("L'article a été publié sur votre fiche Google Business", "The article has been published on your Google Business profile")
       });
     } catch (error: any) {
       console.error("Error publishing:", error);
       toast({ 
-        title: "Erreur de publication", 
-        description: error.message || "Impossible de publier sur Google", 
+        title: t("Erreur de publication", "Publishing error"), 
+        description: error.message || t("Impossible de publier sur Google", "Unable to publish on Google"), 
         variant: "destructive" 
       });
     }
