@@ -77,6 +77,7 @@ const Index = () => {
         <GeoRankSection />
         <HowItWorksSection />
         <ReviewsAISection />
+        <DashboardPreviewSection />
         <RankiPricingSection />
         <FAQSection
           faqs={faqs}
