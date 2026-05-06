@@ -537,7 +537,7 @@ const BusinessesPage = () => {
                         </div>
                       ) : (
                         <div className="mb-3 p-3 bg-muted/30 rounded-xl border border-dashed border-muted-foreground/20 cursor-pointer hover:bg-muted/40 transition-colors">
-                          <p className="text-xs text-muted-foreground italic">No description. Tap to generate one with AI.</p>
+                          <p className="text-xs text-muted-foreground italic">{t("Aucune description. Touchez pour en générer une avec l'IA.", "No description. Tap to generate one with AI.")}</p>
                         </div>
                       )}
                     </SheetTrigger>
