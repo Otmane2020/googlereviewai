@@ -639,8 +639,8 @@ const AISettingsPage = () => {
                   <RefreshCw className="w-4 h-4 text-purple-500" />
                 </div>
                 <div>
-                  <span className="font-medium text-sm text-foreground block">Sync auto</span>
-                  <span className="text-xs text-muted-foreground">Importer les avis</span>
+                  <span className="font-medium text-sm text-foreground block">{isEN ? "Auto sync" : "Sync auto"}</span>
+                  <span className="text-xs text-muted-foreground">{isEN ? "Import reviews" : "Importer les avis"}</span>
                 </div>
               </div>
               <Switch
