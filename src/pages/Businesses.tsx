@@ -861,15 +861,15 @@ const BusinessesPage = () => {
                         <SheetHeader>
                           <SheetTitle className="flex items-center gap-2">
                             <FileText className="w-5 h-5" />
-                            Posts de {business.name}
+                            {t("Posts de", "Posts of")} {business.name}
                           </SheetTitle>
                         </SheetHeader>
                         <div className="py-4">
                           <div className="flex items-center justify-between mb-4">
-                            <p className="text-sm text-muted-foreground">{posts.length} posts</p>
+                            <p className="text-sm text-muted-foreground">{posts.length} {t("posts", "posts")}</p>
                             <Button variant="default" size="sm" className="gap-1.5">
                               <PlusCircle className="w-4 h-4" />
-                              Nouveau post
+                              {t("Nouveau post", "New post")}
                             </Button>
                           </div>
                           {posts.length > 0 ? (
