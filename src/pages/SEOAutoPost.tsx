@@ -384,7 +384,7 @@ const SEOAutoPost = () => {
 
       await fetchScheduledContent(selectedBusiness!.id);
       toast({ 
-        title: "Published to Google!", 
+        title: "Publié sur Google !", 
         description: "The article was published on your Google Business Profile" 
       });
     } catch (error: any) {
@@ -416,7 +416,7 @@ const SEOAutoPost = () => {
     } else {
       toast({
         title: "Time updated",
-        description: `Auto-publishing will run at ${hour.toString().padStart(2, "0")}:00 UTC`,
+        description: `La publication automatique aura lieu à ${hour.toString().padStart(2, "0")}:00 UTC`,
       });
     }
   };
@@ -637,7 +637,7 @@ const SEOAutoPost = () => {
               <div className="flex items-center justify-between mt-3 p-2 bg-muted/50 rounded-lg border border-border/50">
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   <Settings className="w-3.5 h-3.5" />
-                  <span>Auto-publish:</span>
+                  <span>Publication auto :</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <select
@@ -704,13 +704,13 @@ const SEOAutoPost = () => {
                 {/* Legend */}
                 <div className="flex flex-wrap gap-4 mt-4 text-xs text-muted-foreground">
                   <div className="flex items-center gap-1">
-                    <Clock className="w-3 h-3" /> Scheduled
+                    <Clock className="w-3 h-3" /> Planifié
                   </div>
                   <div className="flex items-center gap-1">
-                    <Sparkles className="w-3 h-3 text-primary" /> Ready
+                    <Sparkles className="w-3 h-3 text-primary" /> Prêt
                   </div>
                   <div className="flex items-center gap-1">
-                    <Check className="w-3 h-3 text-emerald-500" /> Published
+                    <Check className="w-3 h-3 text-emerald-500" /> Publié
                   </div>
                 </div>
               </TabsContent>
