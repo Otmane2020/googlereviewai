@@ -728,7 +728,7 @@ const AEORank = () => {
               <div className="flex items-center justify-between mt-3 p-2 bg-muted/50 rounded-lg border border-border/50">
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   <Settings className="w-3.5 h-3.5" />
-                  <span>Auto-publish:</span>
+                  <span>Publication auto :</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <select
