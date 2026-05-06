@@ -711,19 +711,8 @@ const AEORank = () => {
               />
             )}
 
-            {/* Tabs - Mobile optimized */}
-            <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="grid w-full grid-cols-2 h-10">
-                <TabsTrigger value="planning" className="gap-1.5 text-xs">
-                  <Calendar className="w-3.5 h-3.5" />
-                  Planning
-                </TabsTrigger>
-                <TabsTrigger value="articles" className="gap-1.5 text-xs">
-                  <List className="w-3.5 h-3.5" />
-                  Q&R
-                </TabsTrigger>
-              </TabsList>
-
+            {/* Q&R - Mobile optimized */}
+            <Tabs value="articles" onValueChange={() => {}}>
               {/* Auto-publish info with settings icon */}
               <div className="flex items-center justify-between mt-3 p-2 bg-muted/50 rounded-lg border border-border/50">
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -745,64 +734,6 @@ const AEORank = () => {
                   <Badge variant="secondary" className="text-[10px]">Quotidien</Badge>
                 </div>
               </div>
-
-              {/* Planning Tab */}
-              <TabsContent value="planning" className="mt-3">
-                <div className="grid grid-cols-5 sm:grid-cols-7 gap-2">
-                  {next30Days.map((day) => {
-                    const dateStr = format(day, "yyyy-MM-dd");
-                    const dayContent = scheduledContent.find(c => c.scheduled_date === dateStr);
-                    const isToday = isSameDay(day, today);
-                    
-                    return (
-                      <Card 
-                        key={dateStr}
-                        className={`p-2 cursor-pointer transition-all ${
-                          isToday ? "ring-2 ring-primary" : ""
-                        } ${dayContent?.status === "published" ? "bg-emerald-500/20" : ""}`}
-                        onClick={() => {
-                          if (dayContent) {
-                            handlePreviewArticle(dayContent);
-                          }
-                        }}
-                      >
-                        <div className="text-center">
-                          <p className="text-[10px] text-muted-foreground uppercase">
-                            {format(day, "EEE")}
-                          </p>
-                          <p className={`text-lg font-bold ${isToday ? "text-primary" : "text-foreground"}`}>
-                            {format(day, "d")}
-                          </p>
-                          {dayContent ? (
-                            <div className="mt-1">
-                              {dayContent.status === "published" && <Check className="w-4 h-4 mx-auto text-emerald-500" />}
-                              {dayContent.status === "generated" && <Sparkles className="w-4 h-4 mx-auto text-primary" />}
-                              {dayContent.status === "pending" && <Clock className="w-4 h-4 mx-auto text-muted-foreground" />}
-                              {dayContent.status === "generating" && <Loader2 className="w-4 h-4 mx-auto text-primary animate-spin" />}
-                              {(dayContent.status === "failed" || dayContent.status === "error") && <AlertCircle className="w-4 h-4 mx-auto text-destructive" />}
-                            </div>
-                          ) : (
-                            <div className="mt-1 h-4" />
-                          )}
-                        </div>
-                      </Card>
-                    );
-                  })}
-                </div>
-
-                {/* Legend */}
-                <div className="flex flex-wrap gap-4 mt-4 text-xs text-muted-foreground">
-                  <div className="flex items-center gap-1">
-                    <Clock className="w-3 h-3" /> Planifié
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Sparkles className="w-3 h-3 text-primary" /> Prêt
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Check className="w-3 h-3 text-emerald-500" /> Publié
-                  </div>
-                </div>
-              </TabsContent>
 
               {/* Q&A Tab - Mobile optimized */}
               <TabsContent value="articles" className="mt-3 space-y-2">
