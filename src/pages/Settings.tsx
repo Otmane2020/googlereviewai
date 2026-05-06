@@ -366,7 +366,7 @@ const SettingsPage = () => {
         <div className="bg-card rounded-2xl border border-border p-6">
           <div className="flex items-center gap-3 mb-6">
             <Shield className="w-5 h-5 text-primary" />
-            <h2 className="font-semibold text-foreground">Security</h2>
+            <h2 className="font-semibold text-foreground">Sécurité</h2>
           </div>
           
           <div className="space-y-4">
@@ -376,8 +376,8 @@ const SettingsPage = () => {
               onClick={async () => {
                 if (!user?.email) {
                   toast({
-                    title: "Error",
-                    description: "Email not available",
+                    title: "Erreur",
+                    description: "E-mail indisponible",
                     variant: "destructive",
                   });
                   return;
@@ -389,19 +389,19 @@ const SettingsPage = () => {
                 
                 if (error) {
                   toast({
-                    title: "Error",
+                    title: "Erreur",
                     description: error.message,
                     variant: "destructive",
                   });
                 } else {
                   toast({
-                    title: "Email sent",
-                    description: "Check your inbox to reset your password.",
+                    title: "E-mail envoyé",
+                    description: "Consultez votre boîte de réception pour réinitialiser votre mot de passe.",
                   });
                 }
               }}
             >
-              Change password
+              Changer le mot de passe
             </Button>
             <div className="flex gap-2">
               <Button
@@ -409,7 +409,7 @@ const SettingsPage = () => {
                 className="flex-1 justify-start text-destructive hover:text-destructive"
                 onClick={handleSignOut}
               >
-                Sign out
+                Se déconnecter
               </Button>
               <SupportDialog userEmail={profile?.email} />
             </div>
