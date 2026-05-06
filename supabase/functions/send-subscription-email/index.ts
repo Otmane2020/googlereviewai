@@ -57,69 +57,106 @@ const getProHeader = () => `
   </div>
 `;
 
-const getProFooter = () => `
+const T = {
+  fr: {
+    rights: "Tous droits réservés.",
+    manage: "Gérer mon abonnement",
+    creditsMonth: (c: number) => `${c} crédits IA / mois`,
+    biz: (n: number) => n === 999 ? "Établissements illimités" : `${n} établissement${n > 1 ? "s" : ""}`,
+    autoReplies: "Réponses automatiques 24h/24",
+    publishGmb: "Publication sur Google My Business",
+    prioSupport: "Support prioritaire",
+    advReports: "Rapports d'analyse avancés",
+    apiAccess: "API access",
+    step1: "Connectez votre compte Google Business Profile",
+    step2: "Synchronisez vos avis clients",
+    step3: "Configurez le ton et le style des réponses IA",
+    step4: "Activez la publication automatique sur Google",
+    subjTrial: (p: string) => `🎉 Votre essai gratuit ${p} est activé !`,
+    subjActive: (p: string) => `Bienvenue dans votre abonnement ${p} !`,
+    trialBanner: (d: number) => `🎁 Essai gratuit de ${d} jours`,
+    billing: (c: string) => `Abonnement ${c === "year" ? "annuel" : "mensuel"}`,
+    hello: "Bonjour",
+    introTrial: (d: number) => `Merci d'avoir choisi Ranki.ai ! Votre essai gratuit de <strong>${d} jours</strong> est maintenant actif.`,
+    introActive: (p: string) => `Félicitations ! Votre abonnement <strong>${p}</strong> est maintenant actif.`,
+    included: "Ce qui est inclus :",
+    creditsAvail: "Crédits disponibles",
+    nextSteps: "Prochaines étapes :",
+    cta: "Commencer maintenant",
+    trialEnd: (d: number) => `⏰ Votre essai se termine dans <strong>${d} jours</strong>. Après cette période, votre carte sera automatiquement débitée.`,
+    questions: "Des questions ? Répondez directement à cet email ou contactez-nous à",
+  },
+  en: {
+    rights: "All rights reserved.",
+    manage: "Manage my subscription",
+    creditsMonth: (c: number) => `${c} AI credits / month`,
+    biz: (n: number) => n === 999 ? "Unlimited businesses" : `${n} business${n > 1 ? "es" : ""}`,
+    autoReplies: "24/7 automatic replies",
+    publishGmb: "Publishing to Google Business Profile",
+    prioSupport: "Priority support",
+    advReports: "Advanced analytics reports",
+    apiAccess: "API access",
+    step1: "Connect your Google Business Profile",
+    step2: "Sync your customer reviews",
+    step3: "Configure AI reply tone and style",
+    step4: "Enable automatic publishing to Google",
+    subjTrial: (p: string) => `🎉 Your ${p} free trial is active!`,
+    subjActive: (p: string) => `Welcome to your ${p} subscription!`,
+    trialBanner: (d: number) => `🎁 ${d}-day free trial`,
+    billing: (c: string) => `${c === "year" ? "Yearly" : "Monthly"} subscription`,
+    hello: "Hello",
+    introTrial: (d: number) => `Thanks for choosing Ranki.ai! Your <strong>${d}-day</strong> free trial is now active.`,
+    introActive: (p: string) => `Congrats! Your <strong>${p}</strong> subscription is now active.`,
+    included: "What's included:",
+    creditsAvail: "Available credits",
+    nextSteps: "Next steps:",
+    cta: "Get started",
+    trialEnd: (d: number) => `⏰ Your trial ends in <strong>${d} days</strong>. Your card will then be charged automatically.`,
+    questions: "Questions? Reply to this email or contact us at",
+  },
+};
+
+const getProFooter = (t: typeof T.fr) => `
   <div style="padding: 24px; text-align: center; border-top: 1px solid ${STYLES.borderLight};">
     <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textMuted}; font-size: 12px; margin: 0 0 8px 0;">
-      © 2025 Ranki.ai. Tous droits réservés.
+      © 2025 Ranki.ai. ${t.rights}
     </p>
     <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textMuted}; font-size: 12px; margin: 0;">
       <a href="https://ranki.ai" style="color: ${STYLES.brandBlue}; text-decoration: none;">ranki.ai</a>
       &nbsp;|&nbsp;
-      <a href="https://ranki.ai/settings" style="color: ${STYLES.brandBlue}; text-decoration: none;">Gérer mon abonnement</a>
+      <a href="https://ranki.ai/settings" style="color: ${STYLES.brandBlue}; text-decoration: none;">${t.manage}</a>
     </p>
   </div>
 `;
 
 const getProButton = (text: string, url: string) => `
-  <a href="${url}" 
+  <a href="${url}"
      style="display: inline-block; background-color: ${STYLES.brandBlue}; color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 6px; font-family: ${STYLES.fontFamily}; font-size: 15px; font-weight: 500;">
     ${text}
   </a>
 `;
 
-const getPlanBadge = (planName: string) => {
-  const color = getPlanColor(planName);
-  return `
-    <span style="display: inline-block; background-color: ${color}; color: #ffffff; padding: 4px 12px; border-radius: 20px; font-family: ${STYLES.fontFamily}; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
-      ${planName}
-    </span>
-  `;
-};
-
-const getPlanFeatures = (planName: string, credits: number, maxBusinesses: number): string[] => {
+const getPlanFeatures = (planName: string, credits: number, maxBusinesses: number, t: typeof T.fr): string[] => {
   const name = planName.toLowerCase();
   const baseFeatures = [
-    `${credits} crédits IA / mois`,
-    `${maxBusinesses === 999 ? "Établissements illimités" : `${maxBusinesses} établissement${maxBusinesses > 1 ? "s" : ""}`}`,
-    "Réponses automatiques 24h/24",
-    "Publication sur Google My Business",
+    t.creditsMonth(credits),
+    t.biz(maxBusinesses),
+    t.autoReplies,
+    t.publishGmb,
   ];
-  
-  if (name.includes("pro") || name.includes("business")) {
-    baseFeatures.push("Support prioritaire");
-  }
-  
-  if (name.includes("business")) {
-    baseFeatures.push("Rapports d'analyse avancés");
-    baseFeatures.push("API access");
-  }
-  
+  if (name.includes("pro") || name.includes("business")) baseFeatures.push(t.prioSupport);
+  if (name.includes("business")) { baseFeatures.push(t.advReports); baseFeatures.push(t.apiAccess); }
   return baseFeatures;
 };
 
-const getNextSteps = (planName: string): string => {
+const getNextSteps = (planName: string, t: typeof T.fr): string => {
   const name = planName.toLowerCase();
-  
   const steps = [
-    { icon: "1️⃣", text: "Connectez votre compte Google Business Profile" },
-    { icon: "2️⃣", text: "Synchronisez vos avis clients" },
-    { icon: "3️⃣", text: "Configurez le ton et le style des réponses IA" },
+    { icon: "1️⃣", text: t.step1 },
+    { icon: "2️⃣", text: t.step2 },
+    { icon: "3️⃣", text: t.step3 },
   ];
-  
-  if (name.includes("pro") || name.includes("business")) {
-    steps.push({ icon: "4️⃣", text: "Activez la publication automatique sur Google" });
-  }
-  
+  if (name.includes("pro") || name.includes("business")) steps.push({ icon: "4️⃣", text: t.step4 });
   return steps.map(step => `
     <tr>
       <td style="padding: 8px 0; font-family: ${STYLES.fontFamily}; color: ${STYLES.textSecondary}; font-size: 14px; line-height: 1.6;">
