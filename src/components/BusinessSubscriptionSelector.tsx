@@ -91,7 +91,10 @@ export const BusinessSubscriptionSelector = ({
           </div>
 
           <Button
-            onClick={() => { window.location.href = "/choose-plan"; }}
+            onClick={() => {
+              const ids = businesses.map(b => b.id);
+              onSubscribe(ids, false, Math.max(1, ids.length));
+            }}
             size="sm"
             className="w-full"
             disabled={isLoading}
