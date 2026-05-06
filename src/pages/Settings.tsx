@@ -270,25 +270,38 @@ const SettingsPage = () => {
           </div>
         </div>
 
-        {/* Language section — masquée : app FR uniquement pour l'instant */}
-        {false && (
-          <div className="bg-card rounded-2xl border border-border p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <Globe className="w-5 h-5 text-primary" />
-              <h2 className="font-semibold text-foreground">{t("sidebar.language")}</h2>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <button type="button" onClick={() => handleLanguageChange("en")} className="flex items-center gap-3 rounded-xl border p-3 text-left">
-                <span className="text-2xl">🇬🇧</span>
-                <div><p className="text-sm font-semibold">English</p><p className="text-xs text-muted-foreground">EN</p></div>
-              </button>
-              <button type="button" onClick={() => handleLanguageChange("fr")} className="flex items-center gap-3 rounded-xl border p-3 text-left">
-                <span className="text-2xl">🇫🇷</span>
-                <div><p className="text-sm font-semibold">Français</p><p className="text-xs text-muted-foreground">FR</p></div>
-              </button>
-            </div>
+        {/* Language section */}
+        <div className="bg-card rounded-2xl border border-border p-6">
+          <div className="flex items-center gap-3 mb-2">
+            <Globe className="w-5 h-5 text-primary" />
+            <h2 className="font-semibold text-foreground">{t("sidebar.language")}</h2>
           </div>
-        )}
+          <p className="text-xs text-muted-foreground mb-4">
+            {currentLang === "fr"
+              ? "S'applique à l'interface, aux emails et aux notifications."
+              : "Applies to the interface, emails and notifications."}
+          </p>
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              type="button"
+              onClick={() => handleLanguageChange("fr")}
+              className={`flex items-center gap-3 rounded-xl border p-3 text-left transition-all ${currentLang === "fr" ? "border-primary bg-primary/5 ring-2 ring-primary/30" : "border-border hover:bg-muted/50"}`}
+            >
+              <span className="text-2xl">🇫🇷</span>
+              <div><p className="text-sm font-semibold text-foreground">Français</p><p className="text-xs text-muted-foreground">FR</p></div>
+              {currentLang === "fr" && <Check className="w-4 h-4 text-primary ml-auto" />}
+            </button>
+            <button
+              type="button"
+              onClick={() => handleLanguageChange("en")}
+              className={`flex items-center gap-3 rounded-xl border p-3 text-left transition-all ${currentLang === "en" ? "border-primary bg-primary/5 ring-2 ring-primary/30" : "border-border hover:bg-muted/50"}`}
+            >
+              <span className="text-2xl">🇬🇧</span>
+              <div><p className="text-sm font-semibold text-foreground">English</p><p className="text-xs text-muted-foreground">EN</p></div>
+              {currentLang === "en" && <Check className="w-4 h-4 text-primary ml-auto" />}
+            </button>
+          </div>
+        </div>
 
         {/* Subscription section */}
         <div className="bg-card rounded-2xl border border-border p-6">
