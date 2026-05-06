@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { UpgradeDialog } from "./UpgradeDialog";
 import { Button } from "./ui/button";
 import { Bell, Plus, Sparkles, LogOut, User as UserIcon } from "lucide-react";
+import { Link } from "react-router-dom";
+import { RankiLogo } from "./StarlinkoLogo";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useNotifications } from "@/hooks/useNotifications";
@@ -73,7 +75,11 @@ export const DashboardHeader = () => {
   return (
     <header className="sticky top-0 z-30 bg-background/80 backdrop-blur-xl border-b border-border/50">
       <div className="max-w-7xl mx-auto px-4">
-        <div className="flex items-center justify-end gap-2 h-14">
+        <div className="flex items-center justify-between gap-2 h-14">
+          <Link to="/dashboard" className="flex-shrink-0 md:hidden" aria-label="Ranki home">
+            <RankiLogo className="text-foreground scale-90" />
+          </Link>
+          <div className="flex-1" />
           {/* Credits pill */}
           <button
             onClick={() => setUpgradeDialogOpen(true)}
