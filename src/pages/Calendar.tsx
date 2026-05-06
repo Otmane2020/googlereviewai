@@ -264,6 +264,53 @@ const Calendar = () => {
         </Card>
       </div>
 
+      <Dialog open={!!dayDialog} onOpenChange={(o) => !o && setDayDialog(null)}>
+        <DialogContent className="max-w-md">
+          {dayDialog && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="text-left">
+                  {format(dayDialog.date, "EEEE d MMMM yyyy", { locale: dateLocale })}
+                </DialogTitle>
+                <DialogDescription>
+                  {t("Choisissez un contenu à consulter.", "Choose content to view.")}
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-2">
+                {dayDialog.items.map((item) => {
+                  const s = STATUS_STYLE[item.status] || STATUS_STYLE.pending;
+                  const Icon = s.icon;
+                  const isGeo = item.content_type === "aeo_qa";
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => openDetail(item)}
+                      className="w-full flex items-center gap-3 p-3 rounded-xl border border-border bg-card hover:border-primary/50 hover:bg-muted/40 transition-all text-left"
+                    >
+                      <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${isGeo ? "bg-emerald-500/10 text-emerald-600" : "bg-primary/10 text-primary"}`}>
+                        {isGeo ? <Sparkles className="w-4 h-4" /> : <FileText className="w-4 h-4" />}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-foreground truncate">
+                          {item.title || item.question || (isGeo ? t("Q&R GEO", "GEO Q&A") : t("Article SEO", "SEO Article"))}
+                        </p>
+                        <p className="text-[11px] text-muted-foreground uppercase tracking-wide">
+                          {isGeo ? t("GEO · Q&R Google", "GEO · Google Q&A") : t("SEO · Post Google", "SEO · Google Post")}
+                        </p>
+                      </div>
+                      <Badge variant="outline" className={`${s.className} text-[10px] gap-1 shrink-0`}>
+                        <Icon className={`w-3 h-3 ${item.status === "generating" ? "animate-spin" : ""}`} />
+                        {s.label}
+                      </Badge>
+                    </button>
+                  );
+                })}
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+
       <Dialog open={!!detail} onOpenChange={(o) => !o && setDetail(null)}>
         <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col">
           {detail && (() => {
