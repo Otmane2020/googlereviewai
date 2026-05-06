@@ -354,6 +354,62 @@ export default function GmbPost() {
                 </div>
               </div>
 
+              {/* Champs Événement / Offre */}
+              {(postType === "EVENT" || postType === "OFFER") && (
+                <div className="space-y-3 p-3 rounded-xl border border-primary/20 bg-primary/5">
+                  <div>
+                    <Label className="text-sm font-medium mb-2 block">
+                      {postType === "EVENT" ? "Titre de l'événement" : "Titre de l'offre"}
+                    </Label>
+                    <Input
+                      placeholder={postType === "EVENT" ? "Ex : Soirée portes ouvertes" : "Ex : -20% sur tout le menu"}
+                      value={eventTitle}
+                      onChange={(e) => setEventTitle(e.target.value.slice(0, 58))}
+                      maxLength={58}
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <Label className="text-sm font-medium mb-2 block">Début</Label>
+                      <Input
+                        type="datetime-local"
+                        value={startDate}
+                        onChange={(e) => setStartDate(e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium mb-2 block">Fin</Label>
+                      <Input
+                        type="datetime-local"
+                        value={endDate}
+                        onChange={(e) => setEndDate(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  {postType === "OFFER" && (
+                    <>
+                      <div>
+                        <Label className="text-sm font-medium mb-2 block">Code promo (optionnel)</Label>
+                        <Input
+                          placeholder="Ex : PROMO20"
+                          value={couponCode}
+                          onChange={(e) => setCouponCode(e.target.value.slice(0, 58))}
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium mb-2 block">Conditions (optionnel)</Label>
+                        <Textarea
+                          placeholder="Ex : Valable jusqu'au... Hors boissons..."
+                          value={terms}
+                          onChange={(e) => setTerms(e.target.value.slice(0, 5000))}
+                          className="min-h-[60px] resize-none"
+                        />
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
+
               {/* Content */}
               <div>
                 <Label className="text-sm font-medium mb-2 block">Contenu</Label>
