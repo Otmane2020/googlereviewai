@@ -203,6 +203,7 @@ const RankiSidebar = () => {
         )}
       </SidebarFooter>
       <SupportDialog userEmail={profile?.email} hideTrigger open={supportOpen} onOpenChange={setSupportOpen} />
+      <UpgradeDialog open={upgradeOpen} onOpenChange={setUpgradeOpen} currentPlan={profile?.plan_name ?? undefined} />
     </Sidebar>
   );
 };
