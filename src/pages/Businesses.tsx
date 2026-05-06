@@ -432,14 +432,14 @@ const BusinessesPage = () => {
           <div className="bg-card rounded-2xl border border-border p-8 text-center">
             <Building2 className="w-12 h-12 mx-auto mb-3 text-muted-foreground/30" />
             <h2 className="text-lg font-semibold text-foreground mb-2">
-              No business
+              {t("Aucun établissement", "No business")}
             </h2>
             <p className="text-sm text-muted-foreground mb-4">
-              Connect your first Google business
+              {t("Connectez votre premier établissement Google", "Connect your first Google business")}
             </p>
             <Button onClick={handleSyncBusinesses} disabled={isSyncing} size="sm">
               {isSyncing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Plus className="w-4 h-4 mr-2" />}
-              Connecter Google
+              {t("Connecter Google", "Connect Google")}
             </Button>
           </div>
         ) : (
