@@ -62,7 +62,7 @@ export const ReviewsAISection = () => {
               </div>
 
               <div className="bg-muted/50 rounded-xl p-3 mb-3">
-                <div className="text-[10px] uppercase font-bold text-muted-foreground mb-1">Customer review</div>
+                <div className="text-[10px] uppercase font-bold text-muted-foreground mb-1">Avis client</div>
                 <p className="text-sm text-foreground leading-snug">"{e.review}"</p>
               </div>
 
