@@ -75,6 +75,20 @@ export const useWebPush = () => {
         await navigator.serviceWorker.ready;
       }
 
+      // 2b. Clean any stale subscription (e.g. legacy FCM endpoints) before resubscribing
+      try {
+        const existing = await reg.pushManager.getSubscription();
+        if (existing) {
+          // Notify backend to remove old record
+          await supabase.functions.invoke("register-push-subscription", {
+            body: { action: "unsubscribe", subscription: { endpoint: existing.endpoint } },
+          });
+          await existing.unsubscribe();
+        }
+      } catch (e) {
+        console.warn("[WebPush] Could not clear stale subscription:", e);
+      }
+
       // 3. Subscribe to push
       const applicationServerKey = urlBase64ToUint8Array(vapidData.vapidPublicKey);
       const pushSubscription = await reg.pushManager.subscribe({
