@@ -656,7 +656,7 @@ const AISettingsPage = () => {
               <div className="mt-3 ml-11 bg-amber-500/10 rounded-xl p-3 flex items-start gap-2">
                 <Bell className="w-4 h-4 text-amber-600 mt-0.5 shrink-0" />
                 <p className="text-xs text-amber-700 dark:text-amber-400">
-                  Replies published after {settings.auto_reply_delay} min
+                  Réponses publiées après {settings.auto_reply_delay} min
                 </p>
               </div>
             )}
