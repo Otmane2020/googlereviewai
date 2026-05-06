@@ -515,7 +515,7 @@ const BusinessesPage = () => {
                             />
                           ))}
                         </div>
-                        <span className="text-xs text-muted-foreground">({reviewCount} avis)</span>
+                        <span className="text-xs text-muted-foreground">({reviewCount} {t("avis", "reviews")})</span>
                       </div>
                       {/* Crédits par établissement */}
                       <div className="flex items-center gap-1.5 mt-1.5">
