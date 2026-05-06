@@ -80,6 +80,7 @@ const Dashboard = () => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [recentReviews, setRecentReviews] = useState<Review[]>([]);
   const [stats, setStats] = useState({ total: 0, avgRating: 0, aiResponses: 0, pending: 0, businesses: 0, responseRate: 0 });
+  const [primaryBusinessName, setPrimaryBusinessName] = useState<string | null>(null);
   const [aeoStats, setAeoStats] = useState({ planned: 0, ready: 0, published: 0, nextDate: null as string | null });
   const [syncStatus, setSyncStatus] = useState<SyncStatus | null>(null);
   const [loading, setLoading] = useState(true);
@@ -247,6 +248,7 @@ const Dashboard = () => {
     const businessesList = businessesRes.data || [];
     const googleTotal = businessesList.reduce((sum: number, b: { total_reviews?: number | null }) => sum + (b.total_reviews || 0), 0);
     const googleAvgRating = businessesList.reduce((sum: number, b: { rating?: number | null }) => sum + (b.rating || 0), 0) / (businessesList.length || 1);
+    setPrimaryBusinessName((businessesList[0] as { name?: string })?.name || null);
     
     // Use Google's count if available and greater than 0, otherwise fall back to local count
     const displayTotal = googleTotal > 0 ? googleTotal : total;
@@ -465,7 +467,7 @@ const Dashboard = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted-foreground">{t("dashboardPage.welcomeBack")}</p>
-              <h1 className="text-xl md:text-2xl font-bold text-foreground">{(businesses[0] as any)?.name || profile?.full_name?.split(" ")[0] || "👋"}</h1>
+              <h1 className="text-xl md:text-2xl font-bold text-foreground">{primaryBusinessName || profile?.full_name?.split(" ")[0] || "👋"}</h1>
             </div>
             <div className="flex items-center gap-2">
               <div className="text-center px-4 py-2 bg-primary/10 rounded-xl md:hidden">
