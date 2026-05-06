@@ -20,6 +20,8 @@ import {
   BellOff
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { fr as frLocale, enUS } from "date-fns/locale";
+import { useTranslation } from "react-i18next";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -46,11 +48,13 @@ const getNotificationIcon = (type: string) => {
   }
 };
 
-const getTimeAgo = (dateString: string) => {
-  return formatDistanceToNow(new Date(dateString), { addSuffix: false });
-};
-
 const Notifications = () => {
+  const { t, i18n } = useTranslation();
+  const getTimeAgo = (dateString: string) =>
+    formatDistanceToNow(new Date(dateString), {
+      addSuffix: false,
+      locale: i18n.language === "fr" ? frLocale : enUS,
+    });
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
@@ -160,7 +164,7 @@ const Notifications = () => {
               markAsRead(notification.id);
             }}>
               <CheckCheck className="w-4 h-4 mr-2" />
-              Mark as read
+              {t("notificationsPage.markAsRead")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -176,7 +180,7 @@ const Notifications = () => {
         {/* Header */}
         <div className="sticky top-14 z-40 bg-background border-b border-border/50">
           <div className="flex items-center justify-between px-4 py-3">
-            <h1 className="text-2xl font-bold text-foreground">Notifications</h1>
+            <h1 className="text-2xl font-bold text-foreground">{t("notificationsPage.title")}</h1>
             <div className="flex items-center gap-2">
               <Button
                 variant="ghost"
@@ -193,7 +197,7 @@ const Notifications = () => {
                   className="text-primary text-sm"
                   onClick={markAllAsRead}
                 >
-                  Mark all read
+                  {t("notificationsPage.markAllRead")}
                 </Button>
               )}
             </div>
@@ -205,7 +209,7 @@ const Notifications = () => {
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
-                  placeholder="Search..."
+                  placeholder={t("notificationsPage.search")}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10 rounded-xl"
@@ -226,10 +230,10 @@ const Notifications = () => {
                 )}
                 <span className="text-sm text-muted-foreground">
                   {pushPermission === "granted" 
-                    ? "Notifications enabled" 
+                    ? t("notificationsPage.enabled")
                     : pushPermission === "denied"
-                      ? "Notifications blocked"
-                      : "Notifications not set up"
+                      ? t("notificationsPage.blocked")
+                      : t("notificationsPage.notSetup")
                   }
                 </span>
               </div>
@@ -240,13 +244,13 @@ const Notifications = () => {
                   onClick={() => window.location.reload()}
                   className="rounded-lg text-xs"
                 >
-                  Reload
+                  {t("notificationsPage.reload")}
                 </Button>
               )}
             </div>
             {pushPermission === "denied" && (
               <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
-                Click 🔒 in the address bar → Notifications → Allow
+                {t("notificationsPage.blockedHelp")}
               </p>
             )}
           </div>
@@ -258,9 +262,9 @@ const Notifications = () => {
             <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mb-4">
               <Bell className="w-10 h-10 text-muted-foreground/50" />
             </div>
-            <h2 className="text-lg font-semibold text-foreground mb-1">Aucune notification</h2>
+            <h2 className="text-lg font-semibold text-foreground mb-1">{t("notificationsPage.noNotifications")}</h2>
             <p className="text-sm text-muted-foreground">
-              You'll receive notifications here for new activity
+              {t("notificationsPage.emptyDesc")}
             </p>
           </div>
         ) : (
@@ -268,7 +272,7 @@ const Notifications = () => {
             {newNotifications.length > 0 && (
               <div>
                 <div className="px-4 py-3 bg-muted/30">
-                  <h2 className="text-base font-bold text-foreground">Nouveau</h2>
+                  <h2 className="text-base font-bold text-foreground">{t("notificationsPage.new")}</h2>
                 </div>
                 <div className="divide-y divide-border/50">
                   {newNotifications.map((notification) => (
@@ -281,7 +285,7 @@ const Notifications = () => {
             {olderNotifications.length > 0 && (
               <div>
                 <div className="px-4 py-3 bg-muted/30">
-                  <h2 className="text-base font-bold text-foreground">Plus ancien</h2>
+                  <h2 className="text-base font-bold text-foreground">{t("notificationsPage.older")}</h2>
                 </div>
                 <div className="divide-y divide-border/50">
                   {olderNotifications.map((notification) => (
