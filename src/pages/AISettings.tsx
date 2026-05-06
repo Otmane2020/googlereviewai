@@ -713,34 +713,34 @@ const AISettingsPage = () => {
               >
                 <optgroup label="Europe">
                   <option value="Europe/Paris">Paris (France)</option>
-                  <option value="Europe/Brussels">Brussels (Belgium)</option>
-                  <option value="Europe/Zurich">Zurich (Switzerland)</option>
+                  <option value="Europe/Brussels">Bruxelles (Belgique)</option>
+                  <option value="Europe/Zurich">Zurich (Suisse)</option>
                   <option value="Europe/Luxembourg">Luxembourg</option>
                   <option value="Europe/Monaco">Monaco</option>
-                  <option value="Europe/London">London (UK)</option>
-                  <option value="Europe/Berlin">Berlin (Germany)</option>
-                  <option value="Europe/Madrid">Madrid (Spain)</option>
-                  <option value="Europe/Rome">Rome (Italy)</option>
-                  <option value="Europe/Amsterdam">Amsterdam (Netherlands)</option>
+                  <option value="Europe/London">Londres (Royaume-Uni)</option>
+                  <option value="Europe/Berlin">Berlin (Allemagne)</option>
+                  <option value="Europe/Madrid">Madrid (Espagne)</option>
+                  <option value="Europe/Rome">Rome (Italie)</option>
+                  <option value="Europe/Amsterdam">Amsterdam (Pays-Bas)</option>
                 </optgroup>
-                <optgroup label="Americas">
-                  <option value="America/Montreal">Montreal (Canada)</option>
-                  <option value="America/New_York">New York (USA)</option>
-                  <option value="America/Los_Angeles">Los Angeles (USA)</option>
-                  <option value="America/Chicago">Chicago (USA)</option>
+                <optgroup label="Amériques">
+                  <option value="America/Montreal">Montréal (Canada)</option>
+                  <option value="America/New_York">New York (États-Unis)</option>
+                  <option value="America/Los_Angeles">Los Angeles (États-Unis)</option>
+                  <option value="America/Chicago">Chicago (États-Unis)</option>
                   <option value="America/Toronto">Toronto (Canada)</option>
                   <option value="America/Martinique">Martinique</option>
                   <option value="America/Guadeloupe">Guadeloupe</option>
                   <option value="America/Cayenne">Guyane française</option>
                 </optgroup>
-                <optgroup label="Africa">
-                  <option value="Africa/Casablanca">Casablanca (Morocco)</option>
-                  <option value="Africa/Algiers">Algiers (Algeria)</option>
-                  <option value="Africa/Tunis">Tunis (Tunisia)</option>
-                  <option value="Africa/Dakar">Dakar (Senegal)</option>
-                  <option value="Africa/Abidjan">Abidjan (Ivory Coast)</option>
+                <optgroup label="Afrique">
+                  <option value="Africa/Casablanca">Casablanca (Maroc)</option>
+                  <option value="Africa/Algiers">Alger (Algérie)</option>
+                  <option value="Africa/Tunis">Tunis (Tunisie)</option>
+                  <option value="Africa/Dakar">Dakar (Sénégal)</option>
+                  <option value="Africa/Abidjan">Abidjan (Côte d'Ivoire)</option>
                 </optgroup>
-                <optgroup label="Indian Ocean">
+                <optgroup label="Océan Indien">
                   <option value="Indian/Reunion">La Réunion</option>
                   <option value="Indian/Mauritius">Maurice</option>
                   <option value="Indian/Mayotte">Mayotte</option>
