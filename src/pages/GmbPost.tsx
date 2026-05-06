@@ -498,8 +498,8 @@ export default function GmbPost() {
             {recentPosts.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 <Megaphone className="w-10 h-10 mx-auto mb-3 opacity-30" />
-                <p className="text-sm">Aucune publication pour le moment</p>
-                <p className="text-xs mt-1">Créez votre première publication Google Business</p>
+                <p className="text-sm">{t("Aucune publication pour le moment", "No posts yet")}</p>
+                <p className="text-xs mt-1">{t("Créez votre première publication Google Business", "Create your first Google Business post")}</p>
               </div>
             ) : (
               <div className="space-y-3">
