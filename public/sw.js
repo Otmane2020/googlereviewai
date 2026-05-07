@@ -36,6 +36,13 @@ self.addEventListener('install', function(event) {
   self.skipWaiting();
 });
 
+// Required for Android installability: provide a fetch handler without serving stale HTML.
+self.addEventListener('fetch', function(event) {
+  if (event.request && event.request.mode === 'navigate') {
+    event.respondWith(fetch(event.request));
+  }
+});
+
 // Handle push notifications (VAPID Web Push)
 self.addEventListener('push', function(event) {
   console.log('[SW] Push received');
