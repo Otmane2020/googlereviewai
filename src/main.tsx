@@ -3,6 +3,25 @@ import App from "./App.tsx";
 import "./index.css";
 import "./i18n/config"; // Initialize i18n
 
+const setupGlobalInstallPromptCapture = () => {
+  const w = window as any;
+  if (w.__rankiPwaPromptListenerInstalled) return;
+  w.__rankiPwaPromptListenerInstalled = true;
+
+  window.addEventListener("beforeinstallprompt", (event) => {
+    event.preventDefault();
+    w.__rankiBeforeInstallPrompt = event;
+    window.dispatchEvent(new CustomEvent("ranki:pwa-install-ready"));
+  });
+
+  window.addEventListener("appinstalled", () => {
+    w.__rankiBeforeInstallPrompt = null;
+    window.dispatchEvent(new CustomEvent("ranki:pwa-installed"));
+  });
+};
+
+setupGlobalInstallPromptCapture();
+
 // One-time hard refresh for legacy/mobile devices that may be stuck on old cached bundles.
 // Safe-guarded to avoid reload loops.
 const APP_CACHE_VERSION = "2026-02-03-v3";
