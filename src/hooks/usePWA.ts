@@ -5,6 +5,13 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 }
 
+declare global {
+  interface Window {
+    __rankiBeforeInstallPrompt?: BeforeInstallPromptEvent | null;
+    __rankiPwaPromptListenerInstalled?: boolean;
+  }
+}
+
 export const usePWA = () => {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isInstalled, setIsInstalled] = useState(false);
@@ -84,10 +91,22 @@ export const usePWA = () => {
     const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
     setIsIOS(iOS);
 
-    // Listen for install prompt
+    if (window.__rankiBeforeInstallPrompt) {
+      setDeferredPrompt(window.__rankiBeforeInstallPrompt);
+      setCanInstall(true);
+    }
+
+    const handlePromptReady = () => {
+      if (window.__rankiBeforeInstallPrompt) {
+        setDeferredPrompt(window.__rankiBeforeInstallPrompt);
+        setCanInstall(true);
+      }
+    };
+
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
-      setDeferredPrompt(e as BeforeInstallPromptEvent);
+      window.__rankiBeforeInstallPrompt = e as BeforeInstallPromptEvent;
+      setDeferredPrompt(window.__rankiBeforeInstallPrompt);
       setCanInstall(true);
     };
 
@@ -96,9 +115,11 @@ export const usePWA = () => {
       setIsInstalled(true);
       setIsStandalone(true);
       setDeferredPrompt(null);
+      window.__rankiBeforeInstallPrompt = null;
       setCanInstall(false);
     };
 
+    window.addEventListener("ranki:pwa-install-ready", handlePromptReady);
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
     window.addEventListener("appinstalled", handleAppInstalled);
 
@@ -111,6 +132,7 @@ export const usePWA = () => {
     mediaQuery.addEventListener("change", handleDisplayModeChange);
 
     return () => {
+      window.removeEventListener("ranki:pwa-install-ready", handlePromptReady);
       window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
       window.removeEventListener("appinstalled", handleAppInstalled);
       mediaQuery.removeEventListener("change", handleDisplayModeChange);
@@ -127,6 +149,7 @@ export const usePWA = () => {
       setIsInstalled(true);
       setCanInstall(false);
     }
+    window.__rankiBeforeInstallPrompt = null;
     setDeferredPrompt(null);
     return outcome === "accepted";
   }, [deferredPrompt]);
