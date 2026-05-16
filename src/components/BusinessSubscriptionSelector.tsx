@@ -40,6 +40,7 @@ export const BusinessSubscriptionSelector = ({
   const isEN = i18n.language?.toLowerCase().startsWith("en");
   const t = (fr: string, en: string) => (isEN ? en : fr);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>(
     businesses.map(b => b.id) // Default: all selected
   );
