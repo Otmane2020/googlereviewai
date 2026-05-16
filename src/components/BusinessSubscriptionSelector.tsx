@@ -15,6 +15,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Building2, Plus, Lock, Minus } from "lucide-react";
+import { UpgradeDialog } from "@/components/UpgradeDialog";
 
 interface Business {
   id: string;
