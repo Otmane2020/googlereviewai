@@ -40,6 +40,7 @@ const plans: Plan[] = [
       "Jusqu'à 3 établissements",
       "Suivi GEO quotidien (mots-clés illimités)",
       "Posts SEO + Q&A AEO quotidiens sur Google",
+      "200 crédits IA / mois",
       "Analyse de la concurrence",
       "Support prioritaire",
     ],
