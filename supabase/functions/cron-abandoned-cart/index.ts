@@ -72,114 +72,87 @@ function emailTemplate1(name: string, cartSummary: string, lang: Lang = "fr"): s
 </html>`;
 }
 
-function emailTemplate2(name: string, cartSummary: string, couponCode: string, discountPercent: number): string {
+function emailTemplate2(name: string, cartSummary: string, couponCode: string, discountPercent: number, lang: Lang = "fr"): string {
   const firstName = name ? name.split(" ")[0] : "";
-  return `
-<!DOCTYPE html>
-<html lang="fr">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
-<body style="margin:0;padding:0;background-color:#f9fafb;">
+  const en = lang === "en";
+  const T = {
+    badge: en ? "Exclusive offer" : "Offre exclusive",
+    sub: en ? "off your first month" : "sur votre premier mois",
+    title: en ? `We haven't forgotten you${firstName ? `, ${firstName}` : ""}! 🎁` : `On ne vous a pas oublié${firstName ? `, ${firstName}` : ""} ! 🎁`,
+    intro: en ? `Your cart is still here, and we have a surprise for you: <strong>${discountPercent}% off</strong> with the code below!` : `Votre panier est toujours là, et on a une surprise pour vous : <strong>${discountPercent}% de réduction</strong> avec le code ci-dessous !`,
+    promo: en ? "Promo code" : "Code promo",
+    valid: en ? "⏰ Valid 48h only" : "⏰ Valable 48h seulement",
+    cta: en ? `Claim -${discountPercent}% now →` : `Profiter de -${discountPercent}% maintenant →`,
+  };
+  return `<!DOCTYPE html><html lang="${lang}"><body style="margin:0;padding:0;background-color:#f9fafb;font-family:-apple-system,sans-serif;">
   <div style="max-width:600px;margin:0 auto;background:#ffffff;">
-    <div style="background:#ffffff;padding:32px 24px;border-bottom:1px solid #e5e7eb;">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td style="vertical-align:middle;"><img src="https://ranki.ai/favicon.png" width="32" height="32" alt="Ranki.ai" /></td>
-          <td style="vertical-align:middle;padding-left:12px;"><span style="font-family:-apple-system,sans-serif;font-weight:600;font-size:18px;color:#111827;">Ranki.ai</span></td>
-        </tr>
-      </table>
-    </div>
+    <div style="padding:32px 24px;border-bottom:1px solid #e5e7eb;"><strong>Ranki.ai</strong></div>
     <div style="padding:40px 32px;">
-      <div style="background:linear-gradient(135deg,#2563eb,#7c3aed);border-radius:12px;padding:24px;text-align:center;margin:0 0 32px 0;">
-        <p style="font-family:-apple-system,sans-serif;color:#ffffff;font-size:14px;margin:0 0 8px 0;text-transform:uppercase;letter-spacing:1px;">Offre exclusive</p>
-        <p style="font-family:-apple-system,sans-serif;color:#ffffff;font-size:36px;font-weight:700;margin:0;">-${discountPercent}%</p>
-        <p style="font-family:-apple-system,sans-serif;color:rgba(255,255,255,0.8);font-size:14px;margin:8px 0 0 0;">sur votre premier mois</p>
+      <div style="background:linear-gradient(135deg,#2563eb,#7c3aed);border-radius:12px;padding:24px;text-align:center;margin:0 0 32px 0;color:#fff;">
+        <p style="margin:0 0 8px;text-transform:uppercase;letter-spacing:1px;font-size:14px;">${T.badge}</p>
+        <p style="margin:0;font-size:36px;font-weight:700;">-${discountPercent}%</p>
+        <p style="margin:8px 0 0;font-size:14px;opacity:.85;">${T.sub}</p>
       </div>
-      <h1 style="font-family:-apple-system,sans-serif;color:#111827;font-size:24px;font-weight:600;margin:0 0 24px 0;">
-        On ne vous a pas oublié${firstName ? `, ${firstName}` : ""} ! 🎁
-      </h1>
-      <p style="font-family:-apple-system,sans-serif;color:#6b7280;font-size:15px;line-height:1.6;margin:0 0 24px 0;">
-        Votre panier est toujours là, et on a une surprise pour vous : <strong>${discountPercent}% de réduction</strong> avec le code ci-dessous !
-      </p>
-      <div style="background:#f3f4f6;border-radius:8px;padding:20px;margin:24px 0;">
-        ${cartSummary}
-      </div>
+      <h1 style="color:#111827;font-size:24px;margin:0 0 24px;">${T.title}</h1>
+      <p style="color:#6b7280;font-size:15px;line-height:1.6;margin:0 0 24px;">${T.intro}</p>
+      <div style="background:#f3f4f6;border-radius:8px;padding:20px;margin:24px 0;">${cartSummary}</div>
       <div style="background:#fef3c7;border:2px dashed #f59e0b;border-radius:8px;padding:16px;text-align:center;margin:24px 0;">
-        <p style="font-family:-apple-system,sans-serif;color:#92400e;font-size:12px;margin:0 0 8px 0;text-transform:uppercase;">Code promo</p>
-        <p style="font-family:'Courier New',monospace;color:#111827;font-size:24px;font-weight:700;margin:0;letter-spacing:2px;">${couponCode}</p>
-        <p style="font-family:-apple-system,sans-serif;color:#92400e;font-size:12px;margin:8px 0 0 0;">⏰ Valable 48h seulement</p>
+        <p style="color:#92400e;font-size:12px;margin:0 0 8px;text-transform:uppercase;">${T.promo}</p>
+        <p style="font-family:monospace;color:#111827;font-size:24px;font-weight:700;margin:0;letter-spacing:2px;">${couponCode}</p>
+        <p style="color:#92400e;font-size:12px;margin:8px 0 0;">${T.valid}</p>
       </div>
       <div style="text-align:center;margin:32px 0;">
-        <a href="https://ranki.ai/choose-plan" style="display:inline-block;background:linear-gradient(135deg,#2563eb,#7c3aed);color:#ffffff;text-decoration:none;padding:14px 32px;border-radius:8px;font-family:-apple-system,sans-serif;font-size:16px;font-weight:600;">
-          Profiter de -${discountPercent}% maintenant →
-        </a>
+        <a href="https://ranki.ai/choose-plan" style="display:inline-block;background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;text-decoration:none;padding:14px 32px;border-radius:8px;font-size:16px;font-weight:600;">${T.cta}</a>
       </div>
     </div>
-    <div style="padding:24px;text-align:center;border-top:1px solid #e5e7eb;">
-      <p style="font-family:-apple-system,sans-serif;color:#9ca3af;font-size:12px;margin:0;">© 2025 Ranki.ai · <a href="https://ranki.ai" style="color:#9ca3af;">ranki.ai</a></p>
-    </div>
+    <div style="padding:24px;text-align:center;border-top:1px solid #e5e7eb;color:#9ca3af;font-size:12px;">© 2025 Ranki.ai</div>
   </div>
-</body>
-</html>`;
+</body></html>`;
 }
 
-function emailTemplate3(name: string, cartSummary: string, couponCode: string): string {
+function emailTemplate3(name: string, cartSummary: string, couponCode: string, lang: Lang = "fr"): string {
   const firstName = name ? name.split(" ")[0] : "";
-  return `
-<!DOCTYPE html>
-<html lang="fr">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
-<body style="margin:0;padding:0;background-color:#f9fafb;">
+  const en = lang === "en";
+  const T = {
+    flag: en ? "🔥 LAST CHANCE" : "🔥 DERNIÈRE CHANCE",
+    free: en ? "1 month FREE" : "1 mois OFFERT",
+    expires: en ? "Offer expires in 24h" : "Offre qui expire dans 24h",
+    title: en ? `Last chance${firstName ? `, ${firstName}` : ""}! ⏰` : `Dernière chance${firstName ? `, ${firstName}` : ""} ! ⏰`,
+    intro: en ? "This is our <strong>best offer</strong>: a full month free to try Ranki.ai risk-free." : "C'est notre <strong>meilleure offre</strong> : un mois entier gratuit pour essayer Ranki.ai sans risque.",
+    promo: en ? "🎁 Exclusive code - 1 month free" : "🎁 Code exclusif - 1 mois offert",
+    valid: en ? "⚡ Expires in 24h" : "⚡ Expire dans 24h",
+    bullets: en ? "✅ Cancel anytime · ✅ No commitment · ✅ Secure data" : "✅ Annuler à tout moment · ✅ Sans engagement · ✅ Données sécurisées",
+    cta: en ? "Claim my free month →" : "Réclamer mon mois gratuit →",
+    foot: en ? "If you no longer wish to receive these emails, simply ignore this message." : "Si vous ne souhaitez plus recevoir ces emails, ignorez simplement ce message.",
+  };
+  return `<!DOCTYPE html><html lang="${lang}"><body style="margin:0;padding:0;background-color:#f9fafb;font-family:-apple-system,sans-serif;">
   <div style="max-width:600px;margin:0 auto;background:#ffffff;">
-    <div style="background:#ffffff;padding:32px 24px;border-bottom:1px solid #e5e7eb;">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td style="vertical-align:middle;"><img src="https://ranki.ai/favicon.png" width="32" height="32" alt="Ranki.ai" /></td>
-          <td style="vertical-align:middle;padding-left:12px;"><span style="font-family:-apple-system,sans-serif;font-weight:600;font-size:18px;color:#111827;">Ranki.ai</span></td>
-        </tr>
-      </table>
-    </div>
+    <div style="padding:32px 24px;border-bottom:1px solid #e5e7eb;"><strong>Ranki.ai</strong></div>
     <div style="padding:40px 32px;">
-      <div style="background:linear-gradient(135deg,#dc2626,#ea580c);border-radius:12px;padding:24px;text-align:center;margin:0 0 32px 0;">
-        <p style="font-family:-apple-system,sans-serif;color:#ffffff;font-size:14px;margin:0 0 8px 0;">🔥 DERNIÈRE CHANCE</p>
-        <p style="font-family:-apple-system,sans-serif;color:#ffffff;font-size:28px;font-weight:700;margin:0;">1 mois OFFERT</p>
-        <p style="font-family:-apple-system,sans-serif;color:rgba(255,255,255,0.8);font-size:14px;margin:8px 0 0 0;">Offre qui expire dans 24h</p>
+      <div style="background:linear-gradient(135deg,#dc2626,#ea580c);border-radius:12px;padding:24px;text-align:center;margin:0 0 32px 0;color:#fff;">
+        <p style="margin:0 0 8px;font-size:14px;">${T.flag}</p>
+        <p style="margin:0;font-size:28px;font-weight:700;">${T.free}</p>
+        <p style="margin:8px 0 0;font-size:14px;opacity:.85;">${T.expires}</p>
       </div>
-      <h1 style="font-family:-apple-system,sans-serif;color:#111827;font-size:24px;font-weight:600;margin:0 0 24px 0;">
-        Dernière chance${firstName ? `, ${firstName}` : ""} ! ⏰
-      </h1>
-      <p style="font-family:-apple-system,sans-serif;color:#6b7280;font-size:15px;line-height:1.6;margin:0 0 24px 0;">
-        C'est notre <strong>meilleure offre</strong> : un mois entier gratuit pour essayer Ranki.ai sans risque.
-        Après ça, on ne pourra plus vous la proposer.
-      </p>
-      <div style="background:#f3f4f6;border-radius:8px;padding:20px;margin:24px 0;">
-        ${cartSummary}
-      </div>
+      <h1 style="color:#111827;font-size:24px;margin:0 0 24px;">${T.title}</h1>
+      <p style="color:#6b7280;font-size:15px;line-height:1.6;margin:0 0 24px;">${T.intro}</p>
+      <div style="background:#f3f4f6;border-radius:8px;padding:20px;margin:24px 0;">${cartSummary}</div>
       <div style="background:#fef2f2;border:2px solid #dc2626;border-radius:8px;padding:16px;text-align:center;margin:24px 0;">
-        <p style="font-family:-apple-system,sans-serif;color:#991b1b;font-size:12px;margin:0 0 8px 0;text-transform:uppercase;">🎁 Code exclusif - 1 mois offert</p>
-        <p style="font-family:'Courier New',monospace;color:#111827;font-size:24px;font-weight:700;margin:0;letter-spacing:2px;">${couponCode}</p>
-        <p style="font-family:-apple-system,sans-serif;color:#991b1b;font-size:12px;margin:8px 0 0 0;">⚡ Expire dans 24h</p>
+        <p style="color:#991b1b;font-size:12px;margin:0 0 8px;text-transform:uppercase;">${T.promo}</p>
+        <p style="font-family:monospace;color:#111827;font-size:24px;font-weight:700;margin:0;letter-spacing:2px;">${couponCode}</p>
+        <p style="color:#991b1b;font-size:12px;margin:8px 0 0;">${T.valid}</p>
       </div>
-      <div style="background:#ecfdf5;border-radius:8px;padding:16px;margin:24px 0;">
-        <p style="font-family:-apple-system,sans-serif;color:#065f46;font-size:14px;margin:0;">
-          ✅ Annuler à tout moment · ✅ Sans engagement · ✅ Données sécurisées
-        </p>
-      </div>
+      <div style="background:#ecfdf5;border-radius:8px;padding:16px;margin:24px 0;color:#065f46;font-size:14px;">${T.bullets}</div>
       <div style="text-align:center;margin:32px 0;">
-        <a href="https://ranki.ai/choose-plan" style="display:inline-block;background:linear-gradient(135deg,#dc2626,#ea580c);color:#ffffff;text-decoration:none;padding:16px 36px;border-radius:8px;font-family:-apple-system,sans-serif;font-size:18px;font-weight:700;">
-          Réclamer mon mois gratuit →
-        </a>
+        <a href="https://ranki.ai/choose-plan" style="display:inline-block;background:linear-gradient(135deg,#dc2626,#ea580c);color:#fff;text-decoration:none;padding:16px 36px;border-radius:8px;font-size:18px;font-weight:700;">${T.cta}</a>
       </div>
-      <p style="font-family:-apple-system,sans-serif;color:#9ca3af;font-size:13px;text-align:center;margin:16px 0 0 0;">
-        Si vous ne souhaitez plus recevoir ces emails, ignorez simplement ce message.
-      </p>
+      <p style="color:#9ca3af;font-size:13px;text-align:center;margin:16px 0;">${T.foot}</p>
     </div>
-    <div style="padding:24px;text-align:center;border-top:1px solid #e5e7eb;">
-      <p style="font-family:-apple-system,sans-serif;color:#9ca3af;font-size:12px;margin:0;">© 2025 Ranki.ai · <a href="https://ranki.ai" style="color:#9ca3af;">ranki.ai</a></p>
-    </div>
+    <div style="padding:24px;text-align:center;border-top:1px solid #e5e7eb;color:#9ca3af;font-size:12px;">© 2025 Ranki.ai</div>
   </div>
-</body>
-</html>`;
+</body></html>`;
 }
+
 
 // ─── Cart Summary HTML ─────────────────────────────────────────────
 function buildCartSummary(items: any[], billingCycle: string): string {
