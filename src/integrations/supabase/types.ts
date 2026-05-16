@@ -827,6 +827,75 @@ export type Database = {
         }
         Relationships: []
       }
+      plans: {
+        Row: {
+          agency_pool_credits: number
+          billing_cycle: string
+          created_at: string
+          features_en: Json
+          features_fr: Json
+          id: string
+          is_active: boolean
+          is_highlighted: boolean
+          key: string
+          max_businesses: number
+          monthly_credits: number
+          name: string
+          price_eur: number
+          price_usd: number
+          sort_order: number
+          stripe_price_id_eur: string | null
+          stripe_price_id_usd: string | null
+          tagline_en: string | null
+          tagline_fr: string | null
+          updated_at: string
+        }
+        Insert: {
+          agency_pool_credits?: number
+          billing_cycle?: string
+          created_at?: string
+          features_en?: Json
+          features_fr?: Json
+          id?: string
+          is_active?: boolean
+          is_highlighted?: boolean
+          key: string
+          max_businesses?: number
+          monthly_credits?: number
+          name: string
+          price_eur?: number
+          price_usd?: number
+          sort_order?: number
+          stripe_price_id_eur?: string | null
+          stripe_price_id_usd?: string | null
+          tagline_en?: string | null
+          tagline_fr?: string | null
+          updated_at?: string
+        }
+        Update: {
+          agency_pool_credits?: number
+          billing_cycle?: string
+          created_at?: string
+          features_en?: Json
+          features_fr?: Json
+          id?: string
+          is_active?: boolean
+          is_highlighted?: boolean
+          key?: string
+          max_businesses?: number
+          monthly_credits?: number
+          name?: string
+          price_eur?: number
+          price_usd?: number
+          sort_order?: number
+          stripe_price_id_eur?: string | null
+          stripe_price_id_usd?: string | null
+          tagline_en?: string | null
+          tagline_fr?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           agency_total_credits: number
