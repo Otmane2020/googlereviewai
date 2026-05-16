@@ -117,12 +117,24 @@ const Calendar = () => {
 
   const itemsByDay = useMemo(() => {
     const map = new Map<string, ContentItem[]>();
+    // Group all items per day
     items.forEach((it) => {
       const key = it.scheduled_date;
       if (!map.has(key)) map.set(key, []);
       map.get(key)!.push(it);
     });
-    return map;
+    // Cap each day to max 1 SEO + 1 GEO (prefer items that already have content / are most advanced)
+    const rank = (s: string) => (s === "published" ? 4 : s === "generated" ? 3 : s === "generating" ? 2 : s === "pending" ? 1 : 0);
+    const deduped = new Map<string, ContentItem[]>();
+    map.forEach((arr, key) => {
+      const seo = arr.filter((i) => i.content_type !== "aeo_qa").sort((a, b) => rank(b.status) - rank(a.status))[0];
+      const geo = arr.filter((i) => i.content_type === "aeo_qa").sort((a, b) => rank(b.status) - rank(a.status))[0];
+      const out: ContentItem[] = [];
+      if (seo) out.push(seo);
+      if (geo) out.push(geo);
+      deduped.set(key, out);
+    });
+    return deduped;
   }, [items]);
 
   const selectedItems = selectedDay
