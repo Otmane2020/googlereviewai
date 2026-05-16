@@ -240,7 +240,7 @@ serve(async (req) => {
         // Get profile with credits and email
         const { data: profile } = await supabase
           .from("profiles")
-          .select("credits, google_refresh_token, email, full_name")
+          .select("credits, google_refresh_token, email, full_name, preferred_language")
           .eq("id", userSettings.user_id)
           .single();
 
@@ -287,6 +287,8 @@ serve(async (req) => {
                         email: profile.email,
                         name: profile.full_name || "Client",
                         type: "no_credits_upgrade",
+                        lang: (profile as any).preferred_language === "en" ? "en" : "fr",
+                        user_id: userSettings.user_id,
                         data: { pending_count: pendingCount, credits: 0 }
                       }),
                     }
@@ -305,8 +307,10 @@ serve(async (req) => {
                 await supabase.from("notifications").insert({
                   user_id: userSettings.user_id,
                   type: "low_credits",
-                  title: "⚠️ Crédits épuisés",
-                  message: `${pendingCount} avis attendent une réponse. Rechargez vos crédits pour continuer.`,
+                  title: (profile as any).preferred_language === "en" ? "⚠️ Credits exhausted" : "⚠️ Crédits épuisés",
+                  message: (profile as any).preferred_language === "en"
+                    ? `${pendingCount} review${pendingCount > 1 ? "s" : ""} awaiting a reply. Top up your credits to continue.`
+                    : `${pendingCount} avis attendent une réponse. Rechargez vos crédits pour continuer.`,
                 });
               }
             }
