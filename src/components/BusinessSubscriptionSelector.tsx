@@ -97,10 +97,7 @@ export const BusinessSubscriptionSelector = ({
           </div>
 
           <Button
-            onClick={() => {
-              const ids = businesses.map(b => b.id);
-              onSubscribe(ids, false, Math.max(1, ids.length));
-            }}
+            onClick={() => setUpgradeOpen(true)}
             size="sm"
             className="w-full"
             disabled={isLoading}
@@ -110,6 +107,8 @@ export const BusinessSubscriptionSelector = ({
           </Button>
         </CardContent>
       </Card>
+
+      <UpgradeDialog open={upgradeOpen} onOpenChange={setUpgradeOpen} />
 
       {/* Selection Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
