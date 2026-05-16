@@ -45,6 +45,55 @@ const safeTimestampToISO = (timestamp: number | null | undefined): string | null
   }
 };
 
+
+type WebhookEmailLang = "fr" | "en";
+
+const WEBHOOK_EMAIL_TEXT = {
+  fr: {
+    cancelledSubject: (plan: string) => `Votre abonnement ${plan} a été annulé`,
+    cancelledTitle: "Abonnement annulé",
+    cancelledBody: (plan: string) => `Votre abonnement <strong>${plan}</strong> a été annulé. Vous n'avez plus accès aux fonctionnalités premium.`,
+    cancelledNote: "Vos avis ne seront plus traités automatiquement. Réabonnez-vous pour reprendre le service.",
+    renewedSubject: (plan: string) => `✅ Votre abonnement ${plan} a été renouvelé`,
+    renewedTitle: "Abonnement renouvelé ✅",
+    renewedBody: (plan: string) => `Votre abonnement <strong>${plan}</strong> a été renouvelé avec succès.`,
+    creditsReloaded: "Crédits rechargés",
+    cta: "Voir mon tableau de bord",
+    plans: "Voir les offres",
+    question: "Une question ? Répondez à cet email, nous sommes là pour vous aider.",
+    hello: "Bonjour",
+  },
+  en: {
+    cancelledSubject: (plan: string) => `Your ${plan} subscription has been cancelled`,
+    cancelledTitle: "Subscription cancelled",
+    cancelledBody: (plan: string) => `Your <strong>${plan}</strong> subscription has been cancelled. Premium features are no longer available.`,
+    cancelledNote: "Your reviews will no longer be handled automatically. Subscribe again to resume the service.",
+    renewedSubject: (plan: string) => `✅ Your ${plan} subscription has been renewed`,
+    renewedTitle: "Subscription renewed ✅",
+    renewedBody: (plan: string) => `Your <strong>${plan}</strong> subscription has been renewed successfully.`,
+    creditsReloaded: "Credits reloaded",
+    cta: "View my dashboard",
+    plans: "View plans",
+    question: "Questions? Reply to this email — we're here to help.",
+    hello: "Hello",
+  },
+};
+
+function renderWebhookSubscriptionEmail(kind: "cancelled" | "renewed", lang: WebhookEmailLang, fullName: string | null | undefined, plan: string, credits = 0) {
+  const t = WEBHOOK_EMAIL_TEXT[lang];
+  const firstName = fullName ? fullName.split(" ")[0] : "";
+  const subject = kind === "cancelled" ? t.cancelledSubject(plan) : t.renewedSubject(plan);
+  const title = kind === "cancelled" ? t.cancelledTitle : t.renewedTitle;
+  const body = kind === "cancelled" ? t.cancelledBody(plan) : t.renewedBody(plan);
+  const accentBox = kind === "cancelled"
+    ? `<div style="background: #fef3c7; border-radius: 6px; padding: 16px; margin: 24px 0; border-left: 3px solid #f59e0b;"><p style="font-family: -apple-system, sans-serif; color: #92400e; font-size: 14px; margin: 0;">${t.cancelledNote}</p></div>`
+    : `<div style="background: #ecfdf5; border-radius: 8px; padding: 20px; margin: 24px 0; text-align: center;"><p style="font-family: -apple-system, sans-serif; color: #065f46; font-size: 12px; margin: 0 0 4px 0; text-transform: uppercase; letter-spacing: 0.5px;">${t.creditsReloaded}</p><p style="font-family: -apple-system, sans-serif; color: #111827; font-size: 36px; font-weight: 700; margin: 0;">${credits}</p></div>`;
+  const ctaUrl = kind === "cancelled" ? "https://ranki.ai/select-plan" : "https://ranki.ai/dashboard";
+  const ctaText = kind === "cancelled" ? t.plans : t.cta;
+  const html = `<!DOCTYPE html><html lang="${lang}"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head><body style="margin: 0; padding: 0; background-color: #f9fafb;"><div style="max-width: 600px; margin: 0 auto; background-color: #ffffff;"><div style="background: #ffffff; padding: 32px 24px; border-bottom: 1px solid #e5e7eb;"><table cellpadding="0" cellspacing="0" border="0"><tr><td style="vertical-align: middle;"><img src="https://ranki.ai/favicon.png" width="32" height="32" alt="Ranki.ai" /></td><td style="vertical-align: middle; padding-left: 12px;"><span style="font-family: -apple-system, sans-serif; font-weight: 600; font-size: 18px; color: #111827;">Ranki.ai</span></td></tr></table></div><div style="padding: 40px 32px;"><h1 style="font-family: -apple-system, sans-serif; color: #111827; font-size: 24px; font-weight: 600; margin: 0 0 24px 0;">${title}</h1><p style="font-family: -apple-system, sans-serif; color: #6b7280; font-size: 15px; line-height: 1.6; margin: 0 0 24px 0;">${t.hello}${firstName ? ` ${firstName}` : ""},</p><p style="font-family: -apple-system, sans-serif; color: #6b7280; font-size: 15px; line-height: 1.6; margin: 0 0 24px 0;">${body}</p>${accentBox}<div style="text-align: left; margin: 32px 0;"><a href="${ctaUrl}" style="display: inline-block; background-color: #2563eb; color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 6px; font-family: -apple-system, sans-serif; font-size: 15px; font-weight: 500;">${ctaText}</a></div><p style="font-family: -apple-system, sans-serif; color: #9ca3af; font-size: 13px; line-height: 1.6; margin: 24px 0 0 0;">${t.question}</p></div><div style="padding: 24px; text-align: center; border-top: 1px solid #e5e7eb;"><p style="font-family: -apple-system, sans-serif; color: #9ca3af; font-size: 12px; margin: 0;">© 2025 Ranki.ai</p></div></div></body></html>`;
+  return { subject, html };
+}
+
 serve(async (req) => {
   const signature = req.headers.get("Stripe-Signature");
   const body = await req.text();
@@ -244,7 +293,7 @@ serve(async (req) => {
         // Get user email for cancellation notification
         const { data: profile } = await supabaseAdmin
           .from("profiles")
-          .select("email, full_name, plan_name")
+          .select("email, full_name, plan_name, preferred_language")
           .eq("id", userId)
           .single();
 
@@ -274,52 +323,12 @@ serve(async (req) => {
                 },
                 body: JSON.stringify({
                   to: profile.email,
-                  subject: `Votre abonnement ${cancelledPlan} a été annulé`,
-                  html: `
-<!DOCTYPE html>
-<html lang="fr">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
-<body style="margin: 0; padding: 0; background-color: #f9fafb;">
-  <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
-    <div style="background: #ffffff; padding: 32px 24px; border-bottom: 1px solid #e5e7eb;">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td style="vertical-align: middle;"><img src="https://ranki.ai/favicon.png" width="32" height="32" alt="Ranki.ai" /></td>
-          <td style="vertical-align: middle; padding-left: 12px;"><span style="font-family: -apple-system, sans-serif; font-weight: 600; font-size: 18px; color: #111827;">Ranki.ai</span></td>
-        </tr>
-      </table>
-    </div>
-    <div style="padding: 40px 32px;">
-      <h1 style="font-family: -apple-system, sans-serif; color: #111827; font-size: 24px; font-weight: 600; margin: 0 0 24px 0;">
-        Abonnement annulé
-      </h1>
-      <p style="font-family: -apple-system, sans-serif; color: #6b7280; font-size: 15px; line-height: 1.6; margin: 0 0 24px 0;">
-        Bonjour${profile.full_name ? ` ${profile.full_name.split(" ")[0]}` : ""},
-      </p>
-      <p style="font-family: -apple-system, sans-serif; color: #6b7280; font-size: 15px; line-height: 1.6; margin: 0 0 24px 0;">
-        Votre abonnement <strong>${cancelledPlan}</strong> a été annulé. Vous n'avez plus accès aux fonctionnalités premium.
-      </p>
-      <div style="background: #fef3c7; border-radius: 6px; padding: 16px; margin: 24px 0; border-left: 3px solid #f59e0b;">
-        <p style="font-family: -apple-system, sans-serif; color: #92400e; font-size: 14px; margin: 0;">
-          Vos avis ne seront plus traités automatiquement. Réabonnez-vous pour reprendre le service.
-        </p>
-      </div>
-      <div style="text-align: left; margin: 32px 0;">
-        <a href="https://ranki.ai/select-plan" style="display: inline-block; background-color: #2563eb; color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 6px; font-family: -apple-system, sans-serif; font-size: 15px; font-weight: 500;">
-          Voir les offres
-        </a>
-      </div>
-      <p style="font-family: -apple-system, sans-serif; color: #9ca3af; font-size: 13px; line-height: 1.6; margin: 24px 0 0 0;">
-        Une question ? Répondez à cet email, nous sommes là pour vous aider.
-      </p>
-    </div>
-    <div style="padding: 24px; text-align: center; border-top: 1px solid #e5e7eb;">
-      <p style="font-family: -apple-system, sans-serif; color: #9ca3af; font-size: 12px; margin: 0;">© 2025 Ranki.ai</p>
-    </div>
-  </div>
-</body>
-</html>
-                  `,
+                  ...renderWebhookSubscriptionEmail(
+                    "cancelled",
+                    (profile as any).preferred_language === "en" ? "en" : "fr",
+                    profile.full_name,
+                    cancelledPlan,
+                  ),
                   from_name: "Ranki.ai",
                 }),
               }
@@ -366,7 +375,7 @@ serve(async (req) => {
               // Send renewal confirmation email
               const { data: profile } = await supabaseAdmin
                 .from("profiles")
-                .select("email, full_name")
+                .select("email, full_name, preferred_language")
                 .eq("id", userId)
                 .single();
 
@@ -382,52 +391,13 @@ serve(async (req) => {
                       },
                       body: JSON.stringify({
                         to: profile.email,
-                        subject: `✅ Votre abonnement ${config.planName} a été renouvelé`,
-                        html: `
-<!DOCTYPE html>
-<html lang="fr">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
-<body style="margin: 0; padding: 0; background-color: #f9fafb;">
-  <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
-    <div style="background: #ffffff; padding: 32px 24px; border-bottom: 1px solid #e5e7eb;">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td style="vertical-align: middle;"><img src="https://ranki.ai/favicon.png" width="32" height="32" alt="Ranki.ai" /></td>
-          <td style="vertical-align: middle; padding-left: 12px;"><span style="font-family: -apple-system, sans-serif; font-weight: 600; font-size: 18px; color: #111827;">Ranki.ai</span></td>
-        </tr>
-      </table>
-    </div>
-    <div style="padding: 40px 32px;">
-      <h1 style="font-family: -apple-system, sans-serif; color: #111827; font-size: 24px; font-weight: 600; margin: 0 0 24px 0;">
-        Abonnement renouvelé ✅
-      </h1>
-      <p style="font-family: -apple-system, sans-serif; color: #6b7280; font-size: 15px; line-height: 1.6; margin: 0 0 24px 0;">
-        Bonjour${profile.full_name ? ` ${profile.full_name.split(" ")[0]}` : ""},
-      </p>
-      <p style="font-family: -apple-system, sans-serif; color: #6b7280; font-size: 15px; line-height: 1.6; margin: 0 0 24px 0;">
-        Votre abonnement <strong>${config.planName}</strong> a été renouvelé avec succès.
-      </p>
-      <div style="background: #ecfdf5; border-radius: 8px; padding: 20px; margin: 24px 0; text-align: center;">
-        <p style="font-family: -apple-system, sans-serif; color: #065f46; font-size: 12px; margin: 0 0 4px 0; text-transform: uppercase; letter-spacing: 0.5px;">
-          Crédits rechargés
-        </p>
-        <p style="font-family: -apple-system, sans-serif; color: #111827; font-size: 36px; font-weight: 700; margin: 0;">
-          ${config.credits}
-        </p>
-      </div>
-      <div style="text-align: center; margin: 32px 0;">
-        <a href="https://ranki.ai/dashboard" style="display: inline-block; background-color: #2563eb; color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 6px; font-family: -apple-system, sans-serif; font-size: 15px; font-weight: 500;">
-          Voir mon tableau de bord
-        </a>
-      </div>
-    </div>
-    <div style="padding: 24px; text-align: center; border-top: 1px solid #e5e7eb;">
-      <p style="font-family: -apple-system, sans-serif; color: #9ca3af; font-size: 12px; margin: 0;">© 2025 Ranki.ai</p>
-    </div>
-  </div>
-</body>
-</html>
-                        `,
+                        ...renderWebhookSubscriptionEmail(
+                          "renewed",
+                          (profile as any).preferred_language === "en" ? "en" : "fr",
+                          profile.full_name,
+                          config.planName,
+                          config.credits,
+                        ),
                         from_name: "Ranki.ai",
                       }),
                     }
