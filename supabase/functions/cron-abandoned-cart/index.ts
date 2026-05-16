@@ -30,11 +30,19 @@ async function resolveLang(email: string): Promise<Lang> {
 }
 
 // ─── Email Templates ───────────────────────────────────────────────
-function emailTemplate1(name: string, cartSummary: string): string {
+function emailTemplate1(name: string, cartSummary: string, lang: Lang = "fr"): string {
   const firstName = name ? name.split(" ")[0] : "";
+  const en = lang === "en";
+  const T = {
+    title: en ? "You forgot something? 🛒" : "Vous avez oublié quelque chose ? 🛒",
+    hello: en ? `Hi${firstName ? ` ${firstName}` : ""},` : `Bonjour${firstName ? ` ${firstName}` : ""},`,
+    intro: en ? "You were one click away from boosting your Google visibility! Your cart is still waiting:" : "Vous étiez à deux doigts de booster votre visibilité Google ! Votre panier vous attend toujours :",
+    push: en ? "The longer you wait, the more your competitors get ahead on Google Maps. Complete your order now!" : "Plus vous attendez, plus vos concurrents prennent de l'avance sur Google Maps. Finalisez votre commande maintenant !",
+    cta: en ? "Complete my order →" : "Finaliser ma commande →",
+  };
   return `
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="${lang}">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
 <body style="margin:0;padding:0;background-color:#f9fafb;">
   <div style="max-width:600px;margin:0 auto;background:#ffffff;">
@@ -47,25 +55,13 @@ function emailTemplate1(name: string, cartSummary: string): string {
       </table>
     </div>
     <div style="padding:40px 32px;">
-      <h1 style="font-family:-apple-system,sans-serif;color:#111827;font-size:24px;font-weight:600;margin:0 0 24px 0;">
-        Vous avez oublié quelque chose ? 🛒
-      </h1>
-      <p style="font-family:-apple-system,sans-serif;color:#6b7280;font-size:15px;line-height:1.6;margin:0 0 16px 0;">
-        Bonjour${firstName ? ` ${firstName}` : ""},
-      </p>
-      <p style="font-family:-apple-system,sans-serif;color:#6b7280;font-size:15px;line-height:1.6;margin:0 0 24px 0;">
-        Vous étiez à deux doigts de booster votre visibilité Google ! Votre panier vous attend toujours :
-      </p>
-      <div style="background:#f3f4f6;border-radius:8px;padding:20px;margin:24px 0;">
-        ${cartSummary}
-      </div>
-      <p style="font-family:-apple-system,sans-serif;color:#6b7280;font-size:15px;line-height:1.6;margin:0 0 24px 0;">
-        Plus vous attendez, plus vos concurrents prennent de l'avance sur Google Maps. Finalisez votre commande maintenant !
-      </p>
+      <h1 style="font-family:-apple-system,sans-serif;color:#111827;font-size:24px;font-weight:600;margin:0 0 24px 0;">${T.title}</h1>
+      <p style="font-family:-apple-system,sans-serif;color:#6b7280;font-size:15px;line-height:1.6;margin:0 0 16px 0;">${T.hello}</p>
+      <p style="font-family:-apple-system,sans-serif;color:#6b7280;font-size:15px;line-height:1.6;margin:0 0 24px 0;">${T.intro}</p>
+      <div style="background:#f3f4f6;border-radius:8px;padding:20px;margin:24px 0;">${cartSummary}</div>
+      <p style="font-family:-apple-system,sans-serif;color:#6b7280;font-size:15px;line-height:1.6;margin:0 0 24px 0;">${T.push}</p>
       <div style="text-align:center;margin:32px 0;">
-        <a href="https://ranki.ai/choose-plan" style="display:inline-block;background-color:#2563eb;color:#ffffff;text-decoration:none;padding:14px 32px;border-radius:8px;font-family:-apple-system,sans-serif;font-size:16px;font-weight:600;">
-          Finaliser ma commande →
-        </a>
+        <a href="https://ranki.ai/choose-plan" style="display:inline-block;background-color:#2563eb;color:#ffffff;text-decoration:none;padding:14px 32px;border-radius:8px;font-family:-apple-system,sans-serif;font-size:16px;font-weight:600;">${T.cta}</a>
       </div>
     </div>
     <div style="padding:24px;text-align:center;border-top:1px solid #e5e7eb;">
