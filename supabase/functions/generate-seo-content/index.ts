@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { callOpenRouterWithFallback } from "../_shared/openrouter.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -431,56 +432,16 @@ ${lang.jsonOnly}
 
     console.log(`[generate-seo-content] Type: ${type}, Business: ${businessName}`);
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt },
-        ],
-      }),
+    const content = await callOpenRouterWithFallback({
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt },
+      ],
+      temperature: 0.7,
+      max_tokens: 4000,
+      referer: "https://ranki.ai",
+      title: "Ranki.ai GEO Content",
     });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("Lovable AI error:", response.status, errorText);
-      if (response.status === 402) {
-        return new Response(
-          JSON.stringify({
-            error: "BILLING_ERROR",
-            message: "Crédits IA épuisés. Veuillez recharger votre solde Lovable AI.",
-            fallback: true,
-          }),
-          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-      if (response.status === 429) {
-        return new Response(
-          JSON.stringify({
-            error: "RATE_LIMITED",
-            message: "Trop de requêtes. Réessayez dans quelques instants.",
-            fallback: true,
-          }),
-          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-      return new Response(
-        JSON.stringify({
-          error: "SERVICE_UNAVAILABLE",
-          message: `Service IA indisponible (${response.status})`,
-          fallback: true,
-        }),
-        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    const data = await response.json();
-    const content = data.choices?.[0]?.message?.content || "";
     
     console.log(`[generate-seo-content] AI response length: ${content.length}`);
 
