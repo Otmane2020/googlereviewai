@@ -13,7 +13,9 @@ async function sendEngagementEmail(
   email: string,
   name: string | null,
   type: string,
-  data?: Record<string, unknown>
+  data?: Record<string, unknown>,
+  lang?: "fr" | "en",
+  userId?: string,
 ) {
   try {
     const response = await fetch(`${supabaseUrl}/functions/v1/send-engagement-email`, {
@@ -22,7 +24,7 @@ async function sendEngagementEmail(
         "Content-Type": "application/json",
         "Authorization": `Bearer ${supabaseKey}`,
       },
-      body: JSON.stringify({ email, name, type, data }),
+      body: JSON.stringify({ email, name, type, data, lang, user_id: userId }),
     });
     const result = await response.json();
     console.log(`Email ${type} to ${email}:`, result.success ? "sent" : result.error);
@@ -47,7 +49,7 @@ serve(async (req) => {
     // Get all active users with their profiles
     const { data: profiles, error: profilesError } = await supabase
       .from("profiles")
-      .select("id, full_name, email, credits");
+      .select("id, full_name, email, credits, preferred_language");
 
     if (profilesError) {
       throw profilesError;
@@ -101,7 +103,10 @@ serve(async (req) => {
             supabaseServiceKey,
             profile.email,
             profile.full_name,
-            "activate_auto_reply"
+            "activate_auto_reply",
+            undefined,
+            profile.preferred_language === "en" ? "en" : "fr",
+            profile.id,
           );
           if (sent) {
             emailsSent.push(`activate_auto_reply:${profile.email}`);
@@ -133,7 +138,9 @@ serve(async (req) => {
             profile.email,
             profile.full_name,
             "pending_reviews",
-            { pending_count: pendingCount }
+            { pending_count: pendingCount },
+            profile.preferred_language === "en" ? "en" : "fr",
+            profile.id,
           );
           if (sent) {
             emailsSent.push(`pending_reviews:${profile.email}`);
@@ -172,7 +179,9 @@ serve(async (req) => {
               profile.email,
               profile.full_name,
               "low_credits",
-              { credits: profile.credits }
+              { credits: profile.credits },
+              profile.preferred_language === "en" ? "en" : "fr",
+              profile.id,
             );
             if (sent) {
               emailsSent.push(`low_credits:${profile.email}`);
@@ -241,18 +250,20 @@ serve(async (req) => {
               : 999;
 
             if (daysSinceLastArticle >= 1) {
+              const isEn = profile.preferred_language === "en";
               notifications.push({
                 user_id: profile.id,
-                title: "✍️ Boostez votre SEO",
-                message: "Créez un nouvel article SEO pour améliorer votre visibilité locale !",
+                title: isEn ? "✍️ Boost your SEO" : "✍️ Boostez votre SEO",
+                message: isEn ? "Create a new SEO article to improve your local visibility!" : "Créez un nouvel article SEO pour améliorer votre visibilité locale !",
                 type: "seo_reminder",
               });
             }
           } else {
+            const isEn = profile.preferred_language === "en";
             notifications.push({
               user_id: profile.id,
-              title: "🚀 Découvrez SEO AutoPost",
-              message: "Publiez automatiquement des articles optimisés pour Google. Essayez maintenant !",
+              title: isEn ? "🚀 Discover SEO AutoPost" : "🚀 Découvrez SEO AutoPost",
+              message: isEn ? "Automatically publish Google-optimized articles. Try it now!" : "Publiez automatiquement des articles optimisés pour Google. Essayez maintenant !",
               type: "seo_promo",
             });
           }
@@ -275,18 +286,20 @@ serve(async (req) => {
               : 999;
 
             if (daysSinceLastQA >= 1) {
+              const isEn = profile.preferred_language === "en";
               notifications.push({
                 user_id: profile.id,
-                title: "🤖 Optimisez pour ChatGPT",
-                message: "Ajoutez une nouvelle Q&A pour apparaître dans les réponses IA !",
+                title: isEn ? "🤖 Optimize for ChatGPT" : "🤖 Optimisez pour ChatGPT",
+                message: isEn ? "Add a new Q&A to appear in AI answers!" : "Ajoutez une nouvelle Q&A pour apparaître dans les réponses IA !",
                 type: "aeo_reminder",
               });
             }
           } else {
+            const isEn = profile.preferred_language === "en";
             notifications.push({
               user_id: profile.id,
-              title: "💡 Nouveau: ChatGPT Rank",
-              message: "Apparaissez dans les réponses de ChatGPT et autres IA. Découvrez AEO !",
+              title: isEn ? "💡 New: ChatGPT Rank" : "💡 Nouveau: ChatGPT Rank",
+              message: isEn ? "Appear in ChatGPT and other AI answers. Discover AEO!" : "Apparaissez dans les réponses de ChatGPT et autres IA. Découvrez AEO !",
               type: "aeo_promo",
             });
           }
@@ -294,17 +307,19 @@ serve(async (req) => {
 
         // AI optimization tips
         if (!aiSettings?.enabled) {
+          const isEn = profile.preferred_language === "en";
           notifications.push({
             user_id: profile.id,
-            title: "⚡ Activez l'IA",
-            message: "Activez les réponses automatiques pour gagner du temps sur vos avis !",
+            title: isEn ? "⚡ Enable AI" : "⚡ Activez l'IA",
+            message: isEn ? "Enable automatic replies to save time on your reviews!" : "Activez les réponses automatiques pour gagner du temps sur vos avis !",
             type: "ai_tip",
           });
         } else if (!aiSettings?.auto_publish_to_google && pendingCount > 5) {
+          const isEn = profile.preferred_language === "en";
           notifications.push({
             user_id: profile.id,
-            title: "🎯 Publication auto",
-            message: "Activez la publication automatique pour répondre plus vite à vos clients !",
+            title: isEn ? "🎯 Auto publishing" : "🎯 Publication auto",
+            message: isEn ? "Enable automatic publishing to reply faster to your customers!" : "Activez la publication automatique pour répondre plus vite à vos clients !",
             type: "ai_tip",
           });
         }

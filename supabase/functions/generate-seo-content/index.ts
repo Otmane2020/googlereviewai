@@ -55,11 +55,6 @@ serve(async (req) => {
       language, // NEW: language for content generation (from GMB)
     } = await req.json();
     
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
-    }
-
     // Determine content language (default to French)
     const contentLang = language?.toLowerCase()?.startsWith("en") ? "en" : "fr";
     console.log(`[generate-seo-content] Language: ${contentLang}`);
