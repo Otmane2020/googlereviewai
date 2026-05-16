@@ -39,6 +39,7 @@ const PLANS: Plan[] = [
       "Up to 3 locations",
       "Daily GEO rank tracking",
       "Daily AI Q&A + SEO posts",
+      "200 AI credits / month",
       "Competitor share-of-voice",
       "Priority support",
     ],
