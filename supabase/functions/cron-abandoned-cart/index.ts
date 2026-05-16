@@ -16,6 +16,19 @@ const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
   apiVersion: "2025-08-27.basil",
 });
 
+type Lang = "fr" | "en";
+
+async function resolveLang(email: string): Promise<Lang> {
+  try {
+    const { data } = await supabaseAdmin
+      .from("profiles")
+      .select("preferred_language")
+      .eq("email", email)
+      .maybeSingle();
+    return (data as any)?.preferred_language === "en" ? "en" : "fr";
+  } catch { return "fr"; }
+}
+
 // ─── Email Templates ───────────────────────────────────────────────
 function emailTemplate1(name: string, cartSummary: string): string {
   const firstName = name ? name.split(" ")[0] : "";
