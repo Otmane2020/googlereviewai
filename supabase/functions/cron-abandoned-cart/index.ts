@@ -262,60 +262,48 @@ serve(async (req) => {
       const createdAt = new Date(cart.created_at);
       const hoursSinceCreation = (now.getTime() - createdAt.getTime()) / (1000 * 60 * 60);
       const cartSummary = buildCartSummary(cart.cart_items as any[], cart.billing_cycle || "monthly");
+      const lang = await resolveLang(cart.email);
+      const en = lang === "en";
 
       // ─── Email 1: After 1 hour ───
       if (!cart.email_1_sent_at && hoursSinceCreation >= 1) {
-        console.log(`[AbandonedCart] Sending email 1 to ${cart.email} (${hoursSinceCreation.toFixed(1)}h since creation)`);
-        
         const sent = await sendEmail(
           cart.email,
-          "Vous avez oublié quelque chose ? 🛒",
-          emailTemplate1(cart.full_name || "", cartSummary)
+          en ? "You forgot something? 🛒" : "Vous avez oublié quelque chose ? 🛒",
+          emailTemplate1(cart.full_name || "", cartSummary, lang)
         );
-
         if (sent) {
-          await supabaseAdmin
-            .from("abandoned_carts")
-            .update({ email_1_sent_at: now.toISOString() })
-            .eq("id", cart.id);
+          await supabaseAdmin.from("abandoned_carts").update({ email_1_sent_at: now.toISOString() }).eq("id", cart.id);
           emailsSent++;
-          console.log(`[AbandonedCart] ✅ Email 1 sent to ${cart.email}`);
         }
       }
 
       // ─── Email 2: After 24 hours with 10% discount ───
       if (!cart.email_2_sent_at && cart.email_1_sent_at && hoursSinceCreation >= 24) {
-        console.log(`[AbandonedCart] Sending email 2 (10% discount) to ${cart.email}`);
-        
         const { code } = await createStripeCoupon("percent", 10);
-        
         const sent = await sendEmail(
           cart.email,
-          "🎁 -10% pour vous ! Votre panier vous attend",
-          emailTemplate2(cart.full_name || "", cartSummary, code, 10)
+          en ? "🎁 -10% for you! Your cart is waiting" : "🎁 -10% pour vous ! Votre panier vous attend",
+          emailTemplate2(cart.full_name || "", cartSummary, code, 10, lang)
         );
-
         if (sent) {
-          await supabaseAdmin
-            .from("abandoned_carts")
-            .update({ email_2_sent_at: now.toISOString(), coupon_code: code })
-            .eq("id", cart.id);
+          await supabaseAdmin.from("abandoned_carts").update({ email_2_sent_at: now.toISOString(), coupon_code: code }).eq("id", cart.id);
           emailsSent++;
-          console.log(`[AbandonedCart] ✅ Email 2 sent to ${cart.email} with coupon ${code}`);
         }
       }
 
       // ─── Email 3: After 72 hours with 1 free month ───
       if (!cart.email_3_sent_at && cart.email_2_sent_at && hoursSinceCreation >= 72) {
-        console.log(`[AbandonedCart] Sending email 3 (1 free month) to ${cart.email}`);
-        
         const { code } = await createStripeCoupon("free_month");
-        
         const sent = await sendEmail(
           cart.email,
-          "⏰ Dernière chance : 1 mois OFFERT !",
-          emailTemplate3(cart.full_name || "", cartSummary, code)
+          en ? "⏰ Last chance: 1 month FREE!" : "⏰ Dernière chance : 1 mois OFFERT !",
+          emailTemplate3(cart.full_name || "", cartSummary, code, lang)
         );
+        if (sent) {
+          await supabaseAdmin.from("abandoned_carts").update({ email_3_sent_at: now.toISOString(), coupon_code: code }).eq("id", cart.id);
+          emailsSent++;
+        }
 
         if (sent) {
           await supabaseAdmin
