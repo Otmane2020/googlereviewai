@@ -43,6 +43,13 @@ serve(async (req) => {
 
     console.log("User authenticated:", user.id);
 
+    const { data: userProfile } = await supabaseAdmin
+      .from("profiles")
+      .select("email, full_name, preferred_language")
+      .eq("id", user.id)
+      .maybeSingle();
+    const userLang: "fr" | "en" = userProfile?.preferred_language === "en" ? "en" : "fr";
+
     // Get access token using shared helper
     const tokenResult = await getGoogleAccessToken(supabaseAdmin, user.id);
     
@@ -562,12 +569,20 @@ serve(async (req) => {
             
             // Create notifications for deleted reviews BEFORE deleting them
             for (const deletedReview of reviewsToDelete) {
+              const deletedTitle = userLang === "en" ? "🗑️ Review deleted" : "🗑️ Avis supprimé";
+              const deletedMessage = userLang === "en"
+                ? `${deletedReview.author}'s ${deletedReview.rating}-star review was removed from Google`
+                : `L'avis de ${deletedReview.author} (${deletedReview.rating} étoiles) a été supprimé de Google`;
+              const deletedEmailBody = userLang === "en"
+                ? `${deletedReview.author}'s ${deletedReview.rating}-star review was removed from Google. This may mean the customer deleted their review.`
+                : `L'avis de ${deletedReview.author} (${deletedReview.rating} étoiles) a été supprimé de Google. Cela peut indiquer que le client a retiré son avis.`;
+
               // In-app notification
               await supabaseAdmin.from("notifications").insert({
                 user_id: user.id,
                 type: "review_deleted",
-                title: "🗑️ Avis supprimé",
-                message: `L'avis de ${deletedReview.author} (${deletedReview.rating} étoiles) a été supprimé de Google`,
+                title: deletedTitle,
+                message: deletedMessage,
                 review_id: null, // Review will be deleted so no link
               });
               
@@ -581,8 +596,8 @@ serve(async (req) => {
                   },
                   body: JSON.stringify({
                     user_id: user.id,
-                    title: "🗑️ Avis supprimé",
-                    body: `L'avis de ${deletedReview.author} (${deletedReview.rating}⭐) a été supprimé de Google`,
+                    title: deletedTitle,
+                    body: deletedMessage,
                     url: "/reviews",
                   }),
                 });
@@ -592,18 +607,25 @@ serve(async (req) => {
               
               // Send email notification
               try {
-                await fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/send-email-notification`, {
-                  method: "POST",
-                  headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${Deno.env.get("SUPABASE_ANON_KEY")}`,
-                  },
-                  body: JSON.stringify({
-                    user_id: user.id,
-                    subject: "🗑️ Un avis a été supprimé",
-                    message: `L'avis de ${deletedReview.author} (${deletedReview.rating} étoiles) a été supprimé de Google. Cela peut indiquer que le client a retiré son avis.`,
-                  }),
-                });
+                if (userProfile?.email) {
+                  const firstName = userProfile.full_name?.split(" ")[0] || "";
+                  const greeting = userLang === "en" ? `Hello${firstName ? ` ${firstName}` : ""},` : `Bonjour${firstName ? ` ${firstName}` : ""},`;
+                  const cta = userLang === "en" ? "View my reviews" : "Voir mes avis";
+                  const html = `<!DOCTYPE html><html lang="${userLang}"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head><body style="margin:0;padding:0;background:#f9fafb;"><div style="max-width:600px;margin:0 auto;background:#ffffff;padding:40px 32px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;"><h1 style="color:#111827;font-size:24px;margin:0 0 24px 0;">${deletedTitle}</h1><p style="color:#6b7280;font-size:15px;line-height:1.6;">${greeting}</p><p style="color:#6b7280;font-size:15px;line-height:1.6;">${deletedEmailBody}</p><div style="margin:32px 0;"><a href="https://ranki.ai/reviews" style="display:inline-block;background:#2563eb;color:#ffffff;text-decoration:none;padding:14px 28px;border-radius:6px;font-size:15px;font-weight:500;">${cta}</a></div><p style="color:#9ca3af;font-size:12px;margin-top:32px;">© 2025 Ranki.ai</p></div></body></html>`;
+                  await fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/send-email-notification`, {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                      "Authorization": `Bearer ${Deno.env.get("SUPABASE_ANON_KEY")}`,
+                    },
+                    body: JSON.stringify({
+                      to: userProfile.email,
+                      subject: deletedTitle,
+                      html,
+                      from_name: "Ranki.ai",
+                    }),
+                  });
+                }
               } catch (e) {
                 console.error("Failed to send email notification for deleted review:", e);
               }
