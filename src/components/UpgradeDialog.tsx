@@ -157,6 +157,7 @@ export const UpgradeDialog = ({ open, onOpenChange, currentPlan }: UpgradeDialog
         "Up to 3 locations",
         "Daily GEO tracking (unlimited keywords)",
         "Daily SEO posts + AEO Q&A on Google",
+        "200 AI credits / month",
         "Competitor analysis",
         "Priority support",
       ]
@@ -164,6 +165,7 @@ export const UpgradeDialog = ({ open, onOpenChange, currentPlan }: UpgradeDialog
         "Jusqu'à 3 établissements",
         "Suivi GEO quotidien (mots-clés illimités)",
         "Posts SEO + Q&A AEO quotidiens sur Google",
+        "200 crédits IA / mois",
         "Analyse de la concurrence",
         "Support prioritaire",
       ];
