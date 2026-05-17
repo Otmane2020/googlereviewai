@@ -16,7 +16,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
-import { LayoutDashboard, Star, Building2, Search, MapPin, Bell, Settings, CreditCard, LogOut, HelpCircle, MessageCircleQuestion, ListChecks } from "lucide-react";
+import { LayoutDashboard, Star, Building2, Search, MapPin, Bell, Settings, CreditCard, LogOut, HelpCircle, MessageCircleQuestion, ListChecks, ShoppingBag, Package } from "lucide-react";
 import { RankiLogo } from "@/components/StarlinkoLogo";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -46,6 +46,8 @@ const useNavItems = () => {
   ];
   const businessNav = [
     { label: t("sidebar.locations"), href: "/businesses", icon: Building2 },
+    { label: "Boutique", href: "/boutique", icon: ShoppingBag },
+    { label: "Mes commandes", href: "/commandes", icon: Package },
   ];
   const accountNav = [
     { label: t("sidebar.aiSettings"), href: "/ai-settings", icon: BrandSparkle },
