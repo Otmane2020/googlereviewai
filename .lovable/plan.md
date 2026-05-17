@@ -1,67 +1,71 @@
-## Audit des onglets sidebar
 
-| Page | Lignes | useTranslation | Chaînes en dur |
-|---|---|---|---|
-| Dashboard (Overview) | 905 | ❌ Non | ~150+ |
-| Reviews (Google Reviews) | 1166 | ⚠️ Partiel (2x) | ~200+ |
-| GmbPost (Google Post) | 541 | ❌ Non | ~80 |
-| AEORank (GEO Rank AI) | 854 | ❌ Non | ~120 |
-| SEOAutoPost (SEO Autopilot) | 753 | ❌ Non | ~100 |
-| Calendar (Planning) | 361 | ❌ Non | ~40 |
-| Businesses (Locations) | 980 | ❌ Non | ~140 |
-| AISettings | 855 | ❌ Non | ~180 |
-| Notifications | 302 | ❌ Non | ~40 |
-| Settings | 769 | ⚠️ Partiel (2x) | ~80 |
+# Plan d'exécution — 11 chantiers regroupés en 4 lots
 
-**Total : ~7500 lignes, ~1200+ chaînes à traduire.**
+Trop d'éléments pour un seul tour. Je propose 4 lots livrés successivement. Confirme l'ordre ou ajuste.
 
-## Stratégie d'exécution
+---
 
-Vu la taille, je propose de procéder **par lots** dans les prochains messages, en respectant cet ordre de priorité (impact utilisateur visible) :
+## Lot 1 — UI & corrections rapides
 
-### Lot 1 — Pages les plus visibles (prioritaire)
-1. **Dashboard (Overview)** — page d'accueil après login
-2. **Reviews** — fonctionnalité principale
-3. **Settings** — déjà partiellement traduit, finir
-4. **Notifications**
+1. **Remplacer toutes les icônes `Sparkles` (lucide-react) par le favicon `/favicon.svg`**
+   - Créer un composant `<RankiIcon className=... />` qui rend `<img src="/favicon.svg" />`
+   - Scanner tous les fichiers contenant `Sparkles` (≈30+ fichiers : OnboardingScreen, UpgradeDialog, Header, HeroSection, etc.) et remplacer
+2. **Barre top (langue + notifications) figée sur toutes les pages**
+   - Ajouter `sticky top-0 z-50` au `Header` + `DashboardHeader`
+   - Vérifier qu'aucun parent n'a `overflow-hidden`
+3. **SEO non activé après paiement** — corriger `verify-subscription` / `stripe-webhook` pour activer SEO + GEO (pas seulement GEO) quand le plan Daily/Agency est actif
 
-### Lot 2 — Pages secondaires
-5. **Businesses (Locations)**
-6. **AISettings** — beaucoup de texte technique
-7. **GmbPost**
+---
 
-### Lot 3 — Pages spécialisées
-8. **AEORank (GEO Rank AI)**
-9. **SEOAutoPost**
-10. **Calendar (Planning)**
+## Lot 2 — Paiement, plans, crédits, PWA
 
-## Méthode pour chaque page
+4. **Rafraîchissement auto après paiement (actuellement attente 5 min)**
+   - Sur `/payment-success` : polling toutes les 2s pendant 20s appelant `verify-subscription`
+   - Forcer refresh du `AuthContext` (plan + crédits) après succès
+5. **Gestion plan upgrade/downgrade**
+   - Ajouter `update-subscription` edge function (Stripe `subscriptions.update` avec `proration_behavior: always_invoice`)
+   - Bouton "Changer de plan" dans Settings + `UpgradeDialog` quand déjà abonné
+   - Trigger DB : à chaque webhook `customer.subscription.updated`, recalculer `monthly_credits` selon `plans.key`
+6. **PWA mobile installable**
+   - Vérifier `manifest.webmanifest` (display: standalone, icons 192/512, start_url)
+   - Réactiver le prompt `beforeinstallprompt` sur iOS (instructions Safari) et Android (bouton natif)
+   - Tester sur `id-preview` désactivé, prod activé
 
-1. Ajouter section dédiée dans `src/i18n/locales/fr.json` et `en.json` (ex : `"dashboardPage": {...}`)
-2. Ajouter `import { useTranslation } from "react-i18next"` + `const { t } = useTranslation()`
-3. Remplacer tous les textes JSX, placeholders, titres, toasts, labels de boutons par `{t("...")}`
-4. Vérifier les sous-composants importés (cards, dialogs) et étendre la traduction si nécessaire
+---
 
-## Composants partagés à traduire en parallèle
+## Lot 3 — Cron, multi-établissement, relance avis
 
-Plusieurs composants utilisés dans ces pages contiennent aussi des chaînes en dur :
-- `GmbInsightsCard`, `SyncProgressOverlay`, `SyncStatusCard`
-- `ReviewCard`, `AutoResponseToggle`, `ResponsePreviewDialog`
-- `CreditsDisplay`, `LowCreditsBanner`, `UpgradeDialog`
-- `RankingMap`, `maps-rank/*`
-- `ConnectGMBDialog`, `SelectBusinessesDialog`
-- `SupportDialog`
+7. **Cron publication auto** — audit `cron-publish-scheduled-content` (logs récents, vérifier qu'il tourne, qu'il respecte la limite 1 SEO + 1 GEO/jour)
+8. **Changement d'établissement (compte `lovelyanswers.ai@gmail.com`)**
+   - Reproduire le bug : sélecteur `BusinessSelector` ne switch pas le contexte
+   - Vérifier `save-selected-businesses` + invalidation queries
+9. **Relance/vente des avis non répondus par l'IA**
+   - Email/notification automatique listant les avis sans réponse IA pour `lovelyanswers.ai@gmail.com`
+   - Ajout d'un CTA dans dashboard "X avis attendent une réponse — activez l'auto-réponse"
 
-Je les traduirai en même temps que les pages qui les utilisent.
+---
 
-## Toasts & notifications
+## Lot 4 — Boutique physique NFC (gros chantier)
 
-Tous les `toast.success(...)` / `toast.error(...)` avec messages en dur seront convertis. Les notifications push (envoyées par edge functions) sont déjà gérées par les edge functions et utilisent la `preferred_language` de la table `profiles`.
+10. **Produit 1 : Carte NFC Google Avis (19,99€ + 3,99€ livraison)**
+    - Page produit `/shop/nfc-card` (photos, description, CTA acheter)
+    - Checkout Stripe `mode: payment` avec ligne produit + ligne shipping
+    - Table `orders` (user_id, product, qty, shipping_address, shipping_cost, total, status, stripe_session_id, tracking_number)
+    - Page `/orders` (utilisateur : suivi commandes)
+    - Email confirmation (Resend) en FR/EN
+    - Page Admin : liste commandes + édition statut + tracking
+11. **Produit 2 : QR code personnalisé imprimé (gratuit)**
+    - Wizard `/shop/qr-print` (4 étapes : logo upload, couleur, format, adresse livraison)
+    - Génération QR (lib `qrcode` côté client) + preview
+    - Table `print_orders` (user_id, design_json, logo_url, shipping_address, status, pdf_url)
+    - Admin : génère PDF prêt à imprimer (lib `pdf-lib`) + bouton télécharger
 
-## Livrables
+---
 
-À la fin de chaque lot je donnerai un récapitulatif des fichiers modifiés et un changelog FR/EN.
+## Questions avant de démarrer
 
-## Confirmation requise
+- **Ordre** : on commence par le Lot 1 (rapide, visible) ? Puis Lot 2 ?
+- **Lot 4** : le produit 2 "gratuit" — y a-t-il une limite (1 par compte ? réservé plan payant ?) pour éviter abus ?
+- **Adresse de livraison** : France uniquement ou international ?
 
-**Approuvez-vous ce plan et l'ordre des lots ?** Si oui, je démarre directement le **Lot 1** (Dashboard + Reviews + Settings + Notifications) au prochain message.
+Réponds avec l'ordre souhaité (ex : "Lot 1 d'abord") et je démarre immédiatement.
