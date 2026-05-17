@@ -76,7 +76,7 @@ const RankiSidebar = () => {
       .then(({ data }) => data && setProfile(data));
   }, [user]);
 
-  const renderItem = (item: { label: string; href: string; icon: typeof LayoutDashboard; badge?: string }) => (
+  const renderItem = (item: { label: string; href: string; icon: React.ElementType; badge?: string }) => (
     <SidebarMenuItem key={item.href}>
       <SidebarMenuButton asChild tooltip={item.label}>
         <NavLink
