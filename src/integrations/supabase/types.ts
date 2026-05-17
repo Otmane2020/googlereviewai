@@ -788,40 +788,67 @@ export type Database = {
       orders: {
         Row: {
           amount: number
+          business_id: string | null
           created_at: string
           currency: string
           customer_email: string
           customer_name: string | null
           id: string
           metadata: Json | null
+          order_type: string
+          pdf_url: string | null
+          qr_data: Json | null
+          shipped_at: string | null
+          shipping_address: Json | null
+          shipping_cost: number | null
+          shipping_country: string | null
           status: string
           stripe_session_id: string | null
+          tracking_number: string | null
           updated_at: string
           user_id: string | null
         }
         Insert: {
           amount: number
+          business_id?: string | null
           created_at?: string
           currency?: string
           customer_email: string
           customer_name?: string | null
           id?: string
           metadata?: Json | null
+          order_type?: string
+          pdf_url?: string | null
+          qr_data?: Json | null
+          shipped_at?: string | null
+          shipping_address?: Json | null
+          shipping_cost?: number | null
+          shipping_country?: string | null
           status?: string
           stripe_session_id?: string | null
+          tracking_number?: string | null
           updated_at?: string
           user_id?: string | null
         }
         Update: {
           amount?: number
+          business_id?: string | null
           created_at?: string
           currency?: string
           customer_email?: string
           customer_name?: string | null
           id?: string
           metadata?: Json | null
+          order_type?: string
+          pdf_url?: string | null
+          qr_data?: Json | null
+          shipped_at?: string | null
+          shipping_address?: Json | null
+          shipping_cost?: number | null
+          shipping_country?: string | null
           status?: string
           stripe_session_id?: string | null
+          tracking_number?: string | null
           updated_at?: string
           user_id?: string | null
         }
