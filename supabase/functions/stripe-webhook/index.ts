@@ -172,6 +172,7 @@ serve(async (req) => {
           }
         }
 
+        if (userId && subscriptionId) {
           // Get subscription details
           const subscription = await stripe.subscriptions.retrieve(subscriptionId);
           const priceId = subscription.items.data[0]?.price.id;
