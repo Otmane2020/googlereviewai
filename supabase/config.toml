@@ -13,6 +13,10 @@ project_id = "hlruprayqfnatnldrski"
     verify_jwt = false
   [functions.create-embedded-checkout]
     verify_jwt = false
+  [functions.create-nfc-checkout]
+    verify_jwt = false
+  [functions.create-printed-qr-order]
+    verify_jwt = false
   [functions.create-payment-intent]
     verify_jwt = false
   [functions.cron-abandoned-cart]
