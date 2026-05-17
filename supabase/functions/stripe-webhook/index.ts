@@ -142,7 +142,36 @@ serve(async (req) => {
           }
         }
 
-        if (userId && subscriptionId) {
+        // Handle one-time NFC card orders (no subscription)
+        const orderType = session.metadata?.order_type;
+        const orderId = session.metadata?.order_id;
+        if (orderType === "nfc_card" && orderId) {
+          try {
+            const ship = session.shipping_details || (session as any).customer_details;
+            const shippingAddress = ship?.address ? {
+              full_name: ship.name,
+              line1: ship.address.line1,
+              line2: ship.address.line2,
+              city: ship.address.city,
+              postal_code: ship.address.postal_code,
+              country: ship.address.country,
+              state: ship.address.state,
+            } : null;
+            const shippingCostCents = session.shipping_cost?.amount_total ?? 0;
+            await supabaseAdmin.from("orders").update({
+              status: "paid",
+              shipping_address: shippingAddress,
+              shipping_country: shippingAddress?.country ?? null,
+              shipping_cost: shippingCostCents / 100,
+              amount: (session.amount_total ?? 0) / 100,
+              updated_at: new Date().toISOString(),
+            }).eq("id", orderId);
+            console.log(`[checkout.session.completed] ✅ NFC order ${orderId} marked paid`);
+          } catch (e) {
+            console.error("[checkout.session.completed] NFC order update error:", e);
+          }
+        }
+
           // Get subscription details
           const subscription = await stripe.subscriptions.retrieve(subscriptionId);
           const priceId = subscription.items.data[0]?.price.id;
