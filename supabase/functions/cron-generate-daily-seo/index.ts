@@ -101,10 +101,12 @@ serve(async (req) => {
           .single();
 
         const validStatuses = ["active", "trial", "trialing"];
-        const dailyPlans = ["daily", "pro", "business"];
-        const isDailyUser = profile && 
+        // Daily-publication plans: legacy "daily"/"pro"/"business" + new "quotidien"/"agence"
+        const dailyPlans = ["daily", "pro", "business", "quotidien", "agence", "pro annuel", "business annuel"];
+        const planLower = (profile?.plan_name || "").toLowerCase();
+        const isDailyUser = !!profile &&
           validStatuses.includes(profile.subscription_status || "") &&
-          dailyPlans.includes((profile.plan_name || "").toLowerCase());
+          dailyPlans.some((p) => planLower.includes(p));
 
         // Free users: generate only on Mondays
         const timezone = userSetting.timezone || "Europe/Paris";
