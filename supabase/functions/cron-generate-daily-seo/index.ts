@@ -132,7 +132,7 @@ serve(async (req) => {
 
         for (const business of businesses) {
           // Get pending SEO articles for today that don't have content yet
-          const { data: pendingArticles } = await supabase
+          let { data: pendingArticles } = await supabase
             .from("scheduled_content")
             .select("*")
             .eq("business_id", business.id)
@@ -141,6 +141,34 @@ serve(async (req) => {
             .eq("status", "pending")
             .is("content", null)
             .limit(1);
+
+          // Auto-seed: if no pending row for today, create one so cron can generate
+          if (!pendingArticles?.length) {
+            const { data: keywords } = await supabase
+              .from("keywords")
+              .select("name")
+              .eq("business_id", business.id)
+              .eq("is_active", true);
+            const randomKeyword = keywords?.length
+              ? keywords[Math.floor(Math.random() * keywords.length)].name
+              : business.name;
+            const autoTitle = `${randomKeyword} – ${business.name}`;
+            const { data: seeded } = await supabase
+              .from("scheduled_content")
+              .insert({
+                user_id: userId,
+                business_id: business.id,
+                content_type: "seo_article",
+                title: autoTitle,
+                keyword_used: randomKeyword,
+                scheduled_date: today,
+                status: "pending",
+              })
+              .select()
+              .limit(1);
+            pendingArticles = seeded || [];
+            console.log(`[CRON-SEO] Auto-seeded SEO article for ${business.name}: ${autoTitle}`);
+          }
 
           if (!pendingArticles?.length) {
             console.log(`[CRON-SEO] No pending articles for business ${business.name} on ${today}`);
