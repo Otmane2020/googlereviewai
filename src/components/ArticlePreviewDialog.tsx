@@ -1,8 +1,9 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Lock, Sparkles, Loader2 } from "lucide-react";
+import { Calendar, Lock, Loader2 } from "lucide-react";
 import { format } from "date-fns";
+import { BrandSparkle } from "@/components/BrandSparkle";
 
 interface ArticlePreviewDialogProps {
   open: boolean;
@@ -100,7 +101,7 @@ export const ArticlePreviewDialog = ({
                   </>
                 ) : (
                   <>
-                    <Sparkles className="w-10 h-10 mx-auto text-muted-foreground/30" />
+                    <BrandSparkle className="w-10 h-10 mx-auto text-muted-foreground/30" />
                     <div>
                       <p className="text-sm font-medium text-foreground mb-1">Not generated yet</p>
                       <p className="text-xs text-muted-foreground mb-4">
@@ -109,7 +110,7 @@ export const ArticlePreviewDialog = ({
                     </div>
                     {onGenerate && (
                       <Button onClick={() => onGenerate(article.id)} className="gap-2" disabled={generating}>
-                        <Sparkles className="w-4 h-4" />
+                        <BrandSparkle className="w-4 h-4" />
                         Generate now
                       </Button>
                     )}
@@ -126,7 +127,7 @@ export const ArticlePreviewDialog = ({
               The Free plan includes 1 SEO post and 1 AEO Q&A per week. Upgrade to publish daily.
             </p>
             <Button onClick={() => onSubscribe(false)} className="gap-2">
-              <Sparkles className="w-4 h-4" />
+              <BrandSparkle className="w-4 h-4" />
               Upgrade
             </Button>
           </div>

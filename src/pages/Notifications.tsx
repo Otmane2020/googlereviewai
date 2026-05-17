@@ -6,19 +6,7 @@ import { DashboardHeader } from "@/components/DashboardHeader";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { 
-  Bell, 
-  Search, 
-  Star, 
-  Sparkles, 
-  FileText,
-  Target,
-  MoreHorizontal,
-  Loader2,
-  CheckCheck,
-  BellRing,
-  BellOff
-} from "lucide-react";
+import { Bell, Search, Star, FileText, Target, MoreHorizontal, Loader2, CheckCheck, BellRing, BellOff } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { fr as frLocale, enUS } from "date-fns/locale";
 import { useTranslation } from "react-i18next";

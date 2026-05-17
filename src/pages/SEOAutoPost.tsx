@@ -20,26 +20,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { 
-  FileText, 
-  Sparkles, 
-  Loader2, 
-  Calendar,
-  Check,
-  Clock,
-  AlertCircle,
-  RefreshCw,
-  Building2,
-  Send,
-  Lock,
-  Eye,
-  List,
-  ChevronDown,
-  CheckCircle,
-  Settings
-} from "lucide-react";
+import { FileText, Loader2, Calendar, Check, Clock, AlertCircle, RefreshCw, Building2, Send, Lock, Eye, List, ChevronDown, CheckCircle, Settings } from "lucide-react";
 import { format, addDays, startOfToday, isSameDay } from "date-fns";
 import { fr, enUS } from "date-fns/locale";
+import { BrandSparkle } from "@/components/BrandSparkle";
 
 
 interface Business {
@@ -434,7 +418,7 @@ const SEOAutoPost = () => {
         case "published":
           return <Check className="w-4 h-4 text-secondary" />;
         case "generated":
-          return <Sparkles className="w-4 h-4 text-primary" />;
+          return <BrandSparkle className="w-4 h-4 text-primary" />;
         case "generating":
           return <Loader2 className="w-4 h-4 text-primary animate-spin" />;
         case "failed":
@@ -449,7 +433,7 @@ const SEOAutoPost = () => {
       case "published":
         return <Badge className="bg-secondary text-secondary-foreground"><Check className="w-3 h-3 mr-1" />{t("Publié", "Published")}</Badge>;
       case "generated":
-        return <Badge className="bg-primary text-primary-foreground"><Sparkles className="w-3 h-3 mr-1" />{t("Prêt", "Ready")}</Badge>;
+        return <Badge className="bg-primary text-primary-foreground"><BrandSparkle className="w-3 h-3 mr-1" />{t("Prêt", "Ready")}</Badge>;
       case "generating":
         return <Badge variant="outline"><Loader2 className="w-3 h-3 mr-1 animate-spin" />{t("En cours", "In progress")}</Badge>;
       case "failed":
@@ -700,7 +684,7 @@ const SEOAutoPost = () => {
                                     generateContentForDay(item);
                                   }}
                                 >
-                                  <Sparkles className="w-3 h-3" />
+                                  <BrandSparkle className="w-3 h-3" />
                                 </Button>
                               )}
                               {isSubscribed && item.status === "generated" && (

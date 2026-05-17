@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Button } from "./ui/button";
-import { Sparkles, Star, Check, Play, ArrowRight, MessageSquare, TrendingUp, Search } from "lucide-react";
+import { Star, Check, Play, ArrowRight, MessageSquare, TrendingUp, Search } from "lucide-react";
+import { BrandSparkle } from "@/components/BrandSparkle";
 
 const REVIEW_INDICES = [0, 1, 2];
 const REVIEW_RATINGS = [5, 4, 3];
@@ -119,7 +120,7 @@ export const DemoSection = () => {
                 <div className="ml-0 sm:ml-13 p-4 bg-gradient-to-r from-primary/5 to-secondary/5 rounded-xl border-l-4 border-primary animate-fade-in">
                   <div className="flex items-center gap-2 mb-2">
                     <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center">
-                      <Sparkles className="w-3.5 h-3.5 text-primary" />
+                      <BrandSparkle className="w-3.5 h-3.5 text-primary" />
                     </div>
                     <span className="text-xs font-semibold text-primary">{t("demo.aiLabel")}</span>
                     {isTyping && (

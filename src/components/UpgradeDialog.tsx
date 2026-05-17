@@ -9,9 +9,10 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Crown, Shield, Sparkles, Coins, ChevronDown, Loader2, Check, ArrowRight, Star, Zap, Building2 } from "lucide-react";
+import { Crown, Shield, Coins, ChevronDown, Loader2, Check, ArrowRight, Star, Zap, Building2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { BrandSparkle } from "@/components/BrandSparkle";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -247,7 +248,7 @@ export const UpgradeDialog = ({ open, onOpenChange, currentPlan }: UpgradeDialog
           <div className="relative rounded-2xl border-2 border-destructive/50 bg-destructive/5 p-5 flex flex-col md:scale-[1.02]">
             <div className="absolute -top-3 left-1/2 -translate-x-1/2">
               <Badge className="bg-destructive text-white shadow-lg px-3 py-1 text-[10px] font-semibold">
-                <Sparkles className="w-3 h-3 mr-1" />
+                <BrandSparkle className="w-3 h-3 mr-1" />
                 {isEN ? "MOST POPULAR" : "LE PLUS POPULAIRE"}
               </Badge>
             </div>
@@ -382,7 +383,7 @@ export const UpgradeDialog = ({ open, onOpenChange, currentPlan }: UpgradeDialog
 
         {/* Trust badge */}
         <div className="flex items-center justify-center gap-2 pb-4 text-xs text-muted-foreground">
-          <Sparkles className="w-3 h-3 text-foreground" />
+          <BrandSparkle className="w-3 h-3 text-foreground" />
           <span>Paiement 100% sécurisé</span>
           <Shield className="w-3 h-3 text-foreground" />
         </div>

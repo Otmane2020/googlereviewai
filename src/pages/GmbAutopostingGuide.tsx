@@ -3,23 +3,10 @@ import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Zap, 
-  Clock, 
-  TrendingUp, 
-  Search,
-  MessageSquareText,
-  CalendarClock,
-  BotIcon,
-  BarChart3,
-  CheckCircle2,
-  ArrowRight,
-  Globe,
-  Sparkles,
-  Target
-} from "lucide-react";
+import { Zap, Clock, TrendingUp, Search, MessageSquareText, CalendarClock, BotIcon, BarChart3, CheckCircle2, ArrowRight, Globe, Target } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet";
+import { BrandSparkle } from "@/components/BrandSparkle";
 
 const GmbAutopostingGuide = () => {
   const benefits = [
@@ -176,7 +163,7 @@ const GmbAutopostingGuide = () => {
             <div className="container mx-auto px-4">
               <div className="max-w-4xl mx-auto text-center">
                 <Badge className="mb-4 bg-primary/10 text-primary">
-                  <Sparkles className="w-3 h-3 mr-1" />
+                  <BrandSparkle className="w-3 h-3 mr-1" />
                   Propulsé par l'IA
                 </Badge>
                 

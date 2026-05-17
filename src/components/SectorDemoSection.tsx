@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
-import { Sparkles, Star, ThumbsUp, ThumbsDown } from "lucide-react";
+import { Star, ThumbsUp, ThumbsDown } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { BrandSparkle } from "@/components/BrandSparkle";
 
 const SECTOR_KEYS = ["restaurant", "hotel", "beauty", "auto", "retail"] as const;
 type SectorKey = (typeof SECTOR_KEYS)[number];
@@ -129,7 +130,7 @@ export const SectorDemoSection = () => {
             <div className="flex items-start gap-3 justify-end">
               <div className="flex-1 bg-gradient-to-br from-primary/5 to-secondary/10 rounded-2xl rounded-tr-sm p-4 border border-primary/20 shadow-sm">
                 <div className="flex items-center gap-2 mb-2">
-                  <Sparkles className="w-4 h-4 text-primary" />
+                  <BrandSparkle className="w-4 h-4 text-primary" />
                   <span className="text-xs font-semibold text-primary">{t("sectorDemo.aiResponseLabel")}</span>
                   {isTyping && (
                     <span className="text-[10px] px-2 py-0.5 bg-primary/10 text-primary rounded-full font-medium animate-pulse">

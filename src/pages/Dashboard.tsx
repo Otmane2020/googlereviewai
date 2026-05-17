@@ -27,22 +27,8 @@ declare global {
 
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { 
-  Star, 
-  Building2, 
-  TrendingUp,
-  Sparkles,
-  ChevronRight,
-  RefreshCw,
-  Loader2,
-  MessageSquare,
-  AlertCircle,
-  CheckCircle2,
-  Clock,
-  ArrowUpRight,
-  Percent,
-  Link2
-} from "lucide-react";
+import { Star, Building2, TrendingUp, ChevronRight, RefreshCw, Loader2, MessageSquare, AlertCircle, CheckCircle2, Clock, ArrowUpRight, Percent, Link2 } from "lucide-react";
+import { BrandSparkle } from "@/components/BrandSparkle";
 
 interface Profile {
   id: string;
@@ -523,7 +509,7 @@ const Dashboard = () => {
           <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-secondary/10 rounded-2xl p-4 border border-primary/20">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
-                <Sparkles className="w-5 h-5 text-primary" />
+                <BrandSparkle className="w-5 h-5 text-primary" />
               </div>
               <div className="flex-1">
                 <p className="font-medium text-foreground text-sm">{t("dashboardPage.trial")}</p>
@@ -725,7 +711,7 @@ const Dashboard = () => {
           {/* AI Responses */}
           <Link to="/ai-settings" className="bg-card rounded-2xl p-4 border border-border transition-all hover:scale-[1.02] active:scale-[0.98] hover:border-primary/40">
             <div className="flex items-center gap-2 mb-2">
-              <Sparkles className="w-4 h-4 text-secondary" />
+              <BrandSparkle className="w-4 h-4 text-secondary" />
               <span className="text-xs text-muted-foreground">{t("dashboardPage.aiResponses")}</span>
             </div>
             <div className="text-2xl font-bold text-foreground">{stats.aiResponses}</div>
@@ -746,7 +732,7 @@ const Dashboard = () => {
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center">
-                    <Sparkles className="w-6 h-6 text-white" />
+                    <BrandSparkle className="w-6 h-6 text-white" />
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
@@ -776,7 +762,7 @@ const Dashboard = () => {
 
               {aeoStats.planned === 0 ? (
                 <div className="bg-white/15 backdrop-blur rounded-xl p-3 flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-white shrink-0" />
+                  <BrandSparkle className="w-4 h-4 text-white shrink-0" />
                   <p className="text-xs text-white font-medium">{t("dashboardPage.generateFirstPlan")}</p>
                 </div>
               ) : aeoStats.nextDate ? (

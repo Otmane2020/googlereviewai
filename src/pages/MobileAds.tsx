@@ -1,7 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Star, Zap, Check, MessageSquare, TrendingUp, Clock, Sparkles, Gift } from "lucide-react";
+import { Star, Zap, Check, MessageSquare, TrendingUp, Clock, Gift } from "lucide-react";
 import { RankiLogo } from "@/components/StarlinkoLogo";
+import { BrandSparkle } from "@/components/BrandSparkle";
 
 const MobileAds = () => {
   const navigate = useNavigate();
@@ -107,7 +108,7 @@ const MobileAds = () => {
             </div>
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                <Sparkles className="w-4 h-4 text-primary" />
+                <BrandSparkle className="w-4 h-4 text-primary" />
               </div>
               <span className="text-sm text-foreground">Ton professionnel et personnalisé</span>
             </div>

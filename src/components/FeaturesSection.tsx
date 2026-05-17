@@ -1,8 +1,9 @@
-import { Sparkles, Clock, MessageSquare, Zap, FileText, TrendingUp, ArrowRight, MessageCircle, Eye, X, Pen, Target, Brain, Link, Bot, Send } from "lucide-react";
+import { Clock, MessageSquare, Zap, FileText, TrendingUp, ArrowRight, MessageCircle, Eye, X, Pen, Target, Brain, Link, Bot, Send } from "lucide-react";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "./ui/dialog";
 import { Button } from "./ui/button";
 import { useTranslation } from "react-i18next";
+import { BrandSparkle } from "@/components/BrandSparkle";
 
 const ChatGPTIcon = ({ className = "w-5 h-5" }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
@@ -189,7 +190,7 @@ export const FeaturesSection = () => {
                   {feature.details.benefits.map((benefit, i) => (
                     <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
                       <div className="w-5 h-5 rounded-full bg-secondary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <Sparkles className="w-3 h-3 text-secondary" />
+                        <BrandSparkle className="w-3 h-3 text-secondary" />
                       </div>
                       {benefit}
                     </li>

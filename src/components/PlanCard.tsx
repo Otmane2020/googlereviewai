@@ -1,13 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { 
-  Gift, 
-  Star, 
-  Zap, 
-  Check, 
-  Loader2,
-  Sparkles 
-} from "lucide-react";
+import { Gift, Star, Zap, Check, Loader2 } from "lucide-react";
+import { BrandSparkle } from "@/components/BrandSparkle";
 
 interface Plan {
   id: string;
@@ -96,7 +90,7 @@ export const PlanCard = ({
             </>
           ) : plan.popular ? (
             <>
-              <Sparkles className="w-3 h-3 mr-1" />
+              <BrandSparkle className="w-3 h-3 mr-1" />
               POPULAIRE
             </>
           ) : (

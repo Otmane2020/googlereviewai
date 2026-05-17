@@ -1,7 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Button } from "./ui/button";
-import { Sparkles, Check, ArrowRight, Target } from "lucide-react";
+import { Check, ArrowRight, Target } from "lucide-react";
+import { BrandSparkle } from "@/components/BrandSparkle";
 
 export const CTASection = () => {
   const navigate = useNavigate();
@@ -26,7 +27,7 @@ export const CTASection = () => {
             className="gap-2 w-full sm:w-auto min-w-[260px]"
             onClick={() => navigate("/auth")}
           >
-            <Sparkles className="w-5 h-5" />
+            <BrandSparkle className="w-5 h-5" />
             {t("landingUI.cta.button")}
             <ArrowRight className="w-4 h-4 ml-1" />
           </Button>

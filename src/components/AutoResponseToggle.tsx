@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { Switch } from "./ui/switch";
-import { Sparkles, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
+import { BrandSparkle } from "@/components/BrandSparkle";
 
 export const AutoResponseToggle = () => {
   const { user } = useAuth();
@@ -75,7 +76,7 @@ export const AutoResponseToggle = () => {
         ? "bg-primary/5 border-primary/20" 
         : "bg-muted/50 border-border"
     }`}>
-      <Sparkles className={`w-4 h-4 ${enabled ? "text-primary" : "text-muted-foreground"}`} />
+      <BrandSparkle className={`w-4 h-4 ${enabled ? "text-primary" : "text-muted-foreground"}`} />
       <span className="text-sm font-medium">AI auto-reply</span>
       <Switch
         checked={enabled}

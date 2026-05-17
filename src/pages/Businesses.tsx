@@ -12,30 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { useSyncGoogleBusinesses } from "@/hooks/useSyncGoogleBusinesses";
-import { 
-  Building2,
-  Plus,
-  MapPin,
-  Phone,
-  Globe,
-  Star,
-  Edit,
-  Loader2,
-  RefreshCw,
-  MessageSquare,
-  ExternalLink,
-  CheckCircle,
-  AlertCircle,
-  FileText,
-  PlusCircle,
-  Crown,
-  Sparkles,
-  Tag,
-  Link,
-  Map,
-  X,
-  Coins
-} from "lucide-react";
+import { Building2, Plus, MapPin, Phone, Globe, Star, Edit, Loader2, RefreshCw, MessageSquare, ExternalLink, CheckCircle, AlertCircle, FileText, PlusCircle, Crown, Tag, Link, Map, X, Coins } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -54,6 +31,7 @@ import {
 } from "@/components/ui/dialog";
 
 import { AgencyCreditsPanel } from "@/components/AgencyCreditsPanel";
+import { BrandSparkle } from "@/components/BrandSparkle";
 
 interface Business {
   id: string;
@@ -629,7 +607,7 @@ const BusinessesPage = () => {
                             {analyzingId === business.id ? (
                               <Loader2 className="w-4 h-4 animate-spin" />
                             ) : (
-                              <Sparkles className="w-4 h-4" />
+                              <BrandSparkle className="w-4 h-4" />
                             )}
                             {analyzingId === business.id ? t("Génération...", "Generating...") : t("Régénérer avec IA", "Regenerate with AI")}
                           </Button>
@@ -757,7 +735,7 @@ const BusinessesPage = () => {
                             {analyzingId === business.id ? (
                               <Loader2 className="w-4 h-4 animate-spin" />
                             ) : (
-                              <Sparkles className="w-4 h-4" />
+                              <BrandSparkle className="w-4 h-4" />
                             )}
                             {analyzingId === business.id 
                               ? t("Analyse...", "Analyzing...") 
@@ -830,7 +808,7 @@ const BusinessesPage = () => {
                               {analyzingId === business.id ? (
                                 <Loader2 className="w-4 h-4 animate-spin" />
                               ) : (
-                                <Sparkles className="w-4 h-4" />
+                                <BrandSparkle className="w-4 h-4" />
                               )}
                               {analyzingId === business.id ? t("Analyse...", "Analyzing...") : t("Analyser", "Analyze")}
                             </Button>
@@ -845,7 +823,7 @@ const BusinessesPage = () => {
                             </div>
                           ) : (
                             <div className="text-center py-8">
-                              <Sparkles className="w-12 h-12 mx-auto mb-3 text-muted-foreground/30" />
+                              <BrandSparkle className="w-12 h-12 mx-auto mb-3 text-muted-foreground/30" />
                               <p className="text-sm text-muted-foreground">
                                 {business.website || business.description 
                                   ? t("Cliquez sur Analyser pour extraire les mots-clés automatiquement", "Click Analyze to extract keywords automatically") 

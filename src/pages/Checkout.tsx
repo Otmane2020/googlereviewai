@@ -8,23 +8,10 @@ import { RankiLogo } from "@/components/StarlinkoLogo";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import {
-  ShoppingCart,
-  Plus,
-  Minus,
-  Trash2,
-  ArrowLeft,
-  Lock,
-  Gift,
-  Sparkles,
-  Check,
-  Zap,
-  FileText,
-  CreditCard,
-  ChevronRight,
-} from "lucide-react";
+import { ShoppingCart, Plus, Minus, Trash2, ArrowLeft, Lock, Gift, Check, Zap, FileText, CreditCard, ChevronRight } from "lucide-react";
 import StripePaymentForm from "@/components/StripePaymentForm";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { BrandSparkle } from "@/components/BrandSparkle";
 
 // Available modules for upsell
 const AVAILABLE_MODULES = [
@@ -345,7 +332,7 @@ const Checkout = () => {
         <div className="bg-card rounded-2xl overflow-hidden shadow-sm">
           <div className="px-4 py-3 border-b border-border/50">
             <div className="flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-accent" />
+              <BrandSparkle className="h-4 w-4 text-accent" />
               <span className="font-semibold text-sm">Recommended add-ons</span>
             </div>
           </div>

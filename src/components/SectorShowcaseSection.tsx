@@ -1,9 +1,10 @@
-import { Star, Sparkles, MessageSquare, Bot } from "lucide-react";
+import { Star, MessageSquare, Bot } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import sectorRestaurant from "@/assets/sector-restaurant.jpg";
 import sectorHotel from "@/assets/sector-hotel.jpg";
 import sectorGarage from "@/assets/sector-garage.jpg";
 import sectorSalon from "@/assets/sector-salon.jpg";
+import { BrandSparkle } from "@/components/BrandSparkle";
 
 interface SectorShowcase {
   image: string;
@@ -138,7 +139,7 @@ export const SectorShowcaseSection = () => {
                 {/* AI Response */}
                 <div className="p-3 bg-primary/5 rounded-xl border-l-3 border-primary">
                   <div className="flex items-center gap-1.5 mb-1.5">
-                    <Sparkles className="w-3.5 h-3.5 text-primary" />
+                    <BrandSparkle className="w-3.5 h-3.5 text-primary" />
                     <span className="text-[10px] font-bold text-primary uppercase tracking-wider">Réponse IA</span>
                     <span className="text-[9px] px-1.5 py-0.5 bg-emerald-500/20 text-emerald-600 rounded-full font-semibold">Auto</span>
                   </div>

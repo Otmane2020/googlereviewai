@@ -12,22 +12,7 @@ import { toast } from "@/hooks/use-toast";
 import { UpgradeDialog } from "@/components/UpgradeDialog";
 import { ResponsePreviewDialog } from "@/components/ResponsePreviewDialog";
 import { SelectBusinessesDialog } from "@/components/SelectBusinessesDialog";
-import {
-  Star, 
-  Search, 
-  Loader2,
-  RefreshCw,
-  ChevronLeft,
-  ChevronRight,
-  ChevronDown,
-  Sparkles,
-  Send,
-  Copy,
-  CheckCircle,
-  Clock,
-  MessageSquare,
-  Building2
-} from "lucide-react";
+import { Star, Search, Loader2, RefreshCw, ChevronLeft, ChevronRight, ChevronDown, Send, Copy, CheckCircle, Clock, MessageSquare, Building2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -46,6 +31,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { BrandSparkle } from "@/components/BrandSparkle";
 
 interface ReviewCriteria {
   rooms?: number;
@@ -844,7 +830,7 @@ const Reviews = () => {
                         ) : review.google_reply ? (
                           <Badge variant="secondary" className="text-xs gap-1 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"><MessageSquare className="w-3 h-3" /> {t("reviewsPage.replied")}</Badge>
                         ) : review.ai_response ? (
-                          <Badge className="text-xs gap-1 bg-primary/10 text-primary hover:bg-primary/20"><Sparkles className="w-3 h-3" /> {t("reviewsPage.aiReady")}</Badge>
+                          <Badge className="text-xs gap-1 bg-primary/10 text-primary hover:bg-primary/20"><BrandSparkle className="w-3 h-3" /> {t("reviewsPage.aiReady")}</Badge>
                         ) : (
                           <Badge variant="outline" className="text-xs gap-1"><Clock className="w-3 h-3" /> {t("reviewsPage.pending")}</Badge>
                         )}
@@ -1019,7 +1005,7 @@ const Reviews = () => {
                         <DialogTrigger asChild>
                           <div className="mt-3 p-3 bg-primary/5 rounded-lg border border-primary/10 cursor-pointer hover:bg-primary/10 transition-colors">
                             <div className="flex items-center gap-1.5 text-xs text-primary font-medium mb-1">
-                              <Sparkles className="w-3 h-3" /> {t("reviewsPage.aiResponseLabel")}
+                              <BrandSparkle className="w-3 h-3" /> {t("reviewsPage.aiResponseLabel")}
                               {review.needs_new_response && (
                                 <span className="ml-2 text-destructive font-semibold">{t("reviewsPage.editedReview")}</span>
                               )}
@@ -1056,7 +1042,7 @@ const Reviews = () => {
                             {/* AI Response */}
                             <div className="p-4 bg-primary/5 rounded-lg border border-primary/20">
                               <div className="flex items-center gap-1.5 text-xs text-primary font-medium mb-2">
-                                <Sparkles className="w-3 h-3" /> {t("reviewsPage.aiResponseLabel")}
+                                <BrandSparkle className="w-3 h-3" /> {t("reviewsPage.aiResponseLabel")}
                               </div>
                               <p className="text-sm text-foreground whitespace-pre-wrap leading-relaxed">{review.ai_response}</p>
                             </div>
@@ -1083,12 +1069,12 @@ const Reviews = () => {
                       {/* If has existing Google reply but no AI response - allow regenerating */}
                       {review.google_reply && !review.ai_response ? (
                         <Button size="sm" variant="outline" onClick={() => generateAIResponse(review.id)} disabled={generatingId === review.id}>
-                          {generatingId === review.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                          {generatingId === review.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <BrandSparkle className="w-4 h-4" />}
                           <span className="ml-1.5">{t("reviewsPage.iaResponseBtn")}</span>
                         </Button>
                       ) : !review.ai_response ? (
                         <Button size="sm" onClick={() => generateAIResponse(review.id)} disabled={generatingId === review.id}>
-                          {generatingId === review.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                          {generatingId === review.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <BrandSparkle className="w-4 h-4" />}
                           <span className="ml-1.5">{t("reviewsPage.generate")}</span>
                         </Button>
                       ) : !review.published_to_google ? (

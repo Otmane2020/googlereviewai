@@ -12,27 +12,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
-import { 
-  User,
-  Mail,
-  CreditCard,
-  Shield,
-  Bell,
-  BellOff,
-  BellRing,
-  Save,
-  Loader2,
-  Crown,
-  Check,
-  Settings as SettingsIcon,
-  Link2,
-  Sparkles,
-  ExternalLink,
-  Send,
-  Globe
-} from "lucide-react";
+import { User, Mail, CreditCard, Shield, Bell, BellOff, BellRing, Save, Loader2, Crown, Check, Settings as SettingsIcon, Link2, ExternalLink, Send, Globe } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "react-i18next";
+import { BrandSparkle } from "@/components/BrandSparkle";
 
 interface Profilee {
   id: string;
@@ -356,7 +339,7 @@ const SettingsPage = () => {
             onClick={() => setShowUpgradeDialog(true)} 
             className="w-full gap-2"
           >
-            <Sparkles className="w-4 h-4" />
+            <BrandSparkle className="w-4 h-4" />
             {t("settingsPage.viewAllPlans")}
           </Button>
         </div>

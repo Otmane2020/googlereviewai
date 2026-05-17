@@ -2,11 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { RankiLogo } from "@/components/StarlinkoLogo";
-import { 
-  Zap, Star, Check, ArrowRight, Gift, ShieldCheck, Clock, 
-  MessageSquare, TrendingUp, Search, Sparkles, Bot, Users, 
-  Play, ChevronRight
-} from "lucide-react";
+import { Zap, Star, Check, ArrowRight, Gift, ShieldCheck, Clock, MessageSquare, TrendingUp, Search, Bot, Users, Play, ChevronRight } from "lucide-react";
 import { Helmet } from "react-helmet";
 import { useVisitTracking } from "@/hooks/useVisitTracking";
 import { SectorDemoSection } from "@/components/SectorDemoSection";

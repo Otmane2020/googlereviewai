@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
-import { Sparkles, MessageCircle, TrendingUp, Eye, ArrowRight, ChevronRight } from "lucide-react";
+import { MessageCircle, TrendingUp, Eye, ArrowRight, ChevronRight } from "lucide-react";
+import { BrandSparkle } from "@/components/BrandSparkle";
 
 const GoogleIcon = ({ className = "w-5 h-5" }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24">
@@ -122,7 +123,7 @@ export const OnboardingScreen = ({ onComplete }: OnboardingScreenProps) => {
               className="w-full h-12 gap-2 text-base"
               onClick={handleGetStarted}
             >
-              <Sparkles className="w-5 h-5" />
+              <BrandSparkle className="w-5 h-5" />
               Start the AI journey
               <ArrowRight className="w-4 h-4" />
             </Button>

@@ -16,21 +16,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
-import {
-  LayoutDashboard,
-  Star,
-  Building2,
-  Sparkles,
-  Search,
-  MapPin,
-  Bell,
-  Settings,
-  CreditCard,
-  LogOut,
-  HelpCircle,
-  MessageCircleQuestion,
-  ListChecks,
-} from "lucide-react";
+import { LayoutDashboard, Star, Building2, Search, MapPin, Bell, Settings, CreditCard, LogOut, HelpCircle, MessageCircleQuestion, ListChecks } from "lucide-react";
 import { RankiLogo } from "@/components/StarlinkoLogo";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -39,6 +25,7 @@ import { SupportDialog } from "@/components/SupportDialog";
 import { UpgradeDialog } from "@/components/UpgradeDialog";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useTranslation } from "react-i18next";
+import { BrandSparkle } from "@/components/BrandSparkle";
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -175,7 +162,7 @@ const RankiSidebar = () => {
                 className="w-full h-7 text-xs"
                 onClick={() => setUpgradeOpen(true)}
               >
-                <Sparkles className="w-3 h-3 mr-1" /> {t("sidebar.upgrade")}
+                <BrandSparkle className="w-3 h-3 mr-1" /> {t("sidebar.upgrade")}
               </Button>
             </div>
           </div>

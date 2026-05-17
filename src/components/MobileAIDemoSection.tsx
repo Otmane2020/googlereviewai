@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import { Bot, Search, Rocket, ArrowRight, Sparkles } from "lucide-react";
+import { Bot, Search, Rocket, ArrowRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { BrandSparkle } from "@/components/BrandSparkle";
 
 const MobileAIDemoSection = () => {
   const navigate = useNavigate();
@@ -35,7 +36,7 @@ const MobileAIDemoSection = () => {
         {/* Header */}
         <div className="text-center mb-10">
           <Badge variant="outline" className="mb-4 gap-1.5 px-3 py-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-primary" />
+            <BrandSparkle className="w-3.5 h-3.5 text-primary" />
             Optimisation IA & SEO
           </Badge>
           <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-3">

@@ -4,21 +4,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Helmet } from "react-helmet";
-import { 
-  Bot, 
-  MessageSquare, 
-  TrendingUp, 
-  Target, 
-  Zap, 
-  Clock, 
-  CheckCircle2,
-  ArrowRight,
-  Star,
-  MapPin,
-  Search,
-  Sparkles
-} from "lucide-react";
+import { Bot, MessageSquare, TrendingUp, Target, Zap, Clock, CheckCircle2, ArrowRight, Star, MapPin, Search } from "lucide-react";
 import { FAQPageSchema, BreadcrumbSchema } from "@/components/StructuredData";
+import { BrandSparkle } from "@/components/BrandSparkle";
 
 const LocalAEO = () => {
   
@@ -141,7 +129,7 @@ const LocalAEO = () => {
           <div className="container mx-auto px-4 relative z-10">
             <div className="max-w-4xl mx-auto text-center">
               <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 mb-6">
-                <Sparkles className="w-4 h-4 text-accent" />
+                <BrandSparkle className="w-4 h-4 text-accent" />
                 <span className="text-white/90 text-sm font-medium">Nouveau : Optimisation pour ChatGPT & IA</span>
               </div>
               

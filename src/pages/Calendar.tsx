@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { CalendarDays, ChevronLeft, ChevronRight, FileText, Sparkles, Check, Clock, AlertCircle, Loader2, ExternalLink } from "lucide-react";
+import { CalendarDays, ChevronLeft, ChevronRight, FileText, Check, Clock, AlertCircle, Loader2, ExternalLink } from "lucide-react";
 import {
   format,
   startOfMonth,
@@ -21,6 +21,7 @@ import {
   isSameDay,
 } from "date-fns";
 import { fr, enUS } from "date-fns/locale";
+import { BrandSparkle } from "@/components/BrandSparkle";
 
 interface ContentItem {
   id: string;
@@ -285,7 +286,7 @@ const Calendar = () => {
                       className="w-full flex items-center gap-3 p-3 rounded-xl border border-border bg-card hover:border-primary/50 hover:bg-muted/40 transition-all text-left"
                     >
                       <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${isGeo ? "bg-emerald-500/10 text-emerald-600" : "bg-primary/10 text-primary"}`}>
-                        {isGeo ? <Sparkles className="w-4 h-4" /> : <FileText className="w-4 h-4" />}
+                        {isGeo ? <BrandSparkle className="w-4 h-4" /> : <FileText className="w-4 h-4" />}
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-semibold text-foreground truncate">
@@ -333,7 +334,7 @@ const Calendar = () => {
                       className="w-full flex items-center gap-3 p-3 rounded-xl border border-border bg-card hover:border-primary/50 hover:bg-muted/40 transition-all text-left"
                     >
                       <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${isGeo ? "bg-emerald-500/10 text-emerald-600" : "bg-primary/10 text-primary"}`}>
-                        {isGeo ? <Sparkles className="w-4 h-4" /> : <FileText className="w-4 h-4" />}
+                        {isGeo ? <BrandSparkle className="w-4 h-4" /> : <FileText className="w-4 h-4" />}
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-semibold text-foreground truncate">
@@ -367,7 +368,7 @@ const Calendar = () => {
                 <DialogHeader>
                   <div className="flex items-center gap-3 mb-2">
                     <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isGeo ? "bg-emerald-500/10 text-emerald-600" : "bg-primary/10 text-primary"}`}>
-                      {isGeo ? <Sparkles className="w-5 h-5" /> : <FileText className="w-5 h-5" />}
+                      {isGeo ? <BrandSparkle className="w-5 h-5" /> : <FileText className="w-5 h-5" />}
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">

@@ -1,18 +1,7 @@
 import { useState } from "react";
 import { Button } from "./ui/button";
-import { 
-  Star, 
-  Clock, 
-  Sparkles, 
-  Copy, 
-  Send, 
-  CheckCheck, 
-  MessageSquare,
-  Loader2,
-  CheckCircle,
-  Building2,
-  MoreVertical
-} from "lucide-react";
+import { Star, Clock, Copy, Send, CheckCheck, MessageSquare, Loader2, CheckCircle, Building2, MoreVertical } from "lucide-react";
+import { BrandSparkle } from "@/components/BrandSparkle";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -142,7 +131,7 @@ export const ReviewCard = ({
                   </span>
                 ) : review.ai_response ? (
                   <span className="flex items-center gap-1 text-xs font-medium text-primary bg-primary/10 px-2 py-1 rounded-full">
-                    <Sparkles className="w-3 h-3" />
+                    <BrandSparkle className="w-3 h-3" />
                     Response prête
                   </span>
                 ) : (
@@ -206,7 +195,7 @@ export const ReviewCard = ({
           <div className="mt-4 bg-gradient-to-r from-primary/5 to-secondary/5 rounded-lg p-4 border border-primary/10">
             <div className="flex items-center gap-2 mb-2">
               <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center">
-                <Sparkles className="w-3 h-3 text-primary" />
+                <BrandSparkle className="w-3 h-3 text-primary" />
               </div>
               <span className="text-xs font-medium text-primary">Response générée par IA</span>
             </div>
@@ -226,7 +215,7 @@ export const ReviewCard = ({
               {isGenerating ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
               ) : (
-                <Sparkles className="w-4 h-4" />
+                <BrandSparkle className="w-4 h-4" />
               )}
               {isGenerating ? "Generating..." : "Generate (1 crédit)"}
             </Button>
@@ -256,7 +245,7 @@ export const ReviewCard = ({
                 {isGenerating ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
                 ) : (
-                  <Sparkles className="w-4 h-4" />
+                  <BrandSparkle className="w-4 h-4" />
                 )}
                 Régénérer
               </Button>

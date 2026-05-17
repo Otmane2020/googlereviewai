@@ -1,10 +1,11 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
-import { Check, Sparkles, Star, TrendingUp, Zap, Bot, Search, FileText, MessageSquare, Rocket, User } from "lucide-react";
+import { Check, Star, TrendingUp, Zap, Bot, Search, FileText, MessageSquare, Rocket, User } from "lucide-react";
 import { TrustAvisLabel } from "./TrustAvisBadge";
 import { useDeviceDetection, GOOGLE_PLAY_URL } from "@/hooks/useDeviceDetection";
 import { GooglePlayButton } from "./GooglePlayButton";
 import { useTranslation } from "react-i18next";
+import { BrandSparkle } from "@/components/BrandSparkle";
 
 const ChatGPTIcon = ({ className = "w-5 h-5" }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
@@ -180,7 +181,7 @@ export const HeroSection = () => {
               <div className="ml-0 sm:ml-13 p-4 bg-gradient-to-r from-primary/5 to-secondary/5 rounded-xl border-l-4 border-primary">
                 <div className="flex items-center gap-2 mb-2">
                   <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center">
-                    <Sparkles className="w-3.5 h-3.5 text-primary" />
+                    <BrandSparkle className="w-3.5 h-3.5 text-primary" />
                   </div>
                   <span className="text-xs font-semibold text-primary">{t("ai.generated")}</span>
                   <span className="text-[10px] px-2 py-0.5 bg-secondary/20 text-secondary rounded-full font-medium">Auto</span>

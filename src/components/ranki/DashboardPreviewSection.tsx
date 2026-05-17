@@ -1,4 +1,5 @@
-import { Star, MessageSquare, TrendingUp, Eye, MousePointerClick, Phone, Navigation, Sparkles, CheckCircle2, Clock, Send } from "lucide-react";
+import { Star, MessageSquare, TrendingUp, Eye, MousePointerClick, Phone, Navigation, CheckCircle2, Clock, Send } from "lucide-react";
+import { BrandSparkle } from "@/components/BrandSparkle";
 
 export const DashboardPreviewSection = () => {
   return (
@@ -6,7 +7,7 @@ export const DashboardPreviewSection = () => {
       <div className="container mx-auto px-4 sm:px-6">
         <div className="text-center mb-12 max-w-3xl mx-auto">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
-            <Sparkles className="w-4 h-4" />
+            <BrandSparkle className="w-4 h-4" />
             Aperçu produit
           </div>
           <h2 className="text-3xl sm:text-5xl font-bold mb-4 tracking-tight">
@@ -39,7 +40,7 @@ export const DashboardPreviewSection = () => {
                 <h3 className="text-2xl font-bold">Decora Home</h3>
               </div>
               <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-semibold">
-                <Sparkles className="w-4 h-4" /> 200 crédits IA
+                <BrandSparkle className="w-4 h-4" /> 200 crédits IA
               </div>
             </div>
 
@@ -95,7 +96,7 @@ export const DashboardPreviewSection = () => {
               <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
                 <div className="flex items-center gap-2">
                   <div className="w-9 h-9 rounded-xl bg-primary/15 flex items-center justify-center">
-                    <Sparkles className="w-4 h-4 text-primary" />
+                    <BrandSparkle className="w-4 h-4 text-primary" />
                   </div>
                   <div>
                     <h4 className="font-semibold">Publication automatique GEO·AI</h4>
@@ -149,7 +150,7 @@ export const DashboardPreviewSection = () => {
                       </div>
                       <p className="text-xs text-muted-foreground line-clamp-2">{r.text}</p>
                       <button className="mt-2 text-xs text-primary font-medium inline-flex items-center gap-1">
-                        <Sparkles className="w-3 h-3" /> Répondre avec l'IA
+                        <BrandSparkle className="w-3 h-3" /> Répondre avec l'IA
                       </button>
                     </div>
                   </div>

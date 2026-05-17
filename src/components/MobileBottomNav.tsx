@@ -1,21 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
-import {
-  LayoutGrid,
-  Star,
-  Building2,
-  Settings,
-  PlusCircle,
-  Menu,
-  Calendar as CalendarIcon,
-  Sparkles,
-  FileText,
-  TrendingUp,
-  MapPin,
-  Bell,
-  LogOut,
-} from "lucide-react";
+import { LayoutGrid, Star, Building2, Settings, PlusCircle, Menu, Calendar as CalendarIcon, FileText, TrendingUp, MapPin, Bell, LogOut } from "lucide-react";
 import {
   Sheet,
   SheetContent,

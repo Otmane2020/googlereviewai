@@ -6,27 +6,9 @@ import { useTranslation } from "react-i18next";
 import { Helmet } from "react-helmet";
 import { ProductSchema, FAQPageSchema } from "@/components/StructuredData";
 import { FAQSection } from "@/components/FAQSection";
+import { BrandSparkle } from "@/components/BrandSparkle";
  import { Button } from "@/components/ui/button";
- import { 
-   Star, 
-   Zap, 
-   Check, 
-   TrendingUp, 
-   MessageSquare, 
-   FileText, 
-   Bot,
-   Rocket,
-   Gift,
-   Shield,
-   Lock,
-   ArrowRight,
-   Sparkles,
-   Target,
-   BarChart3,
-   Globe,
-   Users,
-   Loader2
- } from "lucide-react";
+ import { Star, Zap, Check, TrendingUp, MessageSquare, FileText, Bot, Rocket, Gift, Shield, Lock, ArrowRight, Target, BarChart3, Globe, Users, Loader2 } from "lucide-react";
  import { RankiLogo } from "@/components/StarlinkoLogo";
  import { useAuth } from "@/contexts/AuthContext";
  import { supabase } from "@/integrations/supabase/client";
@@ -306,7 +288,7 @@ const LandingPremium = () => {
          <div className="container mx-auto px-5">
            <div className="text-center mb-12">
              <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-secondary/10 rounded-full mb-4">
-               <Sparkles className="w-4 h-4 text-secondary" />
+               <BrandSparkle className="w-4 h-4 text-secondary" />
                <span className="text-secondary text-sm font-semibold">L'offre unique Ranki.ai</span>
              </div>
              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-4">
@@ -422,7 +404,7 @@ const LandingPremium = () => {
                      ) : plan.popular ? (
                        <Zap className="w-7 h-7 text-primary" />
                      ) : (
-                       <Sparkles className="w-7 h-7 text-secondary" />
+                       <BrandSparkle className="w-7 h-7 text-secondary" />
                      )}
                    </div>
                    <div className="flex-1 min-w-0">

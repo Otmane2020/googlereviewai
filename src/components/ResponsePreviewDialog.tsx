@@ -8,9 +8,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Star, Sparkles, Copy, Send, Save, Loader2 } from "lucide-react";
+import { Star, Copy, Send, Save, Loader2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { BrandSparkle } from "@/components/BrandSparkle";
 
 interface Review {
   id: number;
@@ -105,7 +106,7 @@ export const ResponsePreviewDialog = ({
       <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-primary" />
+            <BrandSparkle className="w-5 h-5 text-primary" />
             Aperçu de la réponse
           </DialogTitle>
           <DialogDescription>
@@ -153,7 +154,7 @@ export const ResponsePreviewDialog = ({
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1.5 text-xs text-primary font-medium">
-                <Sparkles className="w-3 h-3" /> AI response
+                <BrandSparkle className="w-3 h-3" /> AI response
               </div>
               {hasChanges && (
                 <span className="text-xs text-muted-foreground">

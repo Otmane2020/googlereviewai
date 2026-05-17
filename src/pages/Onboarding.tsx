@@ -9,17 +9,9 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "@/hooks/use-toast";
-import {
-  Sparkles,
-  Check,
-  ArrowRight,
-  Building2,
-  MessageCircle,
-  Crown,
-  Loader2,
-  Star,
-} from "lucide-react";
+import { Check, ArrowRight, Building2, MessageCircle, Crown, Loader2, Star } from "lucide-react";
 import { useGoogleOAuth } from "@/hooks/useGoogleOAuth";
+import { BrandSparkle } from "@/components/BrandSparkle";
 
 const STEPS = ["Welcome", "Connect Google", "Choose location", "AI tone", "Pick a plan"];
 
@@ -144,7 +136,7 @@ const Onboarding = () => {
             {step === 0 && (
               <div className="text-center space-y-4">
                 <div className="w-16 h-16 mx-auto rounded-2xl bg-primary/10 flex items-center justify-center">
-                  <Sparkles className="w-8 h-8 text-primary" />
+                  <BrandSparkle className="w-8 h-8 text-primary" />
                 </div>
                 <h2 className="text-2xl font-bold">Welcome to Ranki 👋</h2>
                 <p className="text-muted-foreground">

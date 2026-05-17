@@ -1,8 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Sparkles, MapPin, ArrowRight, Check } from "lucide-react";
+import { MapPin, ArrowRight, Check } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import heroImg from "@/assets/ranki-hero.jpg";
+import { BrandSparkle } from "@/components/BrandSparkle";
 
 const aiEngines = ["ChatGPT", "Gemini", "Perplexity", "Claude"];
 
@@ -18,7 +19,7 @@ export const RankiHero = () => {
           {/* Copy */}
           <div className="text-center lg:text-left">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted border border-border text-foreground text-xs font-semibold mb-6">
-              <Sparkles className="w-3.5 h-3.5" />
+              <BrandSparkle className="w-3.5 h-3.5" />
               {t("landingUI.hero.badge")}
             </div>
 
@@ -93,7 +94,7 @@ export const RankiHero = () => {
 
             <div className="hidden sm:flex absolute -right-4 bottom-10 bg-card border border-border rounded-xl shadow-xl px-3 py-2 items-center gap-2 animate-float" style={{ animationDelay: "1s" }}>
               <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center">
-                <Sparkles className="w-4 h-4 text-foreground" />
+                <BrandSparkle className="w-4 h-4 text-foreground" />
               </div>
               <div className="text-left">
                 <div className="text-[10px] uppercase font-semibold text-muted-foreground">+247%</div>

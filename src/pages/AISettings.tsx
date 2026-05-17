@@ -12,26 +12,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { UpgradeDialog } from "@/components/UpgradeDialog";
-import { 
-  Sparkles,
-  MessageSquare,
-  Clock,
-  Star,
-  Loader2,
-  RefreshCw,
-  Bell,
-  Briefcase,
-  Heart,
-  Smile,
-  Sun,
-  PenLine,
-  ThumbsUp,
-  Upload,
-  Check,
-  History,
-  Coins,
-  AlertTriangle
-} from "lucide-react";
+import { MessageSquare, Clock, Star, Loader2, RefreshCw, Bell, Briefcase, Heart, Smile, Sun, PenLine, ThumbsUp, Upload, Check, History, Coins, AlertTriangle } from "lucide-react";
+import { BrandSparkle } from "@/components/BrandSparkle";
 
 interface AISettings {
   enabled: boolean;
@@ -182,7 +164,7 @@ const OldReviewsSection = ({
             </>
           ) : (
             <>
-              <Sparkles className="w-4 h-4 mr-2" />
+              <BrandSparkle className="w-4 h-4 mr-2" />
               {isEN ? `Generate replies (${creditsNeeded} credits)` : `Générer les réponses (${creditsNeeded} crédits)`}
             </>
           )}
@@ -393,7 +375,7 @@ const AISettingsPage = () => {
         <div className="px-4 py-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-lg shadow-primary/20">
-              <Sparkles className="w-5 h-5 text-primary-foreground" />
+              <BrandSparkle className="w-5 h-5 text-primary-foreground" />
             </div>
             <div className="flex-1">
               <h1 className="text-lg font-bold text-foreground">{isEN ? "AI Settings" : "Paramètres IA"}</h1>
@@ -430,7 +412,7 @@ const AISettingsPage = () => {
               <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${
                 settings.enabled ? "bg-white/20" : "bg-muted"
               }`}>
-                <Sparkles className={`w-6 h-6 ${settings.enabled ? "text-white" : "text-muted-foreground"}`} />
+                <BrandSparkle className={`w-6 h-6 ${settings.enabled ? "text-white" : "text-muted-foreground"}`} />
               </div>
               <div>
                 <h3 className={`font-semibold ${settings.enabled ? "text-white" : "text-foreground"}`}>
@@ -771,7 +753,7 @@ const AISettingsPage = () => {
               </select>
             </div>
             <div className="mt-3 ml-11 bg-indigo-500/10 rounded-xl p-3 flex items-start gap-2">
-              <Sparkles className="w-4 h-4 text-indigo-600 mt-0.5 shrink-0" />
+              <BrandSparkle className="w-4 h-4 text-indigo-600 mt-0.5 shrink-0" />
               <p className="text-xs text-indigo-700 dark:text-indigo-400">
                 {isEN
                   ? `SEO/AEO content will be published at ${settings.publication_hour.toString().padStart(2, "0")}:00 local time (${settings.timezone.split('/')[1]?.replace('_', ' ') || settings.timezone})`
@@ -803,7 +785,7 @@ const AISettingsPage = () => {
             </div>
             {settings.respond_to_edited_reviews && (
               <div className="mt-3 ml-11 bg-orange-500/10 rounded-xl p-3 flex items-start gap-2">
-                <Sparkles className="w-4 h-4 text-orange-600 mt-0.5 shrink-0" />
+                <BrandSparkle className="w-4 h-4 text-orange-600 mt-0.5 shrink-0" />
                 <p className="text-xs text-orange-700 dark:text-orange-400">
                   {isEN ? "A new reply will be generated if the customer edits their review" : "Une nouvelle réponse sera générée si le client modifie son avis"}
                 </p>

@@ -19,26 +19,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { 
-  HelpCircle, 
-  Sparkles, 
-  Loader2, 
-  Calendar,
-  Check,
-  Clock,
-  AlertCircle,
-  RefreshCw,
-  Building2,
-  Send,
-  Lock,
-  Eye,
-  List,
-  TrendingUp,
-  ChevronDown,
-  CheckCircle,
-  Settings
-} from "lucide-react";
+import { HelpCircle, Loader2, Calendar, Check, Clock, AlertCircle, RefreshCw, Building2, Send, Lock, Eye, List, TrendingUp, ChevronDown, CheckCircle, Settings } from "lucide-react";
 import { format, addDays, startOfToday, isSameDay } from "date-fns";
+import { BrandSparkle } from "@/components/BrandSparkle";
 
 
 interface Business {
@@ -516,7 +499,7 @@ const AEORank = () => {
         case "published":
           return <Check className="w-4 h-4 text-secondary" />;
         case "generated":
-          return <Sparkles className="w-4 h-4 text-primary" />;
+          return <BrandSparkle className="w-4 h-4 text-primary" />;
         case "generating":
           return <Loader2 className="w-4 h-4 text-primary animate-spin" />;
         case "failed":
@@ -531,7 +514,7 @@ const AEORank = () => {
       case "published":
         return <Badge className="bg-secondary text-secondary-foreground"><Check className="w-3 h-3 mr-1" />Publié</Badge>;
       case "generated":
-        return <Badge className="bg-primary text-primary-foreground"><Sparkles className="w-3 h-3 mr-1" />Prêt</Badge>;
+        return <Badge className="bg-primary text-primary-foreground"><BrandSparkle className="w-3 h-3 mr-1" />Prêt</Badge>;
       case "generating":
         return <Badge variant="outline"><Loader2 className="w-3 h-3 mr-1 animate-spin" />En cours</Badge>;
       case "failed":
@@ -593,7 +576,7 @@ const AEORank = () => {
                 </>
               ) : (
                 <>
-                  <Sparkles className="w-4 h-4 mr-2" />
+                  <BrandSparkle className="w-4 h-4 mr-2" />
                   Analyser & Générer
                 </>
               )}
@@ -780,7 +763,7 @@ const AEORank = () => {
                                 onClick={() => generateContentForDay(item)}
                                 disabled={!isSubscribed}
                               >
-                                <Sparkles className="w-3 h-3" />
+                                <BrandSparkle className="w-3 h-3" />
                               </Button>
                             )}
                             

@@ -5,7 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { supabase } from "@/integrations/supabase/client";
-import { Search, Plus, History, Sparkles, X, TrendingUp, TrendingDown } from "lucide-react";
+import { Search, Plus, History, X, TrendingUp, TrendingDown } from "lucide-react";
+import { BrandSparkle } from "@/components/BrandSparkle";
 
 interface SavedKeyword {
   id: string;
@@ -177,7 +178,7 @@ export const KeywordChips = ({
       {suggestions.length > 0 && (
         <div className="space-y-2">
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <Sparkles className="w-3 h-3" />
+            <BrandSparkle className="w-3 h-3" />
             <span>Suggestions</span>
           </div>
           <div className="flex flex-wrap gap-1.5">

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { UpgradeDialog } from "./UpgradeDialog";
 import { Button } from "./ui/button";
-import { Bell, Plus, Sparkles, LogOut, User as UserIcon } from "lucide-react";
+import { Bell, Plus, LogOut, User as UserIcon } from "lucide-react";
 import { Link } from "react-router-dom";
 import { RankiLogo } from "./StarlinkoLogo";
 import { useAuth } from "@/contexts/AuthContext";
@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useTranslation } from "react-i18next";
+import { BrandSparkle } from "@/components/BrandSparkle";
 
 interface UserProfile {
   credits: number;
@@ -88,7 +89,7 @@ export const DashboardHeader = ({ className }: { className?: string } = {}) => {
             onClick={() => setUpgradeDialogOpen(true)}
             className="hidden sm:flex items-center gap-2 px-3 h-9 rounded-xl bg-muted/60 hover:bg-muted transition-colors"
           >
-            <Sparkles className="w-4 h-4 text-primary" />
+            <BrandSparkle className="w-4 h-4 text-primary" />
             <span className="text-sm font-medium text-foreground">
               {profile?.credits ?? 0} {t("common.credits")}
             </span>
@@ -148,7 +149,7 @@ export const DashboardHeader = ({ className }: { className?: string } = {}) => {
                 <UserIcon className="w-4 h-4 mr-2" /> {t("common.settings")}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setUpgradeDialogOpen(true)}>
-                <Sparkles className="w-4 h-4 mr-2" /> {t("common.upgrade")}
+                <BrandSparkle className="w-4 h-4 mr-2" /> {t("common.upgrade")}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem

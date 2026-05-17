@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { Button } from "./ui/button";
-import { Check, Sparkles, Loader2, Zap, ArrowRight, Crown } from "lucide-react";
+import { Check, Loader2, Zap, ArrowRight, Crown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Badge } from "./ui/badge";
+import { BrandSparkle } from "@/components/BrandSparkle";
 
 type Plan = {
   key: string;
@@ -97,7 +98,7 @@ export const PricingSection = () => {
       <div className="container mx-auto px-5 sm:px-6">
         <div className="text-center max-w-2xl mx-auto mb-12">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full mb-5">
-            <Sparkles className="w-4 h-4 text-primary" />
+            <BrandSparkle className="w-4 h-4 text-primary" />
             <span className="text-primary text-xs sm:text-sm font-semibold">Simple USD pricing</span>
           </div>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-foreground tracking-tight">

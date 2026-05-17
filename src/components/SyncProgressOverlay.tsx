@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Progress } from "@/components/ui/progress";
-import { Building2, MessageSquare, Sparkles, CheckCircle2 } from "lucide-react";
+import { Building2, MessageSquare, CheckCircle2 } from "lucide-react";
+import { BrandSparkle } from "@/components/BrandSparkle";
 
 interface SyncStep {
   id: string;
@@ -78,7 +79,7 @@ export const SyncProgressOverlay = ({
         {/* Logo / Title */}
         <div className="text-center space-y-2">
           <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-lg shadow-primary/30">
-            <Sparkles className="w-8 h-8 text-white" />
+            <BrandSparkle className="w-8 h-8 text-white" />
           </div>
           <h2 className="text-xl font-bold text-foreground">Syncing in progress</h2>
           <p className="text-sm text-muted-foreground">Connecting to Google My Business</p>
