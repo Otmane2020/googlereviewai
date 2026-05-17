@@ -55,6 +55,7 @@ import Boutique from "./pages/Boutique";
 import BoutiqueNFC from "./pages/BoutiqueNFC";
 import BoutiqueQRImprime from "./pages/BoutiqueQRImprime";
 import Commandes from "./pages/Commandes";
+import AdminOrders from "./pages/AdminOrders";
 import { DashboardLayout } from "./components/DashboardLayout";
 
 // Wraps a page with the persistent dashboard sidebar (desktop) + bottom nav (mobile)
@@ -198,6 +199,7 @@ const AppContent = () => {
               <Route path="/mobile-ads" element={<MobileAds />} />
               <Route path="/PW" element={<PasswordAuth />} />
               <Route path="/admin" element={<Admin />} />
+              <Route path="/admin/orders" element={<AdminOrders />} />
               <Route path="/local-aeo" element={<LocalAEO />} />
               <Route path="/gmb-post" element={<Shell><GmbPost /></Shell>} />
               <Route path="/gmb-autoposting" element={<GmbAutopostingGuide />} />
