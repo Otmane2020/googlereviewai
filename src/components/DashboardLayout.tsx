@@ -40,7 +40,7 @@ const useNavItems = () => {
     { label: t("sidebar.googlePost"), href: "/gmb-post", icon: MessageCircleQuestion },
   ];
   const visibilityNav = [
-    { label: t("sidebar.geoRankAi"), href: "/aeo-rank", icon: Sparkles, badge: "AI" },
+    { label: t("sidebar.geoRankAi"), href: "/aeo-rank", icon: BrandSparkle, badge: "AI" },
     { label: t("sidebar.seoAutopilot"), href: "/seo-autopost", icon: Search },
     { label: t("sidebar.planning"), href: "/calendar", icon: ListChecks },
   ];
@@ -48,7 +48,7 @@ const useNavItems = () => {
     { label: t("sidebar.locations"), href: "/businesses", icon: Building2 },
   ];
   const accountNav = [
-    { label: t("sidebar.aiSettings"), href: "/ai-settings", icon: Sparkles },
+    { label: t("sidebar.aiSettings"), href: "/ai-settings", icon: BrandSparkle },
     { label: t("sidebar.notifications"), href: "/notifications", icon: Bell },
     { label: t("sidebar.settings"), href: "/settings", icon: Settings },
   ];

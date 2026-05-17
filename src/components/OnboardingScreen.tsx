@@ -15,7 +15,7 @@ const GoogleIcon = ({ className = "w-5 h-5" }: { className?: string }) => (
 
 const steps = [
   {
-    icon: Sparkles,
+    icon: BrandSparkle,
     title: "Welcome to Ranki!",
     subtitle: "Your AI assistant to dominate the local market",
     description: "Auto-reply to reviews, generate SEO content, and rank in ChatGPT.",

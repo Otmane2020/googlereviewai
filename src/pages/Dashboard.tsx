@@ -788,7 +788,7 @@ const Dashboard = () => {
             {[
               { icon: Star, label: t("dashboardPage.actionReviews"), desc: t("dashboardPage.actionPending", { count: stats.pending }), href: "/reviews", color: "bg-yellow-500" },
               { icon: Building2, label: t("dashboardPage.actionLocations"), desc: t("dashboardPage.actionLocationsActive", { count: stats.businesses, plural: stats.businesses > 1 ? "s" : "" }), href: "/businesses", color: "bg-violet-500" },
-              { icon: Sparkles, label: t("dashboardPage.actionAi"), desc: t("dashboardPage.actionAiDesc"), href: "/ai-settings", color: "bg-primary" },
+              { icon: BrandSparkle, label: t("dashboardPage.actionAi"), desc: t("dashboardPage.actionAiDesc"), href: "/ai-settings", color: "bg-primary" },
               { icon: TrendingUp, label: t("dashboardPage.actionSeo"), desc: t("dashboardPage.actionSeoDesc"), href: "/seo-autopost", color: "bg-green-500" },
             ].map((action) => (
               <Link

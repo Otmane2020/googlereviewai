@@ -10,6 +10,7 @@ import { Bell, Search, Star, FileText, Target, MoreHorizontal, Loader2, CheckChe
 import { formatDistanceToNow } from "date-fns";
 import { fr as frLocale, enUS } from "date-fns/locale";
 import { useTranslation } from "react-i18next";
+import { BrandSparkle } from "@/components/BrandSparkle";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,7 +25,7 @@ const getNotificationIcon = (type: string) => {
       return { icon: Star, color: "bg-yellow-500", iconColor: "text-white" };
     case "ai_response":
     case "ai_tip":
-      return { icon: Sparkles, color: "bg-purple-500", iconColor: "text-white" };
+      return { icon: BrandSparkle, color: "bg-purple-500", iconColor: "text-white" };
     case "seo_reminder":
     case "seo_promo":
       return { icon: FileText, color: "bg-blue-500", iconColor: "text-white" };

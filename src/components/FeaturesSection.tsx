@@ -86,7 +86,7 @@ export const FeaturesSection = () => {
       stat: "∞",
     },
     { 
-      icon: Sparkles, 
+      icon: BrandSparkle, 
       title: t("features.customTone"), 
       description: t("features.customToneDesc"),
       stat: "100%",

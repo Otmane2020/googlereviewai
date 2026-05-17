@@ -10,6 +10,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { supabase } from "@/integrations/supabase/client";
+import { BrandSparkle } from "@/components/BrandSparkle";
 
 export const MobileBottomNav = () => {
   const { t, i18n } = useTranslation();
@@ -28,7 +29,7 @@ export const MobileBottomNav = () => {
 
   const menuItems = [
     { icon: FileText, label: t("dashboard.seoAuto"), href: "/seo-autopost", color: "text-blue-600 bg-blue-500/10" },
-    { icon: Sparkles, label: t("dashboard.aeoRank"), href: "/aeo-rank", color: "text-purple-600 bg-purple-500/10" },
+    { icon: BrandSparkle, label: t("dashboard.aeoRank"), href: "/aeo-rank", color: "text-purple-600 bg-purple-500/10" },
     { icon: CalendarIcon, label: planningLabel, href: "/calendar", color: "text-emerald-600 bg-emerald-500/10" },
     { icon: MapPin, label: t("dashboard.mapsRank"), href: "/maps-rank", color: "text-orange-600 bg-orange-500/10" },
     { icon: TrendingUp, label: t("dashboard.aiSettings"), href: "/ai-settings", color: "text-pink-600 bg-pink-500/10" },

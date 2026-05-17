@@ -51,7 +51,7 @@ const Calendar = () => {
 
   const STATUS_STYLE: Record<string, { label: string; className: string; icon: any }> = {
     published: { label: t("Publié", "Published"), className: "bg-emerald-500/15 text-emerald-600 border-emerald-500/30", icon: Check },
-    generated: { label: t("Prêt", "Ready"), className: "bg-primary/15 text-primary border-primary/30", icon: Sparkles },
+    generated: { label: t("Prêt", "Ready"), className: "bg-primary/15 text-primary border-primary/30", icon: BrandSparkle },
     generating: { label: t("Génération", "Generating"), className: "bg-blue-500/15 text-blue-600 border-blue-500/30", icon: Loader2 },
     failed: { label: t("Échec", "Failed"), className: "bg-destructive/15 text-destructive border-destructive/30", icon: AlertCircle },
     pending: { label: t("Planifié", "Scheduled"), className: "bg-muted text-muted-foreground border-border", icon: Clock },
