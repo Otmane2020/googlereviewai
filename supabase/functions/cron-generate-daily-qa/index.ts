@@ -17,8 +17,9 @@ async function hasDailyPlan(supabase: any, userId: string): Promise<boolean> {
   if (!profile) return false;
   const validStatuses = ["active", "trial", "trialing"];
   if (!validStatuses.includes(profile.subscription_status || "")) return false;
-  const dailyPlans = ["daily", "pro", "business"];
-  return dailyPlans.includes((profile.plan_name || "").toLowerCase());
+  const dailyPlans = ["daily", "pro", "business", "quotidien", "agence", "pro annuel", "business annuel"];
+  const planLower = (profile.plan_name || "").toLowerCase();
+  return dailyPlans.some((p) => planLower.includes(p));
 }
 
 serve(async (req) => {
