@@ -20,44 +20,84 @@ const COUNTRIES = [
 ];
 
 type TemplateId = "classic" | "dark" | "emerald" | "gold";
-const TEMPLATES: { id: TemplateId; label: string; bg: string; titleColor: string; subColor: string; accent: string }[] = [
-  { id: "classic", label: "Classique blanc", bg: "#ffffff", titleColor: "#1e3a8a", subColor: "#0f172a", accent: "#0d9488" },
-  { id: "dark",    label: "Élégant noir",     bg: "#0f172a", titleColor: "#ffffff", subColor: "#e2e8f0", accent: "#10b981" },
-  { id: "emerald", label: "Vert émeraude",    bg: "#ecfdf5", titleColor: "#065f46", subColor: "#064e3b", accent: "#059669" },
-  { id: "gold",    label: "Noir & Or",        bg: "#0a0a0a", titleColor: "#f5d97f", subColor: "#fef3c7", accent: "#c9a84c" },
+const TEMPLATES: {
+  id: TemplateId; label: string;
+  topBg: string; bottomBg: string;
+  titleColor: string; scanColor: string; footerColor: string;
+  starColor: string;
+}[] = [
+  { id: "classic", label: "Classique lavande", topBg: "#ffffff", bottomBg: "#cdd3e6", titleColor: "#0a0a0a", scanColor: "#1f2a44", footerColor: "#1f2a44", starColor: "#f5b301" },
+  { id: "emerald", label: "Vert émeraude",     topBg: "#ffffff", bottomBg: "#c7ecd9", titleColor: "#0a0a0a", scanColor: "#065f46", footerColor: "#065f46", starColor: "#f5b301" },
+  { id: "gold",    label: "Noir & Or",         topBg: "#0a0a0a", bottomBg: "#1a1208", titleColor: "#f5d97f", scanColor: "#f5d97f", footerColor: "#f5d97f", starColor: "#f5d97f" },
+  { id: "dark",    label: "Élégant noir",      topBg: "#0f172a", bottomBg: "#1e293b", titleColor: "#ffffff", scanColor: "#e2e8f0", footerColor: "#94a3b8", starColor: "#f5b301" },
 ];
 
-/** Live preview of the plaque — mirrors the printed result. */
+/** Google "G" logo. */
+function GoogleLogo({ size = 40 }: { size?: number }) {
+  return (
+    <svg width={size * 3.3} height={size} viewBox="0 0 272 92" aria-hidden xmlns="http://www.w3.org/2000/svg">
+      <path fill="#4285F4" d="M115.75 47.18c0 12.77-9.99 22.18-22.25 22.18s-22.25-9.41-22.25-22.18C71.25 34.32 81.24 25 93.5 25s22.25 9.32 22.25 22.18zm-9.74 0c0-7.98-5.79-13.44-12.51-13.44S80.99 39.2 80.99 47.18c0 7.9 5.79 13.44 12.51 13.44s12.51-5.55 12.51-13.44z"/>
+      <path fill="#EA4335" d="M163.75 47.18c0 12.77-9.99 22.18-22.25 22.18s-22.25-9.41-22.25-22.18c0-12.85 9.99-22.18 22.25-22.18s22.25 9.32 22.25 22.18zm-9.74 0c0-7.98-5.79-13.44-12.51-13.44s-12.51 5.46-12.51 13.44c0 7.9 5.79 13.44 12.51 13.44s12.51-5.55 12.51-13.44z"/>
+      <path fill="#FBBC05" d="M209.75 26.34v39.82c0 16.38-9.66 23.07-21.08 23.07-10.75 0-17.22-7.19-19.66-13.07l8.48-3.53c1.51 3.61 5.21 7.87 11.17 7.87 7.31 0 11.84-4.51 11.84-13v-3.19h-.34c-2.18 2.69-6.38 5.04-11.68 5.04-11.09 0-21.25-9.66-21.25-22.09 0-12.52 10.16-22.26 21.25-22.26 5.29 0 9.49 2.35 11.68 4.96h.34v-3.61h9.25zm-8.56 20.92c0-7.81-5.21-13.52-11.84-13.52-6.72 0-12.35 5.71-12.35 13.52 0 7.73 5.63 13.36 12.35 13.36 6.63 0 11.84-5.63 11.84-13.36z"/>
+      <path fill="#34A853" d="M225 3v65h-9.5V3h9.5z"/>
+      <path fill="#EA4335" d="M262.02 54.48l7.56 5.04c-2.44 3.61-8.32 9.83-18.48 9.83-12.6 0-22.01-9.74-22.01-22.18 0-13.19 9.49-22.18 20.92-22.18 11.51 0 17.14 9.16 18.98 14.11l1.01 2.52-29.65 12.28c2.27 4.45 5.8 6.72 10.75 6.72 4.96 0 8.4-2.44 10.92-6.14zm-23.27-7.98l19.82-8.23c-1.09-2.77-4.37-4.7-8.23-4.7-4.95 0-11.84 4.37-11.59 12.93z"/>
+      <path fill="#4285F4" d="M35.29 41.41V32H67c.31 1.64.47 3.58.47 5.68 0 7.06-1.93 15.79-8.15 22.01-6.05 6.3-13.78 9.66-24.02 9.66C16.32 69.35.36 53.89.36 34.91.36 15.93 16.32.47 35.3.47c10.5 0 17.98 4.12 23.6 9.49l-6.64 6.64c-4.03-3.78-9.49-6.72-16.97-6.72-13.86 0-24.7 11.17-24.7 25.03 0 13.86 10.84 25.03 24.7 25.03 8.99 0 14.11-3.61 17.39-6.89 2.66-2.66 4.41-6.46 5.1-11.65l-22.49.01z"/>
+    </svg>
+  );
+}
+
+/** Live preview of the plaque — Plakode deluxe style with bevelled corners. */
 function PlaquePreview({
   template, businessName, websiteOrPlaceLabel, qrDataUrl, size = 320,
 }: { template: typeof TEMPLATES[number]; businessName: string; websiteOrPlaceLabel: string; qrDataUrl: string; size?: number }) {
+  const isDark = template.id === "dark" || template.id === "gold";
   return (
     <div
-      className="rounded-2xl shadow-xl flex flex-col items-center justify-between p-5 mx-auto"
-      style={{ width: size, height: size, background: template.bg, border: `2px solid ${template.accent}33` }}
+      className="mx-auto overflow-hidden flex flex-col"
+      style={{
+        width: size, height: size,
+        borderRadius: size * 0.08,
+        background: template.topBg,
+        boxShadow: isDark
+          ? `inset 0 1px 2px rgba(255,255,255,0.15), 0 12px 30px -10px rgba(0,0,0,0.5)`
+          : `inset 0 1px 2px rgba(255,255,255,0.9), 0 12px 30px -10px rgba(15,23,42,0.25)`,
+      }}
     >
-      <div className="text-center leading-tight">
-        <div className="font-bold text-[15px]" style={{ color: template.titleColor }}>Votre avis nous intéresse !</div>
-        <div className="text-[12px] mt-0.5" style={{ color: template.subColor }}>Partagez votre expérience</div>
+      {/* TOP — title + Google + stars */}
+      <div className="flex-1 flex flex-col items-center justify-center px-3 pt-3 pb-1" style={{ background: template.topBg }}>
+        <div className="font-extrabold tracking-wide text-center uppercase"
+             style={{ color: template.titleColor, fontSize: size * 0.058, letterSpacing: size * 0.002 }}>
+          Votre avis nous intéresse
+        </div>
+        <div className="mt-1.5">
+          <GoogleLogo size={size * 0.13} />
+        </div>
+        <div className="flex gap-0.5 mt-1.5">
+          {[...Array(5)].map((_, i) => (
+            <svg key={i} width={size * 0.072} height={size * 0.072} viewBox="0 0 24 24" fill={template.starColor} stroke="#e0a800" strokeWidth="1">
+              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+            </svg>
+          ))}
+        </div>
       </div>
-      {/* Google G */}
-      <svg width="26" height="26" viewBox="0 0 48 48" aria-hidden>
-        <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.4 29.3 35.5 24 35.5c-6.4 0-11.5-5.1-11.5-11.5S17.6 12.5 24 12.5c2.9 0 5.6 1.1 7.6 2.9l5.7-5.7C33.9 6.4 29.2 4.5 24 4.5 13.2 4.5 4.5 13.2 4.5 24S13.2 43.5 24 43.5 43.5 34.8 43.5 24c0-1.2-.1-2.4-.4-3.5z"/>
-        <path fill="#FF3D00" d="M6.3 14.1l6.6 4.8C14.7 15.5 19 12.5 24 12.5c2.9 0 5.6 1.1 7.6 2.9l5.7-5.7C33.9 6.4 29.2 4.5 24 4.5 16.3 4.5 9.7 8.4 6.3 14.1z"/>
-        <path fill="#4CAF50" d="M24 43.5c5.2 0 9.9-2 13.4-5.2l-6.2-5.2c-2 1.4-4.5 2.4-7.2 2.4-5.3 0-9.7-3.1-11.3-7.5l-6.5 5C9.6 39.5 16.2 43.5 24 43.5z"/>
-        <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.1-4.1 5.6l6.2 5.2C41.1 36 43.5 30.4 43.5 24c0-1.2-.1-2.4-.4-3.5z"/>
-      </svg>
 
-      {qrDataUrl ? (
-        <img src={qrDataUrl} alt="QR" className="rounded-md" style={{ width: size * 0.45, height: size * 0.45, background: "#fff", padding: 4 }} />
-      ) : (
-        <div className="rounded-md bg-white/70" style={{ width: size * 0.45, height: size * 0.45 }} />
-      )}
-
-      <div className="text-center leading-tight w-full">
-        <div className="text-[11px] font-semibold" style={{ color: template.accent }}>SCANNEZ POUR DONNER VOTRE AVIS</div>
-        <div className="text-[13px] font-bold truncate mt-0.5" style={{ color: template.titleColor }}>{businessName || "Votre établissement"}</div>
-        <div className="text-[10px] truncate" style={{ color: template.subColor, opacity: 0.8 }}>{websiteOrPlaceLabel}</div>
+      {/* BOTTOM — colored band with SCAN text + QR + footer */}
+      <div className="flex flex-col items-center justify-between pt-2 pb-1.5 px-3"
+           style={{ background: template.bottomBg, height: size * 0.46 }}>
+        <div className="text-center font-bold uppercase leading-tight"
+             style={{ color: template.scanColor, fontSize: size * 0.04, letterSpacing: 0.5 }}>
+          Scannez<br />le QR code
+        </div>
+        {qrDataUrl ? (
+          <img src={qrDataUrl} alt="QR" className="rounded-md"
+               style={{ width: size * 0.28, height: size * 0.28, background: "#fff", padding: size * 0.012 }} />
+        ) : (
+          <div className="rounded-md bg-white/70" style={{ width: size * 0.28, height: size * 0.28 }} />
+        )}
+        <div className="text-center w-full" style={{ color: template.footerColor, fontSize: size * 0.028, opacity: 0.85 }}>
+          <div className="font-bold truncate">{businessName || "Votre établissement"}</div>
+          <div className="truncate" style={{ opacity: 0.7 }}>{websiteOrPlaceLabel}</div>
+        </div>
       </div>
     </div>
   );
