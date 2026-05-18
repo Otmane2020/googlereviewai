@@ -125,35 +125,47 @@ serve(async (req) => {
       }
     }
 
-    // Subscription is valid - update profile with correct info
-    const priceId = activeSubscription.items.data[0]?.price.id;
-    
-    // Map price IDs to plan names
-    const planMapping: Record<string, { name: string; credits: number; maxBusinesses: number }> = {
-      "price_1RVn5sP3jJGT2fKYKSZrqazB": { name: "starter", credits: 50, maxBusinesses: 1 },
-      "price_1RVnBEP3jJGT2fKYZt2eOI2Q": { name: "starter", credits: 50, maxBusinesses: 1 },
-      "price_1RVnCfP3jJGT2fKY26hl5EsV": { name: "pro", credits: 200, maxBusinesses: 5 },
-      "price_1RVnE3P3jJGT2fKYLdwpnO0l": { name: "pro", credits: 200, maxBusinesses: 5 },
-      "price_1RVnElP3jJGT2fKYKZnkClwH": { name: "business", credits: 500, maxBusinesses: 20 },
-      "price_1RVnFRP3jJGT2fKYYP0I6Kbz": { name: "business", credits: 500, maxBusinesses: 20 },
+    // Subscription is valid - pick the highest tier item when multiple exist
+    const planMapping: Record<string, { name: string; credits: number; maxBusinesses: number; tier: number; agencyPool?: number }> = {
+      "price_1SrHtCEfti9t9nN9L8Fytsni": { name: "Starter", credits: 10, maxBusinesses: 1, tier: 1 },
+      "price_1SrHtDEfti9t9nN96yIPGiOo": { name: "Pro", credits: 100, maxBusinesses: 2, tier: 3 },
+      "price_1SrHtEEfti9t9nN9mq7MrV3G": { name: "Business", credits: 400, maxBusinesses: 999, tier: 4 },
+      "price_1SrHtOEfti9t9nN9fG4lSroa": { name: "Starter Annuel", credits: 10, maxBusinesses: 1, tier: 1 },
+      "price_1SrHtPEfti9t9nN9dnZ0sXpi": { name: "Pro Annuel", credits: 100, maxBusinesses: 2, tier: 3 },
+      "price_1SrHtQEfti9t9nN9GKvr4NSt": { name: "Business Annuel", credits: 400, maxBusinesses: 999, tier: 4 },
+      "price_1TSa8pEfti9t9nN9JHI4owg3": { name: "Quotidien", credits: 200, maxBusinesses: 3, tier: 2 },
+      "price_1TU9QcEfti9t9nN9MwGBzftO": { name: "Quotidien", credits: 200, maxBusinesses: 3, tier: 2 },
+      "price_1TTuIpEfti9t9nN9sy6pUNgU": { name: "Agence", credits: 0, maxBusinesses: 999, tier: 5, agencyPool: 1000 },
+      "price_1SsBcUEfti9t9nN9aqWMiw7Y": { name: "Agence", credits: 0, maxBusinesses: 999, tier: 5, agencyPool: 1000 },
     };
 
-    const planInfo = planMapping[priceId] || { name: "starter", credits: 50, maxBusinesses: 1 };
+    let priceId = activeSubscription.items.data[0]?.price.id;
+    let planInfo = planMapping[priceId];
+    for (const it of activeSubscription.items.data) {
+      const c = planMapping[it.price.id];
+      if (c && (!planInfo || c.tier > planInfo.tier)) { planInfo = c; priceId = it.price.id; }
+    }
+    if (!planInfo) {
+      // Unknown price — don't overwrite an existing plan, just report status
+      return new Response(JSON.stringify({
+        valid: true, status: activeSubscription.status, plan: "unknown", priceId,
+      }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
 
-    await supabaseAdmin
-      .from("profiles")
-      .update({
-        plan_name: planInfo.name,
-        plan_id: priceId,
-        subscription_status: activeSubscription.status === "trialing" ? "trial" : "active",
-        trial_end: activeSubscription.trial_end 
-          ? new Date(activeSubscription.trial_end * 1000).toISOString() 
-          : null,
-        current_period_start: new Date(activeSubscription.current_period_start * 1000).toISOString(),
-        current_period_end: new Date(activeSubscription.current_period_end * 1000).toISOString(),
-        max_businesses: planInfo.maxBusinesses,
-      })
-      .eq("id", user.id);
+    const updatePayload: Record<string, unknown> = {
+      plan_name: planInfo.name,
+      plan_id: priceId,
+      subscription_status: activeSubscription.status === "trialing" ? "trial" : "active",
+      trial_end: activeSubscription.trial_end
+        ? new Date(activeSubscription.trial_end * 1000).toISOString()
+        : null,
+      current_period_start: new Date(activeSubscription.current_period_start * 1000).toISOString(),
+      current_period_end: new Date(activeSubscription.current_period_end * 1000).toISOString(),
+      max_businesses: planInfo.maxBusinesses,
+    };
+    if (planInfo.agencyPool) updatePayload.agency_total_credits = planInfo.agencyPool;
+
+    await supabaseAdmin.from("profiles").update(updatePayload).eq("id", user.id);
 
     return new Response(JSON.stringify({ 
       valid: true, 
