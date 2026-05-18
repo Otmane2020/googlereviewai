@@ -78,7 +78,7 @@ export default function LandingQRGratuit() {
         <div className="relative">
           <img
             src={hero}
-            alt="QR code adhésif Google Avis sur comptoir de restaurant"
+            alt="Plaque NFC + QR Google Avis posée sur un comptoir de café, un client tape son téléphone"
             width={1536}
             height={1024}
             className="rounded-2xl shadow-2xl w-full h-auto object-cover aspect-[3/2]"
