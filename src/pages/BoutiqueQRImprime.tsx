@@ -229,12 +229,12 @@ export default function BoutiqueQRImprime() {
         body: { business_id: businessId, design: template, shipping },
       });
       if (error || data?.error) {
-        toast.error(data?.error || error?.message || "Erreur");
+        toast.error(data?.error || error?.message || T.err);
         return;
       }
       setDone(true);
     } catch (e: any) {
-      toast.error(e.message || "Erreur");
+      toast.error(e.message || T.err);
     } finally {
       setLoading(false);
     }
@@ -244,12 +244,10 @@ export default function BoutiqueQRImprime() {
     return (
       <div className="container max-w-xl mx-auto py-10 px-4 text-center">
         <CheckCircle2 className="w-20 h-20 text-emerald-600 mx-auto mb-4" />
-        <h1 className="text-2xl font-bold mb-2">Commande confirmée 🎉</h1>
-        <p className="text-muted-foreground mb-6">
-          Votre QR code imprimé sera expédié sous 5–7 jours ouvrés. Vous recevrez un email avec le numéro de suivi.
-        </p>
+        <h1 className="text-2xl font-bold mb-2">{T.doneTitle}</h1>
+        <p className="text-muted-foreground mb-6">{T.doneDesc}</p>
         <Button onClick={() => navigate("/commandes")} className="bg-emerald-600 hover:bg-emerald-700">
-          Voir mes commandes
+          {T.seeOrders}
         </Button>
       </div>
     );
@@ -258,13 +256,13 @@ export default function BoutiqueQRImprime() {
   return (
     <div className="container max-w-4xl mx-auto py-6 px-4">
       <Button variant="ghost" onClick={() => navigate("/boutique")} className="mb-4">
-        <ArrowLeft className="w-4 h-4 mr-2" /> Boutique
+        <ArrowLeft className="w-4 h-4 mr-2" /> {T.back}
       </Button>
 
       <Card className="p-6 rounded-2xl">
         <div className="flex items-center gap-3 mb-2">
           <Gift className="w-8 h-8 text-amber-500" />
-          <h1 className="text-2xl font-bold">QR code adhésif imprimé — Gratuit</h1>
+          <h1 className="text-2xl font-bold">{T.title}</h1>
         </div>
         <div className="flex gap-2 mb-5">
           {[1, 2, 3, 4].map((s) => (
@@ -272,17 +270,16 @@ export default function BoutiqueQRImprime() {
           ))}
         </div>
 
-        {/* STEP 1 — Business + missing info */}
         {step === 1 && (
           <div className="space-y-4">
-            <h2 className="font-semibold flex items-center gap-2"><QrCode className="w-5 h-5" /> Étape 1 — Établissement</h2>
+            <h2 className="font-semibold flex items-center gap-2"><QrCode className="w-5 h-5" /> {T.step1}</h2>
             {businesses.length === 0 ? (
-              <p className="text-muted-foreground">Aucun établissement. <a className="underline" href="/businesses">En ajouter un</a>.</p>
+              <p className="text-muted-foreground">{T.noBiz} <a className="underline" href="/businesses">{T.addBiz}</a>.</p>
             ) : (
               <>
-                <Label>Choisissez l'établissement</Label>
+                <Label>{T.chooseBiz}</Label>
                 <Select value={businessId} onValueChange={setBusinessId}>
-                  <SelectTrigger><SelectValue placeholder="Sélectionnez" /></SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder={T.select} /></SelectTrigger>
                   <SelectContent>
                     {businesses.map((b) => <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>)}
                   </SelectContent>
@@ -291,30 +288,29 @@ export default function BoutiqueQRImprime() {
                 {missingInfo && (
                   <div className="rounded-xl bg-amber-50 border border-amber-200 p-4 space-y-3">
                     <p className="text-sm text-amber-800 flex items-center gap-2">
-                      <Sparkles className="w-4 h-4" /> Informations manquantes dans votre fiche GMB — complétez pour un rendu parfait.
+                      <Sparkles className="w-4 h-4" /> {T.missing}
                     </p>
                     <div>
-                      <Label>Nom à afficher</Label>
-                      <Input value={editName} onChange={(e) => setEditName(e.target.value)} placeholder="Ex : Le Cœur de Paris" />
+                      <Label>{T.displayName}</Label>
+                      <Input value={editName} onChange={(e) => setEditName(e.target.value)} />
                     </div>
                     <div>
-                      <Label>Site / lien (optionnel)</Label>
-                      <Input value={editWebsite} onChange={(e) => setEditWebsite(e.target.value)} placeholder="https://votre-site.com" />
+                      <Label>{T.site}</Label>
+                      <Input value={editWebsite} onChange={(e) => setEditWebsite(e.target.value)} placeholder="https://…" />
                     </div>
                   </div>
                 )}
               </>
             )}
             <Button onClick={() => setStep(2)} disabled={!businessId || !editName} className="w-full bg-emerald-600 hover:bg-emerald-700">
-              Choisir un template <ArrowRight className="w-4 h-4 ml-2" />
+              {T.chooseTpl} <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
           </div>
         )}
 
-        {/* STEP 2 — Template selection */}
         {step === 2 && (
           <div className="space-y-5">
-            <h2 className="font-semibold flex items-center gap-2"><Sparkles className="w-5 h-5" /> Étape 2 — Choisissez votre template</h2>
+            <h2 className="font-semibold flex items-center gap-2"><Sparkles className="w-5 h-5" /> {T.step2}</h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {TEMPLATES.map((t) => (
                 <button key={t.id} type="button" onClick={() => setTemplate(t.id)}
@@ -325,45 +321,41 @@ export default function BoutiqueQRImprime() {
               ))}
             </div>
             <div className="flex gap-2">
-              <Button variant="outline" onClick={() => setStep(1)} className="flex-1">Retour</Button>
+              <Button variant="outline" onClick={() => setStep(1)} className="flex-1">{T.back2}</Button>
               <Button onClick={() => setStep(3)} className="flex-1 bg-emerald-600 hover:bg-emerald-700">
-                Voir l'aperçu <ArrowRight className="w-4 h-4 ml-2" />
+                {T.seePreview} <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
             </div>
           </div>
         )}
 
-        {/* STEP 3 — Final preview */}
         {step === 3 && (
           <div className="space-y-5">
-            <h2 className="font-semibold flex items-center gap-2"><Eye className="w-5 h-5" /> Étape 3 — Aperçu de votre QR imprimé</h2>
+            <h2 className="font-semibold flex items-center gap-2"><Eye className="w-5 h-5" /> {T.step3}</h2>
             <div className="bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl p-6">
               <PlaquePreview template={tpl} businessName={editName} websiteOrPlaceLabel={websiteLabel} qrDataUrl={qrPreview} size={320} />
             </div>
-            <div className="text-center text-xs text-muted-foreground">
-              Aperçu réel · imprimé en haute qualité · adhésif prêt à coller
-            </div>
+            <div className="text-center text-xs text-muted-foreground">{T.previewNote}</div>
             <div className="flex gap-2">
-              <Button variant="outline" onClick={() => setStep(2)} className="flex-1">Changer de template</Button>
+              <Button variant="outline" onClick={() => setStep(2)} className="flex-1">{T.changeTpl}</Button>
               <Button onClick={() => setStep(4)} className="flex-1 bg-emerald-600 hover:bg-emerald-700">
-                Valider et livrer <ArrowRight className="w-4 h-4 ml-2" />
+                {T.validate} <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
             </div>
           </div>
         )}
 
-        {/* STEP 4 — Shipping */}
         {step === 4 && (
           <div className="space-y-4">
-            <h2 className="font-semibold flex items-center gap-2"><MapPin className="w-5 h-5" /> Étape 4 — Adresse de livraison</h2>
+            <h2 className="font-semibold flex items-center gap-2"><MapPin className="w-5 h-5" /> {T.step4}</h2>
             <div className="grid grid-cols-2 gap-3">
-              <div className="col-span-2"><Label>Nom complet</Label><Input value={shipping.full_name} onChange={(e) => setShipping({ ...shipping, full_name: e.target.value })} /></div>
-              <div className="col-span-2"><Label>Adresse</Label><Input value={shipping.line1} onChange={(e) => setShipping({ ...shipping, line1: e.target.value })} /></div>
-              <div className="col-span-2"><Label>Complément (optionnel)</Label><Input value={shipping.line2} onChange={(e) => setShipping({ ...shipping, line2: e.target.value })} /></div>
-              <div><Label>Code postal</Label><Input value={shipping.postal_code} onChange={(e) => setShipping({ ...shipping, postal_code: e.target.value })} /></div>
-              <div><Label>Ville</Label><Input value={shipping.city} onChange={(e) => setShipping({ ...shipping, city: e.target.value })} /></div>
+              <div className="col-span-2"><Label>{T.fullName}</Label><Input value={shipping.full_name} onChange={(e) => setShipping({ ...shipping, full_name: e.target.value })} /></div>
+              <div className="col-span-2"><Label>{T.address}</Label><Input value={shipping.line1} onChange={(e) => setShipping({ ...shipping, line1: e.target.value })} /></div>
+              <div className="col-span-2"><Label>{T.line2}</Label><Input value={shipping.line2} onChange={(e) => setShipping({ ...shipping, line2: e.target.value })} /></div>
+              <div><Label>{T.postal}</Label><Input value={shipping.postal_code} onChange={(e) => setShipping({ ...shipping, postal_code: e.target.value })} /></div>
+              <div><Label>{T.city}</Label><Input value={shipping.city} onChange={(e) => setShipping({ ...shipping, city: e.target.value })} /></div>
               <div className="col-span-2">
-                <Label>Pays</Label>
+                <Label>{T.country}</Label>
                 <Select value={shipping.country} onValueChange={(v) => setShipping({ ...shipping, country: v })}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
@@ -371,21 +363,21 @@ export default function BoutiqueQRImprime() {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="col-span-2"><Label>Téléphone (optionnel)</Label><Input value={shipping.phone} onChange={(e) => setShipping({ ...shipping, phone: e.target.value })} /></div>
+              <div className="col-span-2"><Label>{T.phone}</Label><Input value={shipping.phone} onChange={(e) => setShipping({ ...shipping, phone: e.target.value })} /></div>
             </div>
 
             <Card className="p-4 bg-emerald-50 border-emerald-200">
-              <p className="text-sm"><strong>Établissement :</strong> {editName}</p>
-              <p className="text-sm"><strong>Template :</strong> {tpl.label}</p>
-              <p className="text-sm mt-2 text-emerald-700 font-semibold">Prix : Gratuit · Frais de port offerts</p>
+              <p className="text-sm"><strong>{T.biz} :</strong> {editName}</p>
+              <p className="text-sm"><strong>{T.tpl} :</strong> {tpl.label}</p>
+              <p className="text-sm mt-2 text-emerald-700 font-semibold">{T.price}</p>
             </Card>
 
             <div className="flex gap-2">
-              <Button variant="outline" onClick={() => setStep(3)} className="flex-1">Retour</Button>
+              <Button variant="outline" onClick={() => setStep(3)} className="flex-1">{T.back2}</Button>
               <Button onClick={submit}
                 disabled={loading || !shipping.full_name || !shipping.line1 || !shipping.city || !shipping.postal_code}
                 className="flex-1 bg-emerald-600 hover:bg-emerald-700">
-                {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}Confirmer la commande
+                {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}{T.confirm}
               </Button>
             </div>
           </div>
