@@ -29,6 +29,11 @@ const Auth = () => {
 
   // Helper function to check onboarding state and redirect
   const checkSubscriptionAndRedirect = async (userId: string) => {
+    const nextParam = new URLSearchParams(window.location.search).get("next");
+    if (nextParam && nextParam.startsWith("/")) {
+      navigate(nextParam, { replace: true });
+      return;
+    }
     const { data: profile } = await supabase
       .from("profiles")
       .select("onboarding_completed")
