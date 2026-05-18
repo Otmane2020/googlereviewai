@@ -187,6 +187,7 @@ serve(async (req) => {
 
         if (userId && subscriptionId) {
           // Get subscription details
+          const subscription = await stripe.subscriptions.retrieve(subscriptionId);
           const best = pickBestItem(subscription);
           const priceId = best?.priceId || subscription.items.data[0]?.price.id;
           const config = best?.config;
