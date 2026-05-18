@@ -47,13 +47,13 @@ export default function LandingQRGratuit() {
             <Gift className="w-3.5 h-3.5 mr-1" /> Offre nouveaux abonnés
           </Badge>
           <h1 className="text-4xl md:text-5xl font-extrabold leading-tight tracking-tight">
-            Votre <span className="text-emerald-600">QR code Google Avis</span><br />
-            imprimé & expédié <span className="text-amber-500">gratuitement</span>
+            Votre <span className="text-emerald-600">Plaque NFC + QR Google</span><br />
+            <span className="text-amber-500">offerte</span> aux nouveaux abonnés
           </h1>
           <p className="text-lg text-muted-foreground mt-5">
-            Adhésif premium prêt à coller sur votre comptoir, vitrine ou menu.
-            Vos clients scannent — vous recevez plus d'avis 5 étoiles.
-            <strong className="text-foreground"> 1 exemplaire offert</strong> à tout nouvel abonné.
+            Plaque premium 12×12 cm. Vos clients <strong className="text-foreground">tapent leur téléphone (NFC)</strong> ou
+            <strong className="text-foreground"> scannent le QR code</strong> — et laissent un avis Google en quelques secondes.
+            <strong className="text-foreground"> 1 plaque offerte</strong> à tout nouvel abonné.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 mt-7">
