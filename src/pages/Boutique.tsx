@@ -7,6 +7,7 @@ import { ShoppingBag, Sparkles, Truck, QrCode, Smartphone, Gift } from "lucide-r
 import { supabase } from "@/integrations/supabase/client";
 import plaqueFront from "@/assets/nfc-plaque-front.jpg";
 import plaqueDesigns from "@/assets/nfc-plaque-designs.jpg";
+import qrStickerVitrine from "@/assets/qr-sticker-vitrine.png";
 
 const PAID_PLANS_KEYWORDS = ["quotidien", "agence", "pro", "business"];
 
