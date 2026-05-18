@@ -300,8 +300,9 @@ serve(async (req) => {
           break;
         }
 
-        const priceId = subscription.items.data[0]?.price.id;
-        const config = PLAN_CONFIG[priceId];
+        const best = pickBestItem(subscription);
+        const priceId = best?.priceId || subscription.items.data[0]?.price.id;
+        const config = best?.config;
 
         if (config) {
           const isTrial = subscription.status === "trialing";
