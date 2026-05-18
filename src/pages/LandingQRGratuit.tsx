@@ -1,0 +1,211 @@
+import { Helmet } from "react-helmet-async";
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import {
+  CheckCircle2, Gift, Truck, QrCode, Sparkles, Star, ShieldCheck, ArrowRight, Zap, Store,
+} from "lucide-react";
+import hero from "@/assets/qr-landing-hero.jpg";
+import designs from "@/assets/qr-landing-designs.jpg";
+import usecase from "@/assets/qr-landing-usecase.jpg";
+
+export default function LandingQRGratuit() {
+  const startUrl = "/auth?next=/boutique/qr-imprime";
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-amber-50/40 via-white to-emerald-50/30">
+      <Helmet>
+        <title>QR code Google Avis imprimé — Offert aux nouveaux abonnés | Starlinko</title>
+        <meta name="description" content="Recevez gratuitement votre QR code adhésif personnalisé chez vous. 1 offert pour tout nouvel abonné Starlinko. Plus d'avis Google en un scan." />
+        <link rel="canonical" href="https://starlinko.app/qr-gratuit" />
+        <meta property="og:title" content="QR code Google Avis imprimé — Offert" />
+        <meta property="og:description" content="Adhésif premium imprimé et expédié gratuitement. Boostez vos avis Google en 1 scan." />
+        <meta property="og:image" content="https://starlinko.app/og-qr-gratuit.jpg" />
+      </Helmet>
+
+      {/* Top sticky CTA */}
+      <header className="sticky top-0 z-30 bg-white/80 backdrop-blur border-b">
+        <div className="container max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
+          <Link to="/" className="font-bold flex items-center gap-2">
+            <span className="text-amber-500">★</span> Starlinko
+          </Link>
+          <Button asChild size="sm" className="bg-emerald-600 hover:bg-emerald-700">
+            <Link to={startUrl}>Recevoir mon QR gratuit</Link>
+          </Button>
+        </div>
+      </header>
+
+      {/* Hero */}
+      <section className="container max-w-6xl mx-auto px-4 pt-10 pb-12 grid md:grid-cols-2 gap-10 items-center">
+        <div>
+          <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-100 mb-4">
+            <Gift className="w-3.5 h-3.5 mr-1" /> Offre nouveaux abonnés
+          </Badge>
+          <h1 className="text-4xl md:text-5xl font-extrabold leading-tight tracking-tight">
+            Votre <span className="text-emerald-600">QR code Google Avis</span><br />
+            imprimé & expédié <span className="text-amber-500">gratuitement</span>
+          </h1>
+          <p className="text-lg text-muted-foreground mt-5">
+            Adhésif premium prêt à coller sur votre comptoir, vitrine ou menu.
+            Vos clients scannent — vous recevez plus d'avis 5 étoiles.
+            <strong className="text-foreground"> 1 exemplaire offert</strong> à tout nouvel abonné.
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-3 mt-7">
+            <Button asChild size="lg" className="bg-emerald-600 hover:bg-emerald-700 text-base h-12 px-6">
+              <Link to={startUrl}>
+                Je commande mon QR gratuit <ArrowRight className="w-4 h-4 ml-2" />
+              </Link>
+            </Button>
+            <Button asChild size="lg" variant="outline" className="text-base h-12">
+              <Link to="/select-plan">Voir les abonnements</Link>
+            </Button>
+          </div>
+
+          <ul className="grid grid-cols-2 gap-x-4 gap-y-2 mt-6 text-sm">
+            <li className="flex items-center gap-2"><Truck className="w-4 h-4 text-emerald-600" /> Livraison offerte</li>
+            <li className="flex items-center gap-2"><Sparkles className="w-4 h-4 text-emerald-600" /> Personnalisé</li>
+            <li className="flex items-center gap-2"><ShieldCheck className="w-4 h-4 text-emerald-600" /> Sans engagement</li>
+            <li className="flex items-center gap-2"><Zap className="w-4 h-4 text-emerald-600" /> Reçu sous 5–7 jours</li>
+          </ul>
+        </div>
+
+        <div className="relative">
+          <img
+            src={hero}
+            alt="QR code adhésif Google Avis sur comptoir de restaurant"
+            width={1536}
+            height={1024}
+            className="rounded-2xl shadow-2xl w-full h-auto object-cover aspect-[3/2]"
+          />
+          <div className="absolute -bottom-4 -left-4 bg-white shadow-xl rounded-xl px-4 py-3 flex items-center gap-2 border">
+            <div className="flex">
+              {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />)}
+            </div>
+            <span className="text-sm font-semibold">+38% d'avis en 30 jours</span>
+          </div>
+        </div>
+      </section>
+
+      {/* How it works */}
+      <section className="container max-w-6xl mx-auto px-4 py-14">
+        <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">Comment ça marche</h2>
+        <div className="grid md:grid-cols-3 gap-6">
+          {[
+            { n: "1", t: "Créez votre compte", d: "Inscription gratuite en 30 secondes, choisissez un plan." },
+            { n: "2", t: "On imprime & on expédie", d: "Adhésif premium imprimé avec votre établissement, livré chez vous." },
+            { n: "3", t: "Recevez plus d'avis", d: "Collez-le, vos clients scannent, vous récoltez des avis 5★." },
+          ].map((s) => (
+            <Card key={s.n} className="p-6 rounded-2xl border-2 hover:border-emerald-300 transition">
+              <div className="w-10 h-10 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center mb-3">
+                {s.n}
+              </div>
+              <h3 className="font-bold text-lg mb-1">{s.t}</h3>
+              <p className="text-sm text-muted-foreground">{s.d}</p>
+            </Card>
+          ))}
+        </div>
+      </section>
+
+      {/* Designs */}
+      <section className="bg-white py-16 border-y">
+        <div className="container max-w-6xl mx-auto px-4 grid md:grid-cols-2 gap-10 items-center">
+          <img
+            src={designs}
+            alt="Trois designs de QR codes adhésifs premium"
+            width={1536}
+            height={1024}
+            loading="lazy"
+            className="rounded-2xl shadow-xl w-full h-auto object-cover aspect-[3/2]"
+          />
+          <div>
+            <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100 mb-3">3 designs au choix</Badge>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Un adhésif qui colle à votre marque</h2>
+            <p className="text-muted-foreground mb-5">
+              Classique blanc, élégant noir ou minimaliste émeraude — choisissez le style
+              qui s'intègre parfaitement à votre établissement.
+            </p>
+            <ul className="space-y-2 text-sm">
+              <li className="flex items-start gap-2"><CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" /> Format optimal scan rapide (80 × 80 mm)</li>
+              <li className="flex items-start gap-2"><CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" /> Adhésif résistant eau & graisse</li>
+              <li className="flex items-start gap-2"><CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" /> Lien direct vers votre fiche Google</li>
+              <li className="flex items-start gap-2"><CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" /> Nom de votre établissement imprimé</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      {/* Use case */}
+      <section className="container max-w-6xl mx-auto px-4 py-16 grid md:grid-cols-2 gap-10 items-center">
+        <div>
+          <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-100 mb-3">
+            <Store className="w-3.5 h-3.5 mr-1" /> Pour tous les commerces
+          </Badge>
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">Restaurants, salons, boutiques, hôtels…</h2>
+          <p className="text-muted-foreground mb-5">
+            Collez-le sur votre comptoir, votre menu, votre porte d'entrée ou votre
+            ticket de caisse. Les clients satisfaits laissent un avis en 1 scan — sans
+            même réfléchir.
+          </p>
+          <Button asChild size="lg" className="bg-emerald-600 hover:bg-emerald-700">
+            <Link to={startUrl}>Commander mon QR gratuit <ArrowRight className="w-4 h-4 ml-2" /></Link>
+          </Button>
+        </div>
+        <img
+          src={usecase}
+          alt="Commerçant heureux installant son QR code sur le comptoir"
+          width={1280}
+          height={1024}
+          loading="lazy"
+          className="rounded-2xl shadow-xl w-full h-auto object-cover aspect-[4/3]"
+        />
+      </section>
+
+      {/* Testimonials */}
+      <section className="bg-gradient-to-br from-emerald-50 to-amber-50 py-16">
+        <div className="container max-w-6xl mx-auto px-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-10">Ils ont reçu leur QR gratuit</h2>
+          <div className="grid md:grid-cols-3 gap-5">
+            {[
+              { name: "Lina, Le Petit Bistrot", quote: "Reçu en 4 jours, déjà 22 nouveaux avis en 2 semaines !" },
+              { name: "Marc, Coiffeur Urbain", quote: "Mes clients adorent. Plus besoin de demander, ils scannent." },
+              { name: "Sofia, Boutique Mode", quote: "Design élégant, ça s'intègre parfaitement à ma déco." },
+            ].map((t) => (
+              <Card key={t.name} className="p-5 rounded-2xl bg-white">
+                <div className="flex mb-2">
+                  {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />)}
+                </div>
+                <p className="text-sm italic text-foreground mb-3">"{t.quote}"</p>
+                <p className="text-xs font-semibold text-muted-foreground">{t.name}</p>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Final CTA */}
+      <section className="container max-w-3xl mx-auto px-4 py-16 text-center">
+        <QrCode className="w-14 h-14 mx-auto text-emerald-600 mb-4" />
+        <h2 className="text-3xl md:text-4xl font-bold mb-3">Prêt à recevoir votre QR gratuit ?</h2>
+        <p className="text-muted-foreground mb-6">
+          1 exemplaire offert par compte. Livraison France & International. Sans frais cachés.
+        </p>
+        <Button asChild size="lg" className="bg-emerald-600 hover:bg-emerald-700 text-base h-12 px-8">
+          <Link to={startUrl}>
+            Je commande mon QR gratuit <ArrowRight className="w-4 h-4 ml-2" />
+          </Link>
+        </Button>
+        <p className="text-xs text-muted-foreground mt-4">
+          Réservé aux nouveaux abonnés Starlinko (plans payants à partir de 9,99€/mois).
+        </p>
+      </section>
+
+      <footer className="border-t bg-white">
+        <div className="container max-w-6xl mx-auto px-4 py-6 text-center text-xs text-muted-foreground">
+          © {new Date().getFullYear()} Starlinko · <Link to="/privacy" className="underline">Confidentialité</Link> · <Link to="/terms" className="underline">CGV</Link>
+        </div>
+      </footer>
+    </div>
+  );
+}
