@@ -3,8 +3,10 @@ import { Link, useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ShoppingBag, Sparkles, Truck, QrCode, CreditCard, Gift } from "lucide-react";
+import { ShoppingBag, Sparkles, Truck, QrCode, Smartphone, Gift } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import plaqueFront from "@/assets/nfc-plaque-front.jpg";
+import plaqueDesigns from "@/assets/nfc-plaque-designs.jpg";
 
 const PAID_PLANS_KEYWORDS = ["quotidien", "agence", "pro", "business"];
 
