@@ -32,7 +32,7 @@ export default function LandingQRGratuit() {
       <header className="sticky top-0 z-30 bg-white/80 backdrop-blur border-b">
         <div className="container max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
           <Link to="/" className="font-bold flex items-center gap-2">
-            <span className="text-amber-500">★</span> Starlinko
+            <span className="text-amber-500">★</span> Ranki.ai
           </Link>
           <Button asChild size="sm" className="bg-emerald-600 hover:bg-emerald-700">
             <Link to={startUrl}>Recevoir mon QR gratuit</Link>
