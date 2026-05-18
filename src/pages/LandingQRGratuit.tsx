@@ -133,7 +133,7 @@ export default function LandingQRGratuit() {
             <ul className="space-y-2 text-sm">
               <li className="flex items-start gap-2"><CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" /> Format 12 × 12 cm, plastique premium</li>
               <li className="flex items-start gap-2"><CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" /> Puce NFC <strong>+</strong> QR code dynamique</li>
-              <li className="flex items-start gap-2"><CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" /> Lien modifiable à vie depuis Starlinko</li>
+              <li className="flex items-start gap-2"><CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" /> Lien modifiable à vie depuis Ranki.ai</li>
               <li className="flex items-start gap-2"><CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" /> Adhésif inclus + support à poser</li>
             </ul>
           </div>
