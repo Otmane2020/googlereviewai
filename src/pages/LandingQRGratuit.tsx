@@ -117,7 +117,7 @@ export default function LandingQRGratuit() {
         <div className="container max-w-6xl mx-auto px-4 grid md:grid-cols-2 gap-10 items-center">
           <img
             src={designs}
-            alt="Trois designs de QR codes adhésifs premium"
+            alt="Trois designs de plaques NFC + QR Google Avis"
             width={1536}
             height={1024}
             loading="lazy"
@@ -125,16 +125,16 @@ export default function LandingQRGratuit() {
           />
           <div>
             <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100 mb-3">3 designs au choix</Badge>
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Un adhésif qui colle à votre marque</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Une plaque qui colle à votre marque</h2>
             <p className="text-muted-foreground mb-5">
-              Classique blanc, élégant noir ou minimaliste émeraude — choisissez le style
+              Bleu Google classique, élégant noir & or, ou minimaliste émeraude — choisissez le style
               qui s'intègre parfaitement à votre établissement.
             </p>
             <ul className="space-y-2 text-sm">
-              <li className="flex items-start gap-2"><CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" /> Format optimal scan rapide (80 × 80 mm)</li>
-              <li className="flex items-start gap-2"><CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" /> Adhésif résistant eau & graisse</li>
-              <li className="flex items-start gap-2"><CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" /> Lien direct vers votre fiche Google</li>
-              <li className="flex items-start gap-2"><CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" /> Nom de votre établissement imprimé</li>
+              <li className="flex items-start gap-2"><CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" /> Format 12 × 12 cm, plastique premium</li>
+              <li className="flex items-start gap-2"><CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" /> Puce NFC <strong>+</strong> QR code dynamique</li>
+              <li className="flex items-start gap-2"><CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" /> Lien modifiable à vie depuis Starlinko</li>
+              <li className="flex items-start gap-2"><CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" /> Adhésif inclus + support à poser</li>
             </ul>
           </div>
         </div>
