@@ -97,9 +97,9 @@ export default function LandingQRGratuit() {
         <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">Comment ça marche</h2>
         <div className="grid md:grid-cols-3 gap-6">
           {[
-            { n: "1", t: "Créez votre compte", d: "Inscription gratuite en 30 secondes, choisissez un plan." },
-            { n: "2", t: "On imprime & on expédie", d: "Adhésif premium imprimé avec votre établissement, livré chez vous." },
-            { n: "3", t: "Recevez plus d'avis", d: "Collez-le, vos clients scannent, vous récoltez des avis 5★." },
+            { n: "1", t: "Créez votre compte", d: "Inscription en 30 secondes, connectez votre fiche Google My Business." },
+            { n: "2", t: "On personnalise & on expédie", d: "Plaque NFC + QR imprimée avec votre établissement, livrée chez vous gratuitement." },
+            { n: "3", t: "Vos clients tapent ou scannent", d: "Posez-la sur le comptoir. Vos clients laissent un avis 5★ en 1 geste." },
           ].map((s) => (
             <Card key={s.n} className="p-6 rounded-2xl border-2 hover:border-emerald-300 transition">
               <div className="w-10 h-10 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center mb-3">
