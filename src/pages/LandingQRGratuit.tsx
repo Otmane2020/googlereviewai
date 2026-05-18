@@ -44,16 +44,16 @@ export default function LandingQRGratuit() {
       <section className="container max-w-6xl mx-auto px-4 pt-10 pb-12 grid md:grid-cols-2 gap-10 items-center">
         <div>
           <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-100 mb-4">
-            <Gift className="w-3.5 h-3.5 mr-1" /> Offre nouveaux abonnés
+            <Gift className="w-3.5 h-3.5 mr-1" /> Offerte à tous — tous plans
           </Badge>
           <h1 className="text-4xl md:text-5xl font-extrabold leading-tight tracking-tight">
             Votre <span className="text-emerald-600">Plaque NFC + QR Google</span><br />
-            <span className="text-amber-500">offerte</span> aux nouveaux abonnés
+            <span className="text-amber-500">100% offerte</span>
           </h1>
           <p className="text-lg text-muted-foreground mt-5">
             Plaque premium 12×12 cm. Vos clients <strong className="text-foreground">tapent leur téléphone (NFC)</strong> ou
             <strong className="text-foreground"> scannent le QR code</strong> — et laissent un avis Google en quelques secondes.
-            <strong className="text-foreground"> 1 plaque offerte</strong> à tout nouvel abonné.
+            <strong className="text-foreground"> Offerte à tous les utilisateurs Ranki.ai</strong>, quel que soit le plan.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 mt-7">
