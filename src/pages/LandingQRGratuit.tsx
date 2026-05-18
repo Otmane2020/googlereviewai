@@ -59,7 +59,7 @@ export default function LandingQRGratuit() {
           <div className="flex flex-col sm:flex-row gap-3 mt-7">
             <Button asChild size="lg" className="bg-emerald-600 hover:bg-emerald-700 text-base h-12 px-6">
               <Link to={startUrl}>
-                Je commande mon QR gratuit <ArrowRight className="w-4 h-4 ml-2" />
+                Je commande ma plaque gratuite <ArrowRight className="w-4 h-4 ml-2" />
               </Link>
             </Button>
             <Button asChild size="lg" variant="outline" className="text-base h-12">
