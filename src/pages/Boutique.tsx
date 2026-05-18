@@ -71,8 +71,8 @@ export default function Boutique() {
             <Badge className="bg-amber-100 text-amber-700">{isPaid ? "Inclus dans votre plan" : "Réservé plans payants"}</Badge>
             <span className="text-2xl font-bold text-emerald-600">Gratuit</span>
           </div>
-          <div className="aspect-video bg-gradient-to-br from-amber-400 to-amber-600 rounded-xl mb-4 flex items-center justify-center">
-            <Gift className="w-16 h-16 text-white" />
+          <div className="aspect-video rounded-xl mb-4 overflow-hidden bg-slate-100">
+            <img src={qrStickerVitrine} alt="QR code adhésif collé sur vitrine de restaurant" className="w-full h-full object-cover" />
           </div>
           <h2 className="text-xl font-bold mb-2">QR code adhésif imprimé</h2>
           <p className="text-sm text-muted-foreground mb-4">
