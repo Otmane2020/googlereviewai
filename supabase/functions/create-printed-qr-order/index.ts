@@ -43,15 +43,8 @@ serve(async (req) => {
       });
     }
 
-    // Check plan
-    const { data: profile } = await supabase.from("profiles").select("plan_name").eq("id", user.id).maybeSingle();
-    const planName = (profile?.plan_name || "").toLowerCase();
-    const isPaid = PAID_PLANS.some((p) => planName.includes(p));
-    if (!isPaid) {
-      return new Response(JSON.stringify({ error: "Réservé aux abonnés payants. Passez sur un plan payant pour recevoir votre QR imprimé gratuit." }), {
-        status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
+    // Pas de restriction de plan : la plaque est offerte à tous les utilisateurs authentifiés.
+
 
     // Check business
     const { data: business } = await supabase.from("businesses").select("id, name, google_place_id, user_id").eq("id", businessId).maybeSingle();
