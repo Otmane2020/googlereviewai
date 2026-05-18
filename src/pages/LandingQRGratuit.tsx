@@ -15,13 +15,13 @@ export default function LandingQRGratuit() {
   const startUrl = "/auth?next=/boutique/qr-imprime";
 
   useEffect(() => {
-    document.title = "QR code Google Avis imprimé — Offert aux nouveaux abonnés | Starlinko";
+    document.title = "Plaque NFC + QR Google Avis — Offerte aux nouveaux abonnés | Starlinko";
     const setMeta = (name: string, content: string) => {
       let el = document.querySelector(`meta[name="${name}"]`) as HTMLMetaElement | null;
       if (!el) { el = document.createElement("meta"); el.name = name; document.head.appendChild(el); }
       el.content = content;
     };
-    setMeta("description", "Recevez gratuitement votre QR code adhésif personnalisé chez vous. 1 offert pour tout nouvel abonné Starlinko. Plus d'avis Google en un scan.");
+    setMeta("description", "Recevez gratuitement votre plaque NFC + QR code Google Avis. Vos clients tapent ou scannent — vous récoltez des avis 5★. Offerte à tout nouvel abonné Starlinko.");
   }, []);
 
   return (
