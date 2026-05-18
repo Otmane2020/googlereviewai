@@ -187,9 +187,9 @@ serve(async (req) => {
 
         if (userId && subscriptionId) {
           // Get subscription details
-          const subscription = await stripe.subscriptions.retrieve(subscriptionId);
-          const priceId = subscription.items.data[0]?.price.id;
-          const config = PLAN_CONFIG[priceId];
+          const best = pickBestItem(subscription);
+          const priceId = best?.priceId || subscription.items.data[0]?.price.id;
+          const config = best?.config;
 
           console.log("[checkout.session.completed] Subscription details", {
             status: subscription.status,
