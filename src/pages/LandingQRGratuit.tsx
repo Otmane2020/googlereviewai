@@ -169,7 +169,7 @@ export default function LandingQRGratuit() {
       {/* Testimonials */}
       <section className="bg-gradient-to-br from-emerald-50 to-amber-50 py-16">
         <div className="container max-w-6xl mx-auto px-4">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-10">Ils ont reçu leur QR gratuit</h2>
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-10">Ils ont reçu leur plaque NFC gratuite</h2>
           <div className="grid md:grid-cols-3 gap-5">
             {[
               { name: "Lina, Le Petit Bistrot", quote: "Reçu en 4 jours, déjà 22 nouveaux avis en 2 semaines !" },
