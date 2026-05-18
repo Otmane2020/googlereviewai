@@ -316,7 +316,7 @@ export default function BoutiqueQRImprime() {
               {TEMPLATES.map((t) => (
                 <button key={t.id} type="button" onClick={() => setTemplate(t.id)}
                   className={`p-2 rounded-xl transition-all ${template === t.id ? "ring-4 ring-emerald-400" : "ring-1 ring-border hover:ring-emerald-200"}`}>
-                  <PlaquePreview template={t} businessName={editName} websiteOrPlaceLabel={websiteLabel} qrDataUrl={qrPreview} size={140} />
+                  <PlaquePreview template={t} businessName={editName} websiteOrPlaceLabel={websiteLabel} qrDataUrl={qrPreview} size={140} titleText={T.plaqueTitle} scanText={T.scan} defaultBiz={T.defaultBiz} />
                   <p className="text-xs mt-2 text-center font-medium">{t.label}</p>
                 </button>
               ))}
@@ -334,7 +334,7 @@ export default function BoutiqueQRImprime() {
           <div className="space-y-5">
             <h2 className="font-semibold flex items-center gap-2"><Eye className="w-5 h-5" /> {T.step3}</h2>
             <div className="bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl p-6">
-              <PlaquePreview template={tpl} businessName={editName} websiteOrPlaceLabel={websiteLabel} qrDataUrl={qrPreview} size={320} />
+              <PlaquePreview template={tpl} businessName={editName} websiteOrPlaceLabel={websiteLabel} qrDataUrl={qrPreview} size={320} titleText={T.plaqueTitle} scanText={T.scan} defaultBiz={T.defaultBiz} />
             </div>
             <div className="text-center text-xs text-muted-foreground">{T.previewNote}</div>
             <div className="flex gap-2">
