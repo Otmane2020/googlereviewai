@@ -50,8 +50,11 @@ function GoogleLogo({ size = 40 }: { size?: number }) {
 /** Live preview of the plaque — Plakode deluxe style with bevelled corners. */
 function PlaquePreview({
   template, businessName, websiteOrPlaceLabel, qrDataUrl, size = 320,
-}: { template: typeof TEMPLATES[number]; businessName: string; websiteOrPlaceLabel: string; qrDataUrl: string; size?: number }) {
+  titleText, scanText, defaultBiz,
+}: { template: typeof TEMPLATES[number]; businessName: string; websiteOrPlaceLabel: string; qrDataUrl: string; size?: number; titleText?: string; scanText?: string; defaultBiz?: string }) {
   const isDark = template.id === "dark" || template.id === "gold";
+  const title = titleText || "Votre avis nous intéresse";
+  const scanLines = (scanText || "Scannez\nle QR code").split("\n");
   return (
     <div
       className="mx-auto overflow-hidden flex flex-col"
@@ -64,11 +67,10 @@ function PlaquePreview({
           : `inset 0 1px 2px rgba(255,255,255,0.9), 0 12px 30px -10px rgba(15,23,42,0.25)`,
       }}
     >
-      {/* TOP — title + Google + stars */}
       <div className="flex-1 flex flex-col items-center justify-center px-3 pt-3 pb-1" style={{ background: template.topBg }}>
         <div className="font-extrabold tracking-wide text-center uppercase"
              style={{ color: template.titleColor, fontSize: size * 0.058, letterSpacing: size * 0.002 }}>
-          Votre avis nous intéresse
+          {title}
         </div>
         <div className="mt-1.5">
           <GoogleLogo size={size * 0.13} />
@@ -82,12 +84,11 @@ function PlaquePreview({
         </div>
       </div>
 
-      {/* BOTTOM — colored band with SCAN text + QR + footer */}
       <div className="flex flex-col items-center justify-between pt-2 pb-1.5 px-3"
            style={{ background: template.bottomBg, height: size * 0.46 }}>
         <div className="text-center font-bold uppercase leading-tight"
              style={{ color: template.scanColor, fontSize: size * 0.04, letterSpacing: 0.5 }}>
-          Scannez<br />le QR code
+          {scanLines.map((l, i) => <div key={i}>{l}</div>)}
         </div>
         {qrDataUrl ? (
           <img src={qrDataUrl} alt="QR" className="rounded-md"
@@ -96,7 +97,7 @@ function PlaquePreview({
           <div className="rounded-md bg-white/70" style={{ width: size * 0.28, height: size * 0.28 }} />
         )}
         <div className="text-center w-full" style={{ color: template.footerColor, fontSize: size * 0.028, opacity: 0.85 }}>
-          <div className="font-bold truncate">{businessName || "Votre établissement"}</div>
+          <div className="font-bold truncate">{businessName || defaultBiz || "Votre établissement"}</div>
           <div className="truncate" style={{ opacity: 0.7 }}>{websiteOrPlaceLabel}</div>
         </div>
       </div>
