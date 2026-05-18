@@ -4,9 +4,10 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, ShoppingCart, CreditCard, ArrowLeft } from "lucide-react";
+import { Loader2, ShoppingCart, Smartphone, ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import plaqueFront from "@/assets/nfc-plaque-front.jpg";
 
 export default function BoutiqueNFC() {
   const navigate = useNavigate();
