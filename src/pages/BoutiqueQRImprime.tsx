@@ -205,8 +205,8 @@ export default function BoutiqueQRImprime() {
 
   const websiteLabel = useMemo(() => {
     const raw = editWebsite || business?.website || "";
-    return raw.replace(/^https?:\/\//, "").replace(/\/$/, "").slice(0, 40) || "Avis Google";
-  }, [editWebsite, business]);
+    return raw.replace(/^https?:\/\//, "").replace(/\/$/, "").slice(0, 40) || T.defaultLink;
+  }, [editWebsite, business, T.defaultLink]);
 
   const tpl = TEMPLATES.find((t) => t.id === template)!;
   const missingInfo = !editName || !editWebsite;
