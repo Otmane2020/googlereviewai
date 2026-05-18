@@ -13,18 +13,31 @@ const supabaseAdmin = createClient(
 
 // Plan configurations
 // agencyPoolCredits: total credits added to the user's agency pool (to be allocated per business)
-const PLAN_CONFIG: Record<string, { credits: number; maxBusinesses: number; planName: string; agencyPoolCredits?: number }> = {
-  "price_1SrHtCEfti9t9nN9L8Fytsni": { credits: 10, maxBusinesses: 1, planName: "Starter" },
-  "price_1SrHtDEfti9t9nN96yIPGiOo": { credits: 100, maxBusinesses: 2, planName: "Pro" },
-  "price_1SrHtEEfti9t9nN9mq7MrV3G": { credits: 400, maxBusinesses: 999, planName: "Business" },
-  "price_1SrHtOEfti9t9nN9fG4lSroa": { credits: 10, maxBusinesses: 1, planName: "Starter Annuel" },
-  "price_1SrHtPEfti9t9nN9dnZ0sXpi": { credits: 100, maxBusinesses: 2, planName: "Pro Annuel" },
-  "price_1SrHtQEfti9t9nN9GKvr4NSt": { credits: 400, maxBusinesses: 999, planName: "Business Annuel" },
-  // Quotidien - 9,99€/mois - jusqu'à 3 établissements, 200 crédits/mois (avis + AEO + SEO)
-  "price_1TSa8pEfti9t9nN9JHI4owg3": { credits: 200, maxBusinesses: 3, planName: "Quotidien" },
-  // Agence - 49€/mois - illimité, pool 1000 crédits à allouer par établissement
-  "price_1TTuIpEfti9t9nN9sy6pUNgU": { credits: 0, maxBusinesses: 999, planName: "Agence", agencyPoolCredits: 1000 },
+const PLAN_CONFIG: Record<string, { credits: number; maxBusinesses: number; planName: string; agencyPoolCredits?: number; tier: number }> = {
+  "price_1SrHtCEfti9t9nN9L8Fytsni": { credits: 10, maxBusinesses: 1, planName: "Starter", tier: 1 },
+  "price_1SrHtDEfti9t9nN96yIPGiOo": { credits: 100, maxBusinesses: 2, planName: "Pro", tier: 3 },
+  "price_1SrHtEEfti9t9nN9mq7MrV3G": { credits: 400, maxBusinesses: 999, planName: "Business", tier: 4 },
+  "price_1SrHtOEfti9t9nN9fG4lSroa": { credits: 10, maxBusinesses: 1, planName: "Starter Annuel", tier: 1 },
+  "price_1SrHtPEfti9t9nN9dnZ0sXpi": { credits: 100, maxBusinesses: 2, planName: "Pro Annuel", tier: 3 },
+  "price_1SrHtQEfti9t9nN9GKvr4NSt": { credits: 400, maxBusinesses: 999, planName: "Business Annuel", tier: 4 },
+  // Quotidien - 9,99€/mois
+  "price_1TSa8pEfti9t9nN9JHI4owg3": { credits: 200, maxBusinesses: 3, planName: "Quotidien", tier: 2 },
+  "price_1TU9QcEfti9t9nN9MwGBzftO": { credits: 200, maxBusinesses: 3, planName: "Quotidien", tier: 2 },
+  // Agence - 49€/mois
+  "price_1TTuIpEfti9t9nN9sy6pUNgU": { credits: 0, maxBusinesses: 999, planName: "Agence", agencyPoolCredits: 1000, tier: 5 },
+  "price_1SsBcUEfti9t9nN9aqWMiw7Y": { credits: 0, maxBusinesses: 999, planName: "Agence", agencyPoolCredits: 1000, tier: 5 },
 };
+
+// Pick the highest-tier item from a subscription (handles multi-item subs e.g. Quotidien + Agence)
+function pickBestItem(subscription: Stripe.Subscription) {
+  let best: { priceId: string; config: typeof PLAN_CONFIG[string] } | null = null;
+  for (const item of subscription.items.data) {
+    const pid = item.price.id;
+    const cfg = PLAN_CONFIG[pid];
+    if (cfg && (!best || cfg.tier > best.config.tier)) best = { priceId: pid, config: cfg };
+  }
+  return best;
+}
 
 // Helper function to safely convert Unix timestamp to ISO string
 const safeTimestampToISO = (timestamp: number | null | undefined): string | null => {
