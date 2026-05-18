@@ -68,10 +68,10 @@ export default function LandingQRGratuit() {
           </div>
 
           <ul className="grid grid-cols-2 gap-x-4 gap-y-2 mt-6 text-sm">
+            <li className="flex items-center gap-2"><Smartphone className="w-4 h-4 text-emerald-600" /> NFC + QR code</li>
             <li className="flex items-center gap-2"><Truck className="w-4 h-4 text-emerald-600" /> Livraison offerte</li>
-            <li className="flex items-center gap-2"><Sparkles className="w-4 h-4 text-emerald-600" /> Personnalisé</li>
-            <li className="flex items-center gap-2"><ShieldCheck className="w-4 h-4 text-emerald-600" /> Sans engagement</li>
-            <li className="flex items-center gap-2"><Zap className="w-4 h-4 text-emerald-600" /> Reçu sous 5–7 jours</li>
+            <li className="flex items-center gap-2"><Sparkles className="w-4 h-4 text-emerald-600" /> Lien modifiable à vie</li>
+            <li className="flex items-center gap-2"><Zap className="w-4 h-4 text-emerald-600" /> Reçue sous 5–7 jours</li>
           </ul>
         </div>
 
