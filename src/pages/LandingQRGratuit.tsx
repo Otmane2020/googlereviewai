@@ -201,13 +201,13 @@ export default function LandingQRGratuit() {
           </Link>
         </Button>
         <p className="text-xs text-muted-foreground mt-4">
-          Réservé aux nouveaux abonnés Starlinko (plans payants à partir de 9,99€/mois).
+          Offerte à tous les utilisateurs Ranki.ai — tous les plans, y compris gratuit.
         </p>
       </section>
 
       <footer className="border-t bg-white">
         <div className="container max-w-6xl mx-auto px-4 py-6 text-center text-xs text-muted-foreground">
-          © {new Date().getFullYear()} Starlinko · <Link to="/privacy" className="underline">Confidentialité</Link> · <Link to="/terms" className="underline">CGV</Link>
+          © {new Date().getFullYear()} Ranki.ai · <Link to="/privacy" className="underline">Confidentialité</Link> · <Link to="/terms" className="underline">CGV</Link>
         </div>
       </footer>
     </div>
