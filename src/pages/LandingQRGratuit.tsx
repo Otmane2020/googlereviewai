@@ -4,11 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
-  CheckCircle2, Gift, Truck, QrCode, Sparkles, Star, ShieldCheck, ArrowRight, Zap, Store,
+  CheckCircle2, Gift, Truck, QrCode, Sparkles, Star, ShieldCheck, ArrowRight, Zap, Store, Smartphone,
 } from "lucide-react";
-import hero from "@/assets/qr-landing-hero.jpg";
-import designs from "@/assets/qr-landing-designs.jpg";
-import usecase from "@/assets/qr-landing-usecase.jpg";
+import hero from "@/assets/nfc-plaque-counter.jpg";
+import designs from "@/assets/nfc-plaque-designs.jpg";
+import usecase from "@/assets/nfc-plaque-tap.jpg";
+import plaqueFront from "@/assets/nfc-plaque-front.jpg";
 
 export default function LandingQRGratuit() {
   const startUrl = "/auth?next=/boutique/qr-imprime";
