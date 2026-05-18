@@ -1,4 +1,4 @@
-import { Helmet } from "react-helmet-async";
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -13,16 +13,19 @@ import usecase from "@/assets/qr-landing-usecase.jpg";
 export default function LandingQRGratuit() {
   const startUrl = "/auth?next=/boutique/qr-imprime";
 
+  useEffect(() => {
+    document.title = "QR code Google Avis imprimé — Offert aux nouveaux abonnés | Starlinko";
+    const setMeta = (name: string, content: string) => {
+      let el = document.querySelector(`meta[name="${name}"]`) as HTMLMetaElement | null;
+      if (!el) { el = document.createElement("meta"); el.name = name; document.head.appendChild(el); }
+      el.content = content;
+    };
+    setMeta("description", "Recevez gratuitement votre QR code adhésif personnalisé chez vous. 1 offert pour tout nouvel abonné Starlinko. Plus d'avis Google en un scan.");
+  }, []);
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50/40 via-white to-emerald-50/30">
-      <Helmet>
-        <title>QR code Google Avis imprimé — Offert aux nouveaux abonnés | Starlinko</title>
-        <meta name="description" content="Recevez gratuitement votre QR code adhésif personnalisé chez vous. 1 offert pour tout nouvel abonné Starlinko. Plus d'avis Google en un scan." />
-        <link rel="canonical" href="https://starlinko.app/qr-gratuit" />
-        <meta property="og:title" content="QR code Google Avis imprimé — Offert" />
-        <meta property="og:description" content="Adhésif premium imprimé et expédié gratuitement. Boostez vos avis Google en 1 scan." />
-        <meta property="og:image" content="https://starlinko.app/og-qr-gratuit.jpg" />
-      </Helmet>
+
 
       {/* Top sticky CTA */}
       <header className="sticky top-0 z-30 bg-white/80 backdrop-blur border-b">
