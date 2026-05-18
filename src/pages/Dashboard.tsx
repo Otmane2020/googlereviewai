@@ -27,8 +27,9 @@ declare global {
 
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Star, Building2, TrendingUp, ChevronRight, RefreshCw, Loader2, MessageSquare, AlertCircle, CheckCircle2, Clock, ArrowUpRight, Percent, Link2 } from "lucide-react";
+import { Star, Building2, TrendingUp, ChevronRight, RefreshCw, Loader2, MessageSquare, AlertCircle, CheckCircle2, Clock, ArrowUpRight, Percent, Link2, Smartphone, Sparkles } from "lucide-react";
 import { BrandSparkle } from "@/components/BrandSparkle";
+import plaqueFront from "@/assets/nfc-plaque-front.jpg";
 
 interface Profile {
   id: string;
@@ -805,6 +806,36 @@ const Dashboard = () => {
             ))}
           </div>
         </div>
+
+        {/* Cross-sell : Plaque NFC + QR Google Avis */}
+        <Link
+          to="/boutique/nfc"
+          className="group relative block overflow-hidden rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 via-white to-emerald-50/40 hover:shadow-lg transition-all"
+        >
+          <div className="flex items-center gap-4 p-4">
+            <div className="w-20 h-20 rounded-xl bg-white border border-emerald-100 overflow-hidden flex-shrink-0 shadow-sm">
+              <img src={plaqueFront} alt="Plaque NFC + QR Google Avis" className="w-full h-full object-contain" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-semibold uppercase tracking-wide">
+                  <Sparkles className="w-3 h-3" /> Nouveau
+                </span>
+                <span className="text-xs text-muted-foreground">Boutique Ranki</span>
+              </div>
+              <div className="font-semibold text-foreground text-sm leading-tight">
+                Plaque NFC + QR Google Avis
+              </div>
+              <div className="text-xs text-muted-foreground mt-0.5">
+                Vos clients tapent ou scannent — multipliez vos avis x3
+              </div>
+            </div>
+            <div className="flex flex-col items-end gap-1 flex-shrink-0">
+              <span className="text-lg font-bold text-emerald-600">19,99 €</span>
+              <ChevronRight className="w-4 h-4 text-emerald-600 group-hover:translate-x-0.5 transition-transform" />
+            </div>
+          </div>
+        </Link>
 
         {/* Recent Reviews - Priority to Pending */}
         <div className="bg-card rounded-2xl border border-border overflow-hidden">
