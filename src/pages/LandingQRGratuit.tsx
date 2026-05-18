@@ -153,12 +153,12 @@ export default function LandingQRGratuit() {
             même réfléchir.
           </p>
           <Button asChild size="lg" className="bg-emerald-600 hover:bg-emerald-700">
-            <Link to={startUrl}>Commander mon QR gratuit <ArrowRight className="w-4 h-4 ml-2" /></Link>
+            <Link to={startUrl}>Commander ma plaque gratuite <ArrowRight className="w-4 h-4 ml-2" /></Link>
           </Button>
         </div>
         <img
           src={usecase}
-          alt="Commerçant heureux installant son QR code sur le comptoir"
+          alt="Client tapant son téléphone sur une plaque NFC pour laisser un avis Google"
           width={1280}
           height={1024}
           loading="lazy"
