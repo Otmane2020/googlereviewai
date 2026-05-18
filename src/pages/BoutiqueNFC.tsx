@@ -49,12 +49,12 @@ export default function BoutiqueNFC() {
 
       <Card className="p-6 rounded-2xl">
         <div className="flex items-center gap-3 mb-5">
-          <CreditCard className="w-8 h-8 text-emerald-600" />
-          <h1 className="text-2xl font-bold">Carte NFC Starlinko</h1>
+          <Smartphone className="w-8 h-8 text-emerald-600" />
+          <h1 className="text-2xl font-bold">Plaque NFC + QR Google Avis</h1>
         </div>
 
-        <div className="aspect-video bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-xl mb-5 flex items-center justify-center">
-          <CreditCard className="w-24 h-24 text-white" />
+        <div className="aspect-square bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl mb-5 overflow-hidden">
+          <img src={plaqueFront} alt="Plaque NFC + QR code Google" className="w-full h-full object-contain" />
         </div>
 
         <div className="space-y-4">
