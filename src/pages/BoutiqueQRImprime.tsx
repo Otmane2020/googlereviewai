@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ArrowLeft, ArrowRight, Loader2, Gift, QrCode, MapPin, CheckCircle2, Eye, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import QRCode from "qrcode";
 
 const COUNTRIES = [
@@ -105,6 +106,49 @@ function PlaquePreview({
 
 export default function BoutiqueQRImprime() {
   const navigate = useNavigate();
+  const { i18n } = useTranslation();
+  const en = i18n.language?.startsWith("en");
+  const T = en ? {
+    back: "Shop", title: "Printed adhesive QR — Free",
+    step1: "Step 1 — Business", noBiz: "No business yet.", addBiz: "Add one",
+    chooseBiz: "Choose the business", select: "Select",
+    missing: "Missing info in your GMB listing — complete for a perfect render.",
+    displayName: "Display name", site: "Website / link (optional)",
+    chooseTpl: "Choose a template", back2: "Back",
+    step2: "Step 2 — Choose your template", seePreview: "See preview",
+    step3: "Step 3 — Preview of your printed QR",
+    previewNote: "True-to-life preview · printed in high quality · adhesive ready to stick",
+    changeTpl: "Change template", validate: "Validate & ship",
+    step4: "Step 4 — Shipping address",
+    fullName: "Full name", address: "Address", line2: "Complement (optional)",
+    postal: "Postal code", city: "City", country: "Country", phone: "Phone (optional)",
+    biz: "Business", tpl: "Template", price: "Price: Free · Free shipping",
+    confirm: "Confirm order", err: "Error",
+    doneTitle: "Order confirmed 🎉",
+    doneDesc: "Your printed QR will be shipped within 5–7 business days. You will receive an email with the tracking number.",
+    seeOrders: "See my orders",
+    plaqueTitle: "We value your review", scan: "Scan\nthe QR code", defaultBiz: "Your business", defaultLink: "Google Reviews",
+  } : {
+    back: "Boutique", title: "QR code adhésif imprimé — Gratuit",
+    step1: "Étape 1 — Établissement", noBiz: "Aucun établissement.", addBiz: "En ajouter un",
+    chooseBiz: "Choisissez l'établissement", select: "Sélectionnez",
+    missing: "Informations manquantes dans votre fiche GMB — complétez pour un rendu parfait.",
+    displayName: "Nom à afficher", site: "Site / lien (optionnel)",
+    chooseTpl: "Choisir un template", back2: "Retour",
+    step2: "Étape 2 — Choisissez votre template", seePreview: "Voir l'aperçu",
+    step3: "Étape 3 — Aperçu de votre QR imprimé",
+    previewNote: "Aperçu réel · imprimé en haute qualité · adhésif prêt à coller",
+    changeTpl: "Changer de template", validate: "Valider et livrer",
+    step4: "Étape 4 — Adresse de livraison",
+    fullName: "Nom complet", address: "Adresse", line2: "Complément (optionnel)",
+    postal: "Code postal", city: "Ville", country: "Pays", phone: "Téléphone (optionnel)",
+    biz: "Établissement", tpl: "Template", price: "Prix : Gratuit · Frais de port offerts",
+    confirm: "Confirmer la commande", err: "Erreur",
+    doneTitle: "Commande confirmée 🎉",
+    doneDesc: "Votre QR code imprimé sera expédié sous 5–7 jours ouvrés. Vous recevrez un email avec le numéro de suivi.",
+    seeOrders: "Voir mes commandes",
+    plaqueTitle: "Votre avis nous intéresse", scan: "Scannez\nle QR code", defaultBiz: "Votre établissement", defaultLink: "Avis Google",
+  };
   const [step, setStep] = useState(1);
   const [businesses, setBusinesses] = useState<any[]>([]);
   const [businessId, setBusinessId] = useState<string>("");
