@@ -190,14 +190,14 @@ export default function LandingQRGratuit() {
 
       {/* Final CTA */}
       <section className="container max-w-3xl mx-auto px-4 py-16 text-center">
-        <QrCode className="w-14 h-14 mx-auto text-emerald-600 mb-4" />
-        <h2 className="text-3xl md:text-4xl font-bold mb-3">Prêt à recevoir votre QR gratuit ?</h2>
+        <Smartphone className="w-14 h-14 mx-auto text-emerald-600 mb-4" />
+        <h2 className="text-3xl md:text-4xl font-bold mb-3">Prêt à recevoir votre plaque NFC gratuite ?</h2>
         <p className="text-muted-foreground mb-6">
-          1 exemplaire offert par compte. Livraison France & International. Sans frais cachés.
+          1 plaque offerte par compte. Livraison France & International. Sans frais cachés.
         </p>
         <Button asChild size="lg" className="bg-emerald-600 hover:bg-emerald-700 text-base h-12 px-8">
           <Link to={startUrl}>
-            Je commande mon QR gratuit <ArrowRight className="w-4 h-4 ml-2" />
+            Je commande ma plaque gratuite <ArrowRight className="w-4 h-4 ml-2" />
           </Link>
         </Button>
         <p className="text-xs text-muted-foreground mt-4">
