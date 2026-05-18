@@ -21,6 +21,7 @@ import { RankiLogo } from "@/components/StarlinkoLogo";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
+import { DashboardHeader } from "@/components/DashboardHeader";
 import { SupportDialog } from "@/components/SupportDialog";
 import { UpgradeDialog } from "@/components/UpgradeDialog";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
@@ -33,7 +34,8 @@ interface DashboardLayoutProps {
 }
 
 const useNavItems = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isEn = i18n.language?.startsWith("en");
   const mainNav = [
     { label: t("sidebar.overview"), href: "/dashboard", icon: LayoutDashboard },
     { label: t("sidebar.googleReviews"), href: "/reviews", icon: Star },
@@ -46,8 +48,8 @@ const useNavItems = () => {
   ];
   const businessNav = [
     { label: t("sidebar.locations"), href: "/businesses", icon: Building2 },
-    { label: "Boutique", href: "/boutique", icon: ShoppingBag },
-    { label: "Mes commandes", href: "/commandes", icon: Package },
+    { label: isEn ? "Shop" : "Boutique", href: "/boutique", icon: ShoppingBag },
+    { label: isEn ? "My orders" : "Mes commandes", href: "/commandes", icon: Package },
   ];
   const accountNav = [
     { label: t("sidebar.aiSettings"), href: "/ai-settings", icon: BrandSparkle },
@@ -208,11 +210,19 @@ export const DashboardLayout = ({ children, title }: DashboardLayoutProps) => {
         </div>
 
         <div className="flex-1 flex flex-col min-w-0">
-          {/* Floating sidebar trigger — always reachable on desktop, even when sidebar is collapsed */}
-          <div className="hidden md:flex sticky top-2 z-40 px-3 -mb-2 items-center">
-            <SidebarTrigger className="text-foreground bg-card/90 backdrop-blur border border-border rounded-lg shadow-sm" />
-            {title && <h1 className="ml-3 self-center text-sm font-semibold text-foreground">{title}</h1>}
-          </div>
+          {/* Sticky top bar — visible on every dashboard page (language, notifications, credits) */}
+          <DashboardHeader />
+          {title && (
+            <div className="hidden md:flex sticky top-14 z-30 px-4 py-2 bg-background/80 backdrop-blur border-b border-border/40 items-center gap-3">
+              <SidebarTrigger className="text-foreground" />
+              <h1 className="text-sm font-semibold text-foreground">{title}</h1>
+            </div>
+          )}
+          {!title && (
+            <div className="hidden md:flex sticky top-14 z-30 px-3 py-1 items-center">
+              <SidebarTrigger className="text-foreground bg-card/90 backdrop-blur border border-border rounded-lg shadow-sm" />
+            </div>
+          )}
 
           <main className="flex-1 min-w-0 pb-20 md:pb-0">{children}</main>
 
