@@ -40,23 +40,25 @@ export default function Boutique() {
       </div>
 
       <div className="grid md:grid-cols-2 gap-5">
-        {/* NFC Card */}
+        {/* NFC + QR Plaque */}
         <Card className="p-6 rounded-2xl border-2 hover:border-emerald-400 transition-all">
           <div className="flex items-center justify-between mb-3">
             <Badge className="bg-emerald-100 text-emerald-700">Produit phare</Badge>
             <span className="text-2xl font-bold">19,99 €</span>
           </div>
-          <div className="aspect-video bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-xl mb-4 flex items-center justify-center">
-            <CreditCard className="w-16 h-16 text-white" />
+          <div className="aspect-square bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl mb-4 overflow-hidden">
+            <img src={plaqueFront} alt="Plaque NFC + QR code Google Avis" className="w-full h-full object-contain" />
           </div>
-          <h2 className="text-xl font-bold mb-2">Carte NFC personnalisée</h2>
+          <h2 className="text-xl font-bold mb-2">Plaque NFC + QR code Google Avis</h2>
           <p className="text-sm text-muted-foreground mb-4">
-            Carte au format CB, votre client la tape avec son téléphone et arrive directement sur la page d'avis Google.
+            Plaque premium 12×12 cm à poser sur votre comptoir ou coller au mur. Vos clients
+            <strong> tapent leur téléphone (NFC)</strong> ou <strong>scannent le QR code</strong> — et arrivent directement sur votre fiche d'avis Google.
           </p>
           <ul className="space-y-1.5 text-sm mb-5">
-            <li className="flex items-center gap-2"><Sparkles className="w-4 h-4 text-emerald-600" /> Personnalisée à votre établissement</li>
+            <li className="flex items-center gap-2"><Smartphone className="w-4 h-4 text-emerald-600" /> Double accès : NFC + QR code dynamique</li>
+            <li className="flex items-center gap-2"><Sparkles className="w-4 h-4 text-emerald-600" /> Lien modifiable à tout moment depuis Starlinko</li>
             <li className="flex items-center gap-2"><Truck className="w-4 h-4 text-emerald-600" /> Livraison France 3,99 € — International dispo</li>
-            <li className="flex items-center gap-2"><QrCode className="w-4 h-4 text-emerald-600" /> QR code également imprimé au dos</li>
+            <li className="flex items-center gap-2"><QrCode className="w-4 h-4 text-emerald-600" /> 3 designs au choix (blanc, noir, vert)</li>
           </ul>
           <Button className="w-full bg-emerald-600 hover:bg-emerald-700" onClick={() => navigate("/boutique/nfc")}>
             Commander
