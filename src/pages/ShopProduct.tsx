@@ -145,10 +145,6 @@ export default function ShopProduct() {
   );
 
   const handleCheckout = async () => {
-    if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
-      toast.error(en ? "Please enter a valid email" : "Entrez un email valide");
-      return;
-    }
     // Validate required platform fields
     for (const f of fields) {
       if (f.required && !(config[f.key] || "").trim()) {
@@ -157,16 +153,7 @@ export default function ShopProduct() {
       }
     }
     setPaying(true);
-    try {
-      const { data, error } = await supabase.functions.invoke("create-shop-checkout", {
-        body: { slug, quantity: qty, email, config },
-      });
-      if (error) throw error;
-      if (data?.url) window.location.href = data.url;
-    } catch (e: any) {
-      toast.error(e.message || "Erreur");
-      setPaying(false);
-    }
+    navigate("/shop/checkout", { state: { slug, quantity: qty, config } });
   };
 
   if (loading) return (
