@@ -59,6 +59,7 @@ import AdminOrders from "./pages/AdminOrders";
 import LandingQRGratuit from "./pages/LandingQRGratuit";
 import Shop from "./pages/Shop";
 import ShopProduct from "./pages/ShopProduct";
+import ShopCheckout from "./pages/ShopCheckout";
 import { DashboardLayout } from "./components/DashboardLayout";
 
 // Wraps a page with the persistent dashboard sidebar (desktop) + bottom nav (mobile)
