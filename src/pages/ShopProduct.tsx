@@ -359,19 +359,9 @@ export default function ShopProduct() {
                     <button onClick={() => setQty((q) => Math.min(20, q + 1))} className="px-3 py-1.5 hover:bg-muted">+</button>
                   </div>
                 </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="email" className="text-xs">{en ? "Order email" : "Email de commande"}</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder={en ? "you@email.com" : "vous@email.com"}
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
-                </div>
                 <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
                   <MapPin className="w-3 h-3" />
-                  {en ? "Shipping address requested at next step (secure)" : "Adresse de livraison demandée à l'étape suivante (sécurisé)"}
+                  {en ? "Email, phone & shipping address at next step (secure)" : "Email, téléphone & adresse à l'étape suivante (sécurisé)"}
                 </div>
                 <Button
                   size="lg"
@@ -382,7 +372,7 @@ export default function ShopProduct() {
                   {paying ? <Loader2 className="w-4 h-4 animate-spin" /> : (
                     <>
                       <Sparkles className="w-4 h-4 mr-2" />
-                      {en ? "Continue to checkout" : "Continuer vers le paiement"} — {(product.price_eur * qty).toFixed(2)} €
+                      {en ? "Order now" : "Commander maintenant"} — {(product.price_eur * qty).toFixed(2)} €
                     </>
                   )}
                 </Button>
