@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNotifications } from "@/hooks/useNotifications";
-import { DashboardHeader } from "@/components/DashboardHeader";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -195,7 +194,7 @@ const Notifications = () => {
 
   return (
     <div className="min-h-screen bg-background pb-20 md:pb-0">
-      <DashboardHeader />
+
 
       <main className="max-w-2xl mx-auto">
         {/* Header */}

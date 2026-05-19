@@ -4,7 +4,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useDeviceDetection } from "@/hooks/useDeviceDetection";
 import { useWebPush } from "@/hooks/useWebPush";
-import { DashboardHeader } from "@/components/DashboardHeader";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { UpgradeDialog } from "@/components/UpgradeDialog";
 import { SupportDialog } from "@/components/SupportDialog";
@@ -181,7 +180,7 @@ const SettingsPage = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
-        <DashboardHeader />
+
         <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
           <Loader2 className="w-8 h-8 animate-spin text-primary" />
         </div>
@@ -191,7 +190,7 @@ const SettingsPage = () => {
 
   return (
     <div className="min-h-screen bg-muted/30">
-      <DashboardHeader />
+
 
       {/* Page Header */}
       <div className="bg-card border-b border-border">

@@ -3,7 +3,6 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRequireSubscription } from "@/hooks/useRequireSubscription";
 import { supabase } from "@/integrations/supabase/client";
-import { DashboardHeader } from "@/components/DashboardHeader";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { RankingMap, processPointsWithDirections } from "@/components/RankingMap";
 import { VisibilityScore } from "@/components/maps-rank/VisibilityScore";
@@ -362,7 +361,7 @@ const MapsRank = () => {
 
   return (
     <div className="min-h-screen bg-background pb-20 md:pb-0">
-      <DashboardHeader />
+
 
       <main className="max-w-7xl mx-auto px-4 py-6 space-y-6">
         {/* Header */}

@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { DashboardHeader } from "@/components/DashboardHeader";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -125,7 +124,7 @@ const Admin = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/20 pb-24">
-      <DashboardHeader />
+
 
       <main className="max-w-6xl mx-auto px-4 py-5 space-y-6">
         {/* Header */}

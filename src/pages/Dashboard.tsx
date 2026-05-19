@@ -6,7 +6,6 @@ import { useSyncGoogleBusinesses } from "@/hooks/useSyncGoogleBusinesses";
 import { useSyncGoogleReviews } from "@/hooks/useSyncGoogleReviews";
 import { useRequireSubscription } from "@/hooks/useRequireSubscription";
 import { useGoogleOAuth } from "@/hooks/useGoogleOAuth";
-import { DashboardHeader } from "@/components/DashboardHeader";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { ConnectGMBDialog } from "@/components/ConnectGMBDialog";
@@ -452,7 +451,7 @@ const Dashboard = () => {
     <>
       <div className="bg-gradient-to-b from-background to-muted/20">
         {/* Mobile-only header (desktop uses sidebar layout) */}
-        <DashboardHeader className="md:hidden" />
+
 
         <main className="max-w-7xl mx-auto px-4 md:px-6 py-5 md:py-8 space-y-4">
           <div className="flex items-center justify-between">

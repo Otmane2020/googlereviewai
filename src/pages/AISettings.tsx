@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useRequireSubscription } from "@/hooks/useRequireSubscription";
-import { DashboardHeader } from "@/components/DashboardHeader";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
@@ -358,7 +357,7 @@ const AISettingsPage = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
-        <DashboardHeader />
+
         <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
           <Loader2 className="w-8 h-8 animate-spin text-primary" />
         </div>
@@ -368,7 +367,7 @@ const AISettingsPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/20 pb-24">
-      <DashboardHeader />
+
 
       {/* Compact Mobile Header */}
       <div className="sticky top-14 z-40 bg-background/80 backdrop-blur-xl border-b border-border/50">
