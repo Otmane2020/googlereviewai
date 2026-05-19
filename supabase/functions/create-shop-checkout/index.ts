@@ -7,19 +7,14 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const SHIPPING_RATES: Record<string, { amount: number; label: string }> = {
-  FR: { amount: 399, label: "Livraison France (3-5 jours)" },
-  BE: { amount: 699, label: "Livraison Belgique" },
-  LU: { amount: 699, label: "Livraison Luxembourg" },
-  CH: { amount: 999, label: "Livraison Suisse" },
-  DE: { amount: 799, label: "Livraison Allemagne" },
-  ES: { amount: 799, label: "Livraison Espagne" },
-  IT: { amount: 799, label: "Livraison Italie" },
-  GB: { amount: 999, label: "Livraison Royaume-Uni" },
-  US: { amount: 1499, label: "Livraison USA" },
-  CA: { amount: 1499, label: "Livraison Canada" },
-  INTL: { amount: 1999, label: "Livraison Internationale" },
-};
+// Stripe max 5 shipping rates per session — we group destinations into 5 tiers
+const SHIPPING_TIERS = [
+  { amount: 0,    label: "France — livraison offerte (3-5 jours)", min: 3, max: 5 },
+  { amount: 699,  label: "Europe — Belgique, Luxembourg, Allemagne (4-7 jours)", min: 4, max: 7 },
+  { amount: 999,  label: "Europe étendue — Suisse, Espagne, Italie, UK (5-10 jours)", min: 5, max: 10 },
+  { amount: 1499, label: "Amérique du Nord — USA, Canada (7-14 jours)", min: 7, max: 14 },
+  { amount: 1999, label: "Reste du monde (10-21 jours)", min: 10, max: 21 },
+];
 
 const ALLOWED_COUNTRIES = [
   "FR","BE","LU","CH","DE","ES","IT","GB","US","CA","NL","PT","IE","AT","SE","NO","DK","FI","PL","CZ","AU","NZ","JP","SG","AE","MA","TN","DZ","SN","CI"
