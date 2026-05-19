@@ -81,6 +81,7 @@ export default function AdminOrders() {
             <SelectContent>
               <SelectItem value="all">Toutes</SelectItem>
               <SelectItem value="nfc_card">Cartes NFC</SelectItem>
+              <SelectItem value="shop_product">Boutique</SelectItem>
               <SelectItem value="printed_qr_free">QR imprimés gratuits</SelectItem>
               <SelectItem value="pending">En attente</SelectItem>
               <SelectItem value="paid">Payées</SelectItem>
@@ -115,8 +116,14 @@ export default function AdminOrders() {
                 <TableRow key={o.id}>
                   <TableCell className="text-xs">{new Date(o.created_at).toLocaleDateString("fr-FR")}</TableCell>
                   <TableCell>
-                    <Badge className={o.order_type === "nfc_card" ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"}>
-                      {o.order_type === "nfc_card" ? "NFC" : "QR gratuit"}
+                    <Badge className={
+                      o.order_type === "nfc_card" ? "bg-emerald-100 text-emerald-700" :
+                      o.order_type === "shop_product" ? "bg-indigo-100 text-indigo-700" :
+                      "bg-amber-100 text-amber-700"
+                    }>
+                      {o.order_type === "nfc_card" ? "NFC" :
+                       o.order_type === "shop_product" ? (o.order_items?.[0]?.product_name?.slice(0, 18) || "Boutique") :
+                       "QR gratuit"}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-xs">
