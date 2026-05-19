@@ -35,6 +35,14 @@ serve(async (req) => {
     const body = await req.json();
     const slug = String(body.slug || "").trim();
     const quantity = Math.max(1, Math.min(20, Number(body.quantity ?? 1)));
+    // Sanitize per-card configuration (e.g. instagram handle, google URL, linkedin URL...)
+    const rawConfig = (body.config && typeof body.config === "object") ? body.config : {};
+    const config: Record<string, string> = {};
+    for (const [k, v] of Object.entries(rawConfig)) {
+      if (typeof v === "string" && v.trim()) {
+        config[String(k).slice(0, 64)] = String(v).slice(0, 500).trim();
+      }
+    }
     if (!slug) {
       return new Response(JSON.stringify({ error: "Produit invalide" }), {
         status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
