@@ -57,6 +57,8 @@ import BoutiqueQRImprime from "./pages/BoutiqueQRImprime";
 import Commandes from "./pages/Commandes";
 import AdminOrders from "./pages/AdminOrders";
 import LandingQRGratuit from "./pages/LandingQRGratuit";
+import Shop from "./pages/Shop";
+import ShopProduct from "./pages/ShopProduct";
 import { DashboardLayout } from "./components/DashboardLayout";
 
 // Wraps a page with the persistent dashboard sidebar (desktop) + bottom nav (mobile)
@@ -217,6 +219,8 @@ const AppContent = () => {
               <Route path="/boutique/qr-imprime" element={<Shell><BoutiqueQRImprime /></Shell>} />
               <Route path="/commandes" element={<Shell><Commandes /></Shell>} />
               <Route path="/qr-gratuit" element={<LandingQRGratuit />} />
+              <Route path="/shop" element={<Shop />} />
+              <Route path="/shop/:slug" element={<ShopProduct />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </OAuthCallback>

@@ -29,7 +29,7 @@ export default function AdminOrders() {
     setLoading(true);
     const { data, error } = await supabase.from("orders")
       .select("*, order_items(*)")
-      .in("order_type", ["nfc_card", "printed_qr_free"])
+      .in("order_type", ["nfc_card", "printed_qr_free", "shop_product"])
       .order("created_at", { ascending: false })
       .limit(200);
     if (error) toast.error(error.message);

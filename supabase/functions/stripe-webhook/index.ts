@@ -158,7 +158,7 @@ serve(async (req) => {
         // Handle one-time NFC card orders (no subscription)
         const orderType = session.metadata?.order_type;
         const orderId = session.metadata?.order_id;
-        if (orderType === "nfc_card" && orderId) {
+        if ((orderType === "nfc_card" || orderType === "shop_product") && orderId) {
           try {
             const ship = session.shipping_details || (session as any).customer_details;
             const shippingAddress = ship?.address ? {
