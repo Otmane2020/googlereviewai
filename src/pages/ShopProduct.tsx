@@ -556,6 +556,90 @@ export default function ShopProduct() {
             </Card>
           </section>
 
+          {/* Use cases */}
+          <section className="mt-16">
+            <h2 className="text-2xl md:text-3xl font-bold text-center mb-2">
+              {en ? "Perfect for" : "Idéal pour"}
+            </h2>
+            <p className="text-center text-muted-foreground mb-8">
+              {en ? "Boost your visibility wherever your customers are." : "Boostez votre visibilité partout où sont vos clients."}
+            </p>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {(en
+                ? [
+                    { t: "Restaurants & cafés", d: "On the table — 3× more reviews per week." },
+                    { t: "Hair & beauty salons", d: "At checkout — clients tap before leaving." },
+                    { t: "Hotels & B&Bs", d: "On the reception desk — instant 5-star reviews." },
+                    { t: "Retail & boutiques", d: "Next to the till — turn happy buyers into ambassadors." },
+                  ]
+                : [
+                    { t: "Restaurants & cafés", d: "Sur la table — 3× plus d'avis par semaine." },
+                    { t: "Salons coiffure / beauté", d: "À l'encaissement — clients scannent avant de partir." },
+                    { t: "Hôtels & chambres d'hôtes", d: "Sur la réception — avis 5★ immédiats." },
+                    { t: "Boutiques & retail", d: "Près de la caisse — transformez vos clients en ambassadeurs." },
+                  ]
+              ).map((u, i) => (
+                <Card key={i} className="p-5 rounded-2xl">
+                  <p className="font-semibold text-sm mb-1">{u.t}</p>
+                  <p className="text-xs text-muted-foreground">{u.d}</p>
+                </Card>
+              ))}
+            </div>
+          </section>
+
+          {/* Testimonials */}
+          <section className="mt-16 max-w-5xl mx-auto">
+            <h2 className="text-2xl md:text-3xl font-bold text-center mb-8">
+              {en ? "What our customers say" : "Ils en parlent mieux que nous"}
+            </h2>
+            <div className="grid md:grid-cols-3 gap-4">
+              {(en
+                ? [
+                    { n: "Sophie L.", r: "Café owner, Lyon", t: "We went from 2 reviews/month to 18. The tap effect really works." },
+                    { n: "Marc D.", r: "Hair salon, Paris", t: "Setup in 2 minutes. Clients love the gold finish — it looks premium." },
+                    { n: "Inès K.", r: "Hotel, Nice", t: "ROI in one week. Now we order one per room." },
+                  ]
+                : [
+                    { n: "Sophie L.", r: "Gérante de café, Lyon", t: "On est passé de 2 avis/mois à 18. L'effet « scan » fonctionne vraiment." },
+                    { n: "Marc D.", r: "Salon de coiffure, Paris", t: "Installé en 2 minutes. Les clients adorent la finition dorée — ça fait premium." },
+                    { n: "Inès K.", r: "Hôtel, Nice", t: "ROI en une semaine. On en commande une par chambre maintenant." },
+                  ]
+              ).map((tm, i) => (
+                <Card key={i} className="p-5 rounded-2xl">
+                  <div className="flex mb-2">
+                    {[...Array(5)].map((_, j) => (
+                      <Star key={j} className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                    ))}
+                  </div>
+                  <p className="text-sm mb-3 italic">"{tm.t}"</p>
+                  <p className="text-xs font-semibold">{tm.n}</p>
+                  <p className="text-[11px] text-muted-foreground">{tm.r}</p>
+                </Card>
+              ))}
+            </div>
+          </section>
+
+          {/* Final CTA */}
+          <section className="mt-16 text-center bg-gradient-to-br from-emerald-50 via-amber-50 to-emerald-50 rounded-3xl p-8 md:p-12">
+            <Sparkles className="w-8 h-8 mx-auto text-emerald-600 mb-3" />
+            <h2 className="text-2xl md:text-3xl font-bold mb-2">
+              {en ? "Ready to multiply your reviews?" : "Prêt à multiplier vos avis ?"}
+            </h2>
+            <p className="text-muted-foreground mb-6 max-w-xl mx-auto">
+              {en
+                ? "Join 1,200+ businesses turning every visit into a 5-star review."
+                : "Rejoignez 1 200+ établissements qui transforment chaque visite en avis 5★."}
+            </p>
+            <Button
+              size="lg"
+              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+              className="bg-emerald-600 hover:bg-emerald-700"
+            >
+              <Sparkles className="w-4 h-4 mr-2" />
+              {en ? `Order for ${Number(product.price_eur).toFixed(2)} €` : `Commander pour ${Number(product.price_eur).toFixed(2)} €`}
+            </Button>
+          </section>
+
           {/* FAQ */}
           <section className="mt-12 max-w-3xl mx-auto">
             <h2 className="text-2xl md:text-3xl font-bold text-center mb-6">FAQ</h2>
