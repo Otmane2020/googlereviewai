@@ -77,7 +77,8 @@ serve(async (req) => {
       currency: "eur",
       status: "pending",
       order_type: "shop_product",
-      metadata: { product_slug: slug, product_id: product.id },
+      qr_data: { platform: product.platform, config },
+      metadata: { product_slug: slug, product_id: product.id, config },
     }).select().single();
     if (orderErr || !order) {
       console.error("order insert error", orderErr);
@@ -92,7 +93,7 @@ serve(async (req) => {
       product_key: product.slug,
       price: unitPrice,
       quantity,
-      metadata: { platform: product.platform, category: product.category },
+      metadata: { platform: product.platform, category: product.category, config },
     });
 
     const shippingOptions = SHIPPING_TIERS.map((tier) => ({
