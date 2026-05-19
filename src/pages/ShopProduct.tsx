@@ -507,6 +507,49 @@ export default function ShopProduct() {
             </div>
           </div>
 
+          {/* Dark showcase with gold accents */}
+          <section className="mt-16 relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white p-6 md:p-12">
+            <div className="absolute -top-20 -right-20 w-80 h-80 rounded-full bg-amber-500/10 blur-3xl" />
+            <div className="absolute -bottom-20 -left-20 w-80 h-80 rounded-full bg-amber-400/10 blur-3xl" />
+            <div className="relative grid md:grid-cols-2 gap-8 items-center">
+              <div>
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/10 border border-amber-400/30 text-amber-300 text-xs font-semibold mb-4">
+                  <Sparkles className="w-3.5 h-3.5" />
+                  {en ? "Premium NFC" : "NFC Premium"}
+                </div>
+                <h2 className="text-3xl md:text-4xl font-bold mb-4 leading-tight">
+                  {en ? (<>One tap. <span className="bg-gradient-to-r from-amber-300 to-amber-500 bg-clip-text text-transparent">Infinite results.</span></>) :
+                       (<>Un seul scan. <span className="bg-gradient-to-r from-amber-300 to-amber-500 bg-clip-text text-transparent">Des résultats infinis.</span></>)}
+                </h2>
+                <p className="text-slate-300 mb-6 leading-relaxed">
+                  {en
+                    ? "Crafted in premium materials with a hand-finished gold accent. Built to last a lifetime — and to convert every visitor into a fan."
+                    : "Conçue en matériaux premium avec finition dorée à la main. Faite pour durer une vie — et transformer chaque visiteur en ambassadeur."}
+                </p>
+                <ul className="space-y-3">
+                  {features.slice(0, 4).map((f, i) => (
+                    <li key={i} className="flex items-start gap-3 text-sm text-slate-200">
+                      <span className="mt-0.5 w-5 h-5 rounded-full bg-amber-400/15 border border-amber-400/40 flex items-center justify-center shrink-0">
+                        <Check className="w-3 h-3 text-amber-300" />
+                      </span>
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-tr from-amber-500/20 to-transparent rounded-3xl blur-2xl" />
+                <div className="relative rounded-3xl overflow-hidden border border-amber-400/20 shadow-2xl shadow-amber-500/10">
+                  <img src={image} alt={name} className="w-full h-full object-cover" />
+                </div>
+                <div className="absolute -bottom-4 -right-4 bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 rounded-2xl px-4 py-3 shadow-xl">
+                  <p className="text-[10px] uppercase font-bold tracking-wider opacity-80">{en ? "Gold edition" : "Édition dorée"}</p>
+                  <p className="text-lg font-extrabold">24K finish</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
           {/* How it works */}
           <section className="mt-16">
             <h2 className="text-2xl md:text-3xl font-bold text-center mb-2">
@@ -519,15 +562,41 @@ export default function ShopProduct() {
               {steps.map((s, i) => {
                 const Icon = s.icon;
                 return (
-                  <Card key={i} className="p-5 rounded-2xl text-center">
-                    <div className="w-12 h-12 mx-auto rounded-xl bg-emerald-100 flex items-center justify-center mb-3">
-                      <Icon className="w-6 h-6 text-emerald-700" />
+                  <Card key={i} className="p-5 rounded-2xl text-center relative overflow-hidden border-2 hover:border-amber-300 transition-colors">
+                    <div className="absolute top-2 right-3 text-5xl font-extrabold text-amber-100 leading-none select-none">{i + 1}</div>
+                    <div className="relative w-12 h-12 mx-auto rounded-xl bg-gradient-to-br from-amber-100 to-amber-200 flex items-center justify-center mb-3 ring-1 ring-amber-300/50">
+                      <Icon className="w-6 h-6 text-amber-700" />
                     </div>
-                    <p className="font-semibold text-sm mb-1">{i + 1}. {s.title}</p>
-                    <p className="text-xs text-muted-foreground">{s.desc}</p>
+                    <p className="relative font-semibold text-sm mb-1">{s.title}</p>
+                    <p className="relative text-xs text-muted-foreground">{s.desc}</p>
                   </Card>
                 );
               })}
+            </div>
+          </section>
+
+          {/* Gold feature banner */}
+          <section className="mt-12 rounded-3xl bg-gradient-to-r from-amber-50 via-amber-100/80 to-amber-50 border border-amber-200 p-6 md:p-8">
+            <div className="grid md:grid-cols-3 gap-6 items-center">
+              <div className="md:col-span-2">
+                <p className="text-amber-700 text-xs font-bold uppercase tracking-wider mb-2">{en ? "Exclusive" : "Exclusivité"}</p>
+                <h3 className="text-2xl md:text-3xl font-bold text-slate-900 mb-2">
+                  {en ? "Hand-finished with real gold ink" : "Finition à l'encre dorée véritable"}
+                </h3>
+                <p className="text-slate-700 text-sm">
+                  {en ? "Every card is hot-stamped with a metallic gold layer for a luxurious, scratch-resistant feel."
+                      : "Chaque carte est marquée à chaud d'une couche dorée métallisée pour un toucher luxueux et résistant aux rayures."}
+                </p>
+              </div>
+              <div className="flex justify-center md:justify-end">
+                <div className="w-32 h-32 rounded-full bg-gradient-to-br from-amber-300 via-amber-400 to-amber-600 flex items-center justify-center shadow-xl shadow-amber-500/30 ring-4 ring-white">
+                  <div className="text-center text-slate-950">
+                    <Sparkles className="w-7 h-7 mx-auto mb-1" />
+                    <p className="text-[10px] font-bold uppercase">24K</p>
+                    <p className="text-[10px] font-bold uppercase">Premium</p>
+                  </div>
+                </div>
+              </div>
             </div>
           </section>
 
