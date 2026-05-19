@@ -1,71 +1,77 @@
+## 1. Boutique publique e-commerce
 
-# Plan d'exécution — 11 chantiers regroupés en 4 lots
+**Nouvelle table `shop_products`** (publique en lecture) avec les 7 produits inspirés de Trustavis :
 
-Trop d'éléments pour un seul tour. Je propose 4 lots livrés successivement. Confirme l'ordre ou ajuste.
+| Produit | Prix | Slug |
+|---|---|---|
+| Plaque NFC Google Avis | 39,90 € | plaque-nfc-google-avis |
+| Plaque NFC Instagram | 29,90 € | plaque-nfc-instagram |
+| Plaque NFC TikTok | 39,90 € | plaque-nfc-tiktok |
+| Plaque NFC Snapchat | 31,90 € (~~39,90~~) | plaque-nfc-snapchat |
+| Trust'Card Google NFC | 19,90 € | carte-nfc-google |
+| Trust'Card Instagram NFC | 19,90 € | carte-nfc-instagram |
+| Trust'Card LinkedIn NFC | 19,90 € | carte-nfc-linkedin |
+| Trust'Card PayPal NFC | 15,90 € (~~19,90~~) | carte-nfc-paypal |
 
----
+Colonnes : `id, slug, name, description, price_eur, compare_at_price, image_url, category (plaque|carte), platform (google|instagram|tiktok|snapchat|linkedin|paypal), is_active, sort_order`.
 
-## Lot 1 — UI & corrections rapides
+Les images seront générées (pas de hotlink Trustavis) — 8 images de produits via imagegen (plaques NFC carrées + cartes NFC) en style premium minimal.
 
-1. **Remplacer toutes les icônes `Sparkles` (lucide-react) par le favicon `/favicon.svg`**
-   - Créer un composant `<RankiIcon className=... />` qui rend `<img src="/favicon.svg" />`
-   - Scanner tous les fichiers contenant `Sparkles` (≈30+ fichiers : OnboardingScreen, UpgradeDialog, Header, HeroSection, etc.) et remplacer
-2. **Barre top (langue + notifications) figée sur toutes les pages**
-   - Ajouter `sticky top-0 z-50` au `Header` + `DashboardHeader`
-   - Vérifier qu'aucun parent n'a `overflow-hidden`
-3. **SEO non activé après paiement** — corriger `verify-subscription` / `stripe-webhook` pour activer SEO + GEO (pas seulement GEO) quand le plan Daily/Agency est actif
+**Nouvelles routes publiques** (pas d'auth requise) :
+- `/shop` — grille des produits + bandeau livraison gratuite / paiement sécurisé
+- `/shop/:slug` — fiche produit avec galerie, prix, CTA "Ajouter au panier" (ou checkout direct)
+- Footer + nav header public léger réutilisant `Header.tsx`
+- SEO Helmet : title `<Nom produit> — NFC Google Avis | Ranki.ai`, meta description optimisée par produit
 
----
+**Checkout** : réutiliser le flux Stripe existant (`create-nfc-checkout` généralisé en `create-shop-checkout` qui prend `product_slug` + `shipping_address`). Création d'`orders` avec `order_type = 'shop_product'` et `order_items` lié.
 
-## Lot 2 — Paiement, plans, crédits, PWA
+## 2. Fix admin commandes (`/admin/orders`)
 
-4. **Rafraîchissement auto après paiement (actuellement attente 5 min)**
-   - Sur `/payment-success` : polling toutes les 2s pendant 20s appelant `verify-subscription`
-   - Forcer refresh du `AuthContext` (plan + crédits) après succès
-5. **Gestion plan upgrade/downgrade**
-   - Ajouter `update-subscription` edge function (Stripe `subscriptions.update` avec `proration_behavior: always_invoice`)
-   - Bouton "Changer de plan" dans Settings + `UpgradeDialog` quand déjà abonné
-   - Trigger DB : à chaque webhook `customer.subscription.updated`, recalculer `monthly_credits` selon `plans.key`
-6. **PWA mobile installable**
-   - Vérifier `manifest.webmanifest` (display: standalone, icons 192/512, start_url)
-   - Réactiver le prompt `beforeinstallprompt` sur iOS (instructions Safari) et Android (bouton natif)
-   - Tester sur `id-preview` désactivé, prod activé
+**Bug racine** : la table `orders` a une RLS `user_id = auth.uid()` → l'admin ne voit que SES commandes. Il faut ajouter une policy admin.
 
----
+Solution :
+- Créer enum `app_role` + table `user_roles` + fonction `has_role()` (pattern sécurisé)
+- Insérer rôle `admin` pour `benyahya.otmane@gmail.com`
+- Policy supplémentaire `Admins can view all orders` + `Admins can view all order_items`
+- Page `AdminOrders.tsx` : ajouter type `shop_product` au filtre, afficher infos client/livraison/PDF (le PDF existe déjà pour `printed_qr_free`)
 
-## Lot 3 — Cron, multi-établissement, relance avis
+## 3. SEO produit
 
-7. **Cron publication auto** — audit `cron-publish-scheduled-content` (logs récents, vérifier qu'il tourne, qu'il respecte la limite 1 SEO + 1 GEO/jour)
-8. **Changement d'établissement (compte `lovelyanswers.ai@gmail.com`)**
-   - Reproduire le bug : sélecteur `BusinessSelector` ne switch pas le contexte
-   - Vérifier `save-selected-businesses` + invalidation queries
-9. **Relance/vente des avis non répondus par l'IA**
-   - Email/notification automatique listant les avis sans réponse IA pour `lovelyanswers.ai@gmail.com`
-   - Ajout d'un CTA dans dashboard "X avis attendent une réponse — activez l'auto-réponse"
+- Helmet par fiche produit : title < 60 car, description < 160 car (FR/EN selon langue)
+- JSON-LD `Product` (name, image, price, availability, sku)
+- BreadcrumbList JSON-LD
+- canonical sur `https://ranki.ai/shop/:slug`
+- alt text sur images
 
----
+## Détails techniques
 
-## Lot 4 — Boutique physique NFC (gros chantier)
+```text
+nouveaux fichiers
+  src/pages/Shop.tsx
+  src/pages/ShopProduct.tsx
+  src/assets/shop/*.jpg  (8 images générées)
+  supabase/functions/create-shop-checkout/index.ts
 
-10. **Produit 1 : Carte NFC Google Avis (19,99€ + 3,99€ livraison)**
-    - Page produit `/shop/nfc-card` (photos, description, CTA acheter)
-    - Checkout Stripe `mode: payment` avec ligne produit + ligne shipping
-    - Table `orders` (user_id, product, qty, shipping_address, shipping_cost, total, status, stripe_session_id, tracking_number)
-    - Page `/orders` (utilisateur : suivi commandes)
-    - Email confirmation (Resend) en FR/EN
-    - Page Admin : liste commandes + édition statut + tracking
-11. **Produit 2 : QR code personnalisé imprimé (gratuit)**
-    - Wizard `/shop/qr-print` (4 étapes : logo upload, couleur, format, adresse livraison)
-    - Génération QR (lib `qrcode` côté client) + preview
-    - Table `print_orders` (user_id, design_json, logo_url, shipping_address, status, pdf_url)
-    - Admin : génère PDF prêt à imprimer (lib `pdf-lib`) + bouton télécharger
+migrations
+  CREATE TABLE shop_products + RLS public read
+  CREATE TYPE app_role + TABLE user_roles + FUNCTION has_role
+  ADD POLICY admin SELECT sur orders, order_items
+  SEED 8 produits + role admin
 
----
+App.tsx
+  routes publiques /shop et /shop/:slug
 
-## Questions avant de démarrer
+AdminOrders.tsx
+  inclure 'shop_product' dans .in(...)
+  utiliser has_role côté front pour gating
 
-- **Ordre** : on commence par le Lot 1 (rapide, visible) ? Puis Lot 2 ?
-- **Lot 4** : le produit 2 "gratuit" — y a-t-il une limite (1 par compte ? réservé plan payant ?) pour éviter abus ?
-- **Adresse de livraison** : France uniquement ou international ?
+stripe-webhook
+  gérer order_type = 'shop_product'
+```
 
-Réponds avec l'ordre souhaité (ex : "Lot 1 d'abord") et je démarre immédiatement.
+## Hors scope (à confirmer si voulu)
+
+- Vrai panier multi-produits (pour l'instant : 1 produit / checkout)
+- Variants (couleur, design) — peuvent être ajoutés via `metadata`
+- Avis clients sur la fiche produit
+- Pagination / filtre par catégorie
