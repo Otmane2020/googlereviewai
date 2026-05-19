@@ -409,6 +409,55 @@ export default function ShopProduct() {
                         <p className="text-[11px] text-muted-foreground">{en ? f.helpEn : f.help}</p>
                       </div>
                     ))}
+
+                    {product.platform === "google" && (
+                      <div className="mt-2 pt-3 border-t border-emerald-200/60">
+                        <p className="text-[11px] font-medium text-emerald-900 mb-2">
+                          {en ? "Or connect your Google account (recommended)" : "Ou connectez votre compte Google (recommandé)"}
+                        </p>
+                        {gmbList.length === 0 ? (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={connectGoogle}
+                            disabled={gmbConnecting || gmbLoading}
+                            className="w-full bg-white"
+                          >
+                            {gmbConnecting || gmbLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : (
+                              <svg className="w-4 h-4 mr-2" viewBox="0 0 48 48" aria-hidden>
+                                <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.4 29.3 35.5 24 35.5c-6.4 0-11.5-5.1-11.5-11.5S17.6 12.5 24 12.5c2.9 0 5.6 1.1 7.6 2.9l5.7-5.7C33.9 6.4 29.2 4.5 24 4.5 13.2 4.5 4.5 13.2 4.5 24S13.2 43.5 24 43.5c10.7 0 19.5-7.7 19.5-19.5 0-1.2-.1-2.3-.3-3.5z"/>
+                                <path fill="#FF3D00" d="M6.3 14.1l6.6 4.8C14.7 15.1 19 12.5 24 12.5c2.9 0 5.6 1.1 7.6 2.9l5.7-5.7C33.9 6.4 29.2 4.5 24 4.5 16.3 4.5 9.7 8.9 6.3 14.1z"/>
+                                <path fill="#4CAF50" d="M24 43.5c5.1 0 9.7-1.9 13.2-5.1l-6.1-5c-2 1.4-4.4 2.2-7.1 2.2-5.3 0-9.7-3.1-11.3-7.5l-6.5 5C9.6 39.1 16.2 43.5 24 43.5z"/>
+                                <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.4-2.3 4.4-4.2 5.9l6.1 5c-.4.4 6.8-4.9 6.8-14.9 0-1.2-.1-2.3-.3-3.5z"/>
+                              </svg>
+                            )}
+                            {en ? "Sign in with Google" : "Se connecter avec Google"}
+                          </Button>
+                        ) : (
+                          <div className="space-y-1.5 max-h-56 overflow-y-auto">
+                            {gmbList.map((b) => (
+                              <button
+                                key={b.google_place_id}
+                                type="button"
+                                onClick={() => pickGmb(b)}
+                                className={`w-full text-left p-2.5 rounded-lg border transition ${
+                                  config.google_place_id === b.google_place_id
+                                    ? "border-emerald-600 bg-emerald-50"
+                                    : "border-emerald-200 bg-white hover:bg-emerald-50/60"
+                                }`}
+                              >
+                                <p className="text-sm font-medium">{b.name}</p>
+                                {b.address && <p className="text-[11px] text-muted-foreground truncate">{b.address}</p>}
+                              </button>
+                            ))}
+                            <button type="button" onClick={loadGmbList} className="text-[11px] text-emerald-700 hover:underline mt-1">
+                              {en ? "Refresh list" : "Actualiser la liste"}
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </Card>
               )}
