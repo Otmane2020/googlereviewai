@@ -688,25 +688,29 @@ export default function ShopProduct() {
             </div>
           </section>
 
-          {/* Final CTA */}
-          <section className="mt-16 text-center bg-gradient-to-br from-emerald-50 via-amber-50 to-emerald-50 rounded-3xl p-8 md:p-12">
-            <Sparkles className="w-8 h-8 mx-auto text-emerald-600 mb-3" />
-            <h2 className="text-2xl md:text-3xl font-bold mb-2">
-              {en ? "Ready to multiply your reviews?" : "Prêt à multiplier vos avis ?"}
-            </h2>
-            <p className="text-muted-foreground mb-6 max-w-xl mx-auto">
-              {en
-                ? "Join 1,200+ businesses turning every visit into a 5-star review."
-                : "Rejoignez 1 200+ établissements qui transforment chaque visite en avis 5★."}
-            </p>
-            <Button
-              size="lg"
-              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-              className="bg-emerald-600 hover:bg-emerald-700"
-            >
-              <Sparkles className="w-4 h-4 mr-2" />
-              {en ? `Order for ${Number(product.price_eur).toFixed(2)} €` : `Commander pour ${Number(product.price_eur).toFixed(2)} €`}
-            </Button>
+          {/* Final CTA — dark + gold */}
+          <section className="mt-16 relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-950 via-slate-900 to-black text-white p-8 md:p-12 text-center">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(251,191,36,0.15),transparent_60%)]" />
+            <div className="relative">
+              <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-300 to-amber-600 mb-4 shadow-lg shadow-amber-500/30">
+                <Sparkles className="w-7 h-7 text-slate-950" />
+              </div>
+              <h2 className="text-3xl md:text-4xl font-bold mb-3">
+                {en ? "Ready to multiply your reviews?" : "Prêt à multiplier vos avis ?"}
+              </h2>
+              <p className="text-slate-300 mb-6 max-w-xl mx-auto">
+                {en ? "Join 1,200+ businesses turning every visit into a 5-star review."
+                    : "Rejoignez 1 200+ établissements qui transforment chaque visite en avis 5★."}
+              </p>
+              <Button
+                size="lg"
+                onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                className="bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-slate-950 font-bold shadow-xl shadow-amber-500/20"
+              >
+                <Sparkles className="w-4 h-4 mr-2" />
+                {en ? `Order for ${Number(product.price_eur).toFixed(2)} €` : `Commander pour ${Number(product.price_eur).toFixed(2)} €`}
+              </Button>
+            </div>
           </section>
 
           {/* FAQ */}
