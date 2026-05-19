@@ -9,7 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useTranslation } from "react-i18next";
 import { SHOP_IMAGES } from "@/assets/shop";
 import { Header } from "@/components/Header";
-import Footer from "@/components/Footer";
+import { Footer } from "@/components/Footer";
 
 type Product = {
   id: string;
