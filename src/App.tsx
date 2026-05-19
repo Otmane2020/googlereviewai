@@ -221,6 +221,7 @@ const AppContent = () => {
               <Route path="/commandes" element={<Shell><Commandes /></Shell>} />
               <Route path="/qr-gratuit" element={<LandingQRGratuit />} />
               <Route path="/shop" element={<Shop />} />
+              <Route path="/shop/checkout" element={<ShopCheckout />} />
               <Route path="/shop/:slug" element={<ShopProduct />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
