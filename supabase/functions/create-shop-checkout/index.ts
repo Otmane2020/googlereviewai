@@ -87,20 +87,17 @@ serve(async (req) => {
       metadata: { platform: product.platform, category: product.category },
     });
 
-    const shippingOptions = ALLOWED_COUNTRIES.map((code) => {
-      const rate = SHIPPING_RATES[code] ?? SHIPPING_RATES.INTL;
-      return {
-        shipping_rate_data: {
-          type: "fixed_amount" as const,
-          fixed_amount: { amount: rate.amount, currency: "eur" },
-          display_name: `${code} - ${rate.label}`,
-          delivery_estimate: {
-            minimum: { unit: "business_day" as const, value: 3 },
-            maximum: { unit: "business_day" as const, value: 14 },
-          },
+    const shippingOptions = SHIPPING_TIERS.map((tier) => ({
+      shipping_rate_data: {
+        type: "fixed_amount" as const,
+        fixed_amount: { amount: tier.amount, currency: "eur" },
+        display_name: tier.label,
+        delivery_estimate: {
+          minimum: { unit: "business_day" as const, value: tier.min },
+          maximum: { unit: "business_day" as const, value: tier.max },
         },
-      };
-    });
+      },
+    }));
 
     const origin = req.headers.get("origin") || "https://ranki.ai";
     const session = await stripe.checkout.sessions.create({
