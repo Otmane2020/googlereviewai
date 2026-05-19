@@ -128,16 +128,79 @@ export default function ShopProduct() {
   const [config, setConfig] = useState<Record<string, string>>({});
   const [paying, setPaying] = useState(false);
 
+  // Google Business connect state
+  const [gmbList, setGmbList] = useState<Array<{ name: string; google_place_id: string; address: string | null }>>([]);
+  const [gmbLoading, setGmbLoading] = useState(false);
+  const [gmbConnecting, setGmbConnecting] = useState(false);
+
   useEffect(() => {
     (async () => {
       const { data } = await supabase
         .from("shop_products").select("*").eq("slug", slug).eq("is_active", true).maybeSingle();
       setProduct(data);
       setLoading(false);
-      const { data: u } = await supabase.auth.getUser();
-      if (u?.user?.email) setEmail(u.user.email);
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (sessionData?.session?.user?.email) setEmail(sessionData.session.user.email);
+
+      // If user just came back from Google OAuth (we set a flag) and we have provider_token, fetch GMB list
+      const pending = sessionStorage.getItem("ranki_gmb_pending_slug");
+      if (pending === slug && sessionData?.session?.provider_token) {
+        sessionStorage.removeItem("ranki_gmb_pending_slug");
+        await loadGmbList();
+      }
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug]);
+
+  const loadGmbList = async () => {
+    try {
+      setGmbLoading(true);
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.provider_token) {
+        toast.error(en ? "Please reconnect Google." : "Veuillez vous reconnecter à Google.");
+        return;
+      }
+      const res = await supabase.functions.invoke("sync-google-businesses", {
+        body: { provider_token: session.provider_token },
+      });
+      const list = (res.data?.google_businesses || res.data?.businesses || []) as any[];
+      setGmbList(list.map((b: any) => ({
+        name: b.name,
+        google_place_id: b.google_place_id || b.place_id,
+        address: b.address || null,
+      })));
+      if (!list.length) toast.info(en ? "No Google Business found." : "Aucun établissement Google trouvé.");
+    } catch (e: any) {
+      toast.error(e?.message || "Error");
+    } finally {
+      setGmbLoading(false);
+    }
+  };
+
+  const connectGoogle = async () => {
+    setGmbConnecting(true);
+    sessionStorage.setItem("ranki_gmb_pending_slug", slug || "");
+    const redirectTo = `${window.location.origin}/shop/${slug}`;
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo,
+        scopes: "https://www.googleapis.com/auth/business.manage https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile",
+        queryParams: { access_type: "offline", prompt: "consent" },
+      },
+    });
+    if (error) {
+      sessionStorage.removeItem("ranki_gmb_pending_slug");
+      toast.error(error.message);
+      setGmbConnecting(false);
+    }
+  };
+
+  const pickGmb = (b: { name: string; google_place_id: string }) => {
+    const reviewUrl = `https://search.google.com/local/writereview?placeid=${b.google_place_id}`;
+    setConfig((c) => ({ ...c, google_review_url: reviewUrl, google_business_name: b.name, google_place_id: b.google_place_id }));
+    toast.success(en ? `Linked to ${b.name}` : `Carte liée à ${b.name}`);
+  };
 
   const fields = useMemo<PlatformField[]>(
     () => (product?.platform ? PLATFORM_FIELDS[product.platform] || [] : []),
