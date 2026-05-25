@@ -114,7 +114,7 @@ const Blog = () => {
         <meta property="og:title" content="Ranki.ai Blog – Local GEO & AI Search" />
         <meta property="og:description" content="Guides and tactics to rank locally inside ChatGPT, Gemini and Perplexity." />
         <meta property="og:url" content="https://ranki.ai/blog" />
-        <meta property="og:type" content="blog" />
+        <meta property="og:type" content="website" />
       </Helmet>
 
       <div className="min-h-screen bg-background">
