@@ -135,7 +135,7 @@ export const InstallPrompt = () => {
       <div className="px-3 py-2.5 flex items-center justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0">
           <img
-            src="/icon-192x192.svg"
+            src="/icon-192x192.png"
             alt="Ranki"
             className="w-9 h-9 rounded-xl flex-shrink-0 shadow-md"
           />
