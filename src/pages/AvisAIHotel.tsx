@@ -19,7 +19,20 @@ import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import { FAQPageSchema, BreadcrumbSchema } from "@/components/StructuredData";
 
-const AvisAIHotel = () => {
+interface AvisAIHotelProps {
+  canonicalSlug?: string;
+  breadcrumbName?: string;
+  pageTitle?: string;
+  pageDescription?: string;
+}
+
+const AvisAIHotel = ({
+  canonicalSlug = "avis-ai-hotel",
+  breadcrumbName = "Avis IA Hôtel",
+  pageTitle = "Avis Google Hôtel IA - Réponses Automatiques Multilingues | Ranki.ai",
+  pageDescription = "Automatisez la gestion des avis Google de votre hôtel avec l'IA. Réponses multilingues 24h/24, ton hôtelier professionnel. Essai gratuit 7 jours.",
+}: AvisAIHotelProps = {}) => {
+  const canonicalUrl = `https://ranki.ai/${canonicalSlug}`;
   const benefits = [
     {
       icon: Clock,
