@@ -66,11 +66,36 @@ async function maybeHardResetCachesOnce() {
 async function ensureServiceWorker() {
   if (!("serviceWorker" in navigator)) return;
 
+  // Guard: never register SW inside Lovable preview iframe or on preview hosts
+  const isInIframe = (() => {
+    try {
+      return window.self !== window.top;
+    } catch {
+      return true;
+    }
+  })();
+  const isPreviewHost =
+    window.location.hostname.includes("id-preview--") ||
+    window.location.hostname.includes("lovableproject.com") ||
+    window.location.hostname.includes("lovable.app");
+
+  if (isPreviewHost || isInIframe) {
+    // Unregister any existing service workers in preview/iframe contexts
+    try {
+      const regs = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(regs.map((r) => r.unregister()));
+      console.log("[SW] Unregistered in preview/iframe context");
+    } catch {
+      // ignore
+    }
+    return;
+  }
+
   try {
     const existing = await navigator.serviceWorker.getRegistration("/");
     if (!existing) {
       await navigator.serviceWorker.register("/sw.js", { scope: "/" });
-      console.log("[SW] Registered PushAlert SW");
+      console.log("[SW] Registered Ranki SW");
     }
   } catch (e) {
     console.warn("[SW] Failed to register service worker:", e);
