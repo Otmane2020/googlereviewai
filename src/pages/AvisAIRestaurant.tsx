@@ -65,17 +65,17 @@ const AvisAIRestaurant = ({
       <FAQPageSchema faqs={restaurantFaqs} />
       <BreadcrumbSchema items={[
         { name: "Home", url: "https://ranki.ai" },
-        { name: "AI Reviews for Restaurants", url: "https://ranki.ai/avis-ai-restaurant" }
+        { name: breadcrumbName, url: canonicalUrl }
       ]} />
       <Helmet>
-        <title>AI Google Reviews for Restaurants – Auto Replies | Ranki.ai</title>
-        <meta name="description" content="Automate Google review management for your restaurant with AI. Personalized replies in under 2 hours, tone tuned for hospitality. Free 7-day trial." />
+        <title>{pageTitle}</title>
+        <meta name="description" content={pageDescription} />
         <meta name="keywords" content="restaurant google reviews, automated review reply, AI hospitality, restaurant reputation, GEO restaurant" />
-        <link rel="canonical" href="https://ranki.ai/avis-ai-restaurant" />
+        <link rel="canonical" href={canonicalUrl} />
         
-        <meta property="og:title" content="AI Google Review Management for Restaurants" />
-        <meta property="og:description" content="Reply automatically to your restaurant reviews. Personalized, fast, professional." />
-        <meta property="og:url" content="https://ranki.ai/avis-ai-restaurant" />
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={pageDescription} />
+        <meta property="og:url" content={canonicalUrl} />
         <meta property="og:type" content="website" />
         
         <script type="application/ld+json">
