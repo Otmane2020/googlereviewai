@@ -77,7 +77,11 @@ export const RankiHero = () => {
                 src={heroImg}
                 alt="Ranki.ai dashboard preview – local rank tracker for ChatGPT, Gemini and Perplexity"
                 className="w-full h-auto"
+                width={960}
+                height={540}
                 loading="eager"
+                fetchpriority="high"
+                decoding="async"
               />
             </div>
 
