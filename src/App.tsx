@@ -60,6 +60,8 @@ import LandingQRGratuit from "./pages/LandingQRGratuit";
 import Shop from "./pages/Shop";
 import ShopProduct from "./pages/ShopProduct";
 import ShopCheckout from "./pages/ShopCheckout";
+import Restaurants from "./pages/Restaurants";
+import Hotels from "./pages/Hotels";
 import { DashboardLayout } from "./components/DashboardLayout";
 
 // Wraps a page with the persistent dashboard sidebar (desktop) + bottom nav (mobile)
@@ -210,6 +212,8 @@ const AppContent = () => {
               <Route path="/avis-ai-restaurant" element={<AvisAIRestaurant />} />
               <Route path="/avis-ai-hotel" element={<AvisAIHotel />} />
               <Route path="/avis-ai-guide" element={<AvisAIGuide />} />
+              <Route path="/restaurants" element={<Restaurants />} />
+              <Route path="/hotels" element={<Hotels />} />
               <Route path="/blog" element={<Blog />} />
               <Route path="/blog/:slug" element={<BlogArticle />} />
               <Route path="/landing" element={<LandingPremium />} />
