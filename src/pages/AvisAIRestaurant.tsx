@@ -18,7 +18,20 @@ import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import { FAQPageSchema, BreadcrumbSchema } from "@/components/StructuredData";
 
-const AvisAIRestaurant = () => {
+interface AvisAIRestaurantProps {
+  canonicalSlug?: string;
+  breadcrumbName?: string;
+  pageTitle?: string;
+  pageDescription?: string;
+}
+
+const AvisAIRestaurant = ({
+  canonicalSlug = "avis-ai-restaurant",
+  breadcrumbName = "AI Reviews for Restaurants",
+  pageTitle = "AI Google Reviews for Restaurants – Auto Replies | Ranki.ai",
+  pageDescription = "Automate Google review management for your restaurant with AI. Personalized replies in under 2 hours, tone tuned for hospitality. Free 7-day trial.",
+}: AvisAIRestaurantProps = {}) => {
+  const canonicalUrl = `https://ranki.ai/${canonicalSlug}`;
   const benefits = [
     { icon: Clock, title: "Reply within 2 hours", description: "Your guests get a personalized reply automatically — even at night and on weekends." },
     { icon: MessageSquare, title: "Tone tuned for hospitality", description: "The AI understands culinary vocabulary and replies with warmth and professionalism." },
