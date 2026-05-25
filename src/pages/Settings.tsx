@@ -191,6 +191,13 @@ const SettingsPage = () => {
 
   return (
     <div className="min-h-screen bg-muted/30">
+      <Helmet>
+        <title>Account settings | Ranki.ai</title>
+        <meta name="description" content="Manage your Ranki.ai account, subscription, notifications and connected Google Business Profile locations." />
+        <meta name="robots" content="noindex, nofollow" />
+        <link rel="canonical" href="https://ranki.ai/settings" />
+      </Helmet>
+
 
 
       {/* Page Header */}
