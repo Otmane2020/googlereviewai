@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { ArrowLeft, Loader2, Check, Mail, Lock, Eye, EyeOff, User } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { Helmet } from "react-helmet";
 
 const Auth = () => {
   const { t } = useTranslation();
