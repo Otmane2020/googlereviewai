@@ -172,6 +172,15 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
+      <Helmet>
+        <title>Sign in or create your account | Ranki.ai</title>
+        <meta name="description" content="Access your Ranki.ai account to manage AI review responses, local SEO and GEO ranking for your business." />
+        <meta name="robots" content="noindex, follow" />
+        <link rel="canonical" href="https://ranki.ai/auth" />
+        <meta property="og:title" content="Sign in to Ranki.ai" />
+        <meta property="og:description" content="Access your Ranki.ai account to manage AI review responses, local SEO and GEO ranking." />
+        <meta property="og:url" content="https://ranki.ai/auth" />
+      </Helmet>
       {/* Left panel - Benefits (hidden on mobile) */}
       <div className="hidden lg:flex lg:w-1/2 gradient-hero p-12 flex-col justify-between">
         <div>
