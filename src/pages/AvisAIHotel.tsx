@@ -109,21 +109,18 @@ const AvisAIHotel = ({
       <FAQPageSchema faqs={hotelFaqs} />
       <BreadcrumbSchema items={[
         { name: "Accueil", url: "https://ranki.ai" },
-        { name: "Avis IA Hôtel", url: "https://ranki.ai/avis-ai-hotel" }
+        { name: breadcrumbName, url: canonicalUrl }
       ]} />
       <Helmet>
-        <title>Avis Google Hôtel IA - Réponses Automatiques Multilingues | Ranki.ai</title>
-        <meta 
-          name="description" 
-          content="Automatisez la gestion des avis Google de votre hôtel avec l'IA. Réponses multilingues 24h/24, ton hôtelier professionnel. Essai gratuit 7 jours." 
-        />
+        <title>{pageTitle}</title>
+        <meta name="description" content={pageDescription} />
         <meta name="keywords" content="avis google hotel, réponse automatique avis hotel, IA hôtellerie, gestion avis hotel, réputation hôtel" />
-        <link rel="canonical" href="https://ranki.ai/avis-ai-hotel" />
+        <link rel="canonical" href={canonicalUrl} />
         
         {/* Open Graph */}
-        <meta property="og:title" content="Gestion des Avis Google Hôtel avec l'IA" />
-        <meta property="og:description" content="Répondez automatiquement aux avis de votre hôtel en 12 langues. Professionnel et personnalisé." />
-        <meta property="og:url" content="https://ranki.ai/avis-ai-hotel" />
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={pageDescription} />
+        <meta property="og:url" content={canonicalUrl} />
         <meta property="og:type" content="website" />
         
         {/* Structured Data */}
