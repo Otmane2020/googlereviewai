@@ -355,6 +355,12 @@ const BusinessesPage = () => {
 
   return (
     <div className="min-h-screen bg-muted/30 pb-20">
+      <Helmet>
+        <title>Your businesses | Ranki.ai</title>
+        <meta name="description" content="Manage your Google Business Profile locations, keywords and AI settings in Ranki.ai." />
+        <meta name="robots" content="noindex, nofollow" />
+        <link rel="canonical" href="https://ranki.ai/businesses" />
+      </Helmet>
 
 
       {/* Mobile-First Page Header */}
