@@ -82,5 +82,9 @@ Disallow: /reset-password
 Disallow: /gmb-post
 Disallow: /checkout
 Disallow: /admin
+Disallow: /choose-plan
+Disallow: /payment-success
+Disallow: /payment-canceled
+Disallow: /auth
 
 Sitemap: https://ranki.ai/sitemap.xml
