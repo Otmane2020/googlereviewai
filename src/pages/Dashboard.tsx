@@ -449,6 +449,12 @@ const Dashboard = () => {
 
   return (
     <>
+      <Helmet>
+        <title>Dashboard | Ranki.ai</title>
+        <meta name="description" content="Your Ranki.ai dashboard: AI review responses, GEO ranking and local SEO performance at a glance." />
+        <meta name="robots" content="noindex, nofollow" />
+        <link rel="canonical" href="https://ranki.ai/dashboard" />
+      </Helmet>
       <div className="bg-gradient-to-b from-background to-muted/20">
         {/* Mobile-only header (desktop uses sidebar layout) */}
 
