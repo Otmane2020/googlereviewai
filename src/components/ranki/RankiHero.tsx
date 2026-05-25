@@ -80,7 +80,7 @@ export const RankiHero = () => {
                 width={960}
                 height={540}
                 loading="eager"
-                fetchpriority="high"
+                fetchPriority="high"
                 decoding="async"
               />
             </div>
