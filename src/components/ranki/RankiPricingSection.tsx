@@ -160,12 +160,12 @@ export const RankiPricingSection = () => {
                     {p.price}
                   </span>
                   {p.period && (
-                    <span className={`text-sm ${p.highlight ? "text-background/70" : "text-muted-foreground"}`}>
+                    <span className={`text-sm ${p.highlight ? "text-background/90" : "text-muted-foreground"}`}>
                       {p.period}
                     </span>
                   )}
                 </div>
-                <p className={`mt-2 text-sm ${p.highlight ? "text-background/80" : "text-muted-foreground"}`}>
+                <p className={`mt-2 text-sm ${p.highlight ? "text-background/90" : "text-muted-foreground"}`}>
                   {p.desc}
                 </p>
 
