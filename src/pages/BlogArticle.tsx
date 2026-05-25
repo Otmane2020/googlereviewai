@@ -9,6 +9,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowLeft, Calendar, User, Clock } from "lucide-react";
 import { Helmet } from "react-helmet";
 
+const stripHtml = (html: string) =>
+  (html || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+
 const BlogArticle = () => {
   const { slug } = useParams<{ slug: string }>();
 
@@ -92,12 +95,12 @@ const BlogArticle = () => {
         <title>{article.title} | Ranki.ai Blog</title>
         <meta 
           name="description" 
-          content={article.meta_description || article.body.substring(0, 155) + '...'} 
+          content={article.meta_description || (stripHtml(article.body).slice(0, 160) + "…")} 
         />
         <link rel="canonical" href={`https://ranki.ai/blog/${article.slug}`} />
         
         <meta property="og:title" content={article.title} />
-        <meta property="og:description" content={article.meta_description || article.body.substring(0, 155)} />
+        <meta property="og:description" content={article.meta_description || (stripHtml(article.body).slice(0, 160) + "…")} />
         <meta property="og:url" content={`https://ranki.ai/blog/${article.slug}`} />
         <meta property="og:type" content="article" />
         
@@ -106,7 +109,7 @@ const BlogArticle = () => {
             "@context": "https://schema.org",
             "@type": "Article",
             "headline": article.title,
-            "description": article.meta_description || article.body.substring(0, 155),
+            "description": article.meta_description || (stripHtml(article.body).slice(0, 160) + "…"),
             "datePublished": article.published_at,
             "dateModified": article.updated_at,
             "author": {

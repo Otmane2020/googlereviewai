@@ -21,6 +21,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { enUS } from "date-fns/locale";
 
+const stripHtml = (html: string) =>
+  (html || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+
 // Static editorial guides
 const staticArticles = [
   {
@@ -164,7 +167,7 @@ const Blog = () => {
                             </h3>
                             
                             <p className="text-sm text-muted-foreground mb-4 line-clamp-3">
-                              {article.meta_description || article.body?.substring(0, 150) + "..."}
+                              {article.meta_description || (stripHtml(article.body).slice(0, 160) + "…")}
                             </p>
                             
                             <div className="flex items-center justify-between text-xs text-muted-foreground">
