@@ -126,7 +126,7 @@ Deno.serve(async (req) => {
           id: data.id,
           slug: data.slug,
           title: data.title,
-          url: `https://starlinko.lovable.app/blog/${data.slug}`,
+          url: `https://ranki.ai/blog/${data.slug}`,
         },
       }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
