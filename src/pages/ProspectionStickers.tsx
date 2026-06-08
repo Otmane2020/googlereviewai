@@ -605,19 +605,19 @@ export default function ProspectionStickers() {
               <Label className="text-xs flex items-center gap-1">
                 <FileText className="h-3.5 w-3.5" /> Aperçu PDF (A4 paysage)
               </Label>
-              <div className="border rounded-lg bg-slate-50 overflow-hidden h-[420px] flex items-center justify-center">
+              <div className="border rounded-lg bg-slate-50 overflow-hidden h-[420px] flex items-center justify-center p-2">
                 {previewLoading ? (
                   <Loader2 className="h-6 w-6 animate-spin text-emerald-600" />
-                ) : previewUrl ? (
-                  <iframe src={`${previewUrl}#toolbar=0&navpanes=0`} title="Aperçu" className="w-full h-full" />
+                ) : previewImg ? (
+                  <img src={previewImg} alt="Aperçu PDF" className="max-h-full max-w-full object-contain shadow-sm" />
                 ) : (
                   <span className="text-xs text-muted-foreground">Aucun aperçu</span>
                 )}
               </div>
-              {previewUrl && (
-                <a href={previewUrl} target="_blank" rel="noreferrer" className="text-xs text-emerald-700 underline">
-                  Ouvrir l'aperçu en plein écran ↗
-                </a>
+              {previewBlob && (
+                <button type="button" onClick={openPreviewBlank} className="text-xs text-emerald-700 underline">
+                  Ouvrir le PDF en plein écran ↗
+                </button>
               )}
             </div>
 
