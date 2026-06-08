@@ -89,20 +89,37 @@ serve(async (req) => {
         );
       }
       const q = `${t} ${c}`;
-      const url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(q)}&region=${region}&key=${apiKey}&language=${lang}`;
-      const response = await fetch(url);
-      const data = await response.json();
-      console.log(`[search-places] Nearby "${q}": ${data.results?.length || 0} results (${data.status})`);
+      const baseUrl = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(q)}&region=${region}&key=${apiKey}&language=${lang}`;
 
-      const results = (data.results || []).map((r: any) => ({
-        place_id: r.place_id,
-        name: r.name,
-        formatted_address: r.formatted_address,
-        rating: r.rating,
-        user_ratings_total: r.user_ratings_total,
-        business_status: r.business_status,
-        types: r.types,
-      }));
+      // Fetch up to 3 pages (60 results) using next_page_token
+      const allRaw: any[] = [];
+      let pageToken: string | null = null;
+      let status = "OK";
+      for (let page = 0; page < 3; page++) {
+        const url = pageToken ? `${baseUrl}&pagetoken=${pageToken}` : baseUrl;
+        // Google requires a short delay before next_page_token is valid
+        if (pageToken) await new Promise((r) => setTimeout(r, 2100));
+        const response = await fetch(url);
+        const data = await response.json();
+        status = data.status;
+        if (data.results) allRaw.push(...data.results);
+        pageToken = data.next_page_token || null;
+        if (!pageToken) break;
+      }
+      console.log(`[search-places] Nearby "${q}": ${allRaw.length} results (${status})`);
+
+      const results = allRaw
+        .map((r: any) => ({
+          place_id: r.place_id,
+          name: r.name,
+          formatted_address: r.formatted_address,
+          rating: r.rating,
+          user_ratings_total: r.user_ratings_total || 0,
+          business_status: r.business_status,
+          types: r.types,
+        }))
+        // Sort by review count ascending so low-review prospects are first (better targets)
+        .sort((a, b) => (a.user_ratings_total || 0) - (b.user_ratings_total || 0));
 
       return new Response(
         JSON.stringify({ results }),
