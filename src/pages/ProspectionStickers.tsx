@@ -166,6 +166,82 @@ export default function ProspectionStickers() {
     } finally { setGenerating(false); }
   };
 
+  // --- Parse a Google Places formatted address into Gelato fields (best effort) ---
+  const parseAddress = (full?: string) => {
+    if (!full) return { addressLine1: "", city: "", postCode: "", country: "FR" };
+    const parts = full.split(",").map((p) => p.trim());
+    const addressLine1 = parts[0] || "";
+    let city = "", postCode = "", country = "FR";
+    if (parts.length >= 2) {
+      const cityPart = parts[1] || "";
+      const m = cityPart.match(/(\d{4,6})\s+(.+)/);
+      if (m) { postCode = m[1]; city = m[2]; }
+      else city = cityPart;
+    }
+    if (parts.length >= 3) {
+      const c = parts[parts.length - 1].toLowerCase();
+      if (c.includes("france")) country = "FR";
+      else if (c.includes("belg")) country = "BE";
+      else if (c.includes("suisse") || c.includes("switzer")) country = "CH";
+      else if (c.includes("united states") || c.includes("usa")) country = "US";
+    }
+    return { addressLine1, city, postCode, country };
+  };
+
+  const openShipDialog = (r: PlaceResult) => {
+    const parsed = parseAddress(r.formatted_address);
+    setShipForm({
+      firstName: "Responsable",
+      lastName: "",
+      companyName: r.name,
+      addressLine1: parsed.addressLine1,
+      addressLine2: "",
+      city: parsed.city,
+      postCode: parsed.postCode,
+      country: parsed.country,
+    });
+    setShipTarget(r);
+  };
+
+  const handleShip = async () => {
+    if (!shipTarget) return;
+    if (!shipForm.addressLine1 || !shipForm.city || !shipForm.postCode) {
+      toast.error("Adresse incomplète"); return;
+    }
+    setShipping(true);
+    try {
+      // 1. Generate single sticker PDF
+      const blob = await generateSingleStickerPDFBlob(
+        { businessName: shipTarget.name, placeId: shipTarget.place_id, address: shipTarget.formatted_address },
+        currentCountry.lang,
+      );
+      // 2. Upload to public storage
+      const path = `${shipTarget.place_id}-${Date.now()}.pdf`;
+      const { error: upErr } = await supabase.storage
+        .from("prospection-stickers")
+        .upload(path, blob, { contentType: "application/pdf", upsert: true });
+      if (upErr) throw upErr;
+      const { data: pub } = supabase.storage.from("prospection-stickers").getPublicUrl(path);
+      // 3. Call edge function
+      const { data, error } = await supabase.functions.invoke("gelato-print-ship", {
+        body: {
+          fileUrl: pub.publicUrl,
+          businessName: shipTarget.name,
+          recipient: { ...shipForm },
+        },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      toast.success(`Commande Gelato créée ✨ (réf. ${data?.orderReferenceId})`);
+      setShipTarget(null);
+    } catch (e: any) {
+      console.error(e);
+      toast.error(`Erreur Print & Ship : ${e?.message || "inconnue"}`);
+    } finally {
+      setShipping(false);
+    }
+  };
+
   const selCount = Object.keys(selected).length;
 
   return (
