@@ -63,6 +63,10 @@ export default function ProspectionStickers() {
   const [city, setCity] = useState("");
   const [type, setType] = useState("restaurant");
   const [reviewRange, setReviewRange] = useState("all");
+  const [tagFilters, setTagFilters] = useState<Record<string, boolean>>({
+    lowRating: false,    // note ≤ 4.0
+    highVolume: false,   // ≥ 100 avis
+  });
   const [results, setResults] = useState<PlaceResult[]>([]);
   const [suggesting, setSuggesting] = useState(false);
 
@@ -77,7 +81,10 @@ export default function ProspectionStickers() {
   const currentRange = REVIEW_RANGES.find((r) => r.value === reviewRange) || REVIEW_RANGES[0];
   const filteredResults = results.filter((r) => {
     const n = r.user_ratings_total || 0;
-    return n >= currentRange.min && n < currentRange.max;
+    if (!(n >= currentRange.min && n < currentRange.max)) return false;
+    if (tagFilters.lowRating && (r.rating === undefined || r.rating > 4.0)) return false;
+    if (tagFilters.highVolume && n < 100) return false;
+    return true;
   });
 
   const [selected, setSelected] = useState<Record<string, ProspectionClient>>({});
