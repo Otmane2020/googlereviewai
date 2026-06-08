@@ -479,3 +479,20 @@ export async function downloadProspectionStickerPDF(
   const pdf = await generateProspectionStickerPDF(clients, lang);
   pdf.save(filename);
 }
+
+// ---------- single sticker (for Print & Ship via Gelato) ----------
+// Generates a square PDF (~110x110mm) containing only the circular sticker — print-ready.
+export async function generateSingleStickerPDFBlob(
+  client: ProspectionClient,
+  lang: PdfLang = "fr",
+): Promise<Blob> {
+  const size = 110; // mm — matches ~4.33 inch sticker
+  const pdf = new jsPDF({ unit: "mm", format: [size, size] });
+  const favicon = await loadFavicon();
+  const cx = size / 2;
+  const cy = size / 2;
+  const diameter = size - 4;
+  await drawSticker(pdf, client, cx, cy, diameter, favicon, lang);
+  return pdf.output("blob");
+}
+
