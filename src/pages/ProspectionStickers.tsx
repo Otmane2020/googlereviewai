@@ -105,30 +105,58 @@ export default function ProspectionStickers() {
     country: "FR",
   });
   const [shipping, setShipping] = useState(false);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [previewBlob, setPreviewBlob] = useState<Blob | null>(null);
+  const [previewImg, setPreviewImg] = useState<string | null>(null);
   const [previewLoading, setPreviewLoading] = useState(false);
 
-  // Regenerate PDF preview when ship dialog opens
+  // Regenerate PDF preview (rendered as image to avoid Chrome blocking blob PDFs in iframe)
   useEffect(() => {
     if (!shipTarget) {
-      if (previewUrl) URL.revokeObjectURL(previewUrl);
-      setPreviewUrl(null);
+      setPreviewBlob(null);
+      setPreviewImg(null);
       return;
     }
-    let revoked = false;
+    let cancelled = false;
     setPreviewLoading(true);
-    generateSingleStickerPDFBlob(
-      { businessName: shipTarget.name, placeId: shipTarget.place_id, address: shipTarget.formatted_address },
-      currentCountry.lang,
-    ).then((blob) => {
-      if (revoked) return;
-      const url = URL.createObjectURL(blob);
-      setPreviewUrl(url);
-    }).catch((e) => console.error("preview error", e))
-      .finally(() => !revoked && setPreviewLoading(false));
-    return () => { revoked = true; };
+    (async () => {
+      try {
+        const blob = await generateSingleStickerPDFBlob(
+          { businessName: shipTarget.name, placeId: shipTarget.place_id, address: shipTarget.formatted_address },
+          currentCountry.lang,
+        );
+        if (cancelled) return;
+        setPreviewBlob(blob);
+        // Render first page to canvas using pdfjs
+        const pdfjs: any = await import("pdfjs-dist");
+        const workerSrc = (await import("pdfjs-dist/build/pdf.worker.min.mjs?url")).default;
+        pdfjs.GlobalWorkerOptions.workerSrc = workerSrc;
+        const buf = await blob.arrayBuffer();
+        const pdf = await pdfjs.getDocument({ data: buf }).promise;
+        const page = await pdf.getPage(1);
+        const viewport = page.getViewport({ scale: 1.5 });
+        const canvas = document.createElement("canvas");
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        const ctx = canvas.getContext("2d")!;
+        await page.render({ canvas, canvasContext: ctx, viewport }).promise;
+        if (cancelled) return;
+        setPreviewImg(canvas.toDataURL("image/jpeg", 0.85));
+      } catch (e) {
+        console.error("preview error", e);
+      } finally {
+        if (!cancelled) setPreviewLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shipTarget?.place_id]);
+
+  const openPreviewBlank = () => {
+    if (!previewBlob) return;
+    const url = URL.createObjectURL(previewBlob);
+    window.open(url, "_blank");
+    setTimeout(() => URL.revokeObjectURL(url), 60_000);
+  };
 
 
   const currentCountry = COUNTRIES.find((c) => c.value === country) || COUNTRIES[0];
