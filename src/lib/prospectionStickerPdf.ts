@@ -480,19 +480,45 @@ export async function downloadProspectionStickerPDF(
   pdf.save(filename);
 }
 
-// ---------- single sticker (for Print & Ship via Gelato) ----------
-// Generates a square PDF (~110x110mm) containing only the circular sticker — print-ready.
+// ---------- single A4 landscape sheet (for Print & Ship via Gelato) ----------
+// A4 paysage 297x210mm : lettre personnalisée à gauche + sticker rond à découper à droite.
+// Imprimé sur flyer A4 glossy 250gsm par Gelato, plié en deux et envoyé au prospect.
 export async function generateSingleStickerPDFBlob(
   client: ProspectionClient,
   lang: PdfLang = "fr",
 ): Promise<Blob> {
-  const size = 110; // mm — matches ~4.33 inch sticker
-  const pdf = new jsPDF({ unit: "mm", format: [size, size] });
+  const pageW = 297;
+  const pageH = 210;
+  const pdf = new jsPDF({ unit: "mm", format: [pageW, pageH], orientation: "landscape" });
   const favicon = await loadFavicon();
-  const cx = size / 2;
-  const cy = size / 2;
-  const diameter = size - 4;
-  await drawSticker(pdf, client, cx, cy, diameter, favicon, lang);
+  const margin = 10;
+  const t = T[lang];
+
+  // Right side: sticker
+  const stickerD = Math.min(pageH - margin * 2 - 10, 130);
+  const stickerCx = pageW - margin - stickerD / 2 - 5;
+  const stickerCy = pageH / 2;
+  await drawSticker(pdf, client, stickerCx, stickerCy, stickerD, favicon, lang);
+  drawCutMarks(pdf, stickerCx, stickerCy, stickerD / 2, lang);
+
+  // Left side: letter
+  const letterX = margin;
+  const letterW = stickerCx - stickerD / 2 - 10 - letterX;
+  const letterY = margin;
+  const letterH = pageH - margin * 2;
+  drawLetter(pdf, client, letterX, letterY, letterW, letterH, favicon, lang);
+
+  // Vertical fold mark down the middle
+  pdf.setDrawColor(150, 150, 150);
+  pdf.setLineWidth(0.2);
+  pdf.setLineDashPattern([2.5, 2], 0);
+  pdf.line(pageW / 2, margin, pageW / 2, pageH - margin);
+  pdf.setLineDashPattern([], 0);
+  pdf.setFont("helvetica", "italic");
+  pdf.setFontSize(6);
+  pdf.setTextColor(130, 130, 130);
+  pdf.text(lang === "fr" ? "- - plier ici - -" : "- - fold here - -", pageW / 2, margin - 2, { align: "center" });
+
   return pdf.output("blob");
 }
 
