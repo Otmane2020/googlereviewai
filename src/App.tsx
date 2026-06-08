@@ -63,6 +63,7 @@ import ShopCheckout from "./pages/ShopCheckout";
 import Restaurants from "./pages/Restaurants";
 import Hotels from "./pages/Hotels";
 import ProspectionStickers from "./pages/ProspectionStickers";
+import ProspectionHistorique from "./pages/ProspectionHistorique";
 import { DashboardLayout } from "./components/DashboardLayout";
 
 // Wraps a page with the persistent dashboard sidebar (desktop) + bottom nav (mobile)
@@ -225,6 +226,7 @@ const AppContent = () => {
               <Route path="/boutique/qr-imprime" element={<Shell><BoutiqueQRImprime /></Shell>} />
               <Route path="/commandes" element={<Shell><Commandes /></Shell>} />
               <Route path="/prospection-stickers" element={<Shell><ProspectionStickers /></Shell>} />
+              <Route path="/prospection-historique" element={<Shell><ProspectionHistorique /></Shell>} />
               <Route path="/qr-gratuit" element={<LandingQRGratuit />} />
               <Route path="/shop" element={<Shop />} />
               <Route path="/shop/checkout" element={<ShopCheckout />} />
