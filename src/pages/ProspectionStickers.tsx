@@ -229,18 +229,25 @@ export default function ProspectionStickers() {
         { businessName: shipTarget.name, placeId: shipTarget.place_id, address: shipTarget.formatted_address },
         currentCountry.lang,
       );
-      // 2. Upload to public storage
-      const path = `${shipTarget.place_id}-${Date.now()}.pdf`;
+      // 2. Upload to private storage (user-scoped path) + signed URL
+      const { data: u } = await supabase.auth.getUser();
+      if (!u?.user) throw new Error("Non authentifié");
+      const path = `${u.user.id}/${shipTarget.place_id}-${Date.now()}.pdf`;
       const { error: upErr } = await supabase.storage
         .from("prospection-stickers")
         .upload(path, blob, { contentType: "application/pdf", upsert: true });
       if (upErr) throw upErr;
-      const { data: pub } = supabase.storage.from("prospection-stickers").getPublicUrl(path);
+      const { data: signed, error: sErr } = await supabase.storage
+        .from("prospection-stickers")
+        .createSignedUrl(path, 60 * 60 * 24 * 7); // 7 days
+      if (sErr || !signed?.signedUrl) throw sErr ?? new Error("Signed URL failed");
       // 3. Call edge function
       const { data, error } = await supabase.functions.invoke("gelato-print-ship", {
         body: {
-          fileUrl: pub.publicUrl,
+          fileUrl: signed.signedUrl,
           businessName: shipTarget.name,
+          placeId: shipTarget.place_id,
+          address: shipTarget.formatted_address,
           recipient: { ...shipForm },
         },
       });
