@@ -75,19 +75,40 @@ function drawStarsRow(pdf: jsPDF, cx: number, cy: number, count = 5, size = 3) {
   }
 }
 
-function drawRankiLogo(pdf: jsPDF, x: number, y: number, scale = 1) {
-  // simple location-pin "R" mark + "Ranki.ai" text (Ranki dark, .ai blue)
-  // Pin
-  const pinR = 2.2 * scale;
-  pdf.setFillColor(20, 122, 88); // emerald-ish
-  pdf.circle(x + pinR, y, pinR, "F");
-  // tiny white "R" inside
-  pdf.setTextColor(255, 255, 255);
-  pdf.setFont("helvetica", "bold");
-  pdf.setFontSize(6 * scale);
-  pdf.text("R", x + pinR, y + 0.7 * scale, { align: "center" });
-  // wordmark
-  const txtX = x + pinR * 2 + 1.2;
+let _faviconCache: string | null = null;
+async function loadFavicon(): Promise<string | null> {
+  if (_faviconCache !== null) return _faviconCache || null;
+  try {
+    const res = await fetch("/favicon.png");
+    const blob = await res.blob();
+    const dataUrl: string = await new Promise((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = () => resolve(r.result as string);
+      r.onerror = reject;
+      r.readAsDataURL(blob);
+    });
+    _faviconCache = dataUrl;
+    return dataUrl;
+  } catch {
+    _faviconCache = "";
+    return null;
+  }
+}
+
+function drawRankiLogo(pdf: jsPDF, x: number, y: number, scale = 1, favicon?: string | null) {
+  const iconSize = 4.4 * scale;
+  if (favicon) {
+    pdf.addImage(favicon, "PNG", x, y - iconSize / 2, iconSize, iconSize);
+  } else {
+    const pinR = 2.2 * scale;
+    pdf.setFillColor(20, 122, 88);
+    pdf.circle(x + pinR, y, pinR, "F");
+    pdf.setTextColor(255, 255, 255);
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(6 * scale);
+    pdf.text("R", x + pinR, y + 0.7 * scale, { align: "center" });
+  }
+  const txtX = x + iconSize + 1.2;
   pdf.setFont("helvetica", "bold");
   pdf.setFontSize(9 * scale);
   pdf.setTextColor(30, 30, 30);
@@ -96,6 +117,7 @@ function drawRankiLogo(pdf: jsPDF, x: number, y: number, scale = 1) {
   pdf.setTextColor(G.blue[0], G.blue[1], G.blue[2]);
   pdf.text(".ai", txtX + rw, y + 1.2 * scale);
 }
+
 
 // ---------- sticker (circle) ----------
 async function drawSticker(
