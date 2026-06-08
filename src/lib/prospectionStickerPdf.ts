@@ -244,15 +244,60 @@ async function drawSticker(
   const qrY = googleY + 19;
   pdf.addImage(qrDataUrl, "PNG", cx - qrSize / 2, qrY, qrSize, qrSize);
 
-  const mentionY = cy + innerR - 9;
-  pdf.setFont("helvetica", "normal");
-  pdf.setFontSize(6.5);
-  pdf.setTextColor(90, 90, 90);
-  pdf.text(t.poweredBy, cx - 10, mentionY, { align: "right" });
-  drawRankiLogo(pdf, cx - 8, mentionY - 1.2, 0.75, favicon);
-  pdf.setFont("helvetica", "normal");
-  pdf.setFontSize(5.5);
-  pdf.setTextColor(110, 110, 110);
+  // --- Footer: Propulsé par Ranki.ai (centered block) ---
+  const footerY = cy + innerR - 10;
+
+  // Measure "Propulsé par "
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(7.5);
+  pdf.setTextColor(40, 40, 40);
+  const poweredW = pdf.getTextWidth(t.poweredBy + " ");
+
+  // Measure logo block width (icon + text)
+  const logoScale = 0.65;
+  const iconS = 4.4 * logoScale;
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(9 * logoScale);
+  const rankiW = pdf.getTextWidth("Ranki");
+  const dotAiW = pdf.getTextWidth(".ai");
+  const logoW = iconS + 1.2 * logoScale + rankiW + dotAiW;
+
+  const blockW = poweredW + logoW;
+  let curX = cx - blockW / 2;
+
+  // Draw "Propulsé par "
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(7.5);
+  pdf.setTextColor(40, 40, 40);
+  pdf.text(t.poweredBy + " ", curX, footerY);
+  curX += poweredW;
+
+  // Draw favicon or pin
+  if (favicon) {
+    pdf.addImage(favicon, "PNG", curX, footerY - iconS / 2 - 0.6, iconS, iconS);
+  } else {
+    const pinR = 2.2 * logoScale;
+    pdf.setFillColor(20, 122, 88);
+    pdf.circle(curX + pinR, footerY - 0.6, pinR, "F");
+    pdf.setTextColor(255, 255, 255);
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(6 * logoScale);
+    pdf.text("R", curX + pinR, footerY - 0.6 + 0.7 * logoScale, { align: "center" });
+  }
+  curX += iconS + 1.2 * logoScale;
+
+  // Draw "Ranki.ai"
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(9 * logoScale);
+  pdf.setTextColor(30, 30, 30);
+  pdf.text("Ranki", curX, footerY + 0.8 * logoScale);
+  pdf.setTextColor(G.blue[0], G.blue[1], G.blue[2]);
+  pdf.text(".ai", curX + rankiW, footerY + 0.8 * logoScale);
+
+  // Tagline - bigger, bolder, centered
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(7);
+  pdf.setTextColor(60, 60, 60);
   pdf.text(t.stickerFoot, cx, cy + innerR - 4, { align: "center" });
 }
 
