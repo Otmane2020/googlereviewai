@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -105,6 +105,30 @@ export default function ProspectionStickers() {
     country: "FR",
   });
   const [shipping, setShipping] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [previewLoading, setPreviewLoading] = useState(false);
+
+  // Regenerate PDF preview when ship dialog opens
+  useEffect(() => {
+    if (!shipTarget) {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+      setPreviewUrl(null);
+      return;
+    }
+    let revoked = false;
+    setPreviewLoading(true);
+    generateSingleStickerPDFBlob(
+      { businessName: shipTarget.name, placeId: shipTarget.place_id, address: shipTarget.formatted_address },
+      currentCountry.lang,
+    ).then((blob) => {
+      if (revoked) return;
+      const url = URL.createObjectURL(blob);
+      setPreviewUrl(url);
+    }).catch((e) => console.error("preview error", e))
+      .finally(() => !revoked && setPreviewLoading(false));
+    return () => { revoked = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [shipTarget?.place_id]);
 
 
   const currentCountry = COUNTRIES.find((c) => c.value === country) || COUNTRIES[0];
