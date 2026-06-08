@@ -62,8 +62,23 @@ export default function ProspectionStickers() {
   const [country, setCountry] = useState("fr");
   const [city, setCity] = useState("");
   const [type, setType] = useState("restaurant");
+  const [reviewRange, setReviewRange] = useState("all");
   const [results, setResults] = useState<PlaceResult[]>([]);
   const [suggesting, setSuggesting] = useState(false);
+
+  const REVIEW_RANGES: { value: string; label: string; min: number; max: number }[] = [
+    { value: "all", label: "Tous", min: 0, max: Infinity },
+    { value: "0-10", label: "0 – 10 avis", min: 0, max: 10 },
+    { value: "10-50", label: "10 – 50 avis", min: 10, max: 50 },
+    { value: "50-100", label: "50 – 100 avis", min: 50, max: 100 },
+    { value: "100-500", label: "100 – 500 avis", min: 100, max: 500 },
+    { value: "500+", label: "500+ avis", min: 500, max: Infinity },
+  ];
+  const currentRange = REVIEW_RANGES.find((r) => r.value === reviewRange) || REVIEW_RANGES[0];
+  const filteredResults = results.filter((r) => {
+    const n = r.user_ratings_total || 0;
+    return n >= currentRange.min && n < currentRange.max;
+  });
 
   const [selected, setSelected] = useState<Record<string, ProspectionClient>>({});
   const [generating, setGenerating] = useState(false);
