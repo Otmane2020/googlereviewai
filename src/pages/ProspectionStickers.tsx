@@ -267,15 +267,20 @@ export default function ProspectionStickers() {
 
   return (
     <div className="container max-w-5xl py-6 space-y-6 pb-32">
-      <div>
-        <h1 className="text-2xl font-bold flex items-center gap-2">
-          <Sparkles className="h-6 w-6 text-emerald-600" />
-          Stickers prospection
-        </h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Chaque page A4 contient <strong>2 clients</strong> : un sticker Google rond à découper +
-          une lettre personnalisée à envoyer par la poste.
-        </p>
+      <div className="flex items-start justify-between gap-3 flex-wrap">
+        <div>
+          <h1 className="text-2xl font-bold flex items-center gap-2">
+            <Sparkles className="h-6 w-6 text-emerald-600" />
+            Stickers prospection
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Chaque page A4 contient <strong>2 clients</strong> : un sticker Google rond à découper +
+            une lettre personnalisée à envoyer par la poste.
+          </p>
+        </div>
+        <a href="/prospection-historique" className="text-sm text-emerald-700 underline shrink-0">
+          📜 Historique des envois →
+        </a>
       </div>
 
       <Card className="p-4">
