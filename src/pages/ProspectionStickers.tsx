@@ -244,11 +244,21 @@ export default function ProspectionStickers() {
               <Select value={reviewRange} onValueChange={setReviewRange}>
                 <SelectTrigger className="mt-2"><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  {REVIEW_RANGES.map((r) => <SelectItem key={r.value} value={r.value}>{r.label}</SelectItem>)}
+                  {REVIEW_RANGES.map((r) => {
+                    const count = results.filter((res) => {
+                      const n = res.user_ratings_total || 0;
+                      return n >= r.min && n < r.max;
+                    }).length;
+                    return (
+                      <SelectItem key={r.value} value={r.value}>
+                        {r.label} {results.length > 0 && <span className="text-xs text-muted-foreground ml-1">({count})</span>}
+                      </SelectItem>
+                    );
+                  })}
                 </SelectContent>
               </Select>
               <p className="text-xs text-muted-foreground mt-1">
-                💡 Cible les établissements avec beaucoup d'avis pour un meilleur ROI.
+                💡 Cible les établissements avec beaucoup d'avis pour un meilleur ROI. Résultats triés du plus petit au plus grand.
               </p>
             </div>
             <Button onClick={handleSuggest} disabled={suggesting} className="w-full">
