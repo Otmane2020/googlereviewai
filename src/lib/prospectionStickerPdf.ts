@@ -349,6 +349,7 @@ export async function generateProspectionStickerPDF(
   clients: ProspectionClient[],
 ): Promise<jsPDF> {
   const pdf = new jsPDF({ unit: "mm", format: "a4" });
+  const favicon = await loadFavicon();
   const pageW = 210;
   const pageH = 297;
   const margin = 8;
@@ -366,9 +367,9 @@ export async function generateProspectionStickerPDF(
     const cx = margin + stickerW / 2;
     const cy = rowY + rowH / 2;
 
-    await drawSticker(pdf, clients[i], cx, cy, stickerD);
+    await drawSticker(pdf, clients[i], cx, cy, stickerD, favicon);
     drawCutMarks(pdf, cx, cy, stickerD / 2);
-    drawLetter(pdf, clients[i], letterX, rowY + 4, letterW, rowH - 8);
+    drawLetter(pdf, clients[i], letterX, rowY + 4, letterW, rowH - 8, favicon);
 
     if (slot === 0) {
       pdf.setDrawColor(120, 120, 120);
