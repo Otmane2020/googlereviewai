@@ -105,9 +105,17 @@ Deno.serve(async (req) => {
     const data = await gelatoRes.json().catch(() => null);
     if (!gelatoRes.ok) {
       console.error("Gelato error", gelatoRes.status, data);
+      const msg = data?.message || data?.details?.message || "";
+      const code = data?.code || data?.details?.code;
+      const needsCompanyInfo = code === "BAD_REQUEST" && /company information/i.test(msg);
       return new Response(JSON.stringify({
-        error: "Gelato order failed", status: gelatoRes.status, details: data,
-      }), { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+        error: needsCompanyInfo
+          ? "Ton compte Gelato n'est pas complet. Va sur https://gelato.com/dashboard/settings/company et renseigne les infos société (raison sociale, adresse, TVA), puis réessaie."
+          : `Gelato : ${msg || "commande refusée"}`,
+        code: needsCompanyInfo ? "GELATO_COMPANY_INFO_INCOMPLETE" : "GELATO_ORDER_FAILED",
+        status: gelatoRes.status,
+        details: data,
+      }), { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
     // Log to DB
