@@ -7,10 +7,12 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
-import { downloadProspectionStickerPDF, ProspectionClient, PdfLang } from "@/lib/prospectionStickerPdf";
-import { Search, MapPin, Star, Download, Loader2, Sparkles, FileText } from "lucide-react";
+import { downloadProspectionStickerPDF, generateSingleStickerPDFBlob, ProspectionClient, PdfLang } from "@/lib/prospectionStickerPdf";
+import { Search, MapPin, Star, Download, Loader2, Sparkles, FileText, Printer, Send } from "lucide-react";
 import { toast } from "sonner";
+
 
 interface PlaceResult {
   place_id: string;
