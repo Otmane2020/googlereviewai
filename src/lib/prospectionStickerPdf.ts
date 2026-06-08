@@ -257,8 +257,9 @@ function drawLetter(
   y: number,
   w: number,
   h: number,
+  favicon?: string | null,
 ) {
-  drawRankiLogo(pdf, x, y + 4, 1.2);
+  drawRankiLogo(pdf, x, y + 4, 1.2, favicon);
 
   pdf.setDrawColor(220, 220, 220);
   pdf.setLineWidth(0.2);
