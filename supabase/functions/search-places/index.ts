@@ -12,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    const { query, action, placeId } = await req.json();
+    const { query, action, placeId, city, type } = await req.json();
     const apiKey = Deno.env.get("GOOGLE_PLACES_API_KEY");
     
     if (!apiKey) {
@@ -72,6 +72,38 @@ serve(async (req) => {
             photoUrl
           }
         }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Action: nearby - Text search by type + city (restaurants Paris, hôtels Lyon...)
+    if (action === "nearby") {
+      const t = (type || "restaurant").toString();
+      const c = (city || "").toString().trim();
+      if (!c) {
+        return new Response(
+          JSON.stringify({ results: [] }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      const q = `${t} ${c}`;
+      const url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(q)}&key=${apiKey}&language=fr`;
+      const response = await fetch(url);
+      const data = await response.json();
+      console.log(`[search-places] Nearby "${q}": ${data.results?.length || 0} results (${data.status})`);
+
+      const results = (data.results || []).map((r: any) => ({
+        place_id: r.place_id,
+        name: r.name,
+        formatted_address: r.formatted_address,
+        rating: r.rating,
+        user_ratings_total: r.user_ratings_total,
+        business_status: r.business_status,
+        types: r.types,
+      }));
+
+      return new Response(
+        JSON.stringify({ results }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
