@@ -186,7 +186,7 @@ async function drawSticker(
   pdf.setFontSize(6.5);
   pdf.setTextColor(90, 90, 90);
   pdf.text("Propulsé par", cx - 10, mentionY, { align: "right" });
-  drawRankiLogo(pdf, cx - 8, mentionY - 1.2, 0.75);
+  drawRankiLogo(pdf, cx - 8, mentionY - 1.2, 0.75, favicon);
   pdf.setFont("helvetica", "normal");
   pdf.setFontSize(5.5);
   pdf.setTextColor(110, 110, 110);
