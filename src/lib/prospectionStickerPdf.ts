@@ -26,7 +26,7 @@ const T = {
     cutCircle: "- - decouper le long du cercle - -",
     stickHere: "A coller sur votre vitrine ou comptoir",
     cutHere: "- - - decouper ici - - -",
-    title: "Un cadeau pour booster votre e-reputation",
+    title: "Scannez le QR Code pour activer votre assistant Google Avis IA",
     to: "A l'attention de :",
     tags: ["AVIS GOOGLE", "IA 24/7", "GEO / AEO", "GRATUIT"],
     body: [
@@ -45,7 +45,7 @@ const T = {
       "Belle journee,", "L'equipe Ranki.ai",
     ],
     ctaTitle: "Activez tout sur ranki.ai",
-    ctaSub: "Inscription gratuite - 25 avis IA/mois offerts - Sans engagement",
+    ctaSub: "25 reponses automatiques aux avis Google offertes - Sans engagement",
     footer: "Ranki.ai - Reponse auto avis Google + boost IA (ChatGPT, Gemini, Perplexity)",
   },
   en: {
@@ -57,7 +57,7 @@ const T = {
     cutCircle: "- - cut along the circle - -",
     stickHere: "Stick on your window or counter",
     cutHere: "- - - cut here - - -",
-    title: "A gift to boost your online reputation",
+    title: "Scan this QR code to activate your AI Google Reviews assistant",
     to: "To :",
     tags: ["GOOGLE REVIEWS", "AI 24/7", "GEO / AEO", "FREE"],
     body: [
@@ -76,7 +76,7 @@ const T = {
       "Best regards,", "The Ranki.ai team",
     ],
     ctaTitle: "Activate everything on ranki.ai",
-    ctaSub: "Free signup - 25 free AI replies/month - No commitment",
+    ctaSub: "25 free automatic replies to Google reviews - No commitment",
     footer: "Ranki.ai - Auto replies to Google reviews + AI boost (ChatGPT, Gemini, Perplexity)",
   },
 };

@@ -1,10 +1,11 @@
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 
 const GELATO_API_KEY = Deno.env.get("GELATO_API_KEY");
-// User can override default product UID via secret. Default = round die-cut vinyl sticker 4x4 inch.
+// User can override default product UID via secret.
+// Default = A4 horizontal flyer, 250gsm coated silk, glossy protection (verified available via Gelato API).
 const GELATO_PRODUCT_UID =
   Deno.env.get("GELATO_PRODUCT_UID") ??
-  "stickers_pf_dc_pt_die-cut-stickers_size_4x4-inch_pp_4x4-inch_pc_4-color";
+  "cards_pf_a4_pt_250-gsm-coated-silk_cl_4-0_ct_glossy-protection_hor";
 
 interface Recipient {
   firstName: string;
