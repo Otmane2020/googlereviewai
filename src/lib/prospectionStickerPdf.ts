@@ -487,37 +487,49 @@ export async function generateSingleStickerPDFBlob(
   client: ProspectionClient,
   lang: PdfLang = "fr",
 ): Promise<Blob> {
-  const pageW = 297;
-  const pageH = 210;
+  // Gelato A4 landscape requires 3mm bleed on each side → 303 x 213 mm
+  const bleed = 3;
+  const trimW = 297;
+  const trimH = 210;
+  const pageW = trimW + bleed * 2; // 303
+  const pageH = trimH + bleed * 2; // 213
   const pdf = new jsPDF({ unit: "mm", format: [pageW, pageH], orientation: "landscape" });
   const favicon = await loadFavicon();
   const margin = 10;
   const t = T[lang];
 
+  // White background covering full bleed area (avoids Gelato "design file" rejection)
+  pdf.setFillColor(255, 255, 255);
+  pdf.rect(0, 0, pageW, pageH, "F");
+
+  const ox = bleed;
+  const oy = bleed;
+
   // Right side: sticker
-  const stickerD = Math.min(pageH - margin * 2 - 10, 130);
-  const stickerCx = pageW - margin - stickerD / 2 - 5;
-  const stickerCy = pageH / 2;
+  const stickerD = Math.min(trimH - margin * 2 - 10, 130);
+  const stickerCx = ox + trimW - margin - stickerD / 2 - 5;
+  const stickerCy = oy + trimH / 2;
   await drawSticker(pdf, client, stickerCx, stickerCy, stickerD, favicon, lang);
   drawCutMarks(pdf, stickerCx, stickerCy, stickerD / 2, lang);
 
   // Left side: letter
-  const letterX = margin;
+  const letterX = ox + margin;
   const letterW = stickerCx - stickerD / 2 - 10 - letterX;
-  const letterY = margin;
-  const letterH = pageH - margin * 2;
+  const letterY = oy + margin;
+  const letterH = trimH - margin * 2;
   drawLetter(pdf, client, letterX, letterY, letterW, letterH, favicon, lang);
 
-  // Vertical fold mark down the middle
+  // Vertical fold mark down the middle (of trim)
+  const midX = ox + trimW / 2;
   pdf.setDrawColor(150, 150, 150);
   pdf.setLineWidth(0.2);
   pdf.setLineDashPattern([2.5, 2], 0);
-  pdf.line(pageW / 2, margin, pageW / 2, pageH - margin);
+  pdf.line(midX, oy + margin, midX, oy + trimH - margin);
   pdf.setLineDashPattern([], 0);
   pdf.setFont("helvetica", "italic");
   pdf.setFontSize(6);
   pdf.setTextColor(130, 130, 130);
-  pdf.text(lang === "fr" ? "- - plier ici - -" : "- - fold here - -", pageW / 2, margin - 2, { align: "center" });
+  pdf.text(lang === "fr" ? "- - plier ici - -" : "- - fold here - -", midX, oy + margin - 2, { align: "center" });
 
   return pdf.output("blob");
 }
