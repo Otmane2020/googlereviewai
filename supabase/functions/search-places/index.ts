@@ -89,7 +89,7 @@ serve(async (req) => {
         );
       }
       const q = `${t} ${c}`;
-      const url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(q)}&key=${apiKey}&language=fr`;
+      const url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(q)}&region=${region}&key=${apiKey}&language=${lang}`;
       const response = await fetch(url);
       const data = await response.json();
       console.log(`[search-places] Nearby "${q}": ${data.results?.length || 0} results (${data.status})`);
