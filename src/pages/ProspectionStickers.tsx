@@ -239,6 +239,18 @@ export default function ProspectionStickers() {
                 </Select>
               </div>
             </div>
+            <div>
+              <Label>Filtre par nombre d'avis Google</Label>
+              <Select value={reviewRange} onValueChange={setReviewRange}>
+                <SelectTrigger className="mt-2"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {REVIEW_RANGES.map((r) => <SelectItem key={r.value} value={r.value}>{r.label}</SelectItem>)}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground mt-1">
+                💡 Cible les établissements avec beaucoup d'avis pour un meilleur ROI.
+              </p>
+            </div>
             <Button onClick={handleSuggest} disabled={suggesting} className="w-full">
               {suggesting ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Recherche…</>
                 : <><Search className="h-4 w-4 mr-2" /> Suggérer des prospects</>}
@@ -246,19 +258,25 @@ export default function ProspectionStickers() {
           </Card>
 
           {results.length > 0 && (
-            <div className="flex gap-2 justify-end">
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => {
-                  const all: Record<string, ProspectionClient> = { ...selected };
-                  results.forEach((r) => {
-                    all[r.place_id] = { businessName: r.name, placeId: r.place_id, address: r.formatted_address };
-                  });
-                  setSelected(all);
-                }}
-              >Tout sélectionner</Button>
-              <Button size="sm" variant="ghost" onClick={() => setSelected({})}>Vider</Button>
+            <div className="flex items-center justify-between gap-2">
+              <div className="text-xs text-muted-foreground">
+                {filteredResults.length} / {results.length} résultat{results.length > 1 ? "s" : ""}
+                {reviewRange !== "all" && ` · filtre ${currentRange.label}`}
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    const all: Record<string, ProspectionClient> = { ...selected };
+                    filteredResults.forEach((r) => {
+                      all[r.place_id] = { businessName: r.name, placeId: r.place_id, address: r.formatted_address };
+                    });
+                    setSelected(all);
+                  }}
+                >Tout sélectionner</Button>
+                <Button size="sm" variant="ghost" onClick={() => setSelected({})}>Vider</Button>
+              </div>
             </div>
           )}
 
