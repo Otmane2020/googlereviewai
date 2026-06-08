@@ -1,11 +1,13 @@
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
+import { createClient } from "npm:@supabase/supabase-js@2";
 
 const GELATO_API_KEY = Deno.env.get("GELATO_API_KEY");
-// User can override default product UID via secret.
-// Default = A4 horizontal flyer, 250gsm coated silk, glossy protection (verified available via Gelato API).
 const GELATO_PRODUCT_UID =
   Deno.env.get("GELATO_PRODUCT_UID") ??
   "cards_pf_a4_pt_250-gsm-coated-silk_cl_4-0_ct_glossy-protection_hor";
+
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
+const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
 interface Recipient {
   firstName: string;
@@ -15,7 +17,7 @@ interface Recipient {
   addressLine2?: string;
   city: string;
   postCode: string;
-  country: string; // ISO2, e.g. FR
+  country: string;
   email?: string;
   phone?: string;
 }
@@ -24,6 +26,8 @@ interface ReqBody {
   fileUrl: string;
   recipient: Recipient;
   businessName: string;
+  placeId?: string;
+  address?: string;
   quantity?: number;
   orderReferenceId?: string;
 }
@@ -33,28 +37,34 @@ Deno.serve(async (req) => {
 
   try {
     if (!GELATO_API_KEY) {
-      return new Response(
-        JSON.stringify({ error: "GELATO_API_KEY not configured" }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-      );
+      return new Response(JSON.stringify({ error: "GELATO_API_KEY not configured" }), {
+        status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Auth — capture user_id
+    const authHeader = req.headers.get("Authorization") ?? "";
+    const token = authHeader.replace("Bearer ", "");
+    let userId: string | null = null;
+    if (token) {
+      const sb = createClient(SUPABASE_URL, SERVICE_KEY);
+      const { data } = await sb.auth.getUser(token);
+      userId = data.user?.id ?? null;
     }
 
     const body = (await req.json()) as ReqBody;
     if (!body.fileUrl || !body.recipient || !body.businessName) {
-      return new Response(
-        JSON.stringify({ error: "Missing fileUrl, recipient, or businessName" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-      );
+      return new Response(JSON.stringify({ error: "Missing fileUrl, recipient, or businessName" }), {
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     const r = body.recipient;
-    const requiredFields = ["firstName", "addressLine1", "city", "postCode", "country"];
-    for (const f of requiredFields) {
+    for (const f of ["firstName", "addressLine1", "city", "postCode", "country"]) {
       if (!(r as any)[f]) {
-        return new Response(
-          JSON.stringify({ error: `Missing recipient field: ${f}` }),
-          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-        );
+        return new Response(JSON.stringify({ error: `Missing recipient field: ${f}` }), {
+          status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
       }
     }
 
@@ -66,14 +76,12 @@ Deno.serve(async (req) => {
       orderReferenceId,
       customerReferenceId: `ranki-${body.businessName.slice(0, 40)}`,
       currency: "EUR",
-      items: [
-        {
-          itemReferenceId: orderReferenceId,
-          productUid: GELATO_PRODUCT_UID,
-          files: [{ type: "default", url: body.fileUrl }],
-          quantity: body.quantity ?? 1,
-        },
-      ],
+      items: [{
+        itemReferenceId: orderReferenceId,
+        productUid: GELATO_PRODUCT_UID,
+        files: [{ type: "default", url: body.fileUrl }],
+        quantity: body.quantity ?? 1,
+      }],
       shippingAddress: {
         firstName: r.firstName,
         lastName: r.lastName ?? r.firstName,
@@ -90,40 +98,49 @@ Deno.serve(async (req) => {
 
     const gelatoRes = await fetch("https://order.gelatoapis.com/v4/orders", {
       method: "POST",
-      headers: {
-        "X-API-KEY": GELATO_API_KEY,
-        "Content-Type": "application/json",
-      },
+      headers: { "X-API-KEY": GELATO_API_KEY, "Content-Type": "application/json" },
       body: JSON.stringify(orderPayload),
     });
 
     const data = await gelatoRes.json().catch(() => null);
     if (!gelatoRes.ok) {
       console.error("Gelato error", gelatoRes.status, data);
-      return new Response(
-        JSON.stringify({
-          error: "Gelato order failed",
-          status: gelatoRes.status,
-          details: data,
-        }),
-        { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-      );
+      return new Response(JSON.stringify({
+        error: "Gelato order failed", status: gelatoRes.status, details: data,
+      }), { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    return new Response(
-      JSON.stringify({
-        success: true,
-        orderId: data?.id,
-        orderReferenceId,
-        gelato: data,
-      }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } },
-    );
+    // Log to DB
+    if (userId) {
+      const sb = createClient(SUPABASE_URL, SERVICE_KEY);
+      const totalCost = data?.shipment?.totalCost ?? data?.receipts?.[0]?.summary?.products
+        ?? null;
+      await sb.from("print_ship_orders").insert({
+        user_id: userId,
+        type: "print_ship",
+        prospect_place_id: body.placeId ?? null,
+        prospect_name: body.businessName,
+        prospect_address: body.address ?? `${r.addressLine1}, ${r.postCode} ${r.city}`,
+        prospect_city: r.city,
+        prospect_country: r.country.toUpperCase(),
+        recipient: r,
+        file_url: body.fileUrl,
+        gelato_order_id: data?.id ?? null,
+        gelato_reference_id: orderReferenceId,
+        status: data?.fulfillmentStatus ?? data?.orderStatus ?? "created",
+        cost: typeof totalCost === "number" ? totalCost : null,
+        currency: "EUR",
+        raw: data,
+      });
+    }
+
+    return new Response(JSON.stringify({
+      success: true, orderId: data?.id, orderReferenceId, gelato: data,
+    }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
   } catch (e) {
     console.error("gelato-print-ship error", e);
-    return new Response(
-      JSON.stringify({ error: (e as Error).message }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-    );
+    return new Response(JSON.stringify({ error: (e as Error).message }), {
+      status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 });
