@@ -26,7 +26,14 @@ interface Prediction {
   description: string;
 }
 
-const TYPES = [
+const COUNTRIES: { value: string; label: string; flag: string; lang: PdfLang }[] = [
+  { value: "fr", label: "France", flag: "🇫🇷", lang: "fr" },
+  { value: "be", label: "Belgique", flag: "🇧🇪", lang: "fr" },
+  { value: "ch", label: "Suisse", flag: "🇨🇭", lang: "fr" },
+  { value: "us", label: "United States", flag: "🇺🇸", lang: "en" },
+];
+
+const TYPES_FR = [
   { value: "restaurant", label: "Restaurants" },
   { value: "hôtel", label: "Hôtels" },
   { value: "café", label: "Cafés" },
@@ -35,6 +42,16 @@ const TYPES = [
   { value: "salon de beauté", label: "Salons de beauté" },
   { value: "pharmacie", label: "Pharmacies" },
   { value: "garage automobile", label: "Garages" },
+];
+const TYPES_EN = [
+  { value: "restaurant", label: "Restaurants" },
+  { value: "hotel", label: "Hotels" },
+  { value: "coffee shop", label: "Coffee shops" },
+  { value: "bakery", label: "Bakeries" },
+  { value: "hair salon", label: "Hair salons" },
+  { value: "beauty salon", label: "Beauty salons" },
+  { value: "pharmacy", label: "Pharmacies" },
+  { value: "auto repair", label: "Auto repair" },
 ];
 
 export default function ProspectionStickers() {
