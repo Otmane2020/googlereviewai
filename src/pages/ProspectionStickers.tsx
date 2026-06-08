@@ -86,7 +86,7 @@ export default function ProspectionStickers() {
     setSearching(true);
     try {
       const { data, error } = await supabase.functions.invoke("search-places", {
-        body: { action: "autocomplete", query: val },
+        body: { action: "autocomplete", query: val, country },
       });
       if (error) throw error;
       setPredictions(data?.predictions || []);
