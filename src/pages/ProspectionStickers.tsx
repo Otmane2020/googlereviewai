@@ -142,6 +142,26 @@ export default function ProspectionStickers() {
         </p>
       </div>
 
+      <Card className="p-4">
+        <Label>Pays cible</Label>
+        <Select value={country} onValueChange={(v) => { setCountry(v); setResults([]); setPredictions([]); }}>
+          <SelectTrigger className="mt-2"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            {COUNTRIES.map((c) => (
+              <SelectItem key={c.value} value={c.value}>
+                <span className="mr-2">{c.flag}</span>{c.label}
+                <span className="ml-2 text-xs text-muted-foreground">· PDF {c.lang.toUpperCase()}</span>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <p className="text-xs text-muted-foreground mt-2">
+          {currentCountry.lang === "fr"
+            ? "PDF généré en français (France, Belgique, Suisse)."
+            : "PDF will be generated in English."}
+        </p>
+      </Card>
+
       <Tabs defaultValue="search" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="search"><Search className="h-4 w-4 mr-2" />Chercher par nom</TabsTrigger>
