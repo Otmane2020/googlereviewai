@@ -1,6 +1,8 @@
 import jsPDF from "jspdf";
 import QRCode from "qrcode";
 
+export type PdfLang = "fr" | "en";
+
 export interface ProspectionClient {
   businessName: string;
   placeId: string;
@@ -12,6 +14,71 @@ const G = {
   red: [234, 67, 53],
   yellow: [251, 188, 5],
   green: [52, 168, 83],
+};
+
+const T = {
+  fr: {
+    stickerTop: "Laissez-nous votre avis sur",
+    stickerCta1: "MERCI DE PRENDRE UNE MINUTE",
+    stickerCta2: "POUR NOUS LAISSER UN AVIS !",
+    poweredBy: "Propulsé par",
+    stickerFoot: "Répondeur automatique d'avis Google par IA",
+    cutCircle: "- - decouper le long du cercle - -",
+    stickHere: "A coller sur votre vitrine ou comptoir",
+    cutHere: "- - - decouper ici - - -",
+    title: "Un cadeau pour booster votre e-reputation",
+    to: "A l'attention de :",
+    tags: ["AVIS GOOGLE", "IA 24/7", "GEO / AEO", "GRATUIT"],
+    body: [
+      "Bonjour,", "",
+      "Vous trouverez ci-joint un support Google personnalise,",
+      "a coller sur l'une de vos vitrines ou a votre comptoir.", "",
+      "Vos clients laissent un avis en quelques secondes en",
+      "scannant le QR code (lie a votre fiche Google).", "",
+      "Ce sticker est un cadeau offert par Ranki.ai pour vous",
+      "aider a collecter plus d'avis et booster votre visibilite.", "",
+      "__B1__BONUS 1 - Reponse automatique aux avis Google :",
+      "notre IA repond avec votre ton de marque, 24h/24.", "",
+      "__B2__BONUS 2 - GEO / AEO :",
+      "soyez recommande par ChatGPT, Gemini et Perplexity",
+      "quand vos prospects cherchent votre type d'etablissement.", "",
+      "Belle journee,", "L'equipe Ranki.ai",
+    ],
+    ctaTitle: "Activez tout sur ranki.ai",
+    ctaSub: "Inscription gratuite - 25 avis IA/mois offerts - Sans engagement",
+    footer: "Ranki.ai - Reponse auto avis Google + boost IA (ChatGPT, Gemini, Perplexity)",
+  },
+  en: {
+    stickerTop: "Leave us your review on",
+    stickerCta1: "TAKE A MINUTE TO LEAVE",
+    stickerCta2: "US A REVIEW - THANK YOU !",
+    poweredBy: "Powered by",
+    stickerFoot: "Automatic AI replies to Google reviews",
+    cutCircle: "- - cut along the circle - -",
+    stickHere: "Stick on your window or counter",
+    cutHere: "- - - cut here - - -",
+    title: "A gift to boost your online reputation",
+    to: "To :",
+    tags: ["GOOGLE REVIEWS", "AI 24/7", "GEO / AEO", "FREE"],
+    body: [
+      "Hello,", "",
+      "Please find enclosed a personalized Google sticker,",
+      "to stick on one of your windows or your counter.", "",
+      "Your customers can leave a Google review in seconds",
+      "by scanning the QR code (linked to your Google listing).", "",
+      "This sticker is a gift from Ranki.ai to help you",
+      "collect more reviews and boost your local visibility.", "",
+      "__B1__BONUS 1 - Automatic replies to Google reviews:",
+      "our AI replies in your brand voice, 24/7.", "",
+      "__B2__BONUS 2 - GEO / AEO:",
+      "get recommended by ChatGPT, Gemini and Perplexity",
+      "when prospects search for your type of business.", "",
+      "Best regards,", "The Ranki.ai team",
+    ],
+    ctaTitle: "Activate everything on ranki.ai",
+    ctaSub: "Free signup - 25 free AI replies/month - No commitment",
+    footer: "Ranki.ai - Auto replies to Google reviews + AI boost (ChatGPT, Gemini, Perplexity)",
+  },
 };
 
 // ---------- helpers ----------
