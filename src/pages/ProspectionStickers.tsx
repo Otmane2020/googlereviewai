@@ -92,6 +92,21 @@ export default function ProspectionStickers() {
   const [selected, setSelected] = useState<Record<string, ProspectionClient>>({});
   const [generating, setGenerating] = useState(false);
 
+  // Print & Ship (Gelato)
+  const [shipTarget, setShipTarget] = useState<PlaceResult | null>(null);
+  const [shipForm, setShipForm] = useState({
+    firstName: "Responsable",
+    lastName: "",
+    companyName: "",
+    addressLine1: "",
+    addressLine2: "",
+    city: "",
+    postCode: "",
+    country: "FR",
+  });
+  const [shipping, setShipping] = useState(false);
+
+
   const currentCountry = COUNTRIES.find((c) => c.value === country) || COUNTRIES[0];
   const TYPES = currentCountry.lang === "en" ? TYPES_EN : TYPES_FR;
 
