@@ -59,6 +59,7 @@ export default function ProspectionStickers() {
   const [predictions, setPredictions] = useState<Prediction[]>([]);
   const [searching, setSearching] = useState(false);
 
+  const [country, setCountry] = useState("fr");
   const [city, setCity] = useState("");
   const [type, setType] = useState("restaurant");
   const [results, setResults] = useState<PlaceResult[]>([]);
@@ -66,6 +67,9 @@ export default function ProspectionStickers() {
 
   const [selected, setSelected] = useState<Record<string, ProspectionClient>>({});
   const [generating, setGenerating] = useState(false);
+
+  const currentCountry = COUNTRIES.find((c) => c.value === country) || COUNTRIES[0];
+  const TYPES = currentCountry.lang === "en" ? TYPES_EN : TYPES_FR;
 
   const toggle = (c: ProspectionClient) => {
     setSelected((s) => {
