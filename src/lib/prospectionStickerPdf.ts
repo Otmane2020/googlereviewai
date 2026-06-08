@@ -292,11 +292,14 @@ function drawCutMarks(pdf: jsPDF, cx: number, cy: number, r: number, lang: PdfLa
   pdf.setFont("helvetica", "italic");
   pdf.setFontSize(6.2);
   pdf.setTextColor(90, 90, 90);
-  pdf.text("A coller sur votre vitrine ou comptoir", cx, cy - r - 6, { align: "center" });
+  pdf.setFont("helvetica", "italic");
+  pdf.setFontSize(6.2);
+  pdf.setTextColor(90, 90, 90);
+  pdf.text(t.stickHere, cx, cy - r - 6, { align: "center" });
   pdf.setFont("helvetica", "normal");
   pdf.setFontSize(5.5);
   pdf.setTextColor(130, 130, 130);
-  pdf.text("- - decouper le long du cercle - -", cx, cy + r + 7, { align: "center" });
+  pdf.text(t.cutCircle, cx, cy + r + 7, { align: "center" });
 }
 
 // ---------- letter ----------
