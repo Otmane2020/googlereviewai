@@ -172,7 +172,61 @@ async function drawSticker(
   });
 }
 
+// ---------- cut marks ----------
+function drawCutMarks(pdf: jsPDF, cx: number, cy: number, r: number) {
+  pdf.setDrawColor(150, 150, 150);
+  pdf.setLineWidth(0.18);
+  pdf.setLineDashPattern([1.2, 1.2], 0);
+  const segs = 72;
+  for (let i = 0; i < segs; i++) {
+    const a1 = (i / segs) * Math.PI * 2;
+    const a2 = ((i + 1) / segs) * Math.PI * 2;
+    pdf.line(
+      cx + (r + 1.8) * Math.cos(a1),
+      cy + (r + 1.8) * Math.sin(a1),
+      cx + (r + 1.8) * Math.cos(a2),
+      cy + (r + 1.8) * Math.sin(a2),
+    );
+  }
+  pdf.setLineDashPattern([], 0);
+
+  pdf.setDrawColor(60, 60, 60);
+  pdf.setLineWidth(0.3);
+  const cm = r + 4.5;
+  const ml = 3;
+  const corners: [number, number, number, number][] = [
+    [cx - cm, cy - cm, 1, 1],
+    [cx + cm, cy - cm, -1, 1],
+    [cx - cm, cy + cm, 1, -1],
+    [cx + cm, cy + cm, -1, -1],
+  ];
+  for (const [px, py, dx, dy] of corners) {
+    pdf.line(px, py, px + ml * dx, py);
+    pdf.line(px, py, px, py + ml * dy);
+  }
+
+  pdf.setFont("helvetica", "italic");
+  pdf.setFontSize(6.2);
+  pdf.setTextColor(90, 90, 90);
+  pdf.text("A coller sur votre vitrine ou comptoir", cx, cy - r - 6, { align: "center" });
+  pdf.setFont("helvetica", "normal");
+  pdf.setFontSize(5.5);
+  pdf.setTextColor(130, 130, 130);
+  pdf.text("- - decouper le long du cercle - -", cx, cy + r + 7, { align: "center" });
+}
+
 // ---------- letter ----------
+function drawTag(pdf: jsPDF, x: number, y: number, label: string, rgb: number[]) {
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(6.5);
+  const tw = pdf.getTextWidth(label) + 4;
+  pdf.setFillColor(rgb[0], rgb[1], rgb[2]);
+  pdf.roundedRect(x, y - 3.2, tw, 4.6, 1, 1, "F");
+  pdf.setTextColor(255, 255, 255);
+  pdf.text(label, x + 2, y);
+  return tw;
+}
+
 function drawLetter(
   pdf: jsPDF,
   client: ProspectionClient,
@@ -181,69 +235,72 @@ function drawLetter(
   w: number,
   h: number,
 ) {
-  // Header with logo
   drawRankiLogo(pdf, x, y + 4, 1.2);
 
   pdf.setDrawColor(220, 220, 220);
   pdf.setLineWidth(0.2);
   pdf.line(x, y + 9, x + w, y + 9);
 
-  // Title
   pdf.setFont("helvetica", "bold");
   pdf.setFontSize(11);
   pdf.setTextColor(20, 20, 20);
-  pdf.text("Un cadeau pour booster votre e-réputation 🎁", x, y + 16);
+  pdf.text("Un cadeau pour booster votre e-reputation", x, y + 16);
 
-  // Recipient
   pdf.setFont("helvetica", "bold");
   pdf.setFontSize(9);
   pdf.setTextColor(50, 50, 50);
   const name = client.businessName.length > 45
-    ? client.businessName.slice(0, 43) + "…"
+    ? client.businessName.slice(0, 43) + "..."
     : client.businessName;
-  pdf.text(`À l'attention de : ${name}`, x, y + 22);
+  pdf.text(`A l'attention de : ${name}`, x, y + 22);
   if (client.address) {
     pdf.setFont("helvetica", "normal");
     pdf.setFontSize(7.5);
     pdf.setTextColor(110, 110, 110);
     const addr = client.address.length > 70
-      ? client.address.slice(0, 68) + "…"
+      ? client.address.slice(0, 68) + "..."
       : client.address;
     pdf.text(addr, x, y + 26);
   }
 
-  // Body
-  pdf.setFont("helvetica", "normal");
-  pdf.setFontSize(8.5);
-  pdf.setTextColor(40, 40, 40);
-  const body = [
-    "Bonjour,",
-    "",
-    "Vous trouverez ci-joint un support Google personnalisé,",
-    "à coller sur l'une de vos vitrines ou à votre comptoir.",
-    "",
-    "Il permet à vos clients de laisser un avis Google en",
-    "quelques secondes, directement depuis leur téléphone",
-    "via le QR code (lié à votre fiche).",
-    "",
-    "Ce sticker est un cadeau offert par Ranki.ai pour vous",
-    "aider à collecter plus d'avis et améliorer votre",
-    "visibilité locale.",
-    "",
-    "Bonus : ouvrez un compte gratuit sur Ranki.ai pour",
-    "activer la réponse automatique à vos avis Google",
-    "(notre IA répond avec votre ton de marque, 24/7).",
-    "",
-    "Belle journée,",
-    "L'équipe Ranki.ai",
+  let tagX = x;
+  tagX += drawTag(pdf, tagX, y + 32, "AVIS GOOGLE", G.blue) + 2;
+  tagX += drawTag(pdf, tagX, y + 32, "IA 24/7", [20, 122, 88]) + 2;
+  tagX += drawTag(pdf, tagX, y + 32, "GEO / AEO", [147, 51, 234]) + 2;
+  drawTag(pdf, tagX, y + 32, "GRATUIT", G.red);
+
+  const body: { text: string; color?: number[]; bold?: boolean }[] = [
+    { text: "Bonjour," },
+    { text: "" },
+    { text: "Vous trouverez ci-joint un support Google personnalise," },
+    { text: "a coller sur l'une de vos vitrines ou a votre comptoir." },
+    { text: "" },
+    { text: "Vos clients laissent un avis en quelques secondes en" },
+    { text: "scannant le QR code (lie a votre fiche Google)." },
+    { text: "" },
+    { text: "Ce sticker est un cadeau offert par Ranki.ai pour vous" },
+    { text: "aider a collecter plus d'avis et booster votre visibilite." },
+    { text: "" },
+    { text: "BONUS 1 - Reponse automatique aux avis Google :", color: [20, 122, 88], bold: true },
+    { text: "notre IA repond avec votre ton de marque, 24h/24." },
+    { text: "" },
+    { text: "BONUS 2 - GEO / AEO :", color: [147, 51, 234], bold: true },
+    { text: "soyez recommande par ChatGPT, Gemini et Perplexity" },
+    { text: "quand vos prospects cherchent votre type d'etablissement." },
+    { text: "" },
+    { text: "Belle journee," },
+    { text: "L'equipe Ranki.ai" },
   ];
-  let cy = y + 33;
+  let cy = y + 40;
   for (const line of body) {
-    pdf.text(line, x, cy);
-    cy += 4;
+    pdf.setFont("helvetica", line.bold ? "bold" : "normal");
+    pdf.setFontSize(8);
+    const c = line.color || [40, 40, 40];
+    pdf.setTextColor(c[0], c[1], c[2]);
+    pdf.text(line.text, x, cy);
+    cy += 3.7;
   }
 
-  // CTA box
   const ctaY = y + h - 22;
   pdf.setFillColor(240, 253, 244);
   pdf.setDrawColor(52, 168, 83);
@@ -251,21 +308,16 @@ function drawLetter(
   pdf.setFont("helvetica", "bold");
   pdf.setFontSize(8.5);
   pdf.setTextColor(20, 122, 88);
-  pdf.text("👉 Activez la réponse auto sur ranki.ai", x + 3, ctaY + 5.5);
+  pdf.text("Activez tout sur ranki.ai", x + 3, ctaY + 5.5);
   pdf.setFont("helvetica", "normal");
   pdf.setFontSize(7);
   pdf.setTextColor(60, 60, 60);
-  pdf.text(
-    "Inscription gratuite · 25 avis IA/mois offerts · Sans engagement",
-    x + 3,
-    ctaY + 10,
-  );
+  pdf.text("Inscription gratuite - 25 avis IA/mois offerts - Sans engagement", x + 3, ctaY + 10);
 
-  // Footer
   pdf.setFont("helvetica", "normal");
   pdf.setFontSize(6);
   pdf.setTextColor(150, 150, 150);
-  pdf.text("Ranki.ai · Répondeur automatique d'avis Google par IA", x, y + h - 2);
+  pdf.text("Ranki.ai - Reponse auto avis Google + boost IA (ChatGPT, Gemini, Perplexity)", x, y + h - 2);
 }
 
 // ---------- page ----------
@@ -277,11 +329,9 @@ export async function generateProspectionStickerPDF(
   const pageH = 297;
   const margin = 8;
 
-  // 2 clients per page, stacked vertically
-  const rowH = (pageH - margin * 2) / 2; // ~140mm each
-  // Each row: sticker on left, letter on right
-  const stickerD = Math.min(rowH - 6, 110); // ~110mm circle
-  const stickerW = stickerD + 4;
+  const rowH = (pageH - margin * 2) / 2;
+  const stickerD = Math.min(rowH - 18, 105);
+  const stickerW = stickerD + 10;
   const letterX = margin + stickerW + 4;
   const letterW = pageW - letterX - margin;
 
@@ -293,14 +343,20 @@ export async function generateProspectionStickerPDF(
     const cy = rowY + rowH / 2;
 
     await drawSticker(pdf, clients[i], cx, cy, stickerD);
+    drawCutMarks(pdf, cx, cy, stickerD / 2);
     drawLetter(pdf, clients[i], letterX, rowY + 4, letterW, rowH - 8);
 
-    // dashed separator between the two clients
     if (slot === 0) {
-      pdf.setDrawColor(200, 200, 200);
-      pdf.setLineDashPattern([1.5, 1.5], 0);
-      pdf.line(margin, margin + rowH, pageW - margin, margin + rowH);
+      pdf.setDrawColor(120, 120, 120);
+      pdf.setLineWidth(0.3);
+      pdf.setLineDashPattern([2.5, 2], 0);
+      const sepY = margin + rowH;
+      pdf.line(margin, sepY, pageW - margin, sepY);
       pdf.setLineDashPattern([], 0);
+      pdf.setFont("helvetica", "italic");
+      pdf.setFontSize(6);
+      pdf.setTextColor(120, 120, 120);
+      pdf.text("- - - decouper ici - - -", pageW / 2, sepY - 1, { align: "center" });
     }
   }
 
