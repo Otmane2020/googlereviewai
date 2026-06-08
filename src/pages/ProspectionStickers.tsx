@@ -117,7 +117,8 @@ export default function ProspectionStickers() {
     try {
       await downloadProspectionStickerPDF(
         clients,
-        `ranki-prospection-${clients.length}.pdf`,
+        `ranki-prospection-${currentCountry.value}-${clients.length}.pdf`,
+        currentCountry.lang,
       );
       toast.success(`PDF généré ✨ (${clients.length} client${clients.length > 1 ? "s" : ""}, ${Math.ceil(clients.length / 2)} page${Math.ceil(clients.length / 2) > 1 ? "s" : ""})`);
     } catch (e) {
