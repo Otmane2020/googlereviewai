@@ -457,6 +457,14 @@ export default function ProspectionStickers() {
                       )}
                     </div>
                   </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="shrink-0 border-emerald-300 text-emerald-700 hover:bg-emerald-50"
+                    onClick={(e) => { e.stopPropagation(); openShipDialog(r); }}
+                  >
+                    <Printer className="h-3.5 w-3.5 mr-1" /> Print & Ship
+                  </Button>
                 </Card>
               );
             })}
