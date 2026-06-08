@@ -268,6 +268,37 @@ export default function ProspectionStickers() {
                 💡 Cible les établissements avec beaucoup d'avis pour un meilleur ROI. Résultats triés du plus petit au plus grand.
               </p>
             </div>
+            <div>
+              <Label className="text-xs">Filtres rapides</Label>
+              <div className="flex gap-2 mt-2 flex-wrap">
+                <Badge
+                  variant={tagFilters.lowRating ? "default" : "outline"}
+                  className={`cursor-pointer text-xs ${tagFilters.lowRating ? "bg-amber-600 hover:bg-amber-700" : "hover:bg-amber-50"}`}
+                  onClick={() => setTagFilters((f) => ({ ...f, lowRating: !f.lowRating }))}
+                >
+                  ⭐ Note ≤ 4.0
+                </Badge>
+                <Badge
+                  variant={tagFilters.highVolume ? "default" : "outline"}
+                  className={`cursor-pointer text-xs ${tagFilters.highVolume ? "bg-emerald-600 hover:bg-emerald-700" : "hover:bg-emerald-50"}`}
+                  onClick={() => setTagFilters((f) => ({ ...f, highVolume: !f.highVolume }))}
+                >
+                  🔥 100+ avis (gros volume)
+                </Badge>
+                {(tagFilters.lowRating || tagFilters.highVolume) && (
+                  <Badge
+                    variant="ghost"
+                    className="cursor-pointer text-xs text-muted-foreground hover:bg-gray-100"
+                    onClick={() => setTagFilters({ lowRating: false, highVolume: false })}
+                  >
+                    ✕ Réinitialiser
+                  </Badge>
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground mt-2">
+                💡 <strong>Note ≤ 4.0</strong> = commerce mal noté, gros besoin de réponses IA. <strong>100+ avis</strong> = forte exposition, fort ROI.
+              </p>
+            </div>
             <Button onClick={handleSuggest} disabled={suggesting} className="w-full">
               {suggesting ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Recherche…</>
                 : <><Search className="h-4 w-4 mr-2" /> Suggérer des prospects</>}
