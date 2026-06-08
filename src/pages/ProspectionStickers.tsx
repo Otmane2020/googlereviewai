@@ -100,7 +100,7 @@ export default function ProspectionStickers() {
     setResults([]);
     try {
       const { data, error } = await supabase.functions.invoke("search-places", {
-        body: { action: "nearby", city, type },
+        body: { action: "nearby", city, type, country },
       });
       if (error) throw error;
       const list: PlaceResult[] = data?.results || [];
