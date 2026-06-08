@@ -12,7 +12,9 @@ serve(async (req) => {
   }
 
   try {
-    const { query, action, placeId, city, type } = await req.json();
+    const { query, action, placeId, city, type, country } = await req.json();
+    const lang = country === "us" ? "en" : "fr";
+    const region = country || "fr";
     const apiKey = Deno.env.get("GOOGLE_PLACES_API_KEY");
     
     if (!apiKey) {
