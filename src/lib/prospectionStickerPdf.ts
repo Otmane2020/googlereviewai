@@ -126,6 +126,7 @@ async function drawSticker(
   cx: number,
   cy: number,
   diameter: number,
+  favicon?: string | null,
 ) {
   const reviewUrl = `https://search.google.com/local/writereview?placeid=${client.placeId}`;
   const qrDataUrl = await QRCode.toDataURL(reviewUrl, {
