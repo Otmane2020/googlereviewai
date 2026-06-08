@@ -159,6 +159,20 @@ export default function ProspectionStickers() {
         `ranki-prospection-${currentCountry.value}-${clients.length}.pdf`,
         currentCountry.lang,
       );
+      try {
+        const { data: u } = await supabase.auth.getUser();
+        if (u?.user) {
+          const rows = clients.map((c) => ({
+            user_id: u.user!.id,
+            type: "pdf",
+            prospect_place_id: c.placeId ?? null,
+            prospect_name: c.businessName,
+            prospect_address: c.address ?? null,
+            status: "downloaded",
+          }));
+          await supabase.from("print_ship_orders").insert(rows);
+        }
+      } catch (e) { console.warn("history log skipped", e); }
       toast.success(`PDF généré ✨ (${clients.length} client${clients.length > 1 ? "s" : ""}, ${Math.ceil(clients.length / 2)} page${Math.ceil(clients.length / 2) > 1 ? "s" : ""})`);
     } catch (e) {
       console.error(e);
