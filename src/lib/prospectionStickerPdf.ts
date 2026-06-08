@@ -294,11 +294,15 @@ async function drawSticker(
   pdf.setTextColor(G.blue[0], G.blue[1], G.blue[2]);
   pdf.text(".ai", curX + rankiW, footerY + 0.8 * logoScale);
 
-  // Tagline - bigger, bolder, centered
+  // Tagline on 2 lines, centered inside the circle
   pdf.setFont("helvetica", "bold");
-  pdf.setFontSize(7);
+  pdf.setFontSize(6.8);
   pdf.setTextColor(60, 60, 60);
-  pdf.text(t.stickerFoot, cx, cy + innerR - 4, { align: "center" });
+  const taglineLine1 = lang === "fr" ? "Répondeur automatique" : "Automatic reply assistant";
+  const taglineLine2 = lang === "fr" ? "d'avis Google par IA" : "for Google reviews by AI";
+  const taglineBaseY = footerY + 4.2;
+  pdf.text(taglineLine1, cx, taglineBaseY, { align: "center" });
+  pdf.text(taglineLine2, cx, taglineBaseY + 3.2, { align: "center" });
 }
 
 function drawCutMarks(pdf: jsPDF, cx: number, cy: number, r: number, lang: PdfLang) {
