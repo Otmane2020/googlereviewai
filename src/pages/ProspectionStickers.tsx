@@ -508,6 +508,82 @@ export default function ProspectionStickers() {
           </div>
         </div>
       )}
+
+      {/* Print & Ship Dialog (Gelato) */}
+      <Dialog open={!!shipTarget} onOpenChange={(o) => !o && setShipTarget(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Printer className="h-5 w-5 text-emerald-600" />
+              Print & Ship — {shipTarget?.name}
+            </DialogTitle>
+            <DialogDescription>
+              Impression sticker rond adhésif + envoi postal direct via Gelato (production locale FR).
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <Label className="text-xs">Prénom destinataire</Label>
+                <Input value={shipForm.firstName} onChange={(e) => setShipForm({ ...shipForm, firstName: e.target.value })} />
+              </div>
+              <div>
+                <Label className="text-xs">Nom</Label>
+                <Input value={shipForm.lastName} onChange={(e) => setShipForm({ ...shipForm, lastName: e.target.value })} />
+              </div>
+            </div>
+            <div>
+              <Label className="text-xs">Société</Label>
+              <Input value={shipForm.companyName} onChange={(e) => setShipForm({ ...shipForm, companyName: e.target.value })} />
+            </div>
+            <div>
+              <Label className="text-xs">Adresse</Label>
+              <Input value={shipForm.addressLine1} onChange={(e) => setShipForm({ ...shipForm, addressLine1: e.target.value })} />
+            </div>
+            <div>
+              <Label className="text-xs">Complément</Label>
+              <Input value={shipForm.addressLine2} onChange={(e) => setShipForm({ ...shipForm, addressLine2: e.target.value })} />
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              <div>
+                <Label className="text-xs">Code postal</Label>
+                <Input value={shipForm.postCode} onChange={(e) => setShipForm({ ...shipForm, postCode: e.target.value })} />
+              </div>
+              <div className="col-span-2">
+                <Label className="text-xs">Ville</Label>
+                <Input value={shipForm.city} onChange={(e) => setShipForm({ ...shipForm, city: e.target.value })} />
+              </div>
+            </div>
+            <div>
+              <Label className="text-xs">Pays</Label>
+              <Select value={shipForm.country} onValueChange={(v) => setShipForm({ ...shipForm, country: v })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="FR">🇫🇷 France</SelectItem>
+                  <SelectItem value="BE">🇧🇪 Belgique</SelectItem>
+                  <SelectItem value="CH">🇨🇭 Suisse</SelectItem>
+                  <SelectItem value="US">🇺🇸 United States</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <p className="text-xs text-muted-foreground bg-amber-50 border border-amber-200 rounded p-2">
+              💡 Vérifie l'adresse (auto-remplie depuis Google). Coût ~1-2€ + port, facturé sur ton compte Gelato.
+            </p>
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setShipTarget(null)} disabled={shipping}>Annuler</Button>
+            <Button
+              onClick={handleShip}
+              disabled={shipping}
+              className="bg-emerald-600 hover:bg-emerald-700"
+            >
+              {shipping ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Envoi…</>
+                : <><Send className="h-4 w-4 mr-2" /> Imprimer & Envoyer</>}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
+
