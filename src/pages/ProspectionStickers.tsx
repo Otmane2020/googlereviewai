@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
-import { downloadProspectionStickerPDF, ProspectionClient } from "@/lib/prospectionStickerPdf";
+import { downloadProspectionStickerPDF, ProspectionClient, PdfLang } from "@/lib/prospectionStickerPdf";
 import { Search, MapPin, Star, Download, Loader2, Sparkles, FileText } from "lucide-react";
 import { toast } from "sonner";
 
