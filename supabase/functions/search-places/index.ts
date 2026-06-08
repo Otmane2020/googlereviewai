@@ -97,14 +97,15 @@ serve(async (req) => {
       let status = "OK";
       for (let page = 0; page < 3; page++) {
         const url = pageToken ? `${baseUrl}&pagetoken=${pageToken}` : baseUrl;
-        // Google requires a short delay before next_page_token is valid
-        if (pageToken) await new Promise((r) => setTimeout(r, 2100));
+        // Google requires a delay before next_page_token becomes valid (usually 2-3s)
+        if (pageToken) await new Promise((r) => setTimeout(r, 3000));
         const response = await fetch(url);
         const data = await response.json();
         status = data.status;
+        console.log(`[search-places] Page ${page + 1}: status=${status}, results=${data.results?.length || 0}`);
         if (data.results) allRaw.push(...data.results);
         pageToken = data.next_page_token || null;
-        if (!pageToken) break;
+        if (!pageToken || status !== "OK") break;
       }
       console.log(`[search-places] Nearby "${q}": ${allRaw.length} results (${status})`);
 
