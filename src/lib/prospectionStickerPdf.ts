@@ -212,13 +212,12 @@ async function drawSticker(
   pdf.setFillColor(255, 255, 255);
   pdf.circle(cx, cy, innerR, "F");
 
-  // "Laissez-nous votre avis sur"
+  const t = T[lang];
   pdf.setTextColor(30, 30, 30);
   pdf.setFont("times", "italic");
   pdf.setFontSize(11);
-  pdf.text("Laissez-nous votre avis sur", cx, cy - innerR + 11, { align: "center" });
+  pdf.text(t.stickerTop, cx, cy - innerR + 11, { align: "center" });
 
-  // "Google" multicolored
   const googleY = cy - innerR + 21;
   pdf.setFont("helvetica", "bold");
   pdf.setFontSize(24);
@@ -233,38 +232,32 @@ async function drawSticker(
     xc += widths[i];
   });
 
-  // Action phrase
   pdf.setTextColor(20, 20, 20);
   pdf.setFont("helvetica", "bold");
   pdf.setFontSize(7.5);
-  pdf.text("MERCI DE PRENDRE UNE MINUTE", cx, googleY + 6, { align: "center" });
-  pdf.text("POUR NOUS LAISSER UN AVIS !", cx, googleY + 10, { align: "center" });
+  pdf.text(t.stickerCta1, cx, googleY + 6, { align: "center" });
+  pdf.text(t.stickerCta2, cx, googleY + 10, { align: "center" });
 
-  // Stars (drawn, not glyph)
   drawStarsRow(pdf, cx, googleY + 15.5, 5, 2.4);
 
-  // QR code centered
   const qrSize = innerR * 0.85;
   const qrY = googleY + 19;
   pdf.addImage(qrDataUrl, "PNG", cx - qrSize / 2, qrY, qrSize, qrSize);
 
-  // Mention "Propulsé par Ranki.ai"
   const mentionY = cy + innerR - 9;
   pdf.setFont("helvetica", "normal");
   pdf.setFontSize(6.5);
   pdf.setTextColor(90, 90, 90);
-  pdf.text("Propulsé par", cx - 10, mentionY, { align: "right" });
+  pdf.text(t.poweredBy, cx - 10, mentionY, { align: "right" });
   drawRankiLogo(pdf, cx - 8, mentionY - 1.2, 0.75, favicon);
   pdf.setFont("helvetica", "normal");
   pdf.setFontSize(5.5);
   pdf.setTextColor(110, 110, 110);
-  pdf.text("Répondeur automatique d'avis Google par IA", cx, cy + innerR - 4, {
-    align: "center",
-  });
+  pdf.text(t.stickerFoot, cx, cy + innerR - 4, { align: "center" });
 }
 
-// ---------- cut marks ----------
-function drawCutMarks(pdf: jsPDF, cx: number, cy: number, r: number) {
+function drawCutMarks(pdf: jsPDF, cx: number, cy: number, r: number, lang: PdfLang) {
+  const t = T[lang];
   pdf.setDrawColor(150, 150, 150);
   pdf.setLineWidth(0.18);
   pdf.setLineDashPattern([1.2, 1.2], 0);
