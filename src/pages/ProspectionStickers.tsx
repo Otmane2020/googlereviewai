@@ -561,70 +561,94 @@ export default function ProspectionStickers() {
 
       {/* Print & Ship Dialog (Gelato) */}
       <Dialog open={!!shipTarget} onOpenChange={(o) => !o && setShipTarget(null)}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Printer className="h-5 w-5 text-emerald-600" />
               Print & Ship — {shipTarget?.name}
             </DialogTitle>
             <DialogDescription>
-              Impression sticker rond adhésif + envoi postal direct via Gelato (production locale FR).
+              Aperçu du courrier A4 + adresse d'envoi. Vérifie avant d'imprimer via Gelato.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-3">
-            <div className="grid grid-cols-2 gap-2">
-              <div>
-                <Label className="text-xs">Prénom destinataire</Label>
-                <Input value={shipForm.firstName} onChange={(e) => setShipForm({ ...shipForm, firstName: e.target.value })} />
+          <div className="grid md:grid-cols-2 gap-4">
+            {/* Preview pane */}
+            <div className="space-y-2">
+              <Label className="text-xs flex items-center gap-1">
+                <FileText className="h-3.5 w-3.5" /> Aperçu PDF (A4 paysage)
+              </Label>
+              <div className="border rounded-lg bg-slate-50 overflow-hidden h-[420px] flex items-center justify-center">
+                {previewLoading ? (
+                  <Loader2 className="h-6 w-6 animate-spin text-emerald-600" />
+                ) : previewUrl ? (
+                  <iframe src={`${previewUrl}#toolbar=0&navpanes=0`} title="Aperçu" className="w-full h-full" />
+                ) : (
+                  <span className="text-xs text-muted-foreground">Aucun aperçu</span>
+                )}
+              </div>
+              {previewUrl && (
+                <a href={previewUrl} target="_blank" rel="noreferrer" className="text-xs text-emerald-700 underline">
+                  Ouvrir l'aperçu en plein écran ↗
+                </a>
+              )}
+            </div>
+
+            {/* Form pane */}
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <Label className="text-xs">Prénom destinataire</Label>
+                  <Input value={shipForm.firstName} onChange={(e) => setShipForm({ ...shipForm, firstName: e.target.value })} />
+                </div>
+                <div>
+                  <Label className="text-xs">Nom</Label>
+                  <Input value={shipForm.lastName} onChange={(e) => setShipForm({ ...shipForm, lastName: e.target.value })} />
+                </div>
               </div>
               <div>
-                <Label className="text-xs">Nom</Label>
-                <Input value={shipForm.lastName} onChange={(e) => setShipForm({ ...shipForm, lastName: e.target.value })} />
+                <Label className="text-xs">Société</Label>
+                <Input value={shipForm.companyName} onChange={(e) => setShipForm({ ...shipForm, companyName: e.target.value })} />
               </div>
-            </div>
-            <div>
-              <Label className="text-xs">Société</Label>
-              <Input value={shipForm.companyName} onChange={(e) => setShipForm({ ...shipForm, companyName: e.target.value })} />
-            </div>
-            <div>
-              <Label className="text-xs">Adresse</Label>
-              <Input value={shipForm.addressLine1} onChange={(e) => setShipForm({ ...shipForm, addressLine1: e.target.value })} />
-            </div>
-            <div>
-              <Label className="text-xs">Complément</Label>
-              <Input value={shipForm.addressLine2} onChange={(e) => setShipForm({ ...shipForm, addressLine2: e.target.value })} />
-            </div>
-            <div className="grid grid-cols-3 gap-2">
               <div>
-                <Label className="text-xs">Code postal</Label>
-                <Input value={shipForm.postCode} onChange={(e) => setShipForm({ ...shipForm, postCode: e.target.value })} />
+                <Label className="text-xs">Adresse</Label>
+                <Input value={shipForm.addressLine1} onChange={(e) => setShipForm({ ...shipForm, addressLine1: e.target.value })} />
               </div>
-              <div className="col-span-2">
-                <Label className="text-xs">Ville</Label>
-                <Input value={shipForm.city} onChange={(e) => setShipForm({ ...shipForm, city: e.target.value })} />
+              <div>
+                <Label className="text-xs">Complément</Label>
+                <Input value={shipForm.addressLine2} onChange={(e) => setShipForm({ ...shipForm, addressLine2: e.target.value })} />
               </div>
+              <div className="grid grid-cols-3 gap-2">
+                <div>
+                  <Label className="text-xs">Code postal</Label>
+                  <Input value={shipForm.postCode} onChange={(e) => setShipForm({ ...shipForm, postCode: e.target.value })} />
+                </div>
+                <div className="col-span-2">
+                  <Label className="text-xs">Ville</Label>
+                  <Input value={shipForm.city} onChange={(e) => setShipForm({ ...shipForm, city: e.target.value })} />
+                </div>
+              </div>
+              <div>
+                <Label className="text-xs">Pays</Label>
+                <Select value={shipForm.country} onValueChange={(v) => setShipForm({ ...shipForm, country: v })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="FR">🇫🇷 France</SelectItem>
+                    <SelectItem value="BE">🇧🇪 Belgique</SelectItem>
+                    <SelectItem value="CH">🇨🇭 Suisse</SelectItem>
+                    <SelectItem value="US">🇺🇸 United States</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <p className="text-xs text-muted-foreground bg-amber-50 border border-amber-200 rounded p-2">
+                💡 Vérifie l'adresse (auto-remplie depuis Google). Coût ~0,50€ + port, facturé sur ton compte Gelato.
+              </p>
             </div>
-            <div>
-              <Label className="text-xs">Pays</Label>
-              <Select value={shipForm.country} onValueChange={(v) => setShipForm({ ...shipForm, country: v })}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="FR">🇫🇷 France</SelectItem>
-                  <SelectItem value="BE">🇧🇪 Belgique</SelectItem>
-                  <SelectItem value="CH">🇨🇭 Suisse</SelectItem>
-                  <SelectItem value="US">🇺🇸 United States</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <p className="text-xs text-muted-foreground bg-amber-50 border border-amber-200 rounded p-2">
-              💡 Vérifie l'adresse (auto-remplie depuis Google). Coût ~1-2€ + port, facturé sur ton compte Gelato.
-            </p>
           </div>
           <DialogFooter>
             <Button variant="ghost" onClick={() => setShipTarget(null)} disabled={shipping}>Annuler</Button>
             <Button
               onClick={handleShip}
-              disabled={shipping}
+              disabled={shipping || previewLoading}
               className="bg-emerald-600 hover:bg-emerald-700"
             >
               {shipping ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Envoi…</>
