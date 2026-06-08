@@ -380,6 +380,7 @@ export default function ProspectionStickers() {
           <div className="space-y-2">
             {predictions.map((p) => {
               const name = p.description.split(",")[0];
+              const rest = p.description.substring(name.length + 2);
               const checked = !!selected[p.place_id];
               return (
                 <Card key={p.place_id} className="p-3 flex items-center gap-3">
@@ -387,7 +388,18 @@ export default function ProspectionStickers() {
                     checked={checked}
                     onCheckedChange={() => toggle({ businessName: name, placeId: p.place_id, address: p.description })}
                   />
-                  <div className="text-sm flex-1 min-w-0 truncate">{p.description}</div>
+                  <div className="min-w-0 flex-1">
+                    <div className="font-medium truncate">{name}</div>
+                    <div className="text-xs text-muted-foreground truncate">{rest || p.description}</div>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="shrink-0 border-emerald-300 text-emerald-700 hover:bg-emerald-50"
+                    onClick={(e) => { e.stopPropagation(); openShipDialog({ place_id: p.place_id, name, formatted_address: p.description }); }}
+                  >
+                    <Printer className="h-3.5 w-3.5 mr-1" /> Print & Ship
+                  </Button>
                 </Card>
               );
             })}
