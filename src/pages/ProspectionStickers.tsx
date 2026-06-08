@@ -281,8 +281,9 @@ export default function ProspectionStickers() {
           )}
 
           <div className="space-y-2">
-            {results.map((r) => {
+            {filteredResults.map((r) => {
               const checked = !!selected[r.place_id];
+              const reviewCount = r.user_ratings_total || 0;
               return (
                 <Card key={r.place_id} className="p-3 flex items-center gap-3">
                   <Checkbox
@@ -292,13 +293,24 @@ export default function ProspectionStickers() {
                   <div className="min-w-0 flex-1">
                     <div className="font-medium truncate">{r.name}</div>
                     <div className="text-xs text-muted-foreground truncate">{r.formatted_address}</div>
-                    <div className="flex items-center gap-2 mt-1">
+                    <div className="flex items-center gap-2 mt-1 flex-wrap">
                       {r.rating !== undefined && (
                         <Badge variant="secondary" className="text-xs">
                           <Star className="h-3 w-3 mr-1 fill-yellow-400 text-yellow-400" />
-                          {r.rating} ({r.user_ratings_total || 0})
+                          {r.rating}
                         </Badge>
                       )}
+                      <Badge
+                        variant="outline"
+                        className={`text-xs ${
+                          reviewCount >= 100 ? "border-emerald-500 text-emerald-700 bg-emerald-50" :
+                          reviewCount >= 50 ? "border-blue-500 text-blue-700 bg-blue-50" :
+                          reviewCount >= 10 ? "border-amber-500 text-amber-700 bg-amber-50" :
+                          "border-gray-300 text-gray-600"
+                        }`}
+                      >
+                        {reviewCount} avis
+                      </Badge>
                       {r.business_status && r.business_status !== "OPERATIONAL" && (
                         <Badge variant="destructive" className="text-xs">{r.business_status}</Badge>
                       )}
@@ -307,9 +319,15 @@ export default function ProspectionStickers() {
                 </Card>
               );
             })}
+            {results.length > 0 && filteredResults.length === 0 && (
+              <p className="text-sm text-center text-muted-foreground py-4">
+                Aucun résultat avec ce filtre. Essaie une autre tranche d'avis.
+              </p>
+            )}
           </div>
         </TabsContent>
       </Tabs>
+
 
       <Card className="p-4 bg-emerald-50 border-emerald-200">
         <p className="text-xs text-emerald-900">
