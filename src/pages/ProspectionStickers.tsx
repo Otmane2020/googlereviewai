@@ -287,7 +287,7 @@ export default function ProspectionStickers() {
                 </Badge>
                 {(tagFilters.lowRating || tagFilters.highVolume) && (
                   <Badge
-                    variant="ghost"
+                    variant="outline"
                     className="cursor-pointer text-xs text-muted-foreground hover:bg-gray-100"
                     onClick={() => setTagFilters({ lowRating: false, highVolume: false })}
                   >
