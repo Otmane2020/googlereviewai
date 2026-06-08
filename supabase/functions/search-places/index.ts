@@ -30,7 +30,7 @@ serve(async (req) => {
         );
       }
 
-      const url = `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(query)}&types=establishment&key=${apiKey}&language=fr`;
+      const url = `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(query)}&types=establishment&components=country:${region}&key=${apiKey}&language=${lang}`;
       
       const response = await fetch(url);
       const data = await response.json();
