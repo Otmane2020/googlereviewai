@@ -741,24 +741,45 @@ export default function ProspectionStickers() {
           </DialogHeader>
           <div className="grid md:grid-cols-2 gap-4">
             {/* Preview pane */}
-            <div className="space-y-2">
-              <Label className="text-xs flex items-center gap-1">
-                <FileText className="h-3.5 w-3.5" /> Aperçu PDF (A4 paysage)
-              </Label>
-              <div className="border rounded-lg bg-slate-50 overflow-hidden h-[420px] flex items-center justify-center p-2">
-                {previewLoading ? (
-                  <Loader2 className="h-6 w-6 animate-spin text-emerald-600" />
-                ) : previewImg ? (
-                  <img src={previewImg} alt="Aperçu PDF" className="max-h-full max-w-full object-contain shadow-sm" />
-                ) : (
-                  <span className="text-xs text-muted-foreground">Aucun aperçu</span>
+            <div className="space-y-3">
+              <div className="space-y-1">
+                <Label className="text-xs flex items-center gap-1">
+                  <FileText className="h-3.5 w-3.5" /> Sticker — Branded Label 7.62×10.16 cm
+                </Label>
+                <div className="border rounded-lg bg-slate-50 overflow-hidden h-[260px] flex items-center justify-center p-2">
+                  {previewLoading && !labelImg ? (
+                    <Loader2 className="h-6 w-6 animate-spin text-emerald-600" />
+                  ) : labelImg ? (
+                    <img src={labelImg} alt="Aperçu sticker" className="max-h-full max-w-full object-contain shadow-sm" />
+                  ) : (
+                    <span className="text-xs text-muted-foreground">Aucun aperçu</span>
+                  )}
+                </div>
+                {labelBlob && (
+                  <button type="button" onClick={() => openBlobBlank(labelBlob)} className="text-xs text-emerald-700 underline">
+                    Ouvrir le sticker ↗
+                  </button>
                 )}
               </div>
-              {previewBlob && (
-                <button type="button" onClick={openPreviewBlank} className="text-xs text-emerald-700 underline">
-                  Ouvrir le PDF en plein écran ↗
-                </button>
-              )}
+              <div className="space-y-1">
+                <Label className="text-xs flex items-center gap-1">
+                  <FileText className="h-3.5 w-3.5" /> Lettre A4
+                </Label>
+                <div className="border rounded-lg bg-slate-50 overflow-hidden h-[260px] flex items-center justify-center p-2">
+                  {previewLoading && !letterImg ? (
+                    <Loader2 className="h-6 w-6 animate-spin text-emerald-600" />
+                  ) : letterImg ? (
+                    <img src={letterImg} alt="Aperçu lettre" className="max-h-full max-w-full object-contain shadow-sm" />
+                  ) : (
+                    <span className="text-xs text-muted-foreground">Aucun aperçu</span>
+                  )}
+                </div>
+                {letterBlob && (
+                  <button type="button" onClick={() => openBlobBlank(letterBlob)} className="text-xs text-emerald-700 underline">
+                    Ouvrir la lettre ↗
+                  </button>
+                )}
+              </div>
             </div>
 
             {/* Form pane */}
