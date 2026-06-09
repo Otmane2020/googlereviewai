@@ -284,11 +284,11 @@ async function drawSticker(
 
 function drawCutMarks(pdf: jsPDF, cx: number, cy: number, r: number, lang: PdfLang) {
   const t = T[lang];
-  // Square cut marks only (no circle dotted line) — more visible
-  pdf.setDrawColor(40, 40, 40);
-  pdf.setLineWidth(0.5);
-  const cm = r + 4.5;
-  const ml = 3;
+  // Square cut marks only (no circle dotted line) — large & visible
+  pdf.setDrawColor(20, 20, 20);
+  pdf.setLineWidth(0.6);
+  const cm = r + 5;
+  const ml = 7;
   const corners: [number, number, number, number][] = [
     [cx - cm, cy - cm, 1, 1],
     [cx + cm, cy - cm, -1, 1],
@@ -299,18 +299,22 @@ function drawCutMarks(pdf: jsPDF, cx: number, cy: number, r: number, lang: PdfLa
     pdf.line(px, py, px + ml * dx, py);
     pdf.line(px, py, px, py + ml * dy);
   }
+  // Light dashed square outline connecting the corners (cut guide)
+  pdf.setDrawColor(150, 150, 150);
+  pdf.setLineWidth(0.25);
+  pdf.setLineDashPattern([2, 2], 0);
+  pdf.rect(cx - cm, cy - cm, cm * 2, cm * 2);
+  pdf.setLineDashPattern([], 0);
 
   pdf.setFont("helvetica", "italic");
-  pdf.setFontSize(6.2);
+  pdf.setFontSize(6.5);
   pdf.setTextColor(90, 90, 90);
-  pdf.setFont("helvetica", "italic");
-  pdf.setFontSize(6.2);
-  pdf.setTextColor(90, 90, 90);
-  pdf.text(t.stickHere, cx, cy - r - 6, { align: "center" });
+  pdf.text(t.stickHere, cx, cy - cm - 2, { align: "center" });
   pdf.setFont("helvetica", "normal");
-  pdf.setFontSize(5.5);
+  pdf.setFontSize(5.8);
   pdf.setTextColor(130, 130, 130);
-  pdf.text(t.cutCircle, cx, cy + r + 7, { align: "center" });
+  pdf.text(lang === "fr" ? "- - decouper le long du carre - -" : "- - cut along the square - -", cx, cy + cm + 4, { align: "center" });
+
 }
 
 // ---------- letter ----------
