@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, RefreshCcw, Download, ExternalLink, History, Send, FileText, Printer } from "lucide-react";
+import { Loader2, RefreshCcw, Download, ExternalLink, History, Send, FileText, Printer, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
 
