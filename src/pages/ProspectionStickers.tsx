@@ -382,16 +382,34 @@ export default function ProspectionStickers() {
               const name = p.description.split(",")[0];
               const rest = p.description.substring(name.length + 2);
               const checked = !!selected[p.place_id];
+              const client: ProspectionClient = { businessName: name, placeId: p.place_id, address: p.description };
               return (
-                <Card key={p.place_id} className="p-3 flex items-center gap-3">
-                  <Checkbox
-                    checked={checked}
-                    onCheckedChange={() => toggle({ businessName: name, placeId: p.place_id, address: p.description })}
-                  />
+                <Card key={p.place_id} className="p-3 flex items-center gap-2 flex-wrap">
                   <div className="min-w-0 flex-1">
                     <div className="font-medium truncate">{name}</div>
                     <div className="text-xs text-muted-foreground truncate">{rest || p.description}</div>
                   </div>
+                  <Button
+                    size="sm"
+                    variant={checked ? "default" : "outline"}
+                    className={checked ? "shrink-0 bg-emerald-600 hover:bg-emerald-700" : "shrink-0 border-emerald-300 text-emerald-700 hover:bg-emerald-50"}
+                    onClick={() => toggle(client)}
+                  >
+                    {checked ? <><Check className="h-3.5 w-3.5 mr-1" />Ajouté</> : <><Plus className="h-3.5 w-3.5 mr-1" />Ajouter</>}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="shrink-0"
+                    onClick={async () => {
+                      try {
+                        await downloadProspectionStickerPDF([client], `ranki-${name.replace(/[^a-z0-9]/gi, "_").slice(0, 30)}.pdf`, currentCountry.lang);
+                        toast.success("PDF téléchargé ✨ (envoi manuel)");
+                      } catch { toast.error("Erreur PDF"); }
+                    }}
+                  >
+                    <Download className="h-3.5 w-3.5 mr-1" /> PDF
+                  </Button>
                   <Button
                     size="sm"
                     variant="outline"
