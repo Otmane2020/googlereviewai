@@ -350,8 +350,8 @@ export default function ProspectionStickers() {
           address: shipTarget.formatted_address,
           recipient: { ...shipForm },
           items: [
-            { fileUrl: sigL.data.signedUrl, productUid: "label_pf_3x4-in_pt_70-lb-uncoated-bright-white_cl_4-0_ver", quantity: 1 },
-            { fileUrl: sigLet.data.signedUrl, productUid: "flyers_pf_a4_pt_80-gsm-uncoated_cl_4-4_ver", quantity: 1 },
+            { fileUrl: sigL.data.signedUrl, productUid: "flyers_pf_a4_pt_115-gsm-coated-silk_cl_4-4_ver", quantity: 1 },
+            { fileUrl: sigLet.data.signedUrl, productUid: "flyers_pf_a4_pt_115-gsm-coated-silk_cl_4-4_ver", quantity: 1 },
           ],
         },
       });
