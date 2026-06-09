@@ -436,13 +436,14 @@ export default function ProspectionStickers() {
             <div className="grid sm:grid-cols-2 gap-3">
               <div>
                 <Label>Ville</Label>
-                <Input
-                  placeholder="Ex: Lyon"
-                  value={city}
-                  onChange={(e) => setCity(e.target.value)}
-                  className="mt-2"
-                  onKeyDown={(e) => e.key === "Enter" && handleSuggest()}
-                />
+                <Select value={city} onValueChange={setCity}>
+                  <SelectTrigger className="mt-2"><SelectValue placeholder="Choisir une ville" /></SelectTrigger>
+                  <SelectContent>
+                    {CITIES[country]?.map((c) => (
+                      <SelectItem key={c} value={c}>{c}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div>
                 <Label>Type d'établissement</Label>
