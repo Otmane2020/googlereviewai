@@ -202,6 +202,8 @@ export default function ProspectionHistorique() {
               <div className="shrink-0 mt-1">
                 {r.type === "print_ship" ? (
                   <div className="h-9 w-9 rounded-full bg-emerald-100 flex items-center justify-center"><Printer className="h-4 w-4 text-emerald-700" /></div>
+                ) : r.type === "added" ? (
+                  <div className="h-9 w-9 rounded-full bg-emerald-50 flex items-center justify-center"><Plus className="h-4 w-4 text-emerald-600" /></div>
                 ) : (
                   <div className="h-9 w-9 rounded-full bg-slate-100 flex items-center justify-center"><FileText className="h-4 w-4 text-slate-600" /></div>
                 )}
