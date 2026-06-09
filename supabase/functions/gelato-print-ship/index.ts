@@ -22,8 +22,15 @@ interface Recipient {
   phone?: string;
 }
 
-interface ReqBody {
+interface ReqItem {
   fileUrl: string;
+  productUid: string;
+  quantity?: number;
+}
+
+interface ReqBody {
+  fileUrl?: string;           // legacy single-file path
+  items?: ReqItem[];          // new multi-product path
   recipient: Recipient;
   businessName: string;
   placeId?: string;
@@ -42,7 +49,6 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Auth — capture user_id
     const authHeader = req.headers.get("Authorization") ?? "";
     const token = authHeader.replace("Bearer ", "");
     let userId: string | null = null;
@@ -53,8 +59,8 @@ Deno.serve(async (req) => {
     }
 
     const body = (await req.json()) as ReqBody;
-    if (!body.fileUrl || !body.recipient || !body.businessName) {
-      return new Response(JSON.stringify({ error: "Missing fileUrl, recipient, or businessName" }), {
+    if ((!body.fileUrl && !body.items?.length) || !body.recipient || !body.businessName) {
+      return new Response(JSON.stringify({ error: "Missing items/fileUrl, recipient, or businessName" }), {
         status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
@@ -71,17 +77,21 @@ Deno.serve(async (req) => {
     const orderReferenceId =
       body.orderReferenceId ?? `ranki-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
+    const items = (body.items?.length ? body.items : [{
+      fileUrl: body.fileUrl!, productUid: GELATO_PRODUCT_UID, quantity: body.quantity ?? 1,
+    }]).map((it, idx) => ({
+      itemReferenceId: `${orderReferenceId}-${idx + 1}`,
+      productUid: it.productUid,
+      files: [{ type: "default", url: it.fileUrl }],
+      quantity: it.quantity ?? 1,
+    }));
+
     const orderPayload = {
       orderType: "order",
       orderReferenceId,
       customerReferenceId: `ranki-${body.businessName.slice(0, 40)}`,
       currency: "EUR",
-      items: [{
-        itemReferenceId: orderReferenceId,
-        productUid: GELATO_PRODUCT_UID,
-        files: [{ type: "default", url: body.fileUrl }],
-        quantity: body.quantity ?? 1,
-      }],
+      items,
       shippingAddress: {
         firstName: r.firstName,
         lastName: r.lastName ?? r.firstName,
