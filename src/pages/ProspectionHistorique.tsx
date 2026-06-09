@@ -28,6 +28,7 @@ interface OrderRow {
 }
 
 const STATUS_COLORS: Record<string, string> = {
+  added: "bg-emerald-50 text-emerald-700",
   downloaded: "bg-slate-100 text-slate-700",
   created: "bg-blue-100 text-blue-700",
   passed: "bg-blue-100 text-blue-700",
