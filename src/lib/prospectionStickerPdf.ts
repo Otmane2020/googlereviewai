@@ -284,24 +284,9 @@ async function drawSticker(
 
 function drawCutMarks(pdf: jsPDF, cx: number, cy: number, r: number, lang: PdfLang) {
   const t = T[lang];
-  pdf.setDrawColor(150, 150, 150);
-  pdf.setLineWidth(0.18);
-  pdf.setLineDashPattern([1.2, 1.2], 0);
-  const segs = 72;
-  for (let i = 0; i < segs; i++) {
-    const a1 = (i / segs) * Math.PI * 2;
-    const a2 = ((i + 1) / segs) * Math.PI * 2;
-    pdf.line(
-      cx + (r + 1.8) * Math.cos(a1),
-      cy + (r + 1.8) * Math.sin(a1),
-      cx + (r + 1.8) * Math.cos(a2),
-      cy + (r + 1.8) * Math.sin(a2),
-    );
-  }
-  pdf.setLineDashPattern([], 0);
-
-  pdf.setDrawColor(60, 60, 60);
-  pdf.setLineWidth(0.3);
+  // Square cut marks only (no circle dotted line) — more visible
+  pdf.setDrawColor(40, 40, 40);
+  pdf.setLineWidth(0.5);
   const cm = r + 4.5;
   const ml = 3;
   const corners: [number, number, number, number][] = [
