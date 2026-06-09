@@ -962,5 +962,23 @@
     "new": "New",
     "older": "Older",
     "markAsRead": "Mark as read"
+  },
+  "articlePreview": {
+    "statusPublished": "Published",
+    "statusReady": "Ready",
+    "statusGenerating": "Generating…",
+    "statusScheduled": "Scheduled",
+    "fallbackTitle": "Scheduled content",
+    "keyword": "Keyword",
+    "question": "Question",
+    "answer": "Answer",
+    "generatingContent": "Generating content…",
+    "notGenerated": "Not generated yet",
+    "notGeneratedDesc": "Click \"Generate\" to create the content now, or wait for automatic generation.",
+    "generateNow": "Generate now",
+    "upgradeTitle": "Upgrade to unlock",
+    "upgradeDesc": "The Free plan includes 1 SEO post and 1 AEO Q&A per week. Upgrade to publish daily.",
+    "upgrade": "Upgrade"
   }
+}
 }
