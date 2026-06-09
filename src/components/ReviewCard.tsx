@@ -65,6 +65,26 @@ export const ReviewCard = ({
   creditsRemaining
 }: ReviewCardProps) => {
   const [expanded, setExpanded] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  const handleDownloadImage = async () => {
+    if (!cardRef.current) return;
+    try {
+      const dataUrl = await toPng(cardRef.current, {
+        cacheBust: true,
+        pixelRatio: 2,
+        backgroundColor: "#ffffff",
+      });
+      const link = document.createElement("a");
+      link.download = `avis-${review.author.replace(/\s+/g, "-")}-${review.id}.png`;
+      link.href = dataUrl;
+      link.click();
+      toast.success("Image téléchargée");
+    } catch (e) {
+      console.error(e);
+      toast.error("Erreur lors du téléchargement");
+    }
+  };
 
   const renderStars = (rating: number) => {
     return (
