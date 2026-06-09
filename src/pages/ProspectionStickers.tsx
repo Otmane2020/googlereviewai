@@ -114,42 +114,56 @@ export default function ProspectionStickers() {
     country: "FR",
   });
   const [shipping, setShipping] = useState(false);
-  const [previewBlob, setPreviewBlob] = useState<Blob | null>(null);
-  const [previewImg, setPreviewImg] = useState<string | null>(null);
+  const [labelBlob, setLabelBlob] = useState<Blob | null>(null);
+  const [letterBlob, setLetterBlob] = useState<Blob | null>(null);
+  const [labelImg, setLabelImg] = useState<string | null>(null);
+  const [letterImg, setLetterImg] = useState<string | null>(null);
   const [previewLoading, setPreviewLoading] = useState(false);
 
-  // Regenerate PDF preview (rendered as image to avoid Chrome blocking blob PDFs in iframe)
+  // Regenerate previews (label + letter) — matches what Gelato will print
   useEffect(() => {
     if (!shipTarget) {
-      setPreviewBlob(null);
-      setPreviewImg(null);
+      setLabelBlob(null); setLetterBlob(null);
+      setLabelImg(null); setLetterImg(null);
       return;
     }
     let cancelled = false;
     setPreviewLoading(true);
     (async () => {
       try {
-        const blob = await generateSingleStickerPDFBlob(
-          { businessName: shipTarget.name, placeId: shipTarget.place_id, address: shipTarget.formatted_address },
-          currentCountry.lang,
-        );
+        const client = { businessName: shipTarget.name, placeId: shipTarget.place_id, address: shipTarget.formatted_address };
+        const [lblBlob, ltrBlob] = await Promise.all([
+          generateBrandedLabelPDFBlob(client, currentCountry.lang),
+          generateLetterOnlyPDFBlob(client, currentCountry.lang),
+        ]);
         if (cancelled) return;
-        setPreviewBlob(blob);
-        // Render first page to canvas using pdfjs
+        setLabelBlob(lblBlob);
+        setLetterBlob(ltrBlob);
+
         const pdfjs: any = await import("pdfjs-dist");
         const workerSrc = (await import("pdfjs-dist/build/pdf.worker.min.mjs?url")).default;
         pdfjs.GlobalWorkerOptions.workerSrc = workerSrc;
-        const buf = await blob.arrayBuffer();
-        const pdf = await pdfjs.getDocument({ data: buf }).promise;
-        const page = await pdf.getPage(1);
-        const viewport = page.getViewport({ scale: 1.5 });
-        const canvas = document.createElement("canvas");
-        canvas.width = viewport.width;
-        canvas.height = viewport.height;
-        const ctx = canvas.getContext("2d")!;
-        await page.render({ canvas, canvasContext: ctx, viewport }).promise;
+
+        const renderFirstPage = async (blob: Blob, scale = 1.5) => {
+          const buf = await blob.arrayBuffer();
+          const pdf = await pdfjs.getDocument({ data: buf }).promise;
+          const page = await pdf.getPage(1);
+          const viewport = page.getViewport({ scale });
+          const canvas = document.createElement("canvas");
+          canvas.width = viewport.width;
+          canvas.height = viewport.height;
+          const ctx = canvas.getContext("2d")!;
+          await page.render({ canvas, canvasContext: ctx, viewport }).promise;
+          return canvas.toDataURL("image/jpeg", 0.85);
+        };
+
+        const [lblImg, ltrImg] = await Promise.all([
+          renderFirstPage(lblBlob, 2),
+          renderFirstPage(ltrBlob, 1.3),
+        ]);
         if (cancelled) return;
-        setPreviewImg(canvas.toDataURL("image/jpeg", 0.85));
+        setLabelImg(lblImg);
+        setLetterImg(ltrImg);
       } catch (e) {
         console.error("preview error", e);
       } finally {
@@ -160,9 +174,9 @@ export default function ProspectionStickers() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shipTarget?.place_id]);
 
-  const openPreviewBlank = () => {
-    if (!previewBlob) return;
-    const url = URL.createObjectURL(previewBlob);
+  const openBlobBlank = (blob: Blob | null) => {
+    if (!blob) return;
+    const url = URL.createObjectURL(blob);
     window.open(url, "_blank");
     setTimeout(() => URL.revokeObjectURL(url), 60_000);
   };
