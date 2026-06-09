@@ -174,8 +174,28 @@ export default function ProspectionStickers() {
   const toggle = (c: ProspectionClient) => {
     setSelected((s) => {
       const n = { ...s };
-      if (n[c.placeId]) delete n[c.placeId];
-      else n[c.placeId] = c;
+      if (n[c.placeId]) {
+        delete n[c.placeId];
+      } else {
+        n[c.placeId] = c;
+        // Log "added" entry in history (fire-and-forget)
+        (async () => {
+          try {
+            const { data: u } = await supabase.auth.getUser();
+            if (!u?.user) return;
+            const cityGuess = (c.address || "").split(",")[1]?.trim().replace(/^\d{4,6}\s+/, "") || null;
+            await supabase.from("print_ship_orders").insert({
+              user_id: u.user.id,
+              type: "added",
+              prospect_place_id: c.placeId ?? null,
+              prospect_name: c.businessName,
+              prospect_address: c.address ?? null,
+              prospect_city: cityGuess,
+              status: "added",
+            });
+          } catch (e) { console.warn("add log skipped", e); }
+        })();
+      }
       return n;
     });
   };
