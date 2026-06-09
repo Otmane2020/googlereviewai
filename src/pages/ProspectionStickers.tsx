@@ -350,8 +350,8 @@ export default function ProspectionStickers() {
           address: shipTarget.formatted_address,
           recipient: { ...shipForm },
           items: [
-            { fileUrl: sigL.data.signedUrl, productUid: "flyers_pf_a4_pt_115-gsm-coated-silk_cl_4-4_ver", quantity: 1 },
-            { fileUrl: sigLet.data.signedUrl, productUid: "flyers_pf_a4_pt_115-gsm-coated-silk_cl_4-4_ver", quantity: 1 },
+            { fileUrl: sigL.data.signedUrl, productUid: "branded_sticker_101x76-mm-4x3-inch-label_bopp-white-gloss-perm-60-micron_external-application_4-0_ver", quantity: 1 },
+            { fileUrl: sigLet.data.signedUrl, productUid: "branded_insert_101x152-mm-4x6-inch_170-gsm-65lb-uncoated_insert_4-0_ver", quantity: 1 },
           ],
         },
       });
