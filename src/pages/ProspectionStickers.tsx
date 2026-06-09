@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
-import { downloadProspectionStickerPDF, generateSingleStickerPDFBlob, ProspectionClient, PdfLang } from "@/lib/prospectionStickerPdf";
+import { downloadProspectionStickerPDF, generateSingleStickerPDFBlob, generateBrandedLabelPDFBlob, generateLetterOnlyPDFBlob, ProspectionClient, PdfLang } from "@/lib/prospectionStickerPdf";
 import { downloadStickerImage } from "@/lib/prospectionStickerImage";
 import { Search, MapPin, Star, Download, Loader2, Sparkles, FileText, Printer, Send, Plus, Check, Image as ImageIcon } from "lucide-react";
 import { toast } from "sonner";
