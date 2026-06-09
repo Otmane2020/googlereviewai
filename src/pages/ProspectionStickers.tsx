@@ -10,7 +10,8 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { downloadProspectionStickerPDF, generateSingleStickerPDFBlob, ProspectionClient, PdfLang } from "@/lib/prospectionStickerPdf";
-import { Search, MapPin, Star, Download, Loader2, Sparkles, FileText, Printer, Send, Plus, Check } from "lucide-react";
+import { downloadStickerImage } from "@/lib/prospectionStickerImage";
+import { Search, MapPin, Star, Download, Loader2, Sparkles, FileText, Printer, Send, Plus, Check, Image as ImageIcon } from "lucide-react";
 import { toast } from "sonner";
 
 
