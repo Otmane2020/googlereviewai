@@ -21,6 +21,7 @@ interface PlaceResult {
   rating?: number;
   user_ratings_total?: number;
   business_status?: string;
+  photoUrl?: string | null;
 }
 
 interface Prediction {
