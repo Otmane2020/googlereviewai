@@ -305,31 +305,40 @@ export default function ProspectionStickers() {
     }
     setShipping(true);
     try {
-      // 1. Generate single sticker PDF
-      const blob = await generateSingleStickerPDFBlob(
-        { businessName: shipTarget.name, placeId: shipTarget.place_id, address: shipTarget.formatted_address },
-        currentCountry.lang,
-      );
-      // 2. Upload to private storage (user-scoped path) + signed URL
+      const client = { businessName: shipTarget.name, placeId: shipTarget.place_id, address: shipTarget.formatted_address };
+      // 1. Generate both PDFs: Branded Label sticker + A4 letter
+      const [labelBlob, letterBlob] = await Promise.all([
+        generateBrandedLabelPDFBlob(client, currentCountry.lang),
+        generateLetterOnlyPDFBlob(client, currentCountry.lang),
+      ]);
+      // 2. Upload both to storage + signed URLs
       const { data: u } = await supabase.auth.getUser();
       if (!u?.user) throw new Error("Non authentifié");
-      const path = `${u.user.id}/${shipTarget.place_id}-${Date.now()}.pdf`;
-      const { error: upErr } = await supabase.storage
-        .from("prospection-stickers")
-        .upload(path, blob, { contentType: "application/pdf", upsert: true });
-      if (upErr) throw upErr;
-      const { data: signed, error: sErr } = await supabase.storage
-        .from("prospection-stickers")
-        .createSignedUrl(path, 60 * 60 * 24 * 7); // 7 days
-      if (sErr || !signed?.signedUrl) throw sErr ?? new Error("Signed URL failed");
-      // 3. Call edge function
+      const ts = Date.now();
+      const labelPath = `${u.user.id}/${shipTarget.place_id}-${ts}-label.pdf`;
+      const letterPath = `${u.user.id}/${shipTarget.place_id}-${ts}-letter.pdf`;
+      const [upL, upLet] = await Promise.all([
+        supabase.storage.from("prospection-stickers").upload(labelPath, labelBlob, { contentType: "application/pdf", upsert: true }),
+        supabase.storage.from("prospection-stickers").upload(letterPath, letterBlob, { contentType: "application/pdf", upsert: true }),
+      ]);
+      if (upL.error) throw upL.error;
+      if (upLet.error) throw upLet.error;
+      const [sigL, sigLet] = await Promise.all([
+        supabase.storage.from("prospection-stickers").createSignedUrl(labelPath, 60 * 60 * 24 * 7),
+        supabase.storage.from("prospection-stickers").createSignedUrl(letterPath, 60 * 60 * 24 * 7),
+      ]);
+      if (!sigL.data?.signedUrl || !sigLet.data?.signedUrl) throw new Error("Signed URL failed");
+      // 3. Call edge function with 2 Gelato items
       const { data, error } = await supabase.functions.invoke("gelato-print-ship", {
         body: {
-          fileUrl: signed.signedUrl,
           businessName: shipTarget.name,
           placeId: shipTarget.place_id,
           address: shipTarget.formatted_address,
           recipient: { ...shipForm },
+          items: [
+            { fileUrl: sigL.data.signedUrl, productUid: "label_pf_3x4-in_pt_70-lb-uncoated-bright-white_cl_4-0_ver", quantity: 1 },
+            { fileUrl: sigLet.data.signedUrl, productUid: "flyers_pf_a4_pt_80-gsm-uncoated_cl_4-4_ver", quantity: 1 },
+          ],
         },
       });
       if (error) throw error;
