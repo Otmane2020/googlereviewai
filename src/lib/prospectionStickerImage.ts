@@ -2,6 +2,8 @@ import QRCode from "qrcode";
 
 export type ImgLang = "fr" | "en";
 
+// Branded Label Gelato format: 7.62 x 10.16 cm (vertical rectangle, 3x4")
+// 300 DPI export → 900 x 1200 px
 const G = {
   blue: "#4285F4",
   red: "#EA4335",
@@ -24,25 +26,6 @@ const T = {
   },
 };
 
-function drawRing(ctx: CanvasRenderingContext2D, cx: number, cy: number, rOut: number, rIn: number) {
-  const quarters: [string, number][] = [
-    [G.red, -135],
-    [G.yellow, -45],
-    [G.green, 45],
-    [G.blue, 135],
-  ];
-  for (const [color, startDeg] of quarters) {
-    const s = (startDeg * Math.PI) / 180;
-    const e = ((startDeg + 90) * Math.PI) / 180;
-    ctx.beginPath();
-    ctx.arc(cx, cy, rOut, s, e, false);
-    ctx.arc(cx, cy, rIn, e, s, true);
-    ctx.closePath();
-    ctx.fillStyle = color;
-    ctx.fill();
-  }
-}
-
 function drawStar(ctx: CanvasRenderingContext2D, cx: number, cy: number, rOut: number, rIn: number) {
   ctx.beginPath();
   for (let i = 0; i < 10; i++) {
@@ -56,6 +39,16 @@ function drawStar(ctx: CanvasRenderingContext2D, cx: number, cy: number, rOut: n
   ctx.closePath();
   ctx.fillStyle = G.yellow;
   ctx.fill();
+}
+
+function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
 }
 
 async function loadImage(src: string): Promise<HTMLImageElement> {
@@ -73,32 +66,39 @@ export async function downloadStickerImage(
   businessName: string,
   lang: ImgLang = "fr",
 ) {
-  const size = 1200;
+  // Vertical rectangle 7.62 x 10.16 cm @ 300dpi
+  const W = 900;
+  const H = 1200;
   const canvas = document.createElement("canvas");
-  canvas.width = size;
-  canvas.height = size;
+  canvas.width = W;
+  canvas.height = H;
   const ctx = canvas.getContext("2d")!;
-  ctx.fillStyle = "#ffffff";
-  ctx.fillRect(0, 0, size, size);
 
-  const cx = size / 2;
-  const cy = size / 2;
-  const rOut = size / 2 - 20;
-  const ringW = 55;
-  const rIn = rOut - ringW;
-
-  drawRing(ctx, cx, cy, rOut, rIn);
-  ctx.beginPath();
-  ctx.arc(cx, cy, rIn, 0, Math.PI * 2);
+  // Background white
   ctx.fillStyle = "#ffffff";
-  ctx.fill();
+  ctx.fillRect(0, 0, W, H);
+
+  // Outer rounded border (4 Google colors as a top accent bar)
+  const barH = 14;
+  const seg = W / 4;
+  const cols = [G.blue, G.red, G.yellow, G.green];
+  cols.forEach((c, i) => {
+    ctx.fillStyle = c;
+    ctx.fillRect(i * seg, 0, seg, barH);
+  });
+  cols.forEach((c, i) => {
+    ctx.fillStyle = c;
+    ctx.fillRect(i * seg, H - barH, seg, barH);
+  });
 
   const t = T[lang];
+  const cx = W / 2;
 
+  // Top label
   ctx.fillStyle = "#1e1e1e";
-  ctx.font = "italic 38px 'Times New Roman', serif";
+  ctx.font = "italic 34px 'Times New Roman', serif";
   ctx.textAlign = "center";
-  ctx.fillText(t.top, cx, cy - rIn + 80);
+  ctx.fillText(t.top, cx, 80);
 
   // Google word
   const letters = ["G", "o", "o", "g", "l", "e"];
@@ -107,7 +107,7 @@ export async function downloadStickerImage(
   const widths = letters.map((l) => ctx.measureText(l).width);
   const total = widths.reduce((a, b) => a + b, 0);
   let xc = cx - total / 2;
-  const gy = cy - rIn + 200;
+  const gy = 180;
   letters.forEach((l, i) => {
     ctx.fillStyle = colors[i];
     ctx.textAlign = "left";
@@ -115,61 +115,71 @@ export async function downloadStickerImage(
     xc += widths[i];
   });
 
-  ctx.fillStyle = "#141414";
-  ctx.font = "bold 30px Arial, sans-serif";
-  ctx.textAlign = "center";
-  ctx.fillText(t.cta1, cx, gy + 60);
-  ctx.fillText(t.cta2, cx, gy + 98);
-
-  // stars
-  const starY = gy + 150;
-  const starSize = 22;
+  // 5 stars
+  const starY = gy + 50;
+  const starSize = 26;
   const gap = starSize * 2.6;
   const startX = cx - (4 * gap) / 2;
   for (let i = 0; i < 5; i++) {
     drawStar(ctx, startX + i * gap, starY, starSize, starSize * 0.45);
   }
 
-  // QR
+  // CTA
+  ctx.fillStyle = "#141414";
+  ctx.font = "bold 30px Arial, sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText(t.cta1, cx, starY + 60);
+  ctx.fillText(t.cta2, cx, starY + 98);
+
+  // QR — big centered square
   const reviewUrl = `https://search.google.com/local/writereview?placeid=${placeId}`;
   const qrDataUrl = await QRCode.toDataURL(reviewUrl, {
-    width: 800,
+    width: 900,
     margin: 0,
     errorCorrectionLevel: "H",
   });
   const qrImg = await loadImage(qrDataUrl);
-  const qrSize = rIn * 0.85;
-  ctx.drawImage(qrImg, cx - qrSize / 2, starY + 40, qrSize, qrSize);
+  const qrSize = 560;
+  const qrX = cx - qrSize / 2;
+  const qrY = starY + 130;
+
+  // Subtle frame around QR
+  ctx.strokeStyle = "#e5e5e5";
+  ctx.lineWidth = 2;
+  roundRect(ctx, qrX - 12, qrY - 12, qrSize + 24, qrSize + 24, 18);
+  ctx.stroke();
+
+  ctx.drawImage(qrImg, qrX, qrY, qrSize, qrSize);
 
   // Footer: Ranki.ai
-  const footerY = cy + rIn - 90;
+  const footerY = qrY + qrSize + 70;
   try {
     const fav = await loadImage("/favicon.png");
-    const iconS = 60;
-    ctx.font = "bold 56px Arial, sans-serif";
+    const iconS = 54;
+    ctx.font = "bold 50px Arial, sans-serif";
     const rankiW = ctx.measureText("Ranki").width;
     const dotW = ctx.measureText(".ai").width;
     const gap2 = 12;
     const totalW = iconS + gap2 + rankiW + dotW;
     let cur = cx - totalW / 2;
-    ctx.drawImage(fav, cur, footerY - iconS / 2, iconS, iconS);
+    ctx.drawImage(fav, cur, footerY - iconS / 2 - 4, iconS, iconS);
     cur += iconS + gap2;
     ctx.fillStyle = "#1e1e1e";
     ctx.textAlign = "left";
-    ctx.fillText("Ranki", cur, footerY + 18);
+    ctx.fillText("Ranki", cur, footerY + 14);
     ctx.fillStyle = G.blue;
-    ctx.fillText(".ai", cur + rankiW, footerY + 18);
+    ctx.fillText(".ai", cur + rankiW, footerY + 14);
   } catch {
     ctx.fillStyle = "#1e1e1e";
-    ctx.font = "bold 56px Arial, sans-serif";
+    ctx.font = "bold 50px Arial, sans-serif";
     ctx.textAlign = "center";
-    ctx.fillText("Ranki.ai", cx, footerY + 18);
+    ctx.fillText("Ranki.ai", cx, footerY + 14);
   }
 
   ctx.fillStyle = "#787878";
   ctx.font = "22px Arial, sans-serif";
   ctx.textAlign = "center";
-  ctx.fillText(t.tagline, cx, footerY + 60);
+  ctx.fillText(t.tagline, cx, footerY + 54);
 
   const blob: Blob = await new Promise((resolve) =>
     canvas.toBlob((b) => resolve(b!), "image/png"),
