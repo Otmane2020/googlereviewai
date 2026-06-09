@@ -347,9 +347,10 @@ function drawLetter(
   pdf.line(x, y + 9, x + w, y + 9);
 
   pdf.setFont("helvetica", "bold");
-  pdf.setFontSize(11);
+  pdf.setFontSize(10.5);
   pdf.setTextColor(20, 20, 20);
-  pdf.text(t.title, x, y + 16);
+  const titleLines = pdf.splitTextToSize(t.title, w);
+  pdf.text(titleLines, x, y + 16);
 
   pdf.setFont("helvetica", "bold");
   pdf.setFontSize(9);
