@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Button } from "./ui/button";
-import { Star, Clock, Copy, Send, CheckCheck, MessageSquare, Loader2, CheckCircle, Building2, MoreVertical } from "lucide-react";
+import { Star, Clock, Copy, Send, CheckCheck, MessageSquare, Loader2, CheckCircle, Building2, MoreVertical, Download } from "lucide-react";
 import { BrandSparkle } from "@/components/BrandSparkle";
+import { toPng } from "html-to-image";
+import { toast } from "sonner";
 import {
   DropdownMenu,
   DropdownMenuContent,
