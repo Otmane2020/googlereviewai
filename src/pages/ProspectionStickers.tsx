@@ -544,7 +544,20 @@ export default function ProspectionStickers() {
               const reviewCount = r.user_ratings_total || 0;
               const client: ProspectionClient = { businessName: r.name, placeId: r.place_id, address: r.formatted_address };
               return (
-                <Card key={r.place_id} className="p-3 flex items-center gap-2 flex-wrap">
+                <Card key={r.place_id} className="p-3 flex items-center gap-3 flex-wrap">
+                  {r.photoUrl ? (
+                    <img
+                      src={r.photoUrl}
+                      alt={r.name}
+                      className="w-16 h-16 rounded-lg object-cover shrink-0 bg-muted"
+                      loading="lazy"
+                      onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                    />
+                  ) : (
+                    <div className="w-16 h-16 rounded-lg bg-muted flex items-center justify-center shrink-0">
+                      <MapPin className="w-6 h-6 text-muted-foreground" />
+                    </div>
+                  )}
                   <div className="min-w-0 flex-1">
                     <div className="font-medium truncate">{r.name}</div>
                     <div className="text-xs text-muted-foreground truncate">{r.formatted_address}</div>
