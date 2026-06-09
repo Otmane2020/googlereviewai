@@ -524,3 +524,118 @@ export async function generateSingleStickerPDFBlob(
   return pdf.output("blob");
 }
 
+
+// ---------- Branded Label sticker only (Gelato 7.62 x 10.16 cm vertical, with 3mm bleed) ----------
+// Gelato Branded Label format. Vertical rectangle. Sticker design inside trim area.
+export async function generateBrandedLabelPDFBlob(
+  client: ProspectionClient,
+  lang: PdfLang = "fr",
+): Promise<Blob> {
+  const bleed = 3;
+  const trimW = 76.2;   // 7.62 cm
+  const trimH = 101.6;  // 10.16 cm
+  const pageW = trimW + bleed * 2;
+  const pageH = trimH + bleed * 2;
+  const pdf = new jsPDF({ unit: "mm", format: [pageW, pageH], orientation: "portrait" });
+  const favicon = await loadFavicon();
+  const t = T[lang];
+
+  // White bleed background
+  pdf.setFillColor(255, 255, 255);
+  pdf.rect(0, 0, pageW, pageH, "F");
+
+  const ox = bleed, oy = bleed;
+  const cx = ox + trimW / 2;
+
+  // Top + bottom Google color bars
+  const barH = 4;
+  const seg = trimW / 4;
+  const cols = [G.blue, G.red, G.yellow, G.green];
+  cols.forEach((c, i) => {
+    pdf.setFillColor(c[0], c[1], c[2]);
+    pdf.rect(ox + i * seg, oy, seg, barH, "F");
+    pdf.rect(ox + i * seg, oy + trimH - barH, seg, barH, "F");
+  });
+
+  // Top label
+  pdf.setTextColor(30, 30, 30);
+  pdf.setFont("times", "italic");
+  pdf.setFontSize(10);
+  pdf.text(t.stickerTop, cx, oy + 10, { align: "center" });
+
+  // Google word
+  const gy = oy + 22;
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(22);
+  const letters = ["G", "o", "o", "g", "l", "e"];
+  const colorsG = [G.blue, G.red, G.yellow, G.blue, G.green, G.red];
+  const widths = letters.map((l) => pdf.getTextWidth(l));
+  const total = widths.reduce((a, b) => a + b, 0);
+  let xc = cx - total / 2;
+  letters.forEach((l, i) => {
+    pdf.setTextColor(colorsG[i][0], colorsG[i][1], colorsG[i][2]);
+    pdf.text(l, xc, gy);
+    xc += widths[i];
+  });
+
+  // Stars
+  drawStarsRow(pdf, cx, gy + 7, 5, 2.2);
+
+  // CTA
+  pdf.setTextColor(20, 20, 20);
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(7);
+  pdf.text(t.stickerCta1, cx, gy + 14, { align: "center" });
+  pdf.text(t.stickerCta2, cx, gy + 18, { align: "center" });
+
+  // QR
+  const reviewUrl = `https://search.google.com/local/writereview?placeid=${client.placeId}`;
+  const qrDataUrl = await QRCode.toDataURL(reviewUrl, {
+    width: 800, margin: 0, errorCorrectionLevel: "H",
+  });
+  const qrSize = 52;
+  const qrX = cx - qrSize / 2;
+  const qrY = gy + 22;
+  pdf.setDrawColor(220, 220, 220);
+  pdf.setLineWidth(0.3);
+  pdf.roundedRect(qrX - 1.5, qrY - 1.5, qrSize + 3, qrSize + 3, 1.5, 1.5);
+  pdf.addImage(qrDataUrl, "PNG", qrX, qrY, qrSize, qrSize);
+
+  // Footer logo
+  const footerY = oy + trimH - 10;
+  const iconS = 5;
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(11);
+  const rankiW = pdf.getTextWidth("Ranki");
+  const dotW = pdf.getTextWidth(".ai");
+  const gap = 1.2;
+  const totalW = iconS + gap + rankiW + dotW;
+  let cur = cx - totalW / 2;
+  if (favicon) pdf.addImage(favicon, "PNG", cur, footerY - iconS / 2 - 0.4, iconS, iconS);
+  cur += iconS + gap;
+  pdf.setTextColor(30, 30, 30);
+  pdf.text("Ranki", cur, footerY + 1.2);
+  pdf.setTextColor(G.blue[0], G.blue[1], G.blue[2]);
+  pdf.text(".ai", cur + rankiW, footerY + 1.2);
+
+  pdf.setFont("helvetica", "normal");
+  pdf.setFontSize(5.5);
+  pdf.setTextColor(120, 120, 120);
+  pdf.text(lang === "fr" ? "Répondeur IA d'avis Google" : "AI Google reviews assistant", cx, footerY + 5, { align: "center" });
+
+  return pdf.output("blob");
+}
+
+// ---------- A4 letter-only PDF (no sticker) ----------
+export async function generateLetterOnlyPDFBlob(
+  client: ProspectionClient,
+  lang: PdfLang = "fr",
+): Promise<Blob> {
+  const pdf = new jsPDF({ unit: "mm", format: "a4", orientation: "portrait" });
+  const favicon = await loadFavicon();
+  const margin = 15;
+  const pageW = 210;
+  const pageH = 297;
+  drawLetter(pdf, client, margin, margin, pageW - margin * 2, pageH - margin * 2, favicon, lang);
+  return pdf.output("blob");
+}
