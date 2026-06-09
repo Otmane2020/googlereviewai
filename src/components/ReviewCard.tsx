@@ -117,7 +117,7 @@ export const ReviewCard = ({
   };
 
   return (
-    <div className="bg-card rounded-xl border border-border overflow-hidden hover:shadow-md transition-all">
+    <div ref={cardRef} className="bg-card rounded-xl border border-border overflow-hidden hover:shadow-md transition-all">
       {/* Header with business info - Google style */}
       <div className="flex items-center gap-2 px-4 py-2 bg-muted/50 border-b border-border">
         <GoogleLogo />
