@@ -626,15 +626,20 @@ export async function generateBrandedLabelPDFBlob(
   return pdf.output("blob");
 }
 
-// ---------- 4x6" letter-only PDF (Gelato branded insert 101x152 mm) ----------
+// ---------- 4x6" letter-only PDF (Gelato branded insert 101.6 x 152.4 mm + 3mm bleed) ----------
 export async function generateLetterOnlyPDFBlob(
   client: ProspectionClient,
   lang: PdfLang = "fr",
 ): Promise<Blob> {
-  // Gelato branded_insert 101x152 mm + 3mm bleed each side → 107 x 158 mm
-  const pdf = new jsPDF({ unit: "mm", format: [107, 158], orientation: "portrait" });
+  const bleed = 3;
+  const trimW = 101.6;
+  const trimH = 152.4;
+  const pageW = trimW + bleed * 2; // 107.6
+  const pageH = trimH + bleed * 2; // 158.4
+  const pdf = new jsPDF({ unit: "mm", format: [pageW, pageH], orientation: "portrait" });
   const favicon = await loadFavicon();
-  const margin = 6; // 3mm bleed + 3mm safe area
-  drawLetter(pdf, client, margin, margin, 107 - margin * 2, 158 - margin * 2, favicon, lang);
+  // 3mm bleed + 5mm safe area = content inset 8mm
+  const inset = 8;
+  drawLetter(pdf, client, inset, inset, pageW - inset * 2, pageH - inset * 2, favicon, lang);
   return pdf.output("blob");
 }
