@@ -609,6 +609,19 @@ export default function ProspectionStickers() {
                   <Button
                     size="sm"
                     variant="outline"
+                    className="shrink-0 border-blue-300 text-blue-700 hover:bg-blue-50"
+                    onClick={async () => {
+                      try {
+                        await downloadStickerImage(r.place_id, r.name, currentCountry.lang);
+                        toast.success("Image PNG téléchargée ✨");
+                      } catch { toast.error("Erreur image"); }
+                    }}
+                  >
+                    <ImageIcon className="h-3.5 w-3.5 mr-1" /> Image
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
                     className="shrink-0 border-emerald-300 text-emerald-700 hover:bg-emerald-50"
                     onClick={(e) => { e.stopPropagation(); openShipDialog(r); }}
                   >
