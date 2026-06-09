@@ -162,6 +162,7 @@ export default function ProspectionHistorique() {
               <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Tous</SelectItem>
+                <SelectItem value="added">Ajoutés à la liste</SelectItem>
                 <SelectItem value="pdf">PDF téléchargé</SelectItem>
                 <SelectItem value="print_ship">Print &amp; Ship</SelectItem>
               </SelectContent>
