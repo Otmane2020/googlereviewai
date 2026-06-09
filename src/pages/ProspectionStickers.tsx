@@ -35,6 +35,13 @@ const COUNTRIES: { value: string; label: string; flag: string; lang: PdfLang }[]
   { value: "us", label: "United States", flag: "🇺🇸", lang: "en" },
 ];
 
+const CITIES: Record<string, string[]> = {
+  fr: ["Paris", "Lyon", "Marseille", "Toulouse", "Nice", "Nantes", "Strasbourg", "Montpellier", "Bordeaux", "Lille", "Rennes", "Reims", "Le Havre", "Saint-Étienne", "Toulon", "Grenoble", "Dijon", "Angers", "Nîmes", "Villeurbanne"],
+  be: ["Bruxelles", "Anvers", "Gand", "Charleroi", "Liège", "Bruges", "Namur", "Louvain", "Mons", "Alost"],
+  ch: ["Zurich", "Genève", "Bâle", "Lausanne", "Berne", "Winterthour", "Lucerne", "Saint-Gall", "Lugano", "Bienne"],
+  us: ["New York", "Los Angeles", "Chicago", "Houston", "Phoenix", "Philadelphia", "San Antonio", "San Diego", "Dallas", "San Jose"],
+};
+
 const TYPES_FR = [
   { value: "restaurant", label: "Restaurants" },
   { value: "hôtel", label: "Hôtels" },
