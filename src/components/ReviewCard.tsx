@@ -176,6 +176,10 @@ export const ReviewCard = ({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="bg-popover">
+                <DropdownMenuItem className="cursor-pointer" onClick={handleDownloadImage}>
+                  <Download className="w-4 h-4 mr-2" />
+                  Télécharger en image
+                </DropdownMenuItem>
                 <DropdownMenuItem className="cursor-pointer">
                   <MessageSquare className="w-4 h-4 mr-2" />
                   Répondre manuellement
