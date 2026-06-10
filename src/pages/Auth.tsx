@@ -6,10 +6,8 @@ import { RankiLogo } from "@/components/StarlinkoLogo";
 import { AppLoadingBar } from "@/components/AppLoadingBar";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
-import { ArrowLeft, Loader2, Check, Mail, Lock, Eye, EyeOff, User } from "lucide-react";
+import { ArrowLeft, Loader2, Check } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Helmet } from "react-helmet";
 
@@ -17,18 +15,10 @@ const Auth = () => {
   const { t } = useTranslation();
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [isRedirecting, setIsRedirecting] = useState(false);
-  const [isLogin, setIsLogin] = useState(true);
-  const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [fullName, setFullName] = useState("");
-  
-  const { signInWithGoogle, signIn, signUp, user, loading: authLoading } = useAuth();
+
+  const { signInWithGoogle, user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
 
-  // Helper function to check onboarding state and redirect
   const checkSubscriptionAndRedirect = async (userId: string) => {
     const nextParam = new URLSearchParams(window.location.search).get("next");
     if (nextParam && nextParam.startsWith("/")) {
@@ -47,19 +37,14 @@ const Auth = () => {
     }
   };
 
-  // Handle OAuth callback and regular auth redirect
-  // PAYMENT FIRST FLOW: Don't sync businesses here, just store tokens and redirect to payment
   useEffect(() => {
-    // Check URL for OAuth callback tokens
     const hash = window.location.hash;
-    const hasTokens = hash.includes('access_token') || hash.includes('refresh_token');
-    
+    const hasTokens = hash.includes("access_token") || hash.includes("refresh_token");
+
     if (hasTokens) {
       setIsRedirecting(true);
-      // OAuth callback - store GMB refresh token but DON'T sync yet (payment first)
       supabase.auth.getSession().then(async ({ data: { session } }) => {
         if (session) {
-          // If we have a provider_refresh_token from Google, store it for later GMB access
           const providerRefreshToken = session.provider_refresh_token;
           if (providerRefreshToken && session.user) {
             try {
@@ -72,93 +57,27 @@ const Auth = () => {
                   updated_at: new Date().toISOString(),
                 })
                 .eq("id", session.user.id);
-              console.log("[Auth] Stored Google refresh token for GMB access (will sync after payment)");
-              
-              // DON'T trigger business sync here - wait for payment first
-              // The Dashboard will handle sync after subscription is verified
             } catch (err) {
               console.error("[Auth] Failed to store Google refresh token:", err);
             }
           }
-          window.history.replaceState(null, '', '/auth');
+          window.history.replaceState(null, "", "/auth");
           await checkSubscriptionAndRedirect(session.user.id);
         }
       });
       return;
     }
-    
-    // Regular auth check - redirect if already logged in
+
     if (!authLoading && user) {
       setIsRedirecting(true);
       checkSubscriptionAndRedirect(user.id);
     }
   }, [user, authLoading, navigate]);
 
-  const handleEmailSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-
-    try {
-      if (isLogin) {
-        const { error } = await signIn(email, password);
-        if (error) {
-          toast({
-            title: t("auth.errors.loginError"),
-            description: error.message || t("auth.errors.invalidCredentials"),
-            variant: "destructive",
-          });
-        } else {
-          toast({
-            title: t("auth.success.loginSuccess"),
-            description: t("auth.success.welcomeBack"),
-          });
-          // Redirect will be handled by the useEffect
-        }
-      } else {
-        if (!fullName.trim()) {
-          toast({
-            title: t("auth.errors.nameRequired"),
-            description: t("auth.errors.nameRequired"),
-            variant: "destructive",
-          });
-          setLoading(false);
-          return;
-        }
-        const { error } = await signUp(email, password, fullName);
-        if (error) {
-          toast({
-            title: t("auth.errors.signupError"),
-            description: error.message || t("auth.errors.cannotCreateAccount"),
-            variant: "destructive",
-          });
-        } else {
-          toast({
-            title: t("auth.success.signupSuccess"),
-            description: t("auth.success.canNowLogin"),
-          });
-          setIsLogin(true);
-          setEmail("");
-          setPassword("");
-          setFullName("");
-        }
-      }
-    } catch (error) {
-      toast({
-        title: t("common.error"),
-        description: t("auth.errors.unexpectedError"),
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Show professional loading bar while checking authentication OR while redirecting
   if (authLoading || isRedirecting) {
     return <AppLoadingBar message={t("auth.loading.connecting")} />;
   }
 
-  // If user is already logged in but not yet redirecting, show loader too
   if (user) {
     return <AppLoadingBar message={t("auth.loading.redirecting")} />;
   }
@@ -174,31 +93,32 @@ const Auth = () => {
     <div className="min-h-screen flex flex-col lg:flex-row">
       <Helmet>
         <title>Sign in or create your account | Ranki.ai</title>
-        <meta name="description" content="Access your Ranki.ai account to manage AI review responses, local SEO and GEO ranking for your business." />
+        <meta
+          name="description"
+          content="Access your Ranki.ai account to manage AI review responses, local SEO and GEO ranking for your business."
+        />
         <meta name="robots" content="noindex, follow" />
         <link rel="canonical" href="https://ranki.ai/auth" />
         <meta property="og:title" content="Sign in to Ranki.ai" />
-        <meta property="og:description" content="Access your Ranki.ai account to manage AI review responses, local SEO and GEO ranking." />
+        <meta
+          property="og:description"
+          content="Access your Ranki.ai account to manage AI review responses, local SEO and GEO ranking."
+        />
         <meta property="og:url" content="https://ranki.ai/auth" />
       </Helmet>
-      {/* Left panel - Benefits (hidden on mobile) */}
+
+      {/* Left panel */}
       <div className="hidden lg:flex lg:w-1/2 gradient-hero p-12 flex-col justify-between">
         <div>
           <Link to="/">
             <RankiLogo showBadge={false} className="text-card" />
           </Link>
         </div>
-        
         <div className="space-y-8">
           <div>
-            <h1 className="text-4xl font-bold text-card mb-4">
-              {t("auth.manageReviewsWithAI")}
-            </h1>
-            <p className="text-card/80 text-lg">
-              {t("auth.joinBusinesses")}
-            </p>
+            <h1 className="text-4xl font-bold text-card mb-4">{t("auth.manageReviewsWithAI")}</h1>
+            <p className="text-card/80 text-lg">{t("auth.joinBusinesses")}</p>
           </div>
-          
           <ul className="space-y-4">
             {benefits.map((benefit) => (
               <li key={benefit} className="flex items-center gap-3 text-card">
@@ -210,13 +130,12 @@ const Auth = () => {
             ))}
           </ul>
         </div>
-
         <p className="text-card/60 text-sm">
           © {new Date().getFullYear()} Ranki.ai. {t("common.allRightsReserved")}
         </p>
       </div>
 
-      {/* Right panel - Auth form */}
+      {/* Right panel */}
       <div className="flex-1 flex flex-col bg-background">
         {/* Mobile header */}
         <div className="lg:hidden p-4 border-b border-border">
@@ -251,14 +170,8 @@ const Auth = () => {
             </div>
 
             <div>
-              <h2 className="text-2xl font-bold text-foreground">
-                {isLogin ? t("auth.signIn") : t("auth.signUp")}
-              </h2>
-              <p className="text-muted-foreground mt-2">
-                {isLogin 
-                  ? t("auth.connectToAccess")
-                  : t("auth.createAccountToStart")}
-              </p>
+              <h2 className="text-2xl font-bold text-foreground">{t("auth.signIn")}</h2>
+              <p className="text-muted-foreground mt-2">{t("auth.connectToAccess")}</p>
             </div>
 
             {/* Google OAuth Button */}
@@ -277,7 +190,7 @@ const Auth = () => {
                 }
                 setIsGoogleLoading(false);
               }}
-              disabled={isGoogleLoading || loading}
+              disabled={isGoogleLoading}
             >
               {isGoogleLoading ? (
                 <Loader2 className="w-5 h-5 animate-spin" />
@@ -305,126 +218,6 @@ const Auth = () => {
                 </>
               )}
             </Button>
-
-            {/* Divider */}
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t border-border" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">
-                  {t("auth.orContinueWith")}
-                </span>
-              </div>
-            </div>
-
-            {/* Email/Password Form */}
-            <form onSubmit={handleEmailSubmit} className="space-y-4">
-              {!isLogin && (
-                <div className="space-y-2">
-                  <Label htmlFor="fullName">{t("auth.fullName")}</Label>
-                  <div className="relative">
-                    <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="fullName"
-                      type="text"
-                      placeholder={t("auth.fullNamePlaceholder")}
-                      value={fullName}
-                      onChange={(e) => setFullName(e.target.value)}
-                      className="pl-10"
-                      required={!isLogin}
-                    />
-                  </div>
-                </div>
-              )}
-              
-              <div className="space-y-2">
-                <Label htmlFor="email">{t("auth.email")}</Label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder={t("auth.emailPlaceholder")}
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="pl-10"
-                    required
-                  />
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="password">{t("auth.password")}</Label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="password"
-                    type={showPassword ? "text" : "password"}
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="pl-10 pr-10"
-                    required
-                    minLength={6}
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4 text-muted-foreground" />
-                    ) : (
-                      <Eye className="h-4 w-4 text-muted-foreground" />
-                    )}
-                  </Button>
-                </div>
-              </div>
-
-              <Button 
-                type="submit" 
-                className="w-full h-12" 
-                disabled={loading || isGoogleLoading}
-              >
-                {loading ? (
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                ) : (
-                  isLogin ? t("auth.signInButton") : t("auth.signUpButton")
-                )}
-              </Button>
-            </form>
-
-            {/* Toggle login/signup */}
-            <div className="text-center space-y-2">
-              <button
-                type="button"
-                onClick={() => {
-                  setIsLogin(!isLogin);
-                  setEmail("");
-                  setPassword("");
-                  setFullName("");
-                }}
-                className="text-sm text-primary hover:underline"
-              >
-                {isLogin 
-                  ? t("auth.noAccount")
-                  : t("auth.hasAccount")}
-              </button>
-              
-              {isLogin && (
-                <div>
-                  <Link
-                    to="/reset-password"
-                    className="text-sm text-muted-foreground hover:underline"
-                  >
-                    {t("auth.forgotPassword")}
-                  </Link>
-                </div>
-              )}
-            </div>
 
             <p className="text-xs text-center text-muted-foreground">
               {t("auth.termsAgree")}{" "}
