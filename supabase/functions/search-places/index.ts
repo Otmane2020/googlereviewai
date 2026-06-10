@@ -12,9 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    const { query, action, placeId, city, type, country } = await req.json();
-    const lang = country === "us" ? "en" : "fr";
-    const region = country || "fr";
+    const { query, action, placeId } = await req.json();
     const apiKey = Deno.env.get("GOOGLE_PLACES_API_KEY");
     
     if (!apiKey) {
@@ -30,7 +28,7 @@ serve(async (req) => {
         );
       }
 
-      const url = `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(query)}&types=establishment&components=country:${region}&key=${apiKey}&language=${lang}`;
+      const url = `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(query)}&types=establishment&key=${apiKey}&language=fr`;
       
       const response = await fetch(url);
       const data = await response.json();
@@ -74,56 +72,6 @@ serve(async (req) => {
             photoUrl
           }
         }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    // Action: nearby - Text search by type + city (restaurants Paris, hôtels Lyon...)
-    if (action === "nearby") {
-      const t = (type || "restaurant").toString();
-      const c = (city || "").toString().trim();
-      if (!c) {
-        return new Response(
-          JSON.stringify({ results: [] }),
-          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-      const q = `${t} ${c}`;
-      const baseUrl = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(q)}&region=${region}&key=${apiKey}&language=${lang}`;
-
-      // Fetch up to 3 pages (60 results) using next_page_token
-      const allRaw: any[] = [];
-      let pageToken: string | null = null;
-      let status = "OK";
-      for (let page = 0; page < 3; page++) {
-        const url = pageToken ? `${baseUrl}&pagetoken=${pageToken}` : baseUrl;
-        // Google requires a delay before next_page_token becomes valid (usually 2-3s)
-        if (pageToken) await new Promise((r) => setTimeout(r, 3000));
-        const response = await fetch(url);
-        const data = await response.json();
-        status = data.status;
-        console.log(`[search-places] Page ${page + 1}: status=${status}, results=${data.results?.length || 0}`);
-        if (data.results) allRaw.push(...data.results);
-        pageToken = data.next_page_token || null;
-        if (!pageToken || status !== "OK") break;
-      }
-      console.log(`[search-places] Nearby "${q}": ${allRaw.length} results (${status})`);
-
-      const results = allRaw
-        .map((r: any) => ({
-          place_id: r.place_id,
-          name: r.name,
-          formatted_address: r.formatted_address,
-          rating: r.rating,
-          user_ratings_total: r.user_ratings_total || 0,
-          business_status: r.business_status,
-          types: r.types,
-        }))
-        // Sort by review count ascending so low-review prospects are first (better targets)
-        .sort((a, b) => (a.user_ratings_total || 0) - (b.user_ratings_total || 0));
-
-      return new Response(
-        JSON.stringify({ results }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
