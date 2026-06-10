@@ -1,9 +1,7 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { Button } from "./ui/button";
-import { Star, Clock, Copy, Send, CheckCheck, MessageSquare, Loader2, CheckCircle, Building2, MoreVertical, Download } from "lucide-react";
+import { Star, Clock, Copy, Send, CheckCheck, MessageSquare, Loader2, CheckCircle, Building2, MoreVertical } from "lucide-react";
 import { BrandSparkle } from "@/components/BrandSparkle";
-import { toPng } from "html-to-image";
-import { toast } from "sonner";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -65,26 +63,6 @@ export const ReviewCard = ({
   creditsRemaining
 }: ReviewCardProps) => {
   const [expanded, setExpanded] = useState(false);
-  const cardRef = useRef<HTMLDivElement>(null);
-
-  const handleDownloadImage = async () => {
-    if (!cardRef.current) return;
-    try {
-      const dataUrl = await toPng(cardRef.current, {
-        cacheBust: true,
-        pixelRatio: 2,
-        backgroundColor: "#ffffff",
-      });
-      const link = document.createElement("a");
-      link.download = `avis-${review.author.replace(/\s+/g, "-")}-${review.id}.png`;
-      link.href = dataUrl;
-      link.click();
-      toast.success("Image téléchargée");
-    } catch (e) {
-      console.error(e);
-      toast.error("Erreur lors du téléchargement");
-    }
-  };
 
   const renderStars = (rating: number) => {
     return (
@@ -117,7 +95,7 @@ export const ReviewCard = ({
   };
 
   return (
-    <div ref={cardRef} className="bg-card rounded-xl border border-border overflow-hidden hover:shadow-md transition-all">
+    <div className="bg-card rounded-xl border border-border overflow-hidden hover:shadow-md transition-all">
       {/* Header with business info - Google style */}
       <div className="flex items-center gap-2 px-4 py-2 bg-muted/50 border-b border-border">
         <GoogleLogo />
@@ -176,10 +154,6 @@ export const ReviewCard = ({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="bg-popover">
-                <DropdownMenuItem className="cursor-pointer" onClick={handleDownloadImage}>
-                  <Download className="w-4 h-4 mr-2" />
-                  Télécharger en image
-                </DropdownMenuItem>
                 <DropdownMenuItem className="cursor-pointer">
                   <MessageSquare className="w-4 h-4 mr-2" />
                   Répondre manuellement

@@ -962,22 +962,5 @@
     "new": "Nouveau",
     "older": "Plus ancien",
     "markAsRead": "Marquer comme lu"
-  },
-  "articlePreview": {
-    "statusPublished": "Publié",
-    "statusReady": "Prêt",
-    "statusGenerating": "Génération…",
-    "statusScheduled": "Planifié",
-    "fallbackTitle": "Contenu planifié",
-    "keyword": "Mot-clé",
-    "question": "Question",
-    "answer": "Réponse",
-    "generatingContent": "Génération du contenu…",
-    "notGenerated": "Pas encore généré",
-    "notGeneratedDesc": "Cliquez sur « Générer » pour créer le contenu maintenant, ou attendez la génération automatique.",
-    "generateNow": "Générer maintenant",
-    "upgradeTitle": "Passez à un plan supérieur",
-    "upgradeDesc": "Le plan Gratuit inclut 1 article SEO et 1 Q&R AEO par semaine. Passez au plan Quotidien pour publier chaque jour.",
-    "upgrade": "Mettre à niveau"
   }
 }

@@ -118,9 +118,6 @@ serve(async (req) => {
           user_ratings_total: r.user_ratings_total || 0,
           business_status: r.business_status,
           types: r.types,
-          photoUrl: r.photos?.[0]?.photo_reference
-            ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=200&photo_reference=${r.photos[0].photo_reference}&key=${apiKey}`
-            : null,
         }))
         // Sort by review count ascending so low-review prospects are first (better targets)
         .sort((a, b) => (a.user_ratings_total || 0) - (b.user_ratings_total || 0));

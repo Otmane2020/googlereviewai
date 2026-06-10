@@ -26,7 +26,7 @@ const T = {
     cutCircle: "- - decouper le long du cercle - -",
     stickHere: "A coller sur votre vitrine ou comptoir",
     cutHere: "- - - decouper ici - - -",
-    title: "Scannez le QR Code pour activer votre assistant Google Avis IA",
+    title: "Un cadeau pour booster votre e-reputation",
     to: "A l'attention de :",
     tags: ["AVIS GOOGLE", "IA 24/7", "GEO / AEO", "GRATUIT"],
     body: [
@@ -45,7 +45,7 @@ const T = {
       "Belle journee,", "L'equipe Ranki.ai",
     ],
     ctaTitle: "Activez tout sur ranki.ai",
-    ctaSub: "25 reponses automatiques aux avis Google offertes - Sans engagement",
+    ctaSub: "Inscription gratuite - 25 avis IA/mois offerts - Sans engagement",
     footer: "Ranki.ai - Reponse auto avis Google + boost IA (ChatGPT, Gemini, Perplexity)",
   },
   en: {
@@ -57,7 +57,7 @@ const T = {
     cutCircle: "- - cut along the circle - -",
     stickHere: "Stick on your window or counter",
     cutHere: "- - - cut here - - -",
-    title: "Scan this QR code to activate your AI Google Reviews assistant",
+    title: "A gift to boost your online reputation",
     to: "To :",
     tags: ["GOOGLE REVIEWS", "AI 24/7", "GEO / AEO", "FREE"],
     body: [
@@ -76,7 +76,7 @@ const T = {
       "Best regards,", "The Ranki.ai team",
     ],
     ctaTitle: "Activate everything on ranki.ai",
-    ctaSub: "25 free automatic replies to Google reviews - No commitment",
+    ctaSub: "Free signup - 25 free AI replies/month - No commitment",
     footer: "Ranki.ai - Auto replies to Google reviews + AI boost (ChatGPT, Gemini, Perplexity)",
   },
 };
@@ -244,51 +244,89 @@ async function drawSticker(
   const qrY = googleY + 19;
   pdf.addImage(qrDataUrl, "PNG", cx - qrSize / 2, qrY, qrSize, qrSize);
 
-  // --- Footer: Ranki.ai BIG + minimal tagline ---
-  const footerY = cy + innerR - 11;
+  // --- Footer: Propulsé par Ranki.ai (centered block) ---
+  const footerY = cy + innerR - 10;
 
-  // BIG Ranki.ai logo (favicon + bold text) — centered
-  const logoScale = 1.15;
+  // Measure "Propulsé par "
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(7.5);
+  pdf.setTextColor(40, 40, 40);
+  const poweredW = pdf.getTextWidth(t.poweredBy + " ");
+
+  // Measure logo block width (icon + text)
+  const logoScale = 0.65;
   const iconS = 4.4 * logoScale;
   pdf.setFont("helvetica", "bold");
-  pdf.setFontSize(13);
+  pdf.setFontSize(9 * logoScale);
   const rankiW = pdf.getTextWidth("Ranki");
   const dotAiW = pdf.getTextWidth(".ai");
-  const gap = 1.4;
-  const logoW = iconS + gap + rankiW + dotAiW;
-  let curX = cx - logoW / 2;
+  const logoW = iconS + 1.2 * logoScale + rankiW + dotAiW;
 
+  const blockW = poweredW + logoW;
+  let curX = cx - blockW / 2;
+
+  // Draw "Propulsé par "
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(7.5);
+  pdf.setTextColor(40, 40, 40);
+  pdf.text(t.poweredBy + " ", curX, footerY);
+  curX += poweredW;
+
+  // Draw favicon or pin
   if (favicon) {
-    pdf.addImage(favicon, "PNG", curX, footerY - iconS / 2 - 0.4, iconS, iconS);
+    pdf.addImage(favicon, "PNG", curX, footerY - iconS / 2 - 0.6, iconS, iconS);
   } else {
     const pinR = 2.2 * logoScale;
     pdf.setFillColor(20, 122, 88);
-    pdf.circle(curX + pinR, footerY - 0.4, pinR, "F");
+    pdf.circle(curX + pinR, footerY - 0.6, pinR, "F");
+    pdf.setTextColor(255, 255, 255);
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(6 * logoScale);
+    pdf.text("R", curX + pinR, footerY - 0.6 + 0.7 * logoScale, { align: "center" });
   }
-  curX += iconS + gap;
+  curX += iconS + 1.2 * logoScale;
 
+  // Draw "Ranki.ai"
   pdf.setFont("helvetica", "bold");
-  pdf.setFontSize(13);
+  pdf.setFontSize(9 * logoScale);
   pdf.setTextColor(30, 30, 30);
-  pdf.text("Ranki", curX, footerY + 1.4);
+  pdf.text("Ranki", curX, footerY + 0.8 * logoScale);
   pdf.setTextColor(G.blue[0], G.blue[1], G.blue[2]);
-  pdf.text(".ai", curX + rankiW, footerY + 1.4);
+  pdf.text(".ai", curX + rankiW, footerY + 0.8 * logoScale);
 
-  // Minimal tagline below
-  pdf.setFont("helvetica", "normal");
-  pdf.setFontSize(5.8);
-  pdf.setTextColor(120, 120, 120);
-  const tagline = lang === "fr" ? "Répondeur IA d'avis Google" : "AI Google reviews assistant";
-  pdf.text(tagline, cx, footerY + 5.8, { align: "center" });
+  // Tagline on 2 lines, centered inside the circle
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(6.8);
+  pdf.setTextColor(60, 60, 60);
+  const taglineLine1 = lang === "fr" ? "Répondeur automatique" : "Automatic reply assistant";
+  const taglineLine2 = lang === "fr" ? "d'avis Google par IA" : "for Google reviews by AI";
+  const taglineBaseY = footerY + 4.2;
+  pdf.text(taglineLine1, cx, taglineBaseY, { align: "center" });
+  pdf.text(taglineLine2, cx, taglineBaseY + 3.2, { align: "center" });
 }
 
 function drawCutMarks(pdf: jsPDF, cx: number, cy: number, r: number, lang: PdfLang) {
   const t = T[lang];
-  // Square cut marks only (no circle dotted line) — large & visible
-  pdf.setDrawColor(20, 20, 20);
-  pdf.setLineWidth(0.6);
-  const cm = r + 5;
-  const ml = 7;
+  pdf.setDrawColor(150, 150, 150);
+  pdf.setLineWidth(0.18);
+  pdf.setLineDashPattern([1.2, 1.2], 0);
+  const segs = 72;
+  for (let i = 0; i < segs; i++) {
+    const a1 = (i / segs) * Math.PI * 2;
+    const a2 = ((i + 1) / segs) * Math.PI * 2;
+    pdf.line(
+      cx + (r + 1.8) * Math.cos(a1),
+      cy + (r + 1.8) * Math.sin(a1),
+      cx + (r + 1.8) * Math.cos(a2),
+      cy + (r + 1.8) * Math.sin(a2),
+    );
+  }
+  pdf.setLineDashPattern([], 0);
+
+  pdf.setDrawColor(60, 60, 60);
+  pdf.setLineWidth(0.3);
+  const cm = r + 4.5;
+  const ml = 3;
   const corners: [number, number, number, number][] = [
     [cx - cm, cy - cm, 1, 1],
     [cx + cm, cy - cm, -1, 1],
@@ -299,22 +337,18 @@ function drawCutMarks(pdf: jsPDF, cx: number, cy: number, r: number, lang: PdfLa
     pdf.line(px, py, px + ml * dx, py);
     pdf.line(px, py, px, py + ml * dy);
   }
-  // Light dashed square outline connecting the corners (cut guide)
-  pdf.setDrawColor(150, 150, 150);
-  pdf.setLineWidth(0.25);
-  pdf.setLineDashPattern([2, 2], 0);
-  pdf.rect(cx - cm, cy - cm, cm * 2, cm * 2);
-  pdf.setLineDashPattern([], 0);
 
   pdf.setFont("helvetica", "italic");
-  pdf.setFontSize(6.5);
+  pdf.setFontSize(6.2);
   pdf.setTextColor(90, 90, 90);
-  pdf.text(t.stickHere, cx, cy - cm - 2, { align: "center" });
+  pdf.setFont("helvetica", "italic");
+  pdf.setFontSize(6.2);
+  pdf.setTextColor(90, 90, 90);
+  pdf.text(t.stickHere, cx, cy - r - 6, { align: "center" });
   pdf.setFont("helvetica", "normal");
-  pdf.setFontSize(5.8);
+  pdf.setFontSize(5.5);
   pdf.setTextColor(130, 130, 130);
-  pdf.text(lang === "fr" ? "- - decouper le long du carre - -" : "- - cut along the square - -", cx, cy + cm + 4, { align: "center" });
-
+  pdf.text(t.cutCircle, cx, cy + r + 7, { align: "center" });
 }
 
 // ---------- letter ----------
@@ -347,10 +381,9 @@ function drawLetter(
   pdf.line(x, y + 9, x + w, y + 9);
 
   pdf.setFont("helvetica", "bold");
-  pdf.setFontSize(10.5);
+  pdf.setFontSize(11);
   pdf.setTextColor(20, 20, 20);
-  const titleLines = pdf.splitTextToSize(t.title, w);
-  pdf.text(titleLines, x, y + 16);
+  pdf.text(t.title, x, y + 16);
 
   pdf.setFont("helvetica", "bold");
   pdf.setFontSize(9);
@@ -468,178 +501,4 @@ export async function downloadProspectionStickerPDF(
 ) {
   const pdf = await generateProspectionStickerPDF(clients, lang);
   pdf.save(filename);
-}
-
-// ---------- single A4 landscape sheet (for Print & Ship via Gelato) ----------
-// A4 paysage 297x210mm : lettre personnalisée à gauche + sticker rond à découper à droite.
-// Imprimé sur flyer A4 glossy 250gsm par Gelato, plié en deux et envoyé au prospect.
-export async function generateSingleStickerPDFBlob(
-  client: ProspectionClient,
-  lang: PdfLang = "fr",
-): Promise<Blob> {
-  // Gelato A4 landscape requires 3mm bleed on each side → 303 x 213 mm
-  const bleed = 3;
-  const trimW = 297;
-  const trimH = 210;
-  const pageW = trimW + bleed * 2; // 303
-  const pageH = trimH + bleed * 2; // 213
-  const pdf = new jsPDF({ unit: "mm", format: [pageW, pageH], orientation: "landscape" });
-  const favicon = await loadFavicon();
-  const margin = 10;
-  const t = T[lang];
-
-  // White background covering full bleed area (avoids Gelato "design file" rejection)
-  pdf.setFillColor(255, 255, 255);
-  pdf.rect(0, 0, pageW, pageH, "F");
-
-  const ox = bleed;
-  const oy = bleed;
-
-  // Right side: sticker
-  const stickerD = Math.min(trimH - margin * 2 - 10, 130);
-  const stickerCx = ox + trimW - margin - stickerD / 2 - 5;
-  const stickerCy = oy + trimH / 2;
-  await drawSticker(pdf, client, stickerCx, stickerCy, stickerD, favicon, lang);
-  drawCutMarks(pdf, stickerCx, stickerCy, stickerD / 2, lang);
-
-  // Left side: letter
-  const letterX = ox + margin;
-  const letterW = stickerCx - stickerD / 2 - 10 - letterX;
-  const letterY = oy + margin;
-  const letterH = trimH - margin * 2;
-  drawLetter(pdf, client, letterX, letterY, letterW, letterH, favicon, lang);
-
-  // Vertical fold mark down the middle (of trim)
-  const midX = ox + trimW / 2;
-  pdf.setDrawColor(150, 150, 150);
-  pdf.setLineWidth(0.2);
-  pdf.setLineDashPattern([2.5, 2], 0);
-  pdf.line(midX, oy + margin, midX, oy + trimH - margin);
-  pdf.setLineDashPattern([], 0);
-  pdf.setFont("helvetica", "italic");
-  pdf.setFontSize(6);
-  pdf.setTextColor(130, 130, 130);
-  pdf.text(lang === "fr" ? "- - plier ici - -" : "- - fold here - -", midX, oy + margin - 2, { align: "center" });
-
-  return pdf.output("blob");
-}
-
-
-// ---------- Branded Label sticker only (Gelato 7.62 x 10.16 cm vertical, with 3mm bleed) ----------
-// Gelato Branded Label format. Vertical rectangle. Sticker design inside trim area.
-export async function generateBrandedLabelPDFBlob(
-  client: ProspectionClient,
-  lang: PdfLang = "fr",
-): Promise<Blob> {
-  const bleed = 3;
-  const trimW = 76.2;   // 7.62 cm
-  const trimH = 101.6;  // 10.16 cm
-  const pageW = trimW + bleed * 2;
-  const pageH = trimH + bleed * 2;
-  const pdf = new jsPDF({ unit: "mm", format: [pageW, pageH], orientation: "portrait" });
-  const favicon = await loadFavicon();
-  const t = T[lang];
-
-  // White bleed background
-  pdf.setFillColor(255, 255, 255);
-  pdf.rect(0, 0, pageW, pageH, "F");
-
-  const ox = bleed, oy = bleed;
-  const cx = ox + trimW / 2;
-
-  // Top + bottom Google color bars
-  const barH = 4;
-  const seg = trimW / 4;
-  const cols = [G.blue, G.red, G.yellow, G.green];
-  cols.forEach((c, i) => {
-    pdf.setFillColor(c[0], c[1], c[2]);
-    pdf.rect(ox + i * seg, oy, seg, barH, "F");
-    pdf.rect(ox + i * seg, oy + trimH - barH, seg, barH, "F");
-  });
-
-  // Top label
-  pdf.setTextColor(30, 30, 30);
-  pdf.setFont("times", "italic");
-  pdf.setFontSize(10);
-  pdf.text(t.stickerTop, cx, oy + 10, { align: "center" });
-
-  // Google word
-  const gy = oy + 22;
-  pdf.setFont("helvetica", "bold");
-  pdf.setFontSize(22);
-  const letters = ["G", "o", "o", "g", "l", "e"];
-  const colorsG = [G.blue, G.red, G.yellow, G.blue, G.green, G.red];
-  const widths = letters.map((l) => pdf.getTextWidth(l));
-  const total = widths.reduce((a, b) => a + b, 0);
-  let xc = cx - total / 2;
-  letters.forEach((l, i) => {
-    pdf.setTextColor(colorsG[i][0], colorsG[i][1], colorsG[i][2]);
-    pdf.text(l, xc, gy);
-    xc += widths[i];
-  });
-
-  // Stars
-  drawStarsRow(pdf, cx, gy + 7, 5, 2.2);
-
-  // CTA
-  pdf.setTextColor(20, 20, 20);
-  pdf.setFont("helvetica", "bold");
-  pdf.setFontSize(7);
-  pdf.text(t.stickerCta1, cx, gy + 14, { align: "center" });
-  pdf.text(t.stickerCta2, cx, gy + 18, { align: "center" });
-
-  // QR
-  const reviewUrl = `https://search.google.com/local/writereview?placeid=${client.placeId}`;
-  const qrDataUrl = await QRCode.toDataURL(reviewUrl, {
-    width: 800, margin: 0, errorCorrectionLevel: "H",
-  });
-  const qrSize = 52;
-  const qrX = cx - qrSize / 2;
-  const qrY = gy + 22;
-  pdf.setDrawColor(220, 220, 220);
-  pdf.setLineWidth(0.3);
-  pdf.roundedRect(qrX - 1.5, qrY - 1.5, qrSize + 3, qrSize + 3, 1.5, 1.5);
-  pdf.addImage(qrDataUrl, "PNG", qrX, qrY, qrSize, qrSize);
-
-  // Footer logo
-  const footerY = oy + trimH - 10;
-  const iconS = 5;
-  pdf.setFont("helvetica", "bold");
-  pdf.setFontSize(11);
-  const rankiW = pdf.getTextWidth("Ranki");
-  const dotW = pdf.getTextWidth(".ai");
-  const gap = 1.2;
-  const totalW = iconS + gap + rankiW + dotW;
-  let cur = cx - totalW / 2;
-  if (favicon) pdf.addImage(favicon, "PNG", cur, footerY - iconS / 2 - 0.4, iconS, iconS);
-  cur += iconS + gap;
-  pdf.setTextColor(30, 30, 30);
-  pdf.text("Ranki", cur, footerY + 1.2);
-  pdf.setTextColor(G.blue[0], G.blue[1], G.blue[2]);
-  pdf.text(".ai", cur + rankiW, footerY + 1.2);
-
-  pdf.setFont("helvetica", "normal");
-  pdf.setFontSize(5.5);
-  pdf.setTextColor(120, 120, 120);
-  pdf.text(lang === "fr" ? "Répondeur IA d'avis Google" : "AI Google reviews assistant", cx, footerY + 5, { align: "center" });
-
-  return pdf.output("blob");
-}
-
-// ---------- 4x6" letter-only PDF (Gelato branded insert 101.6 x 152.4 mm + 3mm bleed) ----------
-export async function generateLetterOnlyPDFBlob(
-  client: ProspectionClient,
-  lang: PdfLang = "fr",
-): Promise<Blob> {
-  const bleed = 3;
-  const trimW = 101.6;
-  const trimH = 152.4;
-  const pageW = trimW + bleed * 2; // 107.6
-  const pageH = trimH + bleed * 2; // 158.4
-  const pdf = new jsPDF({ unit: "mm", format: [pageW, pageH], orientation: "portrait" });
-  const favicon = await loadFavicon();
-  // 3mm bleed + 5mm safe area = content inset 8mm
-  const inset = 8;
-  drawLetter(pdf, client, inset, inset, pageW - inset * 2, pageH - inset * 2, favicon, lang);
-  return pdf.output("blob");
 }
