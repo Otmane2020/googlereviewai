@@ -463,20 +463,19 @@ export async function generateProspectionStickerPDF(
     const cy = rowY + rowH / 2;
 
     await drawSticker(pdf, clients[i], cx, cy, stickerD, favicon, lang);
-    drawCutMarks(pdf, cx, cy, stickerD / 2, lang);
     drawLetter(pdf, clients[i], letterX, rowY + 4, letterW, rowH - 8, favicon, lang);
 
+    // Vertical separation/cut line between sticker and letter
+    pdf.setDrawColor(120, 120, 120);
+    pdf.setLineWidth(0.3);
+    const sepX = letterX - 2;
+    pdf.line(sepX, rowY + 2, sepX, rowY + rowH - 2);
+
     if (slot === 0) {
-      pdf.setDrawColor(120, 120, 120);
-      pdf.setLineWidth(0.3);
-      pdf.setLineDashPattern([2.5, 2], 0);
+      pdf.setDrawColor(180, 180, 180);
+      pdf.setLineWidth(0.2);
       const sepY = margin + rowH;
       pdf.line(margin, sepY, pageW - margin, sepY);
-      pdf.setLineDashPattern([], 0);
-      pdf.setFont("helvetica", "italic");
-      pdf.setFontSize(6);
-      pdf.setTextColor(120, 120, 120);
-      pdf.text(t.cutHere, pageW / 2, sepY - 1, { align: "center" });
     }
   }
 
