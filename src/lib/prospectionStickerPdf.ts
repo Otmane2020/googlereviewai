@@ -244,65 +244,54 @@ async function drawSticker(
   const qrY = googleY + 19;
   pdf.addImage(qrDataUrl, "PNG", cx - qrSize / 2, qrY, qrSize, qrSize);
 
-  // --- Footer: Propulsé par Ranki.ai (centered block) ---
-  const footerY = cy + innerR - 10;
+  // --- Footer: Propulsé par Ranki.ai (centered block, highlighted) ---
+  const footerY = cy + innerR - 11;
 
-  // Measure "Propulsé par "
-  pdf.setFont("helvetica", "bold");
-  pdf.setFontSize(7.5);
-  pdf.setTextColor(40, 40, 40);
-  const poweredW = pdf.getTextWidth(t.poweredBy + " ");
+  // "Propulsé par" small label above
+  pdf.setFont("helvetica", "normal");
+  pdf.setFontSize(6.5);
+  pdf.setTextColor(110, 110, 110);
+  pdf.text(t.poweredBy, cx, footerY - 5.5, { align: "center" });
 
-  // Measure logo block width (icon + text)
-  const logoScale = 0.65;
+  // Enlarged Ranki.ai logo block, highlighted in a green pill
+  const logoScale = 1.25;
   const iconS = 4.4 * logoScale;
   pdf.setFont("helvetica", "bold");
-  pdf.setFontSize(9 * logoScale);
+  pdf.setFontSize(11.5);
   const rankiW = pdf.getTextWidth("Ranki");
   const dotAiW = pdf.getTextWidth(".ai");
-  const logoW = iconS + 1.2 * logoScale + rankiW + dotAiW;
+  const gap = 1.4 * logoScale;
+  const logoW = iconS + gap + rankiW + dotAiW;
 
-  const blockW = poweredW + logoW;
-  let curX = cx - blockW / 2;
+  const pillPadX = 3.5;
+  const pillPadY = 1.8;
+  const pillW = logoW + pillPadX * 2;
+  const pillH = iconS + pillPadY * 2;
+  pdf.setFillColor(240, 253, 244);
+  pdf.setDrawColor(52, 168, 83);
+  pdf.setLineWidth(0.4);
+  pdf.roundedRect(cx - pillW / 2, footerY - pillH / 2, pillW, pillH, pillH / 2, pillH / 2, "FD");
 
-  // Draw "Propulsé par "
-  pdf.setFont("helvetica", "bold");
-  pdf.setFontSize(7.5);
-  pdf.setTextColor(40, 40, 40);
-  pdf.text(t.poweredBy + " ", curX, footerY);
-  curX += poweredW;
-
-  // Draw favicon or pin
+  let curX = cx - logoW / 2;
   if (favicon) {
-    pdf.addImage(favicon, "PNG", curX, footerY - iconS / 2 - 0.6, iconS, iconS);
+    pdf.addImage(favicon, "PNG", curX, footerY - iconS / 2, iconS, iconS);
   } else {
-    const pinR = 2.2 * logoScale;
+    const pinR = iconS / 2;
     pdf.setFillColor(20, 122, 88);
-    pdf.circle(curX + pinR, footerY - 0.6, pinR, "F");
+    pdf.circle(curX + pinR, footerY, pinR, "F");
     pdf.setTextColor(255, 255, 255);
     pdf.setFont("helvetica", "bold");
-    pdf.setFontSize(6 * logoScale);
-    pdf.text("R", curX + pinR, footerY - 0.6 + 0.7 * logoScale, { align: "center" });
+    pdf.setFontSize(7 * logoScale);
+    pdf.text("R", curX + pinR, footerY + 1, { align: "center" });
   }
-  curX += iconS + 1.2 * logoScale;
+  curX += iconS + gap;
 
-  // Draw "Ranki.ai"
   pdf.setFont("helvetica", "bold");
-  pdf.setFontSize(9 * logoScale);
-  pdf.setTextColor(30, 30, 30);
-  pdf.text("Ranki", curX, footerY + 0.8 * logoScale);
+  pdf.setFontSize(11.5);
+  pdf.setTextColor(20, 20, 20);
+  pdf.text("Ranki", curX, footerY + 1.6);
   pdf.setTextColor(G.blue[0], G.blue[1], G.blue[2]);
-  pdf.text(".ai", curX + rankiW, footerY + 0.8 * logoScale);
-
-  // Tagline on 2 lines, centered inside the circle
-  pdf.setFont("helvetica", "bold");
-  pdf.setFontSize(6.8);
-  pdf.setTextColor(60, 60, 60);
-  const taglineLine1 = lang === "fr" ? "Répondeur automatique" : "Automatic reply assistant";
-  const taglineLine2 = lang === "fr" ? "d'avis Google par IA" : "for Google reviews by AI";
-  const taglineBaseY = footerY + 4.2;
-  pdf.text(taglineLine1, cx, taglineBaseY, { align: "center" });
-  pdf.text(taglineLine2, cx, taglineBaseY + 3.2, { align: "center" });
+  pdf.text(".ai", curX + rankiW, footerY + 1.6);
 }
 
 function drawCutMarks(pdf: jsPDF, cx: number, cy: number, r: number, lang: PdfLang) {
