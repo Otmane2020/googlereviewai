@@ -1,135 +1,89 @@
 import jsPDF from "jspdf";
 import QRCode from "qrcode";
 
-interface ProspectionPdfArgs {
+export interface ProspectClient {
   businessName: string;
   address?: string;
-  reviewUrl?: string; // URL Google review (fallback: ranki.ai)
+  rating?: number;
+  reviewsCount?: number;
+  reviewUrl?: string;
 }
 
+interface ProspectionPdfArgs extends ProspectClient {}
+
 /**
- * Génère un PDF A4 :
- *  - Page 1 : lettre personnalisée expliquant le cadeau (carte NFC/QR offerte) + options
- *  - Page 2 : aperçu visuel de la carte avec QR code + mention "Ranki.ai"
+ * Dessine UNE fiche (sticker rond style "Lemon Labels" à gauche + lettre à droite).
+ * Occupe la moitié haute ou basse d'une page A4.
  */
-export async function generateProspectionPDF({
-  businessName,
-  address,
-  reviewUrl,
-}: ProspectionPdfArgs): Promise<jsPDF> {
-  const url = reviewUrl || "https://ranki.ai";
-  const qrDataUrl = await QRCode.toDataURL(url, {
-    width: 600,
-    margin: 1,
-    errorCorrectionLevel: "H",
-    color: { dark: "#000000", light: "#ffffff" },
-  });
+async function drawClientBlock(
+  pdf: jsPDF,
+  client: ProspectClient,
+  yOffset: number,
+  pageW: number,
+  blockH: number,
+) {
+  const margin = 10;
+  const stickerSize = Math.min(blockH - 14, 110);
+  const stickerCX = margin + stickerSize / 2 + 2;
+  const stickerCY = yOffset + blockH / 2;
+  const r = stickerSize / 2;
 
-  const pdf = new jsPDF({ unit: "mm", format: "a4" });
-  const pageW = 210;
-  const pageH = 297;
-  const margin = 20;
+  // ====== STICKER ROND (gauche) ======
+  // Fond blanc
+  pdf.setFillColor(255, 255, 255);
+  pdf.setDrawColor(230, 230, 230);
+  pdf.circle(stickerCX, stickerCY, r, "FD");
 
-  // ============== PAGE 1 : LETTRE ==============
-  // Header
-  pdf.setFillColor(13, 148, 136); // emerald
-  pdf.rect(0, 0, pageW, 8, "F");
+  // Arcs Google colorés (4 quartiers)
+  // jsPDF n'a pas d'arc natif simple: on simule avec 4 secteurs via cercles épais clippés.
+  // Approche simple: 4 anneaux partiels dessinés avec setLineWidth + lignes courbes approximées.
+  const ringW = 4;
+  const drawArc = (
+    startDeg: number,
+    endDeg: number,
+    color: [number, number, number],
+  ) => {
+    pdf.setDrawColor(color[0], color[1], color[2]);
+    pdf.setLineWidth(ringW);
+    const steps = 40;
+    const step = (endDeg - startDeg) / steps;
+    let prev: [number, number] | null = null;
+    for (let i = 0; i <= steps; i++) {
+      const a = ((startDeg + step * i) * Math.PI) / 180;
+      const x = stickerCX + Math.cos(a) * (r - ringW / 2);
+      const y = stickerCY + Math.sin(a) * (r - ringW / 2);
+      if (prev) pdf.line(prev[0], prev[1], x, y);
+      prev = [x, y];
+    }
+  };
+  drawArc(-135, -45, [234, 67, 53]); // rouge (haut)
+  drawArc(-45, 45, [66, 133, 244]); // bleu (droite)
+  drawArc(45, 135, [52, 168, 83]); // vert (bas)
+  drawArc(135, 225, [251, 188, 5]); // jaune (gauche)
+  pdf.setLineWidth(0.2);
 
-  pdf.setTextColor(13, 148, 136);
-  pdf.setFont("helvetica", "bold");
-  pdf.setFontSize(22);
-  pdf.text("Ranki.ai", margin, 25);
-
-  pdf.setFont("helvetica", "normal");
-  pdf.setFontSize(9);
-  pdf.setTextColor(120, 120, 120);
-  pdf.text("L'assistant IA pour vos avis Google", margin, 31);
-
-  // Destinataire
+  // Nom établissement (en haut du sticker, tronqué)
   pdf.setTextColor(30, 30, 30);
   pdf.setFont("helvetica", "bold");
   pdf.setFontSize(11);
-  pdf.text(`À l'attention de : ${businessName}`, margin, 50);
-  if (address) {
-    pdf.setFont("helvetica", "normal");
-    pdf.setFontSize(10);
-    pdf.setTextColor(80, 80, 80);
-    const addrLines = pdf.splitTextToSize(address, pageW - margin * 2);
-    pdf.text(addrLines, margin, 56);
-  }
+  const name =
+    client.businessName.length > 22
+      ? client.businessName.slice(0, 21) + "…"
+      : client.businessName;
+  pdf.text(name, stickerCX, stickerCY - r * 0.55, { align: "center" });
 
-  // Objet
-  pdf.setTextColor(30, 30, 30);
-  pdf.setFont("helvetica", "bold");
-  pdf.setFontSize(12);
-  pdf.text("Objet : Un cadeau pour booster votre visibilité Google", margin, 75);
-
-  // Corps
+  // "Please Leave Us A Review On"
   pdf.setFont("helvetica", "normal");
-  pdf.setFontSize(10.5);
-  pdf.setTextColor(50, 50, 50);
+  pdf.setFontSize(8.5);
+  pdf.setTextColor(40, 40, 40);
+  pdf.text("Laissez-nous un avis sur", stickerCX, stickerCY - r * 0.35, {
+    align: "center",
+  });
 
-  const body = `Bonjour,
-
-Nous avons remarqué votre établissement et nous sommes convaincus que vous méritez plus d'avis Google positifs. C'est pourquoi nous vous offrons en cadeau une carte NFC + QR Code personnalisée à votre nom, prête à être posée sur votre comptoir.
-
-Vos clients n'ont qu'à approcher leur téléphone (NFC) ou scanner le QR code pour laisser un avis Google en 10 secondes — sans application, sans friction.
-
-Ce que vous obtenez :
-   • Plus d'avis 5 étoiles, sans effort de votre part
-   • Un meilleur classement sur Google Maps (SEO local)
-   • Une image moderne et professionnelle auprès de vos clients
-   • Des réponses automatiques à vos avis grâce à notre IA (option)
-
-Options disponibles avec Ranki.ai :
-   • Carte NFC + QR personnalisée (offerte avec l'essai)
-   • Réponses IA automatiques à vos avis Google 24/7
-   • Posts GMB automatiques (SEO local)
-   • Suivi de votre classement Maps en temps réel
-   • Dès 0 € / mois — sans engagement
-
-Pour activer votre cadeau et découvrir Ranki.ai, scannez simplement le QR code au verso ou rendez-vous sur ranki.ai.
-
-À très vite,
-L'équipe Ranki.ai`;
-
-  const bodyLines = pdf.splitTextToSize(body, pageW - margin * 2);
-  pdf.text(bodyLines, margin, 85);
-
-  // Footer page 1
-  pdf.setFontSize(8);
-  pdf.setTextColor(150, 150, 150);
-  pdf.text("Ranki.ai · contact@ranki.ai · ranki.ai", margin, pageH - 12);
-
-  // ============== PAGE 2 : APERÇU CARTE ==============
-  pdf.addPage();
-
-  pdf.setTextColor(30, 30, 30);
+  // "Google" coloré
   pdf.setFont("helvetica", "bold");
-  pdf.setFontSize(14);
-  pdf.text("Aperçu de votre carte personnalisée", pageW / 2, 25, { align: "center" });
-
-  pdf.setFont("helvetica", "normal");
-  pdf.setFontSize(10);
-  pdf.setTextColor(110, 110, 110);
-  pdf.text("Format carte de visite — NFC + QR Code", pageW / 2, 32, { align: "center" });
-
-  // Carte (style screenshot)
-  const cardW = 85;
-  const cardH = 130;
-  const cardX = (pageW - cardW) / 2;
-  const cardY = 45;
-
-  pdf.setFillColor(255, 255, 255);
-  pdf.setDrawColor(220, 220, 220);
-  pdf.setLineWidth(0.5);
-  pdf.roundedRect(cardX, cardY, cardW, cardH, 5, 5, "FD");
-
-  // "Google" (colored)
-  let cursorY = cardY + 14;
-  pdf.setFont("helvetica", "bold");
-  pdf.setFontSize(20);
-  const letters = [
+  pdf.setFontSize(18);
+  const letters: { c: string; color: [number, number, number] }[] = [
     { c: "G", color: [66, 133, 244] },
     { c: "o", color: [234, 67, 53] },
     { c: "o", color: [251, 188, 5] },
@@ -138,76 +92,197 @@ L'équipe Ranki.ai`;
     { c: "e", color: [234, 67, 53] },
   ];
   const totalW = letters.reduce((s, l) => s + pdf.getTextWidth(l.c), 0);
-  let lx = cardX + (cardW - totalW) / 2;
+  let lx = stickerCX - totalW / 2;
+  const gY = stickerCY - r * 0.12;
   for (const l of letters) {
     pdf.setTextColor(l.color[0], l.color[1], l.color[2]);
-    pdf.text(l.c, lx, cursorY);
+    pdf.text(l.c, lx, gY);
     lx += pdf.getTextWidth(l.c);
   }
 
   // Étoiles
-  cursorY += 7;
   pdf.setTextColor(251, 188, 5);
-  pdf.setFontSize(13);
-  pdf.text("★ ★ ★ ★ ★", cardX + cardW / 2, cursorY, { align: "center" });
-
-  // Texte
-  cursorY += 7;
-  pdf.setTextColor(30, 30, 30);
-  pdf.setFont("helvetica", "bold");
-  pdf.setFontSize(8.5);
-  pdf.text("LAISSEZ-MOI UN AVIS", cardX + cardW / 2, cursorY, { align: "center" });
-
-  cursorY += 5;
-  pdf.setFont("helvetica", "normal");
-  pdf.setFontSize(7);
-  pdf.text("APPROCHEZ VOTRE TÉLÉPHONE", cardX + cardW / 2, cursorY, { align: "center" });
-  cursorY += 3.5;
-  pdf.text("OU SCANNEZ LE QR CODE", cardX + cardW / 2, cursorY, { align: "center" });
-
-  // NFC
-  cursorY += 6;
-  pdf.setFontSize(6);
-  pdf.setTextColor(80, 80, 80);
-  pdf.text("((  NFC  ))", cardX + cardW / 2, cursorY, { align: "center" });
-
-  // QR
-  const qrSize = 50;
-  const qrX = cardX + (cardW - qrSize) / 2;
-  const qrY = cursorY + 4;
-  pdf.addImage(qrDataUrl, "PNG", qrX, qrY, qrSize, qrSize);
-
-  // Mention "Ranki.ai" SOUS LA CARTE
-  pdf.setFont("helvetica", "bold");
   pdf.setFontSize(11);
-  pdf.setTextColor(13, 148, 136);
-  pdf.text("Ranki.ai", pageW / 2, cardY + cardH + 12, { align: "center" });
+  pdf.text("★ ★ ★ ★ ★", stickerCX, stickerCY + r * 0.05, { align: "center" });
 
-  pdf.setFont("helvetica", "normal");
-  pdf.setFontSize(8);
-  pdf.setTextColor(120, 120, 120);
-  pdf.text(
-    `Carte personnalisée pour : ${businessName}`,
-    pageW / 2,
-    cardY + cardH + 18,
-    { align: "center" }
+  // QR code
+  const qrUrl =
+    client.reviewUrl || "https://ranki.ai";
+  const qrDataUrl = await QRCode.toDataURL(qrUrl, {
+    width: 400,
+    margin: 1,
+    errorCorrectionLevel: "H",
+  });
+  const qrSize = r * 0.55;
+  pdf.addImage(
+    qrDataUrl,
+    "PNG",
+    stickerCX - qrSize / 2,
+    stickerCY + r * 0.1,
+    qrSize,
+    qrSize,
   );
 
-  // Footer page 2
-  pdf.setFontSize(8);
+  // Pub Ranki.ai sous le QR
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(7.5);
+  pdf.setTextColor(13, 148, 136);
+  pdf.text("ranki.ai", stickerCX, stickerCY + r * 0.82, { align: "center" });
+
+  // ====== LETTRE (droite) ======
+  const letterX = margin + stickerSize + 8;
+  const letterW = pageW - letterX - margin;
+  let ly = yOffset + 8;
+
+  // Badge "OFFERT"
+  pdf.setFillColor(13, 148, 136);
+  pdf.roundedRect(letterX, ly, 22, 6, 1.5, 1.5, "F");
+  pdf.setTextColor(255, 255, 255);
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(7.5);
+  pdf.text("OFFERT", letterX + 11, ly + 4.2, { align: "center" });
+
+  // Logo Ranki
+  pdf.setTextColor(13, 148, 136);
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(13);
+  pdf.text("Ranki.ai", letterX + 28, ly + 5);
+
+  ly += 12;
+
+  // Titre
+  pdf.setTextColor(20, 20, 20);
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(11);
+  pdf.text(`Bonjour ${client.businessName},`, letterX, ly);
+  ly += 5.5;
+
+  // Intro
+  pdf.setFont("helvetica", "normal");
+  pdf.setFontSize(8.8);
+  pdf.setTextColor(60, 60, 60);
+  const intro = `Nous vous offrons une carte NFC + QR personnalisée à votre nom${
+    client.rating ? ` (vu vos ${client.rating}★ sur Google` : ""
+  }${
+    client.reviewsCount ? `, ${client.reviewsCount} avis)` : client.rating ? ")" : ""
+  } pour collecter plus d'avis Google sans effort.`;
+  const introLines = pdf.splitTextToSize(intro, letterW);
+  pdf.text(introLines, letterX, ly);
+  ly += introLines.length * 4 + 3;
+
+  // Option 1 — Auto Reply
+  pdf.setFillColor(236, 253, 245);
+  pdf.setDrawColor(13, 148, 136);
+  pdf.roundedRect(letterX, ly, letterW, 14, 2, 2, "FD");
+  // tag
+  pdf.setFillColor(13, 148, 136);
+  pdf.roundedRect(letterX + 2, ly + 2, 18, 4.5, 1, 1, "F");
+  pdf.setTextColor(255, 255, 255);
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(6.5);
+  pdf.text("OPTION 1", letterX + 11, ly + 5.3, { align: "center" });
+  // titre
+  pdf.setTextColor(13, 148, 136);
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(9);
+  pdf.text("Auto-Reply aux avis Google", letterX + 23, ly + 6);
+  // desc
+  pdf.setTextColor(60, 60, 60);
+  pdf.setFont("helvetica", "normal");
+  pdf.setFontSize(7.5);
+  pdf.text(
+    "L'IA répond automatiquement à tous vos avis 24/7.",
+    letterX + 2,
+    ly + 11,
+  );
+  ly += 17;
+
+  // Option 2 — GEO / SEO
+  pdf.setFillColor(254, 249, 231);
+  pdf.setDrawColor(245, 158, 11);
+  pdf.roundedRect(letterX, ly, letterW, 14, 2, 2, "FD");
+  pdf.setFillColor(245, 158, 11);
+  pdf.roundedRect(letterX + 2, ly + 2, 18, 4.5, 1, 1, "F");
+  pdf.setTextColor(255, 255, 255);
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(6.5);
+  pdf.text("OPTION 2", letterX + 11, ly + 5.3, { align: "center" });
+  pdf.setTextColor(180, 110, 0);
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(9);
+  pdf.text("Visibilité GEO + SEO local", letterX + 23, ly + 6);
+  pdf.setTextColor(60, 60, 60);
+  pdf.setFont("helvetica", "normal");
+  pdf.setFontSize(7.5);
+  pdf.text(
+    "Posts GMB automatiques + suivi classement Maps.",
+    letterX + 2,
+    ly + 11,
+  );
+  ly += 18;
+
+  // CTA
+  pdf.setTextColor(20, 20, 20);
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(8.5);
+  pdf.text("→ Scannez le QR à gauche ou visitez ranki.ai", letterX, ly);
+  ly += 4;
+  pdf.setFont("helvetica", "normal");
+  pdf.setFontSize(7.5);
+  pdf.setTextColor(110, 110, 110);
+  pdf.text("Dès 0 €/mois · sans engagement", letterX, ly + 3);
+
+  // ligne de séparation entre 2 fiches
+  pdf.setDrawColor(220, 220, 220);
+  pdf.setLineDashPattern([1, 1], 0);
+  pdf.line(margin, yOffset + blockH, pageW - margin, yOffset + blockH);
+  pdf.setLineDashPattern([], 0);
+}
+
+/**
+ * Génère un PDF A4 contenant 1 ou 2 fiches prospect (haut + bas).
+ */
+export async function generateProspectionPDF(
+  clients: ProspectClient[],
+): Promise<jsPDF> {
+  const pdf = new jsPDF({ unit: "mm", format: "a4" });
+  const pageW = 210;
+  const pageH = 297;
+  const blockH = pageH / 2;
+
+  // Header fin emerald
+  pdf.setFillColor(13, 148, 136);
+  pdf.rect(0, 0, pageW, 3, "F");
+
+  const list = clients.slice(0, 2);
+  for (let i = 0; i < list.length; i++) {
+    await drawClientBlock(pdf, list[i], i * blockH + 4, pageW, blockH - 4);
+  }
+
+  // Footer
+  pdf.setFont("helvetica", "normal");
+  pdf.setFontSize(7);
   pdf.setTextColor(150, 150, 150);
-  pdf.text("Ranki.ai · contact@ranki.ai · ranki.ai", margin, pageH - 12);
+  pdf.text(
+    "Ranki.ai · L'assistant IA pour vos avis Google · contact@ranki.ai",
+    pageW / 2,
+    pageH - 4,
+    { align: "center" },
+  );
 
   return pdf;
 }
 
 export async function downloadProspectionPDF(
-  args: ProspectionPdfArgs,
+  clients: ProspectClient[] | ProspectClient,
   filename?: string,
 ) {
-  const pdf = await generateProspectionPDF(args);
+  const list = Array.isArray(clients) ? clients : [clients];
+  const pdf = await generateProspectionPDF(list);
   const name =
     filename ||
-    `ranki-prospection-${args.businessName.replace(/[^a-z0-9]+/gi, "-").toLowerCase()}.pdf`;
+    `ranki-prospection-${list[0]?.businessName
+      .replace(/[^a-z0-9]+/gi, "-")
+      .toLowerCase()}.pdf`;
   pdf.save(name);
 }
