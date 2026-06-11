@@ -146,7 +146,7 @@ const GMBProspection = () => {
           </p>
         </div>
 
-        <form onSubmit={handleSearch} className="flex gap-2 mb-6">
+        <form onSubmit={handleSearch} className="flex gap-2 mb-3">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
@@ -160,6 +160,50 @@ const GMBProspection = () => {
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Rechercher"}
           </Button>
         </form>
+
+        {/* Suggestions de catégories (pas juste villes) */}
+        <div className="flex flex-wrap gap-2 mb-6">
+          <span className="text-xs text-muted-foreground self-center mr-1">
+            Idées de prospects intéressés :
+          </span>
+          {[
+            "Restaurants Paris",
+            "Hôtels Lyon",
+            "Coiffeurs Marseille",
+            "Garages Toulouse",
+            "Dentistes Bordeaux",
+            "Salons de beauté Nice",
+            "Pizzerias Nantes",
+            "Auto-écoles Lille",
+          ].map((s) => (
+            <button
+              key={s}
+              type="button"
+              onClick={async () => {
+                setQuery(s);
+                // déclenche la recherche directement avec la valeur
+                setLoading(true);
+                setSelected(new Set());
+                try {
+                  const { data, error } = await supabase.functions.invoke(
+                    "search-places",
+                    { body: { action: "textsearch", query: s } },
+                  );
+                  if (error) throw error;
+                  setResults(data?.results || []);
+                } catch (err) {
+                  console.error(err);
+                  toast.error("Erreur lors de la recherche");
+                } finally {
+                  setLoading(false);
+                }
+              }}
+              className="text-xs px-3 py-1.5 rounded-full bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 transition font-medium"
+            >
+              {s}
+            </button>
+          ))}
+        </div>
 
         {selected.size > 0 && (
           <div className="sticky top-2 z-10 mb-4 flex items-center justify-between bg-emerald-600 text-white rounded-xl px-4 py-3 shadow-lg">
