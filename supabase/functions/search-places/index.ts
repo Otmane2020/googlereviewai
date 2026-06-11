@@ -12,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    const { query, action, placeId } = await req.json();
+    const { query, action, placeId, city, type } = await req.json();
     const apiKey = Deno.env.get("GOOGLE_PLACES_API_KEY");
     
     if (!apiKey) {
@@ -37,51 +37,6 @@ serve(async (req) => {
       
       return new Response(
         JSON.stringify({ predictions: data.predictions || [] }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    // Action: textsearch - Find best prospects (with rating & review count)
-    if (action === "textsearch") {
-      if (!query || query.length < 3) {
-        return new Response(
-          JSON.stringify({ results: [] }),
-          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-
-      const url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query)}&key=${apiKey}&language=fr`;
-      const response = await fetch(url);
-      const data = await response.json();
-
-      const results = (data.results || []).map((r: any) => ({
-        place_id: r.place_id,
-        name: r.name,
-        formatted_address: r.formatted_address,
-        rating: r.rating,
-        user_ratings_total: r.user_ratings_total,
-        types: r.types,
-        business_status: r.business_status,
-      }));
-
-      // Score: privilégie 4.0-4.7 (potentiel) + nb d'avis élevé (établissement actif)
-      const scored = results
-        .filter((r: any) => r.business_status !== "CLOSED_PERMANENTLY")
-        .map((r: any) => {
-          const rating = r.rating || 0;
-          const total = r.user_ratings_total || 0;
-          // bonus si rating entre 3.8 et 4.7 (marge de progression) + log(reviews)
-          const ratingBonus = rating >= 3.8 && rating <= 4.7 ? 1.2 : rating >= 4.8 ? 0.7 : 0.4;
-          const score = ratingBonus * Math.log10(total + 10) * (rating || 1);
-          return { ...r, _score: score };
-        })
-        .sort((a: any, b: any) => b._score - a._score)
-        .slice(0, 20);
-
-      console.log(`[search-places] TextSearch for "${query}": ${scored.length} prospects`);
-
-      return new Response(
-        JSON.stringify({ results: scored }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -117,6 +72,38 @@ serve(async (req) => {
             photoUrl
           }
         }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Action: nearby - Text search by type + city (restaurants Paris, hôtels Lyon...)
+    if (action === "nearby") {
+      const t = (type || "restaurant").toString();
+      const c = (city || "").toString().trim();
+      if (!c) {
+        return new Response(
+          JSON.stringify({ results: [] }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      const q = `${t} ${c}`;
+      const url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(q)}&key=${apiKey}&language=fr`;
+      const response = await fetch(url);
+      const data = await response.json();
+      console.log(`[search-places] Nearby "${q}": ${data.results?.length || 0} results (${data.status})`);
+
+      const results = (data.results || []).map((r: any) => ({
+        place_id: r.place_id,
+        name: r.name,
+        formatted_address: r.formatted_address,
+        rating: r.rating,
+        user_ratings_total: r.user_ratings_total,
+        business_status: r.business_status,
+        types: r.types,
+      }));
+
+      return new Response(
+        JSON.stringify({ results }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }

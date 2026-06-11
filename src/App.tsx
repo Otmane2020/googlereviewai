@@ -62,7 +62,7 @@ import ShopProduct from "./pages/ShopProduct";
 import ShopCheckout from "./pages/ShopCheckout";
 import Restaurants from "./pages/Restaurants";
 import Hotels from "./pages/Hotels";
-import GMBProspection from "./pages/GMBProspection";
+import ProspectionStickers from "./pages/ProspectionStickers";
 import { DashboardLayout } from "./components/DashboardLayout";
 
 // Wraps a page with the persistent dashboard sidebar (desktop) + bottom nav (mobile)
@@ -209,8 +209,6 @@ const AppContent = () => {
               <Route path="/admin/orders" element={<AdminOrders />} />
               <Route path="/local-aeo" element={<LocalAEO />} />
               <Route path="/gmb-post" element={<Shell><GmbPost /></Shell>} />
-              <Route path="/gmb" element={<Shell><GMBProspection /></Shell>} />
-              <Route path="/gmb-prospection" element={<Shell><GMBProspection /></Shell>} />
               <Route path="/gmb-autoposting" element={<GmbAutopostingGuide />} />
               <Route path="/avis-ai-restaurant" element={<AvisAIRestaurant />} />
               <Route path="/avis-ai-hotel" element={<AvisAIHotel />} />
@@ -226,6 +224,7 @@ const AppContent = () => {
               <Route path="/boutique/nfc" element={<Shell><BoutiqueNFC /></Shell>} />
               <Route path="/boutique/qr-imprime" element={<Shell><BoutiqueQRImprime /></Shell>} />
               <Route path="/commandes" element={<Shell><Commandes /></Shell>} />
+              <Route path="/prospection-stickers" element={<Shell><ProspectionStickers /></Shell>} />
               <Route path="/qr-gratuit" element={<LandingQRGratuit />} />
               <Route path="/shop" element={<Shop />} />
               <Route path="/shop/checkout" element={<ShopCheckout />} />
