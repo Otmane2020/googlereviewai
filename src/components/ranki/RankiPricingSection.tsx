@@ -1,7 +1,6 @@
 import { useState } from "react";
-import { Check, Loader2 } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
-import { useTranslation } from "react-i18next";
+import { Check, Loader2, ShieldCheck } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
@@ -9,90 +8,74 @@ import { BrandSparkle } from "@/components/BrandSparkle";
 
 type Plan = {
   name: string;
+  tagline: string;
   price: string;
-  period?: string;
-  desc: string;
+  period: string;
   features: string[];
   cta: string;
-  highlight: boolean;
-  priceKey?: string;
+  highlight?: boolean;
+  priceKey: string;
 };
 
 const plans: Plan[] = [
   {
     name: "Starter",
-    price: "Gratuit",
-    desc: "Suivez votre positionnement IA et répondez aux avis — gratuit à vie.",
+    tagline: "Découverte",
+    price: "9,90€",
+    period: "/mois",
     features: [
-      "1 établissement",
-      "Rapports GEO hebdomadaires (3 mots-clés)",
-      "Réponses IA aux avis Google",
-      "25 crédits gratuits / mois",
+      "1 établissement Google My Business",
+      "50 avis/réponses automatiques par mois",
+      "Réponses IA basiques (GPT-4)",
+      "Alertes email sur nouveaux avis",
+      "Tableau de bord basique",
+      "Accès API Google My Business vérifié",
     ],
-    cta: "Commencer gratuitement",
-    highlight: false,
+    cta: "Essayer gratuitement",
+    priceKey: "ranki_starter",
   },
   {
-    name: "Quotidien",
-    price: "9,99€",
+    name: "Pro",
+    tagline: "Visibilité",
+    price: "29,90€",
     period: "/mois",
-    desc: "Gagnez la guerre du référencement IA en pilote automatique.",
     features: [
-      "Jusqu'à 3 établissements",
-      "Suivi GEO quotidien (mots-clés illimités)",
-      "Posts SEO + Q&A AEO quotidiens sur Google",
-      "200 crédits IA / mois",
-      "Analyse de la concurrence",
+      "Jusqu'à 3 établissements Google My Business",
+      "300 avis/réponses automatiques par mois",
+      "Réponses IA premium (GPT-4.1)",
+      "Notifications temps réel",
+      "Statistiques avancées",
       "Support prioritaire",
+      "API Google My Business complète",
     ],
-    cta: "Essai gratuit 7 jours",
+    cta: "Essayer gratuitement",
     highlight: true,
-    priceKey: "daily_monthly",
+    priceKey: "ranki_pro",
   },
   {
-    name: "Agence",
-    price: "49€",
+    name: "Business",
+    tagline: "Performance",
+    price: "79,90€",
     period: "/mois",
-    desc: "Pour les marques multi-établissements et agences (10+ établissements).",
     features: [
-      "Établissements illimités",
-      "Suivi de consommation par établissement",
-      "1000 crédits / mois (pool à allouer)",
-      "Rapports en marque blanche",
-      "Accès API",
-      "Account manager dédié",
+      "Établissements Google My Business illimités",
+      "1000 avis/réponses automatiques par mois",
+      "IA premium + posts automatiques",
+      "API & webhooks avancés",
+      "Manager dédié",
+      "Rapports personnalisés",
+      "Accès API Business Profile complet",
     ],
-    cta: "Démarrer",
-    highlight: false,
-    priceKey: "agency_eu_monthly",
+    cta: "Essayer gratuitement",
+    priceKey: "ranki_business",
   },
 ];
 
 export const RankiPricingSection = () => {
   const navigate = useNavigate();
-  const { i18n } = useTranslation();
-  const isEN = i18n.language?.toLowerCase().startsWith("en");
   const [loadingKey, setLoadingKey] = useState<string | null>(null);
 
-  // Adapt the Daily plan price + checkout key to current language/currency
-  const localizedPlans = plans.map((p) => {
-    if (p.priceKey === "daily_monthly") {
-      return {
-        ...p,
-        price: isEN ? "$9.99" : "9,99€",
-        priceKey: isEN ? "daily_monthly_usd" : "daily_monthly_eur",
-      };
-    }
-    return p;
-  });
-
   const handleCta = async (plan: Plan) => {
-    if (!plan.priceKey) {
-      navigate("/auth");
-      return;
-    }
-
-    // Check auth
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
       navigate(`/auth?redirect=checkout&priceKey=${plan.priceKey}`);
@@ -130,12 +113,12 @@ export const RankiPricingSection = () => {
             Une tarification simple. <span className="text-primary">Une visibilité IA massive.</span>
           </h2>
           <p className="mt-4 text-lg text-muted-foreground">
-            Démarrez gratuitement. Passez au plan supérieur quand vous êtes prêt à dominer la recherche IA.
+            7 jours d'essai gratuit sur tous les plans. Sans engagement, résiliable à tout moment.
           </p>
         </div>
 
         <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-          {localizedPlans.map((p) => {
+          {plans.map((p) => {
             const isLoading = loadingKey === p.priceKey;
             return (
               <div
@@ -155,19 +138,23 @@ export const RankiPricingSection = () => {
                 <h3 className={`text-lg font-bold ${p.highlight ? "text-background" : "text-foreground"}`}>
                   {p.name}
                 </h3>
+                <p className={`text-sm ${p.highlight ? "text-background/80" : "text-muted-foreground"}`}>
+                  {p.tagline}
+                </p>
+
                 <div className="mt-3 flex items-baseline gap-1">
                   <span className={`text-4xl font-extrabold ${p.highlight ? "text-background" : "text-foreground"}`}>
                     {p.price}
                   </span>
-                  {p.period && (
-                    <span className={`text-sm ${p.highlight ? "text-background/90" : "text-muted-foreground"}`}>
-                      {p.period}
-                    </span>
-                  )}
+                  <span className={`text-sm ${p.highlight ? "text-background/90" : "text-muted-foreground"}`}>
+                    {p.period}
+                  </span>
                 </div>
-                <p className={`mt-2 text-sm ${p.highlight ? "text-background/90" : "text-muted-foreground"}`}>
-                  {p.desc}
-                </p>
+
+                <div className={`mt-3 inline-flex items-center gap-1.5 text-xs font-medium ${p.highlight ? "text-background/90" : "text-primary"}`}>
+                  <ShieldCheck className="w-3.5 h-3.5" />
+                  Accès API Google vérifié
+                </div>
 
                 <ul className="mt-6 space-y-2.5">
                   {p.features.map((f) => (
@@ -179,32 +166,24 @@ export const RankiPricingSection = () => {
                 </ul>
 
                 <div className="mt-7">
-                  {p.priceKey ? (
-                    <Button
-                      size="lg"
-                      variant={p.highlight ? "secondary" : "outline"}
-                      className="w-full font-semibold"
-                      onClick={() => handleCta(p)}
-                      disabled={isLoading}
-                    >
-                      {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : p.cta}
-                    </Button>
-                  ) : (
-                    <Link to="/auth" className="block">
-                      <Button
-                        size="lg"
-                        variant={p.highlight ? "secondary" : "outline"}
-                        className="w-full font-semibold"
-                      >
-                        {p.cta}
-                      </Button>
-                    </Link>
-                  )}
+                  <Button
+                    size="lg"
+                    variant={p.highlight ? "secondary" : "outline"}
+                    className="w-full font-semibold"
+                    onClick={() => handleCta(p)}
+                    disabled={isLoading}
+                  >
+                    {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : p.cta}
+                  </Button>
                 </div>
               </div>
             );
           })}
         </div>
+
+        <p className="mt-8 text-center text-xs text-muted-foreground">
+          Paiement sécurisé Stripe • TVA incluse • Résiliation en 1 clic
+        </p>
       </div>
     </section>
   );

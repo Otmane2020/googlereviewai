@@ -9,29 +9,31 @@ const corsHeaders = {
 
 // Price IDs mapping
 const PRICE_IDS: Record<string, string> = {
-  // USD plans (current pricing)
-  starter_monthly: "price_1TSa8oEfti9t9nN9RCi6cW8y",  // $9
-  growth_monthly: "price_1TSa8pEfti9t9nN9JHI4owg3",   // $29
-  agency_monthly: "price_1TSa8rEfti9t9nN9c1Cr3THW",   // $79
-  agency_eu_monthly: "price_1TTuIpEfti9t9nN9sy6pUNgU", // 49€/mois - Plan Agence (10+ établissements)
-  // Legacy EUR plans (kept for backwards compat)
+  // Ranki.ai EUR plans (current pricing)
+  ranki_starter: "price_1ThQt9Efti9t9nN9Wc3KFIh5",   // 9.90€
+  ranki_pro: "price_1ThQtAEfti9t9nN9NFe9sP82",       // 29.90€
+  ranki_business: "price_1ThQtBEfti9t9nN9n7ZhXFR3",  // 79.90€
+  // USD plans (legacy)
+  starter_monthly: "price_1TSa8oEfti9t9nN9RCi6cW8y",
+  growth_monthly: "price_1TSa8pEfti9t9nN9JHI4owg3",
+  agency_monthly: "price_1TSa8rEfti9t9nN9c1Cr3THW",
+  agency_eu_monthly: "price_1TTuIpEfti9t9nN9sy6pUNgU",
+  // Legacy EUR plans
   pro_monthly: "price_1SrHtDEfti9t9nN96yIPGiOo",
   business_monthly: "price_1SrHtEEfti9t9nN9mq7MrV3G",
   aeo_monthly: "price_1SsBcUEfti9t9nN9aqWMiw7Y",
   seo_monthly: "price_1SrHtIEfti9t9nN9qfdPvSY5",
-   allinone_monthly: "price_1SxGZgEfti9t9nN9txGIyk7j",
-  // Yearly plans (-20%)
+  allinone_monthly: "price_1SxGZgEfti9t9nN9txGIyk7j",
   starter_yearly: "price_1SrHtOEfti9t9nN9fG4lSroa",
   pro_yearly: "price_1SrHtPEfti9t9nN9dnZ0sXpi",
   business_yearly: "price_1SrHtQEfti9t9nN9GKvr4NSt",
   aeo_yearly: "price_1SsBcVEfti9t9nN9oFgHq9x8",
   seo_yearly: "price_1SrHtSEfti9t9nN9rXMfteyT",
-   allinone_yearly: "price_1SxGZxEfti9t9nN97rkyb8F1",
-  // Daily plan (Quotidien) — bilingual
-  daily_monthly: "price_1TU9QcEfti9t9nN9MwGBzftO",      // 9.99€ EUR
-  daily_monthly_eur: "price_1TU9QcEfti9t9nN9MwGBzftO",  // 9.99€ EUR
-  daily_monthly_usd: "price_1TU9PkEfti9t9nN9gSl8RirX",  // $9.99 USD
-  // Credit packs (one-time purchases)
+  allinone_yearly: "price_1SxGZxEfti9t9nN97rkyb8F1",
+  daily_monthly: "price_1TU9QcEfti9t9nN9MwGBzftO",
+  daily_monthly_eur: "price_1TU9QcEfti9t9nN9MwGBzftO",
+  daily_monthly_usd: "price_1TU9PkEfti9t9nN9gSl8RirX",
+  // Credit packs
   credits_10: "price_1SrrYEEfti9t9nN9N8l9AaA1",
   credits_100: "price_1SrrYFEfti9t9nN9Y4zxBb3p",
   credits_330: "price_1SrrYGEfti9t9nN9z01pdk3y",
@@ -56,9 +58,9 @@ const CREDIT_AMOUNTS: Record<string, number> = {
   credits_10000: 10000,
 };
 
-// Plans that get a free trial
-const TRIAL_PLANS = ["starter_monthly", "starter_yearly"];
-const TRIAL_DAYS = 3;
+// Plans that get a free trial (7-day trial on every Ranki plan)
+const TRIAL_PLANS = ["ranki_starter", "ranki_pro", "ranki_business", "starter_monthly", "starter_yearly"];
+const TRIAL_DAYS = 7;
 
 // All-in-one yearly gets 60 days trial (2 months free)
 const ALLINONE_YEARLY_TRIAL_DAYS = 60;
@@ -68,14 +70,15 @@ const PER_BUSINESS_MODULES = ["aeo_monthly", "aeo_yearly", "seo_monthly", "seo_y
 
 // Subscription price keys (recurring)
 const SUBSCRIPTION_PRICE_KEYS = [
+  "ranki_starter", "ranki_pro", "ranki_business",
   "starter_monthly", "starter_yearly",
   "growth_monthly", "agency_monthly", "agency_eu_monthly",
   "pro_monthly", "pro_yearly",
   "business_monthly", "business_yearly",
   "aeo_monthly", "aeo_yearly",
   "seo_monthly", "seo_yearly",
-   "allinone_monthly", "allinone_yearly",
-   "daily_monthly", "daily_monthly_eur", "daily_monthly_usd",
+  "allinone_monthly", "allinone_yearly",
+  "daily_monthly", "daily_monthly_eur", "daily_monthly_usd",
 ];
 
 interface CartItem {
