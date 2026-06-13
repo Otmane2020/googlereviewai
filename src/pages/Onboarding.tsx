@@ -111,6 +111,7 @@ const Onboarding = () => {
     if (!user || !priceKey) return;
     setPlanLoading(priceKey);
     try {
+      await supabase.from("profiles").update({ onboarding_completed: true } as any).eq("id", user.id);
       const { data, error } = await supabase.functions.invoke("create-checkout", {
         body: {
           priceKey,
