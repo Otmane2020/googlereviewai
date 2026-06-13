@@ -40,6 +40,13 @@ const Onboarding = () => {
   const [signature, setSignature] = useState("");
   const [planLoading, setPlanLoading] = useState<string | null>(null);
 
+  const loadBusinesses = async () => {
+    if (!user) return;
+    const { data: biz } = await supabase.from("businesses").select("id, name").eq("user_id", user.id);
+    setBusinesses(biz || []);
+    if (biz && biz.length > 0 && !selectedBusinessId) setSelectedBusinessId(biz[0].id);
+  };
+
   useEffect(() => {
     if (!user) {
       navigate("/auth", { replace: true });
@@ -58,6 +65,16 @@ const Onboarding = () => {
       setSignature(profile?.full_name ? `The ${profile.full_name} team` : "The team");
       setBusinesses(biz || []);
       if (biz && biz.length > 0) setSelectedBusinessId(biz[0].id);
+
+      // If Google is connected but no businesses yet, trigger sync
+      if (profile?.google_refresh_token && (!biz || biz.length === 0)) {
+        try {
+          await supabase.functions.invoke("sync-google-businesses", { body: { user_id: user.id } });
+          await loadBusinesses();
+        } catch (e) {
+          console.warn("[Onboarding] sync-google-businesses failed:", e);
+        }
+      }
     })();
   }, [user, navigate]);
 
