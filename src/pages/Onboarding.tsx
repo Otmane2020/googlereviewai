@@ -16,9 +16,9 @@ import { BrandSparkle } from "@/components/BrandSparkle";
 const STEPS = ["Welcome", "Connect Google", "Choose location", "AI tone", "Pick a plan"];
 
 const PLANS = [
-  { key: "", name: "Starter", price: "Gratuit", desc: "1 établissement · Suivi hebdo · 25 crédits/mois" },
-  { key: "daily_monthly_eur", name: "Quotidien", price: "9,99€", desc: "3 établissements · Posts IA quotidiens", highlight: true },
-  { key: "agency_eu_monthly", name: "Agence", price: "49€", desc: "Établissements illimités · Marque blanche" },
+  { key: "ranki_starter", name: "Starter", price: "9,90€", desc: "1 établissement · 50 réponses IA/mois · 7j gratuits" },
+  { key: "ranki_pro", name: "Pro", price: "29,90€", desc: "3 établissements · 300 réponses IA/mois · 7j gratuits", highlight: true },
+  { key: "ranki_business", name: "Business", price: "79,90€", desc: "Illimité · 1000 réponses IA/mois · 7j gratuits" },
 ];
 
 const TONES = [
