@@ -84,6 +84,8 @@ const Onboarding = () => {
   const handleConnectGoogle = async () => {
     setLoading(true);
     try {
+      // Remember to come back to onboarding after the Google round-trip
+      sessionStorage.setItem("google_oauth_return_to", "/onboarding");
       await initiateOAuth();
     } catch (e) {
       toast({ title: "Erreur", description: "Impossible de démarrer la connexion Google", variant: "destructive" });
@@ -106,16 +108,9 @@ const Onboarding = () => {
   };
 
   const handleChoosePlan = async (priceKey: string) => {
-    if (!user) return;
-    // Free plan → no checkout, go straight to dashboard
-    if (!priceKey) {
-      await supabase.from("profiles").update({ onboarding_completed: true } as any).eq("id", user.id);
-      navigate("/dashboard", { replace: true });
-      return;
-    }
+    if (!user || !priceKey) return;
     setPlanLoading(priceKey);
     try {
-      await supabase.from("profiles").update({ onboarding_completed: true } as any).eq("id", user.id);
       const { data, error } = await supabase.functions.invoke("create-checkout", {
         body: {
           priceKey,
@@ -124,18 +119,17 @@ const Onboarding = () => {
         },
       });
       if (error) throw error;
-      if (data?.url) window.location.href = data.url;
+      if (data?.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error("Lien de paiement indisponible");
+      }
     } catch (e: unknown) {
       toast({ title: "Erreur", description: e instanceof Error ? e.message : "Paiement échoué", variant: "destructive" });
       setPlanLoading(null);
     }
   };
 
-  const handleSkipPlan = async () => {
-    if (!user) return;
-    await supabase.from("profiles").update({ onboarding_completed: true } as any).eq("id", user.id);
-    navigate("/dashboard", { replace: true });
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 flex items-center justify-center p-4">
