@@ -54,19 +54,28 @@ export const OAuthCallback = ({ children }: { children: React.ReactNode }) => {
             // Notify parent window (if opened via window.open) that OAuth succeeded
             if (window.opener && !window.opener.closed) {
               window.opener.postMessage({ type: "GOOGLE_OAUTH_SUCCESS" }, "*");
-              // Close this popup window after notifying parent
               window.close();
               return;
             }
+
+            // Trigger GMB businesses sync in the background so onboarding can show them
+            supabase.functions.invoke("sync-google-businesses", { body: { user_id: userId } }).catch((e) => {
+              console.warn("[OAuthCallback] sync-google-businesses failed:", e);
+            });
           }
-          
+
+          // If user came from onboarding, return there; otherwise dashboard
+          const returnTo = sessionStorage.getItem("google_oauth_return_to") || "/dashboard";
+          sessionStorage.removeItem("google_oauth_return_to");
           setIsProcessing(false);
-          navigate("/dashboard", { replace: true });
+          navigate(returnTo, { replace: true });
         }).catch((err) => {
           console.error("OAuth callback exception:", err);
           setIsProcessing(false);
           window.history.replaceState(null, '', pathname);
-          navigate("/dashboard", { replace: true });
+          const returnTo = sessionStorage.getItem("google_oauth_return_to") || "/dashboard";
+          sessionStorage.removeItem("google_oauth_return_to");
+          navigate(returnTo, { replace: true });
         });
         
         return;
