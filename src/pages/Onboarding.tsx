@@ -274,8 +274,10 @@ const Onboarding = () => {
                   <div className="w-14 h-14 mx-auto rounded-2xl bg-primary/10 flex items-center justify-center mb-3">
                     <Crown className="w-7 h-7 text-primary" />
                   </div>
-                  <h2 className="text-2xl font-bold">Pick your plan</h2>
-                  <p className="text-sm text-muted-foreground mt-1">Cancel anytime. No hidden fees.</p>
+                  <h2 className="text-2xl font-bold">Choisissez votre plan</h2>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    7 jours d'essai gratuit. Carte requise. Résiliable à tout moment.
+                  </p>
                 </div>
 
                 <div className="grid sm:grid-cols-3 gap-3">
@@ -291,7 +293,7 @@ const Onboarding = () => {
                       }`}
                     >
                       <div className="font-bold">{p.name}</div>
-                      <div className="text-2xl font-extrabold mt-1">{p.price}<span className="text-xs font-normal text-muted-foreground">/mo</span></div>
+                      <div className="text-2xl font-extrabold mt-1">{p.price}<span className="text-xs font-normal text-muted-foreground">/mois</span></div>
                       <div className="text-xs text-muted-foreground mt-1">{p.desc}</div>
                       {planLoading === p.key && (
                         <Loader2 className="w-4 h-4 animate-spin mt-2 text-primary" />
@@ -300,14 +302,12 @@ const Onboarding = () => {
                   ))}
                 </div>
 
-                <div className="flex justify-between items-center pt-2">
+                <div className="flex justify-start items-center pt-2">
                   <Button variant="ghost" onClick={back}>Retour</Button>
-                  <Button variant="link" onClick={handleSkipPlan} className="text-muted-foreground">
-                    Skip for now
-                  </Button>
                 </div>
               </div>
             )}
+
           </CardContent>
         </Card>
       </div>
