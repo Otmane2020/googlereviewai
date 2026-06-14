@@ -15,6 +15,7 @@ type Product = {
   id: string;
   slug: string;
   name: string;
+  name_en: string | null;
   description: string | null;
   description_en: string | null;
   price_eur: number;
