@@ -61,7 +61,9 @@ export default function Shop() {
   const plaques = products.filter((p) => p.category === "plaque");
   const cards = products.filter((p) => p.category === "carte");
 
-  const renderProduct = (p: Product) => (
+  const renderProduct = (p: Product) => {
+    const displayName = en && p.name_en ? p.name_en : p.name;
+    return (
     <Link
       key={p.id}
       to={`/shop/${p.slug}`}
@@ -74,7 +76,7 @@ export default function Shop() {
           )}
           <img
             src={SHOP_IMAGES[p.slug] || SHOP_IMAGES["plaque-nfc-google-avis"]}
-            alt={p.name}
+            alt={displayName}
             loading="lazy"
             width={1024}
             height={1024}
@@ -82,7 +84,7 @@ export default function Shop() {
           />
         </div>
         <div className="p-4">
-          <h3 className="font-semibold text-base mb-1">{p.name}</h3>
+          <h3 className="font-semibold text-base mb-1">{displayName}</h3>
           <div className="flex items-center gap-1 mb-2">
             {[...Array(5)].map((_, i) => (
               <Star key={i} className="w-3 h-3 fill-amber-400 text-amber-400" />
@@ -99,7 +101,8 @@ export default function Shop() {
         </div>
       </Card>
     </Link>
-  );
+    );
+  };
 
   return (
     <>
