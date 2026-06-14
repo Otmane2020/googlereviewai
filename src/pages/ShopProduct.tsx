@@ -234,7 +234,7 @@ export default function ShopProduct() {
     </div>
   );
 
-  const name = product.name;
+  const name = (en && product.name_en) ? product.name_en : product.name;
   const description = en && product.description_en ? product.description_en : product.description;
   const image = SHOP_IMAGES[product.slug];
 
