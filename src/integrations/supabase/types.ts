@@ -1397,6 +1397,7 @@ export type Database = {
           image_url: string | null
           is_active: boolean
           name: string
+          name_en: string | null
           platform: string | null
           price_eur: number
           slug: string
@@ -1414,6 +1415,7 @@ export type Database = {
           image_url?: string | null
           is_active?: boolean
           name: string
+          name_en?: string | null
           platform?: string | null
           price_eur: number
           slug: string
@@ -1431,6 +1433,7 @@ export type Database = {
           image_url?: string | null
           is_active?: boolean
           name?: string
+          name_en?: string | null
           platform?: string | null
           price_eur?: number
           slug?: string
