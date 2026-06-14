@@ -273,11 +273,11 @@ export default function ShopCheckout() {
                 <h2 className="font-semibold mb-4">{en ? "Order summary" : "Récapitulatif"}</h2>
                 <div className="flex gap-3 mb-4">
                   <div className="w-20 h-20 rounded-xl overflow-hidden bg-muted shrink-0">
-                    {image && <img src={image} alt={product.name} className="w-full h-full object-cover" />}
+                    {image && <img src={image} alt={(en && product.name_en) ? product.name_en : product.name} className="w-full h-full object-cover" />}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-sm leading-tight">{product.name}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">Qté : {quantity}</p>
+                    <p className="font-medium text-sm leading-tight">{(en && product.name_en) ? product.name_en : product.name}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{en ? "Qty" : "Qté"} : {quantity}</p>
                     {Object.keys(config).length > 0 && (
                       <p className="text-[11px] text-muted-foreground mt-1 truncate">
                         {Object.values(config)[0]}
