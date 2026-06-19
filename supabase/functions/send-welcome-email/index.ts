@@ -129,11 +129,21 @@ serve(async (req) => {
 
     let lang: "fr" | "en" = bodyLang === "en" || bodyLang === "fr" ? bodyLang : "fr";
     if (!bodyLang) {
+      let resolved = false;
+      // 1) try profile preferred_language
       try {
         const supa = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
         const { data: prof } = await supa.from("profiles").select("preferred_language").eq("email", email).maybeSingle();
-        if (prof?.preferred_language === "en") lang = "en";
+        if (prof?.preferred_language === "en") { lang = "en"; resolved = true; }
+        else if (prof?.preferred_language === "fr") { lang = "fr"; resolved = true; }
       } catch (_) { /* keep default */ }
+      // 2) fallback to Accept-Language header (browser language)
+      if (!resolved) {
+        const accept = req.headers.get("accept-language") || "";
+        const first = accept.split(",")[0]?.trim().toLowerCase() || "";
+        if (first && !first.startsWith("fr")) lang = "en";
+        else if (first.startsWith("fr")) lang = "fr";
+      }
     }
     const t = T[lang];
 

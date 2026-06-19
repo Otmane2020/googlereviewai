@@ -9,9 +9,11 @@ const detectInitialLang = (): "fr" | "en" => {
     const stored = localStorage.getItem("i18nextLng");
     if (stored === "fr" || stored === "en") return stored;
   } catch {}
+  // Auto-detect from browser: French if navigator language starts with fr, else English
   if (typeof navigator !== "undefined") {
-    const nav = (navigator.language || "fr").toLowerCase();
-    if (nav.startsWith("en")) return "en";
+    const langs = [navigator.language, ...(navigator.languages || [])].filter(Boolean).map((l) => l.toLowerCase());
+    if (langs.some((l) => l.startsWith("fr"))) return "fr";
+    return "en";
   }
   return "fr";
 };

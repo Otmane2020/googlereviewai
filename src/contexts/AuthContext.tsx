@@ -40,8 +40,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               if (pl && pl !== i18n.language) {
                 await i18n.changeLanguage(pl);
               } else if (!pl) {
-                const cur = (i18n.language || "fr").startsWith("en") ? "en" : "fr";
-                await supabase.from("profiles").update({ preferred_language: cur }).eq("id", session.user.id);
+                // Auto-detect from browser: French if nav starts with fr, else English
+                const nav = (typeof navigator !== "undefined" ? navigator.language : "fr").toLowerCase();
+                const detected = nav.startsWith("fr") ? "fr" : "en";
+                await i18n.changeLanguage(detected);
+                await supabase.from("profiles").update({ preferred_language: detected }).eq("id", session.user.id);
               }
             } catch (_) { /* silent */ }
           }, 0);

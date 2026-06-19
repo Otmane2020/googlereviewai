@@ -2,174 +2,125 @@ import { useState, useEffect } from "react";
 import { usePWA } from "@/hooks/usePWA";
 import { useDeviceDetection } from "@/hooks/useDeviceDetection";
 import { Button } from "@/components/ui/button";
-import { X, Download, Share, MoreVertical, Plus } from "lucide-react";
+import { X, Download, Share, Plus } from "lucide-react";
 
 export const InstallPrompt = () => {
   const { isInstalled, isStandalone, isIOS, canInstall, promptInstall } = usePWA();
-  const { isNativeApp, isAndroid, isMobile } = useDeviceDetection();
+  const { isNativeApp, isMobile } = useDeviceDetection();
   const [dismissed, setDismissed] = useState(false);
-  const [showIOSGuide, setShowIOSGuide] = useState(false);
-  const [showAndroidGuide, setShowAndroidGuide] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [installing, setInstalling] = useState(false);
 
   useEffect(() => {
     const lastDismissed = localStorage.getItem("install-prompt-dismissed");
     if (lastDismissed) {
       const dismissedTime = parseInt(lastDismissed, 10);
-      // Don't show for 1 hour after dismissal
-      if (Date.now() - dismissedTime < 60 * 60 * 1000) {
-        setDismissed(true);
-      }
+      if (Date.now() - dismissedTime < 60 * 60 * 1000) setDismissed(true);
     }
   }, []);
 
-  // Don't show in native app (Play Store install)
   if (isNativeApp) return null;
+  if (isInstalled || isStandalone || dismissed) return null;
+  if (!isMobile && !canInstall) return null;
 
   const handleDismiss = () => {
     setDismissed(true);
+    setShowModal(false);
     localStorage.setItem("install-prompt-dismissed", Date.now().toString());
   };
 
-  const handleInstall = async () => {
-    // iOS Safari ne supporte pas l'installation programmatique → guide obligatoire
-    if (isIOS) {
-      setShowIOSGuide(true);
-      return;
+  const handleOpenModal = () => setShowModal(true);
+
+  const handleNativeInstall = async () => {
+    setInstalling(true);
+    try {
+      const installed = await promptInstall();
+      if (installed) handleDismiss();
+    } catch (e) {
+      console.error("[InstallPrompt] native install failed:", e);
+    } finally {
+      setInstalling(false);
     }
-    // Android / Desktop : toujours tenter le prompt natif si dispo
-    if (canInstall) {
-      try {
-        const installed = await promptInstall();
-        if (installed) handleDismiss();
-        // si refusé : ne rien faire, l'utilisateur a choisi
-      } catch {
-        setShowAndroidGuide(true);
-      }
-      return;
-    }
-    // Pas de prompt natif disponible (critères PWA non remplis ou déjà installée)
-    setShowAndroidGuide(true);
   };
 
-  if (isInstalled || isStandalone || dismissed) return null;
-
-  // Show on any mobile device (iOS Safari, Android Chrome, etc.)
-  // On desktop, only show if the browser actually supports install
-  if (!isMobile && !canInstall) return null;
-
-  // iOS Guide Modal
-  if (showIOSGuide) {
+  // Modal — vraie popup avec un seul bouton "Installer"
+  if (showModal) {
     return (
-      <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in">
-        <div className="bg-card rounded-2xl shadow-2xl w-full max-w-sm p-5 animate-scale-in">
+      <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+        <div className="bg-card rounded-2xl shadow-2xl w-full max-w-sm p-6 animate-scale-in">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-bold text-lg">Installer sur iPhone</h3>
-            <button onClick={() => setShowIOSGuide(false)} className="p-1 rounded-lg hover:bg-muted">
+            <div className="flex items-center gap-3">
+              <img src="/icon-192x192.png" alt="Ranki" className="w-12 h-12 rounded-xl shadow" />
+              <div>
+                <h3 className="font-bold text-base">Installer Ranki</h3>
+                <p className="text-xs text-muted-foreground">Accès rapide + notifications</p>
+              </div>
+            </div>
+            <button onClick={handleDismiss} className="p-1 rounded-lg hover:bg-muted" aria-label="Fermer">
               <X className="w-5 h-5" />
             </button>
           </div>
-          <ol className="space-y-4 text-sm mb-5">
-            <li className="flex items-start gap-3">
-              <span className="flex-shrink-0 w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold">1</span>
-              <div className="flex items-center gap-2 pt-1">
-                Appuie sur <Share className="h-5 w-5 text-primary" /> en bas de Safari
+
+          {isIOS ? (
+            <>
+              <p className="text-sm text-muted-foreground mb-4">
+                Sur iPhone, l'installation se fait en 2 gestes depuis Safari&nbsp;:
+              </p>
+              <ol className="space-y-2 text-sm mb-5">
+                <li className="flex items-center gap-2">
+                  <span className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold">1</span>
+                  Appuyez sur <Share className="inline h-4 w-4 text-primary" /> en bas de Safari
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold">2</span>
+                  Choisissez <Plus className="inline h-4 w-4 text-primary" /> "Sur l'écran d'accueil"
+                </li>
+              </ol>
+              <Button onClick={handleDismiss} className="w-full">J'ai compris</Button>
+            </>
+          ) : canInstall ? (
+            <>
+              <p className="text-sm text-muted-foreground mb-5">
+                Installez Ranki sur votre appareil pour un accès en un clic et recevoir les notifications de nouveaux avis.
+              </p>
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={handleDismiss} className="flex-1">Plus tard</Button>
+                <Button onClick={handleNativeInstall} disabled={installing} className="flex-1">
+                  <Download className="w-4 h-4 mr-2" />
+                  {installing ? "Installation..." : "Installer"}
+                </Button>
               </div>
-            </li>
-            <li className="flex items-start gap-3">
-              <span className="flex-shrink-0 w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold">2</span>
-              <div className="pt-1">Fais défiler et appuie sur "Sur l'écran d'accueil"</div>
-            </li>
-            <li className="flex items-start gap-3">
-              <span className="flex-shrink-0 w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold">3</span>
-              <span className="pt-1">Confirme avec "Ajouter"</span>
-            </li>
-          </ol>
-          <Button variant="outline" onClick={() => setShowIOSGuide(false)} className="w-full">
-            J'ai compris
-          </Button>
+            </>
+          ) : (
+            <>
+              <p className="text-sm text-muted-foreground mb-4">
+                Votre navigateur ne propose pas d'installation directe. Ouvrez le menu de Chrome (⋮ en haut à droite) et choisissez <strong>"Ajouter à l'écran d'accueil"</strong>.
+              </p>
+              <Button onClick={handleDismiss} className="w-full">J'ai compris</Button>
+            </>
+          )}
         </div>
       </div>
     );
   }
 
-  // Android Guide Modal (fallback when beforeinstallprompt doesn't fire)
-  if (showAndroidGuide) {
-    return (
-      <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in">
-        <div className="bg-card rounded-2xl shadow-2xl w-full max-w-sm p-5 animate-scale-in">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-bold text-lg">Installer sur Android</h3>
-            <button onClick={() => setShowAndroidGuide(false)} className="p-1 rounded-lg hover:bg-muted">
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-          <ol className="space-y-4 text-sm mb-5">
-            <li className="flex items-start gap-3">
-              <span className="flex-shrink-0 w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold">1</span>
-              <div className="flex items-center gap-2 pt-1">
-                Appuie sur <MoreVertical className="h-5 w-5 text-primary" /> (menu Chrome, en haut à droite)
-              </div>
-            </li>
-            <li className="flex items-start gap-3">
-              <span className="flex-shrink-0 w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold">2</span>
-              <div className="flex items-center gap-2 pt-1">
-                Choisis <Plus className="h-4 w-4 text-primary" /> "Ajouter à l'écran d'accueil" ou "Installer l'application"
-              </div>
-            </li>
-            <li className="flex items-start gap-3">
-              <span className="flex-shrink-0 w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold">3</span>
-              <span className="pt-1">Confirme avec "Installer"</span>
-            </li>
-          </ol>
-          <Button variant="outline" onClick={() => setShowAndroidGuide(false)} className="w-full">
-            J'ai compris
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
-  // Bottom banner (au-dessus de la bottom nav, ne masque pas le header)
+  // Bottom banner
   return (
     <div className="fixed left-2 right-2 bottom-[80px] md:bottom-4 z-40 bg-primary text-primary-foreground shadow-2xl rounded-2xl animate-fade-in">
       <div className="px-3 py-2.5 flex items-center justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0">
-          <img
-            src="/icon-192x192.png"
-            alt="Ranki"
-            className="w-9 h-9 rounded-xl flex-shrink-0 shadow-md"
-          />
+          <img src="/icon-192x192.png" alt="Ranki" className="w-9 h-9 rounded-xl flex-shrink-0 shadow-md" />
           <div className="min-w-0">
             <p className="font-semibold text-sm truncate">Installer Ranki</p>
-            <p className="text-xs opacity-90 truncate">
-              {isIOS ? "Requis pour les notifications" : "Accès rapide + notifications"}
-            </p>
+            <p className="text-xs opacity-90 truncate">Accès rapide + notifications</p>
           </div>
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
-          <Button
-            size="sm"
-            variant="secondary"
-            onClick={handleInstall}
-            className="h-8 px-3 text-xs font-medium"
-          >
-            {isIOS ? (
-              <>
-                <Share className="w-3.5 h-3.5 mr-1" />
-                Guide
-              </>
-            ) : (
-              <>
-                <Download className="w-3.5 h-3.5 mr-1" />
-                Installer
-              </>
-            )}
+          <Button size="sm" variant="secondary" onClick={handleOpenModal} className="h-8 px-3 text-xs font-medium">
+            <Download className="w-3.5 h-3.5 mr-1" />
+            Installer
           </Button>
-          <button
-            onClick={handleDismiss}
-            className="p-1.5 rounded-lg hover:bg-white/20 transition-colors"
-            aria-label="Fermer"
-          >
+          <button onClick={handleDismiss} className="p-1.5 rounded-lg hover:bg-white/20 transition-colors" aria-label="Fermer">
             <X className="w-4 h-4" />
           </button>
         </div>

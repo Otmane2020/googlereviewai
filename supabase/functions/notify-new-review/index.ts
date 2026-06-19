@@ -346,7 +346,34 @@ serve(async (req) => {
       }
     }
 
-    // 3. Send push notification via PushAlert
+    // 3a. Send Web Push notification (VAPID)
+    try {
+      const pushResponse = await fetch(`${supabaseUrl}/functions/v1/send-push-notification`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${supabaseServiceKey}`,
+        },
+        body: JSON.stringify({
+          user_id,
+          title: notificationTitle,
+          body: notificationMessage,
+          url: fullReviewUrl,
+          icon: "https://ranki.ai/icon-512x512.png",
+        }),
+      });
+      if (pushResponse.ok) {
+        const r = await pushResponse.json();
+        console.log("[notify-new-review] Web Push result:", r);
+      } else {
+        const errText = await pushResponse.text();
+        console.error("[notify-new-review] Web Push failed:", errText);
+      }
+    } catch (err) {
+      console.error("[notify-new-review] Web Push error:", err);
+    }
+
+    // 3b. Send PushAlert notification (fallback for legacy subscribers)
     try {
       const pushResponse = await fetch(`${supabaseUrl}/functions/v1/send-pushalert-notification`, {
         method: "POST",
