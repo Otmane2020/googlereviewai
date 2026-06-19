@@ -16,9 +16,31 @@ import { BrandSparkle } from "@/components/BrandSparkle";
 const STEPS = ["Welcome", "Connect Google", "Choose location", "AI tone", "Pick a plan"];
 
 const PLANS = [
-  { key: "ranki_starter", name: "Starter", price: "9,90€", desc: "1 établissement · 50 réponses IA/mois · 7j gratuits" },
-  { key: "ranki_pro", name: "Pro", price: "29,90€", desc: "3 établissements · 300 réponses IA/mois · 7j gratuits", highlight: true },
-  { key: "ranki_business", name: "Business", price: "79,90€", desc: "Illimité · 1000 réponses IA/mois · 7j gratuits" },
+  {
+    keyMonthly: "ranki_starter_monthly",
+    keyYearly: "ranki_starter_yearly",
+    name: "Starter",
+    monthly: "9,99€",
+    yearly: "95,90€",
+    desc: "Réponses IA aux avis Google · 1 établissement · 7j gratuits",
+  },
+  {
+    keyMonthly: "ranki_pro_monthly",
+    keyYearly: "ranki_pro_yearly",
+    name: "Pro",
+    monthly: "49€",
+    yearly: "470€",
+    desc: "Avis + GEO + SEO/AEO auto · 3 établissements · 7j gratuits",
+    highlight: true,
+  },
+  {
+    keyMonthly: "ranki_business_monthly",
+    keyYearly: "ranki_business_yearly",
+    name: "Business",
+    monthly: "99€",
+    yearly: "950,40€",
+    desc: "Tout illimité · multi-établissements · 7j gratuits",
+  },
 ];
 
 const TONES = [
@@ -39,6 +61,7 @@ const Onboarding = () => {
   const [tone, setTone] = useState("friendly");
   const [signature, setSignature] = useState("");
   const [planLoading, setPlanLoading] = useState<string | null>(null);
+  const [billing, setBilling] = useState<"monthly" | "yearly">("monthly");
 
   const loadBusinesses = async () => {
     if (!user) return;
@@ -281,26 +304,55 @@ const Onboarding = () => {
                   </p>
                 </div>
 
-                <div className="grid sm:grid-cols-3 gap-3">
-                  {PLANS.map((p) => (
+                <div className="flex justify-center">
+                  <div className="inline-flex items-center p-1 rounded-full bg-muted border border-border">
                     <button
-                      key={p.key}
-                      onClick={() => handleChoosePlan(p.key)}
-                      disabled={planLoading !== null}
-                      className={`text-left p-4 rounded-xl border-2 transition-all ${
-                        p.highlight
-                          ? "border-primary bg-primary/5 hover:bg-primary/10"
-                          : "border-border hover:border-primary/40"
+                      type="button"
+                      onClick={() => setBilling("monthly")}
+                      className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                        billing === "monthly" ? "bg-foreground text-background" : "text-muted-foreground"
                       }`}
                     >
-                      <div className="font-bold">{p.name}</div>
-                      <div className="text-2xl font-extrabold mt-1">{p.price}<span className="text-xs font-normal text-muted-foreground">/mois</span></div>
-                      <div className="text-xs text-muted-foreground mt-1">{p.desc}</div>
-                      {planLoading === p.key && (
-                        <Loader2 className="w-4 h-4 animate-spin mt-2 text-primary" />
-                      )}
+                      Mensuel
                     </button>
-                  ))}
+                    <button
+                      type="button"
+                      onClick={() => setBilling("yearly")}
+                      className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all inline-flex items-center gap-1.5 ${
+                        billing === "yearly" ? "bg-foreground text-background" : "text-muted-foreground"
+                      }`}
+                    >
+                      Annuel
+                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-600">-20%</span>
+                    </button>
+                  </div>
+                </div>
+
+                <div className="grid sm:grid-cols-3 gap-3">
+                  {PLANS.map((p) => {
+                    const key = billing === "yearly" ? p.keyYearly : p.keyMonthly;
+                    const price = billing === "yearly" ? p.yearly : p.monthly;
+                    const period = billing === "yearly" ? "/an" : "/mois";
+                    return (
+                      <button
+                        key={p.name}
+                        onClick={() => handleChoosePlan(key)}
+                        disabled={planLoading !== null}
+                        className={`text-left p-4 rounded-xl border-2 transition-all ${
+                          p.highlight
+                            ? "border-primary bg-primary/5 hover:bg-primary/10"
+                            : "border-border hover:border-primary/40"
+                        }`}
+                      >
+                        <div className="font-bold">{p.name}</div>
+                        <div className="text-2xl font-extrabold mt-1">{price}<span className="text-xs font-normal text-muted-foreground">{period}</span></div>
+                        <div className="text-xs text-muted-foreground mt-1">{p.desc}</div>
+                        {planLoading === key && (
+                          <Loader2 className="w-4 h-4 animate-spin mt-2 text-primary" />
+                        )}
+                      </button>
+                    );
+                  })}
                 </div>
 
                 <div className="flex justify-start items-center pt-2">
