@@ -6,87 +6,84 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { BrandSparkle } from "@/components/BrandSparkle";
 
+type Billing = "monthly" | "yearly";
+
 type Plan = {
   name: string;
   tagline: string;
-  price: string;
-  period: string;
+  monthly: { price: string; priceKey: string; perMonth: string };
+  yearly: { price: string; priceKey: string; perMonth: string };
   features: string[];
   cta: string;
   highlight?: boolean;
-  priceKey: string;
 };
 
 const plans: Plan[] = [
   {
     name: "Starter",
-    tagline: "Découverte",
-    price: "9,90€",
-    period: "/mois",
+    tagline: "Avis Google",
+    monthly: { price: "9,99€", perMonth: "/mois", priceKey: "ranki_starter_monthly" },
+    yearly: { price: "95,90€", perMonth: "/an", priceKey: "ranki_starter_yearly" },
     features: [
       "1 établissement Google My Business",
-      "50 avis/réponses automatiques par mois",
-      "Réponses IA basiques (GPT-4)",
-      "Alertes email sur nouveaux avis",
-      "Tableau de bord basique",
-      "Accès API Google My Business vérifié",
+      "Réponses IA automatiques 24/7 aux avis Google",
+      "Alertes email & push sur nouveaux avis",
+      "Tableau de bord avis",
+      "Accès API Google Business vérifié",
     ],
-    cta: "Essayer gratuitement",
-    priceKey: "ranki_starter",
+    cta: "Essayer 7 jours gratuits",
   },
   {
     name: "Pro",
-    tagline: "Visibilité",
-    price: "29,90€",
-    period: "/mois",
+    tagline: "Avis + GEO + SEO/AEO automatiques",
+    monthly: { price: "49€", perMonth: "/mois", priceKey: "ranki_pro_monthly" },
+    yearly: { price: "470€", perMonth: "/an", priceKey: "ranki_pro_yearly" },
     features: [
-      "Jusqu'à 3 établissements Google My Business",
-      "300 avis/réponses automatiques par mois",
-      "Réponses IA premium (GPT-4.1)",
+      "Jusqu'à 3 établissements",
+      "Réponses IA illimitées aux avis Google",
+      "GEO Rank quotidien (suivi positionnement Maps)",
+      "Posts SEO + Q&R AEO publiés automatiquement",
       "Notifications temps réel",
-      "Statistiques avancées",
       "Support prioritaire",
-      "API Google My Business complète",
     ],
-    cta: "Essayer gratuitement",
+    cta: "Essayer 7 jours gratuits",
     highlight: true,
-    priceKey: "ranki_pro",
   },
   {
     name: "Business",
-    tagline: "Performance",
-    price: "79,90€",
-    period: "/mois",
+    tagline: "Multi-établissements illimités",
+    monthly: { price: "99€", perMonth: "/mois", priceKey: "ranki_business_monthly" },
+    yearly: { price: "950,40€", perMonth: "/an", priceKey: "ranki_business_yearly" },
     features: [
-      "Établissements Google My Business illimités",
-      "1000 avis/réponses automatiques par mois",
-      "IA premium + posts automatiques",
+      "Établissements illimités",
+      "Réponses IA illimitées + GEO + SEO/AEO",
+      "Posts & Q&R automatiques illimités",
       "API & webhooks avancés",
       "Manager dédié",
       "Rapports personnalisés",
-      "Accès API Business Profile complet",
     ],
-    cta: "Essayer gratuitement",
-    priceKey: "ranki_business",
+    cta: "Essayer 7 jours gratuits",
   },
 ];
 
 export const RankiPricingSection = () => {
   const navigate = useNavigate();
   const [loadingKey, setLoadingKey] = useState<string | null>(null);
+  const [billing, setBilling] = useState<Billing>("monthly");
 
   const handleCta = async (plan: Plan) => {
+    const priceKey = billing === "yearly" ? plan.yearly.priceKey : plan.monthly.priceKey;
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
-      navigate(`/auth?redirect=checkout&priceKey=${plan.priceKey}`);
+      navigate(`/auth?redirect=checkout&priceKey=${priceKey}`);
       return;
     }
 
-    setLoadingKey(plan.priceKey);
+    setLoadingKey(priceKey);
     try {
       const { data, error } = await supabase.functions.invoke("create-checkout", {
         body: {
-          priceKey: plan.priceKey,
+          priceKey,
           successUrl: `${window.location.origin}/dashboard?success=true`,
           cancelUrl: `${window.location.origin}/?canceled=true`,
         },
@@ -108,7 +105,7 @@ export const RankiPricingSection = () => {
   return (
     <section id="pricing" className="py-20 sm:py-28 bg-background">
       <div className="container mx-auto px-4 sm:px-6">
-        <div className="max-w-2xl mx-auto text-center mb-14">
+        <div className="max-w-2xl mx-auto text-center mb-10">
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-foreground tracking-tight">
             Une tarification simple. <span className="text-primary">Une visibilité IA massive.</span>
           </h2>
@@ -117,9 +114,37 @@ export const RankiPricingSection = () => {
           </p>
         </div>
 
+        {/* Billing toggle */}
+        <div className="flex justify-center mb-10">
+          <div className="inline-flex items-center p-1 rounded-full bg-muted border border-border">
+            <button
+              type="button"
+              onClick={() => setBilling("monthly")}
+              className={`px-5 py-2 rounded-full text-sm font-semibold transition-all ${
+                billing === "monthly" ? "bg-foreground text-background shadow" : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              Mensuel
+            </button>
+            <button
+              type="button"
+              onClick={() => setBilling("yearly")}
+              className={`px-5 py-2 rounded-full text-sm font-semibold transition-all inline-flex items-center gap-2 ${
+                billing === "yearly" ? "bg-foreground text-background shadow" : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              Annuel
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-600">
+                -20%
+              </span>
+            </button>
+          </div>
+        </div>
+
         <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
           {plans.map((p) => {
-            const isLoading = loadingKey === p.priceKey;
+            const tier = billing === "yearly" ? p.yearly : p.monthly;
+            const isLoading = loadingKey === tier.priceKey;
             return (
               <div
                 key={p.name}
@@ -144,12 +169,18 @@ export const RankiPricingSection = () => {
 
                 <div className="mt-3 flex items-baseline gap-1">
                   <span className={`text-4xl font-extrabold ${p.highlight ? "text-background" : "text-foreground"}`}>
-                    {p.price}
+                    {tier.price}
                   </span>
                   <span className={`text-sm ${p.highlight ? "text-background/90" : "text-muted-foreground"}`}>
-                    {p.period}
+                    {tier.perMonth}
                   </span>
                 </div>
+
+                {billing === "yearly" && (
+                  <div className={`mt-1 text-xs ${p.highlight ? "text-background/80" : "text-muted-foreground"}`}>
+                    Soit {(parseFloat(tier.price.replace(",", ".").replace("€", "")) / 12).toFixed(2).replace(".", ",")}€/mois
+                  </div>
+                )}
 
                 <div className={`mt-3 inline-flex items-center gap-1.5 text-xs font-medium ${p.highlight ? "text-background/90" : "text-primary"}`}>
                   <ShieldCheck className="w-3.5 h-3.5" />
