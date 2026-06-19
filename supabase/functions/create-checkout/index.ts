@@ -9,10 +9,19 @@ const corsHeaders = {
 
 // Price IDs mapping
 const PRICE_IDS: Record<string, string> = {
-  // Ranki.ai EUR plans (current pricing)
-  ranki_starter: "price_1ThQt9Efti9t9nN9Wc3KFIh5",   // 9.90€
-  ranki_pro: "price_1ThQtAEfti9t9nN9NFe9sP82",       // 29.90€
-  ranki_business: "price_1ThQtBEfti9t9nN9n7ZhXFR3",  // 79.90€
+  // ===== NEW Ranki.ai plans (June 2026) =====
+  ranki_starter_monthly: "price_1TjxSJEfti9t9nN9XgMVswCh",  // 9.99€/mo
+  ranki_starter_yearly:  "price_1TjxSJEfti9t9nN91VDBOxZX",  // 95.90€/yr (-20%)
+  ranki_pro_monthly:     "price_1TjxSKEfti9t9nN9HAzRfqz8",  // 49€/mo
+  ranki_pro_yearly:      "price_1TjxSKEfti9t9nN9iv48DJvm",  // 470€/yr (-20%)
+  ranki_business_monthly:"price_1TjxSLEfti9t9nN9DqcufGNo",  // 99€/mo
+  ranki_business_yearly: "price_1TjxSLEfti9t9nN9GrF6F0Pw",  // 950.40€/yr (-20%)
+
+  // ===== Legacy aliases (keep for older clients) =====
+  ranki_starter: "price_1TjxSJEfti9t9nN9XgMVswCh",
+  ranki_pro: "price_1TjxSKEfti9t9nN9HAzRfqz8",
+  ranki_business: "price_1TjxSLEfti9t9nN9DqcufGNo",
+
   // USD plans (legacy)
   starter_monthly: "price_1TSa8oEfti9t9nN9RCi6cW8y",
   growth_monthly: "price_1TSa8pEfti9t9nN9JHI4owg3",
@@ -45,6 +54,7 @@ const PRICE_IDS: Record<string, string> = {
   credits_10000: "price_1SrrYOEfti9t9nN9TxSVXmcs",
 };
 
+
 // Credit amounts for each pack
 const CREDIT_AMOUNTS: Record<string, number> = {
   credits_10: 10,
@@ -59,7 +69,13 @@ const CREDIT_AMOUNTS: Record<string, number> = {
 };
 
 // Plans that get a free trial (7-day trial on every Ranki plan)
-const TRIAL_PLANS = ["ranki_starter", "ranki_pro", "ranki_business", "starter_monthly", "starter_yearly"];
+const TRIAL_PLANS = [
+  "ranki_starter", "ranki_pro", "ranki_business",
+  "ranki_starter_monthly", "ranki_starter_yearly",
+  "ranki_pro_monthly", "ranki_pro_yearly",
+  "ranki_business_monthly", "ranki_business_yearly",
+  "starter_monthly", "starter_yearly",
+];
 const TRIAL_DAYS = 7;
 
 // All-in-one yearly gets 60 days trial (2 months free)
@@ -71,6 +87,9 @@ const PER_BUSINESS_MODULES = ["aeo_monthly", "aeo_yearly", "seo_monthly", "seo_y
 // Subscription price keys (recurring)
 const SUBSCRIPTION_PRICE_KEYS = [
   "ranki_starter", "ranki_pro", "ranki_business",
+  "ranki_starter_monthly", "ranki_starter_yearly",
+  "ranki_pro_monthly", "ranki_pro_yearly",
+  "ranki_business_monthly", "ranki_business_yearly",
   "starter_monthly", "starter_yearly",
   "growth_monthly", "agency_monthly", "agency_eu_monthly",
   "pro_monthly", "pro_yearly",
@@ -80,6 +99,7 @@ const SUBSCRIPTION_PRICE_KEYS = [
   "allinone_monthly", "allinone_yearly",
   "daily_monthly", "daily_monthly_eur", "daily_monthly_usd",
 ];
+
 
 interface CartItem {
   priceKey: string;
