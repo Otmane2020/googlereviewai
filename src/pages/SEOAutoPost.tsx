@@ -94,8 +94,9 @@ const SEOAutoPost = () => {
       .eq("id", user.id)
       .single();
     
-    const hasPaidPlan = profile?.plan_name && ["pro", "business", "quotidien", "agence", "pro annuel", "business annuel"].includes(profile.plan_name.toLowerCase());
-    setIsSubscribed(!!subscription || !!hasPaidPlan);
+    const planLower = profile?.plan_name?.toLowerCase() || "";
+    const hasPaidPlan = ["pro", "business", "quotidien", "agence", "pro annuel", "business annuel"].some((n) => planLower.includes(n));
+    setIsSubscribed(!!subscription || hasPaidPlan);
   };
 
   const fetchData = async () => {
@@ -475,9 +476,9 @@ const SEOAutoPost = () => {
               </p>
             </div>
           </div>
-          {selectedBusiness && (
-            <Button 
-              onClick={analyzeAndGeneratePlan} 
+          {selectedBusiness && !isSubscribed && (
+            <Button
+              onClick={analyzeAndGeneratePlan}
               disabled={generating}
               className="w-full"
               size="sm"
@@ -494,6 +495,12 @@ const SEOAutoPost = () => {
                 </>
               )}
             </Button>
+          )}
+          {selectedBusiness && isSubscribed && (
+            <div className="w-full text-xs text-muted-foreground bg-emerald-500/10 border border-emerald-500/20 rounded-lg px-3 py-2 flex items-center gap-2">
+              <CheckCircle className="w-3.5 h-3.5 text-emerald-600" />
+              {t("Pilote automatique actif — articles SEO publiés chaque jour.", "Autopilot active — SEO posts published daily.")}
+            </div>
           )}
         </div>
       </div>
