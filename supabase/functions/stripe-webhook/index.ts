@@ -14,18 +14,28 @@ const supabaseAdmin = createClient(
 // Plan configurations
 // agencyPoolCredits: total credits added to the user's agency pool (to be allocated per business)
 const PLAN_CONFIG: Record<string, { credits: number; maxBusinesses: number; planName: string; agencyPoolCredits?: number; tier: number }> = {
+  // ===== NEW Ranki.ai plans (June 2026) =====
+  "price_1TjxSJEfti9t9nN9XgMVswCh": { credits: 50,  maxBusinesses: 1,   planName: "Starter",         tier: 1 }, // 9.99€/mo
+  "price_1TjxSJEfti9t9nN91VDBOxZX": { credits: 50,  maxBusinesses: 1,   planName: "Starter Annuel",  tier: 1 }, // 95.90€/yr
+  "price_1TjxSKEfti9t9nN9HAzRfqz8": { credits: 300, maxBusinesses: 3,   planName: "Pro",             tier: 3 }, // 49€/mo
+  "price_1TjxSKEfti9t9nN9iv48DJvm": { credits: 300, maxBusinesses: 3,   planName: "Pro Annuel",      tier: 3 }, // 470€/yr
+  "price_1TjxSLEfti9t9nN9DqcufGNo": { credits: 1000,maxBusinesses: 999, planName: "Business",        tier: 4 }, // 99€/mo
+  "price_1TjxSLEfti9t9nN9GrF6F0Pw": { credits: 1000,maxBusinesses: 999, planName: "Business Annuel", tier: 4 }, // 950.40€/yr
+  // ===== Legacy =====
   "price_1SrHtCEfti9t9nN9L8Fytsni": { credits: 10, maxBusinesses: 1, planName: "Starter", tier: 1 },
   "price_1SrHtDEfti9t9nN96yIPGiOo": { credits: 100, maxBusinesses: 2, planName: "Pro", tier: 3 },
   "price_1SrHtEEfti9t9nN9mq7MrV3G": { credits: 400, maxBusinesses: 999, planName: "Business", tier: 4 },
   "price_1SrHtOEfti9t9nN9fG4lSroa": { credits: 10, maxBusinesses: 1, planName: "Starter Annuel", tier: 1 },
   "price_1SrHtPEfti9t9nN9dnZ0sXpi": { credits: 100, maxBusinesses: 2, planName: "Pro Annuel", tier: 3 },
   "price_1SrHtQEfti9t9nN9GKvr4NSt": { credits: 400, maxBusinesses: 999, planName: "Business Annuel", tier: 4 },
-  // Quotidien - 9,99€/mois
   "price_1TSa8pEfti9t9nN9JHI4owg3": { credits: 200, maxBusinesses: 3, planName: "Quotidien", tier: 2 },
   "price_1TU9QcEfti9t9nN9MwGBzftO": { credits: 200, maxBusinesses: 3, planName: "Quotidien", tier: 2 },
-  // Agence - 49€/mois
   "price_1TTuIpEfti9t9nN9sy6pUNgU": { credits: 0, maxBusinesses: 999, planName: "Agence", agencyPoolCredits: 1000, tier: 5 },
   "price_1SsBcUEfti9t9nN9aqWMiw7Y": { credits: 0, maxBusinesses: 999, planName: "Agence", agencyPoolCredits: 1000, tier: 5 },
+  // Legacy ranki_* (old 9.90 / 29.90 / 79.90)
+  "price_1ThQt9Efti9t9nN9Wc3KFIh5": { credits: 50, maxBusinesses: 1, planName: "Starter", tier: 1 },
+  "price_1ThQtAEfti9t9nN9NFe9sP82": { credits: 300, maxBusinesses: 3, planName: "Pro", tier: 3 },
+  "price_1ThQtBEfti9t9nN9n7ZhXFR3": { credits: 1000, maxBusinesses: 999, planName: "Business", tier: 4 },
 };
 
 // Pick the highest-tier item from a subscription (handles multi-item subs e.g. Quotidien + Agence)
