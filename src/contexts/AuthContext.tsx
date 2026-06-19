@@ -27,24 +27,40 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser(session?.user ?? null);
         setLoading(false);
 
-        // Sync language between profile and i18n (deferred)
+        // Sync language between profile and i18n + send welcome email if not yet sent
         if (session?.user) {
           setTimeout(async () => {
             try {
               const { data } = await supabase
                 .from("profiles")
-                .select("preferred_language")
+                .select("preferred_language, welcome_email_sent, email, full_name")
                 .eq("id", session.user.id)
                 .maybeSingle();
-              const pl = (data as any)?.preferred_language;
-              if (pl && pl !== i18n.language) {
-                await i18n.changeLanguage(pl);
-              } else if (!pl) {
-                // Auto-detect from browser: French if nav starts with fr, else English
+              const profile = data as any;
+              let lang: "fr" | "en" = "fr";
+              if (profile?.preferred_language === "en") lang = "en";
+              else if (profile?.preferred_language === "fr") lang = "fr";
+              else {
                 const nav = (typeof navigator !== "undefined" ? navigator.language : "fr").toLowerCase();
-                const detected = nav.startsWith("fr") ? "fr" : "en";
-                await i18n.changeLanguage(detected);
-                await supabase.from("profiles").update({ preferred_language: detected }).eq("id", session.user.id);
+                lang = nav.startsWith("fr") ? "fr" : "en";
+                await supabase.from("profiles").update({ preferred_language: lang }).eq("id", session.user.id);
+              }
+              if (lang !== i18n.language) await i18n.changeLanguage(lang);
+
+              // Fire welcome email in the right language (once per profile)
+              if (profile && !profile.welcome_email_sent && profile.email) {
+                try {
+                  await supabase.functions.invoke("send-welcome-email", {
+                    body: {
+                      email: profile.email,
+                      name: profile.full_name || "",
+                      lang,
+                    },
+                  });
+                  await supabase.from("profiles").update({ welcome_email_sent: true }).eq("id", session.user.id);
+                } catch (e) {
+                  console.warn("[AuthContext] welcome email failed", e);
+                }
               }
             } catch (_) { /* silent */ }
           }, 0);

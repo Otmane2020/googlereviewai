@@ -1023,6 +1023,7 @@ export type Database = {
           trial_end: string | null
           updated_at: string | null
           welcome_content_delivered: boolean
+          welcome_email_sent: boolean
         }
         Insert: {
           agency_total_credits?: number
@@ -1051,6 +1052,7 @@ export type Database = {
           trial_end?: string | null
           updated_at?: string | null
           welcome_content_delivered?: boolean
+          welcome_email_sent?: boolean
         }
         Update: {
           agency_total_credits?: number
@@ -1079,6 +1081,7 @@ export type Database = {
           trial_end?: string | null
           updated_at?: string | null
           welcome_content_delivered?: boolean
+          welcome_email_sent?: boolean
         }
         Relationships: []
       }
