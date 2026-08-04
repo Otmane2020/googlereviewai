@@ -64,6 +64,7 @@ import Restaurants from "./pages/Restaurants";
 import Hotels from "./pages/Hotels";
 import ProspectionStickers from "./pages/ProspectionStickers";
 import { DashboardLayout } from "./components/DashboardLayout";
+import { WhatsAppWidget } from "./components/WhatsAppWidget";
 
 // Wraps a page with the persistent dashboard sidebar (desktop) + bottom nav (mobile)
 const Shell = ({ children }: { children: React.ReactNode }) => (
@@ -238,6 +239,7 @@ const AppContent = () => {
           <>
             <InstallPrompt />
             <NotificationPrompt />
+            <WhatsAppWidget />
           </>
         )}
       </TrackingWrapper>
