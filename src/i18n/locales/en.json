@@ -79,11 +79,11 @@
   },
   "landingUI": {
     "hero": {
-      "badge": "GEO · Generative AI Optimization",
-      "title1": "Boost your sales and visibility on",
-      "title2": "ChatGPT, Gemini & Perplexity",
-      "subtitle": "Ranki.ai improves your local ranking, optimizes your SEO strategy and grows your sales by automatically publishing the content that gets you recommended #1 by AI engines and Google.",
-      "ctaPrimary": "Boost my visibility — Free",
+      "badge": "AI · Google Review Management",
+      "title1": "Reply to your Google reviews",
+      "title2": "in seconds with AI",
+      "subtitle": "Ranki.ai automates responses to your Google Business Profile reviews and improves your local reputation. Save hours every week and stay recommended #1 on Google, ChatGPT, Gemini and Perplexity.",
+      "ctaPrimary": "Automate my replies — Free",
       "ctaSecondary": "See how it works",
       "noCard": "No credit card",
       "freeCredits": "25 free credits",
