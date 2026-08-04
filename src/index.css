@@ -105,6 +105,10 @@
     @apply bg-background text-foreground font-sans antialiased;
     font-family: 'Inter', system-ui, sans-serif;
   }
+
+  #lovable-badge {
+    display: none !important;
+  }
 }
 
 @layer utilities {
