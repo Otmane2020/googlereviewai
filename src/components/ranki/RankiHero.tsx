@@ -2,8 +2,9 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { MapPin, ArrowRight, Check } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import heroImg from "@/assets/ranki-hero.jpg";
 import { BrandSparkle } from "@/components/BrandSparkle";
+import { TabletFrame } from "@/components/ranki/TabletFrame";
+import { DashboardMockup } from "@/components/ranki/DashboardMockup";
 
 const aiEngines = ["ChatGPT", "Gemini", "Perplexity", "Claude"];
 
@@ -72,21 +73,12 @@ export const RankiHero = () => {
 
           {/* Visual */}
           <div className="relative">
-            <div className="relative rounded-2xl overflow-hidden border border-border shadow-2xl bg-card">
-              <img
-                src={heroImg}
-                alt="Ranki.ai dashboard preview – local rank tracker for ChatGPT, Gemini and Perplexity"
-                className="w-full h-auto"
-                width={960}
-                height={540}
-                loading="eager"
-                fetchPriority="high"
-                decoding="async"
-              />
-            </div>
+            <TabletFrame>
+              <DashboardMockup />
+            </TabletFrame>
 
             {/* Floating cards */}
-            <div className="hidden sm:flex absolute -left-4 top-10 bg-card border border-border rounded-xl shadow-xl px-3 py-2 items-center gap-2 animate-float">
+            <div className="hidden sm:flex absolute -left-6 -top-6 bg-card border border-border rounded-xl shadow-xl px-3 py-2 items-center gap-2 animate-float">
               <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center">
                 <MapPin className="w-4 h-4 text-foreground" />
               </div>
@@ -96,7 +88,7 @@ export const RankiHero = () => {
               </div>
             </div>
 
-            <div className="hidden sm:flex absolute -right-4 bottom-10 bg-card border border-border rounded-xl shadow-xl px-3 py-2 items-center gap-2 animate-float" style={{ animationDelay: "1s" }}>
+            <div className="hidden sm:flex absolute -right-6 -bottom-6 bg-card border border-border rounded-xl shadow-xl px-3 py-2 items-center gap-2 animate-float" style={{ animationDelay: "1s" }}>
               <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center">
                 <BrandSparkle className="w-4 h-4 text-foreground" />
               </div>
