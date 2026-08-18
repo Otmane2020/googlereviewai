@@ -7,101 +7,58 @@ const corsHeaders = {
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 const NOTIFY_EMAIL = "oben.rockman@gmail.com";
+const SUPPORT_EMAIL = "support@googlereviewai.com";
+const BRAND_NAME = "Google Review AI";
+
+const escapeHtml = (value: unknown) => String(value ?? "")
+  .replaceAll("&", "&amp;")
+  .replaceAll("<", "&lt;")
+  .replaceAll(">", "&gt;")
+  .replaceAll('"', "&quot;")
+  .replaceAll("'", "&#039;");
 
 serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
-  }
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const payload = await req.json();
-    console.log("[Inbound Webhook] Received payload:", JSON.stringify(payload, null, 2));
+    if (!RESEND_API_KEY) throw new Error("RESEND_API_KEY is not configured");
 
-    // CRITICAL: Only process email.received events to avoid loops
+    const payload = await req.json();
     const eventType = payload.type || "";
     if (eventType !== "email.received") {
-      console.log(`[Inbound Webhook] Ignored event type: ${eventType}`);
-      return new Response(
-        JSON.stringify({ success: true, ignored: true, reason: `Event type '${eventType}' not handled` }),
-        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return new Response(JSON.stringify({ success: true, ignored: true, eventType }), {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
-    // Extract data from the nested structure
     const data = payload.data || {};
-    const from = data.from || payload.from || "Expéditeur inconnu";
-    const subject = data.subject || payload.subject || "(sans objet)";
-    const textBody = data.text || data.html || payload.text || payload.html || "(aucun contenu)";
-    const to = Array.isArray(data.to) ? data.to.join(", ") : (data.to || payload.to || "support@ranki.ai");
+    const from = String(data.from || payload.from || "Unknown sender");
+    const subject = String(data.subject || payload.subject || "(no subject)");
+    const to = Array.isArray(data.to)
+      ? data.to.map(String).join(", ")
+      : String(data.to || payload.to || SUPPORT_EMAIL);
+    const textBody = String(data.text || payload.text || "");
+    const htmlBody = String(data.html || payload.html || "");
+    const preview = textBody || htmlBody.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim() || "(message body not included in webhook payload)";
+    const senderEmail = from.match(/<([^>]+)>/)?.[1] || (from.includes("@") ? from : undefined);
+    const date = new Date().toLocaleString("en-GB", { timeZone: "Europe/Paris" });
 
-    // Extract sender email for reply_to
-    const senderEmail = typeof from === "string" 
-      ? (from.match(/<([^>]+)>/)?.[1] || (from.includes("@") ? from : undefined))
-      : undefined;
-    const date = new Date().toLocaleString("fr-FR", { timeZone: "Europe/Paris" });
+    const emailHtml = `<!doctype html><html><body style="margin:0;background:#f8fafc;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#111827">
+      <div style="max-width:620px;margin:0 auto;background:#fff">
+        <div style="height:4px;background:linear-gradient(90deg,#4285F4 0 25%,#EA4335 25% 50%,#FBBC05 50% 75%,#34A853 75%)"></div>
+        <div style="padding:26px 28px;border-bottom:1px solid #e5e7eb"><strong style="font-size:19px">${BRAND_NAME} · New support email</strong></div>
+        <div style="padding:28px">
+          <p style="font-size:13px;color:#6b7280">Received ${escapeHtml(date)}</p>
+          <p><strong>From:</strong> ${escapeHtml(from)}</p>
+          <p><strong>To:</strong> ${escapeHtml(to)}</p>
+          <p><strong>Subject:</strong> ${escapeHtml(subject)}</p>
+          <div style="margin-top:20px;padding:18px;background:#f8fafc;border-radius:10px;white-space:pre-wrap;font-size:14px;line-height:1.6">${escapeHtml(preview)}</div>
+        </div>
+      </div>
+    </body></html>`;
 
-    // Send notification to oben.rockman@gmail.com
-    const emailHtml = `
-<!DOCTYPE html>
-<html lang="fr">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
-<body style="margin: 0; padding: 0; background-color: #f9fafb; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
-  <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
-    <div style="background: #ffffff; padding: 32px 24px; border-bottom: 1px solid #e5e7eb;">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td style="vertical-align: middle;">
-            <span style="font-weight: 600; font-size: 18px; color: #111827;">📧 Nouvel email reçu</span>
-          </td>
-        </tr>
-      </table>
-    </div>
-    
-    <div style="padding: 32px 24px;">
-      <p style="color: #6b7280; font-size: 13px; margin: 0 0 24px 0;">
-        Un email a été envoyé à <strong>${to}</strong> le ${date}
-      </p>
-      
-      <table style="width: 100%; border-collapse: collapse;">
-        <tr>
-          <td style="padding: 12px 0; border-bottom: 1px solid #e5e7eb; vertical-align: top; width: 100px;">
-            <span style="color: #9ca3af; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">De</span>
-          </td>
-          <td style="padding: 12px 0; border-bottom: 1px solid #e5e7eb;">
-            <span style="color: #111827; font-size: 14px;">${from}</span>
-          </td>
-        </tr>
-        <tr>
-          <td style="padding: 12px 0; border-bottom: 1px solid #e5e7eb; vertical-align: top;">
-            <span style="color: #9ca3af; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">Objet</span>
-          </td>
-          <td style="padding: 12px 0; border-bottom: 1px solid #e5e7eb;">
-            <span style="color: #111827; font-size: 14px; font-weight: 500;">${subject}</span>
-          </td>
-        </tr>
-        <tr>
-          <td style="padding: 12px 0; vertical-align: top;">
-            <span style="color: #9ca3af; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">Message</span>
-          </td>
-          <td style="padding: 12px 0;">
-            <div style="background: #f9fafb; padding: 16px; border-radius: 6px; margin-top: 4px;">
-              <p style="color: #111827; margin: 0; font-size: 14px; line-height: 1.6; white-space: pre-wrap;">${textBody}</p>
-            </div>
-          </td>
-        </tr>
-      </table>
-    </div>
-    
-    <div style="padding: 16px 24px; text-align: center; border-top: 1px solid #e5e7eb;">
-      <p style="color: #9ca3af; font-size: 12px; margin: 0;">
-        Notification automatique — GoogleReviewAI Support
-      </p>
-    </div>
-  </div>
-</body>
-</html>
-    `;
-
+    // IMPORTANT: notification is sent first and must not depend on /admin mailbox storage.
     const resendResponse = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
@@ -109,33 +66,34 @@ serve(async (req) => {
         Authorization: `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: "GoogleReviewAI Support <support@ranki.ai>",
+        from: `${BRAND_NAME} Support <${SUPPORT_EMAIL}>`,
         to: [NOTIFY_EMAIL],
         reply_to: senderEmail || undefined,
-        subject: `[Support] ${subject}`,
+        subject: `[Google Review AI Support] ${subject}`,
         html: emailHtml,
       }),
     });
 
+    const responseText = await resendResponse.text();
     if (!resendResponse.ok) {
-      const errorText = await resendResponse.text();
-      console.error("[Inbound Webhook] Resend error:", errorText);
-      throw new Error(`Resend API error: ${resendResponse.status}`);
+      console.error("[Inbound Webhook] notification failed:", responseText);
+      return new Response(JSON.stringify({ success: false, notified: false, providerStatus: resendResponse.status, providerError: responseText }), {
+        status: 502,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
-    const result = await resendResponse.json();
-    console.log("[Inbound Webhook] Notification sent to", NOTIFY_EMAIL, ":", result);
-
-    return new Response(
-      JSON.stringify({ success: true }),
-      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    console.log("[Inbound Webhook] notification sent to", NOTIFY_EMAIL, responseText);
+    return new Response(JSON.stringify({ success: true, notified: true, notifyEmail: NOTIFY_EMAIL }), {
+      status: 200,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
-    console.error("[Inbound Webhook] Error:", error);
-    return new Response(
-      JSON.stringify({ error: errorMessage }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    const message = error instanceof Error ? error.message : String(error);
+    console.error("[Inbound Webhook] error:", error);
+    return new Response(JSON.stringify({ success: false, error: message }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 });
