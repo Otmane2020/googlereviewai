@@ -18,7 +18,6 @@ interface SubscriptionEmailRequest {
   lang?: Lang;
 }
 
-// Professional email design system
 const STYLES = {
   fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
   textPrimary: "#111827",
@@ -47,10 +46,10 @@ const getProHeader = () => `
     <table cellpadding="0" cellspacing="0" border="0">
       <tr>
         <td style="vertical-align: middle;">
-          <img src="https://googlereviewai.com/favicon.png" width="32" height="32" alt="GoogleReviewAI" style="display: block;" />
+          <img src="https://googlereviewai.com/favicon.png" width="32" height="32" alt="Google Review AI" style="display: block;" />
         </td>
         <td style="vertical-align: middle; padding-left: 12px;">
-          <span style="font-family: ${STYLES.fontFamily}; font-weight: 600; font-size: 18px; color: ${STYLES.textPrimary};">GoogleReviewAI</span>
+          <span style="font-family: ${STYLES.fontFamily}; font-weight: 600; font-size: 18px; color: ${STYLES.textPrimary};">Google Review AI</span>
         </td>
       </tr>
     </table>
@@ -77,7 +76,7 @@ const T = {
     trialBanner: (d: number) => `🎁 Essai gratuit de ${d} jours`,
     billing: (c: string) => `Abonnement ${c === "year" ? "annuel" : "mensuel"}`,
     hello: "Bonjour",
-    introTrial: (d: number) => `Merci d'avoir choisi GoogleReviewAI ! Votre essai gratuit de <strong>${d} jours</strong> est maintenant actif.`,
+    introTrial: (d: number) => `Merci d'avoir choisi Google Review AI ! Votre essai gratuit de <strong>${d} jours</strong> est maintenant actif.`,
     introActive: (p: string) => `Félicitations ! Votre abonnement <strong>${p}</strong> est maintenant actif.`,
     included: "Ce qui est inclus :",
     creditsAvail: "Crédits disponibles",
@@ -105,7 +104,7 @@ const T = {
     trialBanner: (d: number) => `🎁 ${d}-day free trial`,
     billing: (c: string) => `${c === "year" ? "Yearly" : "Monthly"} subscription`,
     hello: "Hello",
-    introTrial: (d: number) => `Thanks for choosing GoogleReviewAI! Your <strong>${d}-day</strong> free trial is now active.`,
+    introTrial: (d: number) => `Thanks for choosing Google Review AI! Your <strong>${d}-day</strong> free trial is now active.`,
     introActive: (p: string) => `Congrats! Your <strong>${p}</strong> subscription is now active.`,
     included: "What's included:",
     creditsAvail: "Available credits",
@@ -119,7 +118,7 @@ const T = {
 const getProFooter = (t: typeof T.fr) => `
   <div style="padding: 24px; text-align: center; border-top: 1px solid ${STYLES.borderLight};">
     <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textMuted}; font-size: 12px; margin: 0 0 8px 0;">
-      © 2025 GoogleReviewAI. ${t.rights}
+      © 2025 Google Review AI. ${t.rights}
     </p>
     <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textMuted}; font-size: 12px; margin: 0;">
       <a href="https://googlereviewai.com" style="color: ${STYLES.brandBlue}; text-decoration: none;">googlereviewai.com</a>
@@ -173,7 +172,6 @@ serve(async (req) => {
 
   try {
     const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
-    
     if (!RESEND_API_KEY) {
       console.log("RESEND_API_KEY not configured - skipping subscription email");
       return new Response(
@@ -197,7 +195,6 @@ serve(async (req) => {
     const firstName = name?.split(" ")[0] || "";
     const planColor = getPlanColor(plan_name);
     const features = getPlanFeatures(plan_name, credits, max_businesses, t);
-
     const subject = is_trial ? t.subjTrial(plan_name) : t.subjActive(plan_name);
 
     const htmlContent = `
@@ -229,14 +226,14 @@ serve(async (req) => {
       <table cellpadding="0" cellspacing="0" border="0" style="width: 100%;">${getNextSteps(plan_name, t)}</table>
       <div style="text-align: center; margin: 40px 0;">${getProButton(t.cta, "https://googlereviewai.com/dashboard")}</div>
       ${is_trial ? `<div style="background: #fef3c7; border-radius: 6px; padding: 16px; margin: 24px 0; border-left: 3px solid #f59e0b;"><p style="font-family: ${STYLES.fontFamily}; color: #92400e; font-size: 14px; margin: 0;">${t.trialEnd(trial_days)}</p></div>` : ""}
-      <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textMuted}; font-size: 13px; line-height: 1.6; margin: 32px 0 0 0;">${t.questions} <a href="mailto:support@ranki.ai" style="color: ${STYLES.brandBlue}; text-decoration: none;">support@ranki.ai</a></p>
+      <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textMuted}; font-size: 13px; line-height: 1.6; margin: 32px 0 0 0;">${t.questions} <a href="mailto:support@googlereviewai.com" style="color: ${STYLES.brandBlue}; text-decoration: none;">support@googlereviewai.com</a></p>
     </div>
     ${getProFooter(t)}
   </div>
 </body>
 </html>`;
 
-    console.log(`Sending subscription email to ${email} for plan ${plan_name} (trial: ${is_trial})`);
+    console.log(`Sending subscription email to ${email} for plan ${plan_name} (trial: ${is_trial}, lang: ${lang})`);
 
     const response = await fetch("https://api.resend.com/emails", {
       method: "POST",
@@ -245,7 +242,7 @@ serve(async (req) => {
         Authorization: `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: "GoogleReviewAI <support@ranki.ai>",
+        from: "Google Review AI <support@googlereviewai.com>",
         to: [email],
         subject,
         html: htmlContent,
@@ -265,10 +262,9 @@ serve(async (req) => {
     console.log("Subscription email sent successfully:", data.id);
 
     return new Response(
-      JSON.stringify({ success: true, id: data.id }),
+      JSON.stringify({ success: true, id: data.id, lang }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
-
   } catch (error: unknown) {
     console.error("Email error:", error);
     return new Response(
