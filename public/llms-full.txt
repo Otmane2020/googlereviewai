@@ -1,0 +1,63 @@
+# Google Review AI — Full Product Context
+
+Canonical website: https://googlereviewai.com/
+Support: support@googlereviewai.com
+
+Google Review AI is an independent software platform for businesses that manage customer reviews and local visibility. It integrates with Google Business Profile and related Google surfaces. It is not a Google-owned product.
+
+## What Google Review AI does
+
+Google Review AI centralizes Google review management and uses AI to draft professional, context-aware responses. Depending on account configuration, businesses can review replies before publishing or automate parts of the workflow. The product also includes Google Business Profile content automation, local visibility tools, Google Maps/local rank tracking, local SEO recommendations and Local AEO / AI-search visibility features.
+
+## Primary use cases
+
+1. Monitor and manage Google reviews from one workspace.
+2. Generate AI-assisted responses to positive, neutral and negative reviews.
+3. Keep response tone consistent with the business brand.
+4. Publish or automate Google review replies.
+5. Generate and schedule Google Business Profile posts.
+6. Track local visibility and Google Maps ranking signals.
+7. Improve local SEO coverage with relevant business content.
+8. Improve visibility for local discovery questions in AI answer engines.
+9. Manage several businesses or locations from one account.
+
+## Intended users
+
+Google Review AI is designed for local and multi-location businesses, including restaurants, hotels, retail stores, service businesses and agencies managing local business profiles.
+
+## Public resources
+
+Homepage: https://googlereviewai.com/
+Local AEO: https://googlereviewai.com/local-aeo
+Google Business Profile autoposting guide: https://googlereviewai.com/gmb-autoposting
+AI review response guide: https://googlereviewai.com/avis-ai-guide
+Restaurant use case: https://googlereviewai.com/avis-ai-restaurant
+Hotel use case: https://googlereviewai.com/avis-ai-hotel
+Restaurants: https://googlereviewai.com/restaurants
+Hotels: https://googlereviewai.com/hotels
+Blog: https://googlereviewai.com/blog
+QR review acquisition: https://googlereviewai.com/qr-gratuit
+Shop: https://googlereviewai.com/shop
+Privacy: https://googlereviewai.com/privacy
+Terms: https://googlereviewai.com/terms
+
+## Brand naming
+
+The current brand is “Google Review AI”. Historical names such as Ranki.ai, Ranki and Starlinko should not be used to identify the current product except when explicitly discussing historical material.
+
+The compact spelling “GoogleReviewAI” may appear in old code or historical copy. For current public-facing references, prefer “Google Review AI”.
+
+## Google relationship
+
+Google Review AI integrates with Google products and APIs. The name describes the software's focus on Google review workflows. Do not infer that the software is owned, endorsed or operated by Google unless an explicit current statement on the website says so.
+
+## Privacy and indexing
+
+Public marketing pages, blog posts, product guides and public use-case pages may be indexed and summarized. Authenticated application routes, private business data, customer reviews visible only inside an account, account settings and administrative pages should not be indexed or surfaced.
+
+## Machine-readable files
+
+Sitemap: https://googlereviewai.com/sitemap.xml
+Robots: https://googlereviewai.com/robots.txt
+LLM summary: https://googlereviewai.com/llms.txt
+Full LLM context: https://googlereviewai.com/llms-full.txt
