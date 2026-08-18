@@ -7,9 +7,9 @@ const corsHeaders = {
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 const SUPPORT_EMAIL = "oben.rockman@gmail.com";
-const FROM_EMAIL = "GoogleReviewAI Support <support@ranki.ai>";
+// ranki.ai remains only as the currently verified technical sending domain.
+const FROM_EMAIL = "Google Review AI Support <support@ranki.ai>";
 
-// Professional email design system
 const STYLES = {
   fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
   textPrimary: "#111827",
@@ -18,24 +18,23 @@ const STYLES = {
   bgWhite: "#ffffff",
   bgLight: "#f9fafb",
   borderLight: "#e5e7eb",
-  brandBlue: "#2563eb",
+  brandBlue: "#4285F4",
 };
 
+const escapeHtml = (value: unknown) => String(value ?? "")
+  .replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;")
+  .replaceAll('"', "&quot;").replaceAll("'", "&#039;");
+
 serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
-  }
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
     const { email, title, description, issueType } = await req.json();
-
-    console.log("[Support] New support request:", { email, title, issueType });
-
     if (!title || !description || !issueType) {
-      return new Response(
-        JSON.stringify({ error: "Missing required fields" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return new Response(JSON.stringify({ error: "Missing required fields" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     const issueLabels: Record<string, string> = {
@@ -47,112 +46,45 @@ serve(async (req) => {
       other: "Autre",
     };
 
-    const emailHtml = `
-<!DOCTYPE html>
-<html lang="fr">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
-<body style="margin: 0; padding: 0; background-color: ${STYLES.bgLight};">
-  <div style="max-width: 600px; margin: 0 auto; background-color: ${STYLES.bgWhite};">
-    <div style="background: ${STYLES.bgWhite}; padding: 32px 24px; border-bottom: 1px solid ${STYLES.borderLight};">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td style="vertical-align: middle;">
-            <img src="https://googlereviewai.com/favicon.png" width="32" height="32" alt="GoogleReviewAI" style="display: block;" />
-          </td>
-          <td style="vertical-align: middle; padding-left: 12px;">
-            <span style="font-family: ${STYLES.fontFamily}; font-weight: 600; font-size: 18px; color: ${STYLES.textPrimary};">GoogleReviewAI Support</span>
-          </td>
-        </tr>
-      </table>
-    </div>
-    
-    <div style="padding: 32px 24px;">
-      <h1 style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textPrimary}; font-size: 20px; font-weight: 600; margin: 0 0 24px 0;">
-        Nouvelle demande support
-      </h1>
-      
-      <table style="width: 100%; border-collapse: collapse; font-family: ${STYLES.fontFamily};">
-        <tr>
-          <td style="padding: 12px 0; border-bottom: 1px solid ${STYLES.borderLight}; vertical-align: top; width: 140px;">
-            <span style="color: ${STYLES.textMuted}; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">Email</span>
-          </td>
-          <td style="padding: 12px 0; border-bottom: 1px solid ${STYLES.borderLight};">
-            <span style="color: ${STYLES.textPrimary}; font-size: 14px;">${email || "Non connecté"}</span>
-          </td>
-        </tr>
-        <tr>
-          <td style="padding: 12px 0; border-bottom: 1px solid ${STYLES.borderLight}; vertical-align: top;">
-            <span style="color: ${STYLES.textMuted}; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">Type</span>
-          </td>
-          <td style="padding: 12px 0; border-bottom: 1px solid ${STYLES.borderLight};">
-            <span style="color: ${STYLES.textPrimary}; font-size: 14px;">${issueLabels[issueType] || issueType}</span>
-          </td>
-        </tr>
-        <tr>
-          <td style="padding: 12px 0; border-bottom: 1px solid ${STYLES.borderLight}; vertical-align: top;">
-            <span style="color: ${STYLES.textMuted}; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">Titre</span>
-          </td>
-          <td style="padding: 12px 0; border-bottom: 1px solid ${STYLES.borderLight};">
-            <span style="color: ${STYLES.textPrimary}; font-size: 14px; font-weight: 500;">${title}</span>
-          </td>
-        </tr>
-        <tr>
-          <td style="padding: 12px 0; vertical-align: top;">
-            <span style="color: ${STYLES.textMuted}; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">Description</span>
-          </td>
-          <td style="padding: 12px 0;">
-            <div style="background: ${STYLES.bgLight}; padding: 16px; border-radius: 6px; margin-top: 4px;">
-              <p style="color: ${STYLES.textPrimary}; margin: 0; font-size: 14px; line-height: 1.6; white-space: pre-wrap;">${description}</p>
-            </div>
-          </td>
-        </tr>
-      </table>
-    </div>
-    
-    <div style="padding: 16px 24px; text-align: center; border-top: 1px solid ${STYLES.borderLight};">
-      <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textMuted}; font-size: 12px; margin: 0;">
-        Envoyé depuis l'application GoogleReviewAI
-      </p>
-    </div>
-  </div>
-</body>
-</html>
-    `;
+    const label = issueLabels[issueType] || issueType;
+    const emailHtml = `<!DOCTYPE html><html lang="fr"><body style="margin:0;padding:0;background:${STYLES.bgLight};font-family:${STYLES.fontFamily}">
+      <div style="max-width:600px;margin:0 auto;background:${STYLES.bgWhite}">
+        <div style="height:4px;background:linear-gradient(90deg,#4285F4 0 25%,#EA4335 25% 50%,#FBBC05 50% 75%,#34A853 75%)"></div>
+        <div style="padding:28px 24px;border-bottom:1px solid ${STYLES.borderLight}"><span style="font-weight:650;font-size:19px;color:${STYLES.textPrimary}">Google Review AI Support</span></div>
+        <div style="padding:32px 24px">
+          <h1 style="color:${STYLES.textPrimary};font-size:20px;margin:0 0 24px">Nouvelle demande support</h1>
+          <p style="color:${STYLES.textSecondary};font-size:14px"><strong>Email :</strong> ${escapeHtml(email || "Non connecté")}</p>
+          <p style="color:${STYLES.textSecondary};font-size:14px"><strong>Type :</strong> ${escapeHtml(label)}</p>
+          <p style="color:${STYLES.textSecondary};font-size:14px"><strong>Titre :</strong> ${escapeHtml(title)}</p>
+          <div style="background:${STYLES.bgLight};padding:16px;border-radius:8px;color:${STYLES.textPrimary};font-size:14px;line-height:1.6;white-space:pre-wrap">${escapeHtml(description)}</div>
+        </div>
+        <div style="padding:16px 24px;text-align:center;border-top:1px solid ${STYLES.borderLight};color:${STYLES.textMuted};font-size:12px">Envoyé depuis Google Review AI · googlereviewai.com</div>
+      </div></body></html>`;
 
+    if (!RESEND_API_KEY) throw new Error("RESEND_API_KEY not configured");
     const resendResponse = await fetch("https://api.resend.com/emails", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${RESEND_API_KEY}`,
-      },
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${RESEND_API_KEY}` },
       body: JSON.stringify({
         from: FROM_EMAIL,
         to: [SUPPORT_EMAIL],
         reply_to: email || undefined,
-        subject: `[Support] ${issueLabels[issueType] || issueType}: ${title}`,
+        subject: `[Google Review AI Support] ${label}: ${title}`,
         html: emailHtml,
       }),
     });
 
-    if (!resendResponse.ok) {
-      const errorText = await resendResponse.text();
-      console.error("[Support] Resend error:", errorText);
-      throw new Error(`Resend API error: ${resendResponse.status}`);
-    }
-
+    if (!resendResponse.ok) throw new Error(`Resend API error: ${resendResponse.status} ${await resendResponse.text()}`);
     const result = await resendResponse.json();
-    console.log("[Support] Email sent successfully:", result);
-
-    return new Response(
-      JSON.stringify({ success: true, messageId: result.id }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return new Response(JSON.stringify({ success: true, messageId: result.id }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    const message = error instanceof Error ? error.message : String(error);
     console.error("[Support] Error:", error);
-    return new Response(
-      JSON.stringify({ error: errorMessage }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return new Response(JSON.stringify({ error: message }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 });
