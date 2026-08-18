@@ -1,231 +1,161 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { ClientOnly } from "@tanstack/react-router";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { CartProvider } from "@/contexts/CartContext";
 import { OAuthCallback } from "@/components/OAuthCallback";
-import { supabase } from "@/integrations/supabase/client";
 import { InstallPrompt } from "@/components/InstallPrompt";
 import { NotificationPrompt } from "@/components/NotificationPrompt";
 import { SplashScreen } from "@/components/SplashScreen";
 import { OnboardingScreen } from "@/components/OnboardingScreen";
+import { supabase } from "@/integrations/supabase/client";
 import { usePWA } from "@/hooks/usePWA";
 import { useVisitTracking } from "@/hooks/useVisitTracking";
-import { CartProvider } from "@/contexts/CartContext";
-import Index from "./pages/Index";
-import Auth from "./pages/Auth";
-import ChoosePlan from "./pages/ChoosePlan";
-import Checkout from "./pages/Checkout";
-import Dashboard from "./pages/Dashboard";
-import Reviews from "./pages/Reviews";
-import AISettings from "./pages/AISettings";
-import Settings from "./pages/Settings";
-import Businesses from "./pages/Businesses";
-import PrivacyPolicy from "./pages/PrivacyPolicy";
-import TermsOfService from "./pages/TermsOfService";
-import Install from "./pages/Install";
-import SEOAutoPost from "./pages/SEOAutoPost";
-import AEORank from "./pages/AEORank";
-import MapsRank from "./pages/MapsRank";
-import Notifications from "./pages/Notifications";
-import ResetPassword from "./pages/ResetPassword";
-import MobileAds from "./pages/MobileAds";
-import PasswordAuth from "./pages/PasswordAuth";
-import Admin from "./pages/Admin";
-import Checklist from "./pages/Checklist";
-import LocalAEO from "./pages/LocalAEO";
-import GmbPost from "./pages/GmbPost";
-import GmbAutopostingGuide from "./pages/GmbAutopostingGuide";
-import AvisAIRestaurant from "./pages/AvisAIRestaurant";
-import AvisAIHotel from "./pages/AvisAIHotel";
-import AvisAIGuide from "./pages/AvisAIGuide";
-import Blog from "./pages/Blog";
-import BlogArticle from "./pages/BlogArticle";
-import NotFound from "./pages/NotFound";
-import LandingPremium from "./pages/LandingPremium";
-import LandingFacebook from "./pages/LandingFacebook";
-import Calendar from "./pages/Calendar";
-import Onboarding from "./pages/Onboarding";
-import PaymentSuccess from "./pages/PaymentSuccess";
-import PaymentCanceled from "./pages/PaymentCanceled";
-import Boutique from "./pages/Boutique";
-import BoutiqueNFC from "./pages/BoutiqueNFC";
-import BoutiqueQRImprime from "./pages/BoutiqueQRImprime";
-import Commandes from "./pages/Commandes";
-import AdminOrders from "./pages/AdminOrders";
-import LandingQRGratuit from "./pages/LandingQRGratuit";
-import Shop from "./pages/Shop";
-import ShopProduct from "./pages/ShopProduct";
-import ShopCheckout from "./pages/ShopCheckout";
-import Restaurants from "./pages/Restaurants";
-import Hotels from "./pages/Hotels";
-import ProspectionStickers from "./pages/ProspectionStickers";
-import { DashboardLayout } from "./components/DashboardLayout";
+import "@/i18n/config";
 
-const Shell = ({ children }: { children: React.ReactNode }) => (
-  <DashboardLayout>{children}</DashboardLayout>
-);
+const APP_CACHE_VERSION = "2026-08-tanstack-start";
 
-const queryClient = new QueryClient();
-
-const TrackingWrapper = ({ children }: { children: React.ReactNode }) => {
-  useVisitTracking();
-  return <>{children}</>;
-};
-
-const AppContent = () => {
+function ClientRuntime() {
   const { isStandalone } = usePWA();
   const [showSplash, setShowSplash] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
-  const [isInitialized, setIsInitialized] = useState(false);
-  const [hasRunInit, setHasRunInit] = useState(false);
+  const [ready, setReady] = useState(false);
+
+  useVisitTracking();
 
   useEffect(() => {
-    const reloadCount = parseInt(sessionStorage.getItem("app_reload_count") || "0");
-    if (reloadCount > 1) {
-      console.warn("Breaking reload loop - forcing initialization");
-      sessionStorage.removeItem("app_reload_count");
-      setIsInitialized(true);
-      setHasRunInit(true);
-      return;
+    const w = window as any;
+
+    if (!w.__rankiPwaPromptListenerInstalled) {
+      w.__rankiPwaPromptListenerInstalled = true;
+      window.addEventListener("beforeinstallprompt", (event) => {
+        event.preventDefault();
+        w.__rankiBeforeInstallPrompt = event;
+        window.dispatchEvent(new CustomEvent("ranki:pwa-install-ready"));
+      });
+      window.addEventListener("appinstalled", () => {
+        w.__rankiBeforeInstallPrompt = null;
+        window.dispatchEvent(new CustomEvent("ranki:pwa-installed"));
+      });
     }
-    sessionStorage.setItem("app_reload_count", String(reloadCount + 1));
-    const clearTimer = setTimeout(() => {
-      sessionStorage.removeItem("app_reload_count");
-    }, 3000);
-    return () => clearTimeout(clearTimer);
+
+    const registerServiceWorker = async () => {
+      if (!("serviceWorker" in navigator)) return;
+      const isInIframe = (() => {
+        try {
+          return window.self !== window.top;
+        } catch {
+          return true;
+        }
+      })();
+      const host = window.location.hostname;
+      const isPreviewHost =
+        host.includes("id-preview--") ||
+        host.includes("lovableproject.com") ||
+        host.includes("lovable.app");
+
+      try {
+        if (isPreviewHost || isInIframe) {
+          const registrations = await navigator.serviceWorker.getRegistrations();
+          await Promise.all(registrations.map((registration) => registration.unregister()));
+          return;
+        }
+
+        const existing = await navigator.serviceWorker.getRegistration("/");
+        if (!existing) await navigator.serviceWorker.register("/sw.js", { scope: "/" });
+      } catch (error) {
+        console.warn("[SW] registration failed", error);
+      }
+    };
+
+    registerServiceWorker();
+
+    try {
+      localStorage.setItem("app_cache_version", APP_CACHE_VERSION);
+    } catch {
+      // Storage can be unavailable in private/restricted contexts.
+    }
   }, []);
 
   useEffect(() => {
-    if (hasRunInit) return;
-    const timer = setTimeout(() => {
-      const standaloneNow =
-        window.matchMedia("(display-mode: standalone)").matches ||
-        (window.navigator as any).standalone === true;
-      if (standaloneNow) {
-        setShowSplash(true);
-      } else {
-        setIsInitialized(true);
-      }
-      setHasRunInit(true);
-    }, 50);
-    return () => clearTimeout(timer);
-  }, [hasRunInit]);
+    if (ready) return;
+    setReady(true);
+    if (isStandalone) setShowSplash(true);
+  }, [isStandalone, ready]);
 
   const handleSplashComplete = async () => {
     setShowSplash(false);
-    const hasSeenOnboarding = localStorage.getItem("googlereviewai.com_onboarding_completed");
+    let completed = false;
+    try {
+      completed = localStorage.getItem("googlereviewai.com_onboarding_completed") === "true";
+    } catch {
+      // Ignore unavailable storage.
+    }
+
     const { data: { session } } = await supabase.auth.getSession();
-    if (!hasSeenOnboarding && !session) {
-      setShowOnboarding(true);
-    } else {
-      if (session) localStorage.setItem("googlereviewai.com_onboarding_completed", "true");
-      setIsInitialized(true);
+    if (!completed && !session) setShowOnboarding(true);
+    else if (session) {
+      try {
+        localStorage.setItem("googlereviewai.com_onboarding_completed", "true");
+      } catch {
+        // Ignore unavailable storage.
+      }
     }
   };
 
   const handleOnboardingComplete = () => {
     setShowOnboarding(false);
-    setIsInitialized(true);
-    localStorage.setItem("googlereviewai.com_onboarding_completed", "true");
+    try {
+      localStorage.setItem("googlereviewai.com_onboarding_completed", "true");
+    } catch {
+      // Ignore unavailable storage.
+    }
   };
 
-  if (!hasRunInit) {
-    return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', backgroundColor: '#ffffff' }}>
-        <div style={{ width: '40px', height: '40px', border: '3px solid #e5e7eb', borderTopColor: '#3b82f6', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
-        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-      </div>
-    );
-  }
+  return (
+    <>
+      {showSplash && (
+        <div className="fixed inset-0 z-[10000] bg-background">
+          <SplashScreen onComplete={handleSplashComplete} />
+        </div>
+      )}
+      {showOnboarding && (
+        <div className="fixed inset-0 z-[10000] bg-background">
+          <OnboardingScreen onComplete={handleOnboardingComplete} />
+        </div>
+      )}
+      {!showSplash && !showOnboarding && (
+        <>
+          <InstallPrompt />
+          <NotificationPrompt />
+        </>
+      )}
+    </>
+  );
+}
+
+export function AppProviders({ children }: { children: React.ReactNode }) {
+  const [queryClient] = useState(() => new QueryClient());
 
   return (
-    <BrowserRouter>
-      <TrackingWrapper>
-        {showSplash ? (
-          <SplashScreen onComplete={handleSplashComplete} />
-        ) : showOnboarding ? (
-          <OnboardingScreen onComplete={handleOnboardingComplete} />
-        ) : (
-          <OAuthCallback>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/select-plan" element={<ChoosePlan />} />
-              <Route path="/choose-plan" element={<ChoosePlan />} />
-              <Route path="/checkout" element={<Checkout />} />
-              <Route path="/payment-success" element={<PaymentSuccess />} />
-              <Route path="/payment-canceled" element={<PaymentCanceled />} />
-              <Route path="/reset-password" element={<ResetPassword />} />
-              <Route path="/onboarding" element={<Onboarding />} />
-              <Route path="/dashboard" element={<Shell><Dashboard /></Shell>} />
-              <Route path="/calendar" element={<Shell><Calendar /></Shell>} />
-              <Route path="/reviews" element={<Shell><Reviews /></Shell>} />
-              <Route path="/ai-settings" element={<Shell><AISettings /></Shell>} />
-              <Route path="/settings" element={<Shell><Settings /></Shell>} />
-              <Route path="/businesses" element={<Shell><Businesses /></Shell>} />
-              <Route path="/privacy" element={<PrivacyPolicy />} />
-              <Route path="/terms" element={<TermsOfService />} />
-              <Route path="/install" element={<Install />} />
-              <Route path="/seo-autopost" element={<Shell><SEOAutoPost /></Shell>} />
-              <Route path="/aeo-rank" element={<Shell><AEORank /></Shell>} />
-              <Route path="/maps-rank" element={<Shell><MapsRank /></Shell>} />
-              <Route path="/notifications" element={<Shell><Notifications /></Shell>} />
-              <Route path="/mobile-ads" element={<MobileAds />} />
-              <Route path="/PW" element={<PasswordAuth />} />
-              <Route path="/admin" element={<Admin />} />
-              <Route path="/admin/orders" element={<AdminOrders />} />
-              <Route path="/local-aeo" element={<LocalAEO />} />
-              <Route path="/gmb-post" element={<Shell><GmbPost /></Shell>} />
-              <Route path="/gmb-autoposting" element={<GmbAutopostingGuide />} />
-              <Route path="/avis-ai-restaurant" element={<AvisAIRestaurant />} />
-              <Route path="/avis-ai-hotel" element={<AvisAIHotel />} />
-              <Route path="/avis-ai-guide" element={<AvisAIGuide />} />
-              <Route path="/restaurants" element={<Restaurants />} />
-              <Route path="/hotels" element={<Hotels />} />
-              <Route path="/blog" element={<Blog />} />
-              <Route path="/blog/:slug" element={<BlogArticle />} />
-              <Route path="/landing" element={<LandingPremium />} />
-              <Route path="/lp/facebook" element={<LandingFacebook />} />
-              <Route path="/checklist" element={<Checklist />} />
-              <Route path="/boutique" element={<Shell><Boutique /></Shell>} />
-              <Route path="/boutique/nfc" element={<Shell><BoutiqueNFC /></Shell>} />
-              <Route path="/boutique/qr-imprime" element={<Shell><BoutiqueQRImprime /></Shell>} />
-              <Route path="/commandes" element={<Shell><Commandes /></Shell>} />
-              <Route path="/prospection-stickers" element={<Shell><ProspectionStickers /></Shell>} />
-              <Route path="/qr-gratuit" element={<LandingQRGratuit />} />
-              <Route path="/shop" element={<Shop />} />
-              <Route path="/shop/checkout" element={<ShopCheckout />} />
-              <Route path="/shop/:slug" element={<ShopProduct />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </OAuthCallback>
-        )}
-        {isInitialized && !showSplash && !showOnboarding && (
-          <>
-            <InstallPrompt />
-            <NotificationPrompt />
-          </>
-        )}
-      </TrackingWrapper>
-    </BrowserRouter>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <CartProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <OAuthCallback>{children}</OAuthCallback>
+            <ClientOnly fallback={null}>
+              <ClientRuntime />
+            </ClientOnly>
+          </TooltipProvider>
+        </CartProvider>
+      </AuthProvider>
+    </QueryClientProvider>
   );
-};
+}
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <CartProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <AppContent />
-        </TooltipProvider>
-      </CartProvider>
-    </AuthProvider>
-  </QueryClientProvider>
-);
-
-export default App;
+export default AppProviders;
