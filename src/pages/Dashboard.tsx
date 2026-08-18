@@ -958,6 +958,12 @@ const Dashboard = () => {
               onSuccess={handleBusinessSelectionSuccess}
             />
           )}
+
+          {/* Google Reconnect Dialog */}
+          <ReconnectGoogleDialog
+            open={showReconnectDialog}
+            onOpenChange={setShowReconnectDialog}
+          />
       </div>
     </>
   );
