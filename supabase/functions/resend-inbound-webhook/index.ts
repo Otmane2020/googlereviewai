@@ -9,7 +9,7 @@ const corsHeaders = {
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 const NOTIFY_EMAIL = "oben.rockman@gmail.com";
 const BRAND_NAME = "Google Review AI";
-// Keep the currently verified sending domain for deliverability; only the visible sender name is rebranded.
+// Technical domain stays on the currently verified sender until the new domain is verified.
 const NOTIFICATION_FROM = `${BRAND_NAME} Mail <support@ranki.ai>`;
 
 const asArray = (value: unknown): string[] => {
@@ -19,18 +19,46 @@ const asArray = (value: unknown): string[] => {
 };
 
 const escapeHtml = (value: unknown) => String(value ?? "")
-  .replaceAll("&", "&amp;")
-  .replaceAll("<", "&lt;")
-  .replaceAll(">", "&gt;")
-  .replaceAll('"', "&quot;")
-  .replaceAll("'", "&#039;");
+  .replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;")
+  .replaceAll('"', "&quot;").replaceAll("'", "&#039;");
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
     const payload = await req.json();
-    const eventType = payload.type || "";
+    const eventType = String(payload.type || "");
+    const data = payload.data || {};
+
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    if (!supabaseUrl || !serviceKey) throw new Error("Missing Supabase service configuration");
+    const supabase = createClient(supabaseUrl, serviceKey);
+
+    // Central sent-mail archive for direct Resend sends (welcome, subscription, support, etc.).
+    if (["email.sent", "email.delivered"].includes(eventType)) {
+      const providerMessageId = String(data.email_id || data.id || payload.id || crypto.randomUUID());
+      const status = eventType === "email.delivered" ? "delivered" : "sent";
+      const { error } = await supabase.from("email_messages").upsert({
+        provider_message_id: `resend:${providerMessageId}`,
+        direction: "outbound",
+        from_email: String(data.from || `${BRAND_NAME}`),
+        to_emails: asArray(data.to),
+        cc_emails: asArray(data.cc),
+        subject: String(data.subject || "(sans objet)"),
+        text_body: typeof data.text === "string" ? data.text : null,
+        html_body: typeof data.html === "string" ? data.html : null,
+        status,
+        source: "resend-event-webhook",
+        metadata: { event_type: eventType },
+      }, { onConflict: "provider_message_id" });
+      if (error) throw error;
+      return new Response(JSON.stringify({ success: true, archived: "outbound" }), {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     if (eventType !== "email.received") {
       return new Response(JSON.stringify({ success: true, ignored: true }), {
         status: 200,
@@ -38,7 +66,6 @@ serve(async (req) => {
       });
     }
 
-    const data = payload.data || {};
     const from = String(data.from || payload.from || "Expéditeur inconnu");
     const subject = String(data.subject || payload.subject || "(sans objet)");
     const textBody = String(data.text || payload.text || "");
@@ -47,11 +74,6 @@ serve(async (req) => {
     const ccEmails = asArray(data.cc || payload.cc);
     const providerMessageId = String(data.email_id || data.id || payload.id || crypto.randomUUID());
     const senderEmail = from.match(/<([^>]+)>/)?.[1] || (from.includes("@") ? from : undefined);
-
-    const supabaseUrl = Deno.env.get("SUPABASE_URL");
-    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-    if (!supabaseUrl || !serviceKey) throw new Error("Missing Supabase service configuration");
-    const supabase = createClient(supabaseUrl, serviceKey);
 
     const { error: insertError } = await supabase.from("email_messages").insert({
       provider_message_id: providerMessageId,
@@ -67,7 +89,7 @@ serve(async (req) => {
       metadata: { event_type: eventType },
     });
 
-    // Both legacy inbound endpoints can receive the same Resend event. Unique ID prevents duplicate inbox rows and alerts.
+    // Prevent duplicate inbox rows and duplicate Gmail notifications if two endpoints receive the same event.
     if (insertError?.code === "23505") {
       return new Response(JSON.stringify({ success: true, duplicate: true }), {
         status: 200,
@@ -106,9 +128,7 @@ serve(async (req) => {
     });
 
     if (!resendResponse.ok) {
-      const errorText = await resendResponse.text();
-      console.error("[Inbound] admin notification failed:", errorText);
-      // Keep the inbound message in the admin mailbox even if the secondary Gmail alert fails.
+      console.error("[Inbound] admin notification failed:", await resendResponse.text());
     }
 
     return new Response(JSON.stringify({ success: true, archived: true, notified: resendResponse.ok }), {
@@ -117,7 +137,7 @@ serve(async (req) => {
     });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : String(error);
-    console.error("[Inbound] Error:", error);
+    console.error("[Email webhook] Error:", error);
     return new Response(JSON.stringify({ error: message }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
