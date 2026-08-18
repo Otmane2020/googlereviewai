@@ -16,7 +16,6 @@ Disallow: /install
 
 Sitemap: https://googlereviewai.com/sitemap.xml
 
-# AI crawlers: public marketing and educational content is allowed.
 User-agent: GPTBot
 Allow: /
 Disallow: /dashboard
