@@ -25,3 +25,4 @@ jobs:
         run: npm run build
       - name: Typecheck
         run: npm run typecheck
+        # Keep this workflow on the migration branch until the migration is merged.
