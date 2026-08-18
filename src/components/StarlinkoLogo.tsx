@@ -4,13 +4,6 @@ interface RankiLogoProps {
   variant?: "default" | "mono";
 }
 
-const Star = ({ cx, fill }: { cx: number; fill: string }) => (
-  <path
-    d={`M${cx} 20.6l1.65 3.35 3.7.54-2.68 2.61.63 3.69-${3.3-1.65}-.?`}
-    fill={fill}
-  />
-);
-
 const ReviewBubbleMark = ({ className = "h-10 w-11" }: { className?: string }) => (
   <svg className={className} viewBox="0 0 64 58" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
     <defs>
