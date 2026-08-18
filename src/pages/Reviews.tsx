@@ -11,6 +11,7 @@ import { toast } from "@/hooks/use-toast";
 import { UpgradeDialog } from "@/components/UpgradeDialog";
 import { ResponsePreviewDialog } from "@/components/ResponsePreviewDialog";
 import { SelectBusinessesDialog } from "@/components/SelectBusinessesDialog";
+import { ReconnectGoogleDialog } from "@/components/ReconnectGoogleDialog";
 import { Star, Search, Loader2, RefreshCw, ChevronLeft, ChevronRight, ChevronDown, Send, Copy, CheckCircle, Clock, MessageSquare, Building2 } from "lucide-react";
 import {
   Dialog,
@@ -124,6 +125,7 @@ const Reviews = () => {
   
   // Business selection dialog states
   const [showSelectBusinessesDialog, setShowSelectBusinessesDialog] = useState(false);
+  const [showReconnectDialog, setShowReconnectDialog] = useState(false);
   const [googleBusinessesForSelection, setGoogleBusinessesForSelection] = useState<any[]>([]);
   const [maxBusinessesLimit, setMaxBusinessesLimit] = useState(1);
   const { syncBusinesses, isSyncing: isSyncingBusinesses } = useSyncGoogleBusinesses();
