@@ -60,7 +60,7 @@ self.addEventListener('push', function(event) {
   var options = {
     body: data.body || '',
     icon: data.icon || '/icon-512x512.png',
-    badge: '/icon-192x192.svg',
+    badge: '/icon-192x192.png',
     data: { url: data.url || '/reviews' },
     vibrate: [200, 100, 200],
     tag: 'googlereviewai.com-' + Date.now(),
