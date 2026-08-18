@@ -16,7 +16,6 @@ import { useVisitTracking } from "@/hooks/useVisitTracking";
 import { CartProvider } from "@/contexts/CartContext";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
-// SelectPlan removed - using ChoosePlan instead
 import ChoosePlan from "./pages/ChoosePlan";
 import Checkout from "./pages/Checkout";
 import Dashboard from "./pages/Dashboard";
@@ -64,16 +63,13 @@ import Restaurants from "./pages/Restaurants";
 import Hotels from "./pages/Hotels";
 import ProspectionStickers from "./pages/ProspectionStickers";
 import { DashboardLayout } from "./components/DashboardLayout";
-import { WhatsAppWidget } from "./components/WhatsAppWidget";
 
-// Wraps a page with the persistent dashboard sidebar (desktop) + bottom nav (mobile)
 const Shell = ({ children }: { children: React.ReactNode }) => (
   <DashboardLayout>{children}</DashboardLayout>
 );
 
 const queryClient = new QueryClient();
 
-// Tracking wrapper - must be inside BrowserRouter
 const TrackingWrapper = ({ children }: { children: React.ReactNode }) => {
   useVisitTracking();
   return <>{children}</>;
@@ -86,11 +82,8 @@ const AppContent = () => {
   const [isInitialized, setIsInitialized] = useState(false);
   const [hasRunInit, setHasRunInit] = useState(false);
 
-  // Anti-loop protection: detect excessive reloads and force initialization
   useEffect(() => {
     const reloadCount = parseInt(sessionStorage.getItem("app_reload_count") || "0");
-    
-    // After 2 reloads in 3 seconds, force initialization and break the loop
     if (reloadCount > 1) {
       console.warn("Breaking reload loop - forcing initialization");
       sessionStorage.removeItem("app_reload_count");
@@ -98,27 +91,19 @@ const AppContent = () => {
       setHasRunInit(true);
       return;
     }
-    
     sessionStorage.setItem("app_reload_count", String(reloadCount + 1));
-    
-    // Clear counter after 3 seconds of stability
     const clearTimer = setTimeout(() => {
       sessionStorage.removeItem("app_reload_count");
     }, 3000);
-    
     return () => clearTimeout(clearTimer);
   }, []);
 
   useEffect(() => {
-    // Only run initialization logic ONCE
     if (hasRunInit) return;
-    
-    // Wait for isStandalone to stabilize (usePWA starts with false, then updates)
     const timer = setTimeout(() => {
-      const standaloneNow = 
+      const standaloneNow =
         window.matchMedia("(display-mode: standalone)").matches ||
         (window.navigator as any).standalone === true;
-      
       if (standaloneNow) {
         setShowSplash(true);
       } else {
@@ -126,14 +111,12 @@ const AppContent = () => {
       }
       setHasRunInit(true);
     }, 50);
-
     return () => clearTimeout(timer);
   }, [hasRunInit]);
 
   const handleSplashComplete = async () => {
     setShowSplash(false);
     const hasSeenOnboarding = localStorage.getItem("googlereviewai.com_onboarding_completed");
-    // Skip onboarding for already authenticated users
     const { data: { session } } = await supabase.auth.getSession();
     if (!hasSeenOnboarding && !session) {
       setShowOnboarding(true);
@@ -149,24 +132,10 @@ const AppContent = () => {
     localStorage.setItem("googlereviewai.com_onboarding_completed", "true");
   };
 
-  // Show minimal loader while we determine standalone status (instead of null for old devices)
   if (!hasRunInit) {
     return (
-      <div style={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center', 
-        height: '100vh',
-        backgroundColor: '#ffffff'
-      }}>
-        <div style={{
-          width: '40px',
-          height: '40px',
-          border: '3px solid #e5e7eb',
-          borderTopColor: '#3b82f6',
-          borderRadius: '50%',
-          animation: 'spin 1s linear infinite'
-        }} />
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', backgroundColor: '#ffffff' }}>
+        <div style={{ width: '40px', height: '40px', border: '3px solid #e5e7eb', borderTopColor: '#3b82f6', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
         <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
     );
@@ -234,12 +203,10 @@ const AppContent = () => {
             </Routes>
           </OAuthCallback>
         )}
-        {/* Global prompts - outside OAuthCallback to avoid ref issues */}
         {isInitialized && !showSplash && !showOnboarding && (
           <>
             <InstallPrompt />
             <NotificationPrompt />
-            <WhatsAppWidget />
           </>
         )}
       </TrackingWrapper>
