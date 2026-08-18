@@ -1,20 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://googlereviewai.com/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
-  <url><loc>https://googlereviewai.com/reviews</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://googlereviewai.com/maps-rank</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://googlereviewai.com/local-aeo</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://googlereviewai.com/gmb-post</loc><changefreq>weekly</changefreq><priority>0.85</priority></url>
-  <url><loc>https://googlereviewai.com/seo-auto-post</loc><changefreq>weekly</changefreq><priority>0.85</priority></url>
-  <url><loc>https://googlereviewai.com/pricing</loc><changefreq>monthly</changefreq><priority>0.85</priority></url>
-  <url><loc>https://googlereviewai.com/blog</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://googlereviewai.com/avis-ia-guide</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://googlereviewai.com/avis-ia-restaurant</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://googlereviewai.com/avis-ia-hotel</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://googlereviewai.com/gmb-autoposting-guide</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://googlereviewai.com/boutique</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://googlereviewai.com/boutique-nfc</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://googlereviewai.com/boutique-qr-imprime</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://googlereviewai.com/gmb-autoposting</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://googlereviewai.com/avis-ai-guide</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://googlereviewai.com/avis-ai-restaurant</loc><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://googlereviewai.com/avis-ai-hotel</loc><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://googlereviewai.com/restaurants</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://googlereviewai.com/hotels</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://googlereviewai.com/blog</loc><changefreq>weekly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://googlereviewai.com/checklist</loc><changefreq>monthly</changefreq><priority>0.75</priority></url>
+  <url><loc>https://googlereviewai.com/qr-gratuit</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://googlereviewai.com/shop</loc><changefreq>weekly</changefreq><priority>0.65</priority></url>
+  <url><loc>https://googlereviewai.com/sitemap</loc><changefreq>monthly</changefreq><priority>0.4</priority></url>
   <url><loc>https://googlereviewai.com/privacy</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
   <url><loc>https://googlereviewai.com/terms</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
 </urlset>
