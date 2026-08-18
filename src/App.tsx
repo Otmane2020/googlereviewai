@@ -62,6 +62,7 @@ import ShopCheckout from "./pages/ShopCheckout";
 import Restaurants from "./pages/Restaurants";
 import Hotels from "./pages/Hotels";
 import ProspectionStickers from "./pages/ProspectionStickers";
+import Sitemap from "./pages/Sitemap";
 import { DashboardLayout } from "./components/DashboardLayout";
 
 const Shell = ({ children }: { children: React.ReactNode }) => (
@@ -168,6 +169,7 @@ const AppContent = () => {
               <Route path="/businesses" element={<Shell><Businesses /></Shell>} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route path="/terms" element={<TermsOfService />} />
+              <Route path="/sitemap" element={<Sitemap />} />
               <Route path="/install" element={<Install />} />
               <Route path="/seo-autopost" element={<Shell><SEOAutoPost /></Shell>} />
               <Route path="/aeo-rank" element={<Shell><AEORank /></Shell>} />
