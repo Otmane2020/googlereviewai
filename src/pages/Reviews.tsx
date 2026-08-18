@@ -321,11 +321,7 @@ const Reviews = () => {
         if (refreshError) throw refreshError;
 
         if (!refreshData?.success || refreshData?.requires_reconnect || !refreshData?.access_token) {
-          toast({
-            title: t("reviewsPage.toastReconnect"),
-            description: t("reviewsPage.toastReconnectDesc"),
-            variant: "destructive",
-          });
+          setShowReconnectDialog(true);
           return;
         }
 
@@ -436,11 +432,7 @@ const Reviews = () => {
       fetchData(); // Refresh data after sync
     }
     if (result?.requires_reconnect) {
-      toast({
-        title: "Reconnexion requise",
-        description: t("reviewsPage.toastSessionExpired"),
-        variant: "destructive",
-      });
+      setShowReconnectDialog(true);
     }
   };
 
