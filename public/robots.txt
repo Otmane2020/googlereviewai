@@ -43,3 +43,5 @@ Disallow: /dashboard
 Disallow: /settings
 Disallow: /admin
 Disallow: /businesses
+
+# AI/LLM discovery: https://googlereviewai.com/llms.txt
