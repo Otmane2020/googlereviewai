@@ -5,8 +5,8 @@ interface RankiLogoProps {
 }
 
 /**
- * Ranki.ai logo — geo pin + ranking bars motif inside.
- * Filename kept as Ranki.aiLogo.tsx to avoid breaking imports across the app.
+ * GoogleReviewAI logo — geo pin + ranking bars motif inside.
+ * Filename kept as GoogleReviewAILogo.tsx to avoid breaking imports across the app.
  * Exported as both RankiLogo.
  */
 const RankiMark = ({ className = "w-8 h-8" }: { className?: string }) => (
@@ -43,13 +43,13 @@ export const RankiLogo = ({ className = "", showBadge = true, variant = "default
     <div className={`flex items-center gap-2 ${className}`}>
       <RankiMark className="h-7 w-7 sm:h-8 sm:w-8" />
       <div className="flex items-baseline">
-        <span className="text-lg sm:text-xl font-bold tracking-tight">Ranki</span>
+        <span className="text-lg sm:text-xl font-bold tracking-tight">GoogleReviewAI</span>
         <span className="text-lg sm:text-xl font-bold tracking-tight text-primary">.ai</span>
       </div>
     </div>
   );
 };
 
-// Backwards-compatible export — many files still import Ranki.aiLogo by name.
+// Backwards-compatible export — many files still import GoogleReviewAILogo by name.
 
 export { RankiLogo as StarlinkoLogo };

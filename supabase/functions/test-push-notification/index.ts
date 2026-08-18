@@ -49,7 +49,7 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         user_id: user.id,
-        title: "🔔 Test Ranki.ai",
+        title: "🔔 Test GoogleReviewAI",
         body: "Si vous voyez cette notification, tout fonctionne parfaitement !",
         url: "/notifications",
         icon: "/icon-512x512.png",

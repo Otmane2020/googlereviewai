@@ -1,6 +1,6 @@
-// Ranki.ai Service Worker - VAPID Web Push + PushAlert Integration
+// GoogleReviewAI Service Worker - VAPID Web Push + PushAlert Integration
 // Cache version: 2026-02-22-v4
-var CACHE_VERSION = 'ranki.ai-v4';
+var CACHE_VERSION = 'googlereviewai.com-v4';
 
 // Listen for skip waiting message from client
 self.addEventListener('message', function(event) {
@@ -52,18 +52,18 @@ self.addEventListener('push', function(event) {
     try {
       data = event.data.json();
     } catch (e) {
-      data = { title: 'Ranki.ai', body: event.data.text() };
+      data = { title: 'GoogleReviewAI', body: event.data.text() };
     }
   }
 
-  var title = data.title || 'Ranki.ai';
+  var title = data.title || 'GoogleReviewAI';
   var options = {
     body: data.body || '',
     icon: data.icon || '/icon-512x512.png',
     badge: '/icon-192x192.svg',
     data: { url: data.url || '/reviews' },
     vibrate: [200, 100, 200],
-    tag: 'ranki.ai-' + Date.now(),
+    tag: 'googlereviewai.com-' + Date.now(),
     renotify: true,
   };
 

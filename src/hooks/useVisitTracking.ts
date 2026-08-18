@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 
 // Generate a unique visitor ID
 const getOrCreateVisitorId = (): string => {
-  const storageKey = 'ranki.ai_vid';
+  const storageKey = 'googlereviewai.com_vid';
   let visitorId = localStorage.getItem(storageKey);
   if (!visitorId) {
     visitorId = 'v_' + Math.random().toString(36).substring(2) + Date.now().toString(36);
@@ -57,13 +57,13 @@ export const useVisitTracking = () => {
 
 // Helper to get visitor ID
 export const getVisitorId = (): string | null => {
-  return localStorage.getItem('ranki.ai_vid');
+  return localStorage.getItem('googlereviewai.com_vid');
 };
 
 // Helper to get current session data
 export const getSessionData = () => {
   try {
-    const data = sessionStorage.getItem('ranki.ai_session');
+    const data = sessionStorage.getItem('googlereviewai.com_session');
     return data ? JSON.parse(data) : null;
   } catch {
     return null;

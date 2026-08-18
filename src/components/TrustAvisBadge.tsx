@@ -24,7 +24,7 @@ export const TrustAvisBadge = () => {
   useEffect(() => {
     const script = document.createElement("script");
     script.src = "https://trust-avis.com/widgets/badge.js";
-    script.setAttribute("data-business", "ranki.ai");
+    script.setAttribute("data-business", "googlereviewai.com");
     script.setAttribute("data-theme", "light");
     script.async = true;
     document.head.appendChild(script);
@@ -41,7 +41,7 @@ export const TrustAvisCarousel = () => {
   useEffect(() => {
     const script = document.createElement("script");
     script.src = "https://trust-avis.com/widgets/carousel.js";
-    script.setAttribute("data-business", "ranki.ai");
+    script.setAttribute("data-business", "googlereviewai.com");
     script.setAttribute("data-theme", "light");
     script.setAttribute("data-count", "3");
     script.async = true;

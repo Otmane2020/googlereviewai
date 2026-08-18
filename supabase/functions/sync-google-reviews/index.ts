@@ -611,7 +611,7 @@ serve(async (req) => {
                   const firstName = userProfile.full_name?.split(" ")[0] || "";
                   const greeting = userLang === "en" ? `Hello${firstName ? ` ${firstName}` : ""},` : `Bonjour${firstName ? ` ${firstName}` : ""},`;
                   const cta = userLang === "en" ? "View my reviews" : "Voir mes avis";
-                  const html = `<!DOCTYPE html><html lang="${userLang}"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head><body style="margin:0;padding:0;background:#f9fafb;"><div style="max-width:600px;margin:0 auto;background:#ffffff;padding:40px 32px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;"><h1 style="color:#111827;font-size:24px;margin:0 0 24px 0;">${deletedTitle}</h1><p style="color:#6b7280;font-size:15px;line-height:1.6;">${greeting}</p><p style="color:#6b7280;font-size:15px;line-height:1.6;">${deletedEmailBody}</p><div style="margin:32px 0;"><a href="https://ranki.ai/reviews" style="display:inline-block;background:#2563eb;color:#ffffff;text-decoration:none;padding:14px 28px;border-radius:6px;font-size:15px;font-weight:500;">${cta}</a></div><p style="color:#9ca3af;font-size:12px;margin-top:32px;">© 2025 Ranki.ai</p></div></body></html>`;
+                  const html = `<!DOCTYPE html><html lang="${userLang}"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head><body style="margin:0;padding:0;background:#f9fafb;"><div style="max-width:600px;margin:0 auto;background:#ffffff;padding:40px 32px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;"><h1 style="color:#111827;font-size:24px;margin:0 0 24px 0;">${deletedTitle}</h1><p style="color:#6b7280;font-size:15px;line-height:1.6;">${greeting}</p><p style="color:#6b7280;font-size:15px;line-height:1.6;">${deletedEmailBody}</p><div style="margin:32px 0;"><a href="https://googlereviewai.com/reviews" style="display:inline-block;background:#2563eb;color:#ffffff;text-decoration:none;padding:14px 28px;border-radius:6px;font-size:15px;font-weight:500;">${cta}</a></div><p style="color:#9ca3af;font-size:12px;margin-top:32px;">© 2025 GoogleReviewAI</p></div></body></html>`;
                   await fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/send-email-notification`, {
                     method: "POST",
                     headers: {
@@ -622,7 +622,7 @@ serve(async (req) => {
                       to: userProfile.email,
                       subject: deletedTitle,
                       html,
-                      from_name: "Ranki.ai",
+                      from_name: "GoogleReviewAI",
                     }),
                   });
                 }

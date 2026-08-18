@@ -76,7 +76,7 @@ function drawStarsRow(pdf: jsPDF, cx: number, cy: number, count = 5, size = 3) {
 }
 
 function drawRankiLogo(pdf: jsPDF, x: number, y: number, scale = 1) {
-  // simple location-pin "R" mark + "Ranki.ai" text (Ranki dark, .ai blue)
+  // simple location-pin "R" mark + "GoogleReviewAI" text (GoogleReviewAI dark, .ai blue)
   // Pin
   const pinR = 2.2 * scale;
   pdf.setFillColor(20, 122, 88); // emerald-ish
@@ -91,8 +91,8 @@ function drawRankiLogo(pdf: jsPDF, x: number, y: number, scale = 1) {
   pdf.setFont("helvetica", "bold");
   pdf.setFontSize(9 * scale);
   pdf.setTextColor(30, 30, 30);
-  pdf.text("Ranki", txtX, y + 1.2 * scale);
-  const rw = pdf.getTextWidth("Ranki");
+  pdf.text("GoogleReviewAI", txtX, y + 1.2 * scale);
+  const rw = pdf.getTextWidth("GoogleReviewAI");
   pdf.setTextColor(G.blue[0], G.blue[1], G.blue[2]);
   pdf.text(".ai", txtX + rw, y + 1.2 * scale);
 }
@@ -157,7 +157,7 @@ async function drawSticker(
   const qrY = googleY + 19;
   pdf.addImage(qrDataUrl, "PNG", cx - qrSize / 2, qrY, qrSize, qrSize);
 
-  // Mention "Propulsé par Ranki.ai"
+  // Mention "Propulsé par GoogleReviewAI"
   const mentionY = cy + innerR - 9;
   pdf.setFont("helvetica", "normal");
   pdf.setFontSize(6.5);
@@ -226,16 +226,16 @@ function drawLetter(
     "quelques secondes, directement depuis leur téléphone",
     "via le QR code (lié à votre fiche).",
     "",
-    "Ce sticker est un cadeau offert par Ranki.ai pour vous",
+    "Ce sticker est un cadeau offert par GoogleReviewAI pour vous",
     "aider à collecter plus d'avis et améliorer votre",
     "visibilité locale.",
     "",
-    "Bonus : ouvrez un compte gratuit sur Ranki.ai pour",
+    "Bonus : ouvrez un compte gratuit sur GoogleReviewAI pour",
     "activer la réponse automatique à vos avis Google",
     "(notre IA répond avec votre ton de marque, 24/7).",
     "",
     "Belle journée,",
-    "L'équipe Ranki.ai",
+    "L'équipe GoogleReviewAI",
   ];
   let cy = y + 33;
   for (const line of body) {
@@ -251,7 +251,7 @@ function drawLetter(
   pdf.setFont("helvetica", "bold");
   pdf.setFontSize(8.5);
   pdf.setTextColor(20, 122, 88);
-  pdf.text("👉 Activez la réponse auto sur ranki.ai", x + 3, ctaY + 5.5);
+  pdf.text("👉 Activez la réponse auto sur googlereviewai.com", x + 3, ctaY + 5.5);
   pdf.setFont("helvetica", "normal");
   pdf.setFontSize(7);
   pdf.setTextColor(60, 60, 60);
@@ -265,7 +265,7 @@ function drawLetter(
   pdf.setFont("helvetica", "normal");
   pdf.setFontSize(6);
   pdf.setTextColor(150, 150, 150);
-  pdf.text("Ranki.ai · Répondeur automatique d'avis Google par IA", x, y + h - 2);
+  pdf.text("GoogleReviewAI · Répondeur automatique d'avis Google par IA", x, y + h - 2);
 }
 
 // ---------- page ----------

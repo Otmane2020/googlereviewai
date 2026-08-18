@@ -132,13 +132,13 @@ const AppContent = () => {
 
   const handleSplashComplete = async () => {
     setShowSplash(false);
-    const hasSeenOnboarding = localStorage.getItem("ranki.ai_onboarding_completed");
+    const hasSeenOnboarding = localStorage.getItem("googlereviewai.com_onboarding_completed");
     // Skip onboarding for already authenticated users
     const { data: { session } } = await supabase.auth.getSession();
     if (!hasSeenOnboarding && !session) {
       setShowOnboarding(true);
     } else {
-      if (session) localStorage.setItem("ranki.ai_onboarding_completed", "true");
+      if (session) localStorage.setItem("googlereviewai.com_onboarding_completed", "true");
       setIsInitialized(true);
     }
   };
@@ -146,7 +146,7 @@ const AppContent = () => {
   const handleOnboardingComplete = () => {
     setShowOnboarding(false);
     setIsInitialized(true);
-    localStorage.setItem("ranki.ai_onboarding_completed", "true");
+    localStorage.setItem("googlereviewai.com_onboarding_completed", "true");
   };
 
   // Show minimal loader while we determine standalone status (instead of null for old devices)

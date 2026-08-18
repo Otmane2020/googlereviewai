@@ -14,7 +14,7 @@ const supabaseAdmin = createClient(
 // Plan configurations
 // agencyPoolCredits: total credits added to the user's agency pool (to be allocated per business)
 const PLAN_CONFIG: Record<string, { credits: number; maxBusinesses: number; planName: string; agencyPoolCredits?: number; tier: number }> = {
-  // ===== NEW Ranki.ai plans (June 2026) =====
+  // ===== NEW GoogleReviewAI plans (June 2026) =====
   "price_1TjxSJEfti9t9nN9XgMVswCh": { credits: 50,  maxBusinesses: 1,   planName: "Starter",         tier: 1 }, // 9.99€/mo
   "price_1TjxSJEfti9t9nN91VDBOxZX": { credits: 50,  maxBusinesses: 1,   planName: "Starter Annuel",  tier: 1 }, // 95.90€/yr
   "price_1TjxSKEfti9t9nN9HAzRfqz8": { credits: 300, maxBusinesses: 3,   planName: "Pro",             tier: 3 }, // 49€/mo
@@ -111,9 +111,9 @@ function renderWebhookSubscriptionEmail(kind: "cancelled" | "renewed", lang: Web
   const accentBox = kind === "cancelled"
     ? `<div style="background: #fef3c7; border-radius: 6px; padding: 16px; margin: 24px 0; border-left: 3px solid #f59e0b;"><p style="font-family: -apple-system, sans-serif; color: #92400e; font-size: 14px; margin: 0;">${t.cancelledNote}</p></div>`
     : `<div style="background: #ecfdf5; border-radius: 8px; padding: 20px; margin: 24px 0; text-align: center;"><p style="font-family: -apple-system, sans-serif; color: #065f46; font-size: 12px; margin: 0 0 4px 0; text-transform: uppercase; letter-spacing: 0.5px;">${t.creditsReloaded}</p><p style="font-family: -apple-system, sans-serif; color: #111827; font-size: 36px; font-weight: 700; margin: 0;">${credits}</p></div>`;
-  const ctaUrl = kind === "cancelled" ? "https://ranki.ai/select-plan" : "https://ranki.ai/dashboard";
+  const ctaUrl = kind === "cancelled" ? "https://googlereviewai.com/select-plan" : "https://googlereviewai.com/dashboard";
   const ctaText = kind === "cancelled" ? t.plans : t.cta;
-  const html = `<!DOCTYPE html><html lang="${lang}"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head><body style="margin: 0; padding: 0; background-color: #f9fafb;"><div style="max-width: 600px; margin: 0 auto; background-color: #ffffff;"><div style="background: #ffffff; padding: 32px 24px; border-bottom: 1px solid #e5e7eb;"><table cellpadding="0" cellspacing="0" border="0"><tr><td style="vertical-align: middle;"><img src="https://ranki.ai/favicon.png" width="32" height="32" alt="Ranki.ai" /></td><td style="vertical-align: middle; padding-left: 12px;"><span style="font-family: -apple-system, sans-serif; font-weight: 600; font-size: 18px; color: #111827;">Ranki.ai</span></td></tr></table></div><div style="padding: 40px 32px;"><h1 style="font-family: -apple-system, sans-serif; color: #111827; font-size: 24px; font-weight: 600; margin: 0 0 24px 0;">${title}</h1><p style="font-family: -apple-system, sans-serif; color: #6b7280; font-size: 15px; line-height: 1.6; margin: 0 0 24px 0;">${t.hello}${firstName ? ` ${firstName}` : ""},</p><p style="font-family: -apple-system, sans-serif; color: #6b7280; font-size: 15px; line-height: 1.6; margin: 0 0 24px 0;">${body}</p>${accentBox}<div style="text-align: left; margin: 32px 0;"><a href="${ctaUrl}" style="display: inline-block; background-color: #2563eb; color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 6px; font-family: -apple-system, sans-serif; font-size: 15px; font-weight: 500;">${ctaText}</a></div><p style="font-family: -apple-system, sans-serif; color: #9ca3af; font-size: 13px; line-height: 1.6; margin: 24px 0 0 0;">${t.question}</p></div><div style="padding: 24px; text-align: center; border-top: 1px solid #e5e7eb;"><p style="font-family: -apple-system, sans-serif; color: #9ca3af; font-size: 12px; margin: 0;">© 2025 Ranki.ai</p></div></div></body></html>`;
+  const html = `<!DOCTYPE html><html lang="${lang}"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head><body style="margin: 0; padding: 0; background-color: #f9fafb;"><div style="max-width: 600px; margin: 0 auto; background-color: #ffffff;"><div style="background: #ffffff; padding: 32px 24px; border-bottom: 1px solid #e5e7eb;"><table cellpadding="0" cellspacing="0" border="0"><tr><td style="vertical-align: middle;"><img src="https://googlereviewai.com/favicon.png" width="32" height="32" alt="GoogleReviewAI" /></td><td style="vertical-align: middle; padding-left: 12px;"><span style="font-family: -apple-system, sans-serif; font-weight: 600; font-size: 18px; color: #111827;">GoogleReviewAI</span></td></tr></table></div><div style="padding: 40px 32px;"><h1 style="font-family: -apple-system, sans-serif; color: #111827; font-size: 24px; font-weight: 600; margin: 0 0 24px 0;">${title}</h1><p style="font-family: -apple-system, sans-serif; color: #6b7280; font-size: 15px; line-height: 1.6; margin: 0 0 24px 0;">${t.hello}${firstName ? ` ${firstName}` : ""},</p><p style="font-family: -apple-system, sans-serif; color: #6b7280; font-size: 15px; line-height: 1.6; margin: 0 0 24px 0;">${body}</p>${accentBox}<div style="text-align: left; margin: 32px 0;"><a href="${ctaUrl}" style="display: inline-block; background-color: #2563eb; color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 6px; font-family: -apple-system, sans-serif; font-size: 15px; font-weight: 500;">${ctaText}</a></div><p style="font-family: -apple-system, sans-serif; color: #9ca3af; font-size: 13px; line-height: 1.6; margin: 24px 0 0 0;">${t.question}</p></div><div style="padding: 24px; text-align: center; border-top: 1px solid #e5e7eb;"><p style="font-family: -apple-system, sans-serif; color: #9ca3af; font-size: 12px; margin: 0;">© 2025 GoogleReviewAI</p></div></div></body></html>`;
   return { subject, html };
 }
 
@@ -384,7 +384,7 @@ serve(async (req) => {
                     profile.full_name,
                     cancelledPlan,
                   ),
-                  from_name: "Ranki.ai",
+                  from_name: "GoogleReviewAI",
                 }),
               }
             );
@@ -453,7 +453,7 @@ serve(async (req) => {
                           config.planName,
                           config.credits,
                         ),
-                        from_name: "Ranki.ai",
+                        from_name: "GoogleReviewAI",
                       }),
                     }
                   );

@@ -49,8 +49,8 @@ function emailTemplate1(name: string, cartSummary: string, lang: Lang = "fr"): s
     <div style="background:#ffffff;padding:32px 24px;border-bottom:1px solid #e5e7eb;">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td style="vertical-align:middle;"><img src="https://ranki.ai/favicon.png" width="32" height="32" alt="Ranki.ai" /></td>
-          <td style="vertical-align:middle;padding-left:12px;"><span style="font-family:-apple-system,sans-serif;font-weight:600;font-size:18px;color:#111827;">Ranki.ai</span></td>
+          <td style="vertical-align:middle;"><img src="https://googlereviewai.com/favicon.png" width="32" height="32" alt="GoogleReviewAI" /></td>
+          <td style="vertical-align:middle;padding-left:12px;"><span style="font-family:-apple-system,sans-serif;font-weight:600;font-size:18px;color:#111827;">GoogleReviewAI</span></td>
         </tr>
       </table>
     </div>
@@ -61,11 +61,11 @@ function emailTemplate1(name: string, cartSummary: string, lang: Lang = "fr"): s
       <div style="background:#f3f4f6;border-radius:8px;padding:20px;margin:24px 0;">${cartSummary}</div>
       <p style="font-family:-apple-system,sans-serif;color:#6b7280;font-size:15px;line-height:1.6;margin:0 0 24px 0;">${T.push}</p>
       <div style="text-align:center;margin:32px 0;">
-        <a href="https://ranki.ai/choose-plan" style="display:inline-block;background-color:#2563eb;color:#ffffff;text-decoration:none;padding:14px 32px;border-radius:8px;font-family:-apple-system,sans-serif;font-size:16px;font-weight:600;">${T.cta}</a>
+        <a href="https://googlereviewai.com/choose-plan" style="display:inline-block;background-color:#2563eb;color:#ffffff;text-decoration:none;padding:14px 32px;border-radius:8px;font-family:-apple-system,sans-serif;font-size:16px;font-weight:600;">${T.cta}</a>
       </div>
     </div>
     <div style="padding:24px;text-align:center;border-top:1px solid #e5e7eb;">
-      <p style="font-family:-apple-system,sans-serif;color:#9ca3af;font-size:12px;margin:0;">© 2025 Ranki.ai · <a href="https://ranki.ai" style="color:#9ca3af;">ranki.ai</a></p>
+      <p style="font-family:-apple-system,sans-serif;color:#9ca3af;font-size:12px;margin:0;">© 2025 GoogleReviewAI · <a href="https://googlereviewai.com" style="color:#9ca3af;">googlereviewai.com</a></p>
     </div>
   </div>
 </body>
@@ -86,7 +86,7 @@ function emailTemplate2(name: string, cartSummary: string, couponCode: string, d
   };
   return `<!DOCTYPE html><html lang="${lang}"><body style="margin:0;padding:0;background-color:#f9fafb;font-family:-apple-system,sans-serif;">
   <div style="max-width:600px;margin:0 auto;background:#ffffff;">
-    <div style="padding:32px 24px;border-bottom:1px solid #e5e7eb;"><strong>Ranki.ai</strong></div>
+    <div style="padding:32px 24px;border-bottom:1px solid #e5e7eb;"><strong>GoogleReviewAI</strong></div>
     <div style="padding:40px 32px;">
       <div style="background:linear-gradient(135deg,#2563eb,#7c3aed);border-radius:12px;padding:24px;text-align:center;margin:0 0 32px 0;color:#fff;">
         <p style="margin:0 0 8px;text-transform:uppercase;letter-spacing:1px;font-size:14px;">${T.badge}</p>
@@ -102,10 +102,10 @@ function emailTemplate2(name: string, cartSummary: string, couponCode: string, d
         <p style="color:#92400e;font-size:12px;margin:8px 0 0;">${T.valid}</p>
       </div>
       <div style="text-align:center;margin:32px 0;">
-        <a href="https://ranki.ai/choose-plan" style="display:inline-block;background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;text-decoration:none;padding:14px 32px;border-radius:8px;font-size:16px;font-weight:600;">${T.cta}</a>
+        <a href="https://googlereviewai.com/choose-plan" style="display:inline-block;background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;text-decoration:none;padding:14px 32px;border-radius:8px;font-size:16px;font-weight:600;">${T.cta}</a>
       </div>
     </div>
-    <div style="padding:24px;text-align:center;border-top:1px solid #e5e7eb;color:#9ca3af;font-size:12px;">© 2025 Ranki.ai</div>
+    <div style="padding:24px;text-align:center;border-top:1px solid #e5e7eb;color:#9ca3af;font-size:12px;">© 2025 GoogleReviewAI</div>
   </div>
 </body></html>`;
 }
@@ -118,7 +118,7 @@ function emailTemplate3(name: string, cartSummary: string, couponCode: string, l
     free: en ? "1 month FREE" : "1 mois OFFERT",
     expires: en ? "Offer expires in 24h" : "Offre qui expire dans 24h",
     title: en ? `Last chance${firstName ? `, ${firstName}` : ""}! ⏰` : `Dernière chance${firstName ? `, ${firstName}` : ""} ! ⏰`,
-    intro: en ? "This is our <strong>best offer</strong>: a full month free to try Ranki.ai risk-free." : "C'est notre <strong>meilleure offre</strong> : un mois entier gratuit pour essayer Ranki.ai sans risque.",
+    intro: en ? "This is our <strong>best offer</strong>: a full month free to try GoogleReviewAI risk-free." : "C'est notre <strong>meilleure offre</strong> : un mois entier gratuit pour essayer GoogleReviewAI sans risque.",
     promo: en ? "🎁 Exclusive code - 1 month free" : "🎁 Code exclusif - 1 mois offert",
     valid: en ? "⚡ Expires in 24h" : "⚡ Expire dans 24h",
     bullets: en ? "✅ Cancel anytime · ✅ No commitment · ✅ Secure data" : "✅ Annuler à tout moment · ✅ Sans engagement · ✅ Données sécurisées",
@@ -127,7 +127,7 @@ function emailTemplate3(name: string, cartSummary: string, couponCode: string, l
   };
   return `<!DOCTYPE html><html lang="${lang}"><body style="margin:0;padding:0;background-color:#f9fafb;font-family:-apple-system,sans-serif;">
   <div style="max-width:600px;margin:0 auto;background:#ffffff;">
-    <div style="padding:32px 24px;border-bottom:1px solid #e5e7eb;"><strong>Ranki.ai</strong></div>
+    <div style="padding:32px 24px;border-bottom:1px solid #e5e7eb;"><strong>GoogleReviewAI</strong></div>
     <div style="padding:40px 32px;">
       <div style="background:linear-gradient(135deg,#dc2626,#ea580c);border-radius:12px;padding:24px;text-align:center;margin:0 0 32px 0;color:#fff;">
         <p style="margin:0 0 8px;font-size:14px;">${T.flag}</p>
@@ -144,11 +144,11 @@ function emailTemplate3(name: string, cartSummary: string, couponCode: string, l
       </div>
       <div style="background:#ecfdf5;border-radius:8px;padding:16px;margin:24px 0;color:#065f46;font-size:14px;">${T.bullets}</div>
       <div style="text-align:center;margin:32px 0;">
-        <a href="https://ranki.ai/choose-plan" style="display:inline-block;background:linear-gradient(135deg,#dc2626,#ea580c);color:#fff;text-decoration:none;padding:16px 36px;border-radius:8px;font-size:18px;font-weight:700;">${T.cta}</a>
+        <a href="https://googlereviewai.com/choose-plan" style="display:inline-block;background:linear-gradient(135deg,#dc2626,#ea580c);color:#fff;text-decoration:none;padding:16px 36px;border-radius:8px;font-size:18px;font-weight:700;">${T.cta}</a>
       </div>
       <p style="color:#9ca3af;font-size:13px;text-align:center;margin:16px 0;">${T.foot}</p>
     </div>
-    <div style="padding:24px;text-align:center;border-top:1px solid #e5e7eb;color:#9ca3af;font-size:12px;">© 2025 Ranki.ai</div>
+    <div style="padding:24px;text-align:center;border-top:1px solid #e5e7eb;color:#9ca3af;font-size:12px;">© 2025 GoogleReviewAI</div>
   </div>
 </body></html>`;
 }
@@ -156,7 +156,7 @@ function emailTemplate3(name: string, cartSummary: string, couponCode: string, l
 
 // ─── Cart Summary HTML ─────────────────────────────────────────────
 function buildCartSummary(items: any[], billingCycle: string): string {
-  if (!items || items.length === 0) return "<p>Votre sélection Ranki.ai</p>";
+  if (!items || items.length === 0) return "<p>Votre sélection GoogleReviewAI</p>";
   
   return items.map((item: any) => `
     <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #e5e7eb;">
@@ -215,7 +215,7 @@ async function sendEmail(to: string, subject: string, html: string): Promise<boo
           "Content-Type": "application/json",
           "Authorization": `Bearer ${Deno.env.get("SUPABASE_ANON_KEY")}`,
         },
-        body: JSON.stringify({ to, subject, html, from_name: "Ranki.ai" }),
+        body: JSON.stringify({ to, subject, html, from_name: "GoogleReviewAI" }),
       }
     );
     const result = await response.json();

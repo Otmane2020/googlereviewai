@@ -197,7 +197,7 @@ export const NotificationPrompt = () => {
       if (isIOS && !isStandalone && !isInstalled) {
         toast({
           title: "Installez l'app d'abord",
-          description: "Sur iPhone, ajoutez Ranki à l'écran d'accueil pour activer les notifications.",
+          description: "Sur iPhone, ajoutez GoogleReviewAI à l'écran d'accueil pour activer les notifications.",
           variant: "destructive",
         });
         setIsSubscribing(false);

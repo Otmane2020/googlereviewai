@@ -434,8 +434,8 @@ ${lang.jsonOnly}
       ],
       temperature: 0.7,
       max_tokens: 4000,
-      referer: "https://ranki.ai",
-      title: "Ranki.ai GEO Content",
+      referer: "https://googlereviewai.com",
+      title: "GoogleReviewAI GEO Content",
     });
     
     console.log(`[generate-seo-content] AI response length: ${content.length}`);

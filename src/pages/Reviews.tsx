@@ -146,7 +146,7 @@ const Reviews = () => {
   // Load saved business selection from localStorage
   useEffect(() => {
     if (user) {
-      const savedBusinessId = localStorage.getItem(`ranki.ai_selected_business_${user.id}`);
+      const savedBusinessId = localStorage.getItem(`googlereviewai.com_selected_business_${user.id}`);
       if (savedBusinessId) {
         setSelectedBusinessId(savedBusinessId);
       }
@@ -157,7 +157,7 @@ const Reviews = () => {
   const handleBusinessChange = (businessId: string) => {
     setSelectedBusinessId(businessId);
     if (user) {
-      localStorage.setItem(`ranki.ai_selected_business_${user.id}`, businessId);
+      localStorage.setItem(`googlereviewai.com_selected_business_${user.id}`, businessId);
     }
     setCurrentPage(1);
   };
@@ -186,12 +186,12 @@ const Reviews = () => {
     
     // Auto-select first business if none selected or saved selection not found
     if (businessesList.length > 0) {
-      const savedBusinessId = localStorage.getItem(`ranki.ai_selected_business_${user.id}`);
+      const savedBusinessId = localStorage.getItem(`googlereviewai.com_selected_business_${user.id}`);
       if (savedBusinessId && businessesList.some(b => b.id === savedBusinessId)) {
         setSelectedBusinessId(savedBusinessId);
       } else {
         setSelectedBusinessId(businessesList[0].id);
-        localStorage.setItem(`ranki.ai_selected_business_${user.id}`, businessesList[0].id);
+        localStorage.setItem(`googlereviewai.com_selected_business_${user.id}`, businessesList[0].id);
       }
     }
     

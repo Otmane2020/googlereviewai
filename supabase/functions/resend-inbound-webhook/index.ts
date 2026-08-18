@@ -94,7 +94,7 @@ serve(async (req) => {
     
     <div style="padding: 16px 24px; text-align: center; border-top: 1px solid #e5e7eb;">
       <p style="color: #9ca3af; font-size: 12px; margin: 0;">
-        Notification automatique — Ranki.ai Support
+        Notification automatique — GoogleReviewAI Support
       </p>
     </div>
   </div>
@@ -109,7 +109,7 @@ serve(async (req) => {
         Authorization: `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: "Ranki.ai Support <support@ranki.ai>",
+        from: "GoogleReviewAI Support <support@ranki.ai>",
         to: [NOTIFY_EMAIL],
         reply_to: senderEmail || undefined,
         subject: `[Support] ${subject}`,

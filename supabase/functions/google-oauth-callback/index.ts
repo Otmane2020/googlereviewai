@@ -82,7 +82,7 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({ 
           error: "No refresh token received. Please revoke app access in Google account settings and try again.",
-          hint: "Go to https://myaccount.google.com/permissions and remove Ranki.ai, then reconnect."
+          hint: "Go to https://myaccount.google.com/permissions and remove GoogleReviewAI, then reconnect."
         }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );

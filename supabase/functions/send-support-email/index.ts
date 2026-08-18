@@ -7,7 +7,7 @@ const corsHeaders = {
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 const SUPPORT_EMAIL = "oben.rockman@gmail.com";
-const FROM_EMAIL = "Ranki.ai Support <support@ranki.ai>";
+const FROM_EMAIL = "GoogleReviewAI Support <support@ranki.ai>";
 
 // Professional email design system
 const STYLES = {
@@ -57,10 +57,10 @@ serve(async (req) => {
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
           <td style="vertical-align: middle;">
-            <img src="https://ranki.ai/favicon.png" width="32" height="32" alt="Ranki.ai" style="display: block;" />
+            <img src="https://googlereviewai.com/favicon.png" width="32" height="32" alt="GoogleReviewAI" style="display: block;" />
           </td>
           <td style="vertical-align: middle; padding-left: 12px;">
-            <span style="font-family: ${STYLES.fontFamily}; font-weight: 600; font-size: 18px; color: ${STYLES.textPrimary};">Ranki.ai Support</span>
+            <span style="font-family: ${STYLES.fontFamily}; font-weight: 600; font-size: 18px; color: ${STYLES.textPrimary};">GoogleReviewAI Support</span>
           </td>
         </tr>
       </table>
@@ -111,7 +111,7 @@ serve(async (req) => {
     
     <div style="padding: 16px 24px; text-align: center; border-top: 1px solid ${STYLES.borderLight};">
       <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textMuted}; font-size: 12px; margin: 0;">
-        Envoyé depuis l'application Ranki.ai
+        Envoyé depuis l'application GoogleReviewAI
       </p>
     </div>
   </div>

@@ -28,10 +28,10 @@ interface AvisAIRestaurantProps {
 const AvisAIRestaurant = ({
   canonicalSlug = "avis-ai-restaurant",
   breadcrumbName = "AI Reviews for Restaurants",
-  pageTitle = "AI Google Reviews for Restaurants – Auto Replies | Ranki.ai",
+  pageTitle = "AI Google Reviews for Restaurants – Auto Replies | GoogleReviewAI",
   pageDescription = "Automate Google review management for your restaurant with AI. Personalized replies in under 2 hours, tone tuned for hospitality. Free 7-day trial.",
 }: AvisAIRestaurantProps = {}) => {
-  const canonicalUrl = `https://ranki.ai/${canonicalSlug}`;
+  const canonicalUrl = `https://googlereviewai.com/${canonicalSlug}`;
   const benefits = [
     { icon: Clock, title: "Reply within 2 hours", description: "Your guests get a personalized reply automatically — even at night and on weekends." },
     { icon: MessageSquare, title: "Tone tuned for hospitality", description: "The AI understands culinary vocabulary and replies with warmth and professionalism." },
@@ -53,18 +53,18 @@ const AvisAIRestaurant = ({
   ];
 
   const restaurantFaqs = [
-    { question: "How do I automate Google review responses for my restaurant?", answer: "Ranki.ai connects to your Google Business Profile and uses AI to analyze every review you receive. The AI generates a personalized reply tuned for the restaurant industry and publishes it automatically within 2 hours — including evenings and weekends." },
-    { question: "Does the AI understand culinary vocabulary when replying?", answer: "Yes. Ranki.ai's AI is specifically trained for the hospitality sector. It understands culinary terms, adapts its tone to your venue type (fine dining, bistro, pizzeria), and can reference specific dishes or services mentioned in the review." },
-    { question: "How does the AI handle negative restaurant reviews?", answer: "Ranki.ai generates diplomatic, professional responses to negative reviews. The AI acknowledges the issue, offers a sincere apology and proposes a resolution — all while protecting your restaurant's image. You can validate or edit the reply before publishing if you wish." },
+    { question: "How do I automate Google review responses for my restaurant?", answer: "GoogleReviewAI connects to your Google Business Profile and uses AI to analyze every review you receive. The AI generates a personalized reply tuned for the restaurant industry and publishes it automatically within 2 hours — including evenings and weekends." },
+    { question: "Does the AI understand culinary vocabulary when replying?", answer: "Yes. GoogleReviewAI's AI is specifically trained for the hospitality sector. It understands culinary terms, adapts its tone to your venue type (fine dining, bistro, pizzeria), and can reference specific dishes or services mentioned in the review." },
+    { question: "How does the AI handle negative restaurant reviews?", answer: "GoogleReviewAI generates diplomatic, professional responses to negative reviews. The AI acknowledges the issue, offers a sincere apology and proposes a resolution — all while protecting your restaurant's image. You can validate or edit the reply before publishing if you wish." },
     { question: "What impact do review replies have on a restaurant's Google rating?", answer: "Restaurants that consistently reply to reviews get on average +40% more positive reviews. Fast, personalized replies encourage happy guests to share their experience and reassure future customers reading your responses." },
-    { question: "How much time does a restaurant owner save with Ranki.ai?", answer: "On average, restaurant owners using Ranki.ai save 15 minutes per day on review management. The AI handles 98% of reviews automatically so you can focus on your kitchen and your service." }
+    { question: "How much time does a restaurant owner save with GoogleReviewAI?", answer: "On average, restaurant owners using GoogleReviewAI save 15 minutes per day on review management. The AI handles 98% of reviews automatically so you can focus on your kitchen and your service." }
   ];
 
   return (
     <>
       <FAQPageSchema faqs={restaurantFaqs} />
       <BreadcrumbSchema items={[
-        { name: "Home", url: "https://ranki.ai" },
+        { name: "Home", url: "https://googlereviewai.com" },
         { name: breadcrumbName, url: canonicalUrl }
       ]} />
       <Helmet>
@@ -82,7 +82,7 @@ const AvisAIRestaurant = ({
           {JSON.stringify({
             "@context": "https://schema.org",
             "@type": "SoftwareApplication",
-            "name": "Ranki.ai for Restaurants",
+            "name": "GoogleReviewAI for Restaurants",
             "applicationCategory": "BusinessApplication",
             "operatingSystem": "Web",
             "description": "AI solution for automated Google review management for restaurants",
@@ -144,7 +144,7 @@ const AvisAIRestaurant = ({
           <section className="py-16 sm:py-24">
             <div className="container mx-auto px-4">
               <div className="text-center mb-12">
-                <h2 className="text-3xl sm:text-4xl font-bold mb-4">Why restaurants choose Ranki.ai</h2>
+                <h2 className="text-3xl sm:text-4xl font-bold mb-4">Why restaurants choose GoogleReviewAI</h2>
                 <p className="text-muted-foreground max-w-2xl mx-auto">
                   A solution built for hospitality professionals who don't have the time to manually reply to every review.
                 </p>
@@ -229,7 +229,7 @@ const AvisAIRestaurant = ({
             <div className="container mx-auto px-4 text-center">
               <h2 className="text-3xl sm:text-4xl font-bold mb-4">Ready to automate your replies?</h2>
               <p className="text-orange-100 mb-8 max-w-xl mx-auto">
-                Join restaurant owners saving 15 minutes a day with Ranki.ai.
+                Join restaurant owners saving 15 minutes a day with GoogleReviewAI.
               </p>
               <Button size="lg" variant="secondary" asChild>
                 <Link to="/auth">

@@ -19,13 +19,13 @@ export default function Commandes() {
   const T = en ? {
     title: "My orders", paySuccess: "Payment successful! Order recorded.",
     loading: "Loading…", empty: "No orders yet.", seeShop: "See the shop",
-    nfc: "Ranki NFC card", qr: "Printed adhesive QR",
+    nfc: "GoogleReviewAI NFC card", qr: "Printed adhesive QR",
     shipping: "shipping", back: "Back", tracking: "Tracking",
     status: { pending: "Awaiting payment", paid: "Paid — preparing", shipped: "Shipped", delivered: "Delivered", failed: "Payment failed" },
   } : {
     title: "Mes commandes", paySuccess: "Paiement réussi ! Commande enregistrée.",
     loading: "Chargement…", empty: "Aucune commande pour le moment.", seeShop: "Voir la boutique",
-    nfc: "Carte NFC Ranki", qr: "QR code adhésif imprimé",
+    nfc: "Carte NFC GoogleReviewAI", qr: "QR code adhésif imprimé",
     shipping: "livraison", back: "Retour", tracking: "Suivi",
     status: { pending: "En attente de paiement", paid: "Payé — préparation", shipped: "Expédié", delivered: "Livré", failed: "Échec paiement" },
   };

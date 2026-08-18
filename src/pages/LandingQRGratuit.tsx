@@ -15,13 +15,13 @@ export default function LandingQRGratuit() {
   const startUrl = "/auth?next=/boutique/qr-imprime";
 
   useEffect(() => {
-    document.title = "Plaque NFC + QR Google Avis — Offerte | Ranki.ai";
+    document.title = "Plaque NFC + QR Google Avis — Offerte | GoogleReviewAI";
     const setMeta = (name: string, content: string) => {
       let el = document.querySelector(`meta[name="${name}"]`) as HTMLMetaElement | null;
       if (!el) { el = document.createElement("meta"); el.name = name; document.head.appendChild(el); }
       el.content = content;
     };
-    setMeta("description", "Recevez gratuitement votre plaque NFC + QR code Google Avis. Vos clients tapent ou scannent — vous récoltez des avis 5★. Offerte à tous les utilisateurs Ranki.ai.");
+    setMeta("description", "Recevez gratuitement votre plaque NFC + QR code Google Avis. Vos clients tapent ou scannent — vous récoltez des avis 5★. Offerte à tous les utilisateurs GoogleReviewAI.");
   }, []);
 
   return (
@@ -32,7 +32,7 @@ export default function LandingQRGratuit() {
       <header className="sticky top-0 z-30 bg-white/80 backdrop-blur border-b">
         <div className="container max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
           <Link to="/" className="font-bold flex items-center gap-2">
-            <span className="text-amber-500">★</span> Ranki.ai
+            <span className="text-amber-500">★</span> GoogleReviewAI
           </Link>
           <Button asChild size="sm" className="bg-emerald-600 hover:bg-emerald-700">
             <Link to={startUrl}>Recevoir mon QR gratuit</Link>
@@ -53,7 +53,7 @@ export default function LandingQRGratuit() {
           <p className="text-lg text-muted-foreground mt-5">
             Plaque premium 12×12 cm. Vos clients <strong className="text-foreground">tapent leur téléphone (NFC)</strong> ou
             <strong className="text-foreground"> scannent le QR code</strong> — et laissent un avis Google en quelques secondes.
-            <strong className="text-foreground"> Offerte à tous les utilisateurs Ranki.ai</strong>, quel que soit le plan.
+            <strong className="text-foreground"> Offerte à tous les utilisateurs GoogleReviewAI</strong>, quel que soit le plan.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 mt-7">
@@ -133,7 +133,7 @@ export default function LandingQRGratuit() {
             <ul className="space-y-2 text-sm">
               <li className="flex items-start gap-2"><CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" /> Format 12 × 12 cm, plastique premium</li>
               <li className="flex items-start gap-2"><CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" /> Puce NFC <strong>+</strong> QR code dynamique</li>
-              <li className="flex items-start gap-2"><CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" /> Lien modifiable à vie depuis Ranki.ai</li>
+              <li className="flex items-start gap-2"><CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" /> Lien modifiable à vie depuis GoogleReviewAI</li>
               <li className="flex items-start gap-2"><CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" /> Adhésif inclus + support à poser</li>
             </ul>
           </div>
@@ -201,13 +201,13 @@ export default function LandingQRGratuit() {
           </Link>
         </Button>
         <p className="text-xs text-muted-foreground mt-4">
-          Offerte à tous les utilisateurs Ranki.ai — tous les plans, y compris gratuit.
+          Offerte à tous les utilisateurs GoogleReviewAI — tous les plans, y compris gratuit.
         </p>
       </section>
 
       <footer className="border-t bg-white">
         <div className="container max-w-6xl mx-auto px-4 py-6 text-center text-xs text-muted-foreground">
-          © {new Date().getFullYear()} Ranki.ai · <Link to="/privacy" className="underline">Confidentialité</Link> · <Link to="/terms" className="underline">CGV</Link>
+          © {new Date().getFullYear()} GoogleReviewAI · <Link to="/privacy" className="underline">Confidentialité</Link> · <Link to="/terms" className="underline">CGV</Link>
         </div>
       </footer>
     </div>

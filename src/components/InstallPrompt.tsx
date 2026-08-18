@@ -50,9 +50,9 @@ export const InstallPrompt = () => {
         <div className="bg-card rounded-2xl shadow-2xl w-full max-w-sm p-6 animate-scale-in">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <img src="/icon-192x192.png" alt="Ranki" className="w-12 h-12 rounded-xl shadow" />
+              <img src="/icon-192x192.png" alt="GoogleReviewAI" className="w-12 h-12 rounded-xl shadow" />
               <div>
-                <h3 className="font-bold text-base">Installer Ranki</h3>
+                <h3 className="font-bold text-base">Installer GoogleReviewAI</h3>
                 <p className="text-xs text-muted-foreground">Accès rapide + notifications</p>
               </div>
             </div>
@@ -81,7 +81,7 @@ export const InstallPrompt = () => {
           ) : canInstall ? (
             <>
               <p className="text-sm text-muted-foreground mb-5">
-                Installez Ranki sur votre appareil pour un accès en un clic et recevoir les notifications de nouveaux avis.
+                Installez GoogleReviewAI sur votre appareil pour un accès en un clic et recevoir les notifications de nouveaux avis.
               </p>
               <div className="flex gap-2">
                 <Button variant="outline" onClick={handleDismiss} className="flex-1">Plus tard</Button>
@@ -109,9 +109,9 @@ export const InstallPrompt = () => {
     <div className="fixed left-2 right-2 bottom-[80px] md:bottom-4 z-40 bg-primary text-primary-foreground shadow-2xl rounded-2xl animate-fade-in">
       <div className="px-3 py-2.5 flex items-center justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0">
-          <img src="/icon-192x192.png" alt="Ranki" className="w-9 h-9 rounded-xl flex-shrink-0 shadow-md" />
+          <img src="/icon-192x192.png" alt="GoogleReviewAI" className="w-9 h-9 rounded-xl flex-shrink-0 shadow-md" />
           <div className="min-w-0">
-            <p className="font-semibold text-sm truncate">Installer Ranki</p>
+            <p className="font-semibold text-sm truncate">Installer GoogleReviewAI</p>
             <p className="text-xs opacity-90 truncate">Accès rapide + notifications</p>
           </div>
         </div>

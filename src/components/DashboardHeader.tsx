@@ -80,7 +80,7 @@ export const DashboardHeader = ({ className }: { className?: string } = {}) => {
     <header className={`sticky top-0 z-50 bg-background/95 backdrop-blur-xl border-b border-border/50 ${className ?? ""}`}>
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between gap-2 h-14">
-          <Link to="/dashboard" className="flex-shrink-0 md:hidden" aria-label="Ranki home">
+          <Link to="/dashboard" className="flex-shrink-0 md:hidden" aria-label="GoogleReviewAI home">
             <RankiLogo className="text-foreground scale-90" />
           </Link>
           <div className="flex-1" />

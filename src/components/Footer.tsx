@@ -73,7 +73,7 @@ export const Footer = () => {
 
         <div className="pt-6 sm:pt-8 border-t border-card/10 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs sm:text-sm text-card/60 text-center sm:text-left">
-            © {new Date().getFullYear()} Ranki.ai – {t("landingUI.footer.rights")}.
+            © {new Date().getFullYear()} GoogleReviewAI – {t("landingUI.footer.rights")}.
           </p>
           <div className="text-xs sm:text-sm text-card/60">
             {t("landingUI.footer.tagShort")}

@@ -44,8 +44,8 @@ const Auth = () => {
       } catch (e) {
         console.error("[Auth] checkout redirect error:", e);
         toast({
-          title: "Erreur",
-          description: "Impossible de démarrer le paiement. Réessayez depuis le tableau de bord.",
+          title: t("auth.errors.title"),
+          description: t("auth.errors.checkoutFailed"),
           variant: "destructive",
         });
       }
@@ -135,10 +135,10 @@ const Auth = () => {
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
       <Helmet>
-        <title>Sign in or create your account | Ranki.ai</title>
-        <meta name="description" content="Access your Ranki.ai account to manage AI review responses, local SEO and GEO ranking for your business." />
+        <title>Sign in or create your account | GoogleReviewAI</title>
+        <meta name="description" content="Access your GoogleReviewAI account to manage AI review responses, local SEO and GEO ranking for your business." />
         <meta name="robots" content="noindex, follow" />
-        <link rel="canonical" href="https://ranki.ai/auth" />
+        <link rel="canonical" href="https://googlereviewai.com/auth" />
       </Helmet>
 
       {/* Left panel */}
@@ -167,7 +167,7 @@ const Auth = () => {
           </ul>
         </div>
         <p className="text-card/60 text-sm">
-          © {new Date().getFullYear()} Ranki.ai. {t("common.allRightsReserved")}
+          © {new Date().getFullYear()} GoogleReviewAI. {t("common.allRightsReserved")}
         </p>
       </div>
 
@@ -204,10 +204,10 @@ const Auth = () => {
 
             <div>
               <h2 className="text-2xl font-bold text-foreground">
-                Connectez-vous à Ranki.ai
+                {t("auth.signInTitle")}
               </h2>
               <p className="text-muted-foreground mt-2">
-                Connexion sécurisée avec votre compte Google — nécessaire pour synchroniser votre fiche Google Business Profile.
+                {t("auth.signInSubtitle")}
               </p>
             </div>
 
@@ -227,7 +227,7 @@ const Auth = () => {
                     <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
                     <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
                   </svg>
-                  Continuer avec Google
+                  {t("auth.continueWithGoogle")}
                 </>
               )}
             </Button>
@@ -235,7 +235,7 @@ const Auth = () => {
             <div className="flex items-start gap-2 text-xs text-muted-foreground bg-muted/40 rounded-lg p-3">
               <ShieldCheck className="w-4 h-4 mt-0.5 text-primary shrink-0" />
               <span>
-                Après votre connexion Google, vous serez redirigé vers le paiement sécurisé Stripe pour démarrer votre essai gratuit de 7 jours.
+                {t("auth.stripeNotice")}
               </span>
             </div>
 

@@ -211,7 +211,7 @@ Génère UNIQUEMENT le contenu de l'article (pas le titre), prêt à être publi
                 ],
                 max_tokens: 1000,
                 temperature: 0.7,
-                title: "Ranki.ai SEO Generator",
+                title: "GoogleReviewAI SEO Generator",
                 apiKey: openRouterApiKey,
               })).trim();
             } catch (err) {

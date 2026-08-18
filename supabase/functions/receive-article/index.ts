@@ -101,7 +101,7 @@ Deno.serve(async (req) => {
           slug: sanitizedSlug,
           source_id: articleSourceId || null,
           meta_description: articleMetaDescription || null,
-          author: author || 'Équipe Ranki.ai',
+          author: author || 'Équipe GoogleReviewAI',
           updated_at: new Date().toISOString(),
         },
         { onConflict: 'slug' }
@@ -126,7 +126,7 @@ Deno.serve(async (req) => {
           id: data.id,
           slug: data.slug,
           title: data.title,
-          url: `https://ranki.ai/blog/${data.slug}`,
+          url: `https://googlereviewai.com/blog/${data.slug}`,
         },
       }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

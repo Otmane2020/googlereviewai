@@ -1,5 +1,5 @@
-# Ranki.ai – GEO platform for Local Rank in ChatGPT, Gemini & Perplexity
-# https://ranki.ai
+# GoogleReviewAI – GEO platform for Local Rank in ChatGPT, Gemini & Perplexity
+# https://googlereviewai.com
 
 User-agent: Googlebot
 Allow: /
@@ -87,4 +87,4 @@ Disallow: /payment-success
 Disallow: /payment-canceled
 Disallow: /auth
 
-Sitemap: https://ranki.ai/sitemap.xml
+Sitemap: https://googlereviewai.com/sitemap.xml

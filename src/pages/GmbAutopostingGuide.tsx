@@ -78,20 +78,20 @@ const GmbAutopostingGuide = () => {
   return (
     <>
       <Helmet>
-        <title>Autoposting Google My Business avec IA - Améliorer son SEO Local | Ranki.ai</title>
+        <title>Autoposting Google My Business avec IA - Améliorer son SEO Local | GoogleReviewAI</title>
         <meta 
           name="description" 
           content="Automatisez vos publications Google My Business avec l'IA. Posts quotidiens, Q&A optimisés AEO, articles SEO locaux. Boostez votre référencement local sans effort." 
         />
         <meta name="keywords" content="google my business autoposting, publication automatique gmb, seo local ia, posts gmb automatiques, référencement local, aeo chatgpt" />
-        <link rel="canonical" href="https://ranki.ai/gmb-autoposting" />
+        <link rel="canonical" href="https://googlereviewai.com/gmb-autoposting" />
         
         {/* Open Graph */}
         <meta property="og:title" content="Autoposting Google My Business avec IA - Boostez votre SEO Local" />
         <meta property="og:description" content="Publications automatiques sur GMB, Q&A AEO pour ChatGPT, articles SEO locaux. L'IA au service de votre visibilité." />
-        <meta property="og:url" content="https://ranki.ai/gmb-autoposting" />
+        <meta property="og:url" content="https://googlereviewai.com/gmb-autoposting" />
         <meta property="og:type" content="website" />
-        <meta property="og:image" content="https://ranki.ai/og-image.png" />
+        <meta property="og:image" content="https://googlereviewai.com/og-image.png" />
         
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
@@ -103,7 +103,7 @@ const GmbAutopostingGuide = () => {
           {JSON.stringify({
             "@context": "https://schema.org",
             "@type": "SoftwareApplication",
-            "name": "Ranki.ai - Autoposting Google My Business",
+            "name": "GoogleReviewAI - Autoposting Google My Business",
             "applicationCategory": "BusinessApplication",
             "operatingSystem": "Web",
             "description": "Solution IA d'autoposting pour Google My Business. Publications automatiques, Q&A AEO, articles SEO locaux.",
