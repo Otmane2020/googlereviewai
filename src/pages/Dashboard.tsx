@@ -502,9 +502,13 @@ const Dashboard = () => {
                 setSyncStep("businesses");
                 await syncBusinesses(); 
                 setSyncStep("reviews");
-                await syncReviews();
+                const syncResult = await syncReviews();
                 setSyncStep("complete");
                 fetchData();
+                if (syncResult?.requires_reconnect) {
+                  setShowSyncProgress(false);
+                  setShowReconnectDialog(true);
+                }
               }}
               disabled={isSyncing}
             >
@@ -627,7 +631,7 @@ const Dashboard = () => {
                   variant="ghost" 
                   size="sm" 
                   className="text-xs text-destructive h-7"
-                  onClick={() => navigate("/settings")}
+                  onClick={() => setShowReconnectDialog(true)}
                 >
                   Reconnect
                 </Button>
@@ -915,9 +919,13 @@ const Dashboard = () => {
                   setSyncStep("businesses");
                   await syncBusinesses(); 
                   setSyncStep("reviews");
-                  await syncReviews();
+                  const syncResult = await syncReviews();
                   setSyncStep("complete");
                   fetchData();
+                  if (syncResult?.requires_reconnect) {
+                    setShowSyncProgress(false);
+                    setShowReconnectDialog(true);
+                  }
                 }}
                 disabled={isSyncing}
               >
