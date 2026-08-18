@@ -108,10 +108,12 @@ export async function getGoogleAccessToken(
         };
       }
 
+      // 400/401 = invalid credentials or client mismatch -> user must reconnect
+      const authFailure = tokenResponse.status === 400 || tokenResponse.status === 401;
       return { 
         token: null, 
-        error: `Token refresh failed: ${tokenResponse.status}`, 
-        requires_reconnect: false 
+        error: `Token refresh failed: ${tokenResponse.status}${errorData.error ? ` (${errorData.error})` : ""}`, 
+        requires_reconnect: authFailure 
       };
     }
 

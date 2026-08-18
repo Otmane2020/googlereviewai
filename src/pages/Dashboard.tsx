@@ -12,6 +12,7 @@ import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { ConnectGMBDialog } from "@/components/ConnectGMBDialog";
 import { SyncProgressOverlay } from "@/components/SyncProgressOverlay";
 import { SelectBusinessesDialog } from "@/components/SelectBusinessesDialog";
+import { ReconnectGoogleDialog } from "@/components/ReconnectGoogleDialog";
 import { LowCreditsBanner } from "@/components/LowCreditsBanner";
 import { UTMBuilderDialog } from "@/components/UTMBuilderDialog";
 import { GmbInsightsCard } from "@/components/GmbInsightsCard";
