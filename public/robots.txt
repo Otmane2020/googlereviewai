@@ -1,66 +1,45 @@
 User-agent: *
 Allow: /
-Disallow: /auth
-Disallow: /reset-password
-Disallow: /select-plan
-Disallow: /choose-plan
+Disallow: /dashboard
+Disallow: /settings
+Disallow: /admin
+Disallow: /admin-orders
+Disallow: /businesses
+Disallow: /notifications
 Disallow: /checkout
+Disallow: /choose-plan
 Disallow: /payment-success
 Disallow: /payment-canceled
-Disallow: /onboarding
-Disallow: /dashboard
-Disallow: /calendar
-Disallow: /reviews
-Disallow: /ai-settings
-Disallow: /settings
-Disallow: /businesses
-Disallow: /seo-autopost
-Disallow: /aeo-rank
-Disallow: /maps-rank
-Disallow: /notifications
+Disallow: /auth
+Disallow: /reset-password
 Disallow: /install
-Disallow: /admin
-Disallow: /admin/
-Disallow: /commandes
-Disallow: /prospection-stickers
-Disallow: /gmb-post
 
 Sitemap: https://googlereviewai.com/sitemap.xml
 
 User-agent: GPTBot
 Allow: /
 Disallow: /dashboard
-Disallow: /calendar
-Disallow: /reviews
 Disallow: /settings
-Disallow: /businesses
 Disallow: /admin
+Disallow: /businesses
 
 User-agent: OAI-SearchBot
 Allow: /
 Disallow: /dashboard
-Disallow: /calendar
-Disallow: /reviews
 Disallow: /settings
-Disallow: /businesses
 Disallow: /admin
+Disallow: /businesses
 
 User-agent: ClaudeBot
 Allow: /
 Disallow: /dashboard
-Disallow: /calendar
-Disallow: /reviews
 Disallow: /settings
-Disallow: /businesses
 Disallow: /admin
+Disallow: /businesses
 
 User-agent: PerplexityBot
 Allow: /
 Disallow: /dashboard
-Disallow: /calendar
-Disallow: /reviews
 Disallow: /settings
-Disallow: /businesses
 Disallow: /admin
-
-# LLM discovery document: /llms.txt
+Disallow: /businesses

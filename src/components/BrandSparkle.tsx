@@ -10,7 +10,7 @@ interface BrandSparkleProps extends React.HTMLAttributes<HTMLImageElement> {
  */
 export const BrandSparkle = ({ className, ...props }: BrandSparkleProps) => (
   <img
-    src="/favicon.svg"
+    src="/logo-mark.png"
     alt=""
     aria-hidden="true"
     draggable={false}

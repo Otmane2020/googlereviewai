@@ -77,7 +77,7 @@ export const OnboardingScreen = ({ onComplete }: OnboardingScreenProps) => {
         {/* Icon */}
         <div className={`w-24 h-24 rounded-3xl ${currentStep === 0 ? "bg-white border border-border" : `bg-gradient-to-br ${step.color}`} flex items-center justify-center mb-8 shadow-xl`}>
           {currentStep === 0 ? (
-            <img src="/favicon.svg" alt="GoogleReviewAI" className="w-14 h-14" />
+            <img src="/logo-mark.png" alt="GoogleReviewAI" className="w-14 h-14" />
           ) : (
             <step.icon className="w-12 h-12 text-white" />
           )}
