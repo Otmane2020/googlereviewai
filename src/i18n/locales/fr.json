@@ -529,7 +529,9 @@
       "cannotCreateAccount": "Impossible de créer le compte",
       "nameRequired": "Veuillez entrer votre nom complet",
       "googleError": "Erreur Google",
-      "unexpectedError": "Une erreur inattendue s'est produite"
+      "unexpectedError": "Une erreur inattendue s'est produite",
+      "title": "Erreur",
+      "checkoutFailed": "Impossible de démarrer le paiement. Réessayez depuis le tableau de bord."
     },
     "success": {
       "loginSuccess": "Connexion réussie !",
@@ -540,7 +542,10 @@
     "loading": {
       "connecting": "Connexion en cours...",
       "redirecting": "Redirection..."
-    }
+    },
+    "signInTitle": "Connectez-vous à GoogleReviewAI",
+    "signInSubtitle": "Connexion sécurisée avec votre compte Google — nécessaire pour synchroniser votre fiche Google Business Profile.",
+    "stripeNotice": "Après votre connexion Google, vous serez redirigé vers le paiement sécurisé Stripe pour démarrer votre essai gratuit de 7 jours."
   },
   "footer": {
     "description": "Solution IA pour gérer et répondre automatiquement à vos avis Google.",

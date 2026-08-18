@@ -529,7 +529,9 @@
       "cannotCreateAccount": "Unable to create account",
       "nameRequired": "Please enter your full name",
       "googleError": "Google error",
-      "unexpectedError": "An unexpected error occurred"
+      "unexpectedError": "An unexpected error occurred",
+      "title": "Error",
+      "checkoutFailed": "Could not start checkout. Please try again from your dashboard."
     },
     "success": {
       "loginSuccess": "Login successful!",
@@ -540,7 +542,10 @@
     "loading": {
       "connecting": "Connecting...",
       "redirecting": "Redirecting..."
-    }
+    },
+    "signInTitle": "Sign in to GoogleReviewAI",
+    "signInSubtitle": "Secure sign-in with your Google account — required to sync your Google Business Profile.",
+    "stripeNotice": "After signing in with Google, you'll be redirected to secure Stripe checkout to start your 7-day free trial."
   },
   "footer": {
     "description": "AI solution to manage and automatically respond to your Google reviews.",

@@ -204,10 +204,10 @@ const Auth = () => {
 
             <div>
               <h2 className="text-2xl font-bold text-foreground">
-                Connectez-vous à GoogleReviewAI
+                {t("auth.signInTitle")}
               </h2>
               <p className="text-muted-foreground mt-2">
-                Connexion sécurisée avec votre compte Google — nécessaire pour synchroniser votre fiche Google Business Profile.
+                {t("auth.signInSubtitle")}
               </p>
             </div>
 
