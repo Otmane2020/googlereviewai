@@ -1,72 +1,63 @@
 import { Helmet } from "react-helmet";
 
-// Organization schema - used on homepage
+const BRAND_NAME = "Google Review AI";
+const SITE_URL = "https://googlereviewai.com";
+const LOGO_URL = `${SITE_URL}/icon-512x512.svg`;
+
 export const OrganizationSchema = () => (
   <Helmet>
     <script type="application/ld+json">
       {JSON.stringify({
         "@context": "https://schema.org",
         "@type": "Organization",
-        "name": "GoogleReviewAI",
-        "url": "https://googlereviewai.com",
-        "logo": "https://googlereviewai.com/og-image.png",
-        "description": "GoogleReviewAI est une plateforme IA pour la gestion automatique des avis Google, le SEO local et l'optimisation AEO (Answer Engine Optimization) pour les entreprises locales.",
-        "foundingDate": "2024",
-        "sameAs": [],
-        "contactPoint": {
+        "@id": `${SITE_URL}/#organization`,
+        name: BRAND_NAME,
+        url: SITE_URL,
+        logo: {
+          "@type": "ImageObject",
+          url: LOGO_URL,
+        },
+        description:
+          "Google Review AI is an AI-powered platform for Google review management, Google Business Profile automation, local SEO and local AI visibility.",
+        email: "support@googlereviewai.com",
+        contactPoint: {
           "@type": "ContactPoint",
-          "contactType": "customer support",
-          "availableLanguage": ["French", "English"],
-          "url": "https://googlereviewai.com"
+          contactType: "customer support",
+          email: "support@googlereviewai.com",
+          availableLanguage: ["English", "French"],
         },
-        "offers": {
-          "@type": "AggregateOffer",
-          "lowPrice": "0",
-          "highPrice": "39",
-          "priceCurrency": "EUR",
-          "offerCount": "3"
-        },
-        "aggregateRating": {
-          "@type": "AggregateRating",
-          "ratingValue": "4.8",
-          "reviewCount": "500",
-          "bestRating": "5",
-          "worstRating": "1"
-        }
       })}
     </script>
   </Helmet>
 );
 
-// WebSite schema with search - used on homepage
 export const WebSiteSchema = () => (
   <Helmet>
     <script type="application/ld+json">
       {JSON.stringify({
         "@context": "https://schema.org",
         "@type": "WebSite",
-        "name": "GoogleReviewAI",
-        "url": "https://googlereviewai.com",
-        "description": "IA pour Google Business Profile & Avis Google – Réponses automatiques, SEO local, AEO ChatGPT",
-        "inLanguage": ["fr", "en"],
-        "publisher": {
-          "@type": "Organization",
-          "name": "GoogleReviewAI"
-        }
+        "@id": `${SITE_URL}/#website`,
+        name: BRAND_NAME,
+        alternateName: "GoogleReviewAI",
+        url: SITE_URL,
+        description:
+          "AI-powered Google review responses, Google Business Profile automation, local SEO and Local AEO tools for businesses.",
+        inLanguage: ["en", "fr"],
+        publisher: {
+          "@id": `${SITE_URL}/#organization`,
+        },
       })}
     </script>
   </Helmet>
 );
 
-// SoftwareApplication schema - used on homepage and product pages
 export const SoftwareApplicationSchema = ({
-  name = "GoogleReviewAI",
-  description = "Plateforme IA tout-en-un pour la gestion des avis Google, le SEO local automatisé et l'optimisation AEO pour ChatGPT et les moteurs de réponse IA.",
+  name = BRAND_NAME,
+  description = "AI-powered Google review management, review response automation, Google Business Profile publishing, local rank tracking and Local AEO tools.",
   price = "0",
   priceCurrency = "EUR",
-  ratingValue = "4.8",
-  ratingCount = "500",
-  operatingSystem = "Web, Android",
+  operatingSystem = "Web",
 }: {
   name?: string;
   description?: string;
@@ -81,81 +72,82 @@ export const SoftwareApplicationSchema = ({
       {JSON.stringify({
         "@context": "https://schema.org",
         "@type": "SoftwareApplication",
-        "name": name,
-        "applicationCategory": "BusinessApplication",
-        "applicationSubCategory": "Reputation Management",
-        "operatingSystem": operatingSystem,
-        "description": description,
-        "url": "https://googlereviewai.com",
-        "offers": {
+        "@id": `${SITE_URL}/#software`,
+        name,
+        url: SITE_URL,
+        applicationCategory: "BusinessApplication",
+        applicationSubCategory: "Reputation Management Software",
+        operatingSystem,
+        description,
+        brand: {
+          "@type": "Brand",
+          name: BRAND_NAME,
+        },
+        publisher: {
+          "@id": `${SITE_URL}/#organization`,
+        },
+        offers: {
           "@type": "Offer",
-          "price": price,
-          "priceCurrency": priceCurrency,
-          "description": "Essai gratuit 7 jours, puis à partir de 32,50€/mois"
+          price,
+          priceCurrency,
+          url: `${SITE_URL}/pricing`,
         },
-        "aggregateRating": {
-          "@type": "AggregateRating",
-          "ratingValue": ratingValue,
-          "ratingCount": ratingCount,
-          "bestRating": "5",
-          "worstRating": "1"
-        },
-        "featureList": [
-          "Réponses automatiques IA aux avis Google",
-          "SEO local automatisé",
-          "Optimisation AEO pour ChatGPT et Gemini",
-          "Publications automatiques Google Business Profile",
-          "Dashboard de suivi de réputation",
-          "Support multilingue"
-        ]
+        featureList: [
+          "Google review monitoring",
+          "AI-generated Google review responses",
+          "Automatic and assisted review reply publishing",
+          "Google Business Profile synchronization",
+          "Google Business Profile post automation",
+          "Google Maps rank tracking",
+          "Local SEO recommendations",
+          "Local AEO and AI-search visibility analysis",
+          "Multi-business management",
+        ],
       })}
     </script>
   </Helmet>
 );
 
-// FAQPage schema - used on content/guide pages
 export const FAQPageSchema = ({ faqs }: { faqs: { question: string; answer: string }[] }) => (
   <Helmet>
     <script type="application/ld+json">
       {JSON.stringify({
         "@context": "https://schema.org",
         "@type": "FAQPage",
-        "mainEntity": faqs.map((faq) => ({
+        mainEntity: faqs.map((faq) => ({
           "@type": "Question",
-          "name": faq.question,
-          "acceptedAnswer": {
+          name: faq.question,
+          acceptedAnswer: {
             "@type": "Answer",
-            "text": faq.answer
-          }
-        }))
+            text: faq.answer,
+          },
+        })),
       })}
     </script>
   </Helmet>
 );
 
-// BreadcrumbList schema
 export const BreadcrumbSchema = ({ items }: { items: { name: string; url: string }[] }) => (
   <Helmet>
     <script type="application/ld+json">
       {JSON.stringify({
         "@context": "https://schema.org",
         "@type": "BreadcrumbList",
-        "itemListElement": items.map((item, index) => ({
+        itemListElement: items.map((item, index) => ({
           "@type": "ListItem",
-          "position": index + 1,
-          "name": item.name,
-          "item": item.url
-        }))
+          position: index + 1,
+          name: item.name,
+          item: item.url,
+        })),
       })}
     </script>
   </Helmet>
 );
 
-// Product schema for pricing pages
 export const ProductSchema = ({
-  name = "GoogleReviewAI Pack Complet",
-  description = "Solution IA tout-en-un : réponses aux avis Google, SEO local, AEO ChatGPT, publications automatiques.",
-  price = "32.50",
+  name = "Google Review AI",
+  description = "Google review management and local visibility software with AI-assisted replies and Google Business Profile automation.",
+  price = "0",
   priceCurrency = "EUR",
 }: {
   name?: string;
@@ -168,55 +160,20 @@ export const ProductSchema = ({
       {JSON.stringify({
         "@context": "https://schema.org",
         "@type": "Product",
-        "name": name,
-        "description": description,
-        "brand": {
+        name,
+        description,
+        url: `${SITE_URL}/pricing`,
+        brand: {
           "@type": "Brand",
-          "name": "GoogleReviewAI"
+          name: BRAND_NAME,
         },
-        "offers": {
+        offers: {
           "@type": "Offer",
-          "price": price,
-          "priceCurrency": priceCurrency,
-          "availability": "https://schema.org/InStock",
-          "priceValidUntil": "2027-12-31",
-          "url": "https://googlereviewai.com/select-plan"
+          price,
+          priceCurrency,
+          availability: "https://schema.org/InStock",
+          url: `${SITE_URL}/pricing`,
         },
-        "aggregateRating": {
-          "@type": "AggregateRating",
-          "ratingValue": "4.8",
-          "reviewCount": "500",
-          "bestRating": "5",
-          "worstRating": "1"
-        },
-        "review": [
-          {
-            "@type": "Review",
-            "reviewRating": {
-              "@type": "Rating",
-              "ratingValue": "5",
-              "bestRating": "5"
-            },
-            "author": {
-              "@type": "Person",
-              "name": "Marie D."
-            },
-            "reviewBody": "Service impeccable ! L'équipe est très professionnelle et à l'écoute. Je recommande vivement."
-          },
-          {
-            "@type": "Review",
-            "reviewRating": {
-              "@type": "Rating",
-              "ratingValue": "5",
-              "bestRating": "5"
-            },
-            "author": {
-              "@type": "Person",
-              "name": "Pierre L."
-            },
-            "reviewBody": "GoogleReviewAI a transformé notre gestion des avis. Gain de temps considérable et réponses de qualité."
-          }
-        ]
       })}
     </script>
   </Helmet>
