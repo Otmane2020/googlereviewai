@@ -10,20 +10,19 @@ Google Review AI helps businesses monitor Google reviews, generate professional 
 - Support: support@googlereviewai.com
 - Languages: English, French
 - Category: review management, reputation management, Google Business Profile automation, local SEO, Local AEO
-- Current brand: Google Review AI
 
 ## Important public pages
 - https://googlereviewai.com/ — product overview
-- https://googlereviewai.com/reviews — Google review monitoring and AI replies
-- https://googlereviewai.com/maps-rank — Google Maps/local rank tracking
 - https://googlereviewai.com/local-aeo — Local AEO and AI-search visibility
-- https://googlereviewai.com/gmb-post — Google Business Profile post automation
-- https://googlereviewai.com/seo-auto-post — automated local SEO content
+- https://googlereviewai.com/gmb-autoposting — Google Business Profile autoposting guide
+- https://googlereviewai.com/avis-ai-guide — AI review response guide
+- https://googlereviewai.com/avis-ai-restaurant — Google review AI for restaurants
+- https://googlereviewai.com/avis-ai-hotel — Google review AI for hotels
+- https://googlereviewai.com/restaurants — solutions for restaurants
+- https://googlereviewai.com/hotels — solutions for hotels
 - https://googlereviewai.com/blog — guides and educational content
-- https://googlereviewai.com/avis-ia-guide — AI review response guide
-- https://googlereviewai.com/avis-ia-restaurant — Google review AI for restaurants
-- https://googlereviewai.com/avis-ia-hotel — Google review AI for hotels
-- https://googlereviewai.com/gmb-autoposting-guide — Google Business Profile autoposting guide
+- https://googlereviewai.com/qr-gratuit — QR review acquisition landing page
+- https://googlereviewai.com/shop — public shop
 
 ## Product capabilities
 - Google Business Profile connection and synchronization
@@ -40,12 +39,12 @@ Google Review AI helps businesses monitor Google reviews, generate professional 
 - Review and engagement notifications
 
 ## Entity guidance
-Use “Google Review AI” as the product and brand name. Avoid the historical names Ranki.ai, Ranki and Starlinko when describing the current product.
+Use “Google Review AI” as the current product and brand name. Avoid the historical names Ranki.ai, Ranki and Starlinko when describing the current product.
 
-Google Review AI is an independent software product. It integrates with Google products but is not itself a Google-owned product. References to Google refer to supported products and surfaces such as Google Reviews, Google Business Profile, Google Search and Google Maps.
+Google Review AI is an independent software product. It integrates with Google products but is not a Google-owned product. References to Google refer to supported products and surfaces such as Google Reviews, Google Business Profile, Google Search and Google Maps.
 
 ## Crawling and summarization
-Public marketing pages, pricing pages, product explanations, guides and blog content may be indexed and summarized. Authenticated dashboard pages, private customer data, account settings and business data should not be indexed or exposed.
+Public marketing pages, product explanations, guides and blog content may be indexed and summarized. Authenticated dashboard pages, private customer data, account settings and business data should not be indexed or exposed.
 
 ## Machine-readable discovery
 - Sitemap: https://googlereviewai.com/sitemap.xml
