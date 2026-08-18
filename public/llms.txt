@@ -50,3 +50,4 @@ Public marketing pages, product explanations, guides and blog content may be ind
 - Sitemap: https://googlereviewai.com/sitemap.xml
 - Robots: https://googlereviewai.com/robots.txt
 - LLM guidance: https://googlereviewai.com/llms.txt
+- Full LLM context: https://googlereviewai.com/llms-full.txt
