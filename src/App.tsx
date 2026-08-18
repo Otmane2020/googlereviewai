@@ -14,7 +14,7 @@ import { OnboardingScreen } from "@/components/OnboardingScreen";
 import { supabase } from "@/integrations/supabase/client";
 import { usePWA } from "@/hooks/usePWA";
 import { useVisitTracking } from "@/hooks/useVisitTracking";
-import "@/i18n/config";
+import i18n, { detectBrowserLanguage } from "@/i18n/config";
 
 const APP_CACHE_VERSION = "2026-08-tanstack-start";
 
@@ -27,8 +27,10 @@ function ClientRuntime() {
   useVisitTracking();
 
   useEffect(() => {
-    const w = window as any;
+    const language = detectBrowserLanguage();
+    if (language !== i18n.language) void i18n.changeLanguage(language);
 
+    const w = window as any;
     if (!w.__rankiPwaPromptListenerInstalled) {
       w.__rankiPwaPromptListenerInstalled = true;
       window.addEventListener("beforeinstallprompt", (event) => {
