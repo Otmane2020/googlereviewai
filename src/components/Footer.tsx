@@ -17,8 +17,7 @@ export const Footer = () => {
       { label: t("landingUI.footer.terms"), href: "/terms" },
     ]},
     { title: t("landingUI.footer.support"), links: [
-      { label: "support@ranki.ai", href: "mailto:support@ranki.ai" },
-      { label: "WhatsApp: +33 7 49 07 22 81", href: "https://wa.me/33749072281" },
+      { label: "support@googlereviewai.com", href: "mailto:support@googlereviewai.com" },
     ]},
   ];
 
