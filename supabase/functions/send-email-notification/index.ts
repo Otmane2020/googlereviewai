@@ -12,6 +12,13 @@ interface EmailRequest {
   from_name?: string;
 }
 
+const normalizeSenderName = (name?: string) => {
+  const value = (name || "").trim();
+  if (!value || /^(GoogleReviewAI|Google ReviewAI|Ranki(?:\.ai)?|Starlinko)$/i.test(value)) return "Google Review AI";
+  if (/^(GoogleReviewAI|Ranki(?:\.ai)?|Starlinko)\s+Support$/i.test(value)) return "Google Review AI Support";
+  return value;
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
@@ -23,7 +30,7 @@ serve(async (req) => {
       });
     }
 
-    const { to, subject, html, from_name = "Google Review AI" }: EmailRequest = await req.json();
+    const { to, subject, html, from_name }: EmailRequest = await req.json();
     if (!to || !subject || !html) {
       return new Response(JSON.stringify({ error: "Missing required fields: to, subject, html" }), {
         status: 400,
@@ -31,11 +38,12 @@ serve(async (req) => {
       });
     }
 
+    const senderName = normalizeSenderName(from_name);
     const response = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${RESEND_API_KEY}` },
       body: JSON.stringify({
-        from: `${from_name || "Google Review AI"} <support@ranki.ai>`,
+        from: `${senderName} <support@ranki.ai>`,
         to: [to],
         subject,
         html,
