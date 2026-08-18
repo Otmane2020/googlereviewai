@@ -73,7 +73,7 @@ export const useParams = <T extends Record<string, string | undefined> = Record<
   const tanstackParams = useTanStackParams({ strict: false }) as Record<string, string | undefined>;
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const parts = pathname.split("/").filter(Boolean);
-  const last = parts.at(-1);
+  const last = parts.length ? parts[parts.length - 1] : undefined;
   const inferred: Record<string, string | undefined> = { ...tanstackParams };
 
   if (!inferred.slug && last && (parts[0] === "blog" || parts[0] === "shop")) inferred.slug = decodeURIComponent(last);
@@ -105,7 +105,17 @@ export const useSearchParams = (): [URLSearchParams, (next: any, options?: any) 
 };
 
 const RouterLink = React.forwardRef<HTMLAnchorElement, any>((props, ref) => {
-  const { to, replace: _replace, state, relative: _relative, reloadDocument, preventScrollReset: _prevent, viewTransition: _viewTransition, children, ...rest } = props;
+  const {
+    to,
+    replace: _replace,
+    state,
+    relative: _relative,
+    reloadDocument,
+    preventScrollReset: _prevent,
+    viewTransition: _viewTransition,
+    children,
+    ...rest
+  } = props;
   const href = toHref(to);
 
   if (reloadDocument || isExternalHref(href)) {
@@ -120,7 +130,7 @@ const RouterLink = React.forwardRef<HTMLAnchorElement, any>((props, ref) => {
       to={url.pathname as any}
       search={Object.keys(search).length ? (search as any) : undefined}
       hash={url.hash ? url.hash.slice(1) : undefined}
-      state={state}
+      state={state as any}
       {...rest}
     >
       {children}
@@ -135,8 +145,12 @@ export const NavLink = React.forwardRef<HTMLAnchorElement, any>((props, ref) => 
   const location = useLocation();
   const href = toHref(props.to);
   const isActive = activeFor(location.pathname, href, Boolean(props.end));
-  const className = typeof props.className === "function" ? props.className({ isActive, isPending: false, isTransitioning: false }) : props.className;
-  const style = typeof props.style === "function" ? props.style({ isActive, isPending: false, isTransitioning: false }) : props.style;
+  const className = typeof props.className === "function"
+    ? props.className({ isActive, isPending: false, isTransitioning: false })
+    : props.className;
+  const style = typeof props.style === "function"
+    ? props.style({ isActive, isPending: false, isTransitioning: false })
+    : props.style;
   return <RouterLink {...props} ref={ref} className={className} style={style} aria-current={isActive ? "page" : undefined} />;
 });
 NavLink.displayName = "NavLink";
@@ -152,7 +166,7 @@ export const Navigate = ({ to, replace, state }: any) => {
 const patternToRegex = (pattern: string, end = true) => {
   const escaped = pattern
     .replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
-    .replace(/\\:([A-Za-z0-9_]+)/g, "(?<$1>[^/]+)")
+    .replace(/:([A-Za-z0-9_]+)/g, "(?<$1>[^/]+)")
     .replace(/\\\*/g, ".*");
   return new RegExp(`^${escaped}${end ? "$" : "(?:/|$)"}`);
 };
@@ -191,7 +205,9 @@ export const useOutletContext = <T,>() => undefined as T;
 export const useRouteError = () => undefined;
 export const ScrollRestoration = () => null;
 
-// Transitional wrappers for legacy components that still render a router boundary.
+// Transitional wrappers for isolated legacy components. The application-level
+// router is TanStack Router; these wrappers intentionally do not create a
+// second history implementation.
 export const BrowserRouter = ({ children }: any) => <>{children}</>;
 export const HashRouter = BrowserRouter;
 export const MemoryRouter = BrowserRouter;
@@ -200,12 +216,17 @@ export const Route = (_props: any) => null;
 export const Routes = ({ children }: any) => {
   const { pathname } = useLocation();
   const entries = React.Children.toArray(children) as React.ReactElement<any>[];
+  let wildcard: React.ReactElement<any> | undefined;
   for (const child of entries) {
     const { path, index, element } = child.props || {};
+    if (path === "*") {
+      wildcard = child;
+      continue;
+    }
     if (index && pathname === "/") return element ?? null;
-    if (path === "*" || matchPath({ path: path || "/", end: true }, pathname)) return element ?? null;
+    if (matchPath({ path: path || "/", end: true }, pathname)) return element ?? null;
   }
-  return null;
+  return wildcard?.props?.element ?? null;
 };
 
 export const RouterProvider = ({ children }: any) => <>{children}</>;
