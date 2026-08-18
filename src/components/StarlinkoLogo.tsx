@@ -16,16 +16,9 @@ const AISparkle = () => (
   </svg>
 );
 
-const GoogleWord = ({ mono }: { mono: boolean }) => mono ? (
-  <span className="text-current">Google</span>
-) : (
-  <span aria-label="Google">
-    <span className="text-[#4285F4]">G</span>
-    <span className="text-[#EA4335]">o</span>
-    <span className="text-[#FBBC05]">o</span>
-    <span className="text-[#4285F4]">g</span>
-    <span className="text-[#34A853]">l</span>
-    <span className="text-[#EA4335]">e</span>
+const GoogleWord = ({ mono }: { mono: boolean }) => (
+  <span className={`${mono ? "text-current" : "text-[#4285F4]"}`} aria-label="Google">
+    Google
   </span>
 );
 
