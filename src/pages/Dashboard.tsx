@@ -88,6 +88,7 @@ const Dashboard = () => {
   const [showSelectBusinessesDialog, setShowSelectBusinessesDialog] = useState(false);
   const [googleBusinessesForSelection, setGoogleBusinessesForSelection] = useState<any[]>([]);
   const [maxBusinessesLimit, setMaxBusinessesLimit] = useState(1);
+  const [showReconnectDialog, setShowReconnectDialog] = useState(false);
 
   // LinkedIn Insight Tag - track dashboard view
   useEffect(() => {
