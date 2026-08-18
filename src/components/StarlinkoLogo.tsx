@@ -16,13 +16,24 @@ const AISparkle = () => (
   </svg>
 );
 
+const GoogleWord = ({ mono }: { mono: boolean }) => mono ? (
+  <span className="text-current">Google</span>
+) : (
+  <span aria-label="Google">
+    <span className="text-[#4285F4]">G</span>
+    <span className="text-[#EA4335]">o</span>
+    <span className="text-[#FBBC05]">o</span>
+    <span className="text-[#4285F4]">g</span>
+    <span className="text-[#34A853]">l</span>
+    <span className="text-[#EA4335]">e</span>
+  </span>
+);
+
 export const RankiLogo = ({ className = "", variant = "default" }: RankiLogoProps) => (
   <div className={`group flex items-center gap-3 ${className}`}>
     <ReviewBubbleMark className="h-10 w-11 sm:h-11 sm:w-12 shrink-0" />
     <div className="flex items-baseline whitespace-nowrap leading-none text-[22px] sm:text-[24px] font-medium tracking-[-0.045em]">
-      <span aria-label="Google" className={variant === "mono" ? "text-current" : "text-[#4285F4]"}>
-        Google
-      </span>
+      <GoogleWord mono={variant === "mono"} />
       <span className="ml-1.5 text-current font-medium tracking-[-0.04em]">Review</span>
       <span className={`relative ml-0.5 font-semibold tracking-[-0.04em] ${variant === "mono" ? "text-current" : "text-[#1769FF]"}`}>AI{variant !== "mono" && <AISparkle />}</span>
     </div>
