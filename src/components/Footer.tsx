@@ -13,6 +13,7 @@ export const Footer = () => {
     ]},
     { title: t("landingUI.footer.company"), links: [
       { label: t("landingUI.footer.blog"), href: "/blog" },
+      { label: "Sitemap", href: "/sitemap" },
       { label: t("landingUI.footer.privacy"), href: "/privacy" },
       { label: t("landingUI.footer.terms"), href: "/terms" },
     ]},
