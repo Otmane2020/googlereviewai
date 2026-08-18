@@ -129,16 +129,16 @@ const LandingPremium = () => {
 
     const landingFaqs = [
       {
-        question: "Que comprend le Pack Complet Ranki.ai ?",
-        answer: "Le Pack Complet Ranki.ai inclut toutes les fonctionnalités : réponses automatiques IA aux avis Google, SEO local automatisé avec publications quotidiennes, AEO pour apparaître dans ChatGPT et les IA, dashboard de suivi et statistiques complètes. Un seul prix, aucune option cachée."
+        question: "Que comprend le Pack Complet GoogleReviewAI ?",
+        answer: "Le Pack Complet GoogleReviewAI inclut toutes les fonctionnalités : réponses automatiques IA aux avis Google, SEO local automatisé avec publications quotidiennes, AEO pour apparaître dans ChatGPT et les IA, dashboard de suivi et statistiques complètes. Un seul prix, aucune option cachée."
       },
       {
-        question: "Combien coûte Ranki.ai ?",
-        answer: "Ranki.ai est à 39€/mois en mensuel, ou 32,50€/mois en engagement annuel (soit 390€/an avec 2 mois offerts). Toutes les fonctionnalités sont incluses sans option ni add-on supplémentaire."
+        question: "Combien coûte GoogleReviewAI ?",
+        answer: "GoogleReviewAI est à 39€/mois en mensuel, ou 32,50€/mois en engagement annuel (soit 390€/an avec 2 mois offerts). Toutes les fonctionnalités sont incluses sans option ni add-on supplémentaire."
       },
       {
-        question: "Puis-je essayer Ranki.ai gratuitement ?",
-        answer: "Oui, Ranki.ai propose un essai gratuit de 7 jours sans carte bancaire. Vous pouvez tester toutes les fonctionnalités et annuler à tout moment si la solution ne vous convient pas."
+        question: "Puis-je essayer GoogleReviewAI gratuitement ?",
+        answer: "Oui, GoogleReviewAI propose un essai gratuit de 7 jours sans carte bancaire. Vous pouvez tester toutes les fonctionnalités et annuler à tout moment si la solution ne vous convient pas."
       },
       {
         question: "Combien de temps faut-il pour voir des résultats ?",
@@ -149,17 +149,17 @@ const LandingPremium = () => {
    return (
      <div className="min-h-screen bg-background">
        <Helmet>
-         <title>Ranki.ai Pack Complet – SEO + AEO + Avis IA | Tout-en-Un</title>
+         <title>GoogleReviewAI Pack Complet – SEO + AEO + Avis IA | Tout-en-Un</title>
          <meta
            name="description"
-           content="Boostez votre visibilité sur Google & ChatGPT avec le Pack Complet Ranki.ai. Réponses IA aux avis, SEO local, AEO ChatGPT. À partir de 32,50€/mois."
+           content="Boostez votre visibilité sur Google & ChatGPT avec le Pack Complet GoogleReviewAI. Réponses IA aux avis, SEO local, AEO ChatGPT. À partir de 32,50€/mois."
          />
-         <link rel="canonical" href="https://ranki.ai/landing" />
-         <meta property="og:title" content="Ranki.ai Pack Complet – Visibilité Google & ChatGPT" />
+         <link rel="canonical" href="https://googlereviewai.com/landing" />
+         <meta property="og:title" content="GoogleReviewAI Pack Complet – Visibilité Google & ChatGPT" />
          <meta property="og:description" content="Un seul pack, un seul prix. SEO + AEO + Avis Google IA. Passez devant vos concurrents en 60 jours." />
-         <meta property="og:url" content="https://ranki.ai/landing" />
+         <meta property="og:url" content="https://googlereviewai.com/landing" />
          <meta property="og:type" content="product" />
-         <meta property="og:image" content="https://ranki.ai/og-image.png" />
+         <meta property="og:image" content="https://googlereviewai.com/og-image.png" />
        </Helmet>
         <ProductSchema />
         <FAQPageSchema faqs={landingFaqs} />
@@ -254,7 +254,7 @@ const LandingPremium = () => {
          </div>
        </section>
  
-       {/* Why Ranki.ai */}
+       {/* Why GoogleReviewAI */}
        <section className="py-16 sm:py-24 bg-background">
          <div className="container mx-auto px-5">
            <div className="text-center mb-12">
@@ -263,7 +263,7 @@ const LandingPremium = () => {
                <span className="text-primary text-sm font-semibold">Pourquoi ça fonctionne</span>
              </div>
              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-4">
-               Ranki.ai automatise ce que vos concurrents font encore à la main
+               GoogleReviewAI automatise ce que vos concurrents font encore à la main
              </h2>
            </div>
  
@@ -289,7 +289,7 @@ const LandingPremium = () => {
            <div className="text-center mb-12">
              <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-secondary/10 rounded-full mb-4">
                <BrandSparkle className="w-4 h-4 text-secondary" />
-               <span className="text-secondary text-sm font-semibold">L'offre unique Ranki.ai</span>
+               <span className="text-secondary text-sm font-semibold">L'offre unique GoogleReviewAI</span>
              </div>
              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-4">
                Tous les leviers activés
@@ -465,7 +465,7 @@ const LandingPremium = () => {
                <span className="text-primary text-sm font-semibold">SEO + AEO = Visibilité maximale</span>
              </div>
              <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-6">
-               Ranki.ai ne fait pas que du SEO classique
+               GoogleReviewAI ne fait pas que du SEO classique
              </h2>
              <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
                Il vous rend <span className="text-foreground font-semibold">visible ET recommandé</span> sur Google, dans ChatGPT, et dans les moteurs IA nouvelle génération.
@@ -506,7 +506,7 @@ const LandingPremium = () => {
         <FAQSection
           faqs={landingFaqs}
           title="Questions fréquentes"
-          subtitle="Les réponses aux questions que vous vous posez sur Ranki.ai"
+          subtitle="Les réponses aux questions que vous vous posez sur GoogleReviewAI"
           badgeText="FAQ"
         />
   
@@ -517,7 +517,7 @@ const LandingPremium = () => {
              Ready à passer devant vos concurrents ?
            </h2>
            <p className="text-card/80 text-lg mb-8 max-w-xl mx-auto">
-             Rejoignez +2000 entreprises qui utilisent Ranki.ai pour leur visibilité en ligne.
+             Rejoignez +2000 entreprises qui utilisent GoogleReviewAI pour leur visibilité en ligne.
            </p>
            <Button 
              variant="hero" 

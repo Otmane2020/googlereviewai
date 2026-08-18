@@ -47,7 +47,7 @@ const MobileAds = () => {
 
         {/* Subheadline - Solution + Résultat */}
         <p className="text-muted-foreground text-base mb-6 max-w-xs leading-relaxed">
-          Ranki.ai répond <span className="font-semibold text-foreground">automatiquement</span> à vos avis Google avec l'IA pour renforcer la confiance et attirer plus de clients.
+          GoogleReviewAI répond <span className="font-semibold text-foreground">automatiquement</span> à vos avis Google avec l'IA pour renforcer la confiance et attirer plus de clients.
         </p>
 
         {/* CTA Button */}
@@ -57,7 +57,7 @@ const MobileAds = () => {
           className="w-full max-w-xs gap-2 text-base h-14 rounded-2xl shadow-lg mb-4"
         >
           <Zap className="w-5 h-5" />
-          Essayer Ranki.ai gratuitement
+          Essayer GoogleReviewAI gratuitement
         </Button>
 
         {/* Trust Indicators + Offer */}
@@ -94,10 +94,10 @@ const MobileAds = () => {
           </span>
         </div>
 
-        {/* Why Ranki.ai - Optimized order */}
+        {/* Why GoogleReviewAI - Optimized order */}
         <div className="w-full max-w-xs bg-muted/50 rounded-2xl p-4 text-left">
           <p className="text-sm font-semibold text-foreground mb-3 text-center">
-            🧠 Pourquoi Ranki.ai ?
+            🧠 Pourquoi GoogleReviewAI ?
           </p>
           <div className="space-y-2.5">
             <div className="flex items-center gap-3">

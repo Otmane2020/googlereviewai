@@ -68,7 +68,7 @@ const Install = () => {
             </div>
             <CardTitle className="text-2xl">Application installée !</CardTitle>
             <CardDescription>
-              Vous utilisez déjà Ranki.ai en tant qu'application
+              Vous utilisez déjà GoogleReviewAI en tant qu'application
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -95,7 +95,7 @@ const Install = () => {
             </div>
             <CardTitle className="text-2xl text-secondary">Installation réussie !</CardTitle>
             <CardDescription>
-              Ranki.ai a été ajouté à votre écran d'accueil
+              GoogleReviewAI a été ajouté à votre écran d'accueil
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -114,17 +114,17 @@ const Install = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-background to-secondary/5 p-4 safe-area-insets">
       <Helmet>
-        <title>Install Ranki | Google Reviews PWA</title>
+        <title>Install GoogleReviewAI | Google Reviews PWA</title>
         <meta 
           name="description" 
-          content="Installez l'application Ranki.ai sur votre téléphone. Accédez à vos avis Google depuis votre écran d'accueil, même hors ligne." 
+          content="Installez l'application GoogleReviewAI sur votre téléphone. Accédez à vos avis Google depuis votre écran d'accueil, même hors ligne." 
         />
-        <meta name="keywords" content="installer ranki.ai, application avis google, PWA, mobile app" />
-        <link rel="canonical" href="https://ranki.ai/install" />
+        <meta name="keywords" content="installer googlereviewai.com, application avis google, PWA, mobile app" />
+        <link rel="canonical" href="https://googlereviewai.com/install" />
         
-        <meta property="og:title" content="Install Ranki - Google Reviews app" />
-        <meta property="og:description" content="Installez l'app Ranki.ai pour gérer vos avis Google partout." />
-        <meta property="og:url" content="https://ranki.ai/install" />
+        <meta property="og:title" content="Install GoogleReviewAI - Google Reviews app" />
+        <meta property="og:description" content="Installez l'app GoogleReviewAI pour gérer vos avis Google partout." />
+        <meta property="og:url" content="https://googlereviewai.com/install" />
         <meta property="og:type" content="website" />
       </Helmet>
       <Card className="w-full max-w-md">
@@ -132,7 +132,7 @@ const Install = () => {
           <div className="flex justify-center mb-4">
             <RankiLogo className="h-16 w-auto" />
           </div>
-          <CardTitle className="text-2xl">Installer Ranki.ai</CardTitle>
+          <CardTitle className="text-2xl">Installer GoogleReviewAI</CardTitle>
           <CardDescription>
             Installez l'application sur votre appareil pour un accès rapide
           </CardDescription>

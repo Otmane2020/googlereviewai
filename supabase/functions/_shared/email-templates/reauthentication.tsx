@@ -20,11 +20,11 @@ interface ReauthenticationEmailProps {
 export const ReauthenticationEmail = ({ token }: ReauthenticationEmailProps) => (
   <Html lang="fr" dir="ltr">
     <Head />
-    <Preview>Votre code de vérification Ranki.ai</Preview>
+    <Preview>Votre code de vérification GoogleReviewAI</Preview>
     <Body style={main}>
       <Container style={container}>
         <Section style={brand}>
-          <Text style={brandText}>Ranki.ai</Text>
+          <Text style={brandText}>GoogleReviewAI</Text>
         </Section>
         <Heading style={h1}>Confirmez que c'est bien vous</Heading>
         <Text style={text}>Utilisez le code ci-dessous pour confirmer votre identité :</Text>

@@ -196,10 +196,10 @@ const Notifications = () => {
   return (
     <div className="min-h-screen bg-background pb-20 md:pb-0">
       <Helmet>
-        <title>Notifications | Ranki.ai</title>
-        <meta name="description" content="Review alerts, AI tips and SEO reminders from your Ranki.ai account in one place." />
+        <title>Notifications | GoogleReviewAI</title>
+        <meta name="description" content="Review alerts, AI tips and SEO reminders from your GoogleReviewAI account in one place." />
         <meta name="robots" content="noindex, nofollow" />
-        <link rel="canonical" href="https://ranki.ai/notifications" />
+        <link rel="canonical" href="https://googlereviewai.com/notifications" />
       </Helmet>
 
 

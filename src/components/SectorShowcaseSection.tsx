@@ -76,7 +76,7 @@ export const SectorShowcaseSection = () => {
             <span className="text-primary">quel que soit votre métier</span>
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto text-base sm:text-lg">
-            Restaurants, hôtels, garages, salons de coiffure… Ranki.ai génère des réponses personnalisées et booste votre visibilité sur Google et ChatGPT.
+            Restaurants, hôtels, garages, salons de coiffure… GoogleReviewAI génère des réponses personnalisées et booste votre visibilité sur Google et ChatGPT.
           </p>
         </div>
 

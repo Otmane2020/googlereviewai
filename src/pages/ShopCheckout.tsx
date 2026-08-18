@@ -170,7 +170,7 @@ export default function ShopCheckout() {
   return (
     <>
       <Helmet>
-        <title>{en ? "Checkout — Ranki.ai" : "Commande — Ranki.ai"}</title>
+        <title>{en ? "Checkout — GoogleReviewAI" : "Commande — GoogleReviewAI"}</title>
         <meta name="robots" content="noindex" />
       </Helmet>
 

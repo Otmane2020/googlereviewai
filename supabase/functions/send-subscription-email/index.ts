@@ -47,10 +47,10 @@ const getProHeader = () => `
     <table cellpadding="0" cellspacing="0" border="0">
       <tr>
         <td style="vertical-align: middle;">
-          <img src="https://ranki.ai/favicon.png" width="32" height="32" alt="Ranki.ai" style="display: block;" />
+          <img src="https://googlereviewai.com/favicon.png" width="32" height="32" alt="GoogleReviewAI" style="display: block;" />
         </td>
         <td style="vertical-align: middle; padding-left: 12px;">
-          <span style="font-family: ${STYLES.fontFamily}; font-weight: 600; font-size: 18px; color: ${STYLES.textPrimary};">Ranki.ai</span>
+          <span style="font-family: ${STYLES.fontFamily}; font-weight: 600; font-size: 18px; color: ${STYLES.textPrimary};">GoogleReviewAI</span>
         </td>
       </tr>
     </table>
@@ -77,7 +77,7 @@ const T = {
     trialBanner: (d: number) => `🎁 Essai gratuit de ${d} jours`,
     billing: (c: string) => `Abonnement ${c === "year" ? "annuel" : "mensuel"}`,
     hello: "Bonjour",
-    introTrial: (d: number) => `Merci d'avoir choisi Ranki.ai ! Votre essai gratuit de <strong>${d} jours</strong> est maintenant actif.`,
+    introTrial: (d: number) => `Merci d'avoir choisi GoogleReviewAI ! Votre essai gratuit de <strong>${d} jours</strong> est maintenant actif.`,
     introActive: (p: string) => `Félicitations ! Votre abonnement <strong>${p}</strong> est maintenant actif.`,
     included: "Ce qui est inclus :",
     creditsAvail: "Crédits disponibles",
@@ -105,7 +105,7 @@ const T = {
     trialBanner: (d: number) => `🎁 ${d}-day free trial`,
     billing: (c: string) => `${c === "year" ? "Yearly" : "Monthly"} subscription`,
     hello: "Hello",
-    introTrial: (d: number) => `Thanks for choosing Ranki.ai! Your <strong>${d}-day</strong> free trial is now active.`,
+    introTrial: (d: number) => `Thanks for choosing GoogleReviewAI! Your <strong>${d}-day</strong> free trial is now active.`,
     introActive: (p: string) => `Congrats! Your <strong>${p}</strong> subscription is now active.`,
     included: "What's included:",
     creditsAvail: "Available credits",
@@ -119,12 +119,12 @@ const T = {
 const getProFooter = (t: typeof T.fr) => `
   <div style="padding: 24px; text-align: center; border-top: 1px solid ${STYLES.borderLight};">
     <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textMuted}; font-size: 12px; margin: 0 0 8px 0;">
-      © 2025 Ranki.ai. ${t.rights}
+      © 2025 GoogleReviewAI. ${t.rights}
     </p>
     <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textMuted}; font-size: 12px; margin: 0;">
-      <a href="https://ranki.ai" style="color: ${STYLES.brandBlue}; text-decoration: none;">ranki.ai</a>
+      <a href="https://googlereviewai.com" style="color: ${STYLES.brandBlue}; text-decoration: none;">googlereviewai.com</a>
       &nbsp;|&nbsp;
-      <a href="https://ranki.ai/settings" style="color: ${STYLES.brandBlue}; text-decoration: none;">${t.manage}</a>
+      <a href="https://googlereviewai.com/settings" style="color: ${STYLES.brandBlue}; text-decoration: none;">${t.manage}</a>
     </p>
   </div>
 `;
@@ -227,7 +227,7 @@ serve(async (req) => {
       </div>
       <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textPrimary}; font-size: 15px; font-weight: 600; margin: 32px 0 16px 0;">${t.nextSteps}</p>
       <table cellpadding="0" cellspacing="0" border="0" style="width: 100%;">${getNextSteps(plan_name, t)}</table>
-      <div style="text-align: center; margin: 40px 0;">${getProButton(t.cta, "https://ranki.ai/dashboard")}</div>
+      <div style="text-align: center; margin: 40px 0;">${getProButton(t.cta, "https://googlereviewai.com/dashboard")}</div>
       ${is_trial ? `<div style="background: #fef3c7; border-radius: 6px; padding: 16px; margin: 24px 0; border-left: 3px solid #f59e0b;"><p style="font-family: ${STYLES.fontFamily}; color: #92400e; font-size: 14px; margin: 0;">${t.trialEnd(trial_days)}</p></div>` : ""}
       <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textMuted}; font-size: 13px; line-height: 1.6; margin: 32px 0 0 0;">${t.questions} <a href="mailto:support@ranki.ai" style="color: ${STYLES.brandBlue}; text-decoration: none;">support@ranki.ai</a></p>
     </div>
@@ -245,7 +245,7 @@ serve(async (req) => {
         Authorization: `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: "Ranki.ai <support@ranki.ai>",
+        from: "GoogleReviewAI <support@ranki.ai>",
         to: [email],
         subject,
         html: htmlContent,

@@ -45,7 +45,7 @@ const Index = () => {
         <html lang={i18n.language} />
         <title>{t("landing.title")}</title>
         <meta name="description" content={t("landing.description")} />
-        <link rel="canonical" href="https://ranki.ai/" />
+        <link rel="canonical" href="https://googlereviewai.com/" />
       </Helmet>
 
       <Header />

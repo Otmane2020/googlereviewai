@@ -19,9 +19,9 @@ interface Article {
 }
 
 async function translate(article: Article): Promise<{ title: string; body: string; meta_description: string }> {
-  const prompt = `You are a professional EN translator for a SaaS blog called Ranki.ai (Generative Engine Optimization for local businesses).
+  const prompt = `You are a professional EN translator for a SaaS blog called GoogleReviewAI (Generative Engine Optimization for local businesses).
 
-Translate the following French article into clear, natural, professional US English. Preserve ALL HTML tags, structure and formatting EXACTLY. Keep the same meaning. Replace any "Ranki.ai" mentions with "Ranki.ai". Keep technical terms like "Google Business Profile", "ChatGPT", "Gemini", "Perplexity", "GEO", "AEO", "SEO" untouched.
+Translate the following French article into clear, natural, professional US English. Preserve ALL HTML tags, structure and formatting EXACTLY. Keep the same meaning. Replace any "GoogleReviewAI" mentions with "GoogleReviewAI". Keep technical terms like "Google Business Profile", "ChatGPT", "Gemini", "Perplexity", "GEO", "AEO", "SEO" untouched.
 
 Return ONLY a strict JSON object with keys: title, body, meta_description. No markdown, no commentary.
 

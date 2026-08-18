@@ -95,7 +95,7 @@ async function ensureServiceWorker() {
     const existing = await navigator.serviceWorker.getRegistration("/");
     if (!existing) {
       await navigator.serviceWorker.register("/sw.js", { scope: "/" });
-      console.log("[SW] Registered Ranki SW");
+      console.log("[SW] Registered GoogleReviewAI SW");
     }
   } catch (e) {
     console.warn("[SW] Failed to register service worker:", e);

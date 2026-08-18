@@ -119,7 +119,7 @@ const SECTIONS: Section[] = [
     title: "11. PWA / Mobile",
     items: [
       "Installation PWA (Add to Home Screen)",
-      "Icône + splash screen Ranki.ai",
+      "Icône + splash screen GoogleReviewAI",
       "Service Worker met à jour sans casser",
       "Bottom nav mobile fonctionnelle",
       "App Capacitor Android : pas de bannière PWA/push web",
@@ -190,7 +190,7 @@ export default function Checklist() {
       <div className="mx-auto max-w-3xl px-4 py-10">
         <header className="mb-8">
           <h1 className="text-3xl font-bold tracking-tight">
-            Checklist de tests Ranki.ai
+            Checklist de tests GoogleReviewAI
           </h1>
           <p className="mt-2 text-muted-foreground">
             Coche au fur et à mesure — l'avancement est sauvegardé localement.

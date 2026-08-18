@@ -34,13 +34,13 @@ export const SignupEmail = ({
     <Body style={main}>
       <Container style={container}>
         <Section style={brand}>
-          <Text style={brandText}>Ranki.ai</Text>
+          <Text style={brandText}>GoogleReviewAI</Text>
         </Section>
         <Heading style={h1}>Confirmez votre e-mail</Heading>
         <Text style={text}>
           Bienvenue sur{' '}
           <Link href={siteUrl} style={link}>
-            <strong>Ranki.ai</strong>
+            <strong>GoogleReviewAI</strong>
           </Link>{' '}
           — la plateforme qui aide votre établissement à se positionner dans
           ChatGPT, Gemini et Perplexity.
@@ -56,7 +56,7 @@ export const SignupEmail = ({
           Vérifier l'e-mail
         </Button>
         <Text style={footer}>
-          Si vous n'avez pas créé de compte Ranki.ai, vous pouvez ignorer cet e-mail en toute sécurité.
+          Si vous n'avez pas créé de compte GoogleReviewAI, vous pouvez ignorer cet e-mail en toute sécurité.
         </Text>
       </Container>
     </Body>

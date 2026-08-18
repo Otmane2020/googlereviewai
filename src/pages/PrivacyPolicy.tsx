@@ -7,17 +7,17 @@ const PrivacyPolicy = () => {
   return (
     <div className="min-h-screen bg-background">
       <Helmet>
-        <title>Politique de Confidentialité | Ranki.ai</title>
+        <title>Politique de Confidentialité | GoogleReviewAI</title>
         <meta 
           name="description" 
-          content="Découvrez comment Ranki.ai protège vos données personnelles. Politique RGPD, droits d'accès, de rectification et de suppression de vos informations." 
+          content="Découvrez comment GoogleReviewAI protège vos données personnelles. Politique RGPD, droits d'accès, de rectification et de suppression de vos informations." 
         />
-        <meta name="keywords" content="politique confidentialité, RGPD, protection données, vie privée, Ranki.ai" />
-        <link rel="canonical" href="https://ranki.ai/privacy" />
+        <meta name="keywords" content="politique confidentialité, RGPD, protection données, vie privée, GoogleReviewAI" />
+        <link rel="canonical" href="https://googlereviewai.com/privacy" />
         
-        <meta property="og:title" content="Politique de Confidentialité | Ranki.ai" />
+        <meta property="og:title" content="Politique de Confidentialité | GoogleReviewAI" />
         <meta property="og:description" content="Protection de vos données personnelles conforme au RGPD." />
-        <meta property="og:url" content="https://ranki.ai/privacy" />
+        <meta property="og:url" content="https://googlereviewai.com/privacy" />
         <meta property="og:type" content="website" />
       </Helmet>
       <div className="container max-w-4xl mx-auto px-4 py-12">
@@ -35,9 +35,9 @@ const PrivacyPolicy = () => {
           <section className="mb-10">
             <h2 className="text-xl font-semibold text-foreground mb-4">Résumé de notre engagement</h2>
             <p className="text-muted-foreground">
-              Chez Ranki.ai, nous nous engageons à protéger votre vie privée et vos données personnelles. 
+              Chez GoogleReviewAI, nous nous engageons à protéger votre vie privée et vos données personnelles. 
               Cette politique décrit comment vos informations sont collectées, utilisées et protégées 
-              lorsque vous utilisez notre plateforme SaaS Ranki.ai.
+              lorsque vous utilisez notre plateforme SaaS GoogleReviewAI.
             </p>
           </section>
 
@@ -72,7 +72,7 @@ const PrivacyPolicy = () => {
               <li><strong>Stripe :</strong> pour la gestion des paiements et abonnements.</li>
             </ul>
             <p className="text-muted-foreground mt-4">
-              <strong>Engagement :</strong> Ranki.ai ne vend, ne loue et ne partage jamais vos données 
+              <strong>Engagement :</strong> GoogleReviewAI ne vend, ne loue et ne partage jamais vos données 
               personnelles à des tiers à des fins commerciales.
             </p>
           </section>
@@ -114,8 +114,8 @@ const PrivacyPolicy = () => {
             <h2 className="text-xl font-semibold text-foreground mb-4">6. Contact et réclamations</h2>
             <p className="text-muted-foreground mb-4">Pour toute question ou demande relative à vos données :</p>
             <ul className="list-none text-muted-foreground space-y-2">
-              <li><strong>Email :</strong> privacy@ranki.ai</li>
-              <li><strong>Délégué à la protection des données :</strong> dpo@ranki.ai</li>
+              <li><strong>Email :</strong> privacy@googlereviewai.com</li>
+              <li><strong>Délégué à la protection des données :</strong> dpo@googlereviewai.com</li>
             </ul>
             <p className="text-muted-foreground mt-4">
               <strong>Droit de réclamation :</strong> Vous pouvez déposer une réclamation auprès de la CNIL 
@@ -125,13 +125,13 @@ const PrivacyPolicy = () => {
 
           <footer className="border-t border-border pt-6 mt-10">
             <p className="text-sm text-muted-foreground">
-              <strong>Éditeur :</strong> Ranki.ai – 280 Boulevard de la Boissière, 93100 Montreuil, France
+              <strong>Éditeur :</strong> GoogleReviewAI – 280 Boulevard de la Boissière, 93100 Montreuil, France
             </p>
             <p className="text-sm text-muted-foreground">
-              SIRET : 897 801 775 00015 – contact@ranki.ai
+              SIRET : 897 801 775 00015 – contact@googlereviewai.com
             </p>
             <p className="text-sm text-muted-foreground mt-4">
-              © 2025 Ranki.ai – Tous droits réservés.
+              © 2025 GoogleReviewAI – Tous droits réservés.
             </p>
           </footer>
         </div>

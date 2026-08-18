@@ -29,7 +29,7 @@ const staticArticles = [
   {
     slug: "/avis-ai-guide",
     title: "How AI is Reshaping Customer Review Management in 2026",
-    description: "A complete guide to automating Google review responses with artificial intelligence. Discover how Ranki.ai transforms your reputation management.",
+    description: "A complete guide to automating Google review responses with artificial intelligence. Discover how GoogleReviewAI transforms your reputation management.",
     icon: MessageSquare,
     color: "text-primary",
     bgColor: "bg-primary/10",
@@ -106,17 +106,17 @@ const Blog = () => {
   return (
     <>
       <Helmet>
-        <title>Blog – Local GEO, AI Search & Google Reviews | Ranki.ai</title>
+        <title>Blog – Local GEO, AI Search & Google Reviews | GoogleReviewAI</title>
         <meta 
           name="description" 
-          content="Articles and guides on Generative Engine Optimization (GEO), local AI search and Google review management for local businesses. Expert insights from Ranki.ai." 
+          content="Articles and guides on Generative Engine Optimization (GEO), local AI search and Google review management for local businesses. Expert insights from GoogleReviewAI." 
         />
         <meta name="keywords" content="GEO blog, generative engine optimization, ChatGPT ranking, Gemini ranking, Perplexity, local SEO, AI search, Google reviews" />
-        <link rel="canonical" href="https://ranki.ai/blog" />
+        <link rel="canonical" href="https://googlereviewai.com/blog" />
         
-        <meta property="og:title" content="Ranki.ai Blog – Local GEO & AI Search" />
+        <meta property="og:title" content="GoogleReviewAI Blog – Local GEO & AI Search" />
         <meta property="og:description" content="Guides and tactics to rank locally inside ChatGPT, Gemini and Perplexity." />
-        <meta property="og:url" content="https://ranki.ai/blog" />
+        <meta property="og:url" content="https://googlereviewai.com/blog" />
         <meta property="og:type" content="website" />
       </Helmet>
 
@@ -279,7 +279,7 @@ const Blog = () => {
                 Ready to rank in AI search?
               </h2>
               <p className="text-muted-foreground mb-6 max-w-xl mx-auto">
-                Try Ranki.ai free and discover how AI can boost your visibility inside ChatGPT, Gemini and Perplexity.
+                Try GoogleReviewAI free and discover how AI can boost your visibility inside ChatGPT, Gemini and Perplexity.
               </p>
               <Link 
                 to="/auth" 

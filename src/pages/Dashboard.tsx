@@ -99,7 +99,7 @@ const Dashboard = () => {
   useEffect(() => {
     if (!user) return;
     
-    const storageKey = `ranki.ai_visits_${user.id}`;
+    const storageKey = `googlereviewai.com_visits_${user.id}`;
     const now = new Date().toISOString();
     
     try {
@@ -328,7 +328,7 @@ const Dashboard = () => {
         hasSyncedRef.current = true;
         
         // Check if this is the first sync ever for this user
-        const hasInitialSynced = localStorage.getItem(`ranki.ai_initial_sync_${user.id}`);
+        const hasInitialSynced = localStorage.getItem(`googlereviewai.com_initial_sync_${user.id}`);
         
         if (!hasInitialSynced) {
           // First time: show animation (only if not already synced from Auth)
@@ -349,7 +349,7 @@ const Dashboard = () => {
           setSyncStep("reviews");
           await syncReviews();
           setSyncStep("complete");
-          localStorage.setItem(`ranki.ai_initial_sync_${user.id}`, "true");
+          localStorage.setItem(`googlereviewai.com_initial_sync_${user.id}`, "true");
         } else {
           // Silent sync in background
           const businessResult = await syncBusinesses();
@@ -380,7 +380,7 @@ const Dashboard = () => {
     
     // Mark initial sync as complete
     if (user) {
-      localStorage.setItem(`ranki.ai_initial_sync_${user.id}`, "true");
+      localStorage.setItem(`googlereviewai.com_initial_sync_${user.id}`, "true");
     }
     
     fetchData();
@@ -451,10 +451,10 @@ const Dashboard = () => {
   return (
     <>
       <Helmet>
-        <title>Dashboard | Ranki.ai</title>
-        <meta name="description" content="Your Ranki.ai dashboard: AI review responses, GEO ranking and local SEO performance at a glance." />
+        <title>Dashboard | GoogleReviewAI</title>
+        <meta name="description" content="Your GoogleReviewAI dashboard: AI review responses, GEO ranking and local SEO performance at a glance." />
         <meta name="robots" content="noindex, nofollow" />
-        <link rel="canonical" href="https://ranki.ai/dashboard" />
+        <link rel="canonical" href="https://googlereviewai.com/dashboard" />
       </Helmet>
       <div className="bg-gradient-to-b from-background to-muted/20">
         {/* Mobile-only header (desktop uses sidebar layout) */}
@@ -827,7 +827,7 @@ const Dashboard = () => {
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-semibold uppercase tracking-wide">
                   <Sparkles className="w-3 h-3" /> Nouveau
                 </span>
-                <span className="text-xs text-muted-foreground">Boutique Ranki</span>
+                <span className="text-xs text-muted-foreground">Boutique GoogleReviewAI</span>
               </div>
               <div className="font-semibold text-foreground text-sm leading-tight">
                 Plaque NFC + QR Google Avis

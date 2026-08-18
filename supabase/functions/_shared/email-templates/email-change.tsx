@@ -26,15 +26,15 @@ interface EmailChangeEmailProps {
 export const EmailChangeEmail = ({ oldEmail, newEmail, confirmationUrl }: EmailChangeEmailProps) => (
   <Html lang="fr" dir="ltr">
     <Head />
-    <Preview>Confirmez le changement d'e-mail Ranki.ai</Preview>
+    <Preview>Confirmez le changement d'e-mail GoogleReviewAI</Preview>
     <Body style={main}>
       <Container style={container}>
         <Section style={brand}>
-          <Text style={brandText}>Ranki.ai</Text>
+          <Text style={brandText}>GoogleReviewAI</Text>
         </Section>
         <Heading style={h1}>Confirmez le changement d'e-mail</Heading>
         <Text style={text}>
-          Vous avez demandé à changer l'adresse e-mail de votre compte Ranki.ai de{' '}
+          Vous avez demandé à changer l'adresse e-mail de votre compte GoogleReviewAI de{' '}
           <Link href={`mailto:${oldEmail}`} style={link}>{oldEmail}</Link>{' '}
           vers{' '}
           <Link href={`mailto:${newEmail}`} style={link}>{newEmail}</Link>.

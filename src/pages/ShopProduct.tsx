@@ -239,10 +239,10 @@ export default function ShopProduct() {
   const image = SHOP_IMAGES[product.slug];
 
   const seoTitle = en
-    ? `${name} — Buy NFC ${product.platform || ""} | Ranki.ai`.slice(0, 60)
-    : `${name} — Acheter NFC ${product.platform || ""} | Ranki.ai`.slice(0, 60);
+    ? `${name} — Buy NFC ${product.platform || ""} | GoogleReviewAI`.slice(0, 60)
+    : `${name} — Acheter NFC ${product.platform || ""} | GoogleReviewAI`.slice(0, 60);
   const seoDesc = (description || "").slice(0, 158);
-  const canonical = `https://ranki.ai/shop/${product.slug}`;
+  const canonical = `https://googlereviewai.com/shop/${product.slug}`;
 
   const features = en ? [
     "Compatible iOS & Android (no app required)",
@@ -272,12 +272,12 @@ export default function ShopProduct() {
 
   const faq = en ? [
     { q: "How does NFC work?", a: "Modern smartphones detect the chip when the phone is near the card — your link opens instantly. No app required." },
-    { q: "Can I change the destination later?", a: "Yes. From your Ranki.ai dashboard, you can update the link at any time without re-ordering." },
+    { q: "Can I change the destination later?", a: "Yes. From your GoogleReviewAI dashboard, you can update the link at any time without re-ordering." },
     { q: "Shipping time?", a: "France: 3-5 business days, free. Europe: 4-7 days. Rest of the world: up to 21 days." },
     { q: "Is it waterproof?", a: "The card is splash resistant. Avoid prolonged immersion." },
   ] : [
     { q: "Comment fonctionne la NFC ?", a: "Les smartphones récents détectent la puce dès que le téléphone est proche — votre lien s'ouvre immédiatement. Aucune application à installer." },
-    { q: "Puis-je changer la destination plus tard ?", a: "Oui. Depuis votre tableau de bord Ranki.ai, vous pouvez modifier le lien à tout moment, sans racheter de carte." },
+    { q: "Puis-je changer la destination plus tard ?", a: "Oui. Depuis votre tableau de bord GoogleReviewAI, vous pouvez modifier le lien à tout moment, sans racheter de carte." },
     { q: "Délai de livraison ?", a: "France : 3-5 jours ouvrés, offerte. Europe : 4-7 jours. Reste du monde : jusqu'à 21 jours." },
     { q: "Est-elle étanche ?", a: "Résistante aux éclaboussures. Évitez une immersion prolongée." },
   ];
@@ -292,15 +292,15 @@ export default function ShopProduct() {
         <meta property="og:description" content={seoDesc} />
         <meta property="og:url" content={canonical} />
         <meta property="og:type" content="product" />
-        <meta property="og:image" content={`https://ranki.ai${image}`} />
+        <meta property="og:image" content={`https://googlereviewai.com${image}`} />
         <script type="application/ld+json">{JSON.stringify({
           "@context": "https://schema.org",
           "@type": "Product",
           name,
           description,
           sku: product.slug,
-          brand: { "@type": "Brand", name: "Ranki.ai" },
-          image: [`https://ranki.ai${image}`],
+          brand: { "@type": "Brand", name: "GoogleReviewAI" },
+          image: [`https://googlereviewai.com${image}`],
           offers: {
             "@type": "Offer",
             url: canonical,
@@ -319,7 +319,7 @@ export default function ShopProduct() {
         <div className="container max-w-6xl mx-auto px-4 py-6">
           {/* Breadcrumb */}
           <nav className="text-xs text-muted-foreground mb-6 flex items-center gap-1.5 flex-wrap">
-            <Link to="/" className="hover:text-foreground">Ranki.ai</Link>
+            <Link to="/" className="hover:text-foreground">GoogleReviewAI</Link>
             <ChevronRight className="w-3 h-3" />
             <Link to="/shop" className="hover:text-foreground">{en ? "Shop" : "Boutique"}</Link>
             <ChevronRight className="w-3 h-3" />

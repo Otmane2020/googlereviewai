@@ -22,15 +22,15 @@ interface RecoveryEmailProps {
 export const RecoveryEmail = ({ confirmationUrl }: RecoveryEmailProps) => (
   <Html lang="fr" dir="ltr">
     <Head />
-    <Preview>Réinitialisez votre mot de passe Ranki.ai</Preview>
+    <Preview>Réinitialisez votre mot de passe GoogleReviewAI</Preview>
     <Body style={main}>
       <Container style={container}>
         <Section style={brand}>
-          <Text style={brandText}>Ranki.ai</Text>
+          <Text style={brandText}>GoogleReviewAI</Text>
         </Section>
         <Heading style={h1}>Réinitialiser votre mot de passe</Heading>
         <Text style={text}>
-          Nous avons reçu une demande de réinitialisation du mot de passe de votre compte Ranki.ai.
+          Nous avons reçu une demande de réinitialisation du mot de passe de votre compte GoogleReviewAI.
           Cliquez sur le bouton ci-dessous pour en choisir un nouveau.
         </Text>
         <Button style={button} href={confirmationUrl}>

@@ -41,7 +41,7 @@ export default function Shop() {
   }, []);
 
   const T = en ? {
-    title: "Shop — Premium NFC plaques & cards | Ranki.ai",
+    title: "Shop — Premium NFC plaques & cards | GoogleReviewAI",
     desc: "NFC plaques and cards to collect Google reviews, grow Instagram, TikTok, LinkedIn and more. Tap or scan, no app needed. Free shipping in France.",
     h1: "NFC Shop", subtitle: "Premium plaques & cards to collect reviews and grow your community.",
     plaques: "NFC Plaques", cards: "NFC Cards",
@@ -49,7 +49,7 @@ export default function Shop() {
     f1: "Free France shipping", f2: "Secure Stripe payment", f3: "iOS & Android compatible",
     cta: "View product",
   } : {
-    title: "Boutique — Plaques & Cartes NFC premium | Ranki.ai",
+    title: "Boutique — Plaques & Cartes NFC premium | GoogleReviewAI",
     desc: "Plaques et cartes NFC pour collecter des avis Google, booster Instagram, TikTok, LinkedIn et plus. Tap ou scan, sans application. Livraison France offerte.",
     h1: "Boutique NFC", subtitle: "Plaques et cartes premium pour collecter des avis et développer votre communauté.",
     plaques: "Plaques NFC", cards: "Cartes NFC",
@@ -109,17 +109,17 @@ export default function Shop() {
       <Helmet>
         <title>{T.title}</title>
         <meta name="description" content={T.desc} />
-        <link rel="canonical" href="https://ranki.ai/shop" />
+        <link rel="canonical" href="https://googlereviewai.com/shop" />
         <meta property="og:title" content={T.title} />
         <meta property="og:description" content={T.desc} />
-        <meta property="og:url" content="https://ranki.ai/shop" />
+        <meta property="og:url" content="https://googlereviewai.com/shop" />
         <meta property="og:type" content="website" />
         <script type="application/ld+json">{JSON.stringify({
           "@context": "https://schema.org",
           "@type": "CollectionPage",
           name: T.h1,
           description: T.desc,
-          url: "https://ranki.ai/shop",
+          url: "https://googlereviewai.com/shop",
         })}</script>
       </Helmet>
 

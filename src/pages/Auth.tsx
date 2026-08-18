@@ -135,10 +135,10 @@ const Auth = () => {
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
       <Helmet>
-        <title>Sign in or create your account | Ranki.ai</title>
-        <meta name="description" content="Access your Ranki.ai account to manage AI review responses, local SEO and GEO ranking for your business." />
+        <title>Sign in or create your account | GoogleReviewAI</title>
+        <meta name="description" content="Access your GoogleReviewAI account to manage AI review responses, local SEO and GEO ranking for your business." />
         <meta name="robots" content="noindex, follow" />
-        <link rel="canonical" href="https://ranki.ai/auth" />
+        <link rel="canonical" href="https://googlereviewai.com/auth" />
       </Helmet>
 
       {/* Left panel */}
@@ -167,7 +167,7 @@ const Auth = () => {
           </ul>
         </div>
         <p className="text-card/60 text-sm">
-          © {new Date().getFullYear()} Ranki.ai. {t("common.allRightsReserved")}
+          © {new Date().getFullYear()} GoogleReviewAI. {t("common.allRightsReserved")}
         </p>
       </div>
 
@@ -204,7 +204,7 @@ const Auth = () => {
 
             <div>
               <h2 className="text-2xl font-bold text-foreground">
-                Connectez-vous à Ranki.ai
+                Connectez-vous à GoogleReviewAI
               </h2>
               <p className="text-muted-foreground mt-2">
                 Connexion sécurisée avec votre compte Google — nécessaire pour synchroniser votre fiche Google Business Profile.

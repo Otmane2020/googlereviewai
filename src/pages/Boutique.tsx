@@ -26,13 +26,13 @@ export default function Boutique() {
   }, []);
 
   const T = en ? {
-    title: "Ranki Shop", subtitle: "Physical tools to collect more Google reviews",
+    title: "GoogleReviewAI Shop", subtitle: "Physical tools to collect more Google reviews",
     flagship: "Flagship product", order: "Order",
     nfcTitle: "NFC plaque + Google Review QR code",
     nfcDesc1: "Premium 12×12 cm plaque to place on your counter or wall. Your customers ",
     tapNfc: "tap their phone (NFC)", or: " or ", scanQr: "scan the QR code", arrive: " — and land straight on your Google review form.",
     nfcF1: "Dual access: NFC + dynamic QR code",
-    nfcF2: "Link editable anytime from Ranki.ai",
+    nfcF2: "Link editable anytime from GoogleReviewAI",
     nfcF3: "France shipping 3.99 € — International available",
     nfcF4: "3 designs (white, black, green)",
     freeBadge: "Free for everyone — limited time",
@@ -42,13 +42,13 @@ export default function Boutique() {
     already: "Already ordered", orderFree: "Order my free QR",
     footer: "France & International shipping. Secure payment by Stripe.",
   } : {
-    title: "Boutique Ranki", subtitle: "Outils physiques pour collecter plus d'avis Google",
+    title: "Boutique GoogleReviewAI", subtitle: "Outils physiques pour collecter plus d'avis Google",
     flagship: "Produit phare", order: "Commander",
     nfcTitle: "Plaque NFC + QR code Google Avis",
     nfcDesc1: "Plaque premium 12×12 cm à poser sur votre comptoir ou coller au mur. Vos clients ",
     tapNfc: "tapent leur téléphone (NFC)", or: " ou ", scanQr: "scannent le QR code", arrive: " — et arrivent directement sur votre fiche d'avis Google.",
     nfcF1: "Double accès : NFC + QR code dynamique",
-    nfcF2: "Lien modifiable à tout moment depuis Ranki.ai",
+    nfcF2: "Lien modifiable à tout moment depuis GoogleReviewAI",
     nfcF3: "Livraison France 3,99 € — International dispo",
     nfcF4: "3 designs au choix (blanc, noir, vert)",
     freeBadge: "Gratuit pour tous — durée limitée",

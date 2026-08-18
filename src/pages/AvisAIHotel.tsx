@@ -29,10 +29,10 @@ interface AvisAIHotelProps {
 const AvisAIHotel = ({
   canonicalSlug = "avis-ai-hotel",
   breadcrumbName = "Avis IA Hôtel",
-  pageTitle = "Avis Google Hôtel IA - Réponses Automatiques Multilingues | Ranki.ai",
+  pageTitle = "Avis Google Hôtel IA - Réponses Automatiques Multilingues | GoogleReviewAI",
   pageDescription = "Automatisez la gestion des avis Google de votre hôtel avec l'IA. Réponses multilingues 24h/24, ton hôtelier professionnel. Essai gratuit 7 jours.",
 }: AvisAIHotelProps = {}) => {
-  const canonicalUrl = `https://ranki.ai/${canonicalSlug}`;
+  const canonicalUrl = `https://googlereviewai.com/${canonicalSlug}`;
   const benefits = [
     {
       icon: Clock,
@@ -84,22 +84,22 @@ const AvisAIHotel = ({
   const hotelFaqs = [
     {
       question: "Comment répondre aux avis Google d'un hôtel en plusieurs langues ?",
-      answer: "Ranki.ai détecte automatiquement la langue de l'avis et génère une réponse dans la même langue. L'IA supporte 12 langues dont le français, l'anglais, l'allemand, l'espagnol, l'italien, le portugais et le néerlandais, idéal pour les hôtels avec une clientèle internationale."
+      answer: "GoogleReviewAI détecte automatiquement la langue de l'avis et génère une réponse dans la même langue. L'IA supporte 12 langues dont le français, l'anglais, l'allemand, l'espagnol, l'italien, le portugais et le néerlandais, idéal pour les hôtels avec une clientèle internationale."
     },
     {
       question: "L'IA peut-elle répondre aux avis d'un hôtel 24h/24 ?",
-      answer: "Oui, Ranki.ai fonctionne 24h/24 et 7j/7. Les avis reçus la nuit, le week-end ou pendant les vacances reçoivent une réponse automatique personnalisée. C'est particulièrement utile pour les hôtels dont les clients publient des avis à toute heure."
+      answer: "Oui, GoogleReviewAI fonctionne 24h/24 et 7j/7. Les avis reçus la nuit, le week-end ou pendant les vacances reçoivent une réponse automatique personnalisée. C'est particulièrement utile pour les hôtels dont les clients publient des avis à toute heure."
     },
     {
       question: "Comment l'IA adapte-t-elle le ton pour l'hôtellerie de luxe ?",
-      answer: "L'IA de Ranki.ai permet de configurer le ton de réponse selon le positionnement de votre hôtel : luxe raffiné, boutique-hôtel chaleureux, familial décontracté. Les réponses respectent les standards de service attendus dans l'hôtellerie haut de gamme."
+      answer: "L'IA de GoogleReviewAI permet de configurer le ton de réponse selon le positionnement de votre hôtel : luxe raffiné, boutique-hôtel chaleureux, familial décontracté. Les réponses respectent les standards de service attendus dans l'hôtellerie haut de gamme."
     },
     {
       question: "Répondre aux avis améliore-t-il le classement d'un hôtel sur Google ?",
       answer: "Oui, Google favorise les fiches actives avec des réponses régulières aux avis. Les hôtels qui répondent à 100% de leurs avis gagnent en moyenne +0.3 étoile sur leur note globale et améliorent leur positionnement sur Google Maps et dans les résultats locaux."
     },
     {
-      question: "Ranki.ai gère-t-il les plaintes et avis négatifs d'un hôtel ?",
+      question: "GoogleReviewAI gère-t-il les plaintes et avis négatifs d'un hôtel ?",
       answer: "Oui, l'IA génère des réponses professionnelles et empathiques aux avis négatifs. Elle reconnaît le problème spécifique (bruit, propreté, service), présente des excuses sincères et propose une solution concrète, limitant l'impact sur votre réputation en ligne."
     }
   ];
@@ -108,7 +108,7 @@ const AvisAIHotel = ({
     <>
       <FAQPageSchema faqs={hotelFaqs} />
       <BreadcrumbSchema items={[
-        { name: "Accueil", url: "https://ranki.ai" },
+        { name: "Accueil", url: "https://googlereviewai.com" },
         { name: breadcrumbName, url: canonicalUrl }
       ]} />
       <Helmet>
@@ -128,7 +128,7 @@ const AvisAIHotel = ({
           {JSON.stringify({
             "@context": "https://schema.org",
             "@type": "SoftwareApplication",
-            "name": "Ranki.ai pour Hôtels",
+            "name": "GoogleReviewAI pour Hôtels",
             "applicationCategory": "BusinessApplication",
             "operatingSystem": "Web",
             "description": "Solution IA de gestion automatique des avis Google pour hôtels et hébergements",
@@ -329,7 +329,7 @@ const AvisAIHotel = ({
                 Ready à améliorer votre réputation ?
               </h2>
               <p className="text-blue-100 mb-8 max-w-xl mx-auto">
-                Rejoignez les hôteliers qui répondent à 100% de leurs avis grâce à Ranki.ai.
+                Rejoignez les hôteliers qui répondent à 100% de leurs avis grâce à GoogleReviewAI.
               </p>
               <Button size="lg" variant="secondary" asChild>
                 <Link to="/auth">

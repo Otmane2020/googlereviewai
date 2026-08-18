@@ -92,16 +92,16 @@ const BlogArticle = () => {
   return (
     <>
       <Helmet>
-        <title>{article.title} | Ranki.ai Blog</title>
+        <title>{article.title} | GoogleReviewAI Blog</title>
         <meta 
           name="description" 
           content={article.meta_description || (stripHtml(article.body).slice(0, 160) + "…")} 
         />
-        <link rel="canonical" href={`https://ranki.ai/blog/${article.slug}`} />
+        <link rel="canonical" href={`https://googlereviewai.com/blog/${article.slug}`} />
         
         <meta property="og:title" content={article.title} />
         <meta property="og:description" content={article.meta_description || (stripHtml(article.body).slice(0, 160) + "…")} />
-        <meta property="og:url" content={`https://ranki.ai/blog/${article.slug}`} />
+        <meta property="og:url" content={`https://googlereviewai.com/blog/${article.slug}`} />
         <meta property="og:type" content="article" />
         
         <script type="application/ld+json">
@@ -114,12 +114,12 @@ const BlogArticle = () => {
             "dateModified": article.updated_at,
             "author": {
               "@type": "Organization",
-              "name": article.author || "Ranki.ai"
+              "name": article.author || "GoogleReviewAI"
             },
             "publisher": {
               "@type": "Organization",
-              "name": "Ranki.ai",
-              "url": "https://ranki.ai"
+              "name": "GoogleReviewAI",
+              "url": "https://googlereviewai.com"
             }
           })}
         </script>
@@ -150,7 +150,7 @@ const BlogArticle = () => {
             <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
               <span className="flex items-center gap-1">
                 <User className="w-4 h-4" />
-                {article.author || 'Ranki.ai Team'}
+                {article.author || 'GoogleReviewAI Team'}
               </span>
               <span className="flex items-center gap-1">
                 <Calendar className="w-4 h-4" />
@@ -191,7 +191,7 @@ const BlogArticle = () => {
                 Ready to rank in AI search?
               </h2>
               <p className="text-muted-foreground mb-6">
-                Try Ranki.ai free and discover how AI can boost your visibility inside ChatGPT, Gemini and Perplexity.
+                Try GoogleReviewAI free and discover how AI can boost your visibility inside ChatGPT, Gemini and Perplexity.
               </p>
               <Button asChild size="lg">
                 <Link to="/auth">

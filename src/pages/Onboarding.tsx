@@ -173,7 +173,7 @@ const Onboarding = () => {
                 <div className="w-16 h-16 mx-auto rounded-2xl bg-primary/10 flex items-center justify-center">
                   <BrandSparkle className="w-8 h-8 text-primary" />
                 </div>
-                <h2 className="text-2xl font-bold">Welcome to Ranki 👋</h2>
+                <h2 className="text-2xl font-bold">Welcome to GoogleReviewAI 👋</h2>
                 <p className="text-muted-foreground">
                   Let's set you up in under 2 minutes. We'll connect your Google Business, pick a location, tune your AI voice, and choose a plan.
                 </p>
@@ -258,7 +258,7 @@ const Onboarding = () => {
                   </div>
                   <div>
                     <h2 className="text-xl font-bold">Set your AI tone</h2>
-                    <p className="text-sm text-muted-foreground">How should Ranki reply to reviews?</p>
+                    <p className="text-sm text-muted-foreground">How should GoogleReviewAI reply to reviews?</p>
                   </div>
                 </div>
 

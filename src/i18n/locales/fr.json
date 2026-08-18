@@ -82,7 +82,7 @@
       "badge": "IA · Gestion des avis Google",
       "title1": "Répondez à vos avis Google",
       "title2": "en quelques secondes grâce à l'IA",
-      "subtitle": "Ranki.ai automatise les réponses à vos avis Google Business Profile et améliore votre e-réputation locale. Gagnez des heures chaque semaine et restez recommandé en #1 sur Google, ChatGPT, Gemini et Perplexity.",
+      "subtitle": "GoogleReviewAI automatise les réponses à vos avis Google Business Profile et améliore votre e-réputation locale. Gagnez des heures chaque semaine et restez recommandé en #1 sur Google, ChatGPT, Gemini et Perplexity.",
       "ctaPrimary": "Automatiser mes réponses — Gratuit",
       "ctaSecondary": "Voir comment ça marche",
       "noCard": "Sans carte bancaire",
@@ -110,7 +110,7 @@
       "step2Title": "2. Mesurez votre positionnement",
       "step2Desc": "Nous lançons chaque jour de vraies requêtes et analysons votre place, votre part de voix et la présence de vos concurrents sur toutes les IA.",
       "step3Title": "3. Publication GEO automatique",
-      "step3Desc": "Ranki.ai génère et publie des Q&R, posts et réponses aux avis optimisés IA sur votre fiche Google — les signaux exacts indexés par les LLM.",
+      "step3Desc": "GoogleReviewAI génère et publie des Q&R, posts et réponses aux avis optimisés IA sur votre fiche Google — les signaux exacts indexés par les LLM.",
       "step4Title": "4. Augmentez vos ventes",
       "step4Desc": "Votre visibilité grimpe semaine après semaine. Plus de clics, plus d'appels, plus de clients qui passent la porte."
     },
@@ -120,11 +120,11 @@
       "title2": "Répondus automatiquement.",
       "subtitle": "Des réponses IA fidèles à votre marque, publiées sur Google en quelques minutes — pour booster votre réputation et votre référencement IA.",
       "customerReview": "Avis client",
-      "aiReply": "Réponse IA Ranki.ai"
+      "aiReply": "Réponse IA GoogleReviewAI"
     },
     "cta": {
       "title": "Boostez vos ventes dès aujourd'hui",
-      "subtitle": "Rejoignez les centaines d'établissements qui utilisent Ranki.ai pour améliorer leur positionnement et dominer ChatGPT, Gemini et Perplexity. Gratuit à vie — sans carte bancaire.",
+      "subtitle": "Rejoignez les centaines d'établissements qui utilisent GoogleReviewAI pour améliorer leur positionnement et dominer ChatGPT, Gemini et Perplexity. Gratuit à vie — sans carte bancaire.",
       "button": "Commencer gratuitement",
       "free": "Offre 100% gratuite",
       "noCard": "Sans carte bancaire",
@@ -162,7 +162,7 @@
   "hero": {
     "title": "Répondez à vos avis Google",
     "titleHighlight": "en quelques secondes grâce à l'IA",
-    "subtitle": "Ranki.ai génère des réponses personnalisées et professionnelles pour chaque avis Google de votre établissement. Gagnez du temps et améliorez votre e-réputation.",
+    "subtitle": "GoogleReviewAI génère des réponses personnalisées et professionnelles pour chaque avis Google de votre établissement. Gagnez du temps et améliorez votre e-réputation.",
     "cta": "Essai gratuit 3 jours",
     "ctaSecondary": "Voir la démo",
     "installApp": "Installer l'app",
@@ -188,7 +188,7 @@
   },
   "cta": {
     "title": "Prêt à transformer vos avis Google ?",
-    "subtitle": "Rejoignez des centaines d'établissements qui utilisent Ranki.ai pour gérer leurs avis clients automatiquement.",
+    "subtitle": "Rejoignez des centaines d'établissements qui utilisent GoogleReviewAI pour gérer leurs avis clients automatiquement.",
     "button": "Commencer maintenant",
     "installApp": "Installer l'app"
   },
@@ -228,7 +228,7 @@
     "learnMore": "En savoir plus",
     "keyBenefits": "Avantages clés",
     "gotIt": "Compris !",
-    "whyStarlinko": "Pourquoi Ranki.ai ?",
+    "whyStarlinko": "Pourquoi GoogleReviewAI ?",
     "benefitsDesc": "Les avantages qui font la différence",
     "stayAhead": "Devancez vos concurrents",
     "stayAheadDesc": "Soyez visible là où ils ne sont pas encore",
@@ -243,7 +243,7 @@
     "step1Title": "Connectez-vous",
     "step1Desc": "Liez votre Google My Business en un clic avec votre compte Google.",
     "step2Title": "L'IA travaille",
-    "step2Desc": "Ranki.ai génère automatiquement des réponses personnalisées.",
+    "step2Desc": "GoogleReviewAI génère automatiquement des réponses personnalisées.",
     "step3Title": "Publiez",
     "step3Desc": "Validez et publiez en un clic, ou activez le mode automatique.",
     "autoSync": "Synchronisation automatique",
@@ -258,11 +258,11 @@
   "testimonials": {
     "badge": "Témoignages clients",
     "title": "Ils nous font confiance",
-    "subtitle": "+500 entreprises utilisent Ranki.ai pour dominer leur marché local",
+    "subtitle": "+500 entreprises utilisent GoogleReviewAI pour dominer leur marché local",
     "role1": "Gérante",
     "role2": "Directeur Marketing",
     "role3": "Directrice",
-    "text1": "Ranki.ai a révolutionné notre gestion des avis. On répond à 50 avis par semaine en 5 minutes au lieu de 2 heures !",
+    "text1": "GoogleReviewAI a révolutionné notre gestion des avis. On répond à 50 avis par semaine en 5 minutes au lieu de 2 heures !",
     "text2": "Grâce à l'AEO, nous apparaissons maintenant dans les réponses de ChatGPT. Nos demandes de devis ont explosé.",
     "text3": "Les articles SEO générés automatiquement nous ont fait passer en première page Google sur 12 mots-clés locaux.",
     "highlight1": "+85% de réponses",
@@ -281,7 +281,7 @@
   "sectors": {
     "badge": "Tous secteurs",
     "title": "Une solution pour chaque métier",
-    "subtitle": "Ranki.ai s'adapte à votre secteur d'activité avec un ton et des réponses personnalisées qui correspondent à votre image de marque.",
+    "subtitle": "GoogleReviewAI s'adapte à votre secteur d'activité avec un ton et des réponses personnalisées qui correspondent à votre image de marque.",
     "restaurants": "Restaurants",
     "restaurantsDesc": "Pizzerias, brasseries, gastronomiques, fast-food... Répondez à chaque avis avec le ton adapté à votre cuisine.",
     "hotels": "Hôtels",
@@ -342,7 +342,7 @@
       "badge": "Offre Unique",
       "title": "Une offre. Tout inclus.",
       "subtitle": "Visibilité Google, ChatGPT et gestion des avis. Tout ce qu'il vous faut pour dominer votre marché local.",
-      "name": "Ranki.ai Tout-en-Un",
+      "name": "GoogleReviewAI Tout-en-Un",
       "description": "Pack complet SEO + AEO + Réponses IA",
       "feature1": "Réponses IA illimitées aux avis Google",
       "feature2": "Articles SEO générés automatiquement",
@@ -533,7 +533,7 @@
     },
     "success": {
       "loginSuccess": "Connexion réussie !",
-      "welcomeBack": "Bienvenue sur Ranki.ai",
+      "welcomeBack": "Bienvenue sur GoogleReviewAI",
       "signupSuccess": "Inscription réussie !",
       "canNowLogin": "Vous pouvez maintenant vous connecter"
     },
@@ -604,13 +604,13 @@
     "insights": "Statistiques"
   },
   "onboarding": {
-    "welcome": "Bienvenue sur Ranki.ai",
+    "welcome": "Bienvenue sur GoogleReviewAI",
     "step1Title": "Connectez votre compte Google",
     "step1Desc": "Liez votre Google Business Profile pour synchroniser vos avis.",
     "step2Title": "Configurez vos préférences",
     "step2Desc": "Personnalisez le ton et le style des réponses IA.",
     "step3Title": "Laissez l'IA travailler",
-    "step3Desc": "Ranki.ai génère et publie des réponses automatiquement.",
+    "step3Desc": "GoogleReviewAI génère et publie des réponses automatiquement.",
     "getStarted": "Commencer"
   },
   "credits": {
@@ -628,10 +628,10 @@
   },
   "demo": {
     "badge": "Démo en direct",
-    "title": "Voyez Ranki.ai en action",
+    "title": "Voyez GoogleReviewAI en action",
     "subtitle": "Notre IA génère des réponses personnalisées à chaque avis Google en quelques secondes",
     "tab": "Avis {{num}}",
-    "aiLabel": "Réponse IA Ranki.ai",
+    "aiLabel": "Réponse IA GoogleReviewAI",
     "typing": "Rédaction...",
     "published": "✓ Publiée",
     "reviews": {
@@ -667,11 +667,11 @@
   },
   "sectorDemo": {
     "description": "Les réponses ci-dessous à des avis positifs ou négatifs ont été générées par",
-    "brandName": "Ranki.ai IA",
+    "brandName": "GoogleReviewAI IA",
     "selectIndustry": "Sélectionnez une industrie et un type d'avis.",
     "positiveReview": "Avis positif",
     "negativeReview": "Avis négatif",
-    "aiResponseLabel": "Réponse Ranki.ai",
+    "aiResponseLabel": "Réponse GoogleReviewAI",
     "typing": "Rédaction...",
     "sectors": {
       "restaurant": "Restauration",
@@ -823,9 +823,9 @@
     }
   },
   "landing": {
-    "title": "Réponses Avis Google IA & SEO Local | Ranki.ai",
-    "description": "Ranki.ai automatise vos réponses aux avis Google et améliore votre visibilité locale sur Google, ChatGPT, Gemini et Perplexity — pour restaurants, hôtels et commerces locaux.",
-    "faqTitle": "Tout savoir sur Ranki.ai",
+    "title": "Réponses Avis Google IA & SEO Local | GoogleReviewAI",
+    "description": "GoogleReviewAI automatise vos réponses aux avis Google et améliore votre visibilité locale sur Google, ChatGPT, Gemini et Perplexity — pour restaurants, hôtels et commerces locaux.",
+    "faqTitle": "Tout savoir sur GoogleReviewAI",
     "faqSubtitle": "La plateforme GEO conçue pour les commerces et professionnels locaux.",
     "faqBadge": "FAQ",
     "faq": [
@@ -834,16 +834,16 @@
         "a": "Le GEO est la discipline qui consiste à faire apparaître — et classer en premier — votre établissement dans les réponses des IA génératives comme ChatGPT, Gemini, Perplexity et Claude. C'est le successeur du SEO local à l'ère de l'IA."
       },
       {
-        "q": "Comment Ranki.ai connaît-il mon classement sur ChatGPT ou Gemini ?",
-        "a": "Ranki.ai envoie de vraies requêtes sur chaque IA pour les recherches locales qui comptent pour vous (ex : « meilleur dentiste à Lyon »), analyse les réponses et suit si votre établissement est mentionné, à quelle position et face à quels concurrents."
+        "q": "Comment GoogleReviewAI connaît-il mon classement sur ChatGPT ou Gemini ?",
+        "a": "GoogleReviewAI envoie de vraies requêtes sur chaque IA pour les recherches locales qui comptent pour vous (ex : « meilleur dentiste à Lyon »), analyse les réponses et suit si votre établissement est mentionné, à quelle position et face à quels concurrents."
       },
       {
-        "q": "Ranki.ai va-t-il vraiment améliorer mon positionnement IA ?",
-        "a": "Oui. Ranki.ai publie automatiquement des Q&R et des posts SEO optimisés pour l'IA sur votre fiche Google Business — exactement les sources qu'indexent les LLM — et répond aux avis dans le ton de votre marque. En quelques semaines, votre part de voix dans les réponses IA augmente fortement, ce qui booste votre visibilité et vos ventes."
+        "q": "GoogleReviewAI va-t-il vraiment améliorer mon positionnement IA ?",
+        "a": "Oui. GoogleReviewAI publie automatiquement des Q&R et des posts SEO optimisés pour l'IA sur votre fiche Google Business — exactement les sources qu'indexent les LLM — et répond aux avis dans le ton de votre marque. En quelques semaines, votre part de voix dans les réponses IA augmente fortement, ce qui booste votre visibilité et vos ventes."
       },
       {
         "q": "Ai-je besoin d'une fiche Google Business ?",
-        "a": "Oui. Ranki.ai se connecte à votre fiche Google Business pour récupérer les avis, publier du contenu et aligner vos signaux entre Google Search, Google Maps et les moteurs IA."
+        "a": "Oui. GoogleReviewAI se connecte à votre fiche Google Business pour récupérer les avis, publier du contenu et aligner vos signaux entre Google Search, Google Maps et les moteurs IA."
       },
       {
         "q": "Existe-t-il une offre gratuite ?",
@@ -909,7 +909,7 @@
     "pushNotifications": "Notifications push",
     "androidManaged": "Gérées par le système Android",
     "androidSettings": "Paramètres",
-    "androidSettingsDesc": "Ouvrez Paramètres > Applications > Ranki.ai > Notifications",
+    "androidSettingsDesc": "Ouvrez Paramètres > Applications > GoogleReviewAI > Notifications",
     "pushUnsupported": "Non pris en charge par ce navigateur",
     "pushActiveDesc": "Activées — Vous recevez les alertes",
     "pushBlocked": "Bloquées — Autorisez dans votre navigateur",

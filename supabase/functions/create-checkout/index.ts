@@ -9,7 +9,7 @@ const corsHeaders = {
 
 // Price IDs mapping
 const PRICE_IDS: Record<string, string> = {
-  // ===== NEW Ranki.ai plans (June 2026) =====
+  // ===== NEW GoogleReviewAI plans (June 2026) =====
   ranki_starter_monthly: "price_1TjxSJEfti9t9nN9XgMVswCh",  // 9.99€/mo
   ranki_starter_yearly:  "price_1TjxSJEfti9t9nN91VDBOxZX",  // 95.90€/yr (-20%)
   ranki_pro_monthly:     "price_1TjxSKEfti9t9nN9HAzRfqz8",  // 49€/mo
@@ -68,7 +68,7 @@ const CREDIT_AMOUNTS: Record<string, number> = {
   credits_10000: 10000,
 };
 
-// Plans that get a free trial (7-day trial on every Ranki plan)
+// Plans that get a free trial (7-day trial on every GoogleReviewAI plan)
 const TRIAL_PLANS = [
   "ranki_starter", "ranki_pro", "ranki_business",
   "ranki_starter_monthly", "ranki_starter_yearly",

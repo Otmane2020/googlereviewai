@@ -22,15 +22,15 @@ interface MagicLinkEmailProps {
 export const MagicLinkEmail = ({ confirmationUrl }: MagicLinkEmailProps) => (
   <Html lang="fr" dir="ltr">
     <Head />
-    <Preview>Votre lien de connexion Ranki.ai</Preview>
+    <Preview>Votre lien de connexion GoogleReviewAI</Preview>
     <Body style={main}>
       <Container style={container}>
         <Section style={brand}>
-          <Text style={brandText}>Ranki.ai</Text>
+          <Text style={brandText}>GoogleReviewAI</Text>
         </Section>
-        <Heading style={h1}>Connectez-vous à Ranki.ai</Heading>
+        <Heading style={h1}>Connectez-vous à GoogleReviewAI</Heading>
         <Text style={text}>
-          Cliquez sur le bouton ci-dessous pour accéder en toute sécurité à votre tableau de bord Ranki.ai.
+          Cliquez sur le bouton ci-dessous pour accéder en toute sécurité à votre tableau de bord GoogleReviewAI.
           Ce lien expirera prochainement.
         </Text>
         <Button style={button} href={confirmationUrl}>
