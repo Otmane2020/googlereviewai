@@ -1139,6 +1139,12 @@ const Reviews = () => {
         userId={user?.id || ""}
         onSuccess={handleBusinessSelectionSuccess}
       />
+
+      {/* Google Reconnect Dialog */}
+      <ReconnectGoogleDialog
+        open={showReconnectDialog}
+        onOpenChange={setShowReconnectDialog}
+      />
     </div>
   );
 };

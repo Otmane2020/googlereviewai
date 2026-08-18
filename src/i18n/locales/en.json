@@ -967,5 +967,12 @@
     "new": "New",
     "older": "Older",
     "markAsRead": "Mark as read"
+  },
+  "reconnectDialog": {
+    "title": "Google reconnection required",
+    "description": "Your Google Business connection has expired. Reconnect your account to reactivate automatic review syncing.",
+    "cta": "Reconnect Google",
+    "connecting": "Connecting...",
+    "later": "Later"
   }
 }
