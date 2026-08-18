@@ -1,90 +1,46 @@
-# GoogleReviewAI – GEO platform for Local Rank in ChatGPT, Gemini & Perplexity
-# https://googlereviewai.com
-
-User-agent: Googlebot
-Allow: /
-Crawl-delay: 1
-
-User-agent: Bingbot
-Allow: /
-Crawl-delay: 2
-
-User-agent: Twitterbot
-Allow: /
-
-User-agent: facebookexternalhit
-Allow: /
-
-# Allow generative AI crawlers (critical for GEO)
-User-agent: ChatGPT-User
-Allow: /
-
-User-agent: GPTBot
-Allow: /
-
-User-agent: OAI-SearchBot
-Allow: /
-
-User-agent: Google-Extended
-Allow: /
-
-User-agent: PerplexityBot
-Allow: /
-
-User-agent: Perplexity-User
-Allow: /
-
-User-agent: Applebot
-Allow: /
-
-User-agent: Applebot-Extended
-Allow: /
-
-User-agent: ClaudeBot
-Allow: /
-
-User-agent: anthropic-ai
-Allow: /
-
-User-agent: Claude-Web
-Allow: /
-
-User-agent: cohere-ai
-Allow: /
-
-User-agent: meta-externalagent
-Allow: /
-
-User-agent: Bytespider
-Allow: /
-
-User-agent: DuckAssistBot
-Allow: /
-
-User-agent: YouBot
-Allow: /
-
-User-agent: MistralAI-User
-Allow: /
-
 User-agent: *
 Allow: /
 Disallow: /dashboard
-Disallow: /reviews
-Disallow: /ai-settings
 Disallow: /settings
-Disallow: /businesses
-Disallow: /seo-autopost
-Disallow: /aeo-rank
-Disallow: /maps-rank
-Disallow: /notifications
-Disallow: /reset-password
-Disallow: /gmb-post
-Disallow: /checkout
 Disallow: /admin
+Disallow: /admin-orders
+Disallow: /businesses
+Disallow: /notifications
+Disallow: /checkout
 Disallow: /choose-plan
 Disallow: /payment-success
 Disallow: /payment-canceled
 Disallow: /auth
+Disallow: /reset-password
+Disallow: /install
 
 Sitemap: https://googlereviewai.com/sitemap.xml
+
+# AI crawlers: public marketing and educational content is allowed.
+User-agent: GPTBot
+Allow: /
+Disallow: /dashboard
+Disallow: /settings
+Disallow: /admin
+Disallow: /businesses
+
+User-agent: OAI-SearchBot
+Allow: /
+Disallow: /dashboard
+Disallow: /settings
+Disallow: /admin
+Disallow: /businesses
+
+User-agent: ClaudeBot
+Allow: /
+Disallow: /dashboard
+Disallow: /settings
+Disallow: /admin
+Disallow: /businesses
+
+User-agent: PerplexityBot
+Allow: /
+Disallow: /dashboard
+Disallow: /settings
+Disallow: /admin
+Disallow: /businesses
