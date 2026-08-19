@@ -14,83 +14,85 @@ import {
   Section,
   Text,
 } from 'npm:@react-email/components@0.0.22'
+import {
+  brand,
+  brandText,
+  button,
+  container,
+  footer,
+  h1,
+  link,
+  main,
+  pickLang,
+  text,
+} from './auth-theme.ts'
 
 interface SignupEmailProps {
   siteName: string
   siteUrl: string
   recipient: string
   confirmationUrl: string
+  lang?: string
 }
 
-export const SignupEmail = ({
-  siteName,
-  siteUrl,
-  recipient,
-  confirmationUrl,
-}: SignupEmailProps) => (
-  <Html lang="fr" dir="ltr">
-    <Head />
-    <Preview>Confirmez votre e-mail pour commencer à être visible sur l'IA</Preview>
-    <Body style={main}>
-      <Container style={container}>
-        <Section style={brand}>
-          <Text style={brandText}>GoogleReviewAI</Text>
-        </Section>
-        <Heading style={h1}>Confirmez votre e-mail</Heading>
-        <Text style={text}>
-          Bienvenue sur{' '}
-          <Link href={siteUrl} style={link}>
-            <strong>GoogleReviewAI</strong>
-          </Link>{' '}
-          — la plateforme qui aide votre établissement à se positionner dans
-          ChatGPT, Gemini et Perplexity.
-        </Text>
-        <Text style={text}>
-          Veuillez confirmer votre adresse e-mail (
-          <Link href={`mailto:${recipient}`} style={link}>
-            {recipient}
-          </Link>
-          ) pour activer votre compte :
-        </Text>
-        <Button style={button} href={confirmationUrl}>
-          Vérifier l'e-mail
-        </Button>
-        <Text style={footer}>
-          Si vous n'avez pas créé de compte GoogleReviewAI, vous pouvez ignorer cet e-mail en toute sécurité.
-        </Text>
-      </Container>
-    </Body>
-  </Html>
-)
+const copy = {
+  fr: {
+    preview: "Confirmez votre e-mail pour commencer à être visible sur l'IA",
+    title: 'Confirmez votre e-mail',
+    intro: 'Bienvenue sur',
+    introEnd: " — la plateforme qui aide votre établissement à se positionner dans ChatGPT, Gemini et Perplexity.",
+    ask1: 'Veuillez confirmer votre adresse e-mail (',
+    ask2: ') pour activer votre compte :',
+    cta: "Vérifier l'e-mail",
+    foot: "Si vous n'avez pas créé de compte GoogleReviewAI, vous pouvez ignorer cet e-mail en toute sécurité.",
+  },
+  en: {
+    preview: 'Confirm your email to start getting visible on AI search',
+    title: 'Confirm your email',
+    intro: 'Welcome to',
+    introEnd: ' — the platform that helps your business get recommended by ChatGPT, Gemini and Perplexity.',
+    ask1: 'Please confirm your email address (',
+    ask2: ') to activate your account:',
+    cta: 'Verify email',
+    foot: "If you didn't create a GoogleReviewAI account, you can safely ignore this email.",
+  },
+}
+
+export const SignupEmail = ({ siteUrl, recipient, confirmationUrl, lang }: SignupEmailProps) => {
+  const l = pickLang(lang)
+  const t = copy[l]
+  return (
+    <Html lang={l} dir="ltr">
+      <Head />
+      <Preview>{t.preview}</Preview>
+      <Body style={main}>
+        <Container style={container}>
+          <Section style={brand}>
+            <Text style={brandText}>GoogleReviewAI</Text>
+          </Section>
+          <Heading style={h1}>{t.title}</Heading>
+          <Text style={text}>
+            {t.intro}{' '}
+            <Link href={siteUrl} style={link}>
+              <strong>GoogleReviewAI</strong>
+            </Link>
+            {t.introEnd}
+          </Text>
+          <Text style={text}>
+            {t.ask1}
+            <Link href={`mailto:${recipient}`} style={link}>
+              {recipient}
+            </Link>
+            {t.ask2}
+          </Text>
+          <Button style={button} href={confirmationUrl}>
+            {t.cta}
+          </Button>
+          <Text style={footer}>{t.foot}</Text>
+        </Container>
+      </Body>
+    </Html>
+  )
+}
 
 export default SignupEmail
-
-const main = { backgroundColor: '#ffffff', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif' }
-const container = { padding: '32px 28px', maxWidth: '560px' }
-const brand = { borderBottom: '1px solid #e5e7eb', paddingBottom: '16px', marginBottom: '24px' }
-const brandText = { fontSize: '18px', fontWeight: 'bold' as const, color: 'hsl(217, 91%, 60%)', margin: 0, letterSpacing: '-0.01em' }
-const h1 = {
-  fontSize: '24px',
-  fontWeight: 'bold' as const,
-  color: 'hsl(222, 47%, 11%)',
-  margin: '0 0 20px',
-  letterSpacing: '-0.02em',
-}
-const text = {
-  fontSize: '15px',
-  color: 'hsl(215, 16%, 47%)',
-  lineHeight: '1.6',
-  margin: '0 0 20px',
-}
-const link = { color: 'hsl(217, 91%, 60%)', textDecoration: 'underline' }
-const button = {
-  backgroundColor: 'hsl(217, 91%, 60%)',
-  color: '#ffffff',
-  fontSize: '15px',
-  fontWeight: 'bold' as const,
-  borderRadius: '12px',
-  padding: '14px 24px',
-  textDecoration: 'none',
-  display: 'inline-block',
-}
-const footer = { fontSize: '12px', color: '#9ca3af', margin: '32px 0 0', lineHeight: '1.5' }
