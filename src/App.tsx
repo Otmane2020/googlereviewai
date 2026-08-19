@@ -44,6 +44,7 @@ import AvisAIGuide from "./pages/AvisAIGuide";
 import Blog from "./pages/Blog";
 import BlogArticle from "./pages/BlogArticle";
 import NotFound from "./pages/NotFound";
+import Unsubscribe from "./pages/Unsubscribe";
 import LandingPremium from "./pages/LandingPremium";
 import LandingFacebook from "./pages/LandingFacebook";
 import Calendar from "./pages/Calendar";
@@ -201,6 +202,7 @@ const AppContent = () => {
               <Route path="/shop" element={<Shop />} />
               <Route path="/shop/checkout" element={<ShopCheckout />} />
               <Route path="/shop/:slug" element={<ShopProduct />} />
+              <Route path="/unsubscribe" element={<Unsubscribe />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </OAuthCallback>
