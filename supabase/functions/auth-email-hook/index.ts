@@ -91,6 +91,25 @@ const SAMPLE_DATA: Record<string, object> = {
   },
 }
 
+// Resolve recipient language from their profile; default to French.
+async function resolveLang(email?: string | null): Promise<'fr' | 'en'> {
+  if (!email) return 'fr'
+  try {
+    const supa = createClient(
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+    )
+    const { data } = await supa
+      .from('profiles')
+      .select('preferred_language')
+      .eq('email', email)
+      .maybeSingle()
+    return (data as any)?.preferred_language === 'en' ? 'en' : 'fr'
+  } catch (_) {
+    return 'fr'
+  }
+}
+
 // Preview endpoint handler - returns rendered HTML without sending email
 async function handlePreview(req: Request): Promise<Response> {
   const previewCorsHeaders = {
@@ -113,9 +132,11 @@ async function handlePreview(req: Request): Promise<Response> {
   }
 
   let type: string
+  let previewLang: 'fr' | 'en' = 'fr'
   try {
     const body = await req.json()
     type = body.type
+    previewLang = body.lang === 'en' ? 'en' : 'fr'
   } catch (error) {
     return new Response(JSON.stringify({ error: 'Invalid JSON in request body' }), {
       status: 400,
@@ -132,7 +153,7 @@ async function handlePreview(req: Request): Promise<Response> {
     })
   }
 
-  const sampleData = SAMPLE_DATA[type] || {}
+  const sampleData = { ...(SAMPLE_DATA[type] || {}), lang: previewLang }
   const html = await renderAsync(React.createElement(EmailTemplate, sampleData))
 
   return new Response(html, {
@@ -229,6 +250,9 @@ async function handleWebhook(req: Request): Promise<Response> {
     )
   }
 
+  // Resolve recipient language (profiles.preferred_language), default FR
+  const lang = await resolveLang(payload.data.email)
+
   // Build template props from payload.data (HookData structure)
   const templateProps = {
     siteName: SITE_NAME,
@@ -239,6 +263,7 @@ async function handleWebhook(req: Request): Promise<Response> {
     email: payload.data.email,
     oldEmail: payload.data.old_email,
     newEmail: payload.data.new_email,
+    lang,
   }
 
   // Render React Email to HTML and plain text
@@ -246,6 +271,7 @@ async function handleWebhook(req: Request): Promise<Response> {
   const text = await renderAsync(React.createElement(EmailTemplate, templateProps), {
     plainText: true,
   })
+
 
   // Enqueue email for async processing by the dispatcher (process-email-queue).
   const supabase = createClient(
@@ -271,7 +297,7 @@ async function handleWebhook(req: Request): Promise<Response> {
       to: payload.data.email,
       from: `${SITE_NAME} <noreply@${FROM_DOMAIN}>`,
       sender_domain: SENDER_DOMAIN,
-      subject: EMAIL_SUBJECTS[emailType] || 'Notification',
+      subject: EMAIL_SUBJECTS[lang][emailType] || 'Notification',
       html,
       text,
       purpose: 'transactional',
