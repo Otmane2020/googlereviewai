@@ -91,6 +91,25 @@ const SAMPLE_DATA: Record<string, object> = {
   },
 }
 
+// Resolve recipient language from their profile; default to French.
+async function resolveLang(email?: string | null): Promise<'fr' | 'en'> {
+  if (!email) return 'fr'
+  try {
+    const supa = createClient(
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+    )
+    const { data } = await supa
+      .from('profiles')
+      .select('preferred_language')
+      .eq('email', email)
+      .maybeSingle()
+    return (data as any)?.preferred_language === 'en' ? 'en' : 'fr'
+  } catch (_) {
+    return 'fr'
+  }
+}
+
 // Preview endpoint handler - returns rendered HTML without sending email
 async function handlePreview(req: Request): Promise<Response> {
   const previewCorsHeaders = {
@@ -113,9 +132,11 @@ async function handlePreview(req: Request): Promise<Response> {
   }
 
   let type: string
+  let previewLang: 'fr' | 'en' = 'fr'
   try {
     const body = await req.json()
     type = body.type
+    previewLang = body.lang === 'en' ? 'en' : 'fr'
   } catch (error) {
     return new Response(JSON.stringify({ error: 'Invalid JSON in request body' }), {
       status: 400,
@@ -132,7 +153,7 @@ async function handlePreview(req: Request): Promise<Response> {
     })
   }
 
-  const sampleData = SAMPLE_DATA[type] || {}
+  const sampleData = { ...(SAMPLE_DATA[type] || {}), lang: previewLang }
   const html = await renderAsync(React.createElement(EmailTemplate, sampleData))
 
   return new Response(html, {
@@ -230,7 +251,7 @@ async function handleWebhook(req: Request): Promise<Response> {
   }
 
   // Resolve recipient language (profiles.preferred_language), default FR
-  const lang = await resolveEmailLang(payload.data.email, null, null)
+  const lang = await resolveLang(payload.data.email)
 
   // Build template props from payload.data (HookData structure)
   const templateProps = {
