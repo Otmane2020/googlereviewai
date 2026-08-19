@@ -13,53 +13,53 @@ import {
   Section,
   Text,
 } from 'npm:@react-email/components@0.0.22'
+import { brand, brandText, button, container, footer, h1, main, pickLang, text } from './auth-theme.ts'
 
 interface RecoveryEmailProps {
   siteName: string
   confirmationUrl: string
+  lang?: string
 }
 
-export const RecoveryEmail = ({ confirmationUrl }: RecoveryEmailProps) => (
-  <Html lang="fr" dir="ltr">
-    <Head />
-    <Preview>Réinitialisez votre mot de passe GoogleReviewAI</Preview>
-    <Body style={main}>
-      <Container style={container}>
-        <Section style={brand}>
-          <Text style={brandText}>GoogleReviewAI</Text>
-        </Section>
-        <Heading style={h1}>Réinitialiser votre mot de passe</Heading>
-        <Text style={text}>
-          Nous avons reçu une demande de réinitialisation du mot de passe de votre compte GoogleReviewAI.
-          Cliquez sur le bouton ci-dessous pour en choisir un nouveau.
-        </Text>
-        <Button style={button} href={confirmationUrl}>
-          Réinitialiser le mot de passe
-        </Button>
-        <Text style={footer}>
-          Si vous n'êtes pas à l'origine de cette demande, vous pouvez ignorer cet e-mail en toute sécurité — votre mot de passe restera inchangé.
-        </Text>
-      </Container>
-    </Body>
-  </Html>
-)
+const copy = {
+  fr: {
+    preview: 'Réinitialisez votre mot de passe GoogleReviewAI',
+    title: 'Réinitialiser votre mot de passe',
+    p1: 'Nous avons reçu une demande de réinitialisation du mot de passe de votre compte GoogleReviewAI. Cliquez sur le bouton ci-dessous pour en choisir un nouveau.',
+    cta: 'Réinitialiser le mot de passe',
+    foot: "Si vous n'êtes pas à l'origine de cette demande, vous pouvez ignorer cet e-mail en toute sécurité — votre mot de passe restera inchangé.",
+  },
+  en: {
+    preview: 'Reset your GoogleReviewAI password',
+    title: 'Reset your password',
+    p1: 'We received a request to reset the password for your GoogleReviewAI account. Click the button below to choose a new one.',
+    cta: 'Reset password',
+    foot: "If you didn't request this, you can safely ignore this email — your password will stay unchanged.",
+  },
+}
+
+export const RecoveryEmail = ({ confirmationUrl, lang }: RecoveryEmailProps) => {
+  const l = pickLang(lang)
+  const t = copy[l]
+  return (
+    <Html lang={l} dir="ltr">
+      <Head />
+      <Preview>{t.preview}</Preview>
+      <Body style={main}>
+        <Container style={container}>
+          <Section style={brand}>
+            <Text style={brandText}>GoogleReviewAI</Text>
+          </Section>
+          <Heading style={h1}>{t.title}</Heading>
+          <Text style={text}>{t.p1}</Text>
+          <Button style={button} href={confirmationUrl}>
+            {t.cta}
+          </Button>
+          <Text style={footer}>{t.foot}</Text>
+        </Container>
+      </Body>
+    </Html>
+  )
+}
 
 export default RecoveryEmail
-
-const main = { backgroundColor: '#ffffff', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif' }
-const container = { padding: '32px 28px', maxWidth: '560px' }
-const brand = { borderBottom: '1px solid #e5e7eb', paddingBottom: '16px', marginBottom: '24px' }
-const brandText = { fontSize: '18px', fontWeight: 'bold' as const, color: 'hsl(217, 91%, 60%)', margin: 0, letterSpacing: '-0.01em' }
-const h1 = { fontSize: '24px', fontWeight: 'bold' as const, color: 'hsl(222, 47%, 11%)', margin: '0 0 20px', letterSpacing: '-0.02em' }
-const text = { fontSize: '15px', color: 'hsl(215, 16%, 47%)', lineHeight: '1.6', margin: '0 0 20px' }
-const button = {
-  backgroundColor: 'hsl(217, 91%, 60%)',
-  color: '#ffffff',
-  fontSize: '15px',
-  fontWeight: 'bold' as const,
-  borderRadius: '12px',
-  padding: '14px 24px',
-  textDecoration: 'none',
-  display: 'inline-block',
-}
-const footer = { fontSize: '12px', color: '#9ca3af', margin: '32px 0 0', lineHeight: '1.5' }
