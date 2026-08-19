@@ -47,6 +47,23 @@ export default function AdminOrders() {
     if (tracking !== undefined) payload.tracking_number = tracking;
     const { error } = await supabase.from("orders").update(payload).eq("id", id);
     if (error) { toast.error(error.message); return; }
+    if (status === "shipped") {
+      const order = orders.find((o) => o.id === id);
+      if (order?.customer_email) {
+        supabase.functions.invoke("send-transactional-email", {
+          body: {
+            templateName: "order-shipped",
+            recipientEmail: order.customer_email,
+            idempotencyKey: `order-shipped-${id}`,
+            templateData: {
+              name: order.shipping_address?.full_name || order.customer_name || "",
+              orderId: id,
+              trackingNumber: tracking ?? order.tracking_number ?? "",
+            },
+          },
+        }).catch(() => {});
+      }
+    }
     toast.success("Mis à jour");
     load();
   };
