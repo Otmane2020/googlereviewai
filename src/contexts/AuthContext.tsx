@@ -50,11 +50,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               // Fire welcome email in the right language (once per profile)
               if (profile && !profile.welcome_email_sent && profile.email) {
                 try {
-                  await supabase.functions.invoke("send-welcome-email", {
+                  await supabase.functions.invoke("send-transactional-email", {
                     body: {
-                      email: profile.email,
-                      name: profile.full_name || "",
-                      lang,
+                      templateName: "welcome",
+                      recipientEmail: profile.email,
+                      idempotencyKey: `welcome-${session.user.id}`,
+                      templateData: {
+                        name: profile.full_name || "",
+                        lang,
+                      },
                     },
                   });
                   await supabase.from("profiles").update({ welcome_email_sent: true }).eq("id", session.user.id);

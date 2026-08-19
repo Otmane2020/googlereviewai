@@ -485,6 +485,40 @@ serve(async (req) => {
           console.warn("[payment_intent.succeeded] No matching order for PI:", pi.id);
         } else {
           console.log(`[payment_intent.succeeded] ✅ Order ${order.id} marked as paid`);
+          try {
+            const { data: items } = await supabaseAdmin
+              .from("order_items")
+              .select("product_name, quantity, unit_price")
+              .eq("order_id", order.id);
+            let lang = "fr";
+            if (order.user_id) {
+              const { data: prof } = await supabaseAdmin
+                .from("profiles").select("preferred_language").eq("id", order.user_id).maybeSingle();
+              if ((prof as any)?.preferred_language === "en") lang = "en";
+            }
+            await supabaseAdmin.functions.invoke("send-transactional-email", {
+              body: {
+                templateName: "order-confirmation",
+                recipientEmail: order.customer_email,
+                idempotencyKey: `order-confirmation-${order.id}`,
+                templateData: {
+                  name: (order.shipping_address as any)?.full_name || order.customer_name || "",
+                  orderId: order.id,
+                  items: (items || []).map((i: any) => ({
+                    name: i.product_name,
+                    quantity: i.quantity,
+                    price: Number(i.unit_price || 0) * Number(i.quantity || 1),
+                  })),
+                  shippingCost: Number(order.shipping_cost || 0),
+                  total: Number(order.amount || 0),
+                  shippingAddress: order.shipping_address,
+                  lang,
+                },
+              },
+            });
+          } catch (e) {
+            console.error("[payment_intent.succeeded] order confirmation email failed", e);
+          }
         }
         break;
       }
