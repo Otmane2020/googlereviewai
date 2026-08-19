@@ -229,6 +229,9 @@ async function handleWebhook(req: Request): Promise<Response> {
     )
   }
 
+  // Resolve recipient language (profiles.preferred_language), default FR
+  const lang = await resolveEmailLang(payload.data.email, null, null)
+
   // Build template props from payload.data (HookData structure)
   const templateProps = {
     siteName: SITE_NAME,
@@ -239,6 +242,7 @@ async function handleWebhook(req: Request): Promise<Response> {
     email: payload.data.email,
     oldEmail: payload.data.old_email,
     newEmail: payload.data.new_email,
+    lang,
   }
 
   // Render React Email to HTML and plain text
@@ -246,6 +250,7 @@ async function handleWebhook(req: Request): Promise<Response> {
   const text = await renderAsync(React.createElement(EmailTemplate, templateProps), {
     plainText: true,
   })
+
 
   // Enqueue email for async processing by the dispatcher (process-email-queue).
   const supabase = createClient(
