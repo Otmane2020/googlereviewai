@@ -24,10 +24,11 @@ const Auth = () => {
   const checkSubscriptionAndRedirect = async (userId: string) => {
     const params = new URLSearchParams(window.location.search);
     const redirectTo = params.get("redirect");
-    const priceKey = params.get("priceKey");
+    const priceKey = params.get("priceKey") || localStorage.getItem("pending_price_key");
     const nextParam = params.get("next");
 
-    if (redirectTo === "checkout" && priceKey) {
+    if ((redirectTo === "checkout" || localStorage.getItem("pending_price_key")) && priceKey) {
+      localStorage.removeItem("pending_price_key");
       try {
         const { data, error } = await supabase.functions.invoke("create-checkout", {
           body: {
