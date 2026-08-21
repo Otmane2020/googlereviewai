@@ -108,12 +108,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const signInWithGoogle = async () => {
-    // Use Supabase OAuth with provider_token persistence
-    // This will authenticate the user AND request GMB access
+    // Preserve current query params (e.g. ?redirect=checkout&priceKey=...) across the OAuth round-trip
+    const search = window.location.pathname === "/auth" ? window.location.search : "";
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/auth`,
+        redirectTo: `${window.location.origin}/auth${search}`,
         scopes: "https://www.googleapis.com/auth/business.manage https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile",
         queryParams: {
           access_type: "offline",

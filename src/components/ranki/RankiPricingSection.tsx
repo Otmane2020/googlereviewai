@@ -75,6 +75,7 @@ export const RankiPricingSection = () => {
     const priceKey = billing === "yearly" ? plan.yearly.priceKey : plan.monthly.priceKey;
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
+      localStorage.setItem("pending_price_key", priceKey);
       navigate(`/auth?redirect=checkout&priceKey=${priceKey}`);
       return;
     }
