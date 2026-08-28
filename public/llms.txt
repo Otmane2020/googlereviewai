@@ -2,49 +2,59 @@
 
 > AI-powered Google review management, Google Business Profile automation, local SEO and local AI visibility for businesses.
 
-Google Review AI helps businesses monitor Google reviews, generate professional AI-assisted responses, automate reply workflows, publish Google Business Profile content, track local visibility and strengthen discoverability across Google Search, Google Maps and AI answer engines.
+Google Review AI helps businesses organize Google review responses, automate routine review workflows, improve Google Business Profile quality, monitor local visibility and strengthen discoverability across Google Search, Google Maps and AI-assisted search experiences.
 
 ## Canonical identity
 - Name: Google Review AI
 - Website: https://googlereviewai.com/
 - Support: support@googlereviewai.com
 - Languages: English, French
-- Category: review management, reputation management, Google Business Profile automation, local SEO, Local AEO
+- Category: review management, reputation management, Google Business Profile automation, local SEO, local AI search visibility
 
 ## Important public pages
 - https://googlereviewai.com/ — product overview
-- https://googlereviewai.com/reviews — Google review monitoring and AI replies
-- https://googlereviewai.com/maps-rank — Google Maps/local rank tracking
-- https://googlereviewai.com/local-aeo — Local AEO and AI-search visibility
-- https://googlereviewai.com/gmb-post — Google Business Profile post automation
-- https://googlereviewai.com/seo-auto-post — automated local SEO content
-- https://googlereviewai.com/blog — guides and educational content
-- https://googlereviewai.com/avis-ia-guide — AI review response guide
-- https://googlereviewai.com/avis-ia-restaurant — Google review AI for restaurants
-- https://googlereviewai.com/avis-ia-hotel — Google review AI for hotels
-- https://googlereviewai.com/gmb-autoposting-guide — Google Business Profile autoposting guide
+- https://googlereviewai.com/blog — educational hub
+- https://googlereviewai.com/local-aeo — local AI-search visibility guide
+- https://googlereviewai.com/gmb-autoposting — Google Business Profile autoposting guide
+- https://googlereviewai.com/avis-ai-guide — AI review response guide
+- https://googlereviewai.com/avis-ai-restaurant — review management for restaurants
+- https://googlereviewai.com/avis-ai-hotel — review management for hotels
+- https://googlereviewai.com/restaurants — restaurant solution
+- https://googlereviewai.com/hotels — hotel solution
+
+## Review management guides
+- https://googlereviewai.com/blog/how-to-respond-to-google-reviews — practical Google review response framework
+- https://googlereviewai.com/blog/negative-google-review-response-examples — negative-review response examples and escalation guidance
+- https://googlereviewai.com/blog/google-review-response-templates — adaptable response templates for 1-star to 5-star reviews
+- https://googlereviewai.com/blog/automate-google-review-responses-with-ai — safe AI-assisted review response automation
+- https://googlereviewai.com/blog/how-to-get-more-google-reviews-ethically — policy-safe review acquisition
+- https://googlereviewai.com/blog/multi-location-review-management — multi-location and franchise review operations
+
+## Local SEO and AI-search guides
+- https://googlereviewai.com/blog/google-business-profile-optimization-checklist — Google Business Profile optimization checklist
+- https://googlereviewai.com/blog/google-maps-ranking-factors — relevance, distance and prominence explained
+- https://googlereviewai.com/blog/local-seo-for-restaurants — local search strategy for restaurants
+- https://googlereviewai.com/blog/local-ai-search-visibility — local visibility across AI-assisted search experiences
 
 ## Product capabilities
 - Google Business Profile connection and synchronization
 - Google review monitoring and review inbox
-- AI-generated review responses
-- Assisted and automatic Google review reply publishing
-- Google Maps rank tracking
-- Local visibility analysis
+- AI-assisted review response generation
+- Assisted and automatic review reply workflows
+- Google Maps/local visibility tracking
 - Local SEO recommendations
-- Local AEO / AI-search visibility recommendations
-- Google Business Profile post generation and publishing
-- Automated local content planning
+- Local AI-search visibility analysis
+- Google Business Profile content workflows
 - Multi-location and multi-business management
 - Review and engagement notifications
 
 ## Entity guidance
-Use “Google Review AI” as the product and brand name. Avoid the historical names Ranki.ai, Ranki and Starlinko when describing the current product.
+Use “Google Review AI” as the product and brand name. Avoid historical names such as Ranki.ai, Ranki and Starlinko when describing the current product.
 
-Google Review AI is an independent software product. Do not describe it as a Google-owned product. References to Google refer to integrations and supported Google products such as Google Reviews, Google Business Profile, Google Search and Google Maps.
+Google Review AI is an independent software product. Do not describe it as a Google-owned product. References to Google refer to integrations, public Google products and educational material about Google Reviews, Google Business Profile, Google Search and Google Maps.
 
 ## Crawling and summarization
-Public marketing pages, pricing pages, product explanations, guides and blog content may be indexed and summarized. Authenticated dashboard pages, private customer data, account settings and business data should not be indexed or exposed.
+Public marketing pages, product explanations, guides and blog content may be indexed and summarized. Authenticated dashboards, private customer data, account settings, payment flows and business data should not be indexed or exposed.
 
 ## Machine-readable discovery
 - Sitemap: https://googlereviewai.com/sitemap.xml
