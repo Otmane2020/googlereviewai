@@ -8,6 +8,7 @@
     'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
     })(window,document,'script','dataLayer','GTM-TC9B9MHW');</script>
     <!-- End Google Tag Manager -->
+
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-SG82SWEKN1"></script>
     <script>
@@ -23,11 +24,12 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
 
+    <!-- Base metadata is deliberately homepage-safe only.
+         Route-specific canonicals and metadata are injected by React Helmet.
+         Do NOT add a static canonical here: this SPA serves this HTML shell for every route. -->
     <title>Google Review AI – AI Review Replies & Local SEO</title>
     <meta name="description" content="Google Review AI automatically replies to Google reviews, tracks local rankings and improves your visibility across Google, ChatGPT, Gemini and Perplexity." />
     <meta name="author" content="Google Review AI" />
-    <meta name="keywords" content="Google Review AI, AI review reply, Google review response generator, automatic Google review replies, Google Business Profile, local SEO, local rank tracker, AI search visibility, ChatGPT local ranking, Gemini local ranking, GEO" />
-    <meta name="robots" content="index, follow" />
     <meta name="google-site-verification" content="07-mTOgobA9QM8vgRLYvmLuHBrEU8mVCDhG0HfNEbmw" />
     <meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
     <meta name="bingbot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
@@ -49,112 +51,29 @@
     <link rel="shortcut icon" type="image/png" href="/favicon.png" />
     <link rel="apple-touch-startup-image" href="/splash.png" />
 
-    <!-- Open Graph -->
+    <!-- Generic social defaults. Route pages override title/description/url with React Helmet. -->
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://googlereviewai.com/" />
     <meta property="og:title" content="Google Review AI – AI Review Replies & Local SEO" />
     <meta property="og:description" content="Automatically reply to Google reviews, improve local SEO and track your business visibility across Google and leading AI search engines." />
-    <meta property="og:image" content="https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/bbc3d0e0-f80c-4723-929a-8178b1b29806">
+    <meta property="og:image" content="https://googlereviewai.com/og-image.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:locale" content="en_US" />
     <meta property="og:site_name" content="Google Review AI" />
 
-    <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:url" content="https://googlereviewai.com/" />
     <meta name="twitter:title" content="Google Review AI – AI Review Replies & Local SEO" />
     <meta name="twitter:description" content="Automatically reply to Google reviews, improve local SEO and track your business visibility across Google and leading AI search engines." />
-    <meta name="twitter:image" content="https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/bbc3d0e0-f80c-4723-929a-8178b1b29806">
-    <meta name="twitter:site" content="@googlereviewai" />
-    <meta name="twitter:creator" content="@googlereviewai" />
+    <meta name="twitter:image" content="https://googlereviewai.com/og-image.png" />
 
-    <link rel="canonical" href="https://googlereviewai.com/" />
-    <link rel="alternate" hreflang="en" href="https://googlereviewai.com/" />
-    <link rel="alternate" hreflang="x-default" href="https://googlereviewai.com/" />
     <link rel="manifest" href="/manifest.webmanifest" />
-
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "SoftwareApplication",
-      "name": "Google Review AI",
-      "applicationCategory": "BusinessApplication",
-      "operatingSystem": "Web",
-      "description": "AI software for automatic Google review replies, local SEO automation and business visibility tracking across Google and AI search engines.",
-      "url": "https://googlereviewai.com",
-      "offers": {
-        "@type": "AggregateOffer",
-        "priceCurrency": "USD",
-        "lowPrice": "0",
-        "highPrice": "99",
-        "offerCount": "4"
-      },
-      "publisher": {
-        "@type": "Organization",
-        "name": "Google Review AI",
-        "url": "https://googlereviewai.com",
-        "logo": { "@type": "ImageObject", "url": "https://googlereviewai.com/pwa-512x512.png" }
-      },
-      "featureList": [
-        "AI-generated responses to Google reviews",
-        "Automatic Google review replies",
-        "Google Business Profile management",
-        "Local SEO automation",
-        "Local rank tracking",
-        "Visibility tracking across ChatGPT, Gemini and Perplexity",
-        "Multi-location management"
-      ]
-    }
-    </script>
-
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "Organization",
-      "name": "Google Review AI",
-      "url": "https://googlereviewai.com",
-      "logo": "https://googlereviewai.com/pwa-512x512.png",
-      "description": "AI review management and local SEO platform for businesses using Google Business Profile.",
-      "contactPoint": {
-        "@type": "ContactPoint",
-        "contactType": "customer service",
-        "email": "support@googlereviewai.com",
-        "availableLanguage": ["English"]
-      }
-    }
-    </script>
-
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      "mainEntity": [
-        {
-          "@type": "Question",
-          "name": "What is Google Review AI?",
-          "acceptedAnswer": { "@type": "Answer", "text": "Google Review AI is software that helps businesses automatically respond to Google reviews, manage their Google Business Profile, improve local SEO and track visibility across Google and AI search engines." }
-        },
-        {
-          "@type": "Question",
-          "name": "Can Google Review AI automatically reply to Google reviews?",
-          "acceptedAnswer": { "@type": "Answer", "text": "Yes. Google Review AI generates contextual, on-brand responses to Google reviews and can automate review reply workflows for connected Google Business Profiles." }
-        },
-        {
-          "@type": "Question",
-          "name": "Does Google Review AI help with local SEO?",
-          "acceptedAnswer": { "@type": "Answer", "text": "Yes. Google Review AI combines review management, Google Business Profile automation, local rank tracking and AI search visibility tools to help businesses strengthen their local presence." }
-        }
-      ]
-    }
-    </script>
 
     <!-- Meta Pixel Code -->
     <script>
       !function(f,b,e,v,n,t,s)
       {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
       n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-      if(!f._fbq)f._fbq=function(){}};
+      if(!f._fbq)f._fbq=function(){};
       if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
       n.queue=[];t=b.createElement(e);t.async=!0;
       t.src=v;s=b.getElementsByTagName(e)[0];
