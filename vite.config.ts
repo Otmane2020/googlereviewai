@@ -24,11 +24,21 @@ export default defineConfig(({ mode }) => ({
     VitePWA({
       registerType: "prompt",
       injectRegister: false,
-      includeAssets: ["favicon.ico", "robots.txt", "sitemap.xml", "icon-512x512.png", "splash.png", "pwa-192x192.png"],
+      includeAssets: [
+        "favicon.png",
+        "apple-touch-icon.png",
+        "robots.txt",
+        "sitemap.xml",
+        "llms.txt",
+        "og-image.png",
+        "icon-192x192.png",
+        "icon-512x512.png",
+        "splash.png",
+      ],
       manifest: {
-        name: "Ranki.ai - Gestion des avis Google",
-        short_name: "Ranki.ai",
-        description: "Gérez et répondez automatiquement à vos avis Google My Business",
+        name: "Google Review AI - Review Replies & Local SEO",
+        short_name: "Google Review AI",
+        description: "AI-powered Google review replies, local SEO automation and local visibility tracking.",
         theme_color: "#ffffff",
         background_color: "#ffffff",
         display: "standalone",
@@ -83,9 +93,6 @@ export default defineConfig(({ mode }) => ({
               expiration: {
                 maxEntries: 10,
                 maxAgeSeconds: 60 * 60 * 24 * 365
-              },
-              cacheableResponse: {
-                statuses: [0, 200]
               }
             }
           }
