@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { Button } from "./ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import { AppLanguage, normalizeLanguage, persistLanguage } from "@/i18n/config";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,7 +32,7 @@ const BritishFlag = () => (
   </svg>
 );
 
-const languages = [
+const languages: Array<{ code: AppLanguage; label: string; short: string; Flag: () => JSX.Element }> = [
   { code: "fr", label: "Français", short: "FR", Flag: FrenchFlag },
   { code: "en", label: "English", short: "EN", Flag: BritishFlag },
 ];
@@ -43,17 +44,18 @@ interface LanguageSwitcherProps {
 
 export const LanguageSwitcher = ({ variant = "flags", className = "" }: LanguageSwitcherProps) => {
   const { i18n } = useTranslation();
-  const currentLang = i18n.language?.substring(0, 2) || "en";
+  const currentLang = normalizeLanguage(i18n.resolvedLanguage || i18n.language) || "en";
 
   const handleLanguageChange = async (langCode: string) => {
-    await i18n.changeLanguage(langCode);
-    try { localStorage.setItem("i18nextLng", langCode); } catch {}
-    try { document.documentElement.lang = langCode; } catch {}
+    const language = normalizeLanguage(langCode) || "en";
+    // Persist the explicit choice before async work so auth/OAuth cannot overwrite it.
+    persistLanguage(language, true);
+    await i18n.changeLanguage(language);
     // Persist to profile so server-side emails/notifications use the right language
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        await supabase.from("profiles").update({ preferred_language: langCode }).eq("id", user.id);
+        await supabase.from("profiles").update({ preferred_language: language }).eq("id", user.id);
       }
     } catch {}
     // No reload — i18next triggers re-render of all components using useTranslation
