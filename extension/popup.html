@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link rel="stylesheet" href="popup.css" />
+    <title>Business Review Reply AI</title>
+  </head>
+  <body>
+    <main>
+      <header><img src="icons/icon.png" alt="" /><div><h1>Business Review Reply AI</h1><p>Professional replies in seconds</p></div></header>
+      <label for="business">Business name</label>
+      <input id="business" maxlength="100" placeholder="Your business name" />
+      <section id="review" class="card hidden">
+        <div class="stars" id="stars"></div><strong id="author"></strong><p id="comment"></p>
+      </section>
+      <p id="status" role="status">Open a review on Google Maps or Business Profile.</p>
+      <button id="generate" disabled>Generate AI reply</button>
+      <section id="result" class="hidden">
+        <label for="reply">Suggested reply</label><textarea id="reply" rows="6"></textarea>
+        <div class="actions"><button id="copy" class="secondary">Copy</button><button id="insert">Insert into reply</button></div>
+      </section>
+      <footer><a href="https://googlereviewai.com/privacy" target="_blank" rel="noreferrer">Privacy</a><span>•</span><a href="https://googlereviewai.com" target="_blank" rel="noreferrer">GoogleReviewAI.com</a></footer>
+    </main>
+    <script src="popup.js"></script>
+  </body>
+</html>
