@@ -30,7 +30,7 @@ const PrivacyPolicy = () => {
 
         <div className="prose prose-gray dark:prose-invert max-w-none">
           <h1 className="text-3xl font-bold text-foreground mb-2">Politique de Confidentialité</h1>
-          <p className="text-muted-foreground mb-8">Dernière mise à jour : 1er janvier 2024</p>
+          <p className="text-muted-foreground mb-8">Dernière mise à jour : 29 août 2026</p>
 
           <section className="mb-10">
             <h2 className="text-xl font-semibold text-foreground mb-4">Résumé de notre engagement</h2>
@@ -78,7 +78,22 @@ const PrivacyPolicy = () => {
           </section>
 
           <section className="mb-10">
-            <h2 className="text-xl font-semibold text-foreground mb-4">4. Sécurité</h2>
+            <h2 className="text-xl font-semibold text-foreground mb-4">4. Extension Chrome Business Review Reply AI</h2>
+            <p className="text-muted-foreground mb-4">
+              Lorsque l’utilisateur clique sur « Generate AI reply », l’extension transmet à notre service de génération
+              le nom de l’établissement saisi, la note, le nom d’affichage de l’auteur et le texte de l’avis visible.
+              Ces informations sont utilisées uniquement pour produire la réponse demandée.
+            </p>
+            <ul className="list-disc list-inside text-muted-foreground space-y-2">
+              <li>L’extension ne publie jamais une réponse automatiquement.</li>
+              <li>La réponse générée reste modifiable avant toute publication par l’utilisateur.</li>
+              <li>L’extension ne vend pas les données et ne les utilise pas à des fins publicitaires.</li>
+              <li>Le nom de l’établissement peut être conservé localement dans Chrome pour éviter de le ressaisir.</li>
+            </ul>
+          </section>
+
+          <section className="mb-10">
+            <h2 className="text-xl font-semibold text-foreground mb-4">5. Sécurité</h2>
             <h3 className="text-lg font-medium text-foreground mb-3">Mesures de protection</h3>
             <ul className="list-disc list-inside text-muted-foreground space-y-2">
               <li>Chiffrement TLS 1.3 et stockage AES-256</li>
@@ -89,7 +104,7 @@ const PrivacyPolicy = () => {
           </section>
 
           <section className="mb-10">
-            <h2 className="text-xl font-semibold text-foreground mb-4">5. Vos droits (RGPD)</h2>
+            <h2 className="text-xl font-semibold text-foreground mb-4">6. Vos droits (RGPD)</h2>
             <div className="space-y-4">
               <div>
                 <h3 className="text-lg font-medium text-foreground">Droit d'accès</h3>
@@ -111,7 +126,7 @@ const PrivacyPolicy = () => {
           </section>
 
           <section className="mb-10">
-            <h2 className="text-xl font-semibold text-foreground mb-4">6. Contact et réclamations</h2>
+            <h2 className="text-xl font-semibold text-foreground mb-4">7. Contact et réclamations</h2>
             <p className="text-muted-foreground mb-4">Pour toute question ou demande relative à vos données :</p>
             <ul className="list-none text-muted-foreground space-y-2">
               <li><strong>Email :</strong> privacy@googlereviewai.com</li>
