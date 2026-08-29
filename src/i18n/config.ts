@@ -31,8 +31,9 @@ export const getExplicitLanguage = (): AppLanguage | null => {
     if (explicit) return explicit;
 
     // Migrate the legacy preference. It was the only persisted language choice.
+    const hasCurrentKey = normalizeLanguage(localStorage.getItem(LANGUAGE_KEY));
     const legacy = normalizeLanguage(localStorage.getItem(LEGACY_LANGUAGE_KEY));
-    if (legacy) {
+    if (!hasCurrentKey && legacy) {
       localStorage.setItem(LANGUAGE_KEY, legacy);
       localStorage.setItem(EXPLICIT_LANGUAGE_KEY, legacy);
       return legacy;
