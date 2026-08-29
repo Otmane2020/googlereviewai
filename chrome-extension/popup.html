@@ -1,71 +1,86 @@
 <!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Google Review AI</title>
-    <link rel="stylesheet" href="popup.css" />
-  </head>
-  <body>
-    <main class="app">
-      <header class="header">
-        <div class="logo">G</div>
-        <div>
-          <h1>Google Review AI</h1>
-          <p>Reply faster, stay on brand.</p>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Business Reviews AI</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <main class="app">
+    <header class="brandbar">
+      <div class="brand">
+        <img src="brand/logo-mark.png" alt="" class="brand-mark" />
+        <div class="wordmark" aria-label="Business Reviews AI">
+          <span>Business Reviews</span><span class="ai">AI<i>✦</i></span>
         </div>
-      </header>
+      </div>
+      <span class="badge">Review assistant</span>
+    </header>
 
-      <div id="status" class="status">Open a Google review, then click Detect review.</div>
+    <section class="hero-card">
+      <div class="hero-icon">✦</div>
+      <div>
+        <h1 id="headline">Répondez à vos avis en quelques secondes</h1>
+        <p id="subline">Ouvrez un avis, puis générez une réponse professionnelle à relire avant publication.</p>
+      </div>
+    </section>
+
+    <div id="status" class="status neutral">Ouvrez un avis Google Maps ou Business Profile, puis cliquez sur Détecter.</div>
+
+    <section class="card">
+      <div class="section-title"><span>1</span><strong id="reviewSectionTitle">Avis client</strong></div>
 
       <label>
-        <span>Business</span>
-        <input id="businessName" type="text" placeholder="Your business name" />
+        <span id="businessLabel">Établissement</span>
+        <input id="businessName" type="text" placeholder="Nom de l’établissement" autocomplete="off" />
       </label>
 
-      <div class="row">
-        <label class="rating-field">
-          <span>Rating</span>
+      <div class="rating-row">
+        <label>
+          <span id="ratingLabel">Note</span>
           <select id="rating">
-            <option value="5">5 stars</option>
-            <option value="4">4 stars</option>
-            <option value="3">3 stars</option>
-            <option value="2">2 stars</option>
-            <option value="1">1 star</option>
+            <option value="5">★★★★★</option>
+            <option value="4">★★★★☆</option>
+            <option value="3">★★★☆☆</option>
+            <option value="2">★★☆☆☆</option>
+            <option value="1">★☆☆☆☆</option>
           </select>
         </label>
-        <label>
-          <span>Author</span>
-          <input id="author" type="text" placeholder="Customer" />
-        </label>
+        <button id="detect" class="btn btn-outline" type="button">Détecter l’avis</button>
       </div>
 
       <label>
-        <span>Review</span>
-        <textarea id="review" rows="5" placeholder="Select or open a Google review, or paste it here."></textarea>
+        <span id="reviewLabel">Avis</span>
+        <textarea id="review" rows="5" placeholder="Le texte de l’avis apparaîtra ici. Vous pouvez aussi le coller manuellement."></textarea>
       </label>
 
-      <div class="actions two">
-        <button id="detect" class="secondary">Detect review</button>
-        <button id="generate" class="primary">Generate AI reply</button>
+      <p id="privacyNote" class="privacy-note">Le texte de l’avis, la note et le nom de l’établissement sont envoyés à notre service IA uniquement pour générer la réponse demandée.</p>
+
+      <button id="generate" class="btn btn-primary btn-full" type="button">
+        <span>✦</span><span id="generateLabel">Générer la réponse IA</span>
+      </button>
+    </section>
+
+    <section id="resultPanel" class="card result hidden">
+      <div class="result-head">
+        <div class="section-title"><span>2</span><strong id="replySectionTitle">Réponse proposée</strong></div>
+        <button id="regenerate" class="text-button" type="button">Régénérer</button>
       </div>
+      <textarea id="response" rows="6" aria-label="Réponse proposée"></textarea>
+      <div class="actions">
+        <button id="copy" class="btn btn-outline" type="button">Copier</button>
+        <button id="insert" class="btn btn-primary" type="button">Insérer dans Google</button>
+      </div>
+      <p id="publishNote" class="publish-note">Business Reviews AI ne publie jamais automatiquement. Vérifiez la réponse puis utilisez le bouton de publication de Google.</p>
+    </section>
 
-      <section id="resultPanel" class="result hidden">
-        <div class="result-head">
-          <strong>Suggested reply</strong>
-          <button id="regenerate" class="link-button">Regenerate</button>
-        </div>
-        <textarea id="response" rows="6"></textarea>
-        <div class="actions two">
-          <button id="copy" class="secondary">Copy</button>
-          <button id="insert" class="primary">Insert in Google</button>
-        </div>
-      </section>
-
-      <footer>
-        <a id="dashboard" href="https://googlereviewai.com/dashboard" target="_blank" rel="noreferrer">Open full dashboard →</a>
-      </footer>
-    </main>
-    <script src="popup.js"></script>
-  </body>
+    <footer>
+      <a href="https://googlereviewai.com/dashboard" target="_blank" rel="noreferrer">Tableau de bord</a>
+      <span>•</span>
+      <a href="https://googlereviewai.com/privacy" target="_blank" rel="noreferrer">Confidentialité</a>
+    </footer>
+  </main>
+  <script src="popup.js"></script>
+</body>
 </html>

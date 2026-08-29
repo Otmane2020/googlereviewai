@@ -1,28 +1,29 @@
 {
   "manifest_version": 3,
-  "name": "Google Review AI - Reply Assistant",
-  "version": "0.1.0",
-  "description": "Generate professional AI replies to Google reviews and insert them directly from Chrome.",
-  "permissions": ["activeTab", "storage", "clipboardWrite"],
-  "host_permissions": [
-    "https://hlruprayqfnatnldrski.supabase.co/*"
-  ],
-  "action": {
-    "default_title": "Google Review AI",
-    "default_popup": "popup.html"
+  "name": "Business Reviews AI",
+  "short_name": "Business Reviews AI",
+  "version": "1.0.0",
+  "description": "Draft AI-assisted replies for reviews you are viewing on Google Maps™ or Google Business Profile™, then copy or insert them.",
+  "homepage_url": "https://googlereviewai.com",
+  "permissions": ["activeTab", "scripting", "storage"],
+  "host_permissions": ["https://hlruprayqfnatnldrski.supabase.co/*"],
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
   },
-  "content_scripts": [
-    {
-      "matches": [
-        "https://www.google.com/maps/*",
-        "https://maps.google.com/*",
-        "https://www.google.fr/maps/*",
-        "https://business.google.com/*",
-        "https://www.google.com/search*",
-        "https://www.google.fr/search*"
-      ],
-      "js": ["content.js"],
-      "run_at": "document_idle"
+  "action": {
+    "default_title": "Business Reviews AI",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
     }
-  ]
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  }
 }

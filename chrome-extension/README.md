@@ -1,45 +1,52 @@
-# Google Review AI Chrome Extension
+# Business Reviews AI — Chrome Extension
 
-A lightweight Manifest V3 Chrome extension for generating AI replies to Google reviews without leaving Google Maps or Google Business Profile.
+Production-ready Chrome extension package for AI-assisted customer review replies.
 
-## What it does
+## Brand
 
-- Detects a visible/selected Google review when possible
-- Falls back to manual paste if Google changes its page markup
-- Uses the existing `generate-demo-response` Supabase Edge Function
-- Generates a professional reply without exposing the OpenRouter key in the extension
-- Copies the reply to the clipboard
-- Inserts the reply into an open Google reply field
-- Never clicks Google's final Publish/Reply button automatically; the user reviews before publishing
+The extension reuses the official GoogleReviewAI visual system from the main application: official review-bubble mark, Inter/system typography, light slate surfaces, white cards, Google-style blue accents, AI blue `#1769FF`, and 12–14 px rounded corners.
 
-## Install locally
+Public extension name: **Business Reviews AI**.
 
-1. Download or clone this repository.
-2. Open `chrome://extensions` in Chrome.
-3. Enable **Developer mode**.
+## Single purpose
+
+Help a user draft, review, copy, and insert an AI-assisted reply to a customer review they are currently viewing. The extension never automatically clicks the final publish/reply button.
+
+## Privacy-first permissions
+
+- `activeTab`: access only to the active tab after the user invokes the extension.
+- `scripting`: detect visible review context and insert a user-approved draft on explicit action.
+- `storage`: remember the business name locally.
+- Supabase host permission: call the existing GoogleReviewAI AI-generation backend.
+
+There is no persistent Google content script and no broad Google host permission.
+
+## Local testing
+
+1. Run `python chrome-extension/tools/build_store_assets.py` from the repository root (requires Pillow).
+2. Open `chrome://extensions`.
+3. Enable Developer mode.
 4. Click **Load unpacked**.
-5. Select the `chrome-extension` folder.
-6. Open a Google Maps / Google Business Profile review and click the Google Review AI extension icon.
+5. Select `dist/chrome-extension/package`.
 
-## Test flow
+## Chrome Web Store files
 
-1. Open a review on Google Maps or the Google Business Profile interface.
-2. Optionally select the review text if automatic detection cannot identify it.
-3. Click **Detect review**.
-4. Confirm business, author and rating.
-5. Click **Generate AI reply**.
-6. Review the generated text.
-7. Open Google's reply field and click **Insert in Google**, or use **Copy**.
-8. Publish manually in Google.
+The build creates:
 
-## Supported pages
+- `dist/chrome-extension/business-reviews-ai-chrome-v1.0.0.zip` — upload this package to the Chrome Web Store.
+- `dist/chrome-extension/store-assets/store-icon-128.png`
+- `dist/chrome-extension/store-assets/screenshot-1280x800.png`
+- `dist/chrome-extension/store-assets/promo-small-440x280.png`
 
-The initial version registers its content script on Google Maps / Google Search in `google.com` and `google.fr`, plus `business.google.com`.
+GitHub Actions also publishes these as the `business-reviews-ai-chrome-store` workflow artifact after relevant pushes to `main`.
 
-## Security
+## Store metadata
 
-No OpenRouter or Google OAuth secret is stored in the Chrome extension. AI generation stays server-side in the project's Supabase Edge Function.
+See `chrome-extension/store-listing/STORE_LISTING.md` for the name, descriptions, single-purpose text, permission justifications, reviewer instructions and data-disclosure answers.
 
-## Chrome Web Store
+Privacy policy URL:
+`https://googlereviewai.com/business-reviews-ai-extension-privacy.html`
 
-Before public submission, add final PNG icons (16, 32, 48 and 128 px), screenshots, a privacy-policy URL and the production support URL to the store listing. Keep permissions minimal; this extension currently requests only `activeTab`, `storage`, `clipboardWrite`, and access to the project's Supabase function host.
+## Final publisher-account steps
+
+Chrome Web Store submission still requires the owner’s Chrome Web Store developer account to upload the generated ZIP, fill the listing fields, upload the generated graphics, complete the Privacy practices form, choose distribution, and click **Submit for review**. These account actions cannot be completed from the repository alone.
