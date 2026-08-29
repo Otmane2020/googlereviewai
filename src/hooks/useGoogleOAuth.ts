@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { preserveLanguageForOAuth } from "@/i18n/config";
 
 interface OAuthStatus {
   isConnected: boolean;
@@ -18,6 +19,7 @@ export const useGoogleOAuth = () => {
       return;
     }
 
+    preserveLanguageForOAuth();
     setIsConnecting(true);
 
     try {
