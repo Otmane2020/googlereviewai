@@ -3,11 +3,15 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
+import { normalizeLanguage, restoreLanguageAfterOAuth } from "@/i18n/config";
 
 export const OAuthCallback = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
+  const { i18n } = useTranslation();
+  const isFrench = normalizeLanguage(i18n.resolvedLanguage || i18n.language) === "fr";
   const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
@@ -33,7 +37,8 @@ export const OAuthCallback = ({ children }: { children: React.ReactNode }) => {
             code: oauthCode,
             user_id: userId 
           }
-        }).then(({ data, error }) => {
+        }).then(async ({ data, error }) => {
+          await restoreLanguageAfterOAuth();
           // Clear URL params
           window.history.replaceState(null, '', pathname);
           sessionStorage.removeItem("google_oauth_user_id");
@@ -41,14 +46,16 @@ export const OAuthCallback = ({ children }: { children: React.ReactNode }) => {
           if (error || !data?.success) {
             console.error("OAuth callback error:", error || data?.error);
             toast({
-              title: "Erreur de connexion",
-              description: data?.error || "Échec de la connexion Google Business.",
+              title: isFrench ? "Erreur de connexion" : "Connection error",
+              description: data?.error || (isFrench ? "Échec de la connexion Google Business." : "Google Business connection failed."),
               variant: "destructive",
             });
           } else {
             toast({
-              title: "Connecté",
-              description: "Votre compte Google Business est connecté pour la synchronisation automatique.",
+              title: isFrench ? "Connecté" : "Connected",
+              description: isFrench
+                ? "Votre compte Google Business est connecté pour la synchronisation automatique."
+                : "Your Google Business account is connected for automatic synchronization.",
             });
             
             // Notify parent window (if opened via window.open) that OAuth succeeded
@@ -103,7 +110,8 @@ export const OAuthCallback = ({ children }: { children: React.ReactNode }) => {
     if (accessToken && !isProcessing) {
       setIsProcessing(true);
       
-      supabase.auth.getSession().then(({ data: { session } }) => {
+      supabase.auth.getSession().then(async ({ data: { session } }) => {
+        await restoreLanguageAfterOAuth();
         window.history.replaceState(null, '', window.location.pathname);
         
         if (session) {
@@ -114,14 +122,14 @@ export const OAuthCallback = ({ children }: { children: React.ReactNode }) => {
         setIsProcessing(false);
       });
     }
-  }, [location, navigate, isProcessing, user]);
+  }, [location, navigate, isProcessing, user, isFrench]);
 
   if (isProcessing) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Google sign-in in progress...</p>
+          <p className="text-muted-foreground">{isFrench ? "Connexion Google en cours…" : "Google sign-in in progress…"}</p>
         </div>
       </div>
     );
