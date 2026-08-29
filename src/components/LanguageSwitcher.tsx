@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { Button } from "./ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { AppLanguage, normalizeLanguage, persistLanguage } from "@/i18n/config";
+import { normalizeLanguage, persistLanguage } from "@/i18n/config";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -32,7 +32,7 @@ const BritishFlag = () => (
   </svg>
 );
 
-const languages: Array<{ code: AppLanguage; label: string; short: string; Flag: () => JSX.Element }> = [
+const languages = [
   { code: "fr", label: "Français", short: "FR", Flag: FrenchFlag },
   { code: "en", label: "English", short: "EN", Flag: BritishFlag },
 ];
