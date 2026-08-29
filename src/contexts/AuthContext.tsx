@@ -1,7 +1,7 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createContext, useContext, useEffect, useRef, useState, ReactNode } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
-import i18n from "@/i18n/config";
+import i18n, { getExplicitLanguage, getPreferredLocalLanguage, normalizeLanguage, persistLanguage, preserveLanguageForOAuth } from "@/i18n/config";
 
 interface AuthContextType {
   user: User | null;
@@ -19,6 +19,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const languageSyncedForUser = useRef<string | null>(null);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -27,8 +28,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser(session?.user ?? null);
         setLoading(false);
 
-        // Sync language between profile and i18n + send welcome email if not yet sent
-        if (session?.user) {
+        // Sync language once per user. The latest explicit local choice always wins.
+        if (session?.user && languageSyncedForUser.current !== session.user.id) {
+          languageSyncedForUser.current = session.user.id;
           setTimeout(async () => {
             try {
               const { data } = await supabase
@@ -37,17 +39,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 .eq("id", session.user.id)
                 .maybeSingle();
               const profile = data as any;
-              let lang: "fr" | "en" = "fr";
-              if (profile?.preferred_language === "en") lang = "en";
-              else if (profile?.preferred_language === "fr") lang = "fr";
-              else {
-                const nav = (typeof navigator !== "undefined" ? navigator.language : "fr").toLowerCase();
-                lang = nav.startsWith("fr") ? "fr" : "en";
+              const explicitLanguage = getExplicitLanguage();
+              const profileLanguage = normalizeLanguage(profile?.preferred_language);
+              const lang = explicitLanguage || profileLanguage || getPreferredLocalLanguage();
+
+              persistLanguage(lang);
+              if (normalizeLanguage(i18n.resolvedLanguage || i18n.language) !== lang) {
+                await i18n.changeLanguage(lang);
+              }
+              if (profileLanguage !== lang) {
                 await supabase.from("profiles").update({ preferred_language: lang }).eq("id", session.user.id);
               }
-              if (lang !== i18n.language) await i18n.changeLanguage(lang);
 
-              // Fire welcome email in the right language (once per profile)
               if (profile && !profile.welcome_email_sent && profile.email) {
                 try {
                   await supabase.functions.invoke("send-transactional-email", {
@@ -55,10 +58,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                       templateName: "welcome",
                       recipientEmail: profile.email,
                       idempotencyKey: `welcome-${session.user.id}`,
-                      templateData: {
-                        name: profile.full_name || "",
-                        lang,
-                      },
+                      templateData: { name: profile.full_name || "", lang },
                     },
                   });
                   await supabase.from("profiles").update({ welcome_email_sent: true }).eq("id", session.user.id);
@@ -83,7 +83,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signUp = async (email: string, password: string, fullName: string) => {
     const redirectUrl = `${window.location.origin}/`;
-    const lang = (i18n.language || "fr").startsWith("en") ? "en" : "fr";
+    const lang = normalizeLanguage(i18n.resolvedLanguage || i18n.language) || getPreferredLocalLanguage();
 
     const { error } = await supabase.auth.signUp({
       email,
@@ -108,6 +108,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const signInWithGoogle = async () => {
+    preserveLanguageForOAuth();
     // Preserve current query params (e.g. ?redirect=checkout&priceKey=...) across the OAuth round-trip
     const search = window.location.pathname === "/auth" ? window.location.search : "";
     const { data, error } = await supabase.auth.signInWithOAuth({
