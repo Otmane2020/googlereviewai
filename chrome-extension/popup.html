@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Google Review AI</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="header">
+        <div class="logo">G</div>
+        <div>
+          <h1>Google Review AI</h1>
+          <p>Reply faster, stay on brand.</p>
+        </div>
+      </header>
+
+      <div id="status" class="status">Open a Google review, then click Detect review.</div>
+
+      <label>
+        <span>Business</span>
+        <input id="businessName" type="text" placeholder="Your business name" />
+      </label>
+
+      <div class="row">
+        <label class="rating-field">
+          <span>Rating</span>
+          <select id="rating">
+            <option value="5">5 stars</option>
+            <option value="4">4 stars</option>
+            <option value="3">3 stars</option>
+            <option value="2">2 stars</option>
+            <option value="1">1 star</option>
+          </select>
+        </label>
+        <label>
+          <span>Author</span>
+          <input id="author" type="text" placeholder="Customer" />
+        </label>
+      </div>
+
+      <label>
+        <span>Review</span>
+        <textarea id="review" rows="5" placeholder="Select or open a Google review, or paste it here."></textarea>
+      </label>
+
+      <div class="actions two">
+        <button id="detect" class="secondary">Detect review</button>
+        <button id="generate" class="primary">Generate AI reply</button>
+      </div>
+
+      <section id="resultPanel" class="result hidden">
+        <div class="result-head">
+          <strong>Suggested reply</strong>
+          <button id="regenerate" class="link-button">Regenerate</button>
+        </div>
+        <textarea id="response" rows="6"></textarea>
+        <div class="actions two">
+          <button id="copy" class="secondary">Copy</button>
+          <button id="insert" class="primary">Insert in Google</button>
+        </div>
+      </section>
+
+      <footer>
+        <a id="dashboard" href="https://googlereviewai.com/dashboard" target="_blank" rel="noreferrer">Open full dashboard →</a>
+      </footer>
+    </main>
+    <script src="popup.js"></script>
+  </body>
+</html>

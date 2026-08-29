@@ -1,0 +1,28 @@
+{
+  "manifest_version": 3,
+  "name": "Google Review AI - Reply Assistant",
+  "version": "0.1.0",
+  "description": "Generate professional AI replies to Google reviews and insert them directly from Chrome.",
+  "permissions": ["activeTab", "storage", "clipboardWrite"],
+  "host_permissions": [
+    "https://hlruprayqfnatnldrski.supabase.co/*"
+  ],
+  "action": {
+    "default_title": "Google Review AI",
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.google.com/maps/*",
+        "https://maps.google.com/*",
+        "https://www.google.fr/maps/*",
+        "https://business.google.com/*",
+        "https://www.google.com/search*",
+        "https://www.google.fr/search*"
+      ],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
