@@ -9,9 +9,11 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "@/hooks/use-toast";
-import { Check, ArrowRight, Building2, MessageCircle, Crown, Loader2, Star } from "lucide-react";
+import { Check, ArrowRight, Building2, MessageCircle, Crown, Loader2, Star, AlertTriangle } from "lucide-react";
 import { useGoogleOAuth } from "@/hooks/useGoogleOAuth";
 import { BrandSparkle } from "@/components/BrandSparkle";
+import { useTranslation } from "react-i18next";
+import { normalizeLanguage } from "@/i18n/config";
 
 const STEPS = ["Welcome", "Connect Google", "Choose location", "AI tone", "Pick a plan"];
 
@@ -53,6 +55,9 @@ const Onboarding = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { initiateOAuth } = useGoogleOAuth();
+  const { i18n } = useTranslation();
+  const isFrench = normalizeLanguage(i18n.resolvedLanguage || i18n.language) === "fr";
+  const [noGmbAccount, setNoGmbAccount] = useState(false);
   const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [hasGoogle, setHasGoogle] = useState(false);
@@ -93,7 +98,15 @@ const Onboarding = () => {
       if (profile?.google_refresh_token && (!biz || biz.length === 0)) {
         try {
           await supabase.functions.invoke("sync-google-businesses", { body: { user_id: user.id } });
-          await loadBusinesses();
+          const { data: fresh } = await supabase.from("businesses").select("id, name").eq("user_id", user.id);
+          setBusinesses(fresh || []);
+          if (fresh && fresh.length > 0) {
+            setSelectedBusinessId((prev) => prev || fresh[0].id);
+            setNoGmbAccount(false);
+          } else {
+            // Google account has no Google Business Profile
+            setNoGmbAccount(true);
+          }
         } catch (e) {
           console.warn("[Onboarding] sync-google-businesses failed:", e);
         }
@@ -195,15 +208,38 @@ const Onboarding = () => {
                   </div>
                 </div>
 
-                {hasGoogle ? (
+                {noGmbAccount && (
+                  <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 space-y-3">
+                    <div className="flex items-start gap-3 text-amber-700">
+                      <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" />
+                      <div className="text-sm">
+                        <p className="font-semibold">
+                          {isFrench
+                            ? "Merci de vous connecter avec un compte GMB (Google Business Profile)."
+                            : "Please sign in with a Google Business Profile (GMB) account."}
+                        </p>
+                        <p className="text-amber-700/80 mt-1">
+                          {isFrench
+                            ? "Le compte Google utilisé ne gère aucune fiche établissement. Connectez-vous avec le compte Google qui administre votre fiche Google Business."
+                            : "The Google account you used doesn't manage any business listing. Sign in with the Google account that manages your Google Business Profile."}
+                        </p>
+                      </div>
+                    </div>
+                    <Button onClick={handleConnectGoogle} disabled={loading} variant="outline" className="w-full rounded-xl border-amber-500/40">
+                      {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : isFrench ? "Se connecter avec un autre compte Google" : "Sign in with another Google account"}
+                    </Button>
+                  </div>
+                )}
+
+                {hasGoogle && !noGmbAccount ? (
                   <div className="flex items-center gap-2 p-4 rounded-xl bg-emerald-500/10 text-emerald-700 border border-emerald-500/20">
                     <Check className="w-5 h-5" /> Google Business already connected.
                   </div>
-                ) : (
+                ) : !hasGoogle ? (
                   <Button onClick={handleConnectGoogle} disabled={loading} size="lg" className="w-full rounded-xl">
                     {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Connect with Google"}
                   </Button>
-                )}
+                ) : null}
 
                 <div className="flex justify-between pt-2">
                   <Button variant="ghost" onClick={back}>Retour</Button>
@@ -225,8 +261,25 @@ const Onboarding = () => {
                 </div>
 
                 {businesses.length === 0 ? (
-                  <div className="p-4 rounded-xl bg-muted text-sm text-muted-foreground">
-                    No business found yet. Connect Google first, then we'll fetch your locations automatically.
+                  <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 space-y-3">
+                    <div className="flex items-start gap-3 text-amber-700">
+                      <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" />
+                      <div className="text-sm">
+                        <p className="font-semibold">
+                          {isFrench
+                            ? "Merci de vous connecter avec un compte GMB (Google Business Profile)."
+                            : "Please sign in with a Google Business Profile (GMB) account."}
+                        </p>
+                        <p className="text-amber-700/80 mt-1">
+                          {isFrench
+                            ? "Aucune fiche établissement n'est associée au compte Google connecté. Reconnectez-vous avec le compte qui gère votre fiche Google Business."
+                            : "No business listing is linked to the connected Google account. Reconnect with the account that manages your Google Business Profile."}
+                        </p>
+                      </div>
+                    </div>
+                    <Button onClick={handleConnectGoogle} disabled={loading} variant="outline" className="w-full rounded-xl border-amber-500/40">
+                      {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : isFrench ? "Reconnecter un compte Google Business" : "Reconnect a Google Business account"}
+                    </Button>
                   </div>
                 ) : (
                   <RadioGroup value={selectedBusinessId} onValueChange={setSelectedBusinessId} className="space-y-2">
