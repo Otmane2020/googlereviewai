@@ -55,6 +55,9 @@ const Onboarding = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { initiateOAuth } = useGoogleOAuth();
+  const { i18n } = useTranslation();
+  const isFrench = normalizeLanguage(i18n.resolvedLanguage || i18n.language) === "fr";
+  const [noGmbAccount, setNoGmbAccount] = useState(false);
   const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [hasGoogle, setHasGoogle] = useState(false);
