@@ -27,6 +27,7 @@ const plans: Plan[] = [
     features: [
       "1 établissement Google My Business",
       "Réponses IA automatiques 24/7 aux avis Google",
+      "50 crédits de réponses IA par mois",
       "Alertes email & push sur nouveaux avis",
       "Tableau de bord avis",
       "Accès API Google Business vérifié",
