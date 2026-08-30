@@ -1,0 +1,113 @@
+import { useState, useCallback } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { preserveLanguageForOAuth } from "@/i18n/config";
+
+interface OAuthStatus {
+  isConnected: boolean;
+  requiresReconnect: boolean;
+}
+
+export const useGoogleOAuth = () => {
+  const { user } = useAuth();
+  const [isConnecting, setIsConnecting] = useState(false);
+  const [isCheckingStatus, setIsCheckingStatus] = useState(false);
+
+  const initiateOAuth = useCallback(async () => {
+    if (!user) {
+      console.error("User not logged in for OAuth");
+      return;
+    }
+
+    preserveLanguageForOAuth();
+    setIsConnecting(true);
+
+    try {
+      // Get OAuth URL from backend - redirect_uri is determined server-side
+      const { data, error } = await supabase.functions.invoke("get-google-oauth-url", {
+        body: { user_id: user.id }
+      });
+
+      if (error) throw error;
+
+      if (data?.auth_url) {
+        // Store user_id in session storage for callback
+        sessionStorage.setItem("google_oauth_user_id", user.id);
+        // Open in same window to ensure OAuth callback works properly
+        // Using _self ensures the callback returns to this window with the code parameter
+        window.location.href = data.auth_url;
+      } else {
+        throw new Error(data?.error || "Failed to get OAuth URL");
+      }
+    } catch (error) {
+      console.error("OAuth initiation error:", error);
+      setIsConnecting(false);
+    }
+  }, [user]);
+
+  const handleOAuthCallback = useCallback(async (code: string): Promise<boolean> => {
+    if (!user) return false;
+
+    setIsConnecting(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke("google-oauth-callback", {
+        body: { 
+          code,
+          user_id: user.id 
+        }
+      });
+
+      if (error) throw error;
+
+      if (data?.success) {
+        return true;
+      } else {
+        throw new Error(data?.error || "OAuth callback failed");
+      }
+    } catch (error) {
+      console.error("OAuth callback error:", error);
+      return false;
+    } finally {
+      setIsConnecting(false);
+    }
+  }, [user]);
+
+  const checkOAuthStatus = useCallback(async (): Promise<OAuthStatus> => {
+    if (!user) {
+      return { isConnected: false, requiresReconnect: false };
+    }
+
+    setIsCheckingStatus(true);
+
+    try {
+      const { data: profile, error } = await supabase
+        .from("profiles")
+        .select("google_refresh_token")
+        .eq("id", user.id)
+        .single();
+
+      if (error) throw error;
+
+      const isConnected = !!profile?.google_refresh_token;
+
+      return {
+        isConnected,
+        requiresReconnect: !isConnected,
+      };
+    } catch (error) {
+      console.error("Error checking OAuth status:", error);
+      return { isConnected: false, requiresReconnect: true };
+    } finally {
+      setIsCheckingStatus(false);
+    }
+  }, [user]);
+
+  return {
+    initiateOAuth,
+    handleOAuthCallback,
+    checkOAuthStatus,
+    isConnecting,
+    isCheckingStatus,
+  };
+};
