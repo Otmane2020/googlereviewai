@@ -47,6 +47,7 @@ import NotFound from "./pages/NotFound";
 import Unsubscribe from "./pages/Unsubscribe";
 import LandingPremium from "./pages/LandingPremium";
 import LandingFacebook from "./pages/LandingFacebook";
+import ReviewReplyAIForGBP from "./pages/ReviewReplyAIForGBP";
 import Calendar from "./pages/Calendar";
 import Onboarding from "./pages/Onboarding";
 import PaymentSuccess from "./pages/PaymentSuccess";
@@ -192,6 +193,7 @@ const AppContent = () => {
               <Route path="/blog/:slug" element={<BlogArticle />} />
               <Route path="/landing" element={<LandingPremium />} />
               <Route path="/lp/facebook" element={<LandingFacebook />} />
+              <Route path="/review-reply-ai-google-business-profile" element={<ReviewReplyAIForGBP />} />
               <Route path="/checklist" element={<Checklist />} />
               <Route path="/boutique" element={<Shell><Boutique /></Shell>} />
               <Route path="/boutique/nfc" element={<Shell><BoutiqueNFC /></Shell>} />
