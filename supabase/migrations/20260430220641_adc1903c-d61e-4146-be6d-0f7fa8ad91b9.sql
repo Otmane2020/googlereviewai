@@ -1,2 +1,0 @@
-ALTER TABLE public.published_articles ADD COLUMN IF NOT EXISTS translated_to_en BOOLEAN DEFAULT FALSE;
-CREATE INDEX IF NOT EXISTS idx_published_articles_translated_to_en ON public.published_articles(translated_to_en) WHERE translated_to_en IS NULL OR translated_to_en = FALSE;

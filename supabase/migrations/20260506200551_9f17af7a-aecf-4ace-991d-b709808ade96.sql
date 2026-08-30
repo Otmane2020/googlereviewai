@@ -1,1 +1,0 @@
-ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS welcome_content_delivered boolean NOT NULL DEFAULT false;

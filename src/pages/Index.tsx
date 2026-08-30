@@ -12,6 +12,7 @@ import { DashboardPreviewSection } from "@/components/ranki/DashboardPreviewSect
 import { RankiPricingSection } from "@/components/ranki/RankiPricingSection";
 import { FAQSection } from "@/components/FAQSection";
 import { CTASection } from "@/components/CTASection";
+import { ReviewAIShowcaseSection } from "@/components/ReviewAIShowcaseSection";
 import { Loader2 } from "lucide-react";
 import { Helmet } from "react-helmet";
 
@@ -111,6 +112,7 @@ const Index = () => {
         <RankiHero />
         <GeoRankSection />
         <HowItWorksSection />
+        <ReviewAIShowcaseSection />
         <ReviewsAISection />
         <DashboardPreviewSection />
         <RankiPricingSection />

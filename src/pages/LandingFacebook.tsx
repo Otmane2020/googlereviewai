@@ -6,6 +6,7 @@ import { Zap, Star, Check, ArrowRight, Gift, ShieldCheck, Clock, MessageSquare, 
 import { Helmet } from "react-helmet";
 import { useVisitTracking } from "@/hooks/useVisitTracking";
 import { SectorDemoSection } from "@/components/SectorDemoSection";
+import { ReviewAIShowcaseSection } from "@/components/ReviewAIShowcaseSection";
 
 const TESTIMONIALS = [
   {
@@ -166,6 +167,7 @@ const LandingFacebook = () => {
 
       {/* Sector Demo */}
       <SectorDemoSection />
+        <ReviewAIShowcaseSection />
 
       {/* Features */}
       <section className="py-14 bg-muted/30">

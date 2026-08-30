@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { SectorDemoSection } from "@/components/SectorDemoSection";
+import { ReviewAIShowcaseSection } from "@/components/ReviewAIShowcaseSection";
 import { Footer } from "@/components/Footer";
 import { useNavigate, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -282,6 +283,7 @@ const LandingPremium = () => {
 
         {/* Sector Demo */}
         <SectorDemoSection />
+        <ReviewAIShowcaseSection />
 
         {/* Features - L'Offre Unique */}
        <section className="py-16 sm:py-24 bg-muted/50">
