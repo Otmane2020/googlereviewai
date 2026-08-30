@@ -54,8 +54,8 @@ const Admin = () => {
 
   // Check admin access
   useEffect(() => {
-    if (!authLoading && (!user || user.email !== ADMIN_EMAIL)) {
-      navigate("/");
+    if (!authLoading && !user) {
+      navigate("/auth?next=/admin", { replace: true });
     }
   }, [user, authLoading, navigate]);
 
