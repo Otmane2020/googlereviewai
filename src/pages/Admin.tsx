@@ -22,6 +22,7 @@ import {
   LogIn
 } from "lucide-react";
 import { Loader2 } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 
 const ADMIN_EMAIL = "benyahya.otmane@gmail.com";
 
