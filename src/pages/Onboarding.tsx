@@ -104,9 +104,12 @@ const Onboarding = () => {
             setSelectedBusinessId((prev) => prev || fresh[0].id);
             setNoGmbAccount(false);
           } else {
-            // Google account has no Google Business Profile
+            // Google account has no Google Business Profile:
+            // remove the account entirely and send the user back to sign-in
             setNoGmbAccount(true);
+            await purgeAndSignOut();
           }
+
         } catch (e) {
           console.warn("[Onboarding] sync-google-businesses failed:", e);
         }
