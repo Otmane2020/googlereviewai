@@ -239,7 +239,7 @@ const Onboarding = () => {
                   <Button onClick={handleConnectGoogle} disabled={loading} size="lg" className="w-full rounded-xl">
                     {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Connect with Google"}
                   </Button>
-                )}
+                ) : null}
 
                 <div className="flex justify-between pt-2">
                   <Button variant="ghost" onClick={back}>Retour</Button>
