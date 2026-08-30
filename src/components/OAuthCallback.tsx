@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
@@ -58,6 +59,30 @@ export const OAuthCallback = ({ children }: { children: React.ReactNode }) => {
                 : "Your Google Business account is connected for automatic synchronization.",
             });
             
+            // Verify GMB immediately. Never let a Google account without a business
+            // continue to onboarding or dashboard.
+            const { data: syncData, error: syncError } = await supabase.functions.invoke("sync-google-businesses", {
+              body: { user_id: userId },
+            });
+            const syncedBusinesses = syncData?.businesses || [];
+            const discoveredBusinesses = syncData?.google_businesses || [];
+            if (syncError || syncData?.success === false || (syncedBusinesses.length === 0 && discoveredBusinesses.length === 0)) {
+              console.warn("[OAuthCallback] No Google Business Profile found", syncError || syncData);
+              await supabase.functions.invoke("purge-account-no-gmb").catch(() => undefined);
+              await supabase.auth.signOut();
+              toast({
+                title: isFrench ? "Compte GMB requis" : "Google Business Profile required",
+                description: isFrench
+                  ? "Déconnectez-vous puis reconnectez-vous avec un compte Google possédant une fiche Business Profile."
+                  : "Please sign in again with a Google account that owns a Business Profile.",
+                variant: "destructive",
+              });
+              sessionStorage.removeItem("google_oauth_return_to");
+              setIsProcessing(false);
+              navigate("/auth?gmb_required=1", { replace: true });
+              return;
+            }
+
             // Notify parent window (if opened via window.open) that OAuth succeeded
             if (window.opener && !window.opener.closed) {
               window.opener.postMessage({ type: "GOOGLE_OAUTH_SUCCESS" }, "*");
@@ -65,10 +90,6 @@ export const OAuthCallback = ({ children }: { children: React.ReactNode }) => {
               return;
             }
 
-            // Trigger GMB businesses sync in the background so onboarding can show them
-            supabase.functions.invoke("sync-google-businesses", { body: { user_id: userId } }).catch((e) => {
-              console.warn("[OAuthCallback] sync-google-businesses failed:", e);
-            });
           }
 
           // If user came from onboarding, return there; otherwise dashboard
