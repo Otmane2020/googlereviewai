@@ -118,7 +118,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         scopes: "https://www.googleapis.com/auth/business.manage https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile",
         queryParams: {
           access_type: "offline",
-          prompt: "consent", // Force consent to get refresh_token
+          prompt: "select_account consent", // Let users choose another Google account and grant refresh access
         },
       },
     });
