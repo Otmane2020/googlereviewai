@@ -28,7 +28,7 @@ const PLANS: Plan[] = [
       "1 business location",
       "Weekly GEO rank tracking",
       "AI replies to Google reviews",
-      "25 credits / month",
+      "50 AI reply credits / month",
     ],
   },
   {
