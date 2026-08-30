@@ -12,6 +12,7 @@ const groups = [
       { label: "Local AEO & AI Search Visibility", href: "/local-aeo" },
       { label: "Google Business Profile Autoposting", href: "/gmb-autoposting" },
       { label: "AI Review Reply Guide", href: "/avis-ai-guide" },
+      { label: "Review Reply AI Chrome Extension", href: "/review-reply-ai-google-business-profile" },
       { label: "AI Reviews for Restaurants", href: "/avis-ai-restaurant" },
       { label: "AI Reviews for Hotels", href: "/avis-ai-hotel" },
     ],
