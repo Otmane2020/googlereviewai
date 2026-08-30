@@ -27,4 +27,9 @@
   <url><loc>https://googlereviewai.com/sitemap</loc><lastmod>2026-08-28</lastmod></url>
   <url><loc>https://googlereviewai.com/privacy</loc><lastmod>2026-08-28</lastmod></url>
   <url><loc>https://googlereviewai.com/terms</loc><lastmod>2026-08-28</lastmod></url>
+  <url>
+    <loc>https://googlereviewai.com/review-reply-ai-google-business-profile</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
 </urlset>
