@@ -12,12 +12,13 @@ import { useTranslation } from "react-i18next";
 import { Helmet } from "react-helmet";
 
 const Auth = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [isRedirecting, setIsRedirecting] = useState(false);
 
   const { signInWithGoogle, user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+  const gmbRequired = new URLSearchParams(window.location.search).get("gmb_required") === "1";
 
   // After auth: if ?redirect=checkout&priceKey=XXX → start Stripe checkout
   // Else respect ?next=/path, else go to onboarding/dashboard
@@ -203,6 +204,12 @@ const Auth = () => {
               </Link>
             </div>
 
+            {gmbRequired && (
+              <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-foreground">
+                <p className="font-semibold">{i18n.language?.startsWith("fr") ? "Compte Google Business Profile requis" : "Google Business Profile account required"}</p>
+                <p className="mt-1 text-muted-foreground">{i18n.language?.startsWith("fr") ? "Ce compte ne possède aucune fiche Google Business Profile. Choisissez un autre compte Google pour continuer." : "This account has no Google Business Profile. Choose another Google account to continue."}</p>
+              </div>
+            )}
             <div>
               <h2 className="text-2xl font-bold text-foreground">
                 {t("auth.signInTitle")}
