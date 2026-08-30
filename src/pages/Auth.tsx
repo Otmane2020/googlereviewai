@@ -7,7 +7,7 @@ import { AppLoadingBar } from "@/components/AppLoadingBar";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
-import { ArrowLeft, Loader2, Check, ShieldCheck } from "lucide-react";
+import { ArrowLeft, Loader2, Check, ShieldCheck, AlertTriangle } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Helmet } from "react-helmet";
 
@@ -206,9 +206,14 @@ const Auth = () => {
             </div>
 
             {gmbRequired && (
-              <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-foreground">
-                <p className="font-semibold">{i18n.language?.startsWith("fr") ? "Compte Google Business Profile requis" : "Google Business Profile account required"}</p>
-                <p className="mt-1 text-muted-foreground">{i18n.language?.startsWith("fr") ? "Ce compte ne possède aucune fiche Google Business Profile. Choisissez un autre compte Google pour continuer." : "This account has no Google Business Profile. Choose another Google account to continue."}</p>
+              <div role="alert" className="rounded-xl border-2 border-red-500 bg-red-50 p-5 text-red-950 shadow-lg dark:bg-red-950/40 dark:text-red-100">
+                <div className="flex items-start gap-3">
+                  <AlertTriangle className="mt-0.5 h-6 w-6 shrink-0 text-red-600 dark:text-red-400" />
+                  <div>
+                    <p className="text-base font-extrabold">{i18n.language?.startsWith("fr") ? "Compte Google Business Profile requis" : "Google Business Profile account required"}</p>
+                    <p className="mt-1.5 text-sm leading-6">{i18n.language?.startsWith("fr") ? "Ce compte ne possède aucune fiche Google Business Profile. Déconnectez-vous puis choisissez un autre compte Google pour continuer." : "This account has no Google Business Profile. Sign out and choose another Google account to continue."}</p>
+                  </div>
+                </div>
               </div>
             )}
             <div>
