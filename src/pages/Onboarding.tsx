@@ -9,9 +9,11 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "@/hooks/use-toast";
-import { Check, ArrowRight, Building2, MessageCircle, Crown, Loader2, Star } from "lucide-react";
+import { Check, ArrowRight, Building2, MessageCircle, Crown, Loader2, Star, AlertTriangle } from "lucide-react";
 import { useGoogleOAuth } from "@/hooks/useGoogleOAuth";
 import { BrandSparkle } from "@/components/BrandSparkle";
+import { useTranslation } from "react-i18next";
+import { normalizeLanguage } from "@/i18n/config";
 
 const STEPS = ["Welcome", "Connect Google", "Choose location", "AI tone", "Pick a plan"];
 
