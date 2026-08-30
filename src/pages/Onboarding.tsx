@@ -96,7 +96,9 @@ const Onboarding = () => {
         supabase.from("profiles").select("google_refresh_token, full_name, onboarding_completed").eq("id", user.id).maybeSingle(),
         supabase.from("businesses").select("id, name").eq("user_id", user.id),
       ]);
-      if (profile?.onboarding_completed) {
+      // Only redirect completed users after confirming a GMB location exists.
+      // A Google account without GMB must be purged and asked to choose another account.
+      if (profile?.onboarding_completed && biz && biz.length > 0) {
         navigate("/dashboard", { replace: true });
         return;
       }
@@ -123,6 +125,10 @@ const Onboarding = () => {
 
         } catch (e) {
           console.warn("[Onboarding] sync-google-businesses failed:", e);
+          // Treat a failed/empty GMB sync as a blocked account, never continue onboarding.
+          setNoGmbAccount(true);
+          await purgeAndSignOut();
+          return;
         }
       }
     })();
