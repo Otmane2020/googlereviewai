@@ -98,3 +98,6 @@ project_id = "hlruprayqfnatnldrski"
 
   [functions.admin-users]
     verify_jwt = false
+
+  [functions.purge-account-no-gmb]
+    verify_jwt = true
