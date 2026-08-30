@@ -208,11 +208,34 @@ const Onboarding = () => {
                   </div>
                 </div>
 
-                {hasGoogle ? (
+                {noGmbAccount && (
+                  <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 space-y-3">
+                    <div className="flex items-start gap-3 text-amber-700">
+                      <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" />
+                      <div className="text-sm">
+                        <p className="font-semibold">
+                          {isFrench
+                            ? "Merci de vous connecter avec un compte GMB (Google Business Profile)."
+                            : "Please sign in with a Google Business Profile (GMB) account."}
+                        </p>
+                        <p className="text-amber-700/80 mt-1">
+                          {isFrench
+                            ? "Le compte Google utilisé ne gère aucune fiche établissement. Connectez-vous avec le compte Google qui administre votre fiche Google Business."
+                            : "The Google account you used doesn't manage any business listing. Sign in with the Google account that manages your Google Business Profile."}
+                        </p>
+                      </div>
+                    </div>
+                    <Button onClick={handleConnectGoogle} disabled={loading} variant="outline" className="w-full rounded-xl border-amber-500/40">
+                      {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : isFrench ? "Se connecter avec un autre compte Google" : "Sign in with another Google account"}
+                    </Button>
+                  </div>
+                )}
+
+                {hasGoogle && !noGmbAccount ? (
                   <div className="flex items-center gap-2 p-4 rounded-xl bg-emerald-500/10 text-emerald-700 border border-emerald-500/20">
                     <Check className="w-5 h-5" /> Google Business already connected.
                   </div>
-                ) : (
+                ) : !hasGoogle ? (
                   <Button onClick={handleConnectGoogle} disabled={loading} size="lg" className="w-full rounded-xl">
                     {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Connect with Google"}
                   </Button>
