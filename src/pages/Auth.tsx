@@ -57,12 +57,13 @@ const Auth = () => {
       navigate(nextParam, { replace: true });
       return;
     }
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("onboarding_completed")
-      .eq("id", userId)
-      .maybeSingle();
-    if (!profile?.onboarding_completed) {
+    const [{ data: profile }, { count: businessCount }] = await Promise.all([
+      supabase.from("profiles").select("onboarding_completed, google_refresh_token").eq("id", userId).maybeSingle(),
+      supabase.from("businesses").select("id", { count: "exact", head: true }).eq("user_id", userId).eq("is_active", true),
+    ]);
+    // Always pass through onboarding when a Google account has not produced a GMB location.
+    // This is where the no-GMB purge/sign-out flow runs before any dashboard access.
+    if (!profile?.onboarding_completed || (profile.google_refresh_token && (businessCount || 0) === 0)) {
       navigate("/onboarding", { replace: true });
     } else {
       navigate("/dashboard", { replace: true });
