@@ -68,6 +68,17 @@ const Onboarding = () => {
   const [planLoading, setPlanLoading] = useState<string | null>(null);
   const [billing, setBilling] = useState<"monthly" | "yearly">("monthly");
 
+  const purgeAndSignOut = async () => {
+    try {
+      await supabase.functions.invoke("purge-account-no-gmb");
+    } catch (error) {
+      console.warn("[Onboarding] account purge failed:", error);
+    } finally {
+      await supabase.auth.signOut();
+      navigate("/auth?gmb_required=1", { replace: true });
+    }
+  };
+
   const loadBusinesses = async () => {
     if (!user) return;
     const { data: biz } = await supabase.from("businesses").select("id, name").eq("user_id", user.id);
