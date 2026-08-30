@@ -98,7 +98,15 @@ const Onboarding = () => {
       if (profile?.google_refresh_token && (!biz || biz.length === 0)) {
         try {
           await supabase.functions.invoke("sync-google-businesses", { body: { user_id: user.id } });
-          await loadBusinesses();
+          const { data: fresh } = await supabase.from("businesses").select("id, name").eq("user_id", user.id);
+          setBusinesses(fresh || []);
+          if (fresh && fresh.length > 0) {
+            setSelectedBusinessId((prev) => prev || fresh[0].id);
+            setNoGmbAccount(false);
+          } else {
+            // Google account has no Google Business Profile
+            setNoGmbAccount(true);
+          }
         } catch (e) {
           console.warn("[Onboarding] sync-google-businesses failed:", e);
         }
