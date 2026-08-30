@@ -95,3 +95,4 @@ project_id = "hlruprayqfnatnldrski"
     verify_jwt = false
   [functions.handle-email-suppression]
     verify_jwt = false
+\n  [functions.admin-users]\n    verify_jwt = false\n
