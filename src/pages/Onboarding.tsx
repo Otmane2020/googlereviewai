@@ -261,8 +261,25 @@ const Onboarding = () => {
                 </div>
 
                 {businesses.length === 0 ? (
-                  <div className="p-4 rounded-xl bg-muted text-sm text-muted-foreground">
-                    No business found yet. Connect Google first, then we'll fetch your locations automatically.
+                  <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 space-y-3">
+                    <div className="flex items-start gap-3 text-amber-700">
+                      <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" />
+                      <div className="text-sm">
+                        <p className="font-semibold">
+                          {isFrench
+                            ? "Merci de vous connecter avec un compte GMB (Google Business Profile)."
+                            : "Please sign in with a Google Business Profile (GMB) account."}
+                        </p>
+                        <p className="text-amber-700/80 mt-1">
+                          {isFrench
+                            ? "Aucune fiche établissement n'est associée au compte Google connecté. Reconnectez-vous avec le compte qui gère votre fiche Google Business."
+                            : "No business listing is linked to the connected Google account. Reconnect with the account that manages your Google Business Profile."}
+                        </p>
+                      </div>
+                    </div>
+                    <Button onClick={handleConnectGoogle} disabled={loading} variant="outline" className="w-full rounded-xl border-amber-500/40">
+                      {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : isFrench ? "Reconnecter un compte Google Business" : "Reconnect a Google Business account"}
+                    </Button>
                   </div>
                 ) : (
                   <RadioGroup value={selectedBusinessId} onValueChange={setSelectedBusinessId} className="space-y-2">
