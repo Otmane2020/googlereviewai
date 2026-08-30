@@ -99,7 +99,7 @@ export const InstallPrompt = () => {
               <p className="text-sm text-muted-foreground mb-4">
                 {isFrench ? "Votre navigateur ne propose pas d’installation directe. Ouvrez le menu de Chrome (⋮ en haut à droite) et choisissez Ajouter à l’écran d’accueil." : "Your browser does not offer direct installation. Open the Chrome menu (⋮ in the top right) and choose Add to Home Screen."}
               </p>
-              <Button onClick={handleDismiss} className="w-full">J'ai compris</Button>
+              <Button onClick={handleDismiss} className="w-full">{isFrench ? "J’ai compris" : "Got it"}</Button>
             </>
           )}
         </div>
