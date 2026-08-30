@@ -17,11 +17,15 @@ import {
   RefreshCw,
   Download,
   Shield,
-  BarChart3
+  BarChart3,
+  UserRound,
+  LogIn
 } from "lucide-react";
 import { Loader2 } from "lucide-react";
 
 const ADMIN_EMAIL = "benyahya.otmane@gmail.com";
+
+type AdminUser = { id: string; email?: string; full_name?: string | null; plan_name?: string | null; credits?: number | null; };
 
 interface AnalyticsData {
   stats: {
@@ -51,6 +55,9 @@ const Admin = () => {
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [days, setDays] = useState("7");
+  const [users, setUsers] = useState<AdminUser[]>([]);
+  const [usersLoading, setUsersLoading] = useState(false);
+  const [impersonating, setImpersonating] = useState<string | null>(null);
 
   // Check admin access
   useEffect(() => {
@@ -58,6 +65,38 @@ const Admin = () => {
       navigate("/auth?next=/admin", { replace: true });
     }
   }, [user, authLoading, navigate]);
+
+  const loadUsers = async () => {
+    if (!user || user.email !== ADMIN_EMAIL) return;
+    setUsersLoading(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-users`, { headers: { Authorization: `Bearer ${session?.access_token || ""}` } });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Impossible de charger les utilisateurs");
+      setUsers(data.users || []);
+    } catch (error) {
+      console.error("Error loading users:", error);
+      toast({ title: "Erreur", description: "Impossible de charger les utilisateurs.", variant: "destructive" });
+    } finally { setUsersLoading(false); }
+  };
+
+  const loginAs = async (target: AdminUser) => {
+    if (!target.email || !window.confirm(`Ouvrir une session en tant que ${target.email} ?`)) return;
+    setImpersonating(target.id);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-users`, { method: "POST", headers: { Authorization: `Bearer ${session?.access_token || ""}`, "Content-Type": "application/json" }, body: JSON.stringify({ userId: target.id }) });
+      const data = await response.json();
+      if (!response.ok || !data.token_hash) throw new Error(data.error || "Impossible d'ouvrir la session");
+      const { error } = await supabase.auth.verifyOtp({ token_hash: data.token_hash, type: "magiclink" });
+      if (error) throw error;
+      window.location.href = "/dashboard";
+    } catch (error) {
+      console.error("Error impersonating user:", error);
+      toast({ title: "Erreur", description: "Impossible d'ouvrir cette session.", variant: "destructive" });
+    } finally { setImpersonating(null); }
+  };
 
   // Load analytics data
   const loadData = async () => {
@@ -97,6 +136,7 @@ const Admin = () => {
   useEffect(() => {
     if (user?.email === ADMIN_EMAIL) {
       loadData();
+      loadUsers();
     }
   }, [user, days]);
 
@@ -160,6 +200,22 @@ const Admin = () => {
             </Button>
           </div>
         </div>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle className="text-sm flex items-center gap-2"><UserRound className="w-4 h-4" /> Utilisateurs ({users.length})</CardTitle>
+            <Button variant="outline" size="sm" onClick={loadUsers} disabled={usersLoading}><RefreshCw className={`w-4 h-4 mr-1 ${usersLoading ? "animate-spin" : ""}`} /> Actualiser</Button>
+          </CardHeader>
+          <CardContent>
+            {usersLoading ? <div className="py-6 text-center"><Loader2 className="w-5 h-5 animate-spin inline-block" /></div> : <div className="space-y-2 max-h-96 overflow-y-auto">
+              {users.map((u) => <div key={u.id} className="flex items-center justify-between gap-3 border-b border-border/50 pb-2 text-sm">
+                <div className="min-w-0"><p className="font-medium truncate">{u.full_name || "Sans nom"}</p><p className="text-xs text-muted-foreground truncate">{u.email}</p></div>
+                <div className="flex items-center gap-2 shrink-0"><Badge variant="outline">{u.plan_name || "Gratuit"}</Badge><span className="text-xs text-muted-foreground">{u.credits ?? 0} crédits</span><Button size="sm" variant="outline" onClick={() => loginAs(u)} disabled={impersonating === u.id || !u.email}><LogIn className="w-3.5 h-3.5 mr-1" />{impersonating === u.id ? "Ouverture..." : "Login as"}</Button></div>
+              </div>)}
+              {!users.length && <p className="text-sm text-muted-foreground">Aucun utilisateur.</p>}
+            </div>}
+          </CardContent>
+        </Card>
 
         {loading ? (
           <div className="flex items-center justify-center py-20">
