@@ -117,7 +117,7 @@ final class GRAI_WP {
         if(!$this->cfg('google_client_id')||!$this->cfg('google_client_secret')) $this->redirect('Add Google Client ID and Client Secret first.',1);
         $state=wp_generate_password(32,false,false); set_transient('grai_oauth_'.hash('sha256',$state),get_current_user_id(),900);
         $q=['client_id'=>$this->cfg('google_client_id'),'redirect_uri'=>$this->callback_uri(),'response_type'=>'code','scope'=>'https://www.googleapis.com/auth/business.manage https://www.googleapis.com/auth/userinfo.email','access_type'=>'offline','prompt'=>'consent','state'=>$state,'include_granted_scopes'=>'true'];
-        wp_safe_redirect('https://accounts.google.com/o/oauth2/v2/auth?'.http_build_query($q,'','&',PHP_QUERY_RFC3986)); exit;
+        wp_redirect('https://accounts.google.com/o/oauth2/v2/auth?'.http_build_query($q,'','&',PHP_QUERY_RFC3986)); exit;
     }
     function callback(){
         if(!current_user_can('manage_options')) wp_die('Forbidden'); $state=sanitize_text_field($_GET['state']??''); $key='grai_oauth_'.hash('sha256',$state); $uid=get_transient($key); delete_transient($key);
