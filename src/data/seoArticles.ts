@@ -1,3 +1,5 @@
+import { seoLongFormArticles } from "./seoLongFormArticles";
+
 export type SeoArticleSection = {
   heading: string;
   paragraphs: string[];
@@ -22,6 +24,7 @@ export type SeoArticle = {
 };
 
 export const seoArticles: SeoArticle[] = [
+  ...seoLongFormArticles,
   {
     slug: "how-to-respond-to-google-reviews",
     title: "How to Respond to Google Reviews: A Practical Guide for Local Businesses",

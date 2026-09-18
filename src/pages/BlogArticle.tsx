@@ -132,7 +132,7 @@ const BlogArticle = () => {
                 </p>
                 <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
                   <span className="flex items-center gap-1.5"><User className="w-4 h-4" />Google Review AI Editorial Team</span>
-                  <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4" />Updated August 28, 2026</span>
+                  <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4" />Updated {new Date(`${staticArticle.updatedAt}T00:00:00`).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}</span>
                   <span className="flex items-center gap-1.5"><Clock className="w-4 h-4" />{staticArticle.readTime} read</span>
                 </div>
               </header>

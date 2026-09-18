@@ -155,7 +155,7 @@ const Blog = () => {
                     <Search className="w-6 h-6 text-primary" />
                     New SEO guides
                   </h2>
-                  <p className="text-muted-foreground mt-2">10 in-depth articles built around distinct local-search and review-management intents.</p>
+                  <p className="text-muted-foreground mt-2">30 in-depth articles built around distinct SEO, local-search, AEO, GEO and review-management intents.</p>
                 </div>
 
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -170,7 +170,7 @@ const Blog = () => {
                           <h3 className="font-semibold text-lg mb-2 group-hover:text-primary transition-colors line-clamp-3">{article.title}</h3>
                           <p className="text-sm text-muted-foreground mb-5 line-clamp-3">{article.description}</p>
                           <div className="flex items-center justify-between text-xs text-muted-foreground">
-                            <span>Updated Aug 28, 2026</span>
+                            <span>Updated {formatDate(article.updatedAt)}</span>
                             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                           </div>
                         </CardContent>
