@@ -17,14 +17,6 @@ export const normalizeLanguage = (value: string | null | undefined): AppLanguage
   return normalized === "fr" || normalized === "en" ? normalized : null;
 };
 
-const browserLanguage = (): AppLanguage => {
-  if (typeof navigator === "undefined") return "en";
-  const languages = [navigator.language, ...(navigator.languages || [])]
-    .map(normalizeLanguage)
-    .filter(Boolean) as AppLanguage[];
-  return languages.includes("fr") ? "fr" : "en";
-};
-
 export const getExplicitLanguage = (): AppLanguage | null => {
   try {
     const explicit = normalizeLanguage(localStorage.getItem(EXPLICIT_LANGUAGE_KEY));
@@ -44,13 +36,11 @@ export const getExplicitLanguage = (): AppLanguage | null => {
 
 export const getPreferredLocalLanguage = (): AppLanguage => {
   try {
-    return (
-      getExplicitLanguage() ||
-      normalizeLanguage(localStorage.getItem(LANGUAGE_KEY)) ||
-      browserLanguage()
-    );
+    // English is the public-site default. Only an explicit user selection may
+    // override it; the browser locale must not silently switch the landing page.
+    return getExplicitLanguage() || "en";
   } catch {
-    return browserLanguage();
+    return "en";
   }
 };
 

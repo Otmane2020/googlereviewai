@@ -8,6 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
+import { ChevronDown } from "lucide-react";
 
 // SVG flag components for reliable cross-platform rendering
 const FrenchFlag = () => (
@@ -71,6 +72,7 @@ export const LanguageSwitcher = ({ variant = "flags", className = "" }: Language
           <Button variant="ghost" size="sm" className={`gap-2 ${className}`}>
             <CurrentFlag />
             <span className="text-sm font-semibold">{currentLanguage.short}</span>
+            <ChevronDown className="h-4 w-4 opacity-60" aria-hidden="true" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">

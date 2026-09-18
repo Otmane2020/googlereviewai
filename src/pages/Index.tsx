@@ -15,6 +15,7 @@ import { CTASection } from "@/components/CTASection";
 import { ReviewAIShowcaseSection } from "@/components/ReviewAIShowcaseSection";
 import { Loader2 } from "lucide-react";
 import { Helmet } from "react-helmet";
+import { MobileStickyButton } from "@/components/MobileStickyButton";
 
 const Index = () => {
   const { user, loading } = useAuth();
@@ -125,6 +126,7 @@ const Index = () => {
         <CTASection />
       </main>
       <Footer />
+      <MobileStickyButton />
     </div>
   );
 };
