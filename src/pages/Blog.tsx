@@ -26,6 +26,17 @@ import { seoArticles } from "@/data/seoArticles";
 const stripHtml = (html: string) =>
   (html || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
 
+const staticReadTime = (article: (typeof seoArticles)[number]) => {
+  const text = [
+    article.intro,
+    article.quickAnswer,
+    ...(article.keyTakeaways || []),
+    ...article.sections.flatMap((section) => [section.heading, ...section.paragraphs, ...(section.bullets || [])]),
+    ...article.faq.flatMap((item) => [item.question, item.answer]),
+  ].filter(Boolean).join(" ");
+  return `${Math.max(1, Math.ceil(text.trim().split(/\s+/).length / 200))} min`;
+};
+
 const staticArticles = [
   {
     slug: "/avis-ai-guide",
@@ -165,7 +176,7 @@ const Blog = () => {
                         <CardContent className="p-6">
                           <div className="flex items-center justify-between gap-3 mb-4">
                             <Badge variant="secondary" className="text-xs">{article.category}</Badge>
-                            <span className="text-xs text-muted-foreground flex items-center gap-1"><Clock className="w-3 h-3" />{article.readTime}</span>
+                            <span className="text-xs text-muted-foreground flex items-center gap-1"><Clock className="w-3 h-3" />{staticReadTime(article)}</span>
                           </div>
                           <h3 className="font-semibold text-lg mb-2 group-hover:text-primary transition-colors line-clamp-3">{article.title}</h3>
                           <p className="text-sm text-muted-foreground mb-5 line-clamp-3">{article.description}</p>

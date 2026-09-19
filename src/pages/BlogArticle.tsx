@@ -13,6 +13,9 @@ import { getSeoArticleBySlug, seoArticles } from "@/data/seoArticles";
 const stripHtml = (html: string) =>
   (html || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
 
+const headingId = (heading: string) =>
+  heading.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+
 const BlogArticle = () => {
   const { slug } = useParams<{ slug: string }>();
   const staticArticle = getSeoArticleBySlug(slug);
@@ -34,6 +37,15 @@ const BlogArticle = () => {
 
   if (staticArticle) {
     const canonical = `https://googlereviewai.com/blog/${staticArticle.slug}`;
+    const articleText = [
+      staticArticle.intro,
+      staticArticle.quickAnswer,
+      ...(staticArticle.keyTakeaways || []),
+      ...staticArticle.sections.flatMap((section) => [section.heading, ...section.paragraphs, ...(section.bullets || [])]),
+      ...staticArticle.faq.flatMap((item) => [item.question, item.answer]),
+    ].filter(Boolean).join(" ");
+    const wordCount = articleText.trim().split(/\s+/).length;
+    const calculatedReadTime = `${Math.max(1, Math.ceil(wordCount / 200))} min`;
     const related = staticArticle.relatedSlugs
       .map((relatedSlug) => seoArticles.find((item) => item.slug === relatedSlug))
       .filter(Boolean);
@@ -61,6 +73,8 @@ const BlogArticle = () => {
         },
       },
       keywords: staticArticle.keywords.join(", "),
+      wordCount,
+      articleSection: staticArticle.sections.map((section) => section.heading),
     };
 
     const faqSchema = {
@@ -133,15 +147,42 @@ const BlogArticle = () => {
                 <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
                   <span className="flex items-center gap-1.5"><User className="w-4 h-4" />Google Review AI Editorial Team</span>
                   <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4" />Updated {new Date(`${staticArticle.updatedAt}T00:00:00`).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}</span>
-                  <span className="flex items-center gap-1.5"><Clock className="w-4 h-4" />{staticArticle.readTime} read</span>
+                  <span className="flex items-center gap-1.5"><Clock className="w-4 h-4" />{calculatedReadTime} read</span>
                 </div>
               </header>
 
               <div className="max-w-3xl mx-auto">
                 <p className="text-lg leading-8 text-foreground/90 mb-10">{staticArticle.intro}</p>
 
+                {staticArticle.quickAnswer && (
+                  <aside className="mb-8 rounded-2xl border border-primary/20 bg-primary/5 p-6" aria-labelledby="quick-answer-title">
+                    <h2 id="quick-answer-title" className="text-lg font-bold mb-2">Quick answer</h2>
+                    <p className="leading-7 text-foreground/85">{staticArticle.quickAnswer}</p>
+                  </aside>
+                )}
+
+                {staticArticle.keyTakeaways && staticArticle.keyTakeaways.length > 0 && (
+                  <aside className="mb-8 rounded-2xl border bg-card p-6" aria-labelledby="key-takeaways-title">
+                    <h2 id="key-takeaways-title" className="text-lg font-bold mb-3">Key takeaways</h2>
+                    <ul className="space-y-2 list-disc pl-5 text-foreground/85">
+                      {staticArticle.keyTakeaways.map((takeaway) => <li key={takeaway}>{takeaway}</li>)}
+                    </ul>
+                  </aside>
+                )}
+
+                <nav className="mb-10 rounded-2xl border bg-muted/20 p-6" aria-label="Table of contents">
+                  <h2 className="text-lg font-bold mb-3">Table of contents</h2>
+                  <ol className="grid gap-2 sm:grid-cols-2 list-decimal pl-5">
+                    {staticArticle.sections.map((section) => (
+                      <li key={section.heading} className="text-sm leading-6">
+                        <a href={`#${headingId(section.heading)}`} className="text-primary hover:underline">{section.heading}</a>
+                      </li>
+                    ))}
+                  </ol>
+                </nav>
+
                 {staticArticle.sections.map((section) => (
-                  <section key={section.heading} className="mb-10">
+                  <section key={section.heading} id={headingId(section.heading)} className="mb-10 scroll-mt-24">
                     <h2 className="text-2xl sm:text-3xl font-bold mb-4">{section.heading}</h2>
                     <div className="space-y-4 text-foreground/85 leading-8">
                       {section.paragraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}

@@ -17,6 +17,8 @@ export type SeoArticle = {
   updatedAt: string;
   readTime: string;
   intro: string;
+  quickAnswer?: string;
+  keyTakeaways?: string[];
   sections: SeoArticleSection[];
   faq: { question: string; answer: string }[];
   relatedSlugs: string[];
