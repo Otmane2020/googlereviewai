@@ -128,6 +128,14 @@ export const reviewArticles: SeoArticle[] = [
           "Use the comparison to transfer good process. If one location consistently earns detailed reviews because staff explain the request clearly at the right moment, document that workflow for other branches. Review SEO becomes healthier when the organization improves the system rather than chasing the score."
         ]
       }
+      ,
+      {
+        heading: "Separate reputation recovery from ranking recovery",
+        paragraphs: [
+          "When a location suffers a cluster of poor reviews, the immediate objective should be fixing the customer experience and resolving recurring causes. Do not assume that collecting a burst of new positive reviews will erase the underlying problem or restore every local ranking. Review performance, profile visibility and operational reputation can move on different timelines.",
+          "Document what changed in the business, improve the request process for all eligible customers and monitor whether complaint themes decline. If visibility later improves, report the correlation carefully rather than claiming that a particular number of five-star reviews caused the recovery. This keeps review SEO grounded in evidence and encourages the organization to fix the experience first."
+        ]
+      }
     faq: [
       { question: "Do more Google reviews always mean higher rankings?", answer: "No. Reviews can support local prominence, but local results also depend on relevance, distance and many other signals. More reviews cannot make an irrelevant or far-away business the best result for every query." },
       { question: "Should I ask customers to mention keywords in reviews?", answer: "No. Ask for honest feedback in the customer's own words. Scripted keywords reduce authenticity and can create policy or trust concerns." },
@@ -270,6 +278,14 @@ export const reviewArticles: SeoArticle[] = [
           "At scale, automation can make every response look different while still feeling mechanically identical. Sample a month's replies and look for repeated openings, excessive brand names, the same closing sentence, unnatural enthusiasm and generic statements that ignore the review. Compare AI-generated drafts with final human edits to identify phrases reviewers remove repeatedly.",
           "Create a duplication check for large teams, but do not optimize for uniqueness as a game. Some short phrases such as thank you for your feedback will naturally recur. The concern is whether the response demonstrates that someone understood the specific review. Personalization should be based on customer content, not random synonyms.",
           "A public profile full of polished but interchangeable replies can make a business appear less attentive than a smaller number of concise, genuine responses. Quality control should therefore evaluate relevance and tone, not only response rate."
+        ]
+      }
+      ,
+      {
+        heading: "Write closing lines that fit the outcome",
+        paragraphs: [
+          "The final sentence should match what actually happens next. Positive reviews may need only a warm invitation to return. A complaint under investigation should direct the reviewer to one approved contact route. A resolved issue can acknowledge the follow-up without publishing private details. Avoid generic closings that promise a manager will call when no workflow exists to make that happen.",
+          "Operationally reliable closing lines reduce broken promises and make AI-assisted replies safer. Maintain a small approved set tied to real support channels, then let the responder choose the one appropriate to the case. The closing is not a place to insert a sales promotion when the customer is raising a concern."
         ]
       }
     faq: [
@@ -424,6 +440,14 @@ export const reviewArticles: SeoArticle[] = [
           "After launch, sample published replies and monitor incident rates. A model update, new business policy or change in incoming review patterns can invalidate earlier tests. Automation permission should be revocable quickly."
         ]
       }
+      ,
+      {
+        heading: "Evaluate the prompt for refusal and uncertainty behavior",
+        paragraphs: [
+          "A production prompt should define what the model does when it lacks enough information. The safe behavior may be to ask for human review, produce a neutral holding response or return an explicit unknown field. Test cases where the review references an order the system cannot identify, an ambiguous legal threat, conflicting business context or a language the model cannot handle confidently.",
+          "Rewarding the model only for completing a draft encourages confident invention. Include uncertainty handling in the evaluation score and treat unnecessary escalation as a lower-severity problem than fabricated facts or private-data exposure. A reliable system knows when not to pretend it understands the case."
+        ]
+      }
     faq: [
       { question: "What should an AI review-response prompt include?", answer: "Include the review, safe business context, tone rules, prohibited claims, privacy boundaries, escalation conditions and a clear output format. The model should know what it may and may not assume." },
       { question: "Can AI safely reply to every review automatically?", answer: "Not without strong controls. High-risk reviews involving safety, legal claims, discrimination, compensation or sensitive personal information should be routed to humans." },
@@ -566,6 +590,15 @@ export const reviewArticles: SeoArticle[] = [
           "Search queries, customer calls, review comments and messages around the profile often reveal the same unanswered operational questions. Collect themes such as parking, walk-ins, delivery radius, accessibility, late check-in, emergency service or accepted payment methods. Determine whether the answer belongs in the profile, the website, or both.",
           "Do not respond by adding a generic FAQ block to every page. Place each answer where the user needs it. Parking belongs on the location page, service eligibility on the service page, and organization-wide policy on a maintained policy page. This reduces contradictions and gives search and AI systems clearer primary sources.",
           "The profile becomes more valuable when it feeds an information-improvement loop rather than existing as a static listing."
+        ]
+      }
+      ,
+      {
+        heading: "Plan recovery for profile edits, duplicates and suspensions",
+        paragraphs: [
+          "Profile optimization also needs an exception process. Keep a record of legitimate business documents, location ownership, previous names, primary URLs and major profile changes so the team can investigate duplicate listings or eligibility problems quickly. Do not respond to a suspension or verification issue by creating another profile with slightly different information; that can deepen the identity conflict.",
+          "When duplicate or stale profiles appear, determine which listing represents the current eligible business and preserve valuable history where platform procedures allow. Update the website and authoritative sources so the same business facts support the correction. For multi-location brands, maintain an inventory of profile IDs, location URLs and responsible managers to prevent accidental duplicate creation.",
+          "This governance work has direct AI-search value because duplicate profiles can spread conflicting names, addresses and hours into the wider information ecosystem."
         ]
       }
     faq: [
@@ -734,6 +767,14 @@ export const reviewArticles: SeoArticle[] = [
           "A twelve-month plan should never consume one hundred percent of editorial capacity. Reserve at least a meaningful portion for events the team cannot predict: product changes, branch moves, policy updates, algorithm shifts, new customer questions, regulatory developments or a sudden reputation issue. Without this buffer, urgent factual work gets delayed because the calendar says another article must ship.",
           "Use a simple triage rule. Operational accuracy and customer risk outrank planned thought-leadership. A pricing or location change should be updated immediately. A new recurring support question can enter the next sprint. A speculative trend article can wait. This protects the quality of the information ecosystem.",
           "At the end of each quarter, review which unplanned items used the buffer. Repeated emergencies may reveal a missing process rather than bad luck. The calendar should improve how the organization manages knowledge, not merely schedule publishing."
+        ]
+      }
+      ,
+      {
+        heading: "Attach a maintenance date to every high-risk content asset",
+        paragraphs: [
+          "Not all pages age at the same speed. Tag high-risk assets such as pricing, hours, policies, integrations, legal references and seasonal logistics with a review cadence and responsible owner. Evergreen thought-leadership can be reviewed less frequently, while operational pages may need event-driven updates whenever the underlying fact changes.",
+          "This simple maintenance metadata helps the calendar account for future work before the site becomes stale. It also prevents teams from publishing new material while old high-converting pages quietly drift out of date. Content strategy includes the cost of keeping promises current."
         ]
       }
     faq: [
