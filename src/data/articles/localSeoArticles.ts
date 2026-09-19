@@ -400,6 +400,14 @@ export const localSeoArticles: SeoArticle[] = [
           "This journey audit turns local SEO from a ranking exercise into customer-experience optimization. Fixing one operational mismatch can improve conversion, reviews and future local signals at the same time."
         ]
       }
+      ,
+      {
+        heading: "Track brand and non-brand local demand separately",
+        paragraphs: [
+          "Separate searches from people who already know the business from discovery searches where the user has not chosen a provider. Branded local traffic can rise because of advertising, referrals or offline reputation, while non-brand service queries reveal whether the business is being discovered for the category. Both matter, but they answer different questions.",
+          "Use this split when evaluating location pages and Business Profile activity. A branch dominated by branded demand may need stronger category and service relevance; a branch with strong discovery traffic but weak conversion may need better local information or trust signals. This distinction prevents a single traffic total from hiding the real local-search problem."
+        ]
+      }
     faq: [
       { question: "Do I need to put near me in my website copy?", answer: "No. Use natural service and location language. Near-me intent is inferred from the searcher's location and the business's local relevance; repeating the phrase can make copy worse." },
       { question: "What helps a business appear in near-me results?", answer: "Accurate Business Profile data, relevant categories and services, real location or service-area information, strong pages, authentic reviews and reputable local prominence all contribute to a healthy local presence." },
