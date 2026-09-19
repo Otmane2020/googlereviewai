@@ -9,7 +9,8 @@
     "build:dev": "npm run validate:seo-articles && vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
-    "validate:seo-articles": "node scripts/validate-seo-articles.mjs"
+    "validate:seo-articles": "node scripts/validate-seo-articles.mjs",
+    "typecheck": "tsc --noEmit -p tsconfig.app.json && tsc --noEmit -p tsconfig.node.json"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
