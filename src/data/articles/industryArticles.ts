@@ -312,6 +312,14 @@ export const industryArticles: SeoArticle[] = [
           "This process produces distinctive hotel content because it reflects the property's real guest experience rather than generic destination copy."
         ]
       }
+      ,
+      {
+        heading: "Audit accessibility information as booking-critical content",
+        paragraphs: [
+          "Accessibility details should be treated as operational facts, not a generic amenity badge. Describe step-free access, lifts, accessible room features, bathroom configuration, parking and any limitations the guest should know before booking. Where needs vary by room, connect the information to the exact category and encourage direct confirmation for requirements that cannot be guaranteed online.",
+          "Keep this information synchronized with booking platforms and staff scripts. A vague or outdated accessibility claim can create a serious guest problem. Clear first-party detail also gives search and AI systems a safer source than assumptions based on a single attribute."
+        ]
+      }
     faq: [
       { question: "What hotel pages matter most for local SEO?", answer: "The homepage, location information, room pages, amenity and policy pages, contact information and useful destination guides usually form the core. Prioritize what directly affects booking decisions." },
       { question: "Should a hotel create content for every nearby attraction?", answer: "No. Focus on attractions, venues and travel situations that genuinely influence guest stays. Useful logistics and first-hand local context matter more than page volume." },
@@ -470,6 +478,15 @@ export const industryArticles: SeoArticle[] = [
           "A high-converting law firm page should not simply maximize form submissions. It should help the firm identify whether a matter fits the practice, jurisdiction and urgency. Ask only for enough information to route the enquiry safely. Explain what happens next, typical response windows and that submission alone does not establish representation where applicable.",
           "For urgent matters, provide a clear alternative to a long form. For practice areas with conflict-check requirements, coordinate the form with internal procedures and avoid requesting unnecessary confidential detail before the firm can assess the relationship. Security and privacy should be reviewed by appropriate professionals.",
           "Measure accepted consultations and matters rather than form volume. Better qualification can lower lead count while improving the value and safety of the intake process."
+        ]
+      }
+      ,
+      {
+        heading: "Audit advertising claims before they become search snippets",
+        paragraphs: [
+          "Search engines and AI systems can extract short promotional statements without the nuance of the full page. Review claims such as leading, specialist, best, guaranteed, no win no fee or free consultation against the rules and facts that apply in the firm's jurisdiction. If a qualification, ranking or award has conditions, keep those conditions close enough that an extracted passage does not become misleading.",
+          "Create an approval list for recurring claims and a process for removing expired awards, former memberships and outdated attorney titles. Marketing teams should not invent comparative superiority language simply because competitors use it. Where a claim depends on an external publisher, preserve the source and date.",
+          "This audit protects both compliance and GEO accuracy because generated answers may repeat the firm's own wording as if it were an objective fact."
         ]
       }
     faq: [
@@ -640,6 +657,15 @@ export const industryArticles: SeoArticle[] = [
           "Reputation management works best when SEO, dispatch and customer service share the same expectations."
         ]
       }
+      ,
+      {
+        heading: "Create cancellation and no-access guidance before the visit",
+        paragraphs: [
+          "Home-service businesses lose time when a technician arrives but cannot access the property, parking is impossible, utilities cannot be isolated or the customer is absent. Publish practical preparation guidance on confirmation pages and relevant service pages. Explain access requirements, parking permits, pets, equipment clearance and any cancellation policy in plain language.",
+          "These details improve job completion and can reduce negative reviews caused by avoidable misunderstandings. They also create useful answer content for high-intent searches such as how to prepare for a boiler service or electrician visit. Keep guidance specific to the service rather than using one generic checklist for every trade.",
+          "Operational preparation content is a strong example of SEO serving the field team: it attracts informed customers and makes the booked job easier to deliver profitably."
+        ]
+      }
     faq: [
       { question: "Should a contractor create a page for every town?", answer: "No. Create pages where the business genuinely serves customers and can add useful local information. Regional pages are often better than many cloned city pages." },
       { question: "Can a home-service business use a virtual office for maps SEO?", answer: "Do not use an ineligible or misleading address to simulate local presence. Follow current Business Profile guidelines and represent real operations." },
@@ -798,6 +824,15 @@ export const industryArticles: SeoArticle[] = [
           "When auditing voice and conversational systems, focus on questions that lead to action: call, visit, book, order, navigate or decide between services. Test business hours, directions, parking, emergency availability, service area, appointment rules and price basics. Generic trivia about the brand may be easier to answer but contributes little to customer outcomes.",
           "For each test, record whether the spoken answer is correct, whether an action button or handoff is available, and whether the destination page preserves the context. If the assistant says the business is open but the call routes to a closed line, the information system is broken even if the wording sounded perfect.",
           "Use failures to prioritize operational fixes. Voice-search readiness is strongest when the whole path from question to action works."
+        ]
+      }
+      ,
+      {
+        heading: "Keep spoken brand and location names unambiguous",
+        paragraphs: [
+          "Voice interfaces can mishear unusual brand names, abbreviations or branch labels. Make the official name and location context clear across the website and profiles, and avoid creating several slightly different public names for the same branch. If customers commonly use a shorter name, explain the relationship naturally on the site instead of changing the official entity every time.",
+          "For branches with similar names, include neighborhood, street or city context in visible location pages so a spoken request can be resolved to the correct place. Consistent naming also helps call-center staff and navigation systems hand users to the right destination.",
+          "This is an entity-clarity issue more than a keyword issue, but it can materially affect conversational discovery when a user never sees a list of links."
         ]
       }
     faq: [
