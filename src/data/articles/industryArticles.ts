@@ -135,6 +135,23 @@ export const industryArticles: SeoArticle[] = [
         ]
       }
     ],
+      ,
+      {
+        heading: "Build treatment-to-location eligibility into the site",
+        paragraphs: [
+          "Dental groups often offer different treatments by branch, clinician and day of the week. Model that information explicitly. A patient viewing an implant page should be able to see which clinics provide consultations, whether a specialist attends on selected days and how to book the correct location. Avoid sending every treatment query to a generic contact form that forces reception staff to re-qualify the patient from scratch.",
+          "Use a maintained data source for treatment availability where possible so location pages and treatment pages do not drift apart. If a service temporarily pauses at one clinic, update both the page and booking logic. For practices with referral requirements, make that condition visible before the form.",
+          "This operational clarity improves search quality because the site no longer implies that every clinic offers every procedure. It also reduces frustrating calls and gives AI systems a more precise source when answering where a treatment is available."
+        ]
+      },
+      {
+        heading: "Use patient-question audits to guide annual updates",
+        paragraphs: [
+          "Once or twice a year, ask reception and clinical teams which questions patients still ask after reading the site. Group them by treatment, urgency, cost, preparation and aftercare. Compare those questions with search queries and review themes. The overlap identifies content gaps that matter to both patient experience and organic discovery.",
+          "Prioritize questions that cause missed appointments, inappropriate emergency visits or confusion about eligibility. Have clinicians review new answers before publication. When the question is individual and cannot be answered safely in general content, make that limitation explicit and improve the route to professional assessment.",
+          "This audit keeps the dental knowledge base grounded in real patient needs instead of letting an SEO calendar drift toward generic topics."
+        ]
+      }
     faq: [
       { question: "What is the most important local SEO factor for a dental practice?", answer: "There is no single factor. Accurate profile information, relevant treatment and location pages, authentic reviews, local prominence and good patient experience work together." },
       { question: "Should dentists create a page for every treatment and city combination?", answer: "Usually no. Build strong treatment pages and genuine location pages, then connect them. Create additional local treatment pages only when the location changes availability or patient information meaningfully." },
@@ -278,6 +295,23 @@ export const industryArticles: SeoArticle[] = [
         ]
       }
     ],
+      ,
+      {
+        heading: "Create a source-of-truth matrix for hotel distribution",
+        paragraphs: [
+          "Hotel facts are copied across many systems: the website, Google Business Profile, booking engine, online travel agencies, metasearch, channel manager, map platforms and travel guides. Build a matrix showing which system owns each fact. Room inventory and live prices may come from the booking stack, while parking instructions, accessibility and local transport may be maintained on the website. The team should know where a correction must originate.",
+          "Audit high-impact discrepancies monthly during busy periods. Focus on room names, bed configuration, mandatory fees, breakfast, parking, check-in, pet policy, accessibility and cancellation language. A small inconsistency can trigger poor reviews and cause AI travel tools to repeat an outdated third-party version.",
+          "When a third-party platform cannot be corrected immediately, make the first-party page especially clear and document the issue. Distribution SEO is partly information management: travelers and search systems need one coherent story about the property."
+        ]
+      },
+      {
+        heading: "Turn front-desk questions into direct-booking content",
+        paragraphs: [
+          "Front-desk and reservations teams hear the questions that determine whether a traveler books. Capture them by season and market: early check-in, luggage storage, airport transfer, child policy, parking height, late arrival, invoice requirements, event transport and quiet-room requests. Place answers on the relevant room, amenity or location page rather than hiding everything in a generic FAQ.",
+          "Measure whether the new content reduces repeated calls and whether visitors who use those pages reach the booking engine. Questions with strong search demand can become deeper guides, but only when the guide helps the stay decision.",
+          "This process produces distinctive hotel content because it reflects the property's real guest experience rather than generic destination copy."
+        ]
+      }
     faq: [
       { question: "What hotel pages matter most for local SEO?", answer: "The homepage, location information, room pages, amenity and policy pages, contact information and useful destination guides usually form the core. Prioritize what directly affects booking decisions." },
       { question: "Should a hotel create content for every nearby attraction?", answer: "No. Focus on attractions, venues and travel situations that genuinely influence guest stays. Useful logistics and first-hand local context matter more than page volume." },
@@ -421,6 +455,23 @@ export const industryArticles: SeoArticle[] = [
         ]
       }
     ],
+      ,
+      {
+        heading: "Build a legal-content source file for every major guide",
+        paragraphs: [
+          "For substantive legal pages, keep an internal source file containing the governing statute or regulation, important official guidance, relevant court or authority references, jurisdiction, responsible attorney and last review date. The published page can remain readable, while the source file gives editors a defensible trail for each major claim. When the law changes, the team can identify which pages depend on the changed authority.",
+          "Do not rely on a competitor article as the legal source. Secondary commentary can help discover issues, but final claims should be checked against appropriate primary or authoritative materials. Record uncertainty when interpretation is contested rather than writing an absolute statement for SEO simplicity.",
+          "This workflow is especially valuable when AI assists drafting. The model can help structure language, but the source file anchors the article to material a qualified reviewer can verify."
+        ]
+      },
+      {
+        heading: "Design intake pages around conflicts, urgency and fit",
+        paragraphs: [
+          "A high-converting law firm page should not simply maximize form submissions. It should help the firm identify whether a matter fits the practice, jurisdiction and urgency. Ask only for enough information to route the enquiry safely. Explain what happens next, typical response windows and that submission alone does not establish representation where applicable.",
+          "For urgent matters, provide a clear alternative to a long form. For practice areas with conflict-check requirements, coordinate the form with internal procedures and avoid requesting unnecessary confidential detail before the firm can assess the relationship. Security and privacy should be reviewed by appropriate professionals.",
+          "Measure accepted consultations and matters rather than form volume. Better qualification can lower lead count while improving the value and safety of the intake process."
+        ]
+      }
     faq: [
       { question: "Should a law firm create a page for every city it serves?", answer: "Only when the firm has a genuine local presence or a distinct service need that justifies useful content. Avoid fake office pages and repetitive city templates." },
       { question: "Can law firms publish past case results for SEO?", answer: "Rules vary by jurisdiction. Protect confidentiality, provide required context or disclaimers, and never imply that past results guarantee future outcomes." },
@@ -564,6 +615,31 @@ export const industryArticles: SeoArticle[] = [
         ]
       }
     ],
+      ,
+      {
+        heading: "Create a service-margin map for SEO prioritization",
+        paragraphs: [
+          "Not every job deserves equal acquisition effort. Combine CRM data with service and geography to understand average job value, close rate, travel time, repeat potential and gross margin. A high-volume drain-unblocking query may be less valuable than lower-volume boiler replacement or commercial maintenance work. Use this information to prioritize pages and local campaigns.",
+          "Do not expose confidential margin data publicly. The map is an internal planning tool. It helps content teams avoid optimizing purely for search volume. If a distant postcode produces high lead volume but low close rate and long travel time, clarify coverage rather than creating more local pages there.",
+          "Review the map seasonally because labor, fuel, materials and demand change. SEO should follow the economics of the field operation, not the other way around."
+        ]
+      },
+      {
+        heading: "Build technician feedback into content maintenance",
+        paragraphs: [
+          "Technicians hear where website expectations are wrong. Add a simple monthly feedback loop asking what customers misunderstood, which jobs were misqualified, what prices or timelines caused surprise and which safety questions appear repeatedly. Send these findings to the content owner with examples stripped of personal information.",
+          "If customers expect a repair when replacement is usually required, improve the service page. If they assume an emergency visit includes parts that are billed separately, clarify pricing. If a city page promises faster response than dispatch can meet, correct it immediately. Field feedback is a powerful SEO quality signal because it reflects what happens after the click.",
+          "This loop also creates authentic content ideas: maintenance checklists, preparation guides and project examples based on recurring real-world problems."
+        ]
+      },
+      {
+        heading: "Use job-status communication to protect reviews",
+        paragraphs: [
+          "Many negative home-service reviews begin with uncertainty rather than workmanship: the technician is late, the quote has not arrived or the customer does not know what happens next. Improve automated communication with realistic arrival windows, confirmation messages, delay alerts and post-job documentation. Keep the language aligned with what crews can actually deliver.",
+          "These operational systems indirectly support local SEO because satisfied customers are more likely to leave useful feedback and fewer complaints accumulate around preventable communication failures. Do not ask for a public review before an unresolved issue is closed.",
+          "Reputation management works best when SEO, dispatch and customer service share the same expectations."
+        ]
+      }
     faq: [
       { question: "Should a contractor create a page for every town?", answer: "No. Create pages where the business genuinely serves customers and can add useful local information. Regional pages are often better than many cloned city pages." },
       { question: "Can a home-service business use a virtual office for maps SEO?", answer: "Do not use an ineligible or misleading address to simulate local presence. Follow current Business Profile guidelines and represent real operations." },
@@ -707,6 +783,23 @@ export const industryArticles: SeoArticle[] = [
         ]
       }
     ],
+      ,
+      {
+        heading: "Design answers for interruption and low-attention contexts",
+        paragraphs: [
+          "Voice users may be driving, cooking, walking or handling an urgent problem. The answer should lead with the fact that changes the decision and avoid forcing the listener to remember a long list. If the user asks whether a store is open, state the current hours before describing services. If they ask whether a plumber serves the postcode, answer coverage before explaining the company history.",
+          "For critical instructions, keep steps short and ordered. Safety information should be professionally reviewed and should clearly direct the user to emergency services when appropriate. Avoid spoken answers that depend on visual references such as see the table below unless the audio channel can provide an alternative.",
+          "This low-attention design principle improves conventional mobile content too. Users scanning a page under time pressure benefit from the same direct hierarchy."
+        ]
+      },
+      {
+        heading: "Create assistant tests around real actions, not trivia",
+        paragraphs: [
+          "When auditing voice and conversational systems, focus on questions that lead to action: call, visit, book, order, navigate or decide between services. Test business hours, directions, parking, emergency availability, service area, appointment rules and price basics. Generic trivia about the brand may be easier to answer but contributes little to customer outcomes.",
+          "For each test, record whether the spoken answer is correct, whether an action button or handoff is available, and whether the destination page preserves the context. If the assistant says the business is open but the call routes to a closed line, the information system is broken even if the wording sounded perfect.",
+          "Use failures to prioritize operational fixes. Voice-search readiness is strongest when the whole path from question to action works."
+        ]
+      }
     faq: [
       { question: "Do I need special keywords for voice search?", answer: "No. Use natural language and answer real customer questions. Accurate local facts and clear service information matter more than forcing conversational phrases into copy." },
       { question: "Is voice search the same as AEO?", answer: "They overlap. AEO focuses on making answers easy to retrieve across search and AI systems, while voice adds spoken interaction and often stronger local or immediate context." },
