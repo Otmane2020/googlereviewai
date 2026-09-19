@@ -117,9 +117,7 @@ export const localSeoArticles: SeoArticle[] = [
           "Schedule periodic checks for broken image URLs, wrong canonicals, obsolete profiles, retired services, duplicate entities and malformed markup. Keep a simple change log for major location moves or rebrands. This helps future editors understand why identifiers and redirects exist.",
           "The strongest LocalBusiness schema implementation is not the one with the most properties. It is the one that remains accurate six months after launch."
         ]
-      }
-    ],
-      ,
+      },
       {
         heading: "Test schema against business scenarios, not only syntax",
         paragraphs: [
@@ -128,6 +126,7 @@ export const localSeoArticles: SeoArticle[] = [
           "Treat these checks as regression tests after deployments. The goal is not merely to pass a rich-results tool once; it is to preserve factual alignment as the site and business evolve."
         ]
       }
+    ],
     faq: [
       { question: "Does LocalBusiness schema improve local rankings directly?", answer: "Structured data can help search systems understand page information, but it does not guarantee a ranking increase. Local visibility still depends on relevance, distance, prominence, content quality, profiles and other signals." },
       { question: "Should LocalBusiness schema appear on every page?", answer: "Not as a separate new entity on every page. You can reference the same business where relevant, but avoid creating duplicated or inconsistent business objects across templates." },
@@ -253,9 +252,7 @@ export const localSeoArticles: SeoArticle[] = [
           "Create triggers for updates. A branch move, new pricing model, service launch, booking-system change or policy revision should prompt review of related FAQs. Avoid relying on annual audits for operational facts that change frequently.",
           "The best FAQ program becomes part of business knowledge management. It captures what customers need to know and keeps that knowledge synchronized across the site, support team and profiles."
         ]
-      }
-    ],
-      ,
+      },
       {
         heading: "Turn unanswered support questions into a monthly FAQ backlog",
         paragraphs: [
@@ -264,6 +261,7 @@ export const localSeoArticles: SeoArticle[] = [
           "Review the backlog quarterly for duplication. Merge questions that express the same decision in different words, move complex topics into dedicated guides, and retire answers that no longer apply. The result is a smaller but more reliable FAQ library that reflects current customer friction."
         ]
       }
+    ],
     faq: [
       { question: "Does FAQ schema guarantee a Google rich result?", answer: "No. Search engines control eligibility and display, and policies change. Use FAQ markup only as an accurate description of visible content, not as a guaranteed search feature." },
       { question: "How many questions should a local business FAQ have?", answer: "Use as many as genuinely help the user. Organize large sets by topic and move complex subjects into dedicated guides. Quality and maintainability matter more than a target number." },
@@ -389,9 +387,7 @@ export const localSeoArticles: SeoArticle[] = [
           "In the third month, earn a small number of legitimate local mentions, publish one or two truly local resources, monitor location-specific search performance and compare lead quality. Continue updating hours and operational facts as they change.",
           "The plan works because it improves the local evidence layer rather than trying to force one keyword. Near-me visibility is the result of being the relevant, credible and usable local option for the searcher's context."
         ]
-      }
-    ],
-      ,
+      },
       {
         heading: "Audit the local conversion path from search to arrival",
         paragraphs: [
@@ -399,8 +395,7 @@ export const localSeoArticles: SeoArticle[] = [
           "Repeat the test outside normal hours, on weekends and for important service variations. Confirm that open-now information, emergency availability and special hours match reality. For service-area businesses, enter postcodes near the edge of coverage and verify that the website does not promise a response the dispatch team routinely rejects.",
           "This journey audit turns local SEO from a ranking exercise into customer-experience optimization. Fixing one operational mismatch can improve conversion, reviews and future local signals at the same time."
         ]
-      }
-      ,
+      },
       {
         heading: "Track brand and non-brand local demand separately",
         paragraphs: [
@@ -408,6 +403,7 @@ export const localSeoArticles: SeoArticle[] = [
           "Use this split when evaluating location pages and Business Profile activity. A branch dominated by branded demand may need stronger category and service relevance; a branch with strong discovery traffic but weak conversion may need better local information or trust signals. This distinction prevents a single traffic total from hiding the real local-search problem."
         ]
       }
+    ],
     faq: [
       { question: "Do I need to put near me in my website copy?", answer: "No. Use natural service and location language. Near-me intent is inferred from the searcher's location and the business's local relevance; repeating the phrase can make copy worse." },
       { question: "What helps a business appear in near-me results?", answer: "Accurate Business Profile data, relevant categories and services, real location or service-area information, strong pages, authentic reviews and reputable local prominence all contribute to a healthy local presence." },
@@ -533,9 +529,7 @@ export const localSeoArticles: SeoArticle[] = [
           "If a new city is strategically important, begin by serving it reliably and collecting legitimate project evidence. Build partnerships and reviews over time. Then create richer local content from real experience. This sequence is slower than publishing fifty city pages in a day but produces a more defensible local footprint.",
           "Sustainable service-area SEO is ultimately logistics plus information. The website should make the true service network easy for customers and search systems to understand."
         ]
-      }
-    ],
-      ,
+      },
       {
         heading: "Build postcode and service eligibility into lead qualification",
         paragraphs: [
@@ -552,6 +546,7 @@ export const localSeoArticles: SeoArticle[] = [
           "The library should support proof, not mass content generation. Publish only the examples that teach something useful or reduce customer uncertainty."
         ]
       }
+    ],
     faq: [
       { question: "Can a service-area business rank without showing an address?", answer: "Yes. Follow Business Profile guidelines, represent real service coverage, build strong service content and reputation, and avoid inventing storefronts." },
       { question: "Should I use virtual offices for local SEO?", answer: "No. Do not use an address that does not represent a legitimate eligible location merely to appear closer to searchers. It can create policy and trust problems." },
@@ -685,9 +680,7 @@ export const localSeoArticles: SeoArticle[] = [
           "Build automatic alerts for missing hours, broken booking links, closed locations and stale staff where systems allow. Review high-traffic pages regularly and all branches on a defined cadence. A local SEO program fails when pages remain live long after operations change.",
           "Scalability comes from structured data and workflow, not from generating more prose. The goal is a network of accurate, useful local destinations that can be trusted over time."
         ]
-      }
-    ],
-      ,
+      },
       {
         heading: "Use a minimum-value test before launching a new local URL",
         paragraphs: [
@@ -696,6 +689,7 @@ export const localSeoArticles: SeoArticle[] = [
           "Reapply the same test during annual audits. If a page no longer has unique operational value, merge it into a stronger regional or service page and redirect the old URL. Local SEO architecture should be allowed to shrink when the business no longer needs the page."
         ]
       }
+    ],
     faq: [
       { question: "What should a local landing page include?", answer: "Include the location or coverage facts customers need, available services, access or travel information, local proof, useful FAQs and a clear next action. The exact sections depend on whether the page represents a branch or a service area." },
       { question: "Are city pages bad for SEO?", answer: "Not when they serve a genuine need and contain useful local information. Problems arise when many pages repeat the same content and exist mainly to funnel users to one destination." },
