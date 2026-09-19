@@ -476,6 +476,15 @@ export const geoAeoArticles: SeoArticle[] = [
         ]
       }
     ],
+      ,
+      {
+        heading: "Create an entity change-control process",
+        paragraphs: [
+          "Entity accuracy deteriorates when business changes are handled as isolated marketing tasks. Build a simple change-control process for moves, new branches, closures, phone changes, rebrands and leadership updates. The person approving the operational change should trigger a checklist covering the website, Business Profile, structured data, map providers, professional directories, social profiles and high-authority partners. Record the old value, new value, effective date and owner.",
+          "For large networks, prioritize sources by customer impact and authority rather than trying to update the entire web at once. Update owned pages and primary profiles first, then major third-party sources, then long-tail citations. Keep redirects and historical context where customers may still search the former location or brand. After several weeks, search the old and new facts to identify sources that continue to surface stale information.",
+          "This governance step turns entity SEO from a one-time cleanup into operational infrastructure. It also gives AI and search systems a better chance of encountering the same current facts across independent sources instead of a mixture of old and new identities."
+        ]
+      }
     faq: [
       { question: "Is NAP consistency still important?", answer: "Yes, but focus on factual accuracy across authoritative sources rather than chasing identical formatting on every low-value directory. Minor punctuation differences matter far less than a wrong phone number, address or business name." },
       { question: "Should every location have a page?", answer: "Every genuine customer-facing or operational location should have a stable page when users need location-specific information. Do not create fake pages for cities where no distinct operation or useful local information exists." },
@@ -603,6 +612,15 @@ export const geoAeoArticles: SeoArticle[] = [
         ]
       }
     ],
+      ,
+      {
+        heading: "Create a source-change log for every reporting cycle",
+        paragraphs: [
+          "AI visibility reports become more useful when they include the changes that occurred between measurements. Maintain a simple log of important website updates, profile corrections, new reviews, earned media, original research, product changes and third-party listing corrections. Tag each change to the prompt clusters it could plausibly affect. When a recommendation or citation pattern moves, analysts can inspect the source log instead of inventing a causal story after the fact.",
+          "The log should also record negative changes: pages removed, redirects broken, outdated pricing, expired partnerships and inaccurate third-party articles. These events can explain visibility losses or factual errors. Preserve dates and URLs so the team can audit the sequence later.",
+          "Do not claim that one source change caused an AI output shift unless the evidence supports it. Use the log to generate hypotheses, then look for repeated patterns across prompts, platforms and periods. This discipline keeps GEO measurement grounded in observable source work rather than anecdotes."
+        ]
+      }
     faq: [
       { question: "What is AI share of voice?", answer: "In a defined benchmark, AI share of voice usually describes how often a brand appears relative to named competitors across selected prompts. The methodology and denominator should be stated because the result is not total market share." },
       { question: "How often should AI visibility be checked?", answer: "Weekly can suit active experiments; monthly is often enough for ongoing reporting. Use a consistent schedule and repeat only high-value prompts when extra stability is needed." },
