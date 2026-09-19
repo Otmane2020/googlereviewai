@@ -474,9 +474,7 @@ export const geoAeoArticles: SeoArticle[] = [
           "Track changes after a move, rebrand or profile cleanup. If branded traffic becomes less fragmented and customers reach the correct location page more often, the entity work is producing value. For multi-location companies, monitor each branch separately because one clean headquarters profile can hide local problems.",
           "The objective is not perfect uniformity of punctuation across every directory. It is reliable identity resolution across the sources that matter. Accuracy, relationship clarity and maintenance are the useful standards."
         ]
-      }
-    ],
-      ,
+      },
       {
         heading: "Create an entity change-control process",
         paragraphs: [
@@ -485,6 +483,7 @@ export const geoAeoArticles: SeoArticle[] = [
           "This governance step turns entity SEO from a one-time cleanup into operational infrastructure. It also gives AI and search systems a better chance of encountering the same current facts across independent sources instead of a mixture of old and new identities."
         ]
       }
+    ],
     faq: [
       { question: "Is NAP consistency still important?", answer: "Yes, but focus on factual accuracy across authoritative sources rather than chasing identical formatting on every low-value directory. Minor punctuation differences matter far less than a wrong phone number, address or business name." },
       { question: "Should every location have a page?", answer: "Every genuine customer-facing or operational location should have a stable page when users need location-specific information. Do not create fake pages for cities where no distinct operation or useful local information exists." },
@@ -610,9 +609,7 @@ export const geoAeoArticles: SeoArticle[] = [
           "Avoid claiming statistical significance when the sample does not support it. Small prompt sets are still useful for operational monitoring, but the language should match the method. Use phrases such as observed in this benchmark rather than market-wide conclusions.",
           "Transparent limitations increase trust. They also protect the measurement program from becoming a vanity report that cannot explain its own numbers."
         ]
-      }
-    ],
-      ,
+      },
       {
         heading: "Create a source-change log for every reporting cycle",
         paragraphs: [
@@ -621,6 +618,7 @@ export const geoAeoArticles: SeoArticle[] = [
           "Do not claim that one source change caused an AI output shift unless the evidence supports it. Use the log to generate hypotheses, then look for repeated patterns across prompts, platforms and periods. This discipline keeps GEO measurement grounded in observable source work rather than anecdotes."
         ]
       }
+    ],
     faq: [
       { question: "What is AI share of voice?", answer: "In a defined benchmark, AI share of voice usually describes how often a brand appears relative to named competitors across selected prompts. The methodology and denominator should be stated because the result is not total market share." },
       { question: "How often should AI visibility be checked?", answer: "Weekly can suit active experiments; monthly is often enough for ongoing reporting. Use a consistent schedule and repeat only high-value prompts when extra stability is needed." },
