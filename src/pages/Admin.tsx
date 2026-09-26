@@ -106,7 +106,7 @@ const Admin = () => {
     setLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke('get-analytics', {
-        body: null,
+        body: {},
         headers: {},
       });
 

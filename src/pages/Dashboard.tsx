@@ -215,7 +215,7 @@ const Dashboard = () => {
     
     if (syncStatusRes.data) setSyncStatus(syncStatusRes.data);
 
-    if (profileRes.data) setProfile(profileRes.data);
+    if (profileRes.data) setProfile(profileRes.data as Profile);
     
     // Helper to check if review has a real google reply
     const hasReply = (r: Review) => r.google_reply && r.google_reply.trim() !== '';

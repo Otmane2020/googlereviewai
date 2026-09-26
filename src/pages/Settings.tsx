@@ -96,7 +96,7 @@ const SettingsPage = () => {
     if (error) {
       console.error("Error fetching profile:", error);
     } else if (data) {
-      setProfilee(data);
+      setProfilee(data as Profilee);
       setFullName(data.full_name || "");
       const pl = (data as any).preferred_language;
       if (pl === "fr" || pl === "en") {

@@ -165,6 +165,10 @@ const MapsRank = () => {
   };
 
   const handleScan = async () => {
+    if (!user) {
+      toast.error("Session utilisateur introuvable");
+      return;
+    }
     if (!selectedBusiness || !keyword.trim()) {
       toast.error("Sélectionnez un établissement et saisissez un mot-clé");
       return;
@@ -230,7 +234,7 @@ const MapsRank = () => {
       const { data: newHistory } = await supabase
         .from("maps_rank_scans")
         .select("*")
-        .eq("user_id", user?.id)
+        .eq("user_id", user.id)
         .eq("business_id", selectedBusiness)
         .order("created_at", { ascending: false })
         .limit(10);
