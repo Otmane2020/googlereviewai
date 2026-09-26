@@ -2,12 +2,6 @@ import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 
-// Extend ServiceWorkerRegistration for PushManager
-declare global {
-  interface ServiceWorkerRegistration {
-    pushManager: PushManager;
-  }
-}
 
 function urlBase64ToUint8Array(base64String: string): Uint8Array {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
