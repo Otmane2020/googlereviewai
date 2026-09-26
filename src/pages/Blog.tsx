@@ -19,6 +19,7 @@ import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import { useQuery } from "@tanstack/react-query";
 import { getPublishedRankiArticles } from "@/integrations/supabase/rankiBlogClient";
+import type { RankiArticle } from "@/integrations/supabase/rankiBlogClient";
 import { format } from "date-fns";
 import { enUS } from "date-fns/locale";
 import { seoArticles } from "@/data/seoArticles";
@@ -84,7 +85,11 @@ const staticArticles = [
   },
 ];
 
-const Blog = () => {
+type BlogProps = {
+  initialRankiArticles?: RankiArticle[];
+};
+
+const Blog = ({ initialRankiArticles = [] }: BlogProps) => {
   const { data: dynamicArticles, isLoading } = useQuery({
     queryKey: ["published-articles"],
     queryFn: async () => {
@@ -96,8 +101,14 @@ const Blog = () => {
         author: "Google Review AI",
       }));
     },
-    staleTime: 0,
+    staleTime: 60_000,
     refetchOnWindowFocus: true,
+    initialData: initialRankiArticles.map((article) => ({
+      ...article,
+      body: article.content_html,
+      meta_description: article.excerpt,
+      author: "Google Review AI",
+    })),
   });
 
   const calculateReadTime = (content: string) => {
