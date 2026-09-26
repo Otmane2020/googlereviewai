@@ -18,7 +18,10 @@ const Auth = () => {
 
   const { signInWithGoogle, user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
-  const gmbRequired = new URLSearchParams(window.location.search).get("gmb_required") === "1";
+  const [gmbRequired, setGmbRequired] = useState(false);
+  useEffect(() => {
+    setGmbRequired(new URLSearchParams(window.location.search).get("gmb_required") === "1");
+  }, []);
 
   // After auth: if ?redirect=checkout&priceKey=XXX → start Stripe checkout
   // Else respect ?next=/path, else go to onboarding/dashboard

@@ -4,7 +4,14 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useRequireSubscription } from "@/hooks/useRequireSubscription";
 import { supabase } from "@/integrations/supabase/client";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
-import { RankingMap, processPointsWithDirections } from "@/components/RankingMap";
+import { lazy, Suspense } from "react";
+import { ClientOnly } from "@tanstack/react-router";
+import { processPointsWithDirections } from "@/components/maps-rank/processPoints";
+
+// Leaflet is browser-only: load the map after hydration, never during SSR.
+const RankingMap = lazy(() =>
+  import("@/components/RankingMap").then((m) => ({ default: m.RankingMap })),
+);
 import { VisibilityScore } from "@/components/maps-rank/VisibilityScore";
 import { KeywordChips } from "@/components/maps-rank/KeywordChips";
 import { RankRecommendations } from "@/components/maps-rank/RankRecommendations";
@@ -551,15 +558,19 @@ const MapsRank = () => {
                     </p>
                   </div>
                 ) : (
-                  <RankingMap
-                    center={scanResult.center}
-                    points={scanResult.points}
-                    spacing={parseInt(spacing)}
-                    gridSize={parseInt(gridSize)}
-                    selectedPoint={selectedPoint}
-                    onPointSelect={setSelectedPoint}
-                    businessName={selectedBusinessData?.name}
-                  />
+                  <ClientOnly fallback={<Skeleton className="h-[400px] w-full rounded-xl" />}>
+                    <Suspense fallback={<Skeleton className="h-[400px] w-full rounded-xl" />}>
+                      <RankingMap
+                        center={scanResult.center}
+                        points={scanResult.points}
+                        spacing={parseInt(spacing)}
+                        gridSize={parseInt(gridSize)}
+                        selectedPoint={selectedPoint}
+                        onPointSelect={setSelectedPoint}
+                        businessName={selectedBusinessData?.name}
+                      />
+                    </Suspense>
+                  </ClientOnly>
                 )}
               </CardContent>
             </Card>
