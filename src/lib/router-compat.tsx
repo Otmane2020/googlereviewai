@@ -153,6 +153,39 @@ export function Navigate({ to, replace, state }: { to: string; replace?: boolean
 
 export const Outlet = TSOutlet;
 
-// ---------- NavLink (minimal) ----------
+// ---------- NavLink (react-router-dom compat, function-form props supported) ----------
 
-export const NavLink = Link;
+export type NavLinkRenderState = { isActive: boolean; isPending: boolean };
+
+export type NavLinkProps = Omit<LinkProps, "className" | "style" | "children"> & {
+  className?: string | ((state: NavLinkRenderState) => string | undefined);
+  style?: CSSProperties | ((state: NavLinkRenderState) => CSSProperties | undefined);
+  children?: ReactNode | ((state: NavLinkRenderState) => ReactNode);
+  end?: boolean;
+};
+
+export const NavLink = forwardRef<HTMLAnchorElement, NavLinkProps>(function NavLink(
+  { to, className, style, children, end, ...rest },
+  ref,
+) {
+  const loc = tsLocation();
+  const { pathname } = parseTo(to);
+  const target = pathname === "." ? loc.pathname : pathname;
+  const normalized = target.length > 1 && target.endsWith("/") ? target.slice(0, -1) : target;
+  const isActive = end
+    ? loc.pathname === normalized
+    : loc.pathname === normalized ||
+      (normalized !== "/" && loc.pathname.startsWith(`${normalized}/`));
+  const state: NavLinkRenderState = { isActive, isPending: false };
+  return (
+    <Link
+      ref={ref}
+      to={to}
+      className={typeof className === "function" ? className(state) : className}
+      style={typeof style === "function" ? style(state) : style}
+      {...(rest as Record<string, unknown>)}
+    >
+      {typeof children === "function" ? children(state) : children}
+    </Link>
+  );
+});
