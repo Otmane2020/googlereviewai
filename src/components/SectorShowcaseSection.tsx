@@ -84,7 +84,7 @@ export const SectorShowcaseSection = () => {
           {sectors.map((sector, index) => (
             <div
               key={index}
-              className="group relative bg-card rounded-2xl border border-border overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+              className="group relative bg-card rounded-2xl border border-border overflow-hidden shadow-xs hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
             >
               {/* Image with overlay */}
               <div className="relative h-48 overflow-hidden">

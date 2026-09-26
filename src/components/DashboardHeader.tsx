@@ -124,7 +124,7 @@ export const DashboardHeader = ({ className }: { className?: string } = {}) => {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-sm">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-xs">
                   <span className="text-xs font-bold text-primary-foreground">
                     {profile?.full_name?.charAt(0).toUpperCase() ||
                       user?.email?.charAt(0).toUpperCase() ||

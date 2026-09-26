@@ -53,7 +53,7 @@ export const InstallPrompt = () => {
         <div className="bg-card rounded-2xl shadow-2xl w-full max-w-sm p-6 animate-scale-in">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <img src="/icon-192x192.png" alt="GoogleReviewAI" className="w-12 h-12 rounded-xl shadow" />
+              <img src="/icon-192x192.png" alt="GoogleReviewAI" className="w-12 h-12 rounded-xl shadow-sm" />
               <div>
                 <h3 className="font-bold text-base">{isFrench ? "Installer GoogleReviewAI" : "Install GoogleReviewAI"}</h3>
                 <p className="text-xs text-muted-foreground">{isFrench ? "Accès rapide + notifications" : "Quick access + notifications"}</p>

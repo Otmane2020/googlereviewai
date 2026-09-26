@@ -155,7 +155,7 @@ const Calendar = () => {
           </div>
         </div>
 
-        <Card className="rounded-2xl border-border/60 shadow-sm">
+        <Card className="rounded-2xl border-border/60 shadow-xs">
           <CardHeader className="flex flex-row items-center justify-between pb-4">
             <CardTitle className="text-lg">{format(cursor, "MMMM yyyy", { locale: dateLocale })}</CardTitle>
             <div className="flex items-center gap-2">
@@ -262,7 +262,7 @@ const Calendar = () => {
           </CardContent>
         </Card>
 
-        <Card className="rounded-2xl border-border/60 shadow-sm">
+        <Card className="rounded-2xl border-border/60 shadow-xs">
           <CardHeader>
             <CardTitle className="text-base">
               {selectedDay ? format(selectedDay, "EEEE d MMMM yyyy", { locale: dateLocale }) : t("Choisissez un jour", "Pick a day")}

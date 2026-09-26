@@ -23,7 +23,7 @@ export const TestimonialsSection = () => {
   // Professional company logos with icons
   const CompanyLogo1 = () => (
     <div className="flex items-center gap-2">
-      <div className="w-7 h-7 rounded-md bg-gradient-to-br from-rose-500 to-pink-600 flex items-center justify-center shadow-sm">
+      <div className="w-7 h-7 rounded-md bg-gradient-to-br from-rose-500 to-pink-600 flex items-center justify-center shadow-xs">
         <Utensils className="w-3.5 h-3.5 text-white" />
       </div>
       <div className="flex flex-col">
@@ -35,7 +35,7 @@ export const TestimonialsSection = () => {
 
   const CompanyLogo2 = () => (
     <div className="flex items-center gap-2">
-      <div className="w-7 h-7 rounded-md bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center shadow-sm">
+      <div className="w-7 h-7 rounded-md bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center shadow-xs">
         <Leaf className="w-3.5 h-3.5 text-white" />
       </div>
       <div className="flex flex-col">
@@ -47,7 +47,7 @@ export const TestimonialsSection = () => {
 
   const CompanyLogo3 = () => (
     <div className="flex items-center gap-2">
-      <div className="w-7 h-7 rounded-md bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-sm">
+      <div className="w-7 h-7 rounded-md bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-xs">
         <Building2 className="w-3.5 h-3.5 text-white" />
       </div>
       <div className="flex flex-col">
@@ -113,11 +113,11 @@ export const TestimonialsSection = () => {
 
         {/* Trusted platforms */}
         <div className="flex items-center justify-center gap-4 sm:gap-8 mb-10">
-          <div className="flex items-center gap-2 px-4 py-2 bg-card rounded-xl border border-border shadow-sm">
+          <div className="flex items-center gap-2 px-4 py-2 bg-card rounded-xl border border-border shadow-xs">
             <GoogleIcon className="w-5 h-5" />
             <span className="text-xs sm:text-sm font-medium text-foreground">Google</span>
           </div>
-          <div className="flex items-center gap-2 px-4 py-2 bg-card rounded-xl border border-border shadow-sm">
+          <div className="flex items-center gap-2 px-4 py-2 bg-card rounded-xl border border-border shadow-xs">
             <ChatGPTIcon className="w-5 h-5" />
             <span className="text-xs sm:text-sm font-medium text-foreground">ChatGPT</span>
           </div>
@@ -128,12 +128,12 @@ export const TestimonialsSection = () => {
           {testimonials.map((testimonial) => (
             <div
               key={testimonial.name}
-              className="bg-card p-5 sm:p-6 rounded-2xl border border-border shadow-sm hover:shadow-lg transition-all duration-300"
+              className="bg-card p-5 sm:p-6 rounded-2xl border border-border shadow-xs hover:shadow-lg transition-all duration-300"
             >
               {/* Header */}
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-11 h-11 rounded-full bg-white border border-border flex items-center justify-center shadow-sm">
+                  <div className="w-11 h-11 rounded-full bg-white border border-border flex items-center justify-center shadow-xs">
                     <testimonial.icon className="w-5 h-5 text-foreground" />
                   </div>
                   <div>

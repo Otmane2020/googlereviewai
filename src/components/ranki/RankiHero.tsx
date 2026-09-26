@@ -24,7 +24,7 @@ export const RankiHero = () => {
       <div className="container mx-auto px-4 sm:px-6">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           <div className="text-center lg:text-left">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white border border-[#4285F4]/20 shadow-sm text-foreground text-xs font-semibold mb-6">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white border border-[#4285F4]/20 shadow-xs text-foreground text-xs font-semibold mb-6">
               <span className="flex gap-1"><i className="w-1.5 h-1.5 rounded-full bg-[#4285F4]"/><i className="w-1.5 h-1.5 rounded-full bg-[#EA4335]"/><i className="w-1.5 h-1.5 rounded-full bg-[#FBBC05]"/><i className="w-1.5 h-1.5 rounded-full bg-[#34A853]"/></span>
               {t("landingUI.hero.badge")}
             </div>
@@ -48,7 +48,7 @@ export const RankiHero = () => {
 
             <div className="mt-10">
               <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">{t("landingUI.hero.trackedOn")}</p>
-              <div className="flex flex-wrap gap-2 justify-center lg:justify-start">{aiEngines.map(({name,dot}) => <span key={name} className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold text-foreground bg-card border border-border shadow-sm"><span className="w-1.5 h-1.5 rounded-full" style={{backgroundColor:dot}} />{name}</span>)}</div>
+              <div className="flex flex-wrap gap-2 justify-center lg:justify-start">{aiEngines.map(({name,dot}) => <span key={name} className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold text-foreground bg-card border border-border shadow-xs"><span className="w-1.5 h-1.5 rounded-full" style={{backgroundColor:dot}} />{name}</span>)}</div>
             </div>
           </div>
 

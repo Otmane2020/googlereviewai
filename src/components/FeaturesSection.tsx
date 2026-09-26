@@ -142,7 +142,7 @@ export const FeaturesSection = () => {
           {features.map((feature, index) => (
             <div
               key={feature.title}
-              className="group relative p-5 sm:p-6 bg-card rounded-2xl border border-border shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden cursor-pointer"
+              className="group relative p-5 sm:p-6 bg-card rounded-2xl border border-border shadow-xs hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden cursor-pointer"
               onClick={() => setOpenDialog(index)}
             >
               {/* Badge */}
@@ -217,7 +217,7 @@ export const FeaturesSection = () => {
             {capabilities.map((item) => (
               <div
                 key={item.title}
-                className="bg-card p-4 sm:p-5 rounded-xl border border-border shadow-sm hover:shadow-md transition-all text-center sm:text-left"
+                className="bg-card p-4 sm:p-5 rounded-xl border border-border shadow-xs hover:shadow-md transition-all text-center sm:text-left"
               >
                 <div className="flex flex-col sm:flex-row items-center sm:items-start gap-3 mb-3">
                   <div className="w-10 h-10 rounded-lg bg-secondary/10 flex items-center justify-center flex-shrink-0">
