@@ -1,6 +1,7 @@
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { getPublishedRankiArticle } from "@/integrations/supabase/rankiBlogClient";
+import type { RankiArticle } from "@/integrations/supabase/rankiBlogClient";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Badge } from "@/components/ui/badge";
@@ -16,24 +17,27 @@ const stripHtml = (html: string) =>
 const headingId = (heading: string) =>
   heading.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 
-const BlogArticle = () => {
+type BlogArticleProps = {
+  initialRankiArticle?: RankiArticle | null;
+};
+
+const BlogArticle = ({ initialRankiArticle = null }: BlogArticleProps) => {
   const { slug } = useParams<{ slug: string }>();
   const safeSlug = slug ?? "";
   const staticArticle = getSeoArticleBySlug(safeSlug);
 
+  const mapRankiArticle = (article: RankiArticle | null) => article ? ({
+    ...article,
+    body: article.content_html,
+    meta_description: article.excerpt,
+    author: "Google Review AI",
+  }) : null;
+
   const { data: dynamicArticle, isLoading, error } = useQuery({
     queryKey: ["published-article", safeSlug],
-    queryFn: async () => {
-      const article = await getPublishedRankiArticle(safeSlug);
-      if (!article) return null;
-      return {
-        ...article,
-        body: article.content_html,
-        meta_description: article.excerpt,
-        author: "Google Review AI",
-      };
-    },
+    queryFn: async () => mapRankiArticle(await getPublishedRankiArticle(safeSlug)),
     enabled: !!safeSlug && !staticArticle,
+    initialData: !staticArticle ? mapRankiArticle(initialRankiArticle) : undefined,
   });
 
   if (staticArticle) {
