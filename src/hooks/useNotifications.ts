@@ -30,8 +30,12 @@ export const useNotifications = () => {
         .limit(20);
       
       if (data) {
-        setNotifications(data);
-        setUnreadCount(data.filter((n) => !n.read).length);
+        const normalized = data.map((notification) => ({
+          ...notification,
+          read: notification.read ?? false,
+        }));
+        setNotifications(normalized);
+        setUnreadCount(normalized.filter((n) => !n.read).length);
       }
     };
 
