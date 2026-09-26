@@ -11,6 +11,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    env:
+      VITE_SUPABASE_URL: https://ci-placeholder.supabase.co
+      VITE_SUPABASE_PUBLISHABLE_KEY: ci-placeholder-key
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -23,3 +26,19 @@ jobs:
         run: npm run build
       - name: Typecheck
         run: npm run typecheck
+      - name: Smoke test server routes
+        shell: bash
+        run: |
+          PORT=3000 npm run start > /tmp/googlereviewai-server.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID || true; cat /tmp/googlereviewai-server.log' EXIT
+          for attempt in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:3000/ > /dev/null; then
+              break
+            fi
+            sleep 1
+          done
+          for route in / /blog /avis-ai-guide /local-aeo /shop /auth /dashboard /sitemap /unsubscribe /review-reply-ai-google-business-profile; do
+            echo "Checking $route"
+            curl --fail --silent --show-error "http://127.0.0.1:3000$route" > /dev/null
+          done
