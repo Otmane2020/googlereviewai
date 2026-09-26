@@ -15,7 +15,7 @@ self.addEventListener('activate', function(event) {
     caches.keys().then(function(cacheNames) {
       return Promise.all(
         cacheNames.map(function(cacheName) {
-          if (cacheName !== CACHE_VERSION && cacheName.indexOf('workbox') === -1) {
+          if (cacheName !== CACHE_VERSION) {
             console.log('[SW] Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
