@@ -209,7 +209,7 @@ const Blog = () => {
                             <div className="flex items-center justify-between text-xs text-muted-foreground">
                               <div className="flex items-center gap-3">
                                 <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{calculateReadTime(article.body)}</span>
-                                <span className="flex items-center gap-1"><Calendar className="w-3 h-3" />{formatDate(article.published_at || article.created_at)}</span>
+                                <span className="flex items-center gap-1"><Calendar className="w-3 h-3" />{article.published_at || article.created_at ? formatDate(article.published_at || article.created_at || "") : ""}</span>
                               </div>
                               <ArrowRight className="w-4 h-4" />
                             </div>
