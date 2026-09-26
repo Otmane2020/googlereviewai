@@ -18,7 +18,7 @@ import {
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { getPublishedRankiArticles } from "@/integrations/supabase/rankiBlogClient";
 import { format } from "date-fns";
 import { enUS } from "date-fns/locale";
 import { seoArticles } from "@/data/seoArticles";
@@ -88,13 +88,13 @@ const Blog = () => {
   const { data: dynamicArticles, isLoading } = useQuery({
     queryKey: ["published-articles"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("published_articles")
-        .select("id, title, slug, body, meta_description, author, published_at, created_at")
-        .order("published_at", { ascending: false });
-
-      if (error) throw error;
-      return data || [];
+      const rows = await getPublishedRankiArticles();
+      return rows.map((article) => ({
+        ...article,
+        body: article.content_html,
+        meta_description: article.excerpt,
+        author: "Google Review AI",
+      }));
     },
     staleTime: 0,
     refetchOnWindowFocus: true,
