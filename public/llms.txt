@@ -60,3 +60,10 @@ Public marketing pages, product explanations, guides and blog content may be ind
 - Sitemap: https://googlereviewai.com/sitemap.xml
 - Robots: https://googlereviewai.com/robots.txt
 - LLM guidance: https://googlereviewai.com/llms.txt
+
+
+## Automatic article publishing
+- Ranki.ai publishing feed: published articles appear under https://googlereviewai.com/blog/{slug}
+- Public article API: https://googlereviewai.com/api/blog/{slug}
+- Only rows with status = published are publicly readable.
+- Article HTML is rendered with one canonical H1: incoming HTML H1 is preserved; a title H1 is added only when missing.
