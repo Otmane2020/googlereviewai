@@ -1,0 +1,32 @@
+{
+  "customizations": [
+    { "token": "--background/--foreground custom light palette (:root, 20 vars)", "source": "src/index.css", "reappliedIn": "src/styles.css" },
+    { "token": "--background/--foreground custom dark palette (.dark, 18 vars)", "source": "src/index.css", "reappliedIn": "src/styles.css" },
+    { "token": "--radius: 0.75rem", "source": "src/index.css", "reappliedIn": "src/styles.css" },
+    { "token": "--google-blue", "source": "src/index.css", "reappliedIn": "src/styles.css" },
+    { "token": "--google-green", "source": "src/index.css", "reappliedIn": "src/styles.css" },
+    { "token": "--google-yellow", "source": "src/index.css", "reappliedIn": "src/styles.css" },
+    { "token": "--google-red", "source": "src/index.css", "reappliedIn": "src/styles.css" },
+    { "token": "--gradient-start / --gradient-end", "source": "src/index.css", "reappliedIn": "src/styles.css" },
+    { "token": "--sidebar-* set (8 vars, light + dark)", "source": "src/index.css", "reappliedIn": "src/styles.css" },
+    { "token": "google.* Tailwind color scale (bg-google-blue etc.)", "source": "tailwind.config.ts", "reappliedIn": "src/styles.css" },
+    { "token": "font-sans Inter + Google Fonts import", "source": "src/index.css + tailwind.config.ts", "reappliedIn": "src/styles.css" },
+    { "token": "container center/padding 2rem/2xl 1400px", "source": "tailwind.config.ts", "reappliedIn": "src/styles.css" },
+    { "token": "gradient-hero", "source": "src/index.css", "reappliedIn": "src/styles.css" },
+    { "token": "gradient-text", "source": "src/index.css", "reappliedIn": "src/styles.css" },
+    { "token": "gradient-google", "source": "src/index.css", "reappliedIn": "src/styles.css" },
+    { "token": "glass-card", "source": "src/index.css", "reappliedIn": "src/styles.css" },
+    { "token": "text-accent-gold", "source": "src/index.css", "reappliedIn": "src/styles.css" },
+    { "token": "animate-float + @keyframes float", "source": "src/index.css", "reappliedIn": "src/styles.css" },
+    { "token": "animate-pulse-slow", "source": "src/index.css", "reappliedIn": "src/styles.css" },
+    { "token": "animate-slide-in-right + @keyframes slide-in-right", "source": "src/index.css", "reappliedIn": "src/styles.css" },
+    { "token": "animate-scroll-logos / animate-scroll-logos-slow + @keyframes scroll-logos", "source": "src/index.css", "reappliedIn": "src/styles.css" },
+    { "token": "safe-area-inset-bottom / safe-area-inset-top / safe-area-insets", "source": "src/index.css", "reappliedIn": "src/styles.css" },
+    { "token": "animate-fade-in / animate-slide-in + keyframes", "source": "tailwind.config.ts", "reappliedIn": "src/styles.css" },
+    { "token": "animate-accordion-down / animate-accordion-up + keyframes", "source": "tailwind.config.ts", "reappliedIn": "src/styles.css" },
+    { "token": "#lovable-badge hide rule", "source": "src/index.css", "reappliedIn": "src/styles.css" },
+    { "token": "PWA standalone media rules + pwa-standalone-hidden", "source": "src/index.css", "reappliedIn": "src/styles.css" },
+    { "token": "touch-device min-target + iOS input zoom rules", "source": "src/index.css", "reappliedIn": "src/styles.css" },
+    { "token": "overscroll-behavior + iOS -webkit-fill-available fixes", "source": "src/index.css", "reappliedIn": "src/styles.css" }
+  ]
+}
