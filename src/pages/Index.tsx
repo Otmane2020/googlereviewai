@@ -15,7 +15,6 @@ import { FAQSection } from "@/components/FAQSection";
 import { CTASection } from "@/components/CTASection";
 import { ReviewAIShowcaseSection } from "@/components/ReviewAIShowcaseSection";
 import { Loader2 } from "lucide-react";
-import { Helmet } from "react-helmet";
 import { MobileStickyButton } from "@/components/MobileStickyButton";
 
 const Index = () => {
@@ -43,9 +42,7 @@ const Index = () => {
     answer: f.a,
   }));
 
-  const title = t("landing.title");
   const description = t("landing.description");
-  const locale = i18n.language?.startsWith("fr") ? "fr_FR" : "en_US";
 
   const homepageSchema = {
     "@context": "https://schema.org",
@@ -91,24 +88,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Helmet>
-        <html lang={i18n.language} />
-        <title>{title}</title>
-        <meta name="description" content={description} />
-        <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
-        <link rel="canonical" href="https://googlereviewai.com/" />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://googlereviewai.com/" />
-        <meta property="og:title" content={title} />
-        <meta property="og:description" content={description} />
-        <meta property="og:image" content="https://googlereviewai.com/og-image.png" />
-        <meta property="og:locale" content={locale} />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={title} />
-        <meta name="twitter:description" content={description} />
-        <meta name="twitter:image" content="https://googlereviewai.com/og-image.png" />
-        <script type="application/ld+json">{JSON.stringify(homepageSchema)}</script>
-      </Helmet>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(homepageSchema) }} />
 
       <Header />
       <main>
