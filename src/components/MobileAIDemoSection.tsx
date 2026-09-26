@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Bot, Search, Rocket, ArrowRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "@/lib/router-compat";
 import { BrandSparkle } from "@/components/BrandSparkle";
 
 const MobileAIDemoSection = () => {

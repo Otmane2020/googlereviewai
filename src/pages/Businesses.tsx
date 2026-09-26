@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "@/lib/router-compat";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -116,11 +116,11 @@ const BusinessesPage = () => {
     if (error) {
       console.error("Error fetching businesses:", error);
     } else {
-      setBusinesses(data || []);
+      setBusinesses((data || []) as Business[]);
       
       // Fetch review counts and ratings per business
       if (data && data.length > 0) {
-        const googlePlaceIds = data.map(b => b.google_place_id).filter(Boolean);
+        const googlePlaceIds = data.map(b => b.google_place_id).filter((x): x is string => Boolean(x));
         const businessIds = data.map(b => b.id);
         
         if (googlePlaceIds.length > 0) {

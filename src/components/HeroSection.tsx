@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "@/lib/router-compat";
 import { Button } from "./ui/button";
 import { Check, Star, TrendingUp, Zap, Bot, Search, FileText, MessageSquare, Rocket, User } from "lucide-react";
 import { TrustAvisLabel } from "./TrustAvisBadge";

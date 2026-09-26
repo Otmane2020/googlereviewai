@@ -15,7 +15,7 @@ import {
   Loader2,
   Search,
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link } from "@/lib/router-compat";
 import { Helmet } from "react-helmet";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -208,8 +208,8 @@ const Blog = () => {
                             <p className="text-sm text-muted-foreground mb-4 line-clamp-3">{article.meta_description || `${stripHtml(article.body).slice(0, 160)}…`}</p>
                             <div className="flex items-center justify-between text-xs text-muted-foreground">
                               <div className="flex items-center gap-3">
-                                <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{calculateReadTime(article.body)}</span>
-                                <span className="flex items-center gap-1"><Calendar className="w-3 h-3" />{formatDate(article.published_at || article.created_at)}</span>
+                                <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{calculateReadTime(article.body ?? "")}</span>
+                                <span className="flex items-center gap-1"><Calendar className="w-3 h-3" />{formatDate(article.published_at || article.created_at || "")}</span>
                               </div>
                               <ArrowRight className="w-4 h-4" />
                             </div>

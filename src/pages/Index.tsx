@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "@/lib/router-compat";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/contexts/AuthContext";
 import { Header } from "@/components/Header";
@@ -28,7 +28,9 @@ const Index = () => {
     }
   }, [user, loading, navigate]);
 
-  if (loading || user) {
+  // Render the landing content even while auth resolves so SSR output (and Google)
+  // sees the full page; logged-in users are redirected by the effect above.
+  if (user) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />

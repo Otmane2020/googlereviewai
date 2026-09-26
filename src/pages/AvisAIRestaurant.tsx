@@ -14,7 +14,7 @@ import {
   Zap,
   ArrowRight
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link } from "@/lib/router-compat";
 import { Helmet } from "react-helmet";
 import { FAQPageSchema, BreadcrumbSchema } from "@/components/StructuredData";
 

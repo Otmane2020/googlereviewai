@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useMemo, useRef } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "@/lib/router-compat";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -101,12 +101,12 @@ const Reviews = () => {
   const [filterRating, setFilterRating] = useState<string>("all");
   const [filterStatus, setFilterStatus] = useState<string>(() => {
     // Initialize from URL params if present
-    const statusParam = new URLSearchParams(window.location.search).get("status");
+    const statusParam = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("status") : null;
     return statusParam || "all";
   });
   // Filter by specific review_id from URL (from notifications)
   const [filterReviewId, setFilterReviewId] = useState<string | null>(() => {
-    return new URLSearchParams(window.location.search).get("review_id");
+    return typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("review_id") : null;
   });
   const [currentPage, setCurrentPage] = useState(1);
   const [generatingId, setGeneratingId] = useState<number | null>(null);
@@ -177,7 +177,7 @@ const Reviews = () => {
 
     const businessesList = businessesRes.data || [];
     setBusinesses(businessesList);
-    setReviews(reviewsRes.data || []);
+    setReviews((reviewsRes.data || []) as Review[]);
     setLastUpdate(new Date());
     
     // Update credits and plan
@@ -291,7 +291,7 @@ const Reviews = () => {
         .single();
       
       if (updatedReview) {
-        setPreviewReview(updatedReview);
+        setPreviewReview(updatedReview as Review);
         setPreviewDialogOpen(true);
       }
       

@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "@/lib/router-compat";
 import { Button } from "@/components/ui/button";
 import { Star, Zap, Check, MessageSquare, TrendingUp, Clock, Gift } from "lucide-react";
 import { RankiLogo } from "@/components/StarlinkoLogo";

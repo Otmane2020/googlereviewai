@@ -1,5 +1,5 @@
 /**
- * Router-compat shim — bridges react-router-dom v6 call sites to
+ * Router-compat shim — bridges @/lib/router-compat v6 call sites to
  * @tanstack/react-router without hand-rewriting every component.
  * This is the same load-bearing pattern used in Klar's dev-copy migration.
  */
@@ -13,7 +13,7 @@ import {
   Navigate as TSNavigate,
   Outlet as TSOutlet,
 } from "@tanstack/react-router";
-import { useMemo, useCallback, forwardRef, type ComponentProps, type ReactNode } from "react";
+import { useMemo, useCallback, forwardRef, type ComponentProps, type CSSProperties, type ReactNode } from "react";
 
 // ---------- shared URL parsing ----------
 
@@ -80,7 +80,7 @@ export function useParams<T extends Record<string, string | undefined> = Record<
 }
 
 
-// ---------- useSearchParams (react-router-dom compat) ----------
+// ---------- useSearchParams (@/lib/router-compat compat) ----------
 
 export function useSearchParams(): [URLSearchParams, (init: URLSearchParams | Record<string, string> | ((prev: URLSearchParams) => URLSearchParams), opts?: { replace?: boolean }) => void] {
   const loc = tsLocation();
@@ -153,6 +153,39 @@ export function Navigate({ to, replace, state }: { to: string; replace?: boolean
 
 export const Outlet = TSOutlet;
 
-// ---------- NavLink (minimal) ----------
+// ---------- NavLink (react-router-dom compat, function-form props supported) ----------
 
-export const NavLink = Link;
+export type NavLinkRenderState = { isActive: boolean; isPending: boolean };
+
+export type NavLinkProps = Omit<LinkProps, "className" | "style" | "children"> & {
+  className?: string | ((state: NavLinkRenderState) => string | undefined);
+  style?: CSSProperties | ((state: NavLinkRenderState) => CSSProperties | undefined);
+  children?: ReactNode | ((state: NavLinkRenderState) => ReactNode);
+  end?: boolean;
+};
+
+export const NavLink = forwardRef<HTMLAnchorElement, NavLinkProps>(function NavLink(
+  { to, className, style, children, end, ...rest },
+  ref,
+) {
+  const loc = tsLocation();
+  const { pathname } = parseTo(to);
+  const target = pathname === "." ? loc.pathname : pathname;
+  const normalized = target.length > 1 && target.endsWith("/") ? target.slice(0, -1) : target;
+  const isActive = end
+    ? loc.pathname === normalized
+    : loc.pathname === normalized ||
+      (normalized !== "/" && loc.pathname.startsWith(`${normalized}/`));
+  const state: NavLinkRenderState = { isActive, isPending: false };
+  return (
+    <Link
+      ref={ref}
+      to={to}
+      className={typeof className === "function" ? className(state) : className}
+      style={typeof style === "function" ? style(state) : style}
+      {...(rest as Record<string, unknown>)}
+    >
+      {typeof children === "function" ? children(state) : children}
+    </Link>
+  );
+});

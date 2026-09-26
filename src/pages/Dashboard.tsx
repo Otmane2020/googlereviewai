@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { Helmet } from "react-helmet";
-import { useNavigate, Link, useSearchParams } from "react-router-dom";
+import { useNavigate, Link, useSearchParams } from "@/lib/router-compat";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useSyncGoogleBusinesses } from "@/hooks/useSyncGoogleBusinesses";
@@ -215,7 +215,7 @@ const Dashboard = () => {
     
     if (syncStatusRes.data) setSyncStatus(syncStatusRes.data);
 
-    if (profileRes.data) setProfile(profileRes.data);
+    if (profileRes.data) setProfile(profileRes.data as Profile);
     
     // Helper to check if review has a real google reply
     const hasReply = (r: Review) => r.google_reply && r.google_reply.trim() !== '';

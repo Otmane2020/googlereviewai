@@ -1,4 +1,4 @@
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link } from "@/lib/router-compat";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Header } from "@/components/Header";
@@ -288,7 +288,7 @@ const BlogArticle = () => {
     );
   }
 
-  const publishedDate = new Date(dynamicArticle.published_at).toLocaleDateString("en-US", {
+  const publishedDate = new Date(dynamicArticle.published_at ?? Date.now()).toLocaleDateString("en-US", {
     day: "numeric",
     month: "long",
     year: "numeric",
