@@ -29,6 +29,9 @@ import Commandes from "@/pages/Commandes";
 import AdminOrders from "@/pages/AdminOrders";
 import ProspectionStickers from "@/pages/ProspectionStickers";
 import NotFound from "@/pages/NotFound";
+import Unsubscribe from "@/pages/Unsubscribe";
+import ReviewReplyAIForGBP from "@/pages/ReviewReplyAIForGBP";
+import Sitemap from "@/pages/Sitemap";
 import { DashboardLayout } from "@/components/DashboardLayout";
 
 const Shell = ({ children }: { children: React.ReactNode }) => (
@@ -69,6 +72,9 @@ const plainRoutes: Record<string, React.ReactNode> = {
   "/admin": <Admin />,
   "/admin/orders": <AdminOrders />,
   "/checklist": <Checklist />,
+  "/unsubscribe": <Unsubscribe />,
+  "/review-reply-ai-google-business-profile": <ReviewReplyAIForGBP />,
+  "/sitemap": <Sitemap />,
 };
 
 export default function LegacyClientRoutes() {
