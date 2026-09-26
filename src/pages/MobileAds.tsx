@@ -83,7 +83,7 @@ const MobileAds = () => {
           {[1, 2, 3, 4, 5].map(i => (
             <div
               key={i}
-              className="w-8 h-8 rounded-full bg-primary/10 border-2 border-background flex items-center justify-center text-primary text-xs font-bold shadow-sm"
+              className="w-8 h-8 rounded-full bg-primary/10 border-2 border-background flex items-center justify-center text-primary text-xs font-bold shadow-xs"
               style={{ marginLeft: i > 1 ? '-10px' : '0' }}
             >
               {['JD', 'ML', 'SA', 'PR', 'LC'][i - 1]}
@@ -130,7 +130,7 @@ const MobileAds = () => {
 
       {/* Testimonial */}
       <footer className="px-5 pb-6">
-        <div className="bg-card border border-border rounded-2xl p-4 max-w-xs mx-auto shadow-sm">
+        <div className="bg-card border border-border rounded-2xl p-4 max-w-xs mx-auto shadow-xs">
           <div className="flex items-center gap-0.5 mb-2">
             {[1, 2, 3, 4, 5].map(i => (
               <Star key={i} className="w-4 h-4 text-yellow-400 fill-yellow-400" />

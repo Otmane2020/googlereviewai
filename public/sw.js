@@ -1,6 +1,6 @@
 // GoogleReviewAI Service Worker - VAPID Web Push + PushAlert Integration
 // Cache version: 2026-02-22-v4
-var CACHE_VERSION = 'googlereviewai.com-v4';
+var CACHE_VERSION = 'googlereviewai.com-v5';
 
 // Listen for skip waiting message from client
 self.addEventListener('message', function(event) {
@@ -15,7 +15,7 @@ self.addEventListener('activate', function(event) {
     caches.keys().then(function(cacheNames) {
       return Promise.all(
         cacheNames.map(function(cacheName) {
-          if (cacheName !== CACHE_VERSION && cacheName.indexOf('workbox') === -1) {
+          if (cacheName !== CACHE_VERSION) {
             console.log('[SW] Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }

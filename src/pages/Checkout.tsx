@@ -262,7 +262,7 @@ const Checkout = () => {
 
       <main className="px-4 py-4 space-y-4 max-w-lg mx-auto">
         {/* Billing Toggle - iOS Segmented Control Style */}
-        <div className="bg-card rounded-2xl p-4 shadow-sm">
+        <div className="bg-card rounded-2xl p-4 shadow-xs">
           <div className="flex items-center justify-between">
             <div>
               <p className="font-semibold text-sm">Billing</p>
@@ -275,7 +275,7 @@ const Checkout = () => {
                 onClick={() => handleToggleBilling(false)}
                 className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
                   billingCycle === "monthly" 
-                    ? "bg-card text-foreground shadow-sm" 
+                    ? "bg-card text-foreground shadow-xs" 
                     : "text-muted-foreground"
                 }`}
               >
@@ -285,7 +285,7 @@ const Checkout = () => {
                 onClick={() => handleToggleBilling(true)}
                 className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all flex items-center gap-1 ${
                   billingCycle === "yearly" 
-                    ? "bg-card text-foreground shadow-sm" 
+                    ? "bg-card text-foreground shadow-xs" 
                     : "text-muted-foreground"
                 }`}
               >
@@ -300,7 +300,7 @@ const Checkout = () => {
 
         {/* Plan Card - iOS Style */}
         {planItem && (
-          <div className="bg-card rounded-2xl overflow-hidden shadow-sm">
+          <div className="bg-card rounded-2xl overflow-hidden shadow-xs">
             <div className="px-4 py-2 bg-secondary/10 border-b border-border/50">
               <div className="flex items-center gap-2 text-xs text-secondary font-medium">
                 <Check className="h-3.5 w-3.5" />
@@ -329,7 +329,7 @@ const Checkout = () => {
         )}
 
         {/* Modules Upsell - iOS Style Cards */}
-        <div className="bg-card rounded-2xl overflow-hidden shadow-sm">
+        <div className="bg-card rounded-2xl overflow-hidden shadow-xs">
           <div className="px-4 py-3 border-b border-border/50">
             <div className="flex items-center gap-2">
               <BrandSparkle className="h-4 w-4 text-accent" />
@@ -421,7 +421,7 @@ const Checkout = () => {
         </div>
 
         {/* Credit Packs - iOS Style */}
-        <div className="bg-card rounded-2xl overflow-hidden shadow-sm">
+        <div className="bg-card rounded-2xl overflow-hidden shadow-xs">
           <div className="px-4 py-3 border-b border-border/50">
             <div className="flex items-center gap-2">
               <CreditCard className="h-4 w-4 text-primary" />
@@ -456,7 +456,7 @@ const Checkout = () => {
         </div>
 
         {/* Cart Summary - Mobile */}
-        <div className="bg-card rounded-2xl p-4 shadow-sm">
+        <div className="bg-card rounded-2xl p-4 shadow-xs">
           <h3 className="font-semibold text-sm mb-3">Summary</h3>
           <div className="space-y-2">
             {items.map((item) => (

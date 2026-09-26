@@ -112,7 +112,7 @@ export const RankiPricingSection = () => {
               type="button"
               onClick={() => setBilling("monthly")}
               className={`px-5 py-2 rounded-full text-sm font-semibold transition-all ${
-                billing === "monthly" ? "bg-foreground text-background shadow" : "text-muted-foreground hover:text-foreground"
+                billing === "monthly" ? "bg-foreground text-background shadow-sm" : "text-muted-foreground hover:text-foreground"
               }`}
             >
               {isFrench ? "Mensuel" : "Monthly"}
@@ -121,7 +121,7 @@ export const RankiPricingSection = () => {
               type="button"
               onClick={() => setBilling("yearly")}
               className={`px-5 py-2 rounded-full text-sm font-semibold transition-all inline-flex items-center gap-2 ${
-                billing === "yearly" ? "bg-foreground text-background shadow" : "text-muted-foreground hover:text-foreground"
+                billing === "yearly" ? "bg-foreground text-background shadow-sm" : "text-muted-foreground hover:text-foreground"
               }`}
             >
               {isFrench ? "Annuel" : "Yearly"}

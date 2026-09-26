@@ -227,7 +227,7 @@ export const RankingMap = ({
   };
 
   return (
-    <div className="w-full h-[400px] rounded-xl overflow-hidden border border-border shadow-sm">
+    <div className="w-full h-[400px] rounded-xl overflow-hidden border border-border shadow-xs">
       <MapContainer
         center={[center.lat, center.lng]}
         zoom={getZoom()}
