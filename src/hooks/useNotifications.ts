@@ -7,7 +7,7 @@ export interface Notification {
   type: string;
   title: string;
   message: string;
-  read: boolean;
+  read: boolean | null;
   review_id: number | null;
   created_at: string;
 }

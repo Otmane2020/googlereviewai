@@ -177,7 +177,7 @@ const Reviews = () => {
 
     const businessesList = businessesRes.data || [];
     setBusinesses(businessesList);
-    setReviews(reviewsRes.data || []);
+    setReviews((reviewsRes.data || []) as Review[]);
     setLastUpdate(new Date());
     
     // Update credits and plan
@@ -291,7 +291,7 @@ const Reviews = () => {
         .single();
       
       if (updatedReview) {
-        setPreviewReview(updatedReview);
+        setPreviewReview(updatedReview as Review);
         setPreviewDialogOpen(true);
       }
       

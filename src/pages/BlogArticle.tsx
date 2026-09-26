@@ -288,7 +288,7 @@ const BlogArticle = () => {
     );
   }
 
-  const publishedDate = new Date(dynamicArticle.published_at).toLocaleDateString("en-US", {
+  const publishedDate = new Date(dynamicArticle.published_at ?? Date.now()).toLocaleDateString("en-US", {
     day: "numeric",
     month: "long",
     year: "numeric",

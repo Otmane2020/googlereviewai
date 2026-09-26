@@ -116,11 +116,11 @@ const BusinessesPage = () => {
     if (error) {
       console.error("Error fetching businesses:", error);
     } else {
-      setBusinesses(data || []);
+      setBusinesses((data || []) as Business[]);
       
       // Fetch review counts and ratings per business
       if (data && data.length > 0) {
-        const googlePlaceIds = data.map(b => b.google_place_id).filter(Boolean);
+        const googlePlaceIds = data.map(b => b.google_place_id).filter((x): x is string => Boolean(x));
         const businessIds = data.map(b => b.id);
         
         if (googlePlaceIds.length > 0) {

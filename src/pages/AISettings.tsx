@@ -282,8 +282,8 @@ const AISettingsPage = () => {
       // Calculate old vs new reviews
       if (reviewsRes.data && aiSettingsDateRes.data?.created_at) {
         const enabledAt = new Date(aiSettingsDateRes.data.created_at);
-        const oldReviews = reviewsRes.data.filter(r => new Date(r.created_at) < enabledAt).length;
-        const newReviews = reviewsRes.data.filter(r => new Date(r.created_at) >= enabledAt).length;
+        const oldReviews = reviewsRes.data.filter(r => new Date(r.created_at ?? 0) < enabledAt).length;
+        const newReviews = reviewsRes.data.filter(r => new Date(r.created_at ?? 0) >= enabledAt).length;
         setPendingStats({ oldReviews, newReviews });
       } else if (reviewsRes.data) {
         // If no settings date, consider all as new

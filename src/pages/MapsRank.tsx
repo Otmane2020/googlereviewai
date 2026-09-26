@@ -230,7 +230,7 @@ const MapsRank = () => {
       const { data: newHistory } = await supabase
         .from("maps_rank_scans")
         .select("*")
-        .eq("user_id", user?.id)
+        .eq("user_id", user?.id ?? "")
         .eq("business_id", selectedBusiness)
         .order("created_at", { ascending: false })
         .limit(10);

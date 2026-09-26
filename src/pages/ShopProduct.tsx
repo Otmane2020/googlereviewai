@@ -136,7 +136,7 @@ export default function ShopProduct() {
   useEffect(() => {
     (async () => {
       const { data } = await supabase
-        .from("shop_products").select("*").eq("slug", slug).eq("is_active", true).maybeSingle();
+        .from("shop_products").select("*").eq("slug", slug ?? "").eq("is_active", true).maybeSingle();
       setProduct(data);
       setLoading(false);
       const { data: sessionData } = await supabase.auth.getSession();
