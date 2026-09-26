@@ -18,21 +18,22 @@ const headingId = (heading: string) =>
 
 const BlogArticle = () => {
   const { slug } = useParams<{ slug: string }>();
-  const staticArticle = getSeoArticleBySlug(slug);
+  const safeSlug = slug ?? "";
+  const staticArticle = getSeoArticleBySlug(safeSlug);
 
   const { data: dynamicArticle, isLoading, error } = useQuery({
-    queryKey: ["published-article", slug],
+    queryKey: ["published-article", safeSlug],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("published_articles")
         .select("*")
-        .eq("slug", slug)
+        .eq("slug", safeSlug)
         .single();
 
       if (error) throw error;
       return data;
     },
-    enabled: !!slug && !staticArticle,
+    enabled: !!safeSlug && !staticArticle,
   });
 
   if (staticArticle) {
@@ -288,7 +289,7 @@ const BlogArticle = () => {
     );
   }
 
-  const publishedDate = new Date(dynamicArticle.published_at).toLocaleDateString("en-US", {
+  const publishedDate = new Date(dynamicArticle.published_at ?? dynamicArticle.created_at ?? 0).toLocaleDateString("en-US", {
     day: "numeric",
     month: "long",
     year: "numeric",
