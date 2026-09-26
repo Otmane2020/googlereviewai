@@ -1,4 +1,3 @@
-import { Helmet } from "react-helmet";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Header } from "@/components/Header";
@@ -11,56 +10,6 @@ const CHROME_STORE_URL =
 const ReviewReplyAIForGBP = () => {
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <Helmet>
-        <html lang="en" />
-        <title>Review Reply AI for Google Business Profile™ | GoogleReviewAI</title>
-        <meta
-          name="description"
-          content="Review Reply AI for Google Business Profile™ helps businesses generate personalized replies to Google reviews in seconds with a Chrome extension."
-        />
-        <meta
-          name="keywords"
-          content="review reply AI, Google Business Profile review replies, AI Google review response, Chrome extension for Google reviews"
-        />
-        <link
-          rel="canonical"
-          href="https://googlereviewai.com/review-reply-ai-google-business-profile"
-        />
-        <meta name="robots" content="index, follow, max-image-preview:large" />
-        <meta
-          property="og:title"
-          content="Review Reply AI for Google Business Profile™"
-        />
-        <meta
-          property="og:description"
-          content="Generate thoughtful, personalized replies to Google Business Profile reviews in seconds."
-        />
-        <meta
-          property="og:url"
-          content="https://googlereviewai.com/review-reply-ai-google-business-profile"
-        />
-        <meta property="og:type" content="website" />
-        <meta property="og:image" content="https://googlereviewai.com/landing/review-ai-workflow.jpg" />
-        <script type="application/ld+json">
-          {JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "SoftwareApplication",
-            name: "Review Reply AI for Google Business Profile™",
-            applicationCategory: "BusinessApplication",
-            operatingSystem: "Google Chrome",
-            description:
-              "A Chrome extension that helps businesses create personalized replies to Google Business Profile reviews.",
-            url: "https://googlereviewai.com/review-reply-ai-google-business-profile",
-            installUrl: CHROME_STORE_URL,
-            image: "https://googlereviewai.com/landing/review-ai-workflow.jpg",
-            publisher: {
-              "@type": "Organization",
-              name: "GoogleReviewAI",
-              url: "https://googlereviewai.com/",
-            },
-          })}
-        </script>
-      </Helmet>
 
       <Header />
 
