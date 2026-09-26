@@ -11,6 +11,12 @@ export const Footer = () => {
       { label: t("landingUI.footer.localSeoAuto"), href: "#how-it-works" },
       { label: t("landingUI.footer.pricing"), href: "#pricing" },
     ]},
+    { title: "Review solutions", links: [
+      { label: "AI Google Review Reply", href: "/ai-google-review-reply" },
+      { label: "Review Response Generator", href: "/google-review-response-generator" },
+      { label: "Google Review Management", href: "/google-review-management" },
+      { label: "Review Management Software", href: "/review-management-software" },
+    ]},
     { title: t("landingUI.footer.company"), links: [
       { label: t("landingUI.footer.blog"), href: "/blog" },
       { label: "Sitemap", href: "/sitemap" },
@@ -28,7 +34,7 @@ export const Footer = () => {
       <div className="absolute right-0 top-0 h-48 w-48 rounded-full bg-[#4285F4]/10 blur-3xl" />
       <div className="absolute left-1/3 bottom-0 h-40 w-40 rounded-full bg-[#34A853]/10 blur-3xl" />
       <div className="container relative mx-auto px-5 sm:px-6">
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 sm:gap-10 md:gap-12 mb-10 sm:mb-12">
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-8 sm:gap-10 md:gap-12 mb-10 sm:mb-12">
           <div className="col-span-2 sm:col-span-1">
             <div className="mb-4 sm:mb-6"><RankiLogo className="text-white scale-90 sm:scale-100 origin-left" /></div>
             <p className="text-white/60 text-xs sm:text-sm mb-4 sm:mb-6 max-w-xs">{t("landingUI.footer.tagline")}</p>
