@@ -10,7 +10,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "validate:seo-articles": "node scripts/validate-seo-articles.mjs",
-    "typecheck": "tsc --noEmit -p tsconfig.app.json && tsc --noEmit -p tsconfig.node.json",
+    "typecheck": "tsc --noEmit",
     "format": "prettier --write ."
   },
   "overrides": {
