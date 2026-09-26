@@ -29,8 +29,10 @@ export const Route = createRootRoute({
       { name: "apple-mobile-web-app-status-bar-style", content: "default" },
       { name: "apple-mobile-web-app-title", content: "Google Review AI" },
       { name: "mobile-web-app-capable", content: "yes" },
+      { name: "format-detection", content: "telephone=no" },
+      { name: "msapplication-TileColor", content: "#4285F4" },
+      { name: "msapplication-tap-highlight", content: "no" },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "https://googlereviewai.com/" },
       { property: "og:title", content: "Google Review AI – AI Review Replies & Local SEO" },
       { property: "og:description", content: description },
       { property: "og:image", content: "https://googlereviewai.com/og-image.png" },
@@ -44,12 +46,14 @@ export const Route = createRootRoute({
       { name: "twitter:image", content: "https://googlereviewai.com/og-image.png" },
     ],
     links: [
-      { rel: "canonical", href: "https://googlereviewai.com/" },
-      { rel: "alternate", hrefLang: "en", href: "https://googlereviewai.com/" },
-      { rel: "alternate", hrefLang: "x-default", href: "https://googlereviewai.com/" },
       { rel: "manifest", href: "/manifest.webmanifest" },
       { rel: "icon", type: "image/png", href: "/favicon.png" },
+      { rel: "shortcut icon", type: "image/png", href: "/favicon.png" },
       { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
+      { rel: "apple-touch-icon", sizes: "152x152", href: "/apple-touch-icon.png" },
+      { rel: "apple-touch-icon", sizes: "180x180", href: "/apple-touch-icon.png" },
+      { rel: "apple-touch-icon", sizes: "167x167", href: "/apple-touch-icon.png" },
+      { rel: "apple-touch-startup-image", href: "/splash.png" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
     ],
@@ -110,7 +114,7 @@ function RootDocument({ children }: { children: ReactNode }) {
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-SG82SWEKN1" />
         <script
           dangerouslySetInnerHTML={{
-            __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)};gtag('js',new Date());gtag('config','G-SG82SWEKN1');gtag('event','conversion_event_page_view',{});`,
+            __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)};gtag('js',new Date());gtag('config','G-SG82SWEKN1');gtag('config','G-GMY3DMDXR8');gtag('event','conversion_event_page_view',{});`,
           }}
         />
         <script
@@ -134,6 +138,12 @@ function RootDocument({ children }: { children: ReactNode }) {
           }}
         />
         <script async src="https://cdn.pushalert.co/integrate_e9d37ad5dc4d1baed0a28cbb966d31df.js" />
+        <style>{`
+          #pushalert-overlay,#pa-push-notification-widget,.pushalert-subscription-widget,.pushalert-widget,.pa-widget,.pa-subscription-widget,[id*="pushalert"],[id*="pa-push"],[class*="pushalert"],[class*="pa-widget"],div[style*="pushalert"],iframe[src*="pushalert"] {
+            display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important;
+            position:absolute!important;left:-9999px!important;top:-9999px!important;width:0!important;height:0!important;
+          }
+        `}</style>
       </head>
       <body>
         <noscript>
