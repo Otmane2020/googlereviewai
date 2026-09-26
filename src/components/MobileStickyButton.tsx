@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "@/lib/router-compat";
 import { Button } from "./ui/button";
 import { Zap } from "lucide-react";
 import { useDeviceDetection, GOOGLE_PLAY_URL } from "@/hooks/useDeviceDetection";

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation } from "@/lib/router-compat";
 import { usePWA } from "@/hooks/usePWA";
 import { useDeviceDetection } from "@/hooks/useDeviceDetection";
 import { useWebPush } from "@/hooks/useWebPush";

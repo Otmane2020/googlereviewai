@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "@/lib/router-compat";
 import { useTranslation } from "react-i18next";
 import { Button } from "./ui/button";
 import { Star, Check, Play, ArrowRight, MessageSquare, TrendingUp, Search } from "lucide-react";

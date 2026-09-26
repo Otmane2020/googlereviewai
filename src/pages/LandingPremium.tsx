@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { SectorDemoSection } from "@/components/SectorDemoSection";
 import { ReviewAIShowcaseSection } from "@/components/ReviewAIShowcaseSection";
 import { Footer } from "@/components/Footer";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link } from "@/lib/router-compat";
 import { useTranslation } from "react-i18next";
 import { Helmet } from "react-helmet";
 import { ProductSchema, FAQPageSchema } from "@/components/StructuredData";

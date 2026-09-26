@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "@/lib/router-compat";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRequireSubscription } from "@/hooks/useRequireSubscription";
 import { supabase } from "@/integrations/supabase/client";

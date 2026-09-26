@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useParams, useNavigate } from "react-router-dom";
+import { Link, useParams, useNavigate } from "@/lib/router-compat";
 import { Helmet } from "react-helmet";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
