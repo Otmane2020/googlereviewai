@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { useHydrated } from "@tanstack/react-router";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/contexts/AuthContext";
@@ -21,6 +22,7 @@ const Index = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
+  const hydrated = useHydrated();
 
   useEffect(() => {
     if (!loading && user) {
@@ -28,7 +30,7 @@ const Index = () => {
     }
   }, [user, loading, navigate]);
 
-  if (loading || user) {
+  if (hydrated && (loading || user)) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
