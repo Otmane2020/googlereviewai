@@ -60,6 +60,8 @@ import { Route as LpFacebookRouteImport } from './routes/lp/facebook'
 import { Route as ShopIndexRouteImport } from './routes/shop/index'
 import { Route as ShopSlugRouteImport } from './routes/shop/$slug'
 import { Route as ShopCheckoutRouteImport } from './routes/shop/checkout'
+import { Route as ApiBlogSlugRouteImport } from './routes/api/blog/$slug'
+import { Route as ApiPublicRankiAutopostRouteImport } from './routes/api/public/ranki-autopost'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -317,6 +319,16 @@ const ShopCheckoutRoute = ShopCheckoutRouteImport.update({
   path: '/shop/checkout',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiBlogSlugRoute = ApiBlogSlugRouteImport.update({
+  id: '/api/blog/$slug',
+  path: '/api/blog/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicRankiAutopostRoute = ApiPublicRankiAutopostRouteImport.update({
+  id: '/api/public/ranki-autopost',
+  path: '/api/public/ranki-autopost',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -370,6 +382,8 @@ export interface FileRoutesByFullPath {
   '/blog/': typeof BlogIndexRoute
   '/boutique/': typeof BoutiqueIndexRoute
   '/shop/': typeof ShopIndexRoute
+  '/api/blog/$slug': typeof ApiBlogSlugRoute
+  '/api/public/ranki-autopost': typeof ApiPublicRankiAutopostRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -423,6 +437,8 @@ export interface FileRoutesByTo {
   '/blog': typeof BlogIndexRoute
   '/boutique': typeof BoutiqueIndexRoute
   '/shop': typeof ShopIndexRoute
+  '/api/blog/$slug': typeof ApiBlogSlugRoute
+  '/api/public/ranki-autopost': typeof ApiPublicRankiAutopostRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -477,6 +493,8 @@ export interface FileRoutesById {
   '/blog/': typeof BlogIndexRoute
   '/boutique/': typeof BoutiqueIndexRoute
   '/shop/': typeof ShopIndexRoute
+  '/api/blog/$slug': typeof ApiBlogSlugRoute
+  '/api/public/ranki-autopost': typeof ApiPublicRankiAutopostRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -532,6 +550,8 @@ export interface FileRouteTypes {
     | '/blog/'
     | '/boutique/'
     | '/shop/'
+    | '/api/blog/$slug'
+    | '/api/public/ranki-autopost'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -585,6 +605,8 @@ export interface FileRouteTypes {
     | '/blog'
     | '/boutique'
     | '/shop'
+    | '/api/blog/$slug'
+    | '/api/public/ranki-autopost'
   id:
     | '__root__'
     | '/'
@@ -638,6 +660,8 @@ export interface FileRouteTypes {
     | '/blog/'
     | '/boutique/'
     | '/shop/'
+    | '/api/blog/$slug'
+    | '/api/public/ranki-autopost'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -692,6 +716,8 @@ export interface RootRouteChildren {
   BlogIndexRoute: typeof BlogIndexRoute
   BoutiqueIndexRoute: typeof BoutiqueIndexRoute
   ShopIndexRoute: typeof ShopIndexRoute
+  ApiBlogSlugRoute: typeof ApiBlogSlugRoute
+  ApiPublicRankiAutopostRoute: typeof ApiPublicRankiAutopostRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1053,6 +1079,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ShopCheckoutRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/blog/$slug': {
+      id: '/api/blog/$slug'
+      path: '/api/blog/$slug'
+      fullPath: '/api/blog/$slug'
+      preLoaderRoute: typeof ApiBlogSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/ranki-autopost': {
+      id: '/api/public/ranki-autopost'
+      path: '/api/public/ranki-autopost'
+      fullPath: '/api/public/ranki-autopost'
+      preLoaderRoute: typeof ApiPublicRankiAutopostRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -1109,6 +1149,8 @@ const rootRouteChildren: RootRouteChildren = {
   BlogIndexRoute: BlogIndexRoute,
   BoutiqueIndexRoute: BoutiqueIndexRoute,
   ShopIndexRoute: ShopIndexRoute,
+  ApiBlogSlugRoute: ApiBlogSlugRoute,
+  ApiPublicRankiAutopostRoute: ApiPublicRankiAutopostRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

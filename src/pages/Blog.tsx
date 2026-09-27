@@ -88,13 +88,32 @@ const Blog = () => {
   const { data: dynamicArticles, isLoading } = useQuery({
     queryKey: ["published-articles"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("published_articles")
-        .select("id, title, slug, body, meta_description, author, published_at, created_at")
-        .order("published_at", { ascending: false });
+      const [{ data, error }, { data: ranki }] = await Promise.all([
+        supabase
+          .from("published_articles")
+          .select("id, title, slug, body, meta_description, author, published_at, created_at")
+          .order("published_at", { ascending: false }),
+        supabase
+          .from("ranki_articles")
+          .select("id, title, slug, content_html, excerpt, published_at, created_at")
+          .eq("status", "published"),
+      ]);
 
       if (error) throw error;
-      return data || [];
+      const mapped = (ranki || []).map((r) => ({
+        id: r.id,
+        title: r.title,
+        slug: r.slug,
+        body: r.content_html || "",
+        meta_description: r.excerpt,
+        author: "GoogleReviewAI",
+        published_at: r.published_at,
+        created_at: r.created_at,
+      }));
+      const seen = new Set(mapped.map((m) => m.slug));
+      return [...mapped, ...(data || []).filter((a) => !seen.has(a.slug))].sort(
+        (a, b) => new Date(b.published_at ?? 0).getTime() - new Date(a.published_at ?? 0).getTime(),
+      );
     },
     staleTime: 0,
     refetchOnWindowFocus: true,
