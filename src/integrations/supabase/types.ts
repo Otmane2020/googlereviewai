@@ -1165,6 +1165,54 @@ export type Database = {
           },
         ]
       }
+      ranki_articles: {
+        Row: {
+          content_html: string | null
+          content_markdown: string | null
+          content_type: string | null
+          cover_url: string | null
+          created_at: string
+          excerpt: string | null
+          id: string
+          keywords: string[] | null
+          published_at: string | null
+          slug: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          content_html?: string | null
+          content_markdown?: string | null
+          content_type?: string | null
+          cover_url?: string | null
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          keywords?: string[] | null
+          published_at?: string | null
+          slug: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          content_html?: string | null
+          content_markdown?: string | null
+          content_type?: string | null
+          cover_url?: string | null
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          keywords?: string[] | null
+          published_at?: string | null
+          slug?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       reviews: {
         Row: {
           ai_response: string | null
