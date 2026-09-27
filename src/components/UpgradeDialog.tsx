@@ -12,6 +12,8 @@ import { Badge } from "@/components/ui/badge";
 import { Crown, Shield, Coins, ChevronDown, Loader2, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BrandSparkle } from "@/components/BrandSparkle";
+import { InAppSubscriptionNotice } from "@/components/InAppSubscriptionNotice";
+import { useIsAndroidApp } from "@/lib/androidApp";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -107,6 +109,7 @@ export const UpgradeDialog = ({ open, onOpenChange, currentPlan }: UpgradeDialog
   const [billing, setBilling] = useState<Billing>("monthly");
   const [loadingKey, setLoadingKey] = useState<string | null>(null);
   const [loadingCredits, setLoadingCredits] = useState(false);
+  const inApp = useIsAndroidApp();
 
   const currentNormalized = normalizePlan(currentPlan);
 
@@ -158,6 +161,19 @@ export const UpgradeDialog = ({ open, onOpenChange, currentPlan }: UpgradeDialog
       setLoadingCredits(false);
     }
   };
+
+  if (inApp) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Plans</DialogTitle>
+          </DialogHeader>
+          <InAppSubscriptionNotice />
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

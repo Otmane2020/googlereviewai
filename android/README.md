@@ -73,12 +73,16 @@ Sans cette étape, l'app affiche une barre d'URL en haut.
 
 ## Points d'attention pour la validation Google
 
-- **Paiements** : Google Play impose sa propre facturation pour les
-  abonnements numériques achetés *dans l'app*. Vendre les plans via Stripe
-  dans l'app peut entraîner un refus. Solution courante : masquer les
-  pages de prix / checkout quand l'app est ouverte depuis Android
-  (`utm_source=android_app` ou `document.referrer` commençant par
-  `android-app://com.googlereviewai.app`) et laisser l'abonnement se faire sur le site.
+- **Paiements (Stripe, pas Google Play Billing)** : Google impose sa propre
+  facturation pour les abonnements et crédits achetés *dans l'app*. Pour garder
+  Stripe, l'app n'affiche aucun achat d'abonnement ni de crédits : le site
+  détecte l'app (`src/lib/androidApp.ts`, via `utm_source=android_app` ou le
+  referrer `android-app://com.googlereviewai.app`) et masque les grilles de
+  prix, le dialogue d'upgrade, l'étape « plan » de l'onboarding et le portail
+  Stripe. Les clients s'abonnent sur le site web avec Stripe et se connectent
+  ensuite dans l'app. Les produits physiques (cartes NFC, QR imprimés) restent
+  payables via Stripe dans l'app : c'est autorisé par Google.
+  Ne mettez pas de lien ni de texte invitant à payer sur le site depuis l'app.
 - **Nom « Google »** : utiliser la marque « Google » dans le nom de l'app peut
   être refusé (politique sur l'usurpation / propriété intellectuelle).
   Un nom comme « Ranki – Réponses aux avis IA » est plus sûr.

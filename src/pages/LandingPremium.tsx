@@ -12,6 +12,7 @@ import { BrandSparkle } from "@/components/BrandSparkle";
  import { Star, Zap, Check, TrendingUp, MessageSquare, FileText, Bot, Rocket, Gift, Shield, Lock, ArrowRight, Target, BarChart3, Globe, Users, Loader2 } from "lucide-react";
  import { RankiLogo } from "@/components/StarlinkoLogo";
  import { useAuth } from "@/contexts/AuthContext";
+ import { isAndroidApp, inAppSubscriptionMessage } from "@/lib/androidApp";
  import { supabase } from "@/integrations/supabase/client";
  import { toast } from "@/hooks/use-toast";
  
@@ -76,6 +77,10 @@ const LandingPremium = () => {
   }, [i18n]);
  
    const handleSubscribe = async (planId: string) => {
+    if (isAndroidApp()) {
+      toast({ description: inAppSubscriptionMessage(true) });
+      return;
+    }
      if (!user) {
        navigate("/auth?redirect=/landing");
        return;

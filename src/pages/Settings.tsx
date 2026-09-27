@@ -16,6 +16,8 @@ import { User, Mail, CreditCard, Shield, Bell, BellOff, BellRing, Save, Loader2,
 import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "react-i18next";
 import { BrandSparkle } from "@/components/BrandSparkle";
+import { InAppSubscriptionNotice } from "@/components/InAppSubscriptionNotice";
+import { useIsAndroidApp } from "@/lib/androidApp";
 
 interface Profilee {
   id: string;
@@ -65,6 +67,7 @@ const SettingsPage = () => {
   const [saving, setSaving] = useState(false);
   const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
   const [openingPortal, setOpeningPortal] = useState(false);
+  const inApp = useIsAndroidApp();
 
   // Check notification permission and subscription state via PushAlert SDK
   useEffect(() => {
@@ -311,7 +314,7 @@ const SettingsPage = () => {
                   <Badge variant="secondary">{t("settingsPage.freeTrial")}</Badge>
                 )}
               </div>
-              <Button 
+              {!inApp && <Button 
                 size="sm"
                 onClick={handleManageSubscription}
                 disabled={openingPortal}
@@ -323,7 +326,7 @@ const SettingsPage = () => {
                   <CreditCard className="w-4 h-4" />
                 )}
                 {t("settingsPage.manageSubscription")}
-              </Button>
+              </Button>}
             </div>
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
@@ -342,13 +345,17 @@ const SettingsPage = () => {
             )}
           </div>
 
-          <Button 
-            onClick={() => setShowUpgradeDialog(true)} 
-            className="w-full gap-2"
-          >
-            <BrandSparkle className="w-4 h-4" />
-            {t("settingsPage.viewAllPlans")}
-          </Button>
+          {inApp ? (
+            <InAppSubscriptionNotice />
+          ) : (
+            <Button 
+              onClick={() => setShowUpgradeDialog(true)} 
+              className="w-full gap-2"
+            >
+              <BrandSparkle className="w-4 h-4" />
+              {t("settingsPage.viewAllPlans")}
+            </Button>
+          )}
         </div>
 
         {/* Integrations section */}

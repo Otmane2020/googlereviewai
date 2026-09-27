@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { isAndroidApp, inAppSubscriptionMessage } from "@/lib/androidApp";
 import { supabase } from "@/integrations/supabase/client";
 import { useRequireSubscription } from "@/hooks/useRequireSubscription";
 import { BusinessSubscriptionSelector } from "@/components/BusinessSubscriptionSelector";
@@ -143,6 +144,10 @@ const AEORank = () => {
   };
 
   const handleSubscribe = async (selectedBusinessIds: string[], annual: boolean = false, quantity: number = 1) => {
+    if (isAndroidApp()) {
+      toast({ description: inAppSubscriptionMessage(true) });
+      return;
+    }
     try {
       const priceKey = annual ? "aeo_yearly" : "aeo_monthly";
 

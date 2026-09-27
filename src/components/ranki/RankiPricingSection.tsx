@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { BrandSparkle } from "@/components/BrandSparkle";
 import { useTranslation } from "react-i18next";
+import { useIsAndroidApp } from "@/lib/androidApp";
 
 type Billing = "monthly" | "yearly";
 
@@ -60,6 +61,7 @@ export const RankiPricingSection = () => {
   const plans = getPlans(isFrench);
   const [loadingKey, setLoadingKey] = useState<string | null>(null);
   const [billing, setBilling] = useState<Billing>("monthly");
+  const inApp = useIsAndroidApp();
 
   const handleCta = async (plan: Plan) => {
     const priceKey = billing === "yearly" ? plan.yearly.priceKey : plan.monthly.priceKey;
@@ -92,6 +94,8 @@ export const RankiPricingSection = () => {
       setLoadingKey(null);
     }
   };
+
+  if (inApp) return null;
 
   return (
     <section id="pricing" className="py-20 sm:py-28 bg-background">

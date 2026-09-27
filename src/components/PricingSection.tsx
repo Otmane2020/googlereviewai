@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Badge } from "./ui/badge";
 import { BrandSparkle } from "@/components/BrandSparkle";
+import { useIsAndroidApp } from "@/lib/androidApp";
 
 type Plan = {
   key: string;
@@ -65,6 +66,7 @@ export const PricingSection = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [loadingKey, setLoadingKey] = useState<string | null>(null);
+  const inApp = useIsAndroidApp();
 
   const handleSelect = async (priceKey: string) => {
     if (!user) {
@@ -92,6 +94,8 @@ export const PricingSection = () => {
       setLoadingKey(null);
     }
   };
+
+  if (inApp) return null;
 
   return (
     <section id="pricing" className="py-20 sm:py-28 bg-background">
