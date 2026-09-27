@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { isAndroidApp } from "@/lib/androidApp";
 import { supabase } from "@/integrations/supabase/client";
 import { RankiLogo } from "@/components/StarlinkoLogo";
 import { AppLoadingBar } from "@/components/AppLoadingBar";
@@ -28,7 +29,10 @@ const Auth = () => {
     const priceKey = params.get("priceKey") || localStorage.getItem("pending_price_key");
     const nextParam = params.get("next");
 
-    if ((redirectTo === "checkout" || localStorage.getItem("pending_price_key")) && priceKey) {
+    // Subscriptions are never sold inside the Android app (Google Play policy).
+    if ((redirectTo === "checkout" || localStorage.getItem("pending_price_key")) && priceKey && isAndroidApp()) {
+      localStorage.removeItem("pending_price_key");
+    } else if ((redirectTo === "checkout" || localStorage.getItem("pending_price_key")) && priceKey) {
       localStorage.removeItem("pending_price_key");
       try {
         const { data, error } = await supabase.functions.invoke("create-checkout", {

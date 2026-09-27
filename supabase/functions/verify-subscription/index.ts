@@ -39,6 +39,23 @@ serve(async (req) => {
       });
     }
 
+    // Subscriptions bought in the Android app are billed by Google Play and
+    // kept in sync by verify-play-purchase / play-rtdn-webhook, not Stripe.
+    const { data: currentProfile } = await supabaseAdmin
+      .from("profiles")
+      .select("plan_id, plan_name, subscription_status")
+      .eq("id", user.id)
+      .maybeSingle();
+    if (currentProfile?.plan_id?.startsWith("play:")) {
+      return new Response(JSON.stringify({
+        valid: currentProfile.subscription_status === "active",
+        provider: "google_play",
+        plan: currentProfile.plan_name,
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     // Find customer in Stripe
     const customers = await stripe.customers.list({
       email: user.email,

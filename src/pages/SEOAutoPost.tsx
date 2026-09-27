@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/contexts/AuthContext";
+import { isAndroidApp, inAppSubscriptionMessage } from "@/lib/androidApp";
 import { supabase } from "@/integrations/supabase/client";
 import { useRequireSubscription } from "@/hooks/useRequireSubscription";
 import { BusinessSubscriptionSelector } from "@/components/BusinessSubscriptionSelector";
@@ -144,6 +145,10 @@ const SEOAutoPost = () => {
   };
 
   const handleSubscribe = async (selectedBusinessIds: string[], annual: boolean = false, quantity: number = 1) => {
+    if (isAndroidApp()) {
+      toast({ description: inAppSubscriptionMessage(!isEN) });
+      return;
+    }
     try {
       const priceKey = annual ? "seo_yearly" : "seo_monthly";
 

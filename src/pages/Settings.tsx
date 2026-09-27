@@ -16,6 +16,8 @@ import { User, Mail, CreditCard, Shield, Bell, BellOff, BellRing, Save, Loader2,
 import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "react-i18next";
 import { BrandSparkle } from "@/components/BrandSparkle";
+import { PLAY_SUBSCRIPTIONS_URL } from "@/lib/playBilling";
+import { useIsAndroidApp } from "@/lib/androidApp";
 
 interface Profilee {
   id: string;
@@ -65,6 +67,9 @@ const SettingsPage = () => {
   const [saving, setSaving] = useState(false);
   const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
   const [openingPortal, setOpeningPortal] = useState(false);
+  const inApp = useIsAndroidApp();
+  // Bought in the Android app: billed and managed by Google Play, not Stripe.
+  const isPlaySubscription = !!profile?.plan_id?.startsWith("play:");
 
   // Check notification permission and subscription state via PushAlert SDK
   useEffect(() => {
@@ -311,7 +316,15 @@ const SettingsPage = () => {
                   <Badge variant="secondary">{t("settingsPage.freeTrial")}</Badge>
                 )}
               </div>
-              <Button 
+              {isPlaySubscription && (
+                <Button asChild size="sm" variant="outline" className="gap-2 w-full sm:w-auto">
+                  <a href={PLAY_SUBSCRIPTIONS_URL} target="_blank" rel="noopener noreferrer">
+                    <CreditCard className="w-4 h-4" />
+                    {t("settingsPage.manageSubscription")}
+                  </a>
+                </Button>
+              )}
+              {!inApp && !isPlaySubscription && <Button 
                 size="sm"
                 onClick={handleManageSubscription}
                 disabled={openingPortal}
@@ -323,7 +336,7 @@ const SettingsPage = () => {
                   <CreditCard className="w-4 h-4" />
                 )}
                 {t("settingsPage.manageSubscription")}
-              </Button>
+              </Button>}
             </div>
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>

@@ -14,6 +14,8 @@ import { useGoogleOAuth } from "@/hooks/useGoogleOAuth";
 import { BrandSparkle } from "@/components/BrandSparkle";
 import { useTranslation } from "react-i18next";
 import { normalizeLanguage } from "@/i18n/config";
+import { PlayBillingPlans } from "@/components/PlayBillingPlans";
+import { useIsAndroidApp } from "@/lib/androidApp";
 
 const STEPS = ["Welcome", "Connect Google", "Choose location", "AI tone", "Pick a plan"];
 
@@ -54,6 +56,7 @@ const TONES = [
 const Onboarding = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const inApp = useIsAndroidApp();
   const { initiateOAuth } = useGoogleOAuth();
   const { i18n } = useTranslation();
   const isFrench = normalizeLanguage(i18n.resolvedLanguage || i18n.language) === "fr";
@@ -161,6 +164,12 @@ const Onboarding = () => {
       return;
     }
     next();
+  };
+
+  const handleFinishInApp = async () => {
+    if (!user) return;
+    await supabase.from("profiles").update({ onboarding_completed: true }).eq("id", user.id);
+    navigate("/dashboard");
   };
 
   const handleChoosePlan = async (priceKey: string) => {
@@ -365,7 +374,25 @@ const Onboarding = () => {
               </div>
             )}
 
-            {step === 4 && (
+            {step === 4 && inApp && (
+              <div className="space-y-5">
+                <div className="text-center">
+                  <div className="w-14 h-14 mx-auto rounded-2xl bg-primary/10 flex items-center justify-center mb-3">
+                    <Crown className="w-7 h-7 text-primary" />
+                  </div>
+                  <h2 className="text-2xl font-bold">Choisissez votre plan</h2>
+                </div>
+                <PlayBillingPlans />
+                <div className="flex justify-between items-center pt-2">
+                  <Button variant="ghost" onClick={back}>Retour</Button>
+                  <Button variant="ghost" onClick={handleFinishInApp}>
+                    Plus tard <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {step === 4 && !inApp && (
               <div className="space-y-5">
                 <div className="text-center">
                   <div className="w-14 h-14 mx-auto rounded-2xl bg-primary/10 flex items-center justify-center mb-3">
