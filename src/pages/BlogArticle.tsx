@@ -23,14 +23,36 @@ const BlogArticle = () => {
   const { data: dynamicArticle, isLoading, error } = useQuery({
     queryKey: ["published-article", slug],
     queryFn: async () => {
+      const { data: ranki } = await supabase
+        .from("ranki_articles")
+        .select("*")
+        .eq("slug", slug!)
+        .eq("status", "published")
+        .maybeSingle();
+      if (ranki) {
+        const html = ranki.content_html || "";
+        const hasH1 = /<h1[\s>]/i.test(html);
+        return {
+          id: ranki.id,
+          slug: ranki.slug,
+          title: ranki.title,
+          body: html,
+          meta_description: ranki.excerpt,
+          author: "GoogleReviewAI",
+          published_at: ranki.published_at,
+          updated_at: ranki.updated_at,
+          cover_url: ranki.cover_url,
+          body_has_h1: hasH1,
+        } as any;
+      }
       const { data, error } = await supabase
         .from("published_articles")
         .select("*")
-        .eq("slug", slug)
+        .eq("slug", slug!)
         .single();
 
       if (error) throw error;
-      return data;
+      return data as any;
     },
     enabled: !!slug && !staticArticle,
   });
