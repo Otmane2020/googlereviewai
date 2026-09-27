@@ -71,18 +71,53 @@ Sans cette étape, l'app affiche une barre d'URL en haut.
 4. Publiez le site, puis vérifiez que
    `https://googlereviewai.com/.well-known/assetlinks.json` renvoie bien le JSON.
 
+## Paiements : Google Play dans l'app, Stripe sur le site
+
+- **Site web** (navigateur, ordinateur, iPhone) : rien ne change, tout passe par Stripe.
+- **App Android** : abonnements et packs de crédits via **Google Play Billing**
+  (obligatoire pour le Play Store). Le site détecte l'app
+  (`src/lib/androidApp.ts`) et affiche les offres Google Play
+  (`src/components/PlayBillingPlans.tsx`) au lieu de Stripe.
+- Les produits physiques (cartes NFC, QR imprimés) restent payés par Stripe,
+  même dans l'app (autorisé par Google).
+- Les modules AEO/SEO en option (ajoutés à un abonnement Stripe) ne sont pas
+  vendus dans l'app.
+
+### Configuration Google Play (une seule fois)
+
+1. **Produits** — Play Console → *Monétiser* :
+   - *Abonnements* : créez 6 abonnements avec **exactement** ces ID, chacun
+     avec **une seule** offre de base à renouvellement automatique :
+     `ranki_starter_monthly`, `ranki_starter_yearly`, `ranki_pro_monthly`,
+     `ranki_pro_yearly`, `ranki_business_monthly`, `ranki_business_yearly`.
+   - *Produits intégrés* (packs de crédits, consommables) :
+     `credits_10`, `credits_100`, `credits_330`, `credits_660`, `credits_1000`.
+   Les prix se règlent dans la Play Console ; l'app affiche automatiquement
+   ceux de Google. Un produit non créé est simplement masqué.
+2. **Compte de service** (pour que le serveur vérifie les achats) :
+   Google Cloud Console → *IAM → Comptes de service* → créez-en un et
+   téléchargez sa clé JSON. Activez l'API « Google Play Android Developer ».
+   Puis Play Console → *Utilisateurs et autorisations* → invitez l'e-mail du
+   compte de service avec « Afficher les données financières » et
+   « Gérer les commandes et les abonnements ».
+3. **Secrets Supabase** (Edge Functions → Secrets) :
+   - `GOOGLE_PLAY_SERVICE_ACCOUNT_JSON` : le contenu de la clé JSON
+   - `PLAY_RTDN_SECRET` : une longue chaîne aléatoire de votre choix
+4. **Déployez** la migration `play_purchases` et les fonctions
+   `verify-play-purchase`, `play-rtdn-webhook` et `verify-subscription`.
+5. **Notifications en temps réel** (renouvellements / résiliations) :
+   Google Cloud → *Pub/Sub* → créez un topic, donnez le rôle « Éditeur Pub/Sub »
+   à `google-play-developer-notifications@system.gserviceaccount.com`, puis un
+   abonnement **push** vers
+   `https://hlruprayqfnatnldrski.supabase.co/functions/v1/play-rtdn-webhook?token=<PLAY_RTDN_SECRET>`.
+   Play Console → *Monétiser → Configuration de la monétisation* → indiquez
+   le nom du topic.
+6. **Tests** : ajoutez votre e-mail dans *Test des licences* ; publiez l'app
+   en *Test interne* (Play Billing ne fonctionne que sur une app installée
+   depuis le Play Store).
+
 ## Points d'attention pour la validation Google
 
-- **Paiements (Stripe, pas Google Play Billing)** : Google impose sa propre
-  facturation pour les abonnements et crédits achetés *dans l'app*. Pour garder
-  Stripe, l'app n'affiche aucun achat d'abonnement ni de crédits : le site
-  détecte l'app (`src/lib/androidApp.ts`, via `utm_source=android_app` ou le
-  referrer `android-app://com.googlereviewai.app`) et masque les grilles de
-  prix, le dialogue d'upgrade, l'étape « plan » de l'onboarding et le portail
-  Stripe. Les clients s'abonnent sur le site web avec Stripe et se connectent
-  ensuite dans l'app. Les produits physiques (cartes NFC, QR imprimés) restent
-  payables via Stripe dans l'app : c'est autorisé par Google.
-  Ne mettez pas de lien ni de texte invitant à payer sur le site depuis l'app.
 - **Nom « Google »** : utiliser la marque « Google » dans le nom de l'app peut
   être refusé (politique sur l'usurpation / propriété intellectuelle).
   Un nom comme « Ranki – Réponses aux avis IA » est plus sûr.

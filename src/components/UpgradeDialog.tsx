@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Crown, Shield, Coins, ChevronDown, Loader2, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BrandSparkle } from "@/components/BrandSparkle";
-import { InAppSubscriptionNotice } from "@/components/InAppSubscriptionNotice";
+import { PlayBillingPlans } from "@/components/PlayBillingPlans";
 import { useIsAndroidApp } from "@/lib/androidApp";
 import {
   DropdownMenu,
@@ -165,11 +165,11 @@ export const UpgradeDialog = ({ open, onOpenChange, currentPlan }: UpgradeDialog
   if (inApp) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Plans</DialogTitle>
+            <DialogTitle>{isEN ? "Choose your plan" : "Choisissez votre plan"}</DialogTitle>
           </DialogHeader>
-          <InAppSubscriptionNotice />
+          <PlayBillingPlans currentPlan={currentPlan} />
         </DialogContent>
       </Dialog>
     );

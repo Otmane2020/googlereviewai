@@ -14,7 +14,7 @@ import { useGoogleOAuth } from "@/hooks/useGoogleOAuth";
 import { BrandSparkle } from "@/components/BrandSparkle";
 import { useTranslation } from "react-i18next";
 import { normalizeLanguage } from "@/i18n/config";
-import { InAppSubscriptionNotice } from "@/components/InAppSubscriptionNotice";
+import { PlayBillingPlans } from "@/components/PlayBillingPlans";
 import { useIsAndroidApp } from "@/lib/androidApp";
 
 const STEPS = ["Welcome", "Connect Google", "Choose location", "AI tone", "Pick a plan"];
@@ -376,11 +376,17 @@ const Onboarding = () => {
 
             {step === 4 && inApp && (
               <div className="space-y-5">
-                <InAppSubscriptionNotice />
+                <div className="text-center">
+                  <div className="w-14 h-14 mx-auto rounded-2xl bg-primary/10 flex items-center justify-center mb-3">
+                    <Crown className="w-7 h-7 text-primary" />
+                  </div>
+                  <h2 className="text-2xl font-bold">Choisissez votre plan</h2>
+                </div>
+                <PlayBillingPlans />
                 <div className="flex justify-between items-center pt-2">
                   <Button variant="ghost" onClick={back}>Retour</Button>
-                  <Button onClick={handleFinishInApp}>
-                    Continuer <ArrowRight className="w-4 h-4 ml-2" />
+                  <Button variant="ghost" onClick={handleFinishInApp}>
+                    Plus tard <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
                 </div>
               </div>
