@@ -21,11 +21,7 @@ serve(async (req) => {
 
     if (!supabaseUrl || !serviceRoleKey) {
       return new Response(
-        JSON.stringify({
-          status: "ERROR",
-          database: "unconfigured",
-          message: "Supabase environment variables are missing",
-        }),
+        JSON.stringify({ ok: false, status: "DOWN", latencyMs: Date.now() - startedAt }),
         { status: 503, headers },
       );
     }
@@ -43,32 +39,19 @@ serve(async (req) => {
     if (error) {
       console.error("health-cloud database check failed:", error);
       return new Response(
-        JSON.stringify({
-          status: "ERROR",
-          database: "down",
-          latency_ms: Date.now() - startedAt,
-        }),
+        JSON.stringify({ ok: false, status: "DOWN", latencyMs: Date.now() - startedAt }),
         { status: 503, headers },
       );
     }
 
     return new Response(
-      JSON.stringify({
-        status: "OK",
-        database: "up",
-        latency_ms: Date.now() - startedAt,
-        checked_at: new Date().toISOString(),
-      }),
+      JSON.stringify({ ok: true, status: "OK", latencyMs: Date.now() - startedAt }),
       { status: 200, headers },
     );
   } catch (error) {
     console.error("health-cloud unexpected error:", error);
     return new Response(
-      JSON.stringify({
-        status: "ERROR",
-        database: "down",
-        latency_ms: Date.now() - startedAt,
-      }),
+      JSON.stringify({ ok: false, status: "DOWN", latencyMs: Date.now() - startedAt }),
       { status: 503, headers },
     );
   }
