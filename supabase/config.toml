@@ -105,3 +105,6 @@ project_id = "hlruprayqfnatnldrski"
 
   [functions.ranki-autopost]
     verify_jwt = false
+
+  [functions.health-cloud]
+    verify_jwt = false
