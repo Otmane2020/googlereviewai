@@ -11,15 +11,19 @@ jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    env:
+      VITE_SUPABASE_URL: https://ci-placeholder.supabase.co
+      VITE_SUPABASE_PUBLISHABLE_KEY: ci-placeholder-key
+      SUPABASE_URL: https://ci-placeholder.supabase.co
+      SUPABASE_SERVICE_ROLE_KEY: ci-placeholder-key
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: oven-sh/setup-bun@v2
         with:
-          node-version: "22.14.0"
-          cache: npm
+          bun-version: latest
       - name: Install dependencies
-        run: npm install --legacy-peer-deps
+        run: bun install --frozen-lockfile
       - name: Build TanStack Start
-        run: npm run build
+        run: bun run build
       - name: Typecheck
-        run: npm run typecheck
+        run: bun run typecheck
