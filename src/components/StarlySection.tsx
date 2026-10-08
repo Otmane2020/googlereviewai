@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "@/lib/router-compat";
 import { Button } from "./ui/button";
 import { Check, Clock, Shield, Zap, ArrowRight, Star } from "lucide-react";
 import starlyLogo from "@/assets/starly-logo.png";

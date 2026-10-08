@@ -1,243 +1,191 @@
-import React, { useCallback, useEffect, useMemo } from "react";
+/**
+ * Router-compat shim — bridges @/lib/router-compat v6 call sites to
+ * @tanstack/react-router without hand-rewriting every component.
+ * This is the same load-bearing pattern used in Klar's dev-copy migration.
+ */
 import {
-  Link as TanStackLink,
-  Outlet as TanStackOutlet,
-  redirect as tanstackRedirect,
-  useNavigate as useTanStackNavigate,
-  useParams as useTanStackParams,
-  useRouterState,
+  useNavigate as tsNavigate,
+  useLocation as tsLocation,
+  useParams as tsParams,
+  useSearch as tsSearch,
+  useRouter,
+  Link as TSLink,
+  Navigate as TSNavigate,
+  Outlet as TSOutlet,
 } from "@tanstack/react-router";
+import { useMemo, useCallback, forwardRef, type ComponentProps, type CSSProperties, type ReactNode } from "react";
 
-const toHref = (to: any): string => {
-  if (typeof to === "string") return to;
-  if (!to) return "/";
-  return `${to.pathname || ""}${to.search || ""}${to.hash || ""}` || "/";
+// ---------- shared URL parsing ----------
+
+function parseTo(to: string): { pathname: string; search?: Record<string, string>; hash?: string } {
+  const [beforeHash, hashStr] = (to ?? "").split("#");
+  const [pathname, searchStr] = beforeHash.split("?");
+  return {
+    // react-router keeps the current path for search-only ("?a=1") and
+    // hash-only ("#section") targets; TanStack's "." means current route.
+    pathname: pathname || ".",
+    search: searchStr ? Object.fromEntries(new URLSearchParams(searchStr)) : undefined,
+    hash: hashStr || undefined,
+  };
+}
+
+// ---------- useNavigate ----------
+
+type NavigateOptions = { replace?: boolean; state?: unknown };
+
+type NavigateFn = {
+  (to: string | number, options?: NavigateOptions): void;
+  (delta: number): void;
 };
 
-const isExternalHref = (href: string) =>
-  /^(?:[a-z][a-z0-9+.-]*:|\/\/)/i.test(href) || href.startsWith("#");
+export function useNavigate(): NavigateFn {
+  const tsNav = tsNavigate();
+  const router = useRouter();
+  return useCallback((to: string | number, options?: NavigateOptions) => {
+    if (typeof to === "number") {
+      router.history.go(to);
+      return;
+    }
+    const { pathname, search, hash } = parseTo(to);
+    tsNav({
+      to: pathname,
+      search: search as never,
+      hash,
+      state: options?.state as never,
+      replace: options?.replace,
+    });
+  }, [tsNav, router]) as NavigateFn;
+}
 
-const activeFor = (pathname: string, href: string, end = false) => {
-  const clean = href.split(/[?#]/)[0] || "/";
-  if (clean === "/") return pathname === "/";
-  return end ? pathname === clean : pathname === clean || pathname.startsWith(`${clean}/`);
-};
+// ---------- useLocation ----------
 
-export const useLocation = () => {
-  const location = useRouterState({ select: (state) => state.location });
+export function useLocation() {
+  const loc = tsLocation();
   return useMemo(
     () => ({
-      pathname: location.pathname,
-      search: (location as any).searchStr || "",
-      hash: location.hash || "",
-      state: location.state ?? null,
-      key: (location as any).state?.key || "tanstack",
+      pathname: loc.pathname,
+      search: loc.searchStr ? `?${loc.searchStr}` : "",
+      hash: loc.hash ?? "",
+      state: (loc.state ?? null) as unknown,
+      key: loc.pathname + (loc.searchStr ?? ""),
     }),
-    [location],
+    [loc.pathname, loc.searchStr, loc.hash, loc.state],
   );
-};
+}
 
-export const useNavigate = () => {
-  const navigate = useTanStackNavigate();
-  return useCallback(
-    (to: any, options: any = {}) => {
-      if (typeof to === "number") {
-        if (typeof window !== "undefined") window.history.go(to);
-        return;
-      }
+// ---------- useParams ----------
 
-      const href = toHref(to);
-      if (isExternalHref(href)) {
-        if (typeof window !== "undefined") {
-          if (options?.replace) window.location.replace(href);
-          else window.location.assign(href);
-        }
-        return;
-      }
+export function useParams<T extends Record<string, string | undefined> = Record<string, string | undefined>>(): T {
+  return tsParams({ strict: false } as never) as T;
+}
 
-      const url = new URL(href, "https://googlereviewai.com");
-      const search = Object.fromEntries(url.searchParams.entries());
-      return navigate({
-        to: url.pathname as any,
-        search: Object.keys(search).length ? (search as any) : undefined,
-        hash: url.hash ? url.hash.slice(1) : undefined,
-        replace: Boolean(options?.replace),
-        state: options?.state,
-      } as any);
+
+// ---------- useSearchParams (@/lib/router-compat compat) ----------
+
+export function useSearchParams(): [URLSearchParams, (init: URLSearchParams | Record<string, string> | ((prev: URLSearchParams) => URLSearchParams), opts?: { replace?: boolean }) => void] {
+  const loc = tsLocation();
+  const nav = tsNavigate();
+  const router = useRouter();
+  const params = useMemo(() => new URLSearchParams(loc.searchStr ?? ""), [loc.searchStr]);
+  const setParams = useCallback(
+    (
+      init: URLSearchParams | Record<string, string> | ((prev: URLSearchParams) => URLSearchParams),
+      opts?: { replace?: boolean },
+    ) => {
+      // Functional updaters read the router's live location, not the render
+      // snapshot — react-router passes call-time params, and chained updates
+      // within one tick must see each other's writes.
+      const live = router.state.location;
+      const current = new URLSearchParams(live.searchStr ?? "");
+      const next =
+        typeof init === "function"
+          ? init(current)
+          : init instanceof URLSearchParams
+            ? init
+            : new URLSearchParams(init);
+      const searchObj: Record<string, string> = {};
+      next.forEach((v, k) => { searchObj[k] = v; });
+      nav({ to: live.pathname, search: searchObj as never, replace: opts?.replace });
     },
-    [navigate],
+    [nav, router],
   );
+  return [params, setParams];
+}
+
+// ---------- Link ----------
+
+type LinkProps = Omit<ComponentProps<typeof TSLink>, "to"> & {
+  to: string;
+  replace?: boolean;
+  state?: unknown;
+  children?: ReactNode;
 };
 
-export const useParams = <T extends Record<string, string | undefined> = Record<string, string>>() => {
-  const tanstackParams = useTanStackParams({ strict: false }) as Record<string, string | undefined>;
-  const pathname = useRouterState({ select: (state) => state.location.pathname });
-  const parts = pathname.split("/").filter(Boolean);
-  const last = parts.length ? parts[parts.length - 1] : undefined;
-  const inferred: Record<string, string | undefined> = { ...tanstackParams };
-
-  if (!inferred.slug && last && (parts[0] === "blog" || parts[0] === "shop")) inferred.slug = decodeURIComponent(last);
-  if (!inferred.id && last) inferred.id = decodeURIComponent(last);
-
-  return inferred as T;
-};
-
-export const useSearchParams = (): [URLSearchParams, (next: any, options?: any) => void] => {
-  const location = useLocation();
-  const navigate = useTanStackNavigate();
-  const params = useMemo(() => new URLSearchParams(location.search), [location.search]);
-
-  const setSearchParams = useCallback(
-    (next: any, options: any = {}) => {
-      const resolved = typeof next === "function" ? next(new URLSearchParams(location.search)) : next;
-      const nextParams = resolved instanceof URLSearchParams ? resolved : new URLSearchParams(resolved);
-      const search = Object.fromEntries(nextParams.entries());
-      navigate({
-        to: location.pathname as any,
-        search: search as any,
-        replace: Boolean(options?.replace),
-      } as any);
-    },
-    [location.pathname, location.search, navigate],
-  );
-
-  return [params, setSearchParams];
-};
-
-const RouterLink = React.forwardRef<HTMLAnchorElement, any>((props, ref) => {
-  const {
-    to,
-    replace: _replace,
-    state,
-    relative: _relative,
-    reloadDocument,
-    preventScrollReset: _prevent,
-    viewTransition: _viewTransition,
-    children,
-    ...rest
-  } = props;
-  const href = toHref(to);
-
-  if (reloadDocument || isExternalHref(href)) {
-    return <a ref={ref} href={href} {...rest}>{children}</a>;
-  }
-
-  const url = new URL(href, "https://googlereviewai.com");
-  const search = Object.fromEntries(url.searchParams.entries());
+export const Link = forwardRef<HTMLAnchorElement, LinkProps>(function Link(
+  { to, replace, state, children, ...rest },
+  ref,
+) {
+  const { pathname, search, hash } = parseTo(to);
   return (
-    <TanStackLink
-      ref={ref as any}
-      to={url.pathname as any}
-      search={Object.keys(search).length ? (search as any) : undefined}
-      hash={url.hash ? url.hash.slice(1) : undefined}
-      state={state as any}
-      {...rest}
+    <TSLink
+      ref={ref as never}
+      to={pathname as never}
+      search={search as never}
+      hash={hash}
+      replace={replace}
+      state={state as never}
+      {...((rest ?? {}) as Record<string, unknown>)}
     >
       {children}
-    </TanStackLink>
+    </TSLink>
   );
 });
-RouterLink.displayName = "RouterLink";
 
-export const Link = RouterLink;
 
-export const NavLink = React.forwardRef<HTMLAnchorElement, any>((props, ref) => {
-  const location = useLocation();
-  const href = toHref(props.to);
-  const isActive = activeFor(location.pathname, href, Boolean(props.end));
-  const className = typeof props.className === "function"
-    ? props.className({ isActive, isPending: false, isTransitioning: false })
-    : props.className;
-  const style = typeof props.style === "function"
-    ? props.style({ isActive, isPending: false, isTransitioning: false })
-    : props.style;
-  return <RouterLink {...props} ref={ref} className={className} style={style} aria-current={isActive ? "page" : undefined} />;
+// ---------- Navigate ----------
+
+export function Navigate({ to, replace, state }: { to: string; replace?: boolean; state?: unknown }) {
+  const { pathname, search, hash } = parseTo(to);
+  return <TSNavigate to={pathname as never} search={search as never} hash={hash} state={state as never} replace={replace} />;
+}
+
+// ---------- Outlet ----------
+
+export const Outlet = TSOutlet;
+
+// ---------- NavLink (react-router-dom compat, function-form props supported) ----------
+
+export type NavLinkRenderState = { isActive: boolean; isPending: boolean };
+
+export type NavLinkProps = Omit<LinkProps, "className" | "style" | "children"> & {
+  className?: string | ((state: NavLinkRenderState) => string | undefined);
+  style?: CSSProperties | ((state: NavLinkRenderState) => CSSProperties | undefined);
+  children?: ReactNode | ((state: NavLinkRenderState) => ReactNode);
+  end?: boolean;
+};
+
+export const NavLink = forwardRef<HTMLAnchorElement, NavLinkProps>(function NavLink(
+  { to, className, style, children, end, ...rest },
+  ref,
+) {
+  const loc = tsLocation();
+  const { pathname } = parseTo(to);
+  const target = pathname === "." ? loc.pathname : pathname;
+  const normalized = target.length > 1 && target.endsWith("/") ? target.slice(0, -1) : target;
+  const isActive = end
+    ? loc.pathname === normalized
+    : loc.pathname === normalized ||
+      (normalized !== "/" && loc.pathname.startsWith(`${normalized}/`));
+  const state: NavLinkRenderState = { isActive, isPending: false };
+  return (
+    <Link
+      ref={ref}
+      to={to}
+      className={typeof className === "function" ? className(state) : className}
+      style={typeof style === "function" ? style(state) : style}
+      {...(rest as Record<string, unknown>)}
+    >
+      {typeof children === "function" ? children(state) : children}
+    </Link>
+  );
 });
-NavLink.displayName = "NavLink";
-
-export const Navigate = ({ to, replace, state }: any) => {
-  const navigate = useNavigate();
-  useEffect(() => {
-    navigate(to, { replace, state });
-  }, [navigate, replace, state, to]);
-  return null;
-};
-
-const patternToRegex = (pattern: string, end = true) => {
-  const escaped = pattern
-    .replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
-    .replace(/:([A-Za-z0-9_]+)/g, "(?<$1>[^/]+)")
-    .replace(/\\\*/g, ".*");
-  return new RegExp(`^${escaped}${end ? "$" : "(?:/|$)"}`);
-};
-
-export const matchPath = (pattern: any, pathname: string) => {
-  const spec = typeof pattern === "string" ? { path: pattern, end: true, caseSensitive: false } : pattern;
-  const regex = patternToRegex(spec.path || "/", spec.end !== false);
-  const match = pathname.match(regex);
-  if (!match) return null;
-  return {
-    params: match.groups || {},
-    pathname: match[0],
-    pathnameBase: match[0],
-    pattern: spec,
-  };
-};
-
-export const useMatch = (pattern: any) => {
-  const { pathname } = useLocation();
-  return matchPath(pattern, pathname);
-};
-
-export const generatePath = (pattern: string, params: Record<string, any> = {}) =>
-  pattern.replace(/:([A-Za-z0-9_]+)/g, (_, key) => encodeURIComponent(params[key] ?? ""));
-
-export const createSearchParams = (init?: any) => new URLSearchParams(init);
-export const useHref = (to: any) => toHref(to);
-export const useResolvedPath = (to: any) => {
-  const href = toHref(to);
-  const url = new URL(href, "https://googlereviewai.com");
-  return { pathname: url.pathname, search: url.search, hash: url.hash };
-};
-export const useNavigationType = () => "POP" as const;
-export const Outlet = TanStackOutlet;
-export const useOutletContext = <T,>() => undefined as T;
-export const useRouteError = () => undefined;
-export const ScrollRestoration = () => null;
-
-// Transitional wrappers for isolated legacy components. The application-level
-// router is TanStack Router; these wrappers intentionally do not create a
-// second history implementation.
-export const BrowserRouter = ({ children }: any) => <>{children}</>;
-export const HashRouter = BrowserRouter;
-export const MemoryRouter = BrowserRouter;
-
-export const Route = (_props: any) => null;
-export const Routes = ({ children }: any) => {
-  const { pathname } = useLocation();
-  const entries = React.Children.toArray(children) as React.ReactElement<any>[];
-  let wildcard: React.ReactElement<any> | undefined;
-  for (const child of entries) {
-    const { path, index, element } = child.props || {};
-    if (path === "*") {
-      wildcard = child;
-      continue;
-    }
-    if (index && pathname === "/") return element ?? null;
-    if (matchPath({ path: path || "/", end: true }, pathname)) return element ?? null;
-  }
-  return wildcard?.props?.element ?? null;
-};
-
-export const RouterProvider = ({ children }: any) => <>{children}</>;
-export const createBrowserRouter = (routes: any) => ({ routes });
-export const createHashRouter = createBrowserRouter;
-
-export const redirect = (url: string, init?: number | ResponseInit) =>
-  tanstackRedirect({
-    href: url,
-    statusCode: typeof init === "number" ? init : init?.status,
-  } as any);
-
-export const json = (data: any, init?: ResponseInit) => Response.json(data, init);
-export const defer = (data: any) => data;

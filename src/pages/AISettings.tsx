@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "@/lib/router-compat";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -123,7 +123,7 @@ const OldReviewsSection = ({
 
   return (
     <>
-      <div className="bg-gradient-to-br from-amber-500/10 to-orange-500/10 rounded-2xl border border-amber-500/30 p-4 shadow-sm">
+      <div className="bg-gradient-to-br from-amber-500/10 to-orange-500/10 rounded-2xl border border-amber-500/30 p-4 shadow-xs">
         <div className="flex items-center gap-3 mb-3">
           <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center">
             <History className="w-5 h-5 text-amber-600" />
@@ -282,9 +282,8 @@ const AISettingsPage = () => {
       // Calculate old vs new reviews
       if (reviewsRes.data && aiSettingsDateRes.data?.created_at) {
         const enabledAt = new Date(aiSettingsDateRes.data.created_at);
-        const reviewCreatedAt = (value: string | null) => value ? new Date(value) : enabledAt;
-        const oldReviews = reviewsRes.data.filter(r => reviewCreatedAt(r.created_at) < enabledAt).length;
-        const newReviews = reviewsRes.data.filter(r => reviewCreatedAt(r.created_at) >= enabledAt).length;
+        const oldReviews = reviewsRes.data.filter(r => new Date(r.created_at ?? 0) < enabledAt).length;
+        const newReviews = reviewsRes.data.filter(r => new Date(r.created_at ?? 0) >= enabledAt).length;
         setPendingStats({ oldReviews, newReviews });
       } else if (reviewsRes.data) {
         // If no settings date, consider all as new
@@ -435,7 +434,7 @@ const AISettingsPage = () => {
         </div>
 
         {/* Tonee Selection - Pill Style */}
-        <div className="bg-card rounded-2xl border border-border/50 p-4 shadow-sm">
+        <div className="bg-card rounded-2xl border border-border/50 p-4 shadow-xs">
           <div className="flex items-center gap-2 mb-4">
             <MessageSquare className="w-4 h-4 text-primary" />
             <h3 className="font-medium text-sm text-foreground">{isEN ? "Tone" : "Ton"}</h3>
@@ -459,7 +458,7 @@ const AISettingsPage = () => {
         </div>
 
         {/* Response Length - Segmented Control */}
-        <div className="bg-card rounded-2xl border border-border/50 p-4 shadow-sm">
+        <div className="bg-card rounded-2xl border border-border/50 p-4 shadow-xs">
           <div className="flex items-center gap-2 mb-4">
             <MessageSquare className="w-4 h-4 text-primary" />
             <h3 className="font-medium text-sm text-foreground">{isEN ? "Length" : "Longueur"}</h3>
@@ -471,7 +470,7 @@ const AISettingsPage = () => {
                 onClick={() => updateSettings({ response_length: option.value })}
                 className={`flex-1 py-3 rounded-lg text-center transition-all ${
                   settings.response_length === option.value
-                    ? "bg-background shadow-sm text-foreground font-medium"
+                    ? "bg-background shadow-xs text-foreground font-medium"
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
@@ -483,7 +482,7 @@ const AISettingsPage = () => {
         </div>
 
         {/* Settings List - iOS Style */}
-        <div className="bg-card rounded-2xl border border-border/50 overflow-hidden shadow-sm">
+        <div className="bg-card rounded-2xl border border-border/50 overflow-hidden shadow-xs">
           {/* Signature */}
           <div className="p-4 border-b border-border/30">
             <div className="flex items-center justify-between">
@@ -613,7 +612,7 @@ const AISettingsPage = () => {
         </div>
 
         {/* Sync Settings */}
-        <div className="bg-card rounded-2xl border border-border/50 overflow-hidden shadow-sm">
+        <div className="bg-card rounded-2xl border border-border/50 overflow-hidden shadow-xs">
           <div className="p-4 border-b border-border/30">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -665,7 +664,7 @@ const AISettingsPage = () => {
         </div>
 
         {/* SEO/AEO Publication Hour with Timezone */}
-        <div className="bg-card rounded-2xl border border-border/50 overflow-hidden shadow-sm">
+        <div className="bg-card rounded-2xl border border-border/50 overflow-hidden shadow-xs">
           <div className="p-4 border-b border-border/30">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -764,7 +763,7 @@ const AISettingsPage = () => {
         </div>
 
         {/* Respond to Edited Reviews */}
-        <div className="bg-card rounded-2xl border border-border/50 overflow-hidden shadow-sm">
+        <div className="bg-card rounded-2xl border border-border/50 overflow-hidden shadow-xs">
           <div className="p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -795,7 +794,7 @@ const AISettingsPage = () => {
         </div>
 
         {/* Email Notifications */}
-        <div className="bg-card rounded-2xl border border-border/50 overflow-hidden shadow-sm">
+        <div className="bg-card rounded-2xl border border-border/50 overflow-hidden shadow-xs">
           <div className="p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -818,7 +817,7 @@ const AISettingsPage = () => {
         </div>
 
         {/* Custom Template */}
-        <div className="bg-card rounded-2xl border border-border/50 p-4 shadow-sm">
+        <div className="bg-card rounded-2xl border border-border/50 p-4 shadow-xs">
           <div className="flex items-center gap-2 mb-3">
             <div className="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center">
               <MessageSquare className="w-4 h-4 text-indigo-500" />

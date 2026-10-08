@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { SectorDemoSection } from "@/components/SectorDemoSection";
 import { ReviewAIShowcaseSection } from "@/components/ReviewAIShowcaseSection";
 import { Footer } from "@/components/Footer";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link } from "@/lib/router-compat";
 import { useTranslation } from "react-i18next";
 import { Helmet } from "react-helmet";
 import { ProductSchema, FAQPageSchema } from "@/components/StructuredData";
@@ -270,7 +270,7 @@ const LandingPremium = () => {
  
            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto">
              {benefits.map((benefit, i) => (
-               <div key={i} className="flex items-start gap-4 p-5 bg-card rounded-2xl border border-border shadow-sm hover:shadow-md transition-shadow">
+               <div key={i} className="flex items-start gap-4 p-5 bg-card rounded-2xl border border-border shadow-xs hover:shadow-md transition-shadow">
                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
                    <benefit.icon className="w-6 h-6 text-primary" />
                  </div>
@@ -305,7 +305,7 @@ const LandingPremium = () => {
              {features.map((feature, i) => (
                <div 
                  key={i} 
-                 className="flex items-center gap-4 p-5 bg-card rounded-2xl border border-border shadow-sm hover:border-primary/30 transition-colors"
+                 className="flex items-center gap-4 p-5 bg-card rounded-2xl border border-border shadow-xs hover:border-primary/30 transition-colors"
                >
                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center flex-shrink-0">
                    <feature.icon className="w-6 h-6 text-primary" />
@@ -320,7 +320,7 @@ const LandingPremium = () => {
  
            {/* Included badge */}
            <div className="mt-10 text-center">
-             <div className="inline-flex items-center gap-3 px-6 py-3 bg-card rounded-full border border-border shadow-sm">
+             <div className="inline-flex items-center gap-3 px-6 py-3 bg-card rounded-full border border-border shadow-xs">
                <Bot className="w-5 h-5 text-primary" />
                <span className="text-foreground font-medium">SEO + AEO inclus automatiquement</span>
                <span className="px-2 py-0.5 bg-secondary/20 text-secondary text-xs font-semibold rounded-full">Pas d'option cachée</span>
@@ -350,7 +350,7 @@ const LandingPremium = () => {
                  onClick={() => setBillingCycle("monthly")}
                  className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all ${
                    billingCycle === "monthly"
-                     ? "bg-primary text-primary-foreground shadow-sm"
+                     ? "bg-primary text-primary-foreground shadow-xs"
                      : "text-muted-foreground hover:text-foreground"
                  }`}
                >
@@ -360,7 +360,7 @@ const LandingPremium = () => {
                  onClick={() => setBillingCycle("yearly")}
                  className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all flex items-center gap-2 ${
                    billingCycle === "yearly"
-                     ? "bg-primary text-primary-foreground shadow-sm"
+                     ? "bg-primary text-primary-foreground shadow-xs"
                      : "text-muted-foreground hover:text-foreground"
                  }`}
                >
@@ -376,7 +376,7 @@ const LandingPremium = () => {
            <div className="max-w-lg mx-auto space-y-6">
              {plans.map((plan) => (
                <div key={plan.id} className={`relative bg-card rounded-2xl border-2 p-5 transition-all ${
-                 plan.popular ? "border-primary shadow-xl" : "border-border shadow-sm"
+                 plan.popular ? "border-primary shadow-xl" : "border-border shadow-xs"
                }`}>
                  {/* Badge */}
                  {(plan.hasTrial || plan.popular) && (

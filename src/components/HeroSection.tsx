@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "@/lib/router-compat";
 import { Button } from "./ui/button";
 import { Check, Star, TrendingUp, Zap, Bot, Search, FileText, MessageSquare, Rocket, User } from "lucide-react";
 import { TrustAvisLabel } from "./TrustAvisBadge";
@@ -82,7 +82,7 @@ export const HeroSection = () => {
 
           {/* Mobile Feature Cards */}
           <div className="grid grid-cols-1 gap-3 mb-8 sm:hidden animate-fade-in" style={{ animationDelay: "0.35s" }}>
-            <div className="flex items-center gap-3 p-4 bg-card rounded-xl border border-border shadow-sm">
+            <div className="flex items-center gap-3 p-4 bg-card rounded-xl border border-border shadow-xs">
               <div className="w-10 h-10 rounded-lg bg-accent/20 flex items-center justify-center flex-shrink-0">
                 <MessageSquare className="w-5 h-5 text-accent" />
               </div>
@@ -91,7 +91,7 @@ export const HeroSection = () => {
                 <p className="text-muted-foreground text-xs">{t("features.aiResponsesDesc")}</p>
               </div>
             </div>
-            <div className="flex items-center gap-3 p-4 bg-card rounded-xl border border-border shadow-sm">
+            <div className="flex items-center gap-3 p-4 bg-card rounded-xl border border-border shadow-xs">
               <div className="w-10 h-10 rounded-lg bg-secondary/20 flex items-center justify-center flex-shrink-0">
                 <FileText className="w-5 h-5 text-secondary" />
               </div>
@@ -100,7 +100,7 @@ export const HeroSection = () => {
                 <p className="text-muted-foreground text-xs">{t("seo.description")}</p>
               </div>
             </div>
-            <div className="flex items-center gap-3 p-4 bg-card rounded-xl border border-border shadow-sm">
+            <div className="flex items-center gap-3 p-4 bg-card rounded-xl border border-border shadow-xs">
               <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center flex-shrink-0">
                 <ChatGPTIcon className="w-5 h-5 text-primary" />
               </div>

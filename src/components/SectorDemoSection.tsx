@@ -109,7 +109,7 @@ export const SectorDemoSection = () => {
               <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center flex-shrink-0 text-sm font-bold text-muted-foreground">
                 {review.author.charAt(0)}
               </div>
-              <div className="flex-1 bg-card rounded-2xl rounded-tl-sm p-4 border border-border shadow-sm">
+              <div className="flex-1 bg-card rounded-2xl rounded-tl-sm p-4 border border-border shadow-xs">
                 <div className="flex flex-wrap items-center justify-between gap-2 mb-1.5">
                   <span className="font-semibold text-foreground text-sm">{review.author}</span>
                   <span className="text-xs text-muted-foreground">{review.date}</span>
@@ -128,7 +128,7 @@ export const SectorDemoSection = () => {
 
             {/* AI Response bubble */}
             <div className="flex items-start gap-3 justify-end">
-              <div className="flex-1 bg-gradient-to-br from-primary/5 to-secondary/10 rounded-2xl rounded-tr-sm p-4 border border-primary/20 shadow-sm">
+              <div className="flex-1 bg-gradient-to-br from-primary/5 to-secondary/10 rounded-2xl rounded-tr-sm p-4 border border-primary/20 shadow-xs">
                 <div className="flex items-center gap-2 mb-2">
                   <BrandSparkle className="w-4 h-4 text-primary" />
                   <span className="text-xs font-semibold text-primary">{t("sectorDemo.aiResponseLabel")}</span>

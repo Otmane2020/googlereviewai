@@ -1,5 +1,5 @@
 import { Helmet } from "react-helmet";
-import { Link } from "react-router-dom";
+import { Link } from "@/lib/router-compat";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { seoArticles } from "@/data/seoArticles";
@@ -64,7 +64,7 @@ const Sitemap = () => (
 
         <div className="grid gap-6 md:grid-cols-3 mb-12">
           {groups.map((group) => (
-            <section key={group.title} className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+            <section key={group.title} className="rounded-2xl border border-border bg-card p-6 shadow-xs">
               <h2 className="text-lg font-semibold mb-4">{group.title}</h2>
               <ul className="space-y-3">
                 {group.links.map((item) => (
@@ -81,7 +81,7 @@ const Sitemap = () => (
           ))}
         </div>
 
-        <section className="rounded-2xl border border-border bg-card p-6 sm:p-8 shadow-sm">
+        <section className="rounded-2xl border border-border bg-card p-6 sm:p-8 shadow-xs">
           <h2 className="text-2xl font-semibold mb-2">Google Reviews & Local SEO Guides</h2>
           <p className="text-muted-foreground mb-6">Our latest in-depth resources on review management, Google Business Profile, Maps rankings and local AI search.</p>
           <div className="grid gap-4 md:grid-cols-2">

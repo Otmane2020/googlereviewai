@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "@/lib/router-compat";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
@@ -106,7 +106,7 @@ const Admin = () => {
     setLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke('get-analytics', {
-        body: {},
+        body: undefined,
         headers: {},
       });
 

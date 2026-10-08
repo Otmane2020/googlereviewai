@@ -2,7 +2,8 @@ import { useEffect } from "react";
 import { MapContainer, TileLayer, Marker, Popup, Circle, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { getDirectionalInfo, getDirectionAbbr } from "@/components/maps-rank/DirectionalLabel";
+import { getDirectionAbbr } from "@/components/maps-rank/DirectionalLabel";
+import { processPointsWithDirections, type ScanPoint } from "@/components/maps-rank/processPoints";
 
 // Fix Leaflet default icon issue in Vite
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
@@ -16,23 +17,6 @@ L.Icon.Default.mergeOptions({
   shadowUrl: markerShadow,
 });
 
-interface Competitor {
-  name: string;
-  placeId: string;
-  address: string;
-  rating: number | null;
-}
-
-interface ScanPoint {
-  label: string;
-  lat: number;
-  lng: number;
-  rank_position: number | null;
-  total_results: number;
-  competitors: Competitor[];
-  direction?: string;
-  distance?: number;
-}
 
 interface RankingMapProps {
   center: { lat: number; lng: number };
@@ -173,20 +157,6 @@ const createBusinessIcon = (businessName?: string) => {
   });
 };
 
-// Process points to add directional info
-const processPointsWithDirections = (
-  points: ScanPoint[],
-  center: { lat: number; lng: number }
-): ScanPoint[] => {
-  return points.map(point => {
-    const info = getDirectionalInfo(center.lat, center.lng, point.lat, point.lng);
-    return {
-      ...point,
-      direction: info.direction,
-      distance: info.distanceKm,
-    };
-  });
-};
 
 export const RankingMap = ({
   center,
@@ -227,7 +197,7 @@ export const RankingMap = ({
   };
 
   return (
-    <div className="w-full h-[400px] rounded-xl overflow-hidden border border-border shadow-sm">
+    <div className="w-full h-[400px] rounded-xl overflow-hidden border border-border shadow-xs">
       <MapContainer
         center={[center.lat, center.lng]}
         zoom={getZoom()}
@@ -332,4 +302,4 @@ export const RankingMap = ({
 };
 
 // Export the helper for use in MapsRank.tsx
-export { processPointsWithDirections };
+export { processPointsWithDirections };  // re-export for compat

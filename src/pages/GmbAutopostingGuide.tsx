@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Zap, Clock, TrendingUp, Search, MessageSquareText, CalendarClock, BotIcon, BarChart3, CheckCircle2, ArrowRight, Globe, Target } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link } from "@/lib/router-compat";
 import { Helmet } from "react-helmet";
 import { BrandSparkle } from "@/components/BrandSparkle";
 
