@@ -62,6 +62,7 @@ import { Route as ShopSlugRouteImport } from './routes/shop/$slug'
 import { Route as ShopCheckoutRouteImport } from './routes/shop/checkout'
 import { Route as ApiBlogSlugRouteImport } from './routes/api/blog/$slug'
 import { Route as ApiPublicRankiAutopostRouteImport } from './routes/api/public/ranki-autopost'
+import { Route as ApiPublicHealthCloudRouteImport } from './routes/api/public/health/cloud'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -329,6 +330,11 @@ const ApiPublicRankiAutopostRoute = ApiPublicRankiAutopostRouteImport.update({
   path: '/api/public/ranki-autopost',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicHealthCloudRoute = ApiPublicHealthCloudRouteImport.update({
+  id: '/api/public/health/cloud',
+  path: '/api/public/health/cloud',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -384,6 +390,7 @@ export interface FileRoutesByFullPath {
   '/shop/': typeof ShopIndexRoute
   '/api/blog/$slug': typeof ApiBlogSlugRoute
   '/api/public/ranki-autopost': typeof ApiPublicRankiAutopostRoute
+  '/api/public/health/cloud': typeof ApiPublicHealthCloudRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -439,6 +446,7 @@ export interface FileRoutesByTo {
   '/shop': typeof ShopIndexRoute
   '/api/blog/$slug': typeof ApiBlogSlugRoute
   '/api/public/ranki-autopost': typeof ApiPublicRankiAutopostRoute
+  '/api/public/health/cloud': typeof ApiPublicHealthCloudRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -495,6 +503,7 @@ export interface FileRoutesById {
   '/shop/': typeof ShopIndexRoute
   '/api/blog/$slug': typeof ApiBlogSlugRoute
   '/api/public/ranki-autopost': typeof ApiPublicRankiAutopostRoute
+  '/api/public/health/cloud': typeof ApiPublicHealthCloudRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -552,6 +561,7 @@ export interface FileRouteTypes {
     | '/shop/'
     | '/api/blog/$slug'
     | '/api/public/ranki-autopost'
+    | '/api/public/health/cloud'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -607,6 +617,7 @@ export interface FileRouteTypes {
     | '/shop'
     | '/api/blog/$slug'
     | '/api/public/ranki-autopost'
+    | '/api/public/health/cloud'
   id:
     | '__root__'
     | '/'
@@ -662,6 +673,7 @@ export interface FileRouteTypes {
     | '/shop/'
     | '/api/blog/$slug'
     | '/api/public/ranki-autopost'
+    | '/api/public/health/cloud'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -718,6 +730,7 @@ export interface RootRouteChildren {
   ShopIndexRoute: typeof ShopIndexRoute
   ApiBlogSlugRoute: typeof ApiBlogSlugRoute
   ApiPublicRankiAutopostRoute: typeof ApiPublicRankiAutopostRoute
+  ApiPublicHealthCloudRoute: typeof ApiPublicHealthCloudRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1093,6 +1106,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicRankiAutopostRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/health/cloud': {
+      id: '/api/public/health/cloud'
+      path: '/api/public/health/cloud'
+      fullPath: '/api/public/health/cloud'
+      preLoaderRoute: typeof ApiPublicHealthCloudRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -1151,6 +1171,7 @@ const rootRouteChildren: RootRouteChildren = {
   ShopIndexRoute: ShopIndexRoute,
   ApiBlogSlugRoute: ApiBlogSlugRoute,
   ApiPublicRankiAutopostRoute: ApiPublicRankiAutopostRoute,
+  ApiPublicHealthCloudRoute: ApiPublicHealthCloudRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
