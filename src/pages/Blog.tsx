@@ -15,11 +15,10 @@ import {
   Loader2,
   Search,
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link } from "@/lib/router-compat";
 import { Helmet } from "react-helmet";
 import { useQuery } from "@tanstack/react-query";
-import { getPublishedRankiArticles } from "@/integrations/supabase/rankiBlogClient";
-import type { RankiArticle } from "@/integrations/supabase/rankiBlogClient";
+import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { enUS } from "date-fns/locale";
 import { seoArticles } from "@/data/seoArticles";
@@ -85,30 +84,39 @@ const staticArticles = [
   },
 ];
 
-type BlogProps = {
-  initialRankiArticles?: RankiArticle[];
-};
-
-const Blog = ({ initialRankiArticles = [] }: BlogProps) => {
+const Blog = () => {
   const { data: dynamicArticles, isLoading } = useQuery({
     queryKey: ["published-articles"],
     queryFn: async () => {
-      const rows = await getPublishedRankiArticles();
-      return rows.map((article) => ({
-        ...article,
-        body: article.content_html,
-        meta_description: article.excerpt,
-        author: "Google Review AI",
+      const [{ data, error }, { data: ranki }] = await Promise.all([
+        supabase
+          .from("published_articles")
+          .select("id, title, slug, body, meta_description, author, published_at, created_at")
+          .order("published_at", { ascending: false }),
+        supabase
+          .from("ranki_articles")
+          .select("id, title, slug, content_html, excerpt, published_at, created_at")
+          .eq("status", "published"),
+      ]);
+
+      if (error) throw error;
+      const mapped = (ranki || []).map((r) => ({
+        id: r.id,
+        title: r.title,
+        slug: r.slug,
+        body: r.content_html || "",
+        meta_description: r.excerpt,
+        author: "GoogleReviewAI",
+        published_at: r.published_at,
+        created_at: r.created_at,
       }));
+      const seen = new Set(mapped.map((m) => m.slug));
+      return [...mapped, ...(data || []).filter((a) => !seen.has(a.slug))].sort(
+        (a, b) => new Date(b.published_at ?? 0).getTime() - new Date(a.published_at ?? 0).getTime(),
+      );
     },
-    staleTime: 60_000,
+    staleTime: 0,
     refetchOnWindowFocus: true,
-    initialData: initialRankiArticles.map((article) => ({
-      ...article,
-      body: article.content_html,
-      meta_description: article.excerpt,
-      author: "Google Review AI",
-    })),
   });
 
   const calculateReadTime = (content: string) => {
@@ -219,8 +227,8 @@ const Blog = ({ initialRankiArticles = [] }: BlogProps) => {
                             <p className="text-sm text-muted-foreground mb-4 line-clamp-3">{article.meta_description || `${stripHtml(article.body).slice(0, 160)}…`}</p>
                             <div className="flex items-center justify-between text-xs text-muted-foreground">
                               <div className="flex items-center gap-3">
-                                <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{calculateReadTime(article.body)}</span>
-                                <span className="flex items-center gap-1"><Calendar className="w-3 h-3" />{article.published_at || article.created_at ? formatDate(article.published_at || article.created_at || "") : ""}</span>
+                                <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{calculateReadTime(article.body ?? "")}</span>
+                                <span className="flex items-center gap-1"><Calendar className="w-3 h-3" />{formatDate(article.published_at || article.created_at || "")}</span>
                               </div>
                               <ArrowRight className="w-4 h-4" />
                             </div>

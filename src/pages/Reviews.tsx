@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useMemo, useRef } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "@/lib/router-compat";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -101,12 +101,12 @@ const Reviews = () => {
   const [filterRating, setFilterRating] = useState<string>("all");
   const [filterStatus, setFilterStatus] = useState<string>(() => {
     // Initialize from URL params if present
-    const statusParam = new URLSearchParams(window.location.search).get("status");
+    const statusParam = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("status") : null;
     return statusParam || "all";
   });
   // Filter by specific review_id from URL (from notifications)
   const [filterReviewId, setFilterReviewId] = useState<string | null>(() => {
-    return new URLSearchParams(window.location.search).get("review_id");
+    return typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("review_id") : null;
   });
   const [currentPage, setCurrentPage] = useState(1);
   const [generatingId, setGeneratingId] = useState<number | null>(null);
@@ -652,7 +652,7 @@ const Reviews = () => {
                 className={`rounded-xl p-3 text-center transition-all bg-gradient-to-br ${stat.bgGradient} ${
                   filterStatus === stat.status 
                     ? "ring-2 ring-offset-2 ring-offset-background ring-primary/50 shadow-md" 
-                    : "hover:shadow-sm opacity-80 hover:opacity-100"
+                    : "hover:shadow-xs opacity-80 hover:opacity-100"
                 }`}
               >
                 <div className={`text-xl font-bold ${stat.textColor}`}>
@@ -792,7 +792,7 @@ const Reviews = () => {
         ) : (
           <div className="space-y-3">
             {paginatedReviews.map((review) => (
-              <div key={review.id} className="bg-card rounded-xl border border-border p-4 hover:shadow-sm transition-shadow">
+              <div key={review.id} className="bg-card rounded-xl border border-border p-4 hover:shadow-xs transition-shadow">
                 <div className="flex items-start gap-4">
                   {/* Avatar */}
                   <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold flex-shrink-0">

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "@/lib/router-compat";
 import { Button } from "./ui/button";
 import { MessageCircle, TrendingUp, Eye, ArrowRight, ChevronRight } from "lucide-react";
 import { BrandSparkle } from "@/components/BrandSparkle";

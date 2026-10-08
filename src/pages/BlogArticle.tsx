@@ -1,7 +1,6 @@
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link } from "@/lib/router-compat";
 import { useQuery } from "@tanstack/react-query";
-import { getPublishedRankiArticle } from "@/integrations/supabase/rankiBlogClient";
-import type { RankiArticle } from "@/integrations/supabase/rankiBlogClient";
+import { supabase } from "@/integrations/supabase/client";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Badge } from "@/components/ui/badge";
@@ -17,27 +16,45 @@ const stripHtml = (html: string) =>
 const headingId = (heading: string) =>
   heading.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 
-type BlogArticleProps = {
-  initialRankiArticle?: RankiArticle | null;
-};
-
-const BlogArticle = ({ initialRankiArticle = null }: BlogArticleProps) => {
+const BlogArticle = () => {
   const { slug } = useParams<{ slug: string }>();
-  const safeSlug = slug ?? "";
-  const staticArticle = getSeoArticleBySlug(safeSlug);
-
-  const mapRankiArticle = (article: RankiArticle | null) => article ? ({
-    ...article,
-    body: article.content_html,
-    meta_description: article.excerpt,
-    author: "Google Review AI",
-  }) : null;
+  const staticArticle = getSeoArticleBySlug(slug);
 
   const { data: dynamicArticle, isLoading, error } = useQuery({
-    queryKey: ["published-article", safeSlug],
-    queryFn: async () => mapRankiArticle(await getPublishedRankiArticle(safeSlug)),
-    enabled: !!safeSlug && !staticArticle,
-    initialData: !staticArticle ? mapRankiArticle(initialRankiArticle) : undefined,
+    queryKey: ["published-article", slug],
+    queryFn: async () => {
+      const { data: ranki } = await supabase
+        .from("ranki_articles")
+        .select("*")
+        .eq("slug", slug!)
+        .eq("status", "published")
+        .maybeSingle();
+      if (ranki) {
+        const html = ranki.content_html || "";
+        const hasH1 = /<h1[\s>]/i.test(html);
+        return {
+          id: ranki.id,
+          slug: ranki.slug,
+          title: ranki.title,
+          body: html,
+          meta_description: ranki.excerpt,
+          author: "GoogleReviewAI",
+          published_at: ranki.published_at,
+          updated_at: ranki.updated_at,
+          cover_url: ranki.cover_url,
+          body_has_h1: hasH1,
+        } as any;
+      }
+      const { data, error } = await supabase
+        .from("published_articles")
+        .select("*")
+        .eq("slug", slug!)
+        .single();
+
+      if (error) throw error;
+      return data as any;
+    },
+    enabled: !!slug && !staticArticle,
   });
 
   if (staticArticle) {
@@ -293,18 +310,13 @@ const BlogArticle = ({ initialRankiArticle = null }: BlogArticleProps) => {
     );
   }
 
-  const publishedDate = new Date(dynamicArticle.published_at ?? dynamicArticle.created_at ?? 0).toLocaleDateString("en-US", {
+  const publishedDate = new Date(dynamicArticle.published_at ?? Date.now()).toLocaleDateString("en-US", {
     day: "numeric",
     month: "long",
     year: "numeric",
   });
-  const rawHtml = dynamicArticle.body || "";
-  const hasH1 = /<h1(?:\s[^>]*)?>[\s\S]*?<\/h1>/i.test(rawHtml);
-  const escapeHtml = (value: string) =>
-    value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
-  const articleHtml = hasH1 ? rawHtml : `<h1>${escapeHtml(dynamicArticle.title)}</h1>${rawHtml}`;
-  const readingTime = Math.max(1, Math.ceil(stripHtml(articleHtml).split(/\s+/).length / 200));
-  const dynamicDescription = dynamicArticle.meta_description || `${stripHtml(articleHtml).slice(0, 157)}…`;
+  const readingTime = Math.ceil(stripHtml(dynamicArticle.body).split(/\s+/).length / 200);
+  const dynamicDescription = dynamicArticle.meta_description || `${stripHtml(dynamicArticle.body).slice(0, 157)}…`;
   const dynamicCanonical = `https://googlereviewai.com/blog/${dynamicArticle.slug}`;
 
   return (
@@ -339,8 +351,11 @@ const BlogArticle = ({ initialRankiArticle = null }: BlogArticleProps) => {
           <div className="container mx-auto px-4 py-6 max-w-4xl">
             <Link to="/blog" className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors"><ArrowLeft className="w-4 h-4 mr-2" />Back to blog</Link>
           </div>
-          <header className="container mx-auto px-4 pb-5 max-w-4xl">
+          <header className="container mx-auto px-4 pb-8 max-w-4xl">
             <Badge className="mb-4">Article</Badge>
+            {!dynamicArticle.body_has_h1 && (
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 leading-tight">{dynamicArticle.title}</h1>
+            )}
             <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
               <span className="flex items-center gap-1"><User className="w-4 h-4" />{dynamicArticle.author || "Google Review AI Team"}</span>
               <span className="flex items-center gap-1"><Calendar className="w-4 h-4" />{publishedDate}</span>
@@ -348,7 +363,7 @@ const BlogArticle = ({ initialRankiArticle = null }: BlogArticleProps) => {
             </div>
           </header>
           <article className="container mx-auto px-4 pb-16 max-w-3xl">
-            <div className="magazine-article prose prose-lg dark:prose-invert max-w-none [&>h1:first-child]:text-3xl sm:[&>h1:first-child]:text-4xl lg:[&>h1:first-child]:text-5xl [&>h1:first-child]:font-bold [&>h1:first-child]:leading-tight [&>h1:first-child]:mb-8" dangerouslySetInnerHTML={{ __html: articleHtml }} />
+            <div className="magazine-article prose prose-lg dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: dynamicArticle.body }} />
           </article>
           <section className="py-12 bg-muted/30">
             <div className="container mx-auto px-4 text-center max-w-2xl">

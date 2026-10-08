@@ -1,5 +1,5 @@
 import { ReactNode, useEffect, useState } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "@/lib/router-compat";
 import {
   Sidebar,
   SidebarContent,
@@ -220,7 +220,7 @@ export const DashboardLayout = ({ children, title }: DashboardLayoutProps) => {
           )}
           {!title && (
             <div className="hidden md:flex sticky top-14 z-30 px-3 py-1 items-center">
-              <SidebarTrigger className="text-foreground bg-card/90 backdrop-blur border border-border rounded-lg shadow-sm" />
+              <SidebarTrigger className="text-foreground bg-card/90 backdrop-blur border border-border rounded-lg shadow-xs" />
             </div>
           )}
 

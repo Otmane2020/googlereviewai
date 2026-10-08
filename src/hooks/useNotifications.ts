@@ -7,7 +7,7 @@ export interface Notification {
   type: string;
   title: string;
   message: string;
-  read: boolean;
+  read: boolean | null;
   review_id: number | null;
   created_at: string;
 }
@@ -30,12 +30,8 @@ export const useNotifications = () => {
         .limit(20);
       
       if (data) {
-        const normalized = data.map((notification) => ({
-          ...notification,
-          read: notification.read ?? false,
-        }));
-        setNotifications(normalized);
-        setUnreadCount(normalized.filter((n) => !n.read).length);
+        setNotifications(data);
+        setUnreadCount(data.filter((n) => !n.read).length);
       }
     };
 

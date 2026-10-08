@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { Helmet } from "react-helmet";
-import { useNavigate, Link, useSearchParams } from "react-router-dom";
+import { useNavigate, Link, useSearchParams } from "@/lib/router-compat";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useSyncGoogleBusinesses } from "@/hooks/useSyncGoogleBusinesses";
@@ -825,7 +825,7 @@ const Dashboard = () => {
           className="group relative block overflow-hidden rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 via-white to-emerald-50/40 hover:shadow-lg transition-all"
         >
           <div className="flex items-center gap-4 p-4">
-            <div className="w-20 h-20 rounded-xl bg-white border border-emerald-100 overflow-hidden flex-shrink-0 shadow-sm">
+            <div className="w-20 h-20 rounded-xl bg-white border border-emerald-100 overflow-hidden flex-shrink-0 shadow-xs">
               <img src={plaqueFront} alt="Plaque NFC + QR Google Avis" className="w-full h-full object-contain" />
             </div>
             <div className="flex-1 min-w-0">

@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "@/lib/router-compat";
 import { UpgradeDialog } from "./UpgradeDialog";
 import { Button } from "./ui/button";
 import { Bell, Plus, LogOut, User as UserIcon } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link } from "@/lib/router-compat";
 import { RankiLogo } from "./StarlinkoLogo";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -124,7 +124,7 @@ export const DashboardHeader = ({ className }: { className?: string } = {}) => {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-sm">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-xs">
                   <span className="text-xs font-bold text-primary-foreground">
                     {profile?.full_name?.charAt(0).toUpperCase() ||
                       user?.email?.charAt(0).toUpperCase() ||
