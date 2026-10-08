@@ -47,6 +47,12 @@ function isH3SwallowedErrorBody(body: string): boolean {
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
+      // Bypass TanStack route generation for uptime checks even if its
+      // generated manifest is temporarily out of sync after publishing.
+      if (request.method === "GET" && new URL(request.url).pathname === "/api/public/health/cloud") {
+        const { getCloudHealthResponse } = await import("./lib/cloud-health.server");
+        return getCloudHealthResponse();
+      }
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
       return await normalizeCatastrophicSsrResponse(response);
