@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { callOpenRouterWithFallback } from "../_shared/openrouter.ts";
+import { sendFreeUpgradeEmail } from "../_shared/free-upgrade.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -75,11 +76,16 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    const { userId } = await req.json();
-
-    if (!userId) {
-      throw new Error("Missing userId");
+    // Require an authenticated account; ignore userId supplied by clients.
+    const authHeader = req.headers.get("authorization") || "";
+    const token = authHeader.replace(/^Bearer\s+/i, "");
+    const { data: authData, error: authError } = await supabase.auth.getUser(token);
+    if (!token || token === authHeader || authError || !authData?.user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
+    const userId = authData.user.id;
 
     console.log(`[OldReviewsBatch] Starting batch processing for user ${userId}`);
 
@@ -128,16 +134,12 @@ serve(async (req) => {
       );
     }
 
-    // Check if user has enough credits
-    if (profile.credits < oldReviews.length) {
-      return new Response(
-        JSON.stringify({ 
-          error: "Insufficient credits", 
-          required: oldReviews.length, 
-          available: profile.credits 
-        }),
-        { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+    if (profile.credits < 1) {
+      await sendFreeUpgradeEmail(supabase, userId, supabaseUrl, supabaseServiceKey);
+      return new Response(JSON.stringify({
+        error: "Insufficient credits", code: "UPGRADE_REQUIRED",
+        upgrade_required: true, available: 0,
+      }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
     // Get business name
@@ -152,47 +154,47 @@ serve(async (req) => {
 
     let processed = 0;
     let creditsUsed = 0;
+    let remaining = profile.credits;
 
-    // Process reviews in batches of 5 to avoid timeouts
+    // Reply to as many reviews as the current quota permits, never
+    // decrementing from a stale browser-side balance.
     for (const review of oldReviews) {
-      if (profile.credits - creditsUsed < 1) break;
+      if (remaining < 1) break;
 
       const aiResponse = await generateAIResponse(review, aiSettings, businessName);
-
       if (!aiResponse) continue;
 
-      // Update review with AI response
-      await supabase
-        .from("reviews")
-        .update({ ai_response: aiResponse })
-        .eq("id", review.id);
-
+      const { data: newCredits, error: consumeError } = await supabase.rpc(
+        "consume_review_ai_credit", {
+          p_user_id: userId,
+          p_review_id: review.id,
+          p_response: aiResponse,
+          p_description: `Réponse IA (ancien avis) pour ${review.author}`,
+        },
+      );
+      if (consumeError) {
+        console.error("[OldReviewsBatch] Failed to debit:", consumeError);
+        continue;
+      }
+      if (typeof newCredits !== "number" || newCredits < 0) {
+        remaining = 0;
+        break;
+      }
+      remaining = newCredits;
       creditsUsed++;
       processed++;
-
-      // Log credit usage
-      await supabase.from("credits_history").insert({
-        user_id: userId,
-        amount: -1,
-        type: "usage",
-        description: `Réponse IA (ancien avis) pour ${review.author}`,
-      });
     }
 
-    // Deduct all used credits at once
     if (creditsUsed > 0) {
-      await supabase
-        .from("profiles")
-        .update({ credits: profile.credits - creditsUsed })
-        .eq("id", userId);
-
-      // Create notification
       await supabase.from("notifications").insert({
         user_id: userId,
         type: "batch_complete",
         title: "Anciens avis traités",
         message: `${processed} réponses IA générées pour vos anciens avis.`,
       });
+    }
+    if (remaining === 0) {
+      await sendFreeUpgradeEmail(supabase, userId, supabaseUrl, supabaseServiceKey);
     }
 
     console.log(`[OldReviewsBatch] Completed: ${processed} reviews processed, ${creditsUsed} credits used`);
@@ -202,7 +204,7 @@ serve(async (req) => {
         success: true, 
         processed, 
         creditsUsed,
-        remaining: profile.credits - creditsUsed 
+        remaining 
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
