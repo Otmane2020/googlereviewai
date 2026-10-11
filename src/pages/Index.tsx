@@ -43,8 +43,12 @@ const Index = () => {
     answer: f.a,
   }));
 
-  const title = t("landing.title");
-  const description = t("landing.description");
+  const title = i18n.language?.startsWith("fr")
+    ? "Réponse automatique aux avis Google & GMB IA | GoogleReviewAI"
+    : "Google Review Auto Reply & GMB AI | GoogleReviewAI";
+  const description = i18n.language?.startsWith("fr")
+    ? "Automatisez les réponses aux avis Google Business Profile (GMB) grâce à l’IA. Répondez aux avis clients, gagnez du temps et gérez votre e-réputation."
+    : "Automate Google Business Profile (GMB) review replies with AI. Respond to customer reviews automatically, save time and manage your Google reputation.";
   const locale = i18n.language?.startsWith("fr") ? "fr_FR" : "en_US";
 
   const homepageSchema = {
