@@ -1,3 +1,5 @@
+import { resolveEmailLang } from "./email-lang.ts";
+
 /**
  * Send the one-time free-tier upgrade email on reaching 0 credits.
  * A database-level claim prevents duplicate sends across manual/cron workers.
@@ -17,6 +19,8 @@ export async function sendFreeUpgradeEmail(
 
   if (profileError || !profile?.email || profile.credits !== 0) return;
   if (profile.plan_name && !["", "free"].includes(profile.plan_name.trim().toLowerCase())) return;
+
+  const lang = await resolveEmailLang(profile.email, null, userId);
 
   const { data: claimed, error: claimError } = await supabase
     .rpc("claim_free_upgrade_email", { p_user_id: userId });
@@ -38,7 +42,7 @@ export async function sendFreeUpgradeEmail(
         email: profile.email,
         name: profile.full_name || "",
         type: "free_limit_upgrade",
-        lang: profile.preferred_language === "en" ? "en" : "fr",
+        lang,
         user_id: userId,
       }),
     });
@@ -50,8 +54,8 @@ export async function sendFreeUpgradeEmail(
     await supabase.from("notifications").insert({
       user_id: userId,
       type: "free_credits_exhausted",
-      title: profile.preferred_language === "en" ? "Your free AI replies are used" : "Vos 3 réponses IA gratuites sont utilisées",
-      message: profile.preferred_language === "en"
+      title: lang === "en" ? "Your free AI replies are used" : "Vos 3 réponses IA gratuites sont utilisées",
+      message: lang === "en"
         ? "Choose a plan to continue generating AI replies."
         : "Choisissez un abonnement pour continuer à générer des réponses IA.",
     });
