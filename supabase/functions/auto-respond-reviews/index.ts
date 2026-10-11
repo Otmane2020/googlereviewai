@@ -3,6 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getGoogleAccessToken } from "../_shared/googleAuth.ts";
 import { callOpenRouterWithFallback } from "../_shared/openrouter.ts";
 import { sendFreeUpgradeEmail } from "../_shared/free-upgrade.ts";
+import { resolveEmailLang } from "../_shared/email-lang.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -27,7 +28,8 @@ async function generateAIResponse(
   review: any,
   aiSettings: any,
   businessName: string,
-  brandVoice?: BrandVoiceProfile | null
+  brandVoice?: BrandVoiceProfile | null,
+  responseLanguage: "fr" | "en" = "fr",
 ): Promise<string | null> {
   const OPENROUTER_API_KEY = Deno.env.get("OPENROUTER_API_KEY");
   if (!OPENROUTER_API_KEY) {
@@ -81,7 +83,7 @@ IMPORTANT: Imite exactement ce style pour que la réponse semble écrite par la 
     : (brandVoice?.signature_style || "");
 
   // Build system prompt
-  let systemPrompt = `You are an AI assistant that generates professional responses to customer reviews in French.`;
+  let systemPrompt = `You are an AI assistant that generates professional responses to customer reviews. Write the entire reply in ${responseLanguage === "en" ? "English" : "French"}, irrespective of the language of the review text. Do not switch languages.`;
   
   if (brandVoice && brandVoice.tone) {
     // Use brand voice instead of generic settings
@@ -318,22 +320,23 @@ serve(async (req) => {
 
         console.log(`[AutoRespond] Found ${reviews.length} reviews to process (${newReviews?.length || 0} new, ${editedReviews.length} edited) for user ${userSettings.user_id}`);
 
-        // Get business with brand voice profile
-        const { data: business } = await supabase
+        // Fetch all businesses, and resolve the right one for each review.
+        // Previously we used the first business and always prompted in French.
+        const { data: connectedBusinesses } = await supabase
           .from("businesses")
-          .select("name, ai_response_model")
+          .select("id, name, google_place_id, gmb_language, ai_response_model")
           .eq("user_id", userSettings.user_id)
-          .limit(1)
-          .single();
-
-        const businessName = business?.name || "Notre équipe";
-        const brandVoice = business?.ai_response_model as BrandVoiceProfile | null;
-        
-        if (brandVoice?.tone) {
-          console.log(`[AutoRespond] Using brand voice profile for user ${userSettings.user_id}: ${brandVoice.tone}`);
-        }
+          .eq("is_active", true);
 
         for (const review of reviews) {
+          const googleLocationId = String(review.location_id || "").split("/").pop();
+          const business = connectedBusinesses?.find(b => b.google_place_id === googleLocationId)
+            || connectedBusinesses?.[0];
+          const businessName = business?.name || "Our team";
+          const brandVoice = (business?.ai_response_model || null) as BrandVoiceProfile | null;
+          const responseLanguage = await resolveEmailLang(
+            profile.email, null, userSettings.user_id, business?.id,
+          );
           if (profile.credits < 1) break;
 
           // Check if review is old enough based on auto_reply_delay
@@ -358,7 +361,8 @@ serve(async (req) => {
             review,
             userSettings,
             businessName,
-            brandVoice
+            brandVoice,
+            responseLanguage
           );
 
           if (!aiResponse) continue;
