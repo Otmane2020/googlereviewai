@@ -1,7 +1,7 @@
 User-agent: *
 Allow: /
 
-# Authentication, account and payment flows
+# Private sign-in, account and checkout pages
 Disallow: /auth
 Disallow: /reset-password
 Disallow: /select-plan
@@ -14,7 +14,7 @@ Disallow: /install
 Disallow: /unsubscribe
 Disallow: /PW
 
-# Private application areas
+# Authenticated app sections (public marketing URLs remain crawlable)
 Disallow: /dashboard
 Disallow: /calendar
 Disallow: /reviews
@@ -26,48 +26,18 @@ Disallow: /seo-autopost
 Disallow: /aeo-rank
 Disallow: /maps-rank
 Disallow: /gmb-post
-Disallow: /boutique
 Disallow: /commandes
 Disallow: /prospection-stickers
 Disallow: /shop/checkout
 
 # Administration
 Disallow: /admin
-Disallow: /admin/
-Disallow: /admin/orders
 
-# Campaign-only pages should not compete with core landing pages
+# Paid campaign pages: retain one canonical organic landing page
 Disallow: /landing
 Disallow: /lp/
 Disallow: /mobile-ads
 
+# Includes public Google My Business / GMB review reply pages and articles.
+# The wildcard rules apply consistently to Google, Bing and AI crawlers.
 Sitemap: https://googlereviewai.com/sitemap.xml
-
-# AI discovery bots may crawl the public marketing and editorial content.
-User-agent: GPTBot
-Allow: /
-Disallow: /dashboard
-Disallow: /settings
-Disallow: /admin
-Disallow: /businesses
-
-User-agent: OAI-SearchBot
-Allow: /
-Disallow: /dashboard
-Disallow: /settings
-Disallow: /admin
-Disallow: /businesses
-
-User-agent: ClaudeBot
-Allow: /
-Disallow: /dashboard
-Disallow: /settings
-Disallow: /admin
-Disallow: /businesses
-
-User-agent: PerplexityBot
-Allow: /
-Disallow: /dashboard
-Disallow: /settings
-Disallow: /admin
-Disallow: /businesses
