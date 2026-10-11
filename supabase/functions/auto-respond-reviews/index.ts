@@ -248,7 +248,18 @@ serve(async (req) => {
         if (!profile || profile.credits < 1) {
           console.log("[AutoRespond] User has no AI credits:", userSettings.user_id);
           if (profile) {
-            await sendFreeUpgradeEmail(supabase, userSettings.user_id, supabaseUrl, supabaseServiceKey);
+            // Do not email all existing exhausted accounts from a routine cron.
+            // Only send when an actual unanswered review needs the AI.
+            const { count: pendingCount } = await supabase
+              .from("reviews")
+              .select("id", { count: "exact", head: true })
+              .eq("user_id", userSettings.user_id)
+              .is("ai_response", null)
+              .is("google_reply", null)
+              .eq("replied", false);
+            if (pendingCount && pendingCount > 0) {
+              await sendFreeUpgradeEmail(supabase, userSettings.user_id, supabaseUrl, supabaseServiceKey);
+            }
           }
           continue;
         }
