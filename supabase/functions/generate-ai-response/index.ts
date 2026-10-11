@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { callOpenRouterWithFallback } from "../_shared/openrouter.ts";
+import { sendFreeUpgradeEmail } from "../_shared/free-upgrade.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -90,8 +91,7 @@ serve(async (req) => {
   }
 
   try {
-    const { reviewId, userId, businessId, language: requestLanguage } = await req.json();
-    console.log("Generating AI response for review:", reviewId, "user:", userId);
+    const { reviewId, businessId, language: requestLanguage } = await req.json();
 
     const OPENROUTER_API_KEY = Deno.env.get("OPENROUTER_API_KEY");
     if (!OPENROUTER_API_KEY) {
@@ -101,6 +101,23 @@ serve(async (req) => {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Derive userId exclusively from a validated session, not the browser body.
+    const authHeader = req.headers.get("authorization") || "";
+    const token = authHeader.replace(/^Bearer\s+/i, "");
+    if (!token || token === authHeader) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    const { data: authData, error: authError } = await supabase.auth.getUser(token);
+    if (authError || !authData?.user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    const userId = authData.user.id;
+    console.log("Generating AI response for review:", reviewId, "user:", userId);
 
     // Parallel fetch: profile, review, and AI settings
     const [profileResult, reviewResult, aiSettingsResult] = await Promise.all([
@@ -123,10 +140,12 @@ serve(async (req) => {
     const t = translations[lang as keyof typeof translations] || translations.fr;
 
     if (!profile || profile.credits < 1) {
+      if (profile) await sendFreeUpgradeEmail(supabase, userId, supabaseUrl, supabaseKey);
       return new Response(
-        JSON.stringify({ 
-          error: t.insufficientCredits, 
-          credits: profile?.credits || 0 
+        JSON.stringify({
+          error: t.insufficientCredits,
+          code: "UPGRADE_REQUIRED", upgrade_required: true,
+          credits: profile?.credits || 0
         }),
         { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
@@ -277,26 +296,33 @@ ${responseT.important}`;
       aiResponse = aiResponse.slice(1, -1);
     }
 
-    // Parallel updates: deduct credit, log history, update review, create notification
-    const newCredits = profile.credits - 1;
-    
-    await Promise.all([
-      supabase.from("profiles").update({ credits: newCredits }).eq("id", userId),
-      supabase.from("credits_history").insert({
-        user_id: userId,
-        amount: -1,
-        type: t.usage,
-        description: `${t.aiResponseFor} ${review.author}`,
-      }),
-      supabase.from("reviews").update({ ai_response: aiResponse }).eq("id", reviewId),
-      supabase.from("notifications").insert({
-        user_id: userId,
-        type: "ai_response",
-        title: t.responseGenerated,
-        message: `${t.responseFor} ${review.author}`,
-        review_id: reviewId,
-      }),
-    ]);
+    // A single DB transaction verifies review ownership and atomically
+    // consumes a credit; concurrent requests cannot overspend the balance.
+    const { data: newCredits, error: debitError } = await supabase.rpc("consume_review_ai_credit", {
+      p_user_id: userId,
+      p_review_id: reviewId,
+      p_response: aiResponse,
+      p_description: `${t.aiResponseFor} ${review.author}`,
+    });
+    if (debitError) throw debitError;
+    if (typeof newCredits !== "number" || newCredits < 0) {
+      await sendFreeUpgradeEmail(supabase, userId, supabaseUrl, supabaseKey);
+      return new Response(JSON.stringify({
+        error: t.insufficientCredits, code: "UPGRADE_REQUIRED",
+        upgrade_required: true, credits_remaining: 0,
+      }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
+    await supabase.from("notifications").insert({
+      user_id: userId,
+      type: "ai_response",
+      title: t.responseGenerated,
+      message: `${t.responseFor} ${review.author}`,
+      review_id: reviewId,
+    });
+    if (newCredits === 0) {
+      await sendFreeUpgradeEmail(supabase, userId, supabaseUrl, supabaseKey);
+    }
 
     return new Response(JSON.stringify({ 
       success: true, 
