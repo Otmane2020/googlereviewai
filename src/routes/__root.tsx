@@ -40,11 +40,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         content:
           "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover",
       },
-      { title: "Google Review AI – AI Review Replies & Local SEO" },
+      { title: "Google Review Auto Reply & GMB AI | GoogleReviewAI" },
       {
         name: "description",
         content:
-          "Google Review AI automatically replies to Google reviews, tracks local rankings and improves your visibility across Google, ChatGPT, Gemini and Perplexity.",
+          "Automate Google Business Profile (GMB) review replies with AI. Respond to customer reviews automatically, save time and manage your Google reputation.",
       },
       { name: "author", content: "Google Review AI" },
       { name: "google-site-verification", content: "07-mTOgobA9QM8vgRLYvmLuHBrEU8mVCDhG0HfNEbmw" },
@@ -65,11 +65,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "msapplication-TileColor", content: "#4285F4" },
       { name: "msapplication-tap-highlight", content: "no" },
       { property: "og:type", content: "website" },
-      { property: "og:title", content: "Google Review AI – AI Review Replies & Local SEO" },
+      { property: "og:title", content: "Google Review Auto Reply & GMB AI | GoogleReviewAI" },
       {
         property: "og:description",
         content:
-          "Automatically reply to Google reviews, improve local SEO and track your business visibility across Google and leading AI search engines.",
+          "Automate Google Business Profile (GMB) review replies with AI. Respond to customer reviews automatically, save time and manage your Google reputation.",
       },
       { property: "og:image", content: "https://googlereviewai.com/og-image.png" },
       { property: "og:image:width", content: "1200" },
@@ -77,11 +77,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:locale", content: "en_US" },
       { property: "og:site_name", content: "Google Review AI" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "Google Review AI – AI Review Replies & Local SEO" },
+      { name: "twitter:title", content: "Google Review Auto Reply & GMB AI | GoogleReviewAI" },
       {
         name: "twitter:description",
         content:
-          "Automatically reply to Google reviews, improve local SEO and track your business visibility across Google and leading AI search engines.",
+          "Automate Google Business Profile (GMB) review replies with AI. Respond to customer reviews automatically, save time and manage your Google reputation.",
       },
       { name: "twitter:image", content: "https://googlereviewai.com/og-image.png" },
     ],
