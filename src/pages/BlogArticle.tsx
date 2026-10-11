@@ -125,12 +125,19 @@ const BlogArticle = () => {
     return (
       <>
         <Helmet>
-          <html lang="en" />
+          <html lang={staticArticle.slug.endsWith("-fr") ? "fr" : "en"} />
           <title>{staticArticle.title} | Google Review AI</title>
           <meta name="description" content={staticArticle.description} />
           <meta name="keywords" content={[staticArticle.targetKeyword, ...staticArticle.keywords].join(", ")} />
           <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large" />
           <link rel="canonical" href={canonical} />
+          {staticArticle.category.includes("GEO &") && (
+            <>
+              <link rel="alternate" hrefLang="en" href={`https://googlereviewai.com/blog/${staticArticle.slug.replace(/-fr$/, "")}`} />
+              <link rel="alternate" hrefLang="fr" href={`https://googlereviewai.com/blog/${staticArticle.slug.replace(/-fr$/, "")}-fr`} />
+              <link rel="alternate" hrefLang="x-default" href={`https://googlereviewai.com/blog/${staticArticle.slug.replace(/-fr$/, "")}`} />
+            </>
+          )
           <meta property="og:type" content="article" />
           <meta property="og:title" content={staticArticle.title} />
           <meta property="og:description" content={staticArticle.description} />
