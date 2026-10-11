@@ -41,6 +41,7 @@ interface UpgradeDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   currentPlan?: string;
+  exhausted?: boolean;
 }
 
 type Billing = "monthly" | "yearly";
@@ -101,7 +102,7 @@ const normalizePlan = (plan?: string): "starter" | "pro" | "business" | null => 
   return null;
 };
 
-export const UpgradeDialog = ({ open, onOpenChange, currentPlan }: UpgradeDialogProps) => {
+export const UpgradeDialog = ({ open, onOpenChange, currentPlan, exhausted = false }: UpgradeDialogProps) => {
   const { i18n } = useTranslation();
   const isEN = i18n.language?.toLowerCase().startsWith("en");
   const [billing, setBilling] = useState<Billing>("monthly");
@@ -168,11 +169,11 @@ export const UpgradeDialog = ({ open, onOpenChange, currentPlan }: UpgradeDialog
           </div>
           <DialogHeader>
             <DialogTitle className="text-xl font-bold text-foreground">
-              {isEN ? "Choose your plan" : "Choisissez votre plan"}
+              {exhausted ? (isEN ? "Your 3 free AI replies are used" : "Vos 3 réponses IA gratuites sont utilisées") : (isEN ? "Choose your plan" : "Choisissez votre plan")}
             </DialogTitle>
           </DialogHeader>
           <p className="text-sm text-muted-foreground mt-2">
-            {isEN ? "7-day free trial. Cancel anytime." : "Essai gratuit 7 jours. Résiliable à tout moment."}
+            {exhausted ? (isEN ? "Upgrade to keep answering Google reviews with AI." : "Passez à un abonnement pour continuer à répondre aux avis Google avec l’IA.") : (isEN ? "7-day free trial. Cancel anytime." : "Essai gratuit 7 jours. Résiliable à tout moment.")}
           </p>
 
           {/* Billing toggle */}
