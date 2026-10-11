@@ -1,0 +1,86 @@
+name: Deploy Ranki.ai article integration
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "supabase/migrations/*ranki_articles.sql"
+      - "supabase/functions/ranki-autopost/**"
+      - "supabase/config.toml"
+      - ".github/workflows/deploy-ranki-autopost.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-ranki-autopost
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Migrate and deploy ONLY ranki-autopost
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      SUPABASE_PROJECT_REF: hlruprayqfnatnldrski
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify target and deployment access
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$SUPABASE_ACCESS_TOKEN" || { echo "::error::SUPABASE_ACCESS_TOKEN GitHub Actions secret is not configured. Deployment cannot run."; exit 1; }
+          grep -Fx 'project_id = "hlruprayqfnatnldrski"' supabase/config.toml
+          grep -A1 '^  \[functions.ranki-autopost\]' supabase/config.toml | grep -q 'verify_jwt = false'
+
+      - name: Apply only the Ranki articles SQL migration
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import os, json, urllib.request, urllib.error
+          ref = os.environ["SUPABASE_PROJECT_REF"]
+          token = os.environ["SUPABASE_ACCESS_TOKEN"]
+          query = open("supabase/migrations/20261011103000_ranki_articles.sql", encoding="utf-8").read()
+          req = urllib.request.Request(
+              f"https://api.supabase.com/v1/projects/{ref}/database/query",
+              data=json.dumps({"query": query}).encode(),
+              headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
+              method="POST",
+          )
+          try:
+              with urllib.request.urlopen(req, timeout=90) as response:
+                  print("Ranki SQL migration applied; HTTP", response.status)
+          except urllib.error.HTTPError as exc:
+              print("::error::Ranki migration failed: HTTP", exc.code)
+              raise SystemExit(1)
+          PY
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Deploy one Edge Function (JWT disabled)
+        shell: bash
+        run: |
+          set -euo pipefail
+          supabase functions deploy ranki-autopost --project-ref "$SUPABASE_PROJECT_REF" --no-verify-jwt
+
+      - name: Verify the published test endpoint
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json, os, urllib.request
+          ref = os.environ["SUPABASE_PROJECT_REF"]
+          url = f"https://{ref}.supabase.co/functions/v1/ranki-autopost"
+          req = urllib.request.Request(
+              url, data=b'{"type":"ranki.test"}',
+              headers={"Content-Type":"application/json"}, method="POST"
+          )
+          with urllib.request.urlopen(req, timeout=30) as response:
+              body = json.load(response)
+              assert response.status == 200 and body.get("ok") is True, body
+          print("Ranki Edge Function smoke test OK:", url)
+          PY
