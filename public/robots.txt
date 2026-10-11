@@ -30,6 +30,9 @@ Disallow: /commandes
 Disallow: /prospection-stickers
 Disallow: /shop/checkout
 
+# Non-indexable endpoints (not public website pages)
+Disallow: /api/
+
 # Administration
 Disallow: /admin
 
@@ -38,6 +41,6 @@ Disallow: /landing
 Disallow: /lp/
 Disallow: /mobile-ads
 
-# Includes public Google My Business / GMB review reply pages and articles.
-# The wildcard rules apply consistently to Google, Bing and AI crawlers.
+# Public marketing, blog, and Google My Business / GMB review reply pages
+# remain crawlable via Allow: / above. No separate bot groups override exclusions.
 Sitemap: https://googlereviewai.com/sitemap.xml
