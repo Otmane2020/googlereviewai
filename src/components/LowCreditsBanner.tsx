@@ -54,9 +54,9 @@ export const LowCreditsBanner = ({ credits, pendingReviews = 0, currentPlan }: L
                 ? (pendingReviews > 0 
                     ? `${pendingReviews} review${pendingReviews !== 1 ? "s" : ""} can't receive an AI reply.`
                     : "Automatic AI responses are paused.")
-                : `You have ${credits} credit${credits !== 1 ? "s" : ""} left. Top up or upgrade to the Daily plan.`
+                : `You have ${credits} credit${credits !== 1 ? "s" : ""} left. Top up or choose a plan.`
               }
-              {isExhausted && " Top up or upgrade to the Daily plan ($9.99/mo)."}
+              {isExhausted && " Choose a plan to continue."}
             </p>
             
             {/* Action buttons */}
