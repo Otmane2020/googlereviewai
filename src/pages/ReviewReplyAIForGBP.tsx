@@ -13,14 +13,14 @@ const ReviewReplyAIForGBP = () => {
     <div className="min-h-screen bg-background text-foreground">
       <Helmet>
         <html lang="en" />
-        <title>Review Reply AI for Google Business Profile™ | GoogleReviewAI</title>
+        <title>GMB Review Auto Reply for Google Business Profile | GoogleReviewAI</title>
         <meta
           name="description"
-          content="Review Reply AI for Google Business Profile™ helps businesses generate personalized replies to Google reviews in seconds with a Chrome extension."
+          content="GMB review auto reply with AI for Google Business Profile. Generate personalized Google review responses in seconds using the GoogleReviewAI Chrome extension."
         />
         <meta
           name="keywords"
-          content="review reply AI, Google Business Profile review replies, AI Google review response, Chrome extension for Google reviews"
+          content="GMB auto reply, Google Business Review Auto Reply, Google Business Profile review replies, AI Google review response, Chrome extension for Google reviews"
         />
         <link
           rel="canonical"
@@ -29,11 +29,11 @@ const ReviewReplyAIForGBP = () => {
         <meta name="robots" content="index, follow, max-image-preview:large" />
         <meta
           property="og:title"
-          content="Review Reply AI for Google Business Profile™"
+          content="GMB Review Auto Reply for Google Business Profile | GoogleReviewAI"
         />
         <meta
           property="og:description"
-          content="Generate thoughtful, personalized replies to Google Business Profile reviews in seconds."
+          content="Generate personalized Google Business Profile (GMB) review replies in seconds with AI."
         />
         <meta
           property="og:url"
