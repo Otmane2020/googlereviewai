@@ -3,6 +3,7 @@ import { renderAsync } from 'npm:@react-email/components@0.0.22'
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors'
 import { TEMPLATES } from '../_shared/transactional-email-templates/registry.ts'
+import { resolveEmailLang } from '../_shared/email-lang.ts'
 
 // Configuration baked in at scaffold time — do NOT change these manually.
 // To update, re-run the email domain setup flow.
@@ -286,6 +287,16 @@ Deno.serve(async (req) => {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       }
     )
+  }
+
+  // Account emails are localized by configured Google Business language
+  // when available, not by the currently selected browser UI locale.
+  // Do not override unrelated order/shipping recipient languages.
+  if (templateName === 'welcome' || templateName === 'subscription-confirmation') {
+    templateData = {
+      ...templateData,
+      lang: await resolveEmailLang(effectiveRecipient, templateData.lang),
+    }
   }
 
   // 4. Render React Email template to HTML and plain text
