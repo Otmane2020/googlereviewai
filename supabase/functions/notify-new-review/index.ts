@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { resolveEmailLang } from "../_shared/email-lang.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -143,24 +144,15 @@ serve(async (req) => {
       .eq("id", review_id)
       .single();
 
-    let businessLanguage: "fr" | "en" | null = null;
-    if (reviewData?.location_id) {
-      const { data: business } = await supabase
-        .from("businesses")
-        .select("gmb_language")
-        .eq("google_place_id", reviewData.location_id)
-        .single();
-      businessLanguage = business?.gmb_language === "en" ? "en" : business?.gmb_language === "fr" ? "fr" : null;
-    }
-
     const emailNotificationsEnabled = settingsResult.data?.email_notifications ?? true;
     const userEmail = profileResult.data?.email;
     const userName = profileResult.data?.full_name?.split(" ")[0] || "";
     const userCredits = profileResult.data?.credits ?? 0;
-    
-    // Determine language: the user's auth/profile language is the source of truth for notifications.
-    const preferredLanguage = profileResult.data?.preferred_language === "en" ? "en" : profileResult.data?.preferred_language === "fr" ? "fr" : null;
-    const lang: "fr" | "en" = preferredLanguage || businessLanguage || "fr";
+
+    // Per-review emails follow the configured Google Business language,
+    // even when the user browses GoogleReviewAI in another language.
+    const lang = await resolveEmailLang(userEmail, null, user_id, reviewData?.location_id);
+
     const t = emailTranslations[lang] || emailTranslations.fr;
 
     console.log("[notify-new-review] Settings:", { emailNotificationsEnabled, userEmail, userCredits, lang });
