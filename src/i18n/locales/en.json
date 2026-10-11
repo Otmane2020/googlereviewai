@@ -86,7 +86,7 @@
       "ctaPrimary": "Automate my replies — Free",
       "ctaSecondary": "See how it works",
       "noCard": "No credit card",
-      "freeCredits": "25 free credits",
+      "freeCredits": "3 free AI replies",
       "setup": "Set up in 2 min",
       "trackedOn": "Tracking your ranking on",
       "rank": "Rank #1",
@@ -852,7 +852,7 @@
       },
       {
         "q": "Is there a free plan?",
-        "a": "Yes. The Starter plan is free forever: weekly GEO ranking report, AI replies to reviews and 25 credits per month. Upgrade to Daily (€9.99/month) for daily tracking and automatic daily publishing."
+        "a": "Yes. Every free account gets 3 complimentary AI replies to Google reviews, once per account, without a credit card. After the third reply, choose a paid plan to keep generating replies. Free credits do not renew each month."
       }
     ]
   },
@@ -860,7 +860,7 @@
     "welcomeBack": "Welcome back,",
     "credits": "Credits",
     "trial": "Free trial",
-    "trialDesc": "10 free credits to test",
+    "trialDesc": "3 complimentary AI replies per account",
     "upgrade": "Upgrade",
     "responseRate": "Response rate",
     "averageRating": "Average rating",
