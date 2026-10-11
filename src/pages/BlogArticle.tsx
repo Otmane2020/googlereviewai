@@ -137,7 +137,7 @@ const BlogArticle = () => {
               <link rel="alternate" hrefLang="fr" href={`https://googlereviewai.com/blog/${staticArticle.slug.replace(/-fr$/, "")}-fr`} />
               <link rel="alternate" hrefLang="x-default" href={`https://googlereviewai.com/blog/${staticArticle.slug.replace(/-fr$/, "")}`} />
             </>
-          )
+          )}
           <meta property="og:type" content="article" />
           <meta property="og:title" content={staticArticle.title} />
           <meta property="og:description" content={staticArticle.description} />
