@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getGoogleAccessToken } from "../_shared/googleAuth.ts";
 import { callOpenRouterWithFallback } from "../_shared/openrouter.ts";
+import { sendFreeUpgradeEmail } from "../_shared/free-upgrade.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -245,77 +246,10 @@ serve(async (req) => {
           .single();
 
         if (!profile || profile.credits < 1) {
-          console.log(`[AutoRespond] User ${userSettings.user_id} has insufficient credits`);
-          
-          // Send upgrade email if credits are 0 and user has pending reviews
-          if (profile && profile.credits === 0 && profile.email) {
-            // Count ONLY reviews that are truly awaiting an automatic AI reply.
-            // Previously we counted all rows with ai_response = null, which can include
-            // historical reviews that already have a Google reply (=> wrong, can show 66).
-            const { count: pendingCount } = await supabase
-              .from("reviews")
-              .select("id", { count: "exact", head: true })
-              .eq("user_id", userSettings.user_id)
-              .is("ai_response", null)
-              .is("google_reply", null)
-              .eq("replied", false);
-            
-            if (pendingCount && pendingCount > 0) {
-              // Check if we already sent an email recently (last 24h)
-              const { data: recentNotif } = await supabase
-                .from("notifications")
-                .select("id")
-                .eq("user_id", userSettings.user_id)
-                .eq("type", "low_credits")
-                .gte("created_at", new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString())
-                .limit(1);
-              
-              if (!recentNotif || recentNotif.length === 0) {
-                console.log(`[AutoRespond] Sending upgrade email to ${profile.email}`);
-                
-                // Send upgrade email via send-engagement-email function
-                try {
-                  const emailResponse = await fetch(
-                    `${supabaseUrl}/functions/v1/send-engagement-email`,
-                    {
-                      method: "POST",
-                      headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": `Bearer ${supabaseServiceKey}`,
-                      },
-                      body: JSON.stringify({
-                        email: profile.email,
-                        name: profile.full_name || "Client",
-                        type: "no_credits_upgrade",
-                        lang: (profile as any).preferred_language === "en" ? "en" : "fr",
-                        user_id: userSettings.user_id,
-                        data: { pending_count: pendingCount, credits: 0 }
-                      }),
-                    }
-                  );
-                  
-                  if (emailResponse.ok) {
-                    console.log(`[AutoRespond] Upgrade email sent to ${profile.email}`);
-                  } else {
-                    console.error(`[AutoRespond] Failed to send upgrade email:`, await emailResponse.text());
-                  }
-                } catch (emailError) {
-                  console.error(`[AutoRespond] Email sending error:`, emailError);
-                }
-                
-                // Create in-app notification for upgrade
-                await supabase.from("notifications").insert({
-                  user_id: userSettings.user_id,
-                  type: "low_credits",
-                  title: (profile as any).preferred_language === "en" ? "⚠️ Credits exhausted" : "⚠️ Crédits épuisés",
-                  message: (profile as any).preferred_language === "en"
-                    ? `${pendingCount} review${pendingCount > 1 ? "s" : ""} awaiting a reply. Top up your credits to continue.`
-                    : `${pendingCount} avis attendent une réponse. Rechargez vos crédits pour continuer.`,
-                });
-              }
-            }
+          console.log("[AutoRespond] User has no AI credits:", userSettings.user_id);
+          if (profile) {
+            await sendFreeUpgradeEmail(supabase, userSettings.user_id, supabaseUrl, supabaseServiceKey);
           }
-          
           continue;
         }
 
@@ -418,36 +352,34 @@ serve(async (req) => {
 
           if (!aiResponse) continue;
 
-          // Update review with AI response and clear needs_new_response flag
+          // Atomic credit debit + response write prevents overspending during
+          // concurrent automatic and manual generation.
           const isEditedReview = review.needs_new_response === true;
-          await supabase
-            .from("reviews")
-            .update({ 
-              ai_response: aiResponse,
-              needs_new_response: false, // Clear the flag
-              published_to_google: false, // Reset published status for re-publication
-            })
-            .eq("id", review.id);
-
-          // Deduct credit
-          const newCredits = profile.credits - 1;
-          await supabase
-            .from("profiles")
-            .update({ credits: newCredits })
-            .eq("id", userSettings.user_id);
+          const { data: newCredits, error: consumeError } = await supabase.rpc(
+            "consume_review_ai_credit", {
+              p_user_id: userSettings.user_id,
+              p_review_id: review.id,
+              p_response: aiResponse,
+              p_description: isEditedReview
+                ? "Nouvelle réponse IA pour un avis modifié"
+                : "Auto-réponse IA aux avis Google",
+            },
+          );
+          if (consumeError) {
+            console.error("[AutoRespond] Failed to consume credit:", consumeError);
+            continue;
+          }
+          if (typeof newCredits !== "number" || newCredits < 0) {
+            profile.credits = 0;
+            await sendFreeUpgradeEmail(supabase, userSettings.user_id, supabaseUrl, supabaseServiceKey);
+            break;
+          }
           profile.credits = newCredits;
 
-          // Log credit usage
-          await supabase.from("credits_history").insert({
-            user_id: userSettings.user_id,
-            amount: -1,
-            type: "usage",
-            description: isEditedReview 
-              ? `Nouvelle réponse IA pour l'avis modifié de ${review.author}`
-              : `Auto-réponse IA pour l'avis de ${review.author}`,
-          });
-
           totalResponses++;
+          if (newCredits === 0) {
+            await sendFreeUpgradeEmail(supabase, userSettings.user_id, supabaseUrl, supabaseServiceKey);
+          }
 
           // Create notification for AI response
           await supabase.from("notifications").insert({
