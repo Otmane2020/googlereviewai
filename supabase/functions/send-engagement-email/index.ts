@@ -6,7 +6,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-type EmailType = "activate_auto_reply" | "pending_reviews" | "low_credits" | "weekly_summary" | "no_credits_upgrade";
+type EmailType = "activate_auto_reply" | "pending_reviews" | "low_credits" | "weekly_summary" | "no_credits_upgrade" | "free_limit_upgrade";
 
 interface EngagementEmailRequest {
   email: string;
@@ -65,6 +65,10 @@ const T = {
     seePlans: "Voir les offres",
     noCreditsSubject: (n: number) => `${n} avis sans réponse - Crédits épuisés`,
     noCreditsTitle: "Crédits épuisés",
+    freeUpgradeSubject: "Vos 3 réponses IA gratuites ont été utilisées",
+    freeUpgradeTitle: "Prêt à aller plus loin avec GoogleReviewAI ?",
+    freeUpgradeBody: "Vous avez utilisé vos 3 réponses IA offertes. Pour continuer à répondre automatiquement aux avis Google et gagner du temps, choisissez la formule adaptée à votre établissement.",
+    freeUpgradeButton: "Découvrir les abonnements",
     pendingReviews: "Avis en attente",
     noCreditsBody: "Les réponses automatiques sont en pause. Rechargez vos crédits pour reprendre le traitement automatique de vos avis.",
     topUp: "Recharger les crédits",
@@ -102,6 +106,10 @@ const T = {
     seePlans: "View plans",
     noCreditsSubject: (n: number) => `${n} unanswered review${n > 1 ? "s" : ""} - Credits exhausted`,
     noCreditsTitle: "Credits exhausted",
+    freeUpgradeSubject: "Your 3 free AI review replies have been used",
+    freeUpgradeTitle: "Keep responding with GoogleReviewAI",
+    freeUpgradeBody: "You have used your 3 complimentary AI review replies. Choose the right plan to keep replying to Google reviews automatically and save time.",
+    freeUpgradeButton: "Explore paid plans",
     pendingReviews: "Pending reviews",
     noCreditsBody: "Automatic replies are paused. Top up your credits to resume automatic review handling.",
     topUp: "Top up credits",
@@ -176,6 +184,20 @@ function renderTemplate(type: EmailType, lang: Lang, name: string, data?: Engage
         <div style="background: ${STYLES.errorBg}; border-radius: 6px; padding: 20px; margin: 24px 0; text-align: center;"><p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.errorText}; font-size: 13px; margin: 0 0 4px 0; text-transform: uppercase; letter-spacing: 0.5px;">${t.remainingCredits}</p><p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textPrimary}; font-size: 36px; font-weight: 600; margin: 0;">${credits}</p></div>
         <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textSecondary}; font-size: 15px; line-height: 1.6; margin: 0 0 24px 0;">${t.lowBody}</p>
         <div style="text-align: left; margin: 32px 0;">${getProButton(t.seePlans, "https://googlereviewai.com/select-plan")}</div>`),
+    };
+  }
+
+  if (type === "free_limit_upgrade") {
+    return {
+      subject: t.freeUpgradeSubject,
+      html: shell(lang, t.freeUpgradeTitle, name, `
+        <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textSecondary}; font-size: 15px; line-height: 1.65; margin: 0 0 24px 0;">${t.freeUpgradeBody}</p>
+        <div style="background: ${STYLES.bgLight}; border: 1px solid ${STYLES.borderLight}; border-radius: 12px; padding: 24px; margin: 24px 0; text-align: center;">
+          <p style="font-family: ${STYLES.fontFamily}; font-size: 36px; font-weight: 700; margin: 0; color: ${STYLES.textPrimary};">3 / 3</p>
+          <p style="font-family: ${STYLES.fontFamily}; font-size: 13px; margin: 8px 0 0; color: ${STYLES.textMuted};">${t.freeUpgradeSubject}</p>
+        </div>
+        <div style="text-align: center; margin: 30px 0;">${getProButton(t.freeUpgradeButton, "https://googlereviewai.com/select-plan")}</div>
+        <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textMuted}; font-size: 13px; line-height: 1.6; margin-top: 20px;">${t.manualReply}</p>`),
     };
   }
 
