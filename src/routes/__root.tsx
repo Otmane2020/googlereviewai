@@ -40,7 +40,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         content:
           "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover",
       },
-      { title: "Google Review Auto Reply & GMB AI | GoogleReviewAI" },
+      { title: "Google My Businesss Review - AutoReply with AI" },
       {
         name: "description",
         content:
@@ -65,7 +65,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "msapplication-TileColor", content: "#4285F4" },
       { name: "msapplication-tap-highlight", content: "no" },
       { property: "og:type", content: "website" },
-      { property: "og:title", content: "Google Review Auto Reply & GMB AI | GoogleReviewAI" },
+      { property: "og:title", content: "Google My Businesss Review - AutoReply with AI" },
       {
         property: "og:description",
         content:
@@ -77,7 +77,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:locale", content: "en_US" },
       { property: "og:site_name", content: "Google Review AI" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "Google Review Auto Reply & GMB AI | GoogleReviewAI" },
+      { name: "twitter:title", content: "Google My Businesss Review - AutoReply with AI" },
       {
         name: "twitter:description",
         content:
