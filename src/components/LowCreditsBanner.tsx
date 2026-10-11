@@ -20,8 +20,9 @@ export const LowCreditsBanner = ({ credits, pendingReviews = 0, currentPlan }: L
     }
   }, [credits]);
 
-  // Show when credits are low (≤3) or exhausted (0)
-  if (credits > 3 || dismissed) return null;
+  // With 3 complimentary credits, do not alarm users at sign-up.
+  // Warn only at their last credit or when exhausted.
+  if (credits > 1 || dismissed) return null;
 
   const isExhausted = credits === 0;
 
