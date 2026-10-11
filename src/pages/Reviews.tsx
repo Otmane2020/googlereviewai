@@ -118,6 +118,7 @@ const Reviews = () => {
   const [isLive, setIsLive] = useState(false);
   const realtimeRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
   const [upgradeDialogOpen, setUpgradeDialogOpen] = useState(false);
+  const [upgradeAfterPreview, setUpgradeAfterPreview] = useState(false);
   const [userCredits, setUserCredits] = useState<number>(0);
   const [currentPlan, setCurrentPlan] = useState<string | null>(null);
   const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
@@ -277,7 +278,19 @@ const Reviews = () => {
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        if ((error as any)?.context?.status === 402) {
+          setUserCredits(0);
+          setUpgradeDialogOpen(true);
+          return;
+        }
+        throw error;
+      }
+      if (data?.upgrade_required || data?.code === "UPGRADE_REQUIRED") {
+        setUserCredits(0);
+        setUpgradeDialogOpen(true);
+        return;
+      }
       if (data?.error) throw new Error(data.error);
 
       // Update local credits count
@@ -294,7 +307,14 @@ const Reviews = () => {
         setPreviewReview(updatedReview as Review);
         setPreviewDialogOpen(true);
       }
-      
+
+      // Invite upgrade as soon as the third complimentary response is used,
+      // without covering the reply preview.
+      if (data.credits_remaining === 0 && (!currentPlan || currentPlan.toLowerCase() === "free")) {
+        if (updatedReview) setUpgradeAfterPreview(true);
+        else setUpgradeDialogOpen(true);
+      }
+
       toast({ title: t("reviewsPage.toastReady"), description: t("reviewsPage.toastReadyDesc", { n: data.credits_remaining }) });
     } catch (error) {
       toast({ title: t("reviewsPage.toastError"), description: error instanceof Error ? error.message : t("reviewsPage.toastGenFail"), variant: "destructive" });
@@ -1119,12 +1139,19 @@ const Reviews = () => {
         open={upgradeDialogOpen} 
         onOpenChange={setUpgradeDialogOpen}
         currentPlan={currentPlan || undefined}
+        exhausted={userCredits === 0 && (!currentPlan || currentPlan.toLowerCase() === "free")}
       />
       
       {/* Response Preview Dialog - after AI generation */}
       <ResponsePreviewDialog
         open={previewDialogOpen}
-        onOpenChange={setPreviewDialogOpen}
+        onOpenChange={(open) => {
+          setPreviewDialogOpen(open);
+          if (!open && upgradeAfterPreview) {
+            setUpgradeAfterPreview(false);
+            setUpgradeDialogOpen(true);
+          }
+        }}
         review={previewReview}
         onPublish={publishToGoogle}
         publishingId={publishingId}
