@@ -17,6 +17,12 @@ import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "react-i18next";
 import { BrandSparkle } from "@/components/BrandSparkle";
 
+interface ConnectedBusinessLanguage {
+  id: string;
+  name: string;
+  gmb_language: "fr" | "en" | null;
+}
+
 interface Profilee {
   id: string;
   email: string;
@@ -65,6 +71,49 @@ const SettingsPage = () => {
   const [saving, setSaving] = useState(false);
   const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
   const [openingPortal, setOpeningPortal] = useState(false);
+  const [connectedBusinessLanguages, setConnectedBusinessLanguages] = useState<ConnectedBusinessLanguage[]>([]);
+  const [savingBusinessLanguage, setSavingBusinessLanguage] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    supabase.from("businesses")
+      .select("id, name, gmb_language")
+      .eq("user_id", user.id)
+      .eq("is_active", true)
+      .order("name")
+      .then(({ data, error }) => {
+        if (!cancelled && !error) setConnectedBusinessLanguages((data || []) as ConnectedBusinessLanguage[]);
+      });
+    return () => { cancelled = true; };
+  }, [user]);
+
+  const saveBusinessLanguage = async (businessId: string, lang: "fr" | "en" | "auto") => {
+    if (!user) return;
+    setSavingBusinessLanguage(businessId);
+    const { error } = await supabase.from("businesses")
+      .update({ gmb_language: lang === "auto" ? null : lang })
+      .eq("id", businessId)
+      .eq("user_id", user.id);
+    if (error) {
+      toast({
+        title: currentLang === "fr" ? "Erreur" : "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else {
+      setConnectedBusinessLanguages((previous) => previous.map((b) =>
+        b.id === businessId ? { ...b, gmb_language: lang === "auto" ? null : lang } : b
+      ));
+      toast({
+        title: currentLang === "fr" ? "Langue Google Business enregistrée" : "Google Business language saved",
+        description: currentLang === "fr"
+          ? "Les prochains emails liés à cet établissement utiliseront cette langue."
+          : "Future emails for this location will use the selected language.",
+      });
+    }
+    setSavingBusinessLanguage(null);
+  };
 
   // Check notification permission and subscription state via PushAlert SDK
   useEffect(() => {
@@ -268,8 +317,8 @@ const SettingsPage = () => {
           </div>
           <p className="text-xs text-muted-foreground mb-4">
             {currentLang === "fr"
-              ? "S'applique à l'interface, aux emails et aux notifications."
-              : "Applies to the interface, emails and notifications."}
+              ? "Langue de l'interface et langue par défaut des emails si aucune langue Google Business n'est définie."
+              : "Interface language and fallback for emails when no Google Business language is set."}
           </p>
           <div className="grid grid-cols-2 gap-3">
             <button
@@ -292,6 +341,44 @@ const SettingsPage = () => {
             </button>
           </div>
         </div>
+
+        {/* Explicit language per Google Business location, separate from UI language */}
+        {connectedBusinessLanguages.length > 0 && (
+          <div className="bg-card rounded-2xl border border-border p-6">
+            <div className="flex items-center gap-3 mb-2">
+              <Globe className="w-5 h-5 text-primary" />
+              <h2 className="font-semibold text-foreground">
+                {currentLang === "fr" ? "Langue Google Business et emails" : "Google Business & email language"}
+              </h2>
+            </div>
+            <p className="text-xs text-muted-foreground mb-4">
+              {currentLang === "fr"
+                ? "Cette langue est prioritaire pour les emails d'avis et les réponses IA de chaque établissement, même si l'interface est en français."
+                : "This language takes priority for review-related emails and AI responses for each location, regardless of interface language."}
+            </p>
+            <div className="space-y-3">
+              {connectedBusinessLanguages.map((business) => (
+                <div key={business.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 rounded-xl border border-border p-3">
+                  <span className="text-sm font-medium truncate">{business.name}</span>
+                  <div className="flex items-center gap-2">
+                    <select
+                      aria-label={currentLang === "fr" ? `Langue Google Business pour ${business.name}` : `Google Business language for ${business.name}`}
+                      className="h-10 min-w-[175px] rounded-lg border border-input bg-background px-3 text-sm text-foreground"
+                      value={business.gmb_language ?? "auto"}
+                      disabled={savingBusinessLanguage === business.id}
+                      onChange={(e) => saveBusinessLanguage(business.id, e.target.value as "fr" | "en" | "auto")}
+                    >
+                      <option value="auto">{currentLang === "fr" ? "Auto (langue du compte)" : "Auto (account language)"}</option>
+                      <option value="en">English</option>
+                      <option value="fr">Français</option>
+                    </select>
+                    {savingBusinessLanguage === business.id && <Loader2 className="h-4 w-4 animate-spin" />}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Subscription section */}
         <div className="bg-card rounded-2xl border border-border p-6">
