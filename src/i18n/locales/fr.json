@@ -86,7 +86,7 @@
       "ctaPrimary": "Automatiser mes réponses — Gratuit",
       "ctaSecondary": "Voir comment ça marche",
       "noCard": "Sans carte bancaire",
-      "freeCredits": "25 crédits offerts",
+      "freeCredits": "3 réponses IA gratuites",
       "setup": "Configuré en 2 min",
       "trackedOn": "Suivi de votre classement sur",
       "rank": "Rang #1",
@@ -852,7 +852,7 @@
       },
       {
         "q": "Existe-t-il une offre gratuite ?",
-        "a": "Oui. L'offre Starter est gratuite à vie : rapport hebdomadaire de classement GEO, réponses IA aux avis et 25 crédits par mois. Passez à l'offre Quotidien (9,99 €/mois) pour le suivi quotidien et la publication automatique chaque jour."
+        "a": "Oui. Chaque compte gratuit reçoit 3 réponses IA offertes pour les avis Google, une seule fois, sans carte bancaire. Après la troisième réponse, choisissez un abonnement pour continuer. Les crédits gratuits ne sont pas renouvelés chaque mois."
       }
     ]
   },
@@ -860,7 +860,7 @@
     "welcomeBack": "Bon retour,",
     "credits": "Crédits",
     "trial": "Essai gratuit",
-    "trialDesc": "10 crédits gratuits pour tester",
+    "trialDesc": "3 réponses IA offertes par compte",
     "upgrade": "Upgrade",
     "responseRate": "Taux de réponse",
     "averageRating": "Note moyenne",
