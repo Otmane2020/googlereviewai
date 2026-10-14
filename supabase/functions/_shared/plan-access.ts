@@ -34,3 +34,19 @@ export function managedLocationLimit(p?: PlanRecord | null): number {
 export function hasUnlimitedAiReplies(p?: PlanRecord | null): boolean {
   return ["pro", "business"].includes(activePlanTier(p));
 }
+
+
+/** Grandfather valid legacy SEO add-ons while rejecting expired "active" rows. */
+export async function hasSeoAutomationAccess(
+  admin: any, userId: string, profile?: PlanRecord | null,
+): Promise<boolean> {
+  if (["pro", "business"].includes(activePlanTier(profile))) return true;
+  const { data, error } = await admin.from("subscriptions")
+    .select("id")
+    .eq("user_id", userId)
+    .eq("module", "seo_autopost")
+    .eq("status", "active")
+    .gt("current_period_end", new Date().toISOString())
+    .limit(1);
+  return !error && Boolean(data?.length);
+}
