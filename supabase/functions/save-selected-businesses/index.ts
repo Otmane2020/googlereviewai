@@ -74,12 +74,8 @@ serve(async (req) => {
       );
     }
 
-    // Deactivate all existing businesses for this user first
-    await supabaseAdmin
-      .from("businesses")
-      .update({ is_active: false })
-      .eq("user_id", user.id);
-
+    // Never deactivate existing locations before the new selection is safely
+    // stored. A failed upsert must not make every establishment disappear.
     // Prepare businesses for upsert
     const businessesData = businesses.map((b) => ({
       user_id: user.id,
@@ -106,6 +102,27 @@ serve(async (req) => {
     if (upsertError) {
       console.error("Error upserting businesses:", upsertError);
       throw new Error(upsertError.message);
+    }
+
+    // Deactivate only those businesses the user explicitly deselected,
+    // after the selected ones have been written successfully.
+    const selectedPlaceIds = new Set(businesses.map((business) => business.google_place_id));
+    const { data: currentlyActive, error: activeError } = await supabaseAdmin
+      .from("businesses")
+      .select("id, google_place_id")
+      .eq("user_id", user.id)
+      .eq("is_active", true);
+    if (activeError) throw new Error("Unable to verify existing business selections");
+    const deselectedIds = (currentlyActive || [])
+      .filter((business) => !selectedPlaceIds.has(business.google_place_id))
+      .map((business) => business.id);
+    if (deselectedIds.length) {
+      const { error: deactivateError } = await supabaseAdmin
+        .from("businesses")
+        .update({ is_active: false })
+        .eq("user_id", user.id)
+        .in("id", deselectedIds);
+      if (deactivateError) throw new Error("Unable to deactivate unselected establishments");
     }
 
     console.log(`Successfully saved ${savedBusinesses?.length || 0} businesses`);
