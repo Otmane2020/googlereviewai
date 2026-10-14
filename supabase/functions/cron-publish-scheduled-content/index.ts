@@ -71,8 +71,9 @@ async function hasDailyPlan(supabase: any, userId: string): Promise<boolean> {
   const validStatuses = ["active", "trial", "trialing"];
   if (!validStatuses.includes(profile.subscription_status || "")) return false;
 
-  const dailyPlans = ["daily", "pro", "business"];
-  return dailyPlans.includes((profile.plan_name || "").toLowerCase());
+  const dailyPlans = ["daily", "pro", "business", "quotidien", "agence", "pro annuel", "business annuel"];
+  const planName = (profile.plan_name || "").toLowerCase();
+  return dailyPlans.some((plan) => planName.includes(plan));
 }
 
 serve(async (req) => {
@@ -171,14 +172,20 @@ serve(async (req) => {
 
         if (seoContent?.content) {
           try {
-            const { error: publishError } = await supabase.functions.invoke("publish-gmb-post", {
+            const { data: publishResult, error: publishError } = await supabase.functions.invoke("publish-gmb-post", {
               body: {
                 business_id: business.id,
                 summary: seoContent.content.slice(0, 1500),
                 post_id: seoContent.id,
+                user_id: userId,
               },
             });
-            if (publishError) { errors++; } else { publishedSEO++; }
+            if (publishError || !publishResult?.success || !publishResult?.google_post_id) {
+              errors++;
+              console.error("[CRON-PUBLISH] SEO publication failed", publishError || publishResult?.error);
+            } else {
+              publishedSEO++;
+            }
           } catch { errors++; }
         }
       }

@@ -7,6 +7,7 @@ on:
     paths:
       - "supabase/migrations/*ranki_articles.sql"
       - "supabase/functions/ranki-autopost/**"
+      - "supabase/functions/publish-gmb-post/**"
       - "supabase/config.toml"
       - ".github/workflows/deploy-ranki-autopost.yml"
 
@@ -19,7 +20,7 @@ concurrency:
 
 jobs:
   deploy:
-    name: Migrate and deploy ONLY ranki-autopost
+    name: Migrate and deploy Ranki publication
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
@@ -62,13 +63,14 @@ jobs:
         with:
           version: latest
 
-      - name: Deploy one Edge Function (JWT disabled)
+      - name: Deploy Ranki and Google publication functions
         shell: bash
         run: |
           set -euo pipefail
           supabase functions deploy ranki-autopost --project-ref "$SUPABASE_PROJECT_REF" --no-verify-jwt
+          supabase functions deploy publish-gmb-post --project-ref "$SUPABASE_PROJECT_REF" --no-verify-jwt
 
-      - name: Verify the published test endpoint
+      - name: Verify the Ranki endpoint without publishing to Google
         shell: bash
         run: |
           python3 - <<'PY'

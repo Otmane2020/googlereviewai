@@ -43,7 +43,18 @@ serve(async (req) => {
 
     // Check if this is a cron call (user_id provided) or user call (auth header)
     if (cronUserId) {
-      // Cron job call - use provided user_id
+      // Trusted server-to-server call. Never accept an arbitrary user_id from
+      // an unauthenticated request because this function bypasses RLS below.
+      const authHeader = req.headers.get("Authorization") || "";
+      const bearerToken = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
+      const apiKey = req.headers.get("apikey") || "";
+      if (bearerToken !== supabaseServiceKey && apiKey !== supabaseServiceKey) {
+        return new Response(
+          JSON.stringify({ success: false, error: "Unauthorized server call" }),
+          { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
+      }
+
       userId = cronUserId;
       console.log("[publish-gmb-post] Cron call for user:", userId);
     } else {
@@ -238,25 +249,42 @@ serve(async (req) => {
       status: "published",
     };
 
+    // Every successful Google publication must be represented in gmb_posts.
+    // `post_id` is a scheduled_content id, not a gmb_posts id.
+    const { error: postSaveError } = await supabaseAdmin
+      .from("gmb_posts")
+      .upsert(postData, { onConflict: "google_post_id" });
+
+    if (postSaveError) {
+      console.error("[publish-gmb-post] Google published, but gmb_posts persistence failed:", postSaveError);
+    }
+
+    let scheduledUpdateError = null;
     if (post_id) {
-      // Update existing scheduled post
-      await supabaseAdmin
-        .from("gmb_posts")
+      const { error } = await supabaseAdmin
+        .from("scheduled_content")
         .update({
-          ...postData,
-          scheduled_for: null,
+          status: "published",
+          published_at: postData.posted_at,
+          google_post_id: publishedPost.name,
+          error_message: null,
         })
         .eq("id", post_id)
         .eq("user_id", userId);
-    } else {
-      // Insert new post
-      await supabaseAdmin.from("gmb_posts").insert(postData);
+      scheduledUpdateError = error;
+      if (error) {
+        console.error("[publish-gmb-post] Google published, but scheduled_content update failed:", error);
+      }
     }
 
     return new Response(
       JSON.stringify({
         success: true,
         post: publishedPost,
+        google_post_id: publishedPost.name,
+        tracking_warning: postSaveError || scheduledUpdateError
+          ? "Published on Google, but local tracking could not be fully updated"
+          : null,
         message: "Post published to Google My Business",
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }

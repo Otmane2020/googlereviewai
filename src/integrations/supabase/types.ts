@@ -1167,12 +1167,17 @@ export type Database = {
       }
       ranki_articles: {
         Row: {
+          business_id: string | null
           content_html: string | null
           content_markdown: string | null
           content_type: string | null
           cover_url: string | null
           created_at: string
           excerpt: string | null
+          google_post_id: string | null
+          google_publish_error: string | null
+          google_publish_status: string
+          google_published_at: string | null
           id: string
           keywords: string[] | null
           published_at: string | null
@@ -1182,12 +1187,17 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          business_id?: string | null
           content_html?: string | null
           content_markdown?: string | null
           content_type?: string | null
           cover_url?: string | null
           created_at?: string
           excerpt?: string | null
+          google_post_id?: string | null
+          google_publish_error?: string | null
+          google_publish_status?: string
+          google_published_at?: string | null
           id?: string
           keywords?: string[] | null
           published_at?: string | null
@@ -1197,12 +1207,17 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          business_id?: string | null
           content_html?: string | null
           content_markdown?: string | null
           content_type?: string | null
           cover_url?: string | null
           created_at?: string
           excerpt?: string | null
+          google_post_id?: string | null
+          google_publish_error?: string | null
+          google_publish_status?: string
+          google_published_at?: string | null
           id?: string
           keywords?: string[] | null
           published_at?: string | null
@@ -1211,7 +1226,15 @@ export type Database = {
           title?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "ranki_articles_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       reviews: {
         Row: {
