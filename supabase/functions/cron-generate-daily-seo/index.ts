@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { activePlanTier } from "../_shared/plan-access.ts";
 import { callOpenRouterWithFallback } from "../_shared/openrouter.ts";
 
 const corsHeaders = {
@@ -96,27 +97,16 @@ serve(async (req) => {
         // Check if user has daily plan or is free (weekly only)
         const { data: profile } = await supabase
           .from("profiles")
-          .select("plan_name, subscription_status")
+          .select("plan_name, subscription_status, current_period_end, trial_end")
           .eq("id", userId)
           .single();
 
-        const validStatuses = ["active", "trial", "trialing"];
-        // Daily-publication plans: legacy "daily"/"pro"/"business" + new "quotidien"/"agence"
-        const dailyPlans = ["daily", "pro", "business", "quotidien", "agence", "pro annuel", "business annuel"];
-        const planLower = (profile?.plan_name || "").toLowerCase();
-        const isDailyUser = !!profile &&
-          validStatuses.includes(profile.subscription_status || "") &&
-          dailyPlans.some((p) => planLower.includes(p));
+        // Starter/free plans cannot generate automatic SEO posts.
+        const isDailyUser = ["pro", "business"].includes(activePlanTier(profile));
+        if (!isDailyUser) continue;
 
-        // Free users: generate only on Mondays
         const timezone = userSetting.timezone || "Europe/Paris";
         const today = getTodayInTimezone(timezone);
-        const dayOfWeek = new Date().getDay();
-
-        if (!isDailyUser && dayOfWeek !== 1) {
-          console.log(`[CRON-SEO] User ${userId}: free plan, skipping (not Monday)`);
-          continue;
-        }
 
         // Get user's active businesses
         const { data: businesses, error: bizError } = await supabase
