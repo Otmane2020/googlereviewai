@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { activePlanTier } from "../_shared/plan-access.ts";
+import { hasSeoAutomationAccess } from "../_shared/plan-access.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -67,7 +67,7 @@ async function hasDailyPlan(supabase: any, userId: string): Promise<boolean> {
     .eq("id", userId)
     .single();
 
-  return ["pro", "business"].includes(activePlanTier(profile));
+  return await hasSeoAutomationAccess(supabase, userId, profile);
 }
 
 serve(async (req) => {
