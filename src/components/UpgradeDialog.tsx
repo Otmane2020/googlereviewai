@@ -73,8 +73,8 @@ const PLANS: PlanCard[] = [
     monthly: { price: "49€", key: "ranki_pro_monthly" },
     yearly:  { price: "470€", key: "ranki_pro_yearly" },
     features: {
-      fr: ["Jusqu'à 3 établissements", "Réponses IA illimitées", "GEO Rank quotidien", "Posts SEO + Q&R AEO automatiques", "Support prioritaire"],
-      en: ["Up to 3 locations", "Unlimited AI replies", "Daily GEO ranking", "Automatic SEO posts + AEO Q&A", "Priority support"],
+      fr: ["Jusqu'à 3 établissements", "Réponses IA illimitées", "GEO Rank quotidien", "Posts Google soumis à validation + FAQ AEO générées", "Support prioritaire"],
+      en: ["Up to 3 locations", "Unlimited AI replies", "Daily GEO ranking", "Google posts subject to approval + generated AEO FAQs", "Priority support"],
     },
     highlight: true,
   },
@@ -85,8 +85,8 @@ const PLANS: PlanCard[] = [
     monthly: { price: "99€", key: "ranki_business_monthly" },
     yearly:  { price: "950,40€", key: "ranki_business_yearly" },
     features: {
-      fr: ["Établissements illimités", "Posts & Q&R illimités", "API & webhooks", "Manager dédié", "Rapports personnalisés"],
-      en: ["Unlimited locations", "Unlimited posts & Q&A", "API & webhooks", "Dedicated manager", "Custom reports"],
+      fr: ["Établissements illimités", "Création de posts & FAQ illimitée (diffusion Google sous réserve)", "API & webhooks", "Manager dédié", "Rapports personnalisés"],
+      en: ["Unlimited locations", "Unlimited post & FAQ creation (Google moderation applies)", "API & webhooks", "Dedicated manager", "Custom reports"],
     },
   },
 ];
