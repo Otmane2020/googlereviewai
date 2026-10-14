@@ -5,7 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useRequireSubscription } from "@/hooks/useRequireSubscription";
 import { includesPremiumModules, isCurrentModuleSubscription } from "@/lib/planEntitlements";
-import { BusinessSubscriptionSelector } from "@/components/BusinessSubscriptionSelector";
+import { UpgradeDialog } from "@/components/UpgradeDialog";
 import { SelectBusinessesDialog } from "@/components/SelectBusinessesDialog";
 import { useSyncGoogleBusinesses } from "@/hooks/useSyncGoogleBusinesses";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
@@ -69,6 +69,7 @@ const SEOAutoPost = () => {
   const [showPreviewDialog, setShowPreviewDialog] = useState(false);
   const [businessDialogOpen, setBusinessDialogOpen] = useState(false);
   const [publicationHour, setPublicationHour] = useState(7);
+  const [seoUpgradeOpen, setSeoUpgradeOpen] = useState(false);
   const [manageBusinessesOpen, setManageBusinessesOpen] = useState(false);
   const [googleBusinesses, setGoogleBusinesses] = useState<{ name: string; google_place_id: string; address: string | null; phone: string | null; website: string | null }[]>([]);
   const [selectionLimit, setSelectionLimit] = useState(1);
@@ -175,50 +176,6 @@ const SEOAutoPost = () => {
     setGoogleBusinesses(result.google_businesses);
     setSelectionLimit(result.max_businesses || 1);
     setManageBusinessesOpen(true);
-  };
-
-  const handleSubscribe = async (selectedBusinessIds: string[], annual: boolean = false, quantity: number = 1) => {
-    try {
-      const priceKey = annual ? "seo_yearly" : "seo_monthly";
-
-      const { data: addData, error: addError } = await supabase.functions.invoke("add-subscription-item", {
-        body: { priceKey, quantity }
-      });
-
-      if (addData?.success) {
-        toast({
-          title: t("Module activé !", "Module activated!"),
-          description: t("Le module SEO a été ajouté à votre abonnement.", "The SEO module has been added to your subscription."),
-        });
-        setIsSubscribed(true);
-        checkSubscription();
-        return;
-      }
-
-      const needsCheckout =
-        addData?.requiresCheckout ||
-        addError?.message?.includes("No active subscription") ||
-        addError?.message?.includes("No Stripe customer");
-
-      if (needsCheckout) {
-        const { data, error } = await supabase.functions.invoke("create-checkout", {
-          body: { priceKey, quantity, selectedBusinessIds }
-        });
-        if (error) throw error;
-        if (data?.url) {
-          window.location.href = data.url;
-        }
-      } else if (addError) {
-        throw addError;
-      }
-    } catch (error: any) {
-      console.error("Subscription error:", error);
-      toast({
-        title: t("Erreur", "Error"),
-        description: error?.message || t("Impossible de créer la session de paiement", "Unable to create payment session"),
-        variant: "destructive"
-      });
-    }
   };
 
   const handlePreviewArticle = (article: ScheduledContent) => {
@@ -677,13 +634,15 @@ const SEOAutoPost = () => {
               </Card>
             )}
 
-            {/* Subscription Banner with Business Selector */}
+            {/* SEO is included in Pro/Business; do not sell outdated per-location modules. */}
             {!isSubscribed && (
-              <BusinessSubscriptionSelector
-                businesses={businesses}
-                moduleType="seo"
-                onSubscribe={handleSubscribe}
-              />
+              <Card className="p-4 border-primary/30">
+                <p className="text-sm font-medium">{t("Le SEO automatique est inclus dans Pro et Business", "SEO automation is included in Pro and Business")}</p>
+                <p className="text-xs text-muted-foreground mt-1">{t("Choisissez un forfait pour générer des articles et gérer vos établissements actifs.", "Choose a plan to generate articles for your selected locations.")}</p>
+                <Button size="sm" className="mt-3" onClick={() => setSeoUpgradeOpen(true)}>
+                  {t("Voir les forfaits", "View plans")}
+                </Button>
+              </Card>
             )}
 
             {/* Articles - Mobile optimized */}
@@ -814,12 +773,13 @@ const SEOAutoPost = () => {
       />
 
       {/* Article Preview Dialog */}
+      <UpgradeDialog open={seoUpgradeOpen} onOpenChange={setSeoUpgradeOpen} />
       <ArticlePreviewDialog
         open={showPreviewDialog}
         onOpenChange={setShowPreviewDialog}
         article={selectedArticle}
         isSubscribed={isSubscribed}
-        onSubscribe={(annual) => handleSubscribe(businesses.map(b => b.id), annual)}
+        onSubscribe={() => setSeoUpgradeOpen(true)}
       />
     </div>
   );
