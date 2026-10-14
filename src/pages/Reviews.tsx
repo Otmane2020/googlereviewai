@@ -12,7 +12,7 @@ import { UpgradeDialog } from "@/components/UpgradeDialog";
 import { ResponsePreviewDialog } from "@/components/ResponsePreviewDialog";
 import { SelectBusinessesDialog } from "@/components/SelectBusinessesDialog";
 import { ReconnectGoogleDialog } from "@/components/ReconnectGoogleDialog";
-import { Star, Search, Loader2, RefreshCw, ChevronLeft, ChevronRight, ChevronDown, Send, Copy, CheckCircle, Clock, MessageSquare, Building2 } from "lucide-react";
+import { Star, Search, Loader2, RefreshCw, ChevronLeft, ChevronRight, ChevronDown, Send, Copy, CheckCircle, Clock, MessageSquare, Building2, Pencil, ExternalLink, MapPin } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -83,6 +83,7 @@ interface Business {
   google_place_id: string | null;
   total_reviews: number | null;
   rating: number | null;
+  maps_url: string | null;
 }
 
 const REVIEWS_PER_PAGE = 10;
@@ -171,7 +172,7 @@ const Reviews = () => {
     if (!silent) setLoading(true);
     
     const [businessesRes, reviewsRes, profileRes] = await Promise.all([
-      supabase.from("businesses").select("id, name, google_place_id, total_reviews, rating").eq("user_id", user.id).eq("is_active", true),
+      supabase.from("businesses").select("id, name, google_place_id, total_reviews, rating, maps_url").eq("user_id", user.id).eq("is_active", true),
       supabase.from("reviews").select("*").eq("user_id", user.id).order("review_date", { ascending: false }),
       supabase.from("profiles").select("credits, plan_name").eq("id", user.id).single()
     ]);
@@ -376,6 +377,20 @@ const Reviews = () => {
   }, [businesses, selectedBusinessId]);
 
   // Filter reviews by selected business's google_place_id
+  // Google provides the public Maps URL with each Business Profile. Google
+  // location IDs are NOT Place IDs: never fabricate a place_id deep link.
+  const googleMapsHref = useMemo(() => {
+    if (!selectedBusiness?.maps_url) return null;
+    try {
+      const url = new URL(selectedBusiness.maps_url);
+      const host = url.hostname.toLowerCase();
+      const googleHost = host === "maps.google.com"
+        || host === "maps.app.goo.gl"
+        || (["google.com", "www.google.com"].includes(host) && url.pathname.startsWith("/maps"));
+      return url.protocol === "https:" && googleHost ? url.toString() : null;
+    } catch { return null; }
+  }, [selectedBusiness?.maps_url]);
+
   const businessReviews = useMemo(() => {
     if (!selectedBusiness?.google_place_id) return [];
     return reviews.filter(r => r.location_id === selectedBusiness.google_place_id);
@@ -511,17 +526,17 @@ const Reviews = () => {
 
       {/* Header */}
       <div className="bg-card border-b border-border">
-        <div className="max-w-6xl mx-auto px-4 py-4">
+        <div className="max-w-6xl mx-auto px-3 sm:px-4 py-3 sm:py-4">
           {/* Title */}
-          <h1 className="text-lg font-bold text-foreground mb-3">{t("reviewsPage.title")}</h1>
+          <h1 className="text-lg sm:text-xl font-bold text-foreground mb-3">{t("reviewsPage.title")}</h1>
           
           {/* Business card style selector */}
-          <div className="bg-card rounded-2xl border border-border p-4">
-            <div className="flex items-start gap-3">
+          <div className="bg-card rounded-2xl border border-border p-3 sm:p-4">
+            <div className="flex items-start gap-2.5 sm:gap-3 min-w-0">
               {/* Logo / Avatar */}
               <Dialog open={businessDialogOpen} onOpenChange={setBusinessDialogOpen}>
                 <DialogTrigger asChild>
-                  <button className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center flex-shrink-0 border border-primary/20 overflow-hidden hover:shadow-md transition-all">
+                  <button className="w-11 h-11 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center flex-shrink-0 border border-primary/20 overflow-hidden hover:shadow-md transition-all">
                     {selectedBusiness?.google_place_id ? (
                       <img 
                         src="https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png"
@@ -593,9 +608,13 @@ const Reviews = () => {
                 </DialogContent>
               </Dialog>
 
-              <Button type="button" variant="outline" size="sm" className="shrink-0 h-9" disabled={isSyncingBusinesses} onClick={() => void handleSelectBusiness()}>
-                {isSyncingBusinesses ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Building2 className="h-4 w-4 mr-1" />}
-                {i18n.language?.startsWith("fr") ? "Gérer les établissements" : "Manage locations"}
+              {/* Compact edit action, not a long button squeezing the business name on phones. */}
+              <Button type="button" variant="outline" size="icon"
+                className="shrink-0 h-9 w-9 rounded-xl order-last" disabled={isSyncingBusinesses}
+                onClick={() => void handleSelectBusiness()}
+                aria-label={i18n.language?.startsWith("fr") ? "Modifier les établissements gérés" : "Manage locations"}
+                title={i18n.language?.startsWith("fr") ? "Modifier les établissements" : "Manage locations"}>
+                {isSyncingBusinesses ? <Loader2 className="h-4 w-4 animate-spin" /> : <Pencil className="h-4 w-4" />}
               </Button>
               {/* Business info */}
               <div className="flex-1 min-w-0">
@@ -630,17 +649,24 @@ const Reviews = () => {
                   </div>
                 </div>
 
-                {/* Business name - clickable to change */}
-                <Dialog open={businessDialogOpen} onOpenChange={setBusinessDialogOpen}>
-                  <DialogTrigger asChild>
-                    <button className="flex items-center gap-1 hover:opacity-70 transition-opacity text-left">
-                      <h3 className="font-semibold text-foreground text-base leading-tight line-clamp-2">
-                        {selectedBusiness ? selectedBusiness.name : t("reviewsPage.selectBusiness")}
-                      </h3>
-                      <ChevronDown className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                    </button>
-                  </DialogTrigger>
-                </Dialog>
+                {/* One accessible location picker (also opened via the avatar). */}
+                <button type="button" onClick={() => setBusinessDialogOpen(true)}
+                  className="flex items-center gap-1.5 min-w-0 max-w-full hover:opacity-70 transition-opacity text-left rounded-md"
+                  aria-label={i18n.language?.startsWith("fr") ? "Choisir un établissement" : "Choose location"}>
+                  <h3 className="font-semibold text-foreground text-base sm:text-lg leading-tight break-words">
+                    {selectedBusiness ? selectedBusiness.name : t("reviewsPage.selectBusiness")}
+                  </h3>
+                  <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0" />
+                </button>
+                {googleMapsHref && (
+                  <a href={googleMapsHref} target="_blank" rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 mt-1.5 text-xs font-medium text-primary hover:underline underline-offset-2"
+                    title={i18n.language?.startsWith("fr") ? "Ouvrir la fiche Google Maps" : "Open Google Maps business listing"}>
+                    <MapPin className="h-3.5 w-3.5" />
+                    {i18n.language?.startsWith("fr") ? "Voir la fiche Google" : "View Google listing"}
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
+                )}
 
                 {/* Rating & Reviews - aligned under name */}
                 {selectedBusiness && stats.total > 0 && (
@@ -669,7 +695,7 @@ const Reviews = () => {
           </div>
 
           {/* Stats - Clickable Filters */}
-          <div className="grid grid-cols-4 gap-3 mt-4">
+          <div className="grid grid-cols-4 gap-1.5 sm:gap-3 mt-3 sm:mt-4">
             {[
               { label: t("reviewsPage.total"), value: stats.total, bgGradient: "from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900", textColor: "text-slate-700 dark:text-slate-200", status: "all" },
               { label: t("reviewsPage.unanswered"), value: stats.pending, bgGradient: "from-red-100 to-orange-100 dark:from-red-900/40 dark:to-orange-900/40", textColor: "text-red-600 dark:text-red-400", status: "pending" },
@@ -679,23 +705,23 @@ const Reviews = () => {
               <button
                 key={stat.label}
                 onClick={() => setFilterStatus(stat.status)}
-                className={`rounded-xl p-3 text-center transition-all bg-gradient-to-br ${stat.bgGradient} ${
+                className={`rounded-xl px-1.5 py-2.5 sm:p-3 min-w-0 text-center transition-all bg-gradient-to-br ${stat.bgGradient} ${
                   filterStatus === stat.status 
                     ? "ring-2 ring-offset-2 ring-offset-background ring-primary/50 shadow-md" 
                     : "hover:shadow-xs opacity-80 hover:opacity-100"
                 }`}
               >
-                <div className={`text-xl font-bold ${stat.textColor}`}>
+                <div className={`text-xl sm:text-2xl font-bold tabular-nums ${stat.textColor}`}>
                   {stat.value}
                 </div>
-                <div className="text-xs text-muted-foreground mt-0.5">{stat.label}</div>
+                <div className="text-[10px] leading-tight sm:text-xs text-muted-foreground mt-1 break-words">{stat.label}</div>
               </button>
             ))}
           </div>
         </div>
       </div>
 
-      <main className="max-w-6xl mx-auto px-4 py-6 space-y-4">
+      <main className="max-w-6xl mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-4">
 
         {/* Single review filter banner (when coming from notification) */}
         {filterReviewId && (
