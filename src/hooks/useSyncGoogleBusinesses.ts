@@ -31,22 +31,22 @@ export const useSyncGoogleBusinesses = () => {
         throw new Error("No session found");
       }
 
-      const providerToken = session.provider_token;
-      
-      if (!providerToken) {
-        console.error("Missing Google provider token");
-        return { success: false, businesses: [], requires_reconnect: true };
-      }
-
+      // Google Business access comes from the server-stored refresh token.
+      // Supabase provider_token only exists immediately after some login flows,
+      // so requiring it silently blocked existing accounts and new locations.
       const response = await supabase.functions.invoke("sync-google-businesses", {
-        body: { provider_token: providerToken },
+        body: { force_selection: forceShowSelection },
       });
 
       if (response.error) {
-        throw new Error(response.error.message);
+        const context = await response.error.context?.json?.().catch(() => null);
+        throw new Error(context?.message || context?.error || response.error.message);
       }
 
       const result = response.data as SyncResult;
+      if (!result?.success) {
+        return { ...result, success: false, businesses: result?.businesses || [], message: result?.message || "La synchronisation Google a échoué." };
+      }
       
       // If forceShowSelection is true and we have google_businesses, force selection mode
       if (forceShowSelection && result.google_businesses && result.google_businesses.length > 0) {
@@ -59,7 +59,7 @@ export const useSyncGoogleBusinesses = () => {
       return result;
     } catch (error: any) {
       console.error("Sync error:", error);
-      return { success: false, businesses: [] };
+      return { success: false, businesses: [], message: error instanceof Error ? error.message : "Erreur de synchronisation" };
     } finally {
       setIsSyncing(false);
     }
