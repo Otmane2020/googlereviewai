@@ -16,7 +16,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
-import { LayoutDashboard, Star, Building2, Search, MapPin, Bell, Settings, CreditCard, LogOut, HelpCircle, MessageCircleQuestion, ListChecks, ShoppingBag, Package } from "lucide-react";
+import { LayoutDashboard, Star, Building2, Search, MapPin, Bell, Settings, CreditCard, LogOut, HelpCircle, MessageCircleQuestion, ListChecks, ShoppingBag, Package, Loader2, RefreshCw } from "lucide-react";
 import { RankiLogo } from "@/components/StarlinkoLogo";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -200,7 +200,161 @@ const RankiSidebar = () => {
   );
 };
 
+type CreditAccess = {
+  userId: string;
+  status: "loading" | "ready" | "error";
+  credits: number;
+  agencyCredits: number;
+  businessCredits: number;
+  planName: string | null;
+  subscriptionStatus: string | null;
+};
+
 export const DashboardLayout = ({ children, title }: DashboardLayoutProps) => {
+  const { user, signOut } = useAuth();
+  const { i18n } = useTranslation();
+  const isEN = i18n.language?.startsWith("en");
+  const [retryKey, setRetryKey] = useState(0);
+  const [access, setAccess] = useState<CreditAccess | null>(null);
+  const userId = user?.id;
+
+  useEffect(() => {
+    if (!userId) return;
+
+    let cancelled = false;
+    setAccess({
+      userId, status: "loading", credits: 0, agencyCredits: 0,
+      businessCredits: 0, planName: null, subscriptionStatus: null,
+    });
+
+    const refreshBalance = async () => {
+      const [profileResult, businessResult] = await Promise.all([
+        supabase.from("profiles")
+          .select("credits, agency_total_credits, plan_name, subscription_status")
+          .eq("id", userId).maybeSingle(),
+        supabase.from("businesses")
+          .select("credits")
+          .eq("user_id", userId)
+          .eq("is_active", true),
+      ]);
+      if (cancelled) return;
+
+      if (profileResult.error || !profileResult.data || businessResult.error) {
+        setAccess((prev) => ({
+          userId, status: "error", credits: prev?.userId === userId ? prev.credits : 0,
+          agencyCredits: prev?.userId === userId ? prev.agencyCredits : 0,
+          businessCredits: prev?.userId === userId ? prev.businessCredits : 0,
+          planName: prev?.userId === userId ? prev.planName : null,
+          subscriptionStatus: prev?.userId === userId ? prev.subscriptionStatus : null,
+        }));
+        return;
+      }
+
+      setAccess({
+        userId,
+        status: "ready",
+        credits: Math.max(0, profileResult.data.credits ?? 0),
+        agencyCredits: Math.max(0, profileResult.data.agency_total_credits ?? 0),
+        businessCredits: (businessResult.data ?? []).reduce(
+          (total, business) => total + Math.max(0, business.credits ?? 0), 0
+        ),
+        planName: profileResult.data.plan_name,
+        subscriptionStatus: profileResult.data.subscription_status,
+      });
+    };
+
+    void refreshBalance();
+
+    // React as soon as Stripe/webhooks or credits usage changes.
+    const profileChannel = supabase.channel(`dashboard-credit-profile-${userId}`)
+      .on("postgres_changes", {
+        event: "UPDATE", schema: "public", table: "profiles", filter: `id=eq.${userId}`,
+      }, () => { void refreshBalance(); }).subscribe();
+    const businessChannel = supabase.channel(`dashboard-credit-businesses-${userId}`)
+      .on("postgres_changes", {
+        event: "*", schema: "public", table: "businesses", filter: `user_id=eq.${userId}`,
+      }, () => { void refreshBalance(); }).subscribe();
+
+    const onFocus = () => { if (document.visibilityState === "visible") void refreshBalance(); };
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", onFocus);
+    // Poll as a fallback in case Realtime is unavailable or Stripe webhook is delayed.
+    const interval = window.setInterval(() => { void refreshBalance(); }, 15000);
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(interval);
+      window.removeEventListener("focus", onFocus);
+      document.removeEventListener("visibilitychange", onFocus);
+      void supabase.removeChannel(profileChannel);
+      void supabase.removeChannel(businessChannel);
+    };
+  }, [userId, retryKey]);
+
+  const checking = !!userId && (!access || access.userId !== userId || access.status === "loading");
+  const failed = !!userId && access?.userId === userId && access.status === "error";
+
+  // Paid Pro / Business plans include unlimited AI replies: a zero numeric balance
+  // must not lock out a customer whose unlimited subscription is still active.
+  const paidUnlimited = access?.status === "ready"
+    && ["active", "trial", "trialing"].includes((access.subscriptionStatus ?? "").toLowerCase())
+    && /(^|[_\s-])(pro|business|agence|agency)([_\s-]|$)/i.test(access.planName ?? "");
+  const availableCredits = (access?.credits ?? 0)
+    + (access?.agencyCredits ?? 0) + (access?.businessCredits ?? 0);
+  const exhausted = !!userId && access?.userId === userId
+    && access.status === "ready" && availableCredits <= 0 && !paidUnlimited;
+
+  if (checking) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background" aria-live="polite">
+        <Loader2 className="w-7 h-7 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (failed) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background p-6">
+        <div className="max-w-md text-center space-y-4">
+          <h2 className="text-lg font-semibold">
+            {isEN ? "Unable to verify your credit balance" : "Impossible de vérifier votre solde de crédits"}
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            {isEN ? "Please retry to access your dashboard." : "Réessayez pour accéder à votre tableau de bord."}
+          </p>
+          <Button onClick={() => setRetryKey((n) => n + 1)} className="gap-2">
+            <RefreshCw className="w-4 h-4" /> {isEN ? "Retry" : "Réessayer"}
+          </Button>
+          <Button variant="ghost" onClick={() => { void signOut(); }}>
+            {isEN ? "Sign out" : "Se déconnecter"}
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (exhausted) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-background p-6">
+        <RankiLogo className="text-foreground mb-5" />
+        <p className="max-w-sm text-center text-muted-foreground text-sm">
+          {isEN
+            ? "Your balance is empty. Top up or upgrade to access your dashboard."
+            : "Votre solde est épuisé. Rechargez vos crédits ou passez à un abonnement pour accéder au tableau de bord."}
+        </p>
+        <UpgradeDialog
+          open={true}
+          onOpenChange={() => {}}
+          currentPlan={access?.planName ?? undefined}
+          exhausted
+          locked
+          onRetry={() => setRetryKey((n) => n + 1)}
+          onSignOut={() => { void signOut(); }}
+        />
+      </div>
+    );
+  }
+
   return (
     <SidebarProvider defaultOpen={true}>
       <div className="min-h-screen flex w-full bg-background">
