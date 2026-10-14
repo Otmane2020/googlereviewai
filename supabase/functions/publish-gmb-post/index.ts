@@ -110,6 +110,10 @@ serve(async (req) => {
       return jsonResponse({ success: false, error: "Add a valid business website HTTPS URL to enable En savoir plus." }, 400);
     }
 
+    // Check Google connection BEFORE requesting a paid AI image.
+    const token = await getGoogleAccessToken(admin, userId);
+    if (!token.token) return jsonResponse({ success: false, error: token.error || "Reconnect Google", requires_reconnect: token.requires_reconnect }, 401);
+
     const finalImage = body.media_url ? httpsUrl(body.media_url) : await generateGmbImage(
       admin, userId, business, summary, body.editorial_mode || "information",
     );
@@ -147,8 +151,6 @@ serve(async (req) => {
       postBody.callToAction = { actionType: body.cta_type && body.cta_type !== "NONE" ? body.cta_type : "LEARN_MORE", url: website };
     }
 
-    const token = await getGoogleAccessToken(admin, userId);
-    if (!token.token) return jsonResponse({ success: false, error: token.error || "Reconnect Google", requires_reconnect: token.requires_reconnect }, 401);
     const accountsResponse = await fetch("https://mybusinessaccountmanagement.googleapis.com/v1/accounts", {
       headers: { Authorization: "Bearer " + token.token },
     });
