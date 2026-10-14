@@ -183,7 +183,7 @@
     "analyzesSentiment": "Analyse le sentiment et adapte le ton",
     "publishesDirect": "Publie directement sur Google Business",
     "recruit": "Recruter Starly",
-    "freeTrial": "Essai gratuit 3 jours",
+    "freeTrial": "3 réponses IA offertes",
     "noCommitment": "Sans engagement"
   },
   "cta": {
@@ -335,7 +335,7 @@
     "currentPlan": "Plan actuel",
     "choosePlan": "Choisir ce plan",
     "getStarted": "Commencer",
-    "freeTrial": "Essai gratuit 3 jours",
+    "freeTrial": "3 réponses IA offertes",
     "noCreditCard": "Sans CB",
     "cancelAnytime": "Sans engagement",
     "allinone": {
@@ -517,7 +517,7 @@
     "manageReviewsWithAI": "Gérez vos avis Google avec l'IA",
     "joinBusinesses": "Rejoignez des centaines d'entreprises qui automatisent leurs réponses aux avis.",
     "benefits": {
-      "freeTrial": "3 jours d'essai gratuit",
+      "freeTrial": "3 réponses IA offertes",
       "unlimitedResponses": "Réponses IA illimitées",
       "gmbSync": "Synchronisation Google My Business",
       "prioritySupport": "Support prioritaire"
@@ -545,7 +545,7 @@
     },
     "signInTitle": "Connectez-vous à GoogleReviewAI",
     "signInSubtitle": "Connexion sécurisée avec votre compte Google — nécessaire pour synchroniser votre fiche Google Business Profile.",
-    "stripeNotice": "Après votre connexion Google, vous serez redirigé vers le paiement sécurisé Stripe pour démarrer votre essai gratuit de 7 jours."
+    "stripeNotice": "Après votre connexion Google, choisissez une offre et payez en toute sécurité avec Stripe."
   },
   "footer": {
     "description": "Solution IA pour gérer et répondre automatiquement à vos avis Google.",
