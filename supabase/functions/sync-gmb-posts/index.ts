@@ -26,7 +26,12 @@ serve(async (req) => {
     let userId: string;
 
     if (cronUserId) {
-      // Cron job call - use provided user_id
+      // Cron job call requires the service-role token. Never trust user_id alone.
+      if (req.headers.get("Authorization") !== "Bearer " + supabaseServiceKey) {
+        return new Response(JSON.stringify({ success: false, error: "Cron authorization required" }), {
+          status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
       userId = cronUserId;
       console.log("[sync-gmb-posts] Cron call for user:", userId);
     } else {
@@ -189,7 +194,10 @@ async function syncPostsToDb(
     cta_url: post.callToAction?.url || null,
     media_url: post.media?.[0]?.sourceUrl || null,
     posted_at: post.createTime || null,
-    status: "synced",
+    // Google is authoritative: PROCESSING is not public, only LIVE is published.
+    status: (post.state || "").toUpperCase() === "LIVE" ? "published"
+      : (post.state || "").toUpperCase() === "REJECTED" ? "rejected"
+      : (post.state || "").toUpperCase() === "PROCESSING" ? "processing" : "unverified",
     synced_at: new Date().toISOString(),
   }));
 
