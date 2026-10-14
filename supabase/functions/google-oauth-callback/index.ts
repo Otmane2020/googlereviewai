@@ -21,6 +21,22 @@ serve(async (req) => {
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
+    // Never trust user_id from OAuth state: bind token storage to the
+    // authenticated Supabase session before exchanging a Google code.
+    const authHeader = req.headers.get("Authorization") || "";
+    const authClient = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+      { global: { headers: { Authorization: authHeader } } }
+    );
+    const { data: { user }, error: authError } = await authClient.auth.getUser();
+    if (authError || !user || user.id !== user_id) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized OAuth callback" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
 
     const clientId = Deno.env.get("GOOGLE_OAUTH_CLIENT_ID");
     const clientSecret = Deno.env.get("GOOGLE_OAUTH_CLIENT_SECRET");
@@ -100,7 +116,7 @@ serve(async (req) => {
         google_token_expires_at: null,
         updated_at: new Date().toISOString(),
       })
-      .eq("id", user_id);
+      .eq("id", user.id);
 
     if (updateError) {
       console.error("Failed to update profile:", updateError);
