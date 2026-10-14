@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { activePlanTier } from "../_shared/plan-access.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -10,16 +11,9 @@ const corsHeaders = {
 async function hasDailyPlan(supabase: any, userId: string): Promise<boolean> {
   const { data: profile } = await supabase
     .from("profiles")
-    .select("plan_name, subscription_status")
-    .eq("id", userId)
-    .single();
-
-  if (!profile) return false;
-  const validStatuses = ["active", "trial", "trialing"];
-  if (!validStatuses.includes(profile.subscription_status || "")) return false;
-  const dailyPlans = ["daily", "pro", "business", "quotidien", "agence", "pro annuel", "business annuel"];
-  const planLower = (profile.plan_name || "").toLowerCase();
-  return dailyPlans.some((p) => planLower.includes(p));
+    .select("plan_name,subscription_status,current_period_end,trial_end")
+    .eq("id", userId).single();
+  return ["pro", "business"].includes(activePlanTier(profile));
 }
 
 serve(async (req) => {
@@ -34,16 +28,15 @@ serve(async (req) => {
 
     console.log("[CRON-AEO] Starting daily Q&A generation...");
 
-    // Get ALL users (app is free now)
+    // Only current premium subscriptions can generate scheduled Google Q&A.
     const { data: allProfiles } = await supabase
       .from("profiles")
-      .select("id, plan_name, subscription_status");
+      .select("id, plan_name, subscription_status, current_period_end, trial_end");
 
-    const eligibleUserIds = (allProfiles || []).map((p: any) => p.id);
+    const eligibleUserIds = (allProfiles || []).filter((p: any) => ["pro", "business"].includes(activePlanTier(p))).map((p: any) => p.id);
     console.log(`[CRON-AEO] Total users: ${eligibleUserIds.length}`);
 
     const today = new Date().toISOString().split("T")[0];
-    const dayOfWeek = new Date().getDay(); // 0=Sunday, 1=Monday
     let generatedCount = 0;
     let errorCount = 0;
 
@@ -51,10 +44,7 @@ serve(async (req) => {
       try {
         const isDailyUser = await hasDailyPlan(supabase, userId);
 
-        // Free users: generate only on Mondays
-        if (!isDailyUser && dayOfWeek !== 1) {
-          continue;
-        }
+        if (!isDailyUser) continue;
 
         const { data: businesses } = await supabase
           .from("businesses")
