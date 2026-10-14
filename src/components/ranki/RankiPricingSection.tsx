@@ -28,7 +28,7 @@ const getPlans = (isFrench: boolean): Plan[] => [
     features: isFrench
       ? ["1 établissement Google My Business", "Réponses IA automatiques 24/7 aux avis Google", "50 crédits de réponses IA par mois", "Alertes email & push sur nouveaux avis", "Tableau de bord avis", "Accès API Google Business vérifié"]
       : ["1 Google Business Profile location", "24/7 automatic AI replies to Google reviews", "50 AI reply credits per month", "Email and push alerts for new reviews", "Review management dashboard", "Verified Google Business API access"],
-    cta: isFrench ? "Essayer 7 jours gratuits" : "Start 7-day free trial",
+    cta: isFrench ? "Choisir cette offre" : "Choose this plan",
   },
   {
     name: "Pro",
@@ -38,7 +38,7 @@ const getPlans = (isFrench: boolean): Plan[] => [
     features: isFrench
       ? ["Jusqu'à 3 établissements", "Réponses IA illimitées aux avis Google", "GEO Rank quotidien (suivi positionnement Maps)", "Posts SEO + Q&R AEO publiés automatiquement", "Notifications temps réel", "Support prioritaire"]
       : ["Up to 3 locations", "Unlimited AI replies to Google reviews", "Daily GEO Rank tracking on Maps", "Automatically published SEO posts and AEO Q&As", "Real-time notifications", "Priority support"],
-    cta: isFrench ? "Essayer 7 jours gratuits" : "Start 7-day free trial",
+    cta: isFrench ? "Choisir cette offre" : "Choose this plan",
     highlight: true,
   },
   {
@@ -49,7 +49,7 @@ const getPlans = (isFrench: boolean): Plan[] => [
     features: isFrench
       ? ["Établissements illimités", "Réponses IA illimitées + GEO + SEO/AEO", "Posts & Q&R automatiques illimités", "API & webhooks avancés", "Manager dédié", "Rapports personnalisés"]
       : ["Unlimited locations", "Unlimited AI replies + GEO + SEO/AEO", "Unlimited automated posts and Q&As", "Advanced API and webhooks", "Dedicated account manager", "Custom reports"],
-    cta: isFrench ? "Essayer 7 jours gratuits" : "Start 7-day free trial",
+    cta: isFrench ? "Choisir cette offre" : "Choose this plan",
   },
 ];
 
@@ -101,7 +101,7 @@ export const RankiPricingSection = () => {
             {isFrench ? "Une tarification simple." : "Simple pricing."} <span className="text-primary">{isFrench ? "Une visibilité IA massive." : "Massive AI visibility."}</span>
           </h2>
           <p className="mt-4 text-lg text-muted-foreground">
-            {isFrench ? "7 jours d’essai gratuit sur tous les plans. Sans engagement, résiliable à tout moment." : "7-day free trial on every plan. No commitment, cancel anytime."}
+            {isFrench ? "Des offres claires, sans engagement. Paiement sécurisé et résiliation à tout moment." : "Straightforward pricing, no commitment. Secure checkout and cancel anytime."}
           </p>
         </div>
 
