@@ -167,8 +167,9 @@ export default function GmbPost() {
       return;
     }
 
-    if (!ctaUrl.trim() && !businesses.find(b => b.id === selectedBusinessId)?.website) {
-      toast.error(t("Veuillez saisir une URL pour le bouton d'action", "Please enter a URL for the action button"));
+    // Standard text-only posts need no website or call-to-action.
+    if (postType === "OFFER" && !ctaUrl.trim() && !selectedBusiness.website) {
+      toast.error(t("Une URL est nécessaire pour une offre.", "An HTTPS website is required for an offer."));
       return;
     }
 
@@ -196,7 +197,7 @@ export default function GmbPost() {
           business_id: selectedBusinessId,
           summary: content,
           topic_type: postType,
-          cta_type: postType === "OFFER" ? undefined : (ctaType && ctaType !== "NONE" ? ctaType : "LEARN_MORE"),
+          cta_type: postType === "OFFER" ? undefined : (ctaType || "NONE"),
           cta_url: ctaUrl || undefined,
           media_url: mediaUrl || undefined,
           event_title: (postType === "EVENT" || postType === "OFFER") ? eventTitle : undefined,
