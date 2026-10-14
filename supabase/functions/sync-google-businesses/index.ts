@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { managedLocationLimit } from "../_shared/plan-access.ts";
 import { getGoogleAccessToken } from "../_shared/googleAuth.ts";
 
 const corsHeaders = {
@@ -287,11 +288,11 @@ serve(async (req) => {
     // Get user's plan limit
     const { data: profile, error: profileError } = await supabaseAdmin
       .from("profiles")
-      .select("max_businesses")
+      .select("plan_name,subscription_status,trial_end,current_period_end,max_businesses")
       .eq("id", user.id)
       .single();
 
-    const maxBusinesses = profile?.max_businesses || 1;
+    const maxBusinesses = managedLocationLimit(profile);
 
     // Check if user already has active businesses selected
     const { data: existingBusinesses } = await supabaseAdmin
