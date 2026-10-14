@@ -15,6 +15,7 @@ type RequestBody = {
   cta_type?: string;
   cta_url?: string;
   media_url?: string;
+  generate_image?: boolean;
   scheduled_content_id?: string;
   post_id?: string; // Deprecated alias for scheduled_content_id.
   user_id?: string; // Allowed ONLY for a service-role-authenticated cron.
@@ -101,29 +102,35 @@ serve(async (req) => {
         .eq("user_id", userId).eq("business_id", business.id).maybeSingle();
       if (!queued) return jsonResponse({ success: false, error: "Scheduled article was not found" }, 404);
       if (queued.google_post_id) {
-        return jsonResponse({ success: true, already_exists: true, state: "PROCESSING", post: { name: queued.google_post_id } });
+        return jsonResponse({ success: true, already_exists: true, state: "PROCESSING", post: { name: queued.google_post_id }, message: "Post previously sent; check its Google moderation status." });
       }
     }
 
+    // Google allows text-only standard local posts. A missing public website
+    // only disables the optional learn-more CTA, never the whole post.
     const website = httpsUrl(body.cta_url) || httpsUrl(business.website);
-    if (!website) {
-      return jsonResponse({ success: false, error: "Add a valid business website HTTPS URL to enable En savoir plus." }, 400);
-    }
 
     // Check Google connection BEFORE requesting a paid AI image.
     const token = await getGoogleAccessToken(admin, userId);
     if (!token.token) return jsonResponse({ success: false, error: token.error || "Reconnect Google", requires_reconnect: token.requires_reconnect }, 401);
 
-    const finalImage = body.media_url ? httpsUrl(body.media_url) : await generateGmbImage(
-      admin, userId, business, summary, body.editorial_mode || "information",
-    );
-    if (!finalImage) return jsonResponse({ success: false, error: "A valid public HTTPS photo is required." }, 400);
+    // Image generation is opt-in: do not require a paid image-provider call
+    // before every otherwise-valid Google Business standard post.
+    let finalImage: string | null = null;
+    if (body.media_url) {
+      finalImage = httpsUrl(body.media_url);
+      if (!finalImage) return jsonResponse({ success: false, error: "Photo URL must be public HTTPS." }, 400);
+    } else if (body.generate_image === true) {
+      finalImage = await generateGmbImage(
+        admin, userId, business, summary, body.editorial_mode || "information",
+      );
+    }
 
     const postBody: Record<string, unknown> = {
       languageCode: business.gmb_language?.startsWith("en") ? "en" : "fr",
       summary,
       topicType: topic,
-      media: [{ mediaFormat: "PHOTO", sourceUrl: finalImage }],
+      ...(finalImage ? { media: [{ mediaFormat: "PHOTO", sourceUrl: finalImage }] } : {}),
     };
 
     if (topic === "OFFER" || topic === "EVENT") {
@@ -140,6 +147,7 @@ serve(async (req) => {
         schedule: { startDate: start.day, startTime: start.time, endDate: end.day, endTime: end.time },
       };
       if (topic === "OFFER") {
+        if (!website) return jsonResponse({ success: false, error: "A valid website is required for an OFFER post." }, 400);
         postBody.offer = {
           ...(body.coupon_code?.trim() ? { couponCode: body.coupon_code.trim() } : {}),
           ...(body.terms_conditions?.trim() ? { termsConditions: body.terms_conditions.trim() } : {}),
@@ -147,8 +155,8 @@ serve(async (req) => {
         };
       }
     }
-    if (topic !== "OFFER") {
-      postBody.callToAction = { actionType: body.cta_type && body.cta_type !== "NONE" ? body.cta_type : "LEARN_MORE", url: website };
+    if (topic !== "OFFER" && website && body.cta_type !== "NONE") {
+      postBody.callToAction = { actionType: body.cta_type || "LEARN_MORE", url: website };
     }
 
     const accountsResponse = await fetch("https://mybusinessaccountmanagement.googleapis.com/v1/accounts", {
@@ -165,13 +173,15 @@ serve(async (req) => {
       const url = "https://mybusiness.googleapis.com/v4/" + account.name + "/locations/" + business.google_place_id + "/localPosts";
       // Duplicate-safe: a prior accepted create can exist even if its response was lost.
       const listing = await fetch(url + "?pageSize=100", { headers: { Authorization: "Bearer " + token.token } });
-      if (!listing.ok) {
-        lastError = "Google listing unavailable (" + listing.status + ")";
-        continue;
+      if (listing.ok) {
+        const foundPosts = ((await listing.json()).localPosts || []) as typeof googlePost[];
+        const matching = foundPosts.find((post) => post && post.summary?.trim() === summary);
+        if (matching?.name) { googlePost = matching; break; }
+      } else {
+        // List and Create permissions may differ. Let Google decide on POST,
+        // retaining the stored scheduled-content idempotency guard above.
+        console.warn("[publish-gmb-post] Cannot list posts for this account", listing.status);
       }
-      const foundPosts = ((await listing.json()).localPosts || []) as typeof googlePost[];
-      const matching = foundPosts.find((post) => post && post.summary?.trim() === summary);
-      if (matching?.name) { googlePost = matching; break; }
 
       let response: Response;
       try {
@@ -223,9 +233,16 @@ serve(async (req) => {
     }, { onConflict: "google_post_id" });
     if (saveError) console.error("[publish-gmb-post] Google accepted ID but database save failed:", saveError.message);
 
-    if (scheduledContentId && status !== "rejected") {
+    if (scheduledContentId) {
+      const scheduleState = status === "published" ? "published" :
+        status === "rejected" ? "rejected" : "processing";
       const { error: scheduleError } = await admin.from("scheduled_content")
-        .update({ status: "published", google_post_id: googlePost.name, published_at: new Date().toISOString(), error_message: null })
+        .update({
+          status: scheduleState,
+          google_post_id: googlePost.name,
+          published_at: status === "published" ? new Date().toISOString() : null,
+          error_message: status === "rejected" ? "Google a refusé cette publication." : null,
+        })
         .eq("id", scheduledContentId).eq("business_id", business.id).eq("user_id", userId);
       if (scheduleError) console.error("[publish-gmb-post] Scheduled-content save failed:", scheduleError.message);
     }
