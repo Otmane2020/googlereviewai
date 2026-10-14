@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -28,6 +28,7 @@ interface SelectBusinessesDialogProps {
   businesses: GoogleBusiness[];
   maxBusinesses: number;
   userId: string;
+  initialSelectedGooglePlaceIds?: string[];
   onSuccess: () => void;
 }
 
@@ -37,10 +38,21 @@ export const SelectBusinessesDialog = ({
   businesses,
   maxBusinesses,
   userId,
+  initialSelectedGooglePlaceIds = [],
   onSuccess,
 }: SelectBusinessesDialogProps) => {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [saving, setSaving] = useState(false);
+
+  // When a new establishment is discovered, keep previously active selections.
+  useEffect(() => {
+    if (!open) return;
+    const availableIds = new Set(businesses.map((b) => b.google_place_id));
+    setSelected(new Set(
+      initialSelectedGooglePlaceIds.filter((id) => availableIds.has(id)).slice(0, maxBusinesses)
+    ));
+  }, [open, businesses, initialSelectedGooglePlaceIds, maxBusinesses]);
+
 
   const toggleBusiness = (googlePlaceId: string) => {
     const newSelected = new Set(selected);
@@ -77,17 +89,17 @@ export const SelectBusinessesDialog = ({
         selected.has(b.google_place_id)
       );
 
-      const { error } = await supabase.functions.invoke("save-selected-businesses", {
+      const { data, error } = await supabase.functions.invoke("save-selected-businesses", {
         body: {
           businesses: selectedBusinesses,
         },
       });
 
-      if (error) throw error;
+      if (error || !data?.success) throw error || new Error(data?.error || "Unable to save business selection");
 
       toast({
         title: "Établissements synchronisés",
-        description: `${selected.size} business${selected.size > 1 ? "es" : ""} added.`,
+        description: `${selected.size} établissement(s) sélectionné(s).`,
       });
 
       onSuccess();

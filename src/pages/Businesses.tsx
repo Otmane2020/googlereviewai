@@ -174,16 +174,28 @@ const BusinessesPage = () => {
 
   const handleSyncBusinesses = async () => {
     const result = await syncBusinesses();
-    
-    // Check if selection is required
-    if (result?.requires_selection) {
+
+    if (!result.success) {
+      toast({
+        title: t("Synchronisation impossible", "Sync failed"),
+        description: result.message || t("Reconnectez votre compte Google depuis les paramètres.", "Reconnect Google from Settings."),
+        variant: "destructive",
+      });
+      if (result.requires_reconnect) navigate("/settings");
+      return;
+    }
+
+    if (result.requires_selection) {
       setGoogleBusinessesForSelection(result.google_businesses || []);
       setMaxBusinesses(result.max_businesses || 1);
       setShowSelectDialog(true);
       return;
     }
-    
-    fetchBusinesses();
+    await fetchBusinesses();
+    toast({
+      title: t("Synchronisation terminée", "Sync complete"),
+      description: t("Les établissements Google ont été actualisés.", "Google Business locations were refreshed."),
+    });
   };
 
   // Force show selection dialog for "Edit" button
@@ -191,6 +203,15 @@ const BusinessesPage = () => {
     // Pass true to force selection mode
     const result = await syncBusinesses(true);
     
+    if (!result.success) {
+      toast({
+        title: t("Synchronisation impossible", "Sync failed"),
+        description: result.message || t("Vérifiez la connexion Google dans Paramètres.", "Check Google connection in Settings."),
+        variant: "destructive",
+      });
+      if (result.requires_reconnect) navigate("/settings");
+      return;
+    }
     if (result?.google_businesses && result.google_businesses.length > 0) {
       // Always show selection dialog when user wants to change businesses
       setGoogleBusinessesForSelection(result.google_businesses);

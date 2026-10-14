@@ -67,18 +67,20 @@ export const OAuthCallback = ({ children }: { children: React.ReactNode }) => {
             const discoveredBusinesses = syncData?.google_businesses || [];
             if (syncError || syncData?.success === false || (syncedBusinesses.length === 0 && discoveredBusinesses.length === 0)) {
               console.warn("[OAuthCallback] No Google Business Profile found", syncError || syncData);
-              await supabase.functions.invoke("purge-account-no-gmb").catch(() => undefined);
-              await supabase.auth.signOut();
+              // A linked account may have just added a location that is not
+              // visible to Google yet. Never purge or sign out the user when
+              // resyncing an existing connection from Settings.
               toast({
-                title: isFrench ? "Compte GMB requis" : "Google Business Profile required",
+                title: isFrench ? "Synchronisation à vérifier" : "Sync needs attention",
                 description: isFrench
-                  ? "Déconnectez-vous puis reconnectez-vous avec un compte Google possédant une fiche Business Profile."
-                  : "Please sign in again with a Google account that owns a Business Profile.",
+                  ? "Google est connecté, mais aucun établissement n'a été récupéré. Vérifiez l'accès Google et réessayez depuis Paramètres."
+                  : "Google is connected, but no business was returned. Check account access and retry from Settings.",
                 variant: "destructive",
               });
+              const returnTo = sessionStorage.getItem("google_oauth_return_to") || "/settings";
               sessionStorage.removeItem("google_oauth_return_to");
               setIsProcessing(false);
-              navigate("/auth?gmb_required=1", { replace: true });
+              navigate(returnTo, { replace: true });
               return;
             }
 

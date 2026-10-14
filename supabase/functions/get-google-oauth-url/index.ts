@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { REDIRECT_URI_MAP } from "../_shared/googleAuth.ts";
 
 const corsHeaders = {
@@ -26,6 +27,21 @@ serve(async (req) => {
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
+    // The OAuth URL must belong to the current authenticated user.
+    const authHeader = req.headers.get("Authorization") || "";
+    const authClient = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+      { global: { headers: { Authorization: authHeader } } }
+    );
+    const { data: { user }, error: authError } = await authClient.auth.getUser();
+    if (authError || !user || user.id !== user_id) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized Google connection" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
 
     const clientId = Deno.env.get("GOOGLE_OAUTH_CLIENT_ID");
 

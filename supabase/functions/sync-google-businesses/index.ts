@@ -118,7 +118,24 @@ serve(async (req) => {
     }
 
     const accountsData = await accountsResponse.json();
-    const accounts = accountsData.accounts || [];
+    const accounts = [...(accountsData.accounts || [])];
+    let accountsNextPage = accountsData.nextPageToken as string | undefined;
+    let accountsPageCount = 1;
+    // Google Account Management paginates large portfolios.
+    while (accountsNextPage && accountsPageCount < 25) {
+      const nextUrl = "https://mybusinessaccountmanagement.googleapis.com/v1/accounts?pageToken=" + encodeURIComponent(accountsNextPage);
+      const nextResponse = await fetch(nextUrl, { headers: { Authorization: `Bearer ${accessToken}` } });
+      if (!nextResponse.ok) {
+        throw new Error(`Unable to load all Google Business accounts (HTTP ${nextResponse.status}). Retry or reconnect Google.`);
+      }
+      const nextData = await nextResponse.json();
+      accounts.push(...(nextData.accounts || []));
+      accountsNextPage = nextData.nextPageToken;
+      accountsPageCount++;
+    }
+    if (accountsNextPage) {
+      throw new Error("Google Business account list exceeds pagination safety limit.");
+    }
 
     if (accounts.length === 0) {
       return new Response(
@@ -139,25 +156,30 @@ serve(async (req) => {
       const accountName = account.name; // Format: accounts/{accountId}
       
       try {
-        const locationsResponse = await fetch(
-          `https://mybusinessbusinessinformation.googleapis.com/v1/${accountName}/locations?readMask=name,title,storefrontAddress,websiteUri,phoneNumbers,profile,metadata`,
-          {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
+        const locations: any[] = [];
+        let nextPageToken: string | undefined;
+        let pageCount = 0;
+        do {
+          const url = new URL(`https://mybusinessbusinessinformation.googleapis.com/v1/${accountName}/locations`);
+          url.searchParams.set("readMask", "name,title,storefrontAddress,websiteUri,phoneNumbers,profile,metadata");
+          url.searchParams.set("pageSize", "100");
+          if (nextPageToken) url.searchParams.set("pageToken", nextPageToken);
+          const locationsResponse = await fetch(url.toString(), {
+            headers: { Authorization: `Bearer ${accessToken}` },
+          });
+          if (!locationsResponse.ok) {
+            throw new Error(`Google Business locations unavailable for ${accountName} (HTTP ${locationsResponse.status}).`);
           }
-        );
-
-        if (locationsResponse.ok) {
           const locationsData = await locationsResponse.json();
-          return { accountName, locations: locationsData.locations || [] };
-        } else {
-          console.error(`Failed to fetch locations for ${accountName}:`, await locationsResponse.text());
-          return { accountName, locations: [] };
-        }
+          locations.push(...(locationsData.locations || []));
+          nextPageToken = locationsData.nextPageToken;
+          pageCount++;
+        } while (nextPageToken && pageCount < 25);
+        if (nextPageToken) throw new Error(`Too many pages of locations in ${accountName}`);
+        return { accountName, locations };
       } catch (e) {
         console.error(`Error fetching locations for ${accountName}:`, e);
-        return { accountName, locations: [] };
+        throw e; // Never report success with an incomplete location list.
       }
     });
 
@@ -281,14 +303,18 @@ serve(async (req) => {
     const existingPlaceIds = new Set((existingBusinesses || []).map(b => b.google_place_id));
     const hasSelectedBusinesses = existingPlaceIds.size > 0;
 
-    // If user has more Google businesses than their plan allows AND hasn't selected yet
-    if (businessesData.length > maxBusinesses && !hasSelectedBusinesses) {
+    // Existing selections remain active, but when a newly discovered location
+    // exceeds the plan's limit, offer the user a real selection dialog.
+    const newlyDiscovered = businessesData.filter((business) => !existingPlaceIds.has(business.google_place_id));
+    const needsSelection = businessesData.length > maxBusinesses &&
+      (!hasSelectedBusinesses || newlyDiscovered.length > 0);
+    if (needsSelection) {
       console.log(`User has ${businessesData.length} businesses but plan allows ${maxBusinesses}. No selection made yet. Returning for selection.`);
       return new Response(
         JSON.stringify({ 
           success: true, 
           requires_selection: true,
-          message: `Vous avez ${businessesData.length} établissements Google mais votre plan permet ${maxBusinesses} établissement${maxBusinesses > 1 ? "s" : ""}.`,
+          message: `Google a trouvé ${businessesData.length} établissements. Votre plan permet ${maxBusinesses} établissement${maxBusinesses > 1 ? "s" : ""} actif${maxBusinesses > 1 ? "s" : ""}. Sélectionnez les établissements à conserver.`,
           google_businesses: businessesData.map(b => ({
             name: b.name,
             google_place_id: b.google_place_id,
@@ -298,6 +324,7 @@ serve(async (req) => {
             description: b.description,
           })),
           max_businesses: maxBusinesses,
+          active_google_place_ids: [...existingPlaceIds],
           businesses: [] 
         }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
