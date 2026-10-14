@@ -19,6 +19,16 @@ serve(async (req) => {
   }
 
   try {
+    // Only trusted server-side edge functions may dispatch to arbitrary users.
+    // Browser users must call test-push-notification, which verifies their JWT.
+    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    const authHeader = req.headers.get("Authorization");
+    if (!serviceRoleKey || authHeader !== "Bearer " + serviceRoleKey) {
+      return new Response(
+        JSON.stringify({ error: "Forbidden" }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const vapidPublicKey = Deno.env.get("VAPID_PUBLIC_KEY");

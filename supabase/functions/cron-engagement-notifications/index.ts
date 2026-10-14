@@ -59,7 +59,6 @@ serve(async (req) => {
     const emailsSent: string[] = [];
     const now = new Date();
     const hour = now.getHours();
-    const today = now.toISOString().split("T")[0];
 
     // Morning notifications (around 9 AM)
     const isMorning = hour >= 8 && hour <= 10;
@@ -326,27 +325,42 @@ serve(async (req) => {
       }
     }
 
-    // Insert all in-app notifications (avoid duplicates from same day)
+    // Cooldowns stop recurring marketing and review reminders flooding the inbox.
+    // Keep historical rows; email_* rows remain a separate audit trail.
+    const cooldownDays: Record<string, number> = {
+      seo_promo: 30, aeo_promo: 30,
+      pending_reviews: 7, seo_reminder: 7, aeo_reminder: 7,
+      ai_tip: 14,
+    };
+    let createdCount = 0;
     for (const notif of notifications) {
-      const { data: existing } = await supabase
+      const cooldown = cooldownDays[notif.type] ?? 1;
+      const since = new Date(now.getTime() - cooldown * 24 * 60 * 60 * 1000).toISOString();
+      const { data: existing, error: lookupError } = await supabase
         .from("notifications")
         .select("id")
         .eq("user_id", notif.user_id)
         .eq("type", notif.type)
-        .gte("created_at", `${today}T00:00:00`)
+        .gte("created_at", since)
         .limit(1);
 
-      if (!existing || existing.length === 0) {
-        await supabase.from("notifications").insert(notif);
+      if (lookupError) {
+        console.error("Unable to check notification cooldown", lookupError);
+        continue;
+      }
+      if (!existing?.length) {
+        const { error: insertError } = await supabase.from("notifications").insert(notif);
+        if (!insertError) createdCount++;
+        else console.error("Unable to create notification", insertError);
       }
     }
 
-    console.log(`Generated ${notifications.length} in-app notifications, sent ${emailsSent.length} emails`);
+    console.log(`Created ${createdCount} in-app notifications, sent ${emailsSent.length} emails`);
 
     return new Response(
       JSON.stringify({ 
         success: true, 
-        notifications_created: notifications.length,
+        notifications_created: createdCount,
         emails_sent: emailsSent.length,
         time: isMorning ? "morning" : isEvening ? "evening" : "other"
       }),

@@ -12,76 +12,162 @@ export interface Notification {
   created_at: string;
 }
 
+const PAGE_SIZE = 25;
+const FIELDS = "id,type,title,message,read,review_id,created_at";
+
+/**
+ * Notifications intended for users. email_* rows are operational audit logs,
+ * not inbox messages; they remain untouched in the database.
+ */
 export const useNotifications = () => {
   const { user } = useAuth();
+  const userId = user?.id;
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(false);
+  const [onlyUnread, setOnlyUnread] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
-    if (!user) return;
+    const timeout = setTimeout(() => setDebouncedSearch(searchQuery.trim()), 300);
+    return () => clearTimeout(timeout);
+  }, [searchQuery]);
 
-    // Fetch initial notifications
+  const refresh = useCallback(() => {
+    setPage(0);
+    setRefreshKey((value) => value + 1);
+  }, []);
+
+  const changeSearch = useCallback((value: string) => {
+    setSearchQuery(value);
+    setPage(0);
+  }, []);
+
+  const changeOnlyUnread = useCallback((value: boolean) => {
+    setOnlyUnread(value);
+    setPage(0);
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    if (!userId) {
+      setNotifications([]);
+      setUnreadCount(0);
+      setHasMore(false);
+      setLoading(false);
+      setError(null);
+      return;
+    }
+
     const fetchNotifications = async () => {
-      const { data } = await supabase
+      setLoading(true);
+      setError(null);
+      const safeSearch = debouncedSearch.replace(/[(),.%_*\\]/g, " ").trim().slice(0, 120);
+
+      let query = supabase
         .from("notifications")
-        .select("*")
-        .eq("user_id", user.id)
+        .select(FIELDS)
+        .eq("user_id", userId)
+        .not("type", "like", "email_%")
         .order("created_at", { ascending: false })
-        .limit(20);
-      
-      if (data) {
-        setNotifications(data);
-        setUnreadCount(data.filter((n) => !n.read).length);
+        .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
+
+      if (onlyUnread) query = query.or("read.eq.false,read.is.null");
+      if (safeSearch) {
+        query = query.or("title.ilike.%" + safeSearch + "%,message.ilike.%" + safeSearch + "%");
       }
+
+      const countQuery = supabase
+        .from("notifications")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", userId)
+        .not("type", "like", "email_%")
+        .or("read.eq.false,read.is.null");
+
+      const [itemsResult, countResult] = await Promise.all([query, countQuery]);
+      if (cancelled) return;
+
+      if (itemsResult.error || countResult.error) {
+        setError(itemsResult.error?.message || countResult.error?.message || "Unable to load notifications");
+        setLoading(false);
+        return;
+      }
+
+      const items = (itemsResult.data || []) as Notification[];
+      setNotifications((previous) => {
+        if (page === 0) return items;
+        const ids = new Set(previous.map((item) => item.id));
+        return [...previous, ...items.filter((item) => !ids.has(item.id))];
+      });
+      setHasMore(items.length === PAGE_SIZE);
+      setUnreadCount(countResult.count ?? 0);
+      setLoading(false);
     };
 
-    fetchNotifications();
+    void fetchNotifications();
+    return () => { cancelled = true; };
+  }, [userId, page, debouncedSearch, onlyUnread, refreshKey]);
 
-    // Subscribe to realtime notifications
+  useEffect(() => {
+    if (!userId) return;
     const channel = supabase
-      .channel("notifications-channel")
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "notifications",
-          filter: `user_id=eq.${user.id}`,
-        },
-        (payload) => {
-          const newNotification = payload.new as Notification;
-          setNotifications((prev) => [newNotification, ...prev]);
-          setUnreadCount((prev) => prev + 1);
-          
-          // NOTE: Push notifications are handled by Firebase FCM + Service Worker
-          // No need to trigger browser notifications here
-        }
-      )
+      .channel("notifications-live-" + userId + "-" + Math.random().toString(36).slice(2))
+      .on("postgres_changes", {
+        event: "*", schema: "public", table: "notifications", filter: "user_id=eq." + userId,
+      }, () => refresh())
       .subscribe();
+    return () => { void supabase.removeChannel(channel); };
+  }, [userId, refresh]);
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [user]);
+  const loadMore = useCallback(() => {
+    if (!loading && hasMore) setPage((value) => value + 1);
+  }, [loading, hasMore]);
 
-  const markAsRead = async (id: string) => {
-    await supabase.from("notifications").update({ read: true }).eq("id", id);
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
-    );
-    setUnreadCount((prev) => Math.max(0, prev - 1));
-  };
-
-  const markAllAsRead = async () => {
-    if (!user) return;
-    await supabase
+  const markAsRead = useCallback(async (id: string): Promise<boolean> => {
+    if (!userId) return false;
+    const { error: updateError } = await supabase
       .from("notifications")
       .update({ read: true })
-      .eq("user_id", user.id)
-      .eq("read", false);
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
-    setUnreadCount(0);
-  };
+      .eq("user_id", userId)
+      .eq("id", id);
+    if (updateError) {
+      setError(updateError.message);
+      return false;
+    }
+    setNotifications((previous) => previous.map((item) =>
+      item.id === id ? { ...item, read: true } : item
+    ));
+    refresh();
+    return true;
+  }, [userId, refresh]);
 
-  return { notifications, unreadCount, markAsRead, markAllAsRead };
+  const markAllAsRead = useCallback(async (): Promise<boolean> => {
+    if (!userId) return false;
+    const { error: updateError } = await supabase
+      .from("notifications")
+      .update({ read: true })
+      .eq("user_id", userId)
+      .not("type", "like", "email_%")
+      .or("read.eq.false,read.is.null");
+    if (updateError) {
+      setError(updateError.message);
+      return false;
+    }
+    setNotifications((previous) => previous.map((item) => ({ ...item, read: true })));
+    refresh();
+    return true;
+  }, [userId, refresh]);
+
+  return {
+    notifications, unreadCount, loading, error, hasMore, loadMore,
+    onlyUnread, setOnlyUnread: changeOnlyUnread,
+    searchQuery, setSearchQuery: changeSearch,
+    markAsRead, markAllAsRead, refresh,
+  };
 };

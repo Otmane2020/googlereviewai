@@ -1,330 +1,266 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { Helmet } from "react-helmet";
 import { useNavigate } from "@/lib/router-compat";
 import { useAuth } from "@/contexts/AuthContext";
-import { useNotifications } from "@/hooks/useNotifications";
+import { useNotifications, type Notification as AppNotification } from "@/hooks/useNotifications";
+import { useWebPush } from "@/hooks/useWebPush";
+import { usePWA } from "@/hooks/usePWA";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Bell, Search, Star, FileText, Target, MoreHorizontal, Loader2, CheckCheck, BellRing, BellOff } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
-import { fr as frLocale, enUS } from "date-fns/locale";
-import { useTranslation } from "react-i18next";
-import { BrandSparkle } from "@/components/BrandSparkle";
+import { toast } from "@/hooks/use-toast";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
+  Bell, Search, Star, FileText, Target, MoreHorizontal, Loader2, CheckCheck,
+  BellRing, BellOff, Sparkles, CircleAlert, ChevronDown, RotateCw, Wallet, X,
+  CheckCircle2,
+} from "lucide-react";
+import { formatDistanceToNow } from "date-fns";
+import { fr, enUS } from "date-fns/locale";
+import { useTranslation } from "react-i18next";
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-const getNotificationIcon = (type: string) => {
-  switch (type) {
-    case "new_review":
-    case "pending_reviews":
-      return { icon: Star, color: "bg-yellow-500", iconColor: "text-white" };
-    case "ai_response":
-    case "ai_tip":
-      return { icon: BrandSparkle, color: "bg-purple-500", iconColor: "text-white" };
-    case "seo_reminder":
-    case "seo_promo":
-      return { icon: FileText, color: "bg-blue-500", iconColor: "text-white" };
-    case "aeo_reminder":
-    case "aeo_promo":
-      return { icon: Target, color: "bg-green-500", iconColor: "text-white" };
-    default:
-      return { icon: Bell, color: "bg-primary", iconColor: "text-primary-foreground" };
-  }
+const styleForType = (type: string) => {
+  if (["new_review", "pending_reviews", "review_deleted", "review_edited"].includes(type))
+    return { Icon: Star, iconClass: "text-amber-600", bgClass: "bg-amber-500/10", category: "Avis", categoryEN: "Reviews" };
+  if (["ai_response", "ai_response_edited", "reply_published"].includes(type))
+    return { Icon: Sparkles, iconClass: "text-violet-600", bgClass: "bg-violet-500/10", category: "Réponses IA", categoryEN: "AI replies" };
+  if (type.startsWith("seo_"))
+    return { Icon: FileText, iconClass: "text-blue-600", bgClass: "bg-blue-500/10", category: "SEO", categoryEN: "SEO" };
+  if (type.startsWith("aeo_") || type === "qa_published")
+    return { Icon: Target, iconClass: "text-emerald-600", bgClass: "bg-emerald-500/10", category: "AEO", categoryEN: "AEO" };
+  if (type === "low_credits")
+    return { Icon: Wallet, iconClass: "text-orange-600", bgClass: "bg-orange-500/10", category: "Crédits", categoryEN: "Credits" };
+  return { Icon: Bell, iconClass: "text-primary", bgClass: "bg-primary/10", category: "Information", categoryEN: "Information" };
+};
+
+const notificationDestination = (n: AppNotification) => {
+  if (n.review_id != null) return "/reviews?review_id=" + encodeURIComponent(n.review_id);
+  if (["new_review", "pending_reviews", "review_deleted", "review_edited", "reply_published"].includes(n.type))
+    return "/reviews";
+  if (n.type.startsWith("seo_")) return "/seo-autopost";
+  if (n.type.startsWith("aeo_") || n.type === "qa_published") return "/aeo-rank";
+  if (n.type === "low_credits") return "/select-plan";
+  if (n.type === "ai_tip") return "/ai-settings";
+  return "/dashboard";
 };
 
 const Notifications = () => {
-  const { t, i18n } = useTranslation();
-  const getTimeAgo = (dateString: string) =>
-    formatDistanceToNow(new Date(dateString), {
-      addSuffix: false,
-      locale: i18n.language === "fr" ? frLocale : enUS,
-    });
+  const { i18n } = useTranslation();
+  const isEN = i18n.language?.toLowerCase().startsWith("en");
+  const tr = (frText: string, enText: string) => isEN ? enText : frText;
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
-  const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
-  const [searchQuery, setSearchQuery] = useState("");
-  const [showSearch, setShowSearch] = useState(false);
-  const [pushPermission, setPushPermission] = useState<NotificationPermission | "unsupported">("default");
+  const {
+    notifications, unreadCount, loading, error, hasMore, loadMore,
+    onlyUnread, setOnlyUnread, searchQuery, setSearchQuery,
+    markAsRead, markAllAsRead, refresh,
+  } = useNotifications();
+  const webPush = useWebPush();
+  const { isIOS, isStandalone, isInstalled } = usePWA();
 
-  // Check notification permission
   useEffect(() => {
-    if ("Notification" in window) {
-      setPushPermission(Notification.permission);
-    } else {
-      setPushPermission("unsupported");
+    if (!authLoading && !user) navigate("/auth");
+  }, [authLoading, user, navigate]);
+
+  const openNotification = async (notification: AppNotification) => {
+    if (!notification.read) {
+      const ok = await markAsRead(notification.id);
+      if (!ok) {
+        toast({ title: tr("Impossible de marquer comme lu", "Could not mark as read"), variant: "destructive" });
+      }
     }
-  }, []);
+    navigate(notificationDestination(notification));
+  };
 
-  if (authLoading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
-    );
-  }
+  const markAll = async () => {
+    const ok = await markAllAsRead();
+    toast({
+      title: ok ? tr("Notifications marquées comme lues", "All notifications marked as read") : tr("Une erreur est survenue", "Something went wrong"),
+      variant: ok ? "default" : "destructive",
+    });
+  };
 
-  if (!user) {
-    navigate("/auth");
-    return null;
-  }
-
-  // Filter notifications based on search
-  const filteredNotifications = notifications.filter(
-    (n) =>
-      n.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      n.message.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  // Group notifications by time
-  const now = new Date();
-  const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-
-  const newNotifications = filteredNotifications.filter(
-    (n) => new Date(n.created_at) > oneDayAgo
-  );
-  const olderNotifications = filteredNotifications.filter(
-    (n) => new Date(n.created_at) <= oneDayAgo
-  );
-
-  const handleNotificationClick = (notification: typeof notifications[0]) => {
-    markAsRead(notification.id);
-    
-    if (notification.type === "new_review" && notification.review_id) {
-      navigate(`/reviews?review_id=${notification.review_id}`);
-    } else if (notification.type === "pending_reviews" || notification.review_id) {
-      navigate(notification.review_id ? `/reviews?review_id=${notification.review_id}` : "/reviews?status=pending");
-    } else if (notification.type === "seo_reminder" || notification.type === "seo_promo") {
-      navigate("/seo-autopost");
-    } else if (notification.type === "aeo_reminder" || notification.type === "aeo_promo") {
-      navigate("/aeo-rank");
-    } else if (notification.type === "ai_tip") {
-      navigate("/ai-settings");
-    } else if (notification.type === "ai_response" && notification.review_id) {
-      navigate(`/reviews?review_id=${notification.review_id}`);
-    } else {
-      navigate("/reviews");
+  const setPush = async (enabled: boolean) => {
+    if (enabled && isIOS && !isInstalled && !isStandalone) {
+      toast({
+        title: tr("Installez l'application", "Install the app first"),
+        description: tr("Sur iPhone, ajoutez GoogleReviewAI à l'écran d'accueil avant d'activer les notifications.", "On iPhone, add GoogleReviewAI to your Home Screen before enabling notifications."),
+        variant: "destructive",
+      });
+      return;
     }
+    const ok = enabled ? await webPush.subscribe() : await webPush.unsubscribe();
+    toast({
+      title: ok
+        ? enabled ? tr("Notifications activées", "Notifications enabled") : tr("Notifications désactivées", "Notifications disabled")
+        : tr("Opération impossible", "Action failed"),
+      description: !ok ? tr("Vérifiez les autorisations du navigateur et réessayez.", "Check browser permissions and try again.") : undefined,
+      variant: ok ? "default" : "destructive",
+    });
   };
 
-  const isEN = i18n.language?.toLowerCase().startsWith("en");
-
-  const translateNotification = (n: typeof notifications[0]) => {
-    if (!isEN) return { title: n.title, message: n.message };
-    let title = n.title;
-    let message = n.message;
-
-    // Title translations
-    title = title
-      .replace(/Nouveau\s*:/i, "New:")
-      .replace(/Avis supprimé/i, "Review deleted")
-      .replace(/Découvrez SEO AutoPost/i, "Discover SEO AutoPost")
-      .replace(/Découvrez AEO/i, "Discover AEO")
-      .replace(/Avis en attente/i, "Pending reviews")
-      .replace(/Réponse publiée/i, "Reply published")
-      .replace(/Email envoyé/i, "Email sent")
-      .replace(/Nouvel avis/i, "New review");
-
-    // Message translations (patterns)
-    message = message
-      .replace(/Apparaissez dans les réponses de ChatGPT et autres IA\.?\s*Découvrez AEO\s*!?/i, "Appear in answers from ChatGPT and other AIs. Discover AEO!")
-      .replace(/L'avis de (.+?) \((\d+) étoiles?\) a été supprimé de Google/i, "Review by $1 ($2 stars) was deleted from Google")
-      .replace(/Publiez automatiquement des articles optimisés pour Google\.?\s*Essayez maintenant\s*!?/i, "Automatically publish Google-optimized articles. Try it now!")
-      .replace(/Vous avez (\d+) avis sans réponse\.?\s*Générez des réponses IA maintenant\s*!?/i, "You have $1 unanswered reviews. Generate AI replies now!")
-      .replace(/Réponse à (.+?) publiée sur Google\.?/i, "Reply to $1 published on Google.")
-      .replace(/Email avis en attente \((\d+)\) envoyé/i, "Pending reviews email ($1) sent")
-      .replace(/Réponse générée pour l'avis de (.+)/i, "Response generated for review by $1");
-
-    return { title, message };
+  const sendTest = async () => {
+    const ok = await webPush.sendTestNotification();
+    toast({
+      title: ok ? tr("Notification de test envoyée", "Test notification sent") : tr("Test non envoyé", "Test not sent"),
+      description: !ok ? tr("Aucun abonnement valide ou erreur d'envoi.", "No valid subscription or a sending error.") : undefined,
+      variant: ok ? "default" : "destructive",
+    });
   };
 
-  const NotificationItem = ({ notification }: { notification: typeof notifications[0] }) => {
-    const { icon: Icon, color, iconColor } = getNotificationIcon(notification.type);
-    const { title, message } = translateNotification(notification);
-    
-    return (
-      <div
-        className={`flex items-start gap-3 p-4 hover:bg-muted/50 transition-colors cursor-pointer ${
-          !notification.read ? "bg-primary/5" : ""
-        }`}
-        onClick={() => handleNotificationClick(notification)}
-      >
-        <div className="relative flex-shrink-0">
-          <div className={`w-14 h-14 rounded-full ${color} flex items-center justify-center`}>
-            <Icon className={`w-6 h-6 ${iconColor}`} />
-          </div>
-          {!notification.read && (
-            <div className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-primary rounded-full border-2 border-background" />
-          )}
-        </div>
-
-        <div className="flex-1 min-w-0">
-          <p className={`text-sm leading-snug ${!notification.read ? "font-semibold" : "font-medium"}`}>
-            <span className="text-foreground">{title}</span>
-            {" "}
-            <span className="text-muted-foreground">{message}</span>
-          </p>
-          <p className="text-xs text-muted-foreground mt-1">
-            {getTimeAgo(notification.created_at)}
-          </p>
-        </div>
-
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-            <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0">
-              <MoreHorizontal className="w-5 h-5 text-muted-foreground" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={(e) => {
-              e.stopPropagation();
-              markAsRead(notification.id);
-            }}>
-              <CheckCheck className="w-4 h-4 mr-2" />
-              {t("notificationsPage.markAsRead")}
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-    );
-  };
+  if (authLoading || !user) {
+    return <div className="min-h-[50vh] flex items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>;
+  }
 
   return (
-    <div className="min-h-screen bg-background pb-20 md:pb-0">
+    <div className="min-h-screen bg-background pb-20 md:pb-8">
       <Helmet>
-        <title>Notifications | GoogleReviewAI</title>
-        <meta name="description" content="Review alerts, AI tips and SEO reminders from your GoogleReviewAI account in one place." />
+        <title>{tr("Notifications", "Notifications")} | GoogleReviewAI</title>
         <meta name="robots" content="noindex, nofollow" />
         <link rel="canonical" href="https://googlereviewai.com/notifications" />
       </Helmet>
 
+      <main className="max-w-4xl mx-auto px-4 sm:px-6 py-7 space-y-6">
+        <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2.5">
+              <div className="h-10 w-10 flex items-center justify-center rounded-xl bg-primary/10">
+                <Bell className="h-5 w-5 text-primary" />
+              </div>
+              <h1 className="text-2xl font-bold tracking-tight">{tr("Notifications", "Notifications")}</h1>
+              {unreadCount > 0 && <span className="rounded-full bg-primary/10 text-primary text-xs font-semibold px-2.5 py-1">{unreadCount > 99 ? "99+" : unreadCount} {tr("non lues", "unread")}</span>}
+            </div>
+            <p className="mt-2 text-sm text-muted-foreground">{tr("Vos avis, réponses IA et alertes importantes au même endroit.", "Reviews, AI replies and important alerts in one place.")}</p>
+          </div>
+          <Button variant="outline" size="sm" className="gap-2 shrink-0 self-start" onClick={markAll} disabled={unreadCount === 0 || loading}>
+            <CheckCheck className="h-4 w-4" /> {tr("Tout marquer comme lu", "Mark all as read")}
+          </Button>
+        </header>
 
-      <main className="max-w-2xl mx-auto">
-        {/* Header */}
-        <div className="sticky top-14 z-40 bg-background border-b border-border/50">
-          <div className="flex items-center justify-between px-4 py-3">
-            <h1 className="text-2xl font-bold text-foreground">{t("notificationsPage.title")}</h1>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-10 w-10"
-                onClick={() => setShowSearch(!showSearch)}
-              >
-                <Search className="w-5 h-5" />
-              </Button>
-              {unreadCount > 0 && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-primary text-sm"
-                  onClick={markAllAsRead}
-                >
-                  {t("notificationsPage.markAllRead")}
+        <section className="rounded-2xl border bg-card p-4 sm:p-5 space-y-3" aria-label={tr("Notifications navigateur", "Browser notifications")}>
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="flex items-start gap-3 min-w-0">
+              <div className="h-10 w-10 rounded-xl bg-muted flex items-center justify-center shrink-0">
+                {webPush.isSubscribed ? <BellRing className="h-5 w-5 text-emerald-600" /> : <BellOff className="h-5 w-5 text-muted-foreground" />}
+              </div>
+              <div>
+                <h2 className="text-sm font-semibold">{tr("Alertes navigateur", "Browser alerts")}</h2>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {!webPush.isSupported
+                    ? tr("Non prises en charge par ce navigateur.", "Not supported by this browser.")
+                    : webPush.isSubscribed
+                      ? tr("Abonnement push actif sur cet appareil.", "Push subscription active on this device.")
+                      : webPush.permission === "denied"
+                        ? tr("Bloquées par le navigateur. Autorisez-les dans les paramètres du site.", "Blocked by browser. Allow them in site settings.")
+                        : tr("Recevez une alerte lorsqu'un nouvel avis arrive.", "Get an alert when a new review arrives.")}
+                </p>
+              </div>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              {webPush.isSupported && webPush.isSubscribed && (
+                <>
+                  <Button variant="outline" size="sm" disabled={webPush.loading} onClick={sendTest}>
+                    {tr("Tester", "Send test")}
+                  </Button>
+                  <Button variant="outline" size="sm" disabled={webPush.loading} onClick={() => setPush(false)}>
+                    {tr("Désactiver", "Disable")}
+                  </Button>
+                </>
+              )}
+              {webPush.isSupported && !webPush.isSubscribed && webPush.permission !== "denied" && (
+                <Button size="sm" disabled={webPush.loading} onClick={() => setPush(true)}>
+                  {webPush.loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <BellRing className="h-4 w-4 mr-2" />}
+                  {tr("Activer", "Enable")}
                 </Button>
               )}
             </div>
           </div>
+        </section>
 
-          {/* Search bar */}
-          {showSearch && (
-            <div className="px-4 pb-3">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  placeholder={t("notificationsPage.search")}
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 rounded-xl"
-                  autoFocus
-                />
+        <section className="rounded-2xl border bg-card overflow-hidden">
+          <div className="p-4 border-b flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
+            <div className="flex rounded-lg bg-muted p-1 w-fit" role="group" aria-label={tr("Filtrer les notifications", "Filter notifications")}>
+              <Button variant={!onlyUnread ? "secondary" : "ghost"} size="sm" className="h-8" onClick={() => setOnlyUnread(false)}>
+                {tr("Toutes", "All")}
+              </Button>
+              <Button variant={onlyUnread ? "secondary" : "ghost"} size="sm" className="h-8" onClick={() => setOnlyUnread(true)}>
+                {tr("Non lues", "Unread")}
+              </Button>
+            </div>
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <div className="relative w-full sm:w-72">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input aria-label={tr("Rechercher", "Search")} placeholder={tr("Rechercher une notification…", "Search notifications…")}
+                  value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)}
+                  className="pl-9 pr-9 h-9" />
+                {searchQuery && <button type="button" aria-label={tr("Effacer la recherche", "Clear search")} className="absolute right-2 top-1/2 -translate-y-1/2 p-1" onClick={() => setSearchQuery("")}><X className="h-4 w-4" /></button>}
               </div>
+              <Button size="icon" variant="ghost" className="h-9 w-9 shrink-0" aria-label={tr("Actualiser", "Refresh")} onClick={refresh} disabled={loading}>
+                <RotateCw className={loading ? "h-4 w-4 animate-spin" : "h-4 w-4"} />
+              </Button>
+            </div>
+          </div>
+
+          {error && <div role="alert" className="flex items-center gap-2 m-4 p-3 text-sm bg-destructive/10 text-destructive rounded-lg">
+            <CircleAlert className="h-4 w-4 shrink-0" />
+            <span className="flex-1">{tr("Impossible de récupérer les notifications.", "Unable to load notifications.")}</span>
+            <Button size="sm" variant="outline" onClick={refresh}>{tr("Réessayer", "Retry")}</Button>
+          </div>}
+
+          {loading && notifications.length === 0 ? (
+            <div className="py-20 flex items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
+          ) : notifications.length === 0 && !error ? (
+            <div className="px-4 py-20 text-center">
+              <div className="mx-auto w-14 h-14 rounded-full bg-muted flex items-center justify-center mb-4"><CheckCircle2 className="h-7 w-7 text-muted-foreground" /></div>
+              <h2 className="font-semibold">{tr("Aucune notification", "No notifications")}</h2>
+              <p className="text-sm text-muted-foreground mt-1">{searchQuery ? tr("Aucun résultat. Essayez d'autres mots-clés.", "No results. Try different keywords.") : onlyUnread ? tr("Vous avez tout lu.", "You're all caught up.") : tr("Les nouvelles alertes apparaîtront ici.", "New alerts will appear here.")}</p>
+            </div>
+          ) : (
+            <div className="divide-y divide-border/60">
+              {notifications.map((notification) => {
+                const { Icon, iconClass, bgClass, category, categoryEN } = styleForType(notification.type);
+                const date = new Date(notification.created_at);
+                const time = Number.isNaN(date.getTime()) ? "" : formatDistanceToNow(date, { addSuffix: true, locale: isEN ? enUS : fr });
+                return (
+                  <div key={notification.id} className={"flex items-start gap-3 p-4 sm:p-5 hover:bg-muted/40 transition-colors " + (!notification.read ? "bg-primary/[0.035]" : "")}>
+                    <div className={"w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center shrink-0 " + bgClass}>
+                      <Icon className={"w-5 h-5 " + iconClass} />
+                    </div>
+                    <button type="button" onClick={() => void openNotification(notification)} className="text-left flex-1 min-w-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md">
+                      <div className="flex items-center flex-wrap gap-2 mb-1">
+                        {!notification.read && <span className="w-2 h-2 rounded-full bg-primary shrink-0" aria-label={tr("Non lue", "Unread")} />}
+                        <span className="text-[11px] font-medium text-muted-foreground">{isEN ? categoryEN : category}</span>
+                        <span className="text-[11px] text-muted-foreground">· {time}</span>
+                      </div>
+                      <p className={"text-sm text-foreground leading-snug " + (!notification.read ? "font-semibold" : "font-medium")}>{notification.title}</p>
+                      <p className="text-sm text-muted-foreground leading-relaxed mt-1 break-words">{notification.message}</p>
+                    </button>
+                    {!notification.read && <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" aria-label={tr("Actions", "Actions")}><MoreHorizontal className="h-4 w-4" /></Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onSelect={() => void markAsRead(notification.id)}>
+                          <CheckCheck className="h-4 w-4 mr-2" />{tr("Marquer comme lu", "Mark as read")}
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>}
+                  </div>
+                );
+              })}
             </div>
           )}
-          
-          {/* Push notification status - PushAlert handles subscription */}
-          <div className="px-4 py-3 border-t border-border/30">
-            <div className="flex items-center justify-between gap-2">
-              <div className="flex items-center gap-2">
-                {pushPermission === "granted" ? (
-                  <BellRing className="w-4 h-4 text-green-500" />
-                ) : (
-                  <BellOff className="w-4 h-4 text-muted-foreground" />
-                )}
-                <span className="text-sm text-muted-foreground">
-                  {pushPermission === "granted" 
-                    ? t("notificationsPage.enabled")
-                    : pushPermission === "denied"
-                      ? t("notificationsPage.blocked")
-                      : t("notificationsPage.notSetup")
-                  }
-                </span>
-              </div>
-              {pushPermission === "denied" && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => window.location.reload()}
-                  className="rounded-lg text-xs"
-                >
-                  {t("notificationsPage.reload")}
-                </Button>
-              )}
-            </div>
-            {pushPermission === "denied" && (
-              <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
-                {t("notificationsPage.blockedHelp")}
-              </p>
-            )}
-          </div>
-        </div>
 
-        {/* Notifications list */}
-        {filteredNotifications.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 text-center">
-            <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mb-4">
-              <Bell className="w-10 h-10 text-muted-foreground/50" />
-            </div>
-            <h2 className="text-lg font-semibold text-foreground mb-1">{t("notificationsPage.noNotifications")}</h2>
-            <p className="text-sm text-muted-foreground">
-              {t("notificationsPage.emptyDesc")}
-            </p>
-          </div>
-        ) : (
-          <div>
-            {newNotifications.length > 0 && (
-              <div>
-                <div className="px-4 py-3 bg-muted/30">
-                  <h2 className="text-base font-bold text-foreground">{t("notificationsPage.new")}</h2>
-                </div>
-                <div className="divide-y divide-border/50">
-                  {newNotifications.map((notification) => (
-                    <NotificationItem key={notification.id} notification={notification} />
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {olderNotifications.length > 0 && (
-              <div>
-                <div className="px-4 py-3 bg-muted/30">
-                  <h2 className="text-base font-bold text-foreground">{t("notificationsPage.older")}</h2>
-                </div>
-                <div className="divide-y divide-border/50">
-                  {olderNotifications.map((notification) => (
-                    <NotificationItem key={notification.id} notification={notification} />
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        )}
+          {hasMore && <div className="border-t p-4 flex justify-center">
+            <Button variant="outline" disabled={loading} onClick={loadMore} className="gap-2">
+              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ChevronDown className="h-4 w-4" />}
+              {tr("Charger plus", "Load more")}
+            </Button>
+          </div>}
+        </section>
       </main>
-
       <MobileBottomNav />
     </div>
   );

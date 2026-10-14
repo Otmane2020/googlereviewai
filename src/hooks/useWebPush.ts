@@ -70,30 +70,27 @@ export const useWebPush = () => {
         await navigator.serviceWorker.ready;
       }
 
-      // 2b. Clean any stale subscription (e.g. legacy FCM endpoints) before resubscribing
-      try {
-        const existing = await reg.pushManager.getSubscription();
-        if (existing) {
-          // Notify backend to remove old record
-          await supabase.functions.invoke("register-push-subscription", {
-            body: { action: "unsubscribe", subscription: { endpoint: existing.endpoint } },
-          });
-          await existing.unsubscribe();
-        }
-      } catch (e) {
-        console.warn("[WebPush] Could not clear stale subscription:", e);
+      // Reuse a valid browser subscription; do not silently rotate it on each click.
+      let pushSubscription = await reg.pushManager.getSubscription();
+      if (pushSubscription?.endpoint.includes("fcm.googleapis.com/fcm/send/")) {
+        await supabase.functions.invoke("register-push-subscription", {
+          body: { action: "unsubscribe", subscription: { endpoint: pushSubscription.endpoint } },
+        });
+        await pushSubscription.unsubscribe();
+        pushSubscription = null;
       }
 
-      // 3. Subscribe to push
-      const applicationServerKey = urlBase64ToUint8Array(vapidData.vapidPublicKey);
-      const pushSubscription = await reg.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: applicationServerKey.buffer as ArrayBuffer,
-      });
+      if (!pushSubscription) {
+        const applicationServerKey = urlBase64ToUint8Array(vapidData.vapidPublicKey);
+        pushSubscription = await reg.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: applicationServerKey.buffer as ArrayBuffer,
+        });
+      }
 
       // 4. Send subscription to backend
       const subJson = pushSubscription.toJSON();
-      const { error: regError } = await supabase.functions.invoke(
+      const { data: regData, error: regError } = await supabase.functions.invoke(
         "register-push-subscription",
         {
           body: {
@@ -109,8 +106,8 @@ export const useWebPush = () => {
         }
       );
 
-      if (regError) {
-        console.error("[WebPush] Failed to register subscription:", regError);
+      if (regError || !regData?.success) {
+        console.error("[WebPush] Failed to register subscription:", regError || regData);
         setLoading(false);
         return false;
       }
@@ -140,12 +137,13 @@ export const useWebPush = () => {
         const sub = await reg.pushManager.getSubscription();
         if (sub) {
           // Notify backend
-          await supabase.functions.invoke("register-push-subscription", {
+          const { data, error } = await supabase.functions.invoke("register-push-subscription", {
             body: {
               action: "unsubscribe",
               subscription: { endpoint: sub.endpoint },
             },
           });
+          if (error || !data?.success) throw error || new Error("Unable to unregister push subscription");
           await sub.unsubscribe();
         }
       }
@@ -164,19 +162,14 @@ export const useWebPush = () => {
     setLoading(true);
 
     try {
-      const { error } = await supabase.functions.invoke("send-push-notification", {
-        body: {
-          user_id: user.id,
-          title: "🔔 Test GoogleReviewAI",
-          body: "Les notifications push fonctionnent correctement !",
-          icon: "/icon-512x512.png",
-          url: "/settings",
-        },
+      // The authenticated test endpoint verifies the caller and relays server-side.
+      const { data, error } = await supabase.functions.invoke("test-push-notification", {
+        body: {},
       });
 
       setLoading(false);
-      if (error) {
-        console.error("[WebPush] Test notification error:", error);
+      if (error || !data?.success || !(data.sent > 0)) {
+        console.error("[WebPush] Test notification error:", error || data);
         return false;
       }
       return true;
