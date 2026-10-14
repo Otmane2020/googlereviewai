@@ -183,7 +183,7 @@
     "analyzesSentiment": "Analyzes sentiment and adapts the tone",
     "publishesDirect": "Publishes directly to Google Business",
     "recruit": "Recruit Starly",
-    "freeTrial": "Free 3-day trial",
+    "freeTrial": "3 free AI replies included",
     "noCommitment": "No commitment"
   },
   "cta": {
@@ -335,7 +335,7 @@
     "currentPlan": "Current plan",
     "choosePlan": "Choose this plan",
     "getStarted": "Get started",
-    "freeTrial": "Free 3-day trial",
+    "freeTrial": "3 free AI replies included",
     "noCreditCard": "No credit card",
     "cancelAnytime": "Cancel anytime",
     "allinone": {
@@ -517,7 +517,7 @@
     "manageReviewsWithAI": "Manage your Google reviews with AI",
     "joinBusinesses": "Join hundreds of businesses that automate their review responses.",
     "benefits": {
-      "freeTrial": "3-day free trial",
+      "freeTrial": "3 free AI replies included",
       "unlimitedResponses": "Unlimited AI responses",
       "gmbSync": "Google My Business sync",
       "prioritySupport": "Priority support"
@@ -545,7 +545,7 @@
     },
     "signInTitle": "Sign in to GoogleReviewAI",
     "signInSubtitle": "Secure sign-in with your Google account — required to sync your Google Business Profile.",
-    "stripeNotice": "After signing in with Google, you'll be redirected to secure Stripe checkout to start your 7-day free trial."
+    "stripeNotice": "After signing in with Google, you can select a plan and pay securely with Stripe."
   },
   "footer": {
     "description": "AI solution to manage and automatically respond to your Google reviews.",
