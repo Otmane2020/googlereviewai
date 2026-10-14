@@ -373,7 +373,7 @@ const Onboarding = () => {
                   </div>
                   <h2 className="text-2xl font-bold">Choisissez votre plan</h2>
                   <p className="text-sm text-muted-foreground mt-1">
-                    7 jours d'essai gratuit. Carte requise. Résiliable à tout moment.
+                    Paiement sécurisé. Résiliable à tout moment.
                   </p>
                 </div>
 
