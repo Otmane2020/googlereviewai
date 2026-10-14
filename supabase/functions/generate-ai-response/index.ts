@@ -135,6 +135,23 @@ serve(async (req) => {
       throw new Error("User profile not found");
     }
 
+    // Enforce managed-location selection on the backend, not just the UI.
+    if (review && !reviewResult.error) {
+      const locationId = String(review.location_id || "").split("/").pop();
+      const { data: managedBusiness } = await supabase
+        .from("businesses")
+        .select("id")
+        .eq("user_id", userId)
+        .eq("google_place_id", locationId)
+        .eq("is_active", true)
+        .maybeSingle();
+      if (!managedBusiness) {
+        return new Response(JSON.stringify({ error: "Établissement non actif dans votre forfait", code: "LOCATION_NOT_MANAGED" }), {
+          status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    }
+
     // Determine language: request param > profile > default
     const lang = requestLanguage || profile?.preferred_language || "fr";
     const t = translations[lang as keyof typeof translations] || translations.fr;
