@@ -9,15 +9,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Crown, Shield, Coins, ChevronDown, Loader2, Check, RefreshCw } from "lucide-react";
+import { Crown, ShieldCheck, Coins, Loader2, Check, RefreshCw, ArrowRight, ChevronDown, CheckCircle2, LockKeyhole } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BrandSparkle } from "@/components/BrandSparkle";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
 interface CreditPack {
   price: number;
@@ -111,6 +105,8 @@ export const UpgradeDialog = ({ open, onOpenChange, currentPlan, exhausted = fal
   const [billing, setBilling] = useState<Billing>("monthly");
   const [loadingKey, setLoadingKey] = useState<string | null>(null);
   const [loadingCredits, setLoadingCredits] = useState(false);
+  const [selectedPackKey, setSelectedPackKey] = useState("credits_100");
+  const [showAllPacks, setShowAllPacks] = useState(false);
 
   const currentNormalized = normalizePlan(currentPlan);
 
@@ -163,171 +159,244 @@ export const UpgradeDialog = ({ open, onOpenChange, currentPlan, exhausted = fal
     }
   };
 
+  const selectedPack = creditPacks.find((pack) => pack.priceKey === selectedPackKey) ?? creditPacks[1];
+  const visiblePacks = showAllPacks ? creditPacks : creditPacks.slice(0, 4);
+  const formatEuros = (price: number) =>
+    new Intl.NumberFormat(isEN ? "en-GB" : "fr-FR", {
+      minimumFractionDigits: Number.isInteger(price) ? 0 : 2,
+      maximumFractionDigits: 2,
+    }).format(price) + " €";
+
   return (
     <Dialog open={open} onOpenChange={locked ? () => {} : onOpenChange}>
       <DialogContent
         onInteractOutside={locked ? (event) => event.preventDefault() : undefined}
         onEscapeKeyDown={locked ? (event) => event.preventDefault() : undefined}
-        className={`max-w-3xl p-0 overflow-hidden bg-gradient-to-b from-background to-muted/30 max-h-[90vh] overflow-y-auto ${locked ? "[&>button.absolute]:hidden" : ""}`}
+        className={
+          "w-[calc(100vw-1rem)] max-w-[1024px] max-h-[92dvh] overflow-y-auto p-0 gap-0 rounded-2xl sm:rounded-3xl bg-background shadow-2xl border border-border/70 " +
+          (locked ? "[&>button.absolute]:hidden" : "")
+        }
       >
-        <div className="relative px-6 pt-8 pb-4 text-center bg-gradient-to-br from-primary/10 via-primary/5 to-transparent">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center mx-auto mb-3 shadow-xl shadow-primary/30">
-            <Crown className="w-7 h-7 text-primary-foreground" />
+        <div className="relative overflow-hidden border-b border-border/60 bg-gradient-to-br from-primary/10 via-background to-background px-5 pt-6 pb-5 sm:px-8 sm:pt-7 sm:pb-6">
+          <div className="absolute -top-24 -right-24 size-56 rounded-full bg-primary/10 blur-3xl pointer-events-none" />
+          <div className="relative flex items-start gap-3 sm:gap-4">
+            <div className="shrink-0 flex size-11 sm:size-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-md">
+              {exhausted ? <LockKeyhole className="size-5 sm:size-6" /> : <Crown className="size-5 sm:size-6" />}
+            </div>
+            <div className="flex-1 min-w-0">
+              <DialogHeader>
+                <DialogTitle className="text-xl sm:text-2xl font-bold tracking-tight text-foreground text-left">
+                  {exhausted
+                    ? (isEN ? "Get back to your dashboard" : "Retrouvez votre tableau de bord")
+                    : (isEN ? "Choose how to continue" : "Choisissez comment continuer")}
+                </DialogTitle>
+              </DialogHeader>
+              <p className="text-sm text-muted-foreground mt-1 max-w-2xl leading-relaxed">
+                {exhausted
+                  ? (isEN
+                    ? "You've used your available credits. Choose a subscription or buy a credit pack to restore access."
+                    : "Vous avez utilisé vos crédits disponibles. Choisissez un abonnement ou rechargez vos crédits pour retrouver l’accès.")
+                  : (isEN
+                    ? "Choose a subscription or top up with a one-time credit pack. Secure checkout."
+                    : "Choisissez un abonnement ou une recharge ponctuelle. Paiement sécurisé.")}
+              </p>
+            </div>
           </div>
-          <DialogHeader>
-            <DialogTitle className="text-xl font-bold text-foreground">
-              {exhausted ? (isEN ? "Your credit balance is empty" : "Votre solde de crédits est épuisé") : (isEN ? "Choose your plan" : "Choisissez votre plan")}
-            </DialogTitle>
-          </DialogHeader>
-          <p className="text-sm text-muted-foreground mt-2">
-            {exhausted ? (isEN ? "Top up credits or choose a plan to unlock your dashboard." : "Rechargez vos crédits ou choisissez un abonnement pour retrouver votre tableau de bord.") : (isEN ? "7-day free trial. Cancel anytime." : "Essai gratuit 7 jours. Résiliable à tout moment.")}
-          </p>
+        </div>
 
-          {/* Billing toggle */}
-          <div className="mt-5 flex justify-center">
-            <div className="inline-flex items-center p-1 rounded-full bg-muted border border-border">
+        <div className="px-4 sm:px-8 pt-6 pb-7">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-5">
+            <div>
+              <h3 className="text-base sm:text-lg font-bold text-foreground">
+                {isEN ? "1. Choose a subscription" : "1. Choisir un abonnement"}
+              </h3>
+              <p className="text-xs text-muted-foreground mt-1">
+                {isEN ? "Recurring billing · Cancel anytime" : "Facturation récurrente · Résiliable à tout moment"}
+              </p>
+            </div>
+            <div className="inline-flex self-start sm:self-auto items-center p-1 rounded-xl bg-muted border border-border" role="group" aria-label={isEN ? "Billing period" : "Période de facturation"}>
               <button
                 type="button"
+                aria-pressed={billing === "monthly"}
                 onClick={() => setBilling("monthly")}
-                className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${
-                  billing === "monthly" ? "bg-foreground text-background" : "text-muted-foreground"
-                }`}
+                className={billing === "monthly"
+                  ? "px-4 py-2 rounded-lg text-sm font-semibold bg-card text-foreground shadow-sm"
+                  : "px-4 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground"}
               >
                 {isEN ? "Monthly" : "Mensuel"}
               </button>
               <button
                 type="button"
+                aria-pressed={billing === "yearly"}
                 onClick={() => setBilling("yearly")}
-                className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all inline-flex items-center gap-1.5 ${
-                  billing === "yearly" ? "bg-foreground text-background" : "text-muted-foreground"
-                }`}
+                className={billing === "yearly"
+                  ? "px-4 py-2 rounded-lg text-sm font-semibold bg-card text-foreground shadow-sm"
+                  : "px-4 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground"}
               >
                 {isEN ? "Yearly" : "Annuel"}
-                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-600">-20%</span>
               </button>
+              <span className="mr-1.5 rounded-md bg-emerald-500/10 px-2 py-1.5 text-[11px] font-semibold text-emerald-700 dark:text-emerald-400 whitespace-nowrap">
+                -20%
+              </span>
             </div>
           </div>
-        </div>
 
-        {/* Plans Grid */}
-        <div className="px-4 pb-4 pt-2 grid md:grid-cols-3 gap-4">
-          {PLANS.map((p) => {
-            const tier = billing === "yearly" ? p.yearly : p.monthly;
-            const features = isEN ? p.features.en : p.features.fr;
-            const isCurrent = currentNormalized === p.id;
-            const isLoading = loadingKey === tier.key;
-            return (
-              <div
-                key={p.id}
-                className={`relative rounded-2xl border ${
-                  p.highlight ? "border-2 border-primary bg-primary/5" : "border-border bg-card"
-                } p-5 flex flex-col`}
-              >
-                {p.highlight && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                    <Badge className="bg-primary text-primary-foreground shadow-lg px-3 py-1 text-[10px] font-semibold">
-                      <BrandSparkle className="w-3 h-3 mr-1" />
-                      {isEN ? "MOST POPULAR" : "LE PLUS POPULAIRE"}
-                    </Badge>
-                  </div>
-                )}
-                <h3 className="font-bold text-base text-foreground mt-2">{p.name}</h3>
-                <div className="mt-2 flex items-baseline gap-1">
-                  <span className="text-2xl font-extrabold text-foreground">{tier.price}</span>
-                  <span className="text-xs text-muted-foreground">
-                    {billing === "yearly" ? (isEN ? "/year" : "/an") : (isEN ? "/month" : "/mois")}
-                  </span>
-                </div>
-                <p className="mt-2 text-xs text-muted-foreground">
-                  {isEN ? p.tagline.en : p.tagline.fr}
-                </p>
-                <ul className="mt-4 space-y-2 flex-1">
-                  {features.map((f) => (
-                    <li key={f} className="flex items-start gap-2 text-xs">
-                      <Check className="w-3.5 h-3.5 mt-0.5 text-primary flex-shrink-0" />
-                      <span className="text-foreground">{f}</span>
-                    </li>
-                  ))}
-                </ul>
-                <Button
-                  onClick={() => handleCheckout(tier.key)}
-                  disabled={isLoading || isCurrent}
-                  className={`w-full mt-5 rounded-xl h-10 font-semibold ${
-                    p.highlight ? "bg-primary hover:bg-primary/90 text-primary-foreground" : ""
-                  }`}
-                  variant={p.highlight ? "default" : "outline"}
+          <div className="grid grid-cols-1 md:grid-cols-3 items-stretch gap-3 sm:gap-4">
+            {PLANS.map((plan) => {
+              const tier = billing === "yearly" ? plan.yearly : plan.monthly;
+              const features = isEN ? plan.features.en : plan.features.fr;
+              const isCurrent = currentNormalized === plan.id;
+              const isLoading = loadingKey === tier.key;
+              return (
+                <div
+                  key={plan.id}
+                  className={plan.highlight
+                    ? "relative rounded-2xl border-2 border-primary bg-primary/[0.04] p-4 sm:p-5 flex flex-col shadow-sm"
+                    : "relative rounded-2xl border border-border bg-card p-4 sm:p-5 flex flex-col"}
                 >
-                  {isLoading ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : isCurrent ? (
-                    isEN ? "✓ Current plan" : "✓ Plan actuel"
-                  ) : (
-                    isEN ? "Start 7-day free trial" : "Essai gratuit 7 jours"
-                  )}
-                </Button>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Credit Packs */}
-        <div className="px-4 pb-6 border-t border-border/50 pt-4">
-          <div className="flex items-center gap-2 mb-3">
-            <Coins className="w-4 h-4 text-primary" />
-            <span className="font-medium text-sm text-foreground">{isEN ? "Top up credits" : "Recharger des crédits"}</span>
-          </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="w-full justify-between rounded-xl h-12" disabled={loadingCredits}>
-                {loadingCredits ? (
-                  <><Loader2 className="w-4 h-4 animate-spin mr-2" /> {isEN ? "Loading..." : "Chargement..."}</>
-                ) : (
-                  <>
-                    <span className="flex items-center gap-2">
-                      <Coins className="w-4 h-4 text-primary" />
-                      {isEN ? "Choose a credit pack" : "Choisir un pack de crédits"}
-                    </span>
-                    <ChevronDown className="w-4 h-4 text-muted-foreground" />
-                  </>
-                )}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-[calc(100vw-2rem)] max-w-[400px]" align="center">
-              {creditPacks.map((pack) => (
-                <DropdownMenuItem key={pack.priceKey} onClick={() => handleBuyCredits(pack)} className="flex items-center justify-between py-3 cursor-pointer">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                      <Coins className="w-4 h-4 text-primary" />
-                    </div>
-                    <span className="font-semibold text-foreground">{pack.credits.toLocaleString()} {isEN ? "credits" : "crédits"}</span>
+                  <div className="flex items-center justify-between gap-2 min-h-6">
+                    <h4 className="text-base font-bold text-foreground">{plan.name}</h4>
+                    {plan.highlight && (
+                      <Badge className="shrink-0 rounded-full bg-primary text-primary-foreground text-[10px] px-2.5 py-1">
+                        <BrandSparkle className="size-3 mr-1" />
+                        {isEN ? "POPULAR" : "POPULAIRE"}
+                      </Badge>
+                    )}
                   </div>
-                  <Badge className="bg-primary text-primary-foreground">{pack.price}€</Badge>
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
+                  <p className="text-xs text-muted-foreground min-h-5 mt-1">
+                    {isEN ? plan.tagline.en : plan.tagline.fr}
+                  </p>
+                  <div className="mt-4 flex items-baseline gap-1.5">
+                    <span className="text-3xl font-extrabold tracking-tight text-foreground">{tier.price}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {billing === "yearly" ? (isEN ? "/year" : "/an") : (isEN ? "/month" : "/mois")}
+                    </span>
+                  </div>
+                  {billing === "yearly" && (
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {isEN ? "Approx." : "Soit env."} {(parseFloat(tier.price.replace(",", ".").replace("€", "")) / 12).toFixed(2).replace(".", ",")} €/{isEN ? "month" : "mois"}
+                    </p>
+                  )}
+                  <div className="my-4 border-t border-border/60" />
+                  <ul className="space-y-2 flex-1">
+                    {features.map((feature) => (
+                      <li key={feature} className="flex items-start gap-2 text-xs sm:text-[13px] leading-snug">
+                        <Check className="size-4 mt-0.5 text-primary shrink-0" />
+                        <span className="text-foreground/90">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <Button
+                    type="button"
+                    onClick={() => handleCheckout(tier.key)}
+                    disabled={Boolean(loadingKey) || loadingCredits || isCurrent}
+                    className="w-full h-11 mt-5 rounded-xl font-semibold gap-2"
+                    variant={plan.highlight ? "default" : "outline"}
+                  >
+                    {isLoading
+                      ? <Loader2 className="size-4 animate-spin" />
+                      : isCurrent
+                        ? (isEN ? "Current plan" : "Offre actuelle")
+                        : <>{isEN ? "Choose" : "Choisir"} {plan.name}<ArrowRight className="size-4" /></>}
+                  </Button>
+                </div>
+              );
+            })}
+          </div>
         </div>
 
-        {locked && (
-          <div className="px-4 pb-4 flex flex-wrap items-center justify-center gap-2">
-            {onRetry && (
-              <Button size="sm" variant="outline" className="gap-2" onClick={onRetry}>
-                <RefreshCw className="h-4 w-4" />
-                {isEN ? "I paid — check my balance" : "J'ai payé — vérifier mon solde"}
-              </Button>
-            )}
-            {onSignOut && (
-              <Button size="sm" variant="ghost" onClick={onSignOut}>
-                {isEN ? "Sign out" : "Se déconnecter"}
-              </Button>
-            )}
+        <div className="border-t border-border/70 bg-muted/30 px-4 sm:px-8 py-6">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-2 mb-4">
+            <div>
+              <h3 className="text-base sm:text-lg font-bold text-foreground flex items-center gap-2">
+                <Coins className="size-5 text-primary" />
+                {isEN ? "2. Or buy credits, no subscription" : "2. Ou acheter des crédits, sans abonnement"}
+              </h3>
+              <p className="text-xs text-muted-foreground mt-1">
+                {isEN ? "One-time purchase. Select a pack, then continue to payment." : "Achat ponctuel. Sélectionnez un pack, puis passez au paiement."}
+              </p>
+            </div>
+            <span className="text-xs font-medium text-muted-foreground">
+              {isEN ? "No automatic renewal" : "Sans renouvellement automatique"}
+            </span>
           </div>
-        )}
 
-        <div className="flex items-center justify-center gap-2 pb-4 text-xs text-muted-foreground">
-          <BrandSparkle className="w-3 h-3 text-foreground" />
-          <span>{isEN ? "100% secure payment" : "Paiement 100% sécurisé"}</span>
-          <Shield className="w-3 h-3 text-foreground" />
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5" role="group" aria-label={isEN ? "Available credit packs" : "Packs de crédits disponibles"}>
+            {visiblePacks.map((pack) => {
+              const selected = selectedPack.priceKey === pack.priceKey;
+              return (
+                <button
+                  key={pack.priceKey}
+                  type="button"
+                  onClick={() => setSelectedPackKey(pack.priceKey)}
+                  aria-pressed={selected}
+                  disabled={loadingCredits}
+                  className={
+                    "relative min-h-20 rounded-xl border p-3 text-left transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary " +
+                    (selected
+                      ? "border-primary bg-primary/10 ring-1 ring-primary shadow-sm"
+                      : "border-border bg-card hover:border-primary/40 hover:shadow-sm")
+                  }
+                >
+                  {selected && <CheckCircle2 className="absolute top-2 right-2 size-4 text-primary" />}
+                  <span className="block text-sm sm:text-base font-bold text-foreground pr-5">
+                    {pack.credits.toLocaleString(isEN ? "en-GB" : "fr-FR")}
+                  </span>
+                  <span className="block text-[11px] text-muted-foreground">
+                    {isEN ? "credits" : "crédits"}
+                  </span>
+                  <span className="block font-semibold text-primary text-sm mt-1">{formatEuros(pack.price)}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mt-3">
+            <button
+              type="button"
+              onClick={() => setShowAllPacks((v) => !v)}
+              className="inline-flex items-center gap-1.5 self-start text-xs font-semibold text-primary hover:underline"
+              aria-expanded={showAllPacks}
+            >
+              <ChevronDown className={"size-3.5 transition-transform " + (showAllPacks ? "rotate-180" : "")} />
+              {showAllPacks
+                ? (isEN ? "Show fewer packs" : "Voir moins de packs")
+                : (isEN ? "See 5 more packs" : "Voir les 5 autres packs")}
+            </button>
+
+            <Button
+              type="button"
+              onClick={() => handleBuyCredits(selectedPack)}
+              disabled={loadingCredits || Boolean(loadingKey)}
+              className="w-full sm:w-auto sm:min-w-72 rounded-xl h-11 font-semibold gap-2"
+            >
+              {loadingCredits
+                ? <Loader2 className="size-4 animate-spin" />
+                : <>{isEN ? "Buy" : "Acheter"} {selectedPack.credits.toLocaleString(isEN ? "en-GB" : "fr-FR")} {isEN ? "credits" : "crédits"} — {formatEuros(selectedPack.price)} <ArrowRight className="size-4" /></>}
+            </Button>
+          </div>
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-3 justify-between items-center px-4 sm:px-8 py-4 border-t border-border/60 bg-background">
+          <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            <ShieldCheck className="size-4 text-primary" />
+            {isEN ? "Secure payment with Stripe" : "Paiement sécurisé avec Stripe"}
+          </span>
+          {locked && (
+            <div className="flex flex-wrap w-full sm:w-auto justify-center sm:justify-end items-center gap-3">
+              {onRetry && (
+                <Button type="button" variant="outline" size="sm" onClick={onRetry} className="gap-2">
+                  <RefreshCw className="size-3.5" />
+                  {isEN ? "Already paid? Refresh" : "Déjà payé ? Actualiser"}
+                </Button>
+              )}
+              {onSignOut && (
+                <Button type="button" variant="ghost" size="sm" onClick={onSignOut} className="text-muted-foreground">
+                  {isEN ? "Sign out" : "Se déconnecter"}
+                </Button>
+              )}
+            </div>
+          )}
         </div>
       </DialogContent>
     </Dialog>
