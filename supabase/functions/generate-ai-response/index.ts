@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { callOpenRouterWithFallback } from "../_shared/openrouter.ts";
 import { sendFreeUpgradeEmail } from "../_shared/free-upgrade.ts";
+import { hasUnlimitedAiReplies } from "../_shared/plan-access.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -121,7 +122,7 @@ serve(async (req) => {
 
     // Parallel fetch: profile, review, and AI settings
     const [profileResult, reviewResult, aiSettingsResult] = await Promise.all([
-      supabase.from("profiles").select("credits, plan_name, preferred_language").eq("id", userId).single(),
+      supabase.from("profiles").select("credits, plan_name, plan_id, subscription_status, current_period_end, trial_end, preferred_language").eq("id", userId).single(),
       supabase.from("reviews").select("*").eq("id", reviewId).eq("user_id", userId).single(),
       supabase.from("ai_settings").select("*").eq("user_id", userId).single(),
     ]);
@@ -156,7 +157,8 @@ serve(async (req) => {
     const lang = requestLanguage || profile?.preferred_language || "fr";
     const t = translations[lang as keyof typeof translations] || translations.fr;
 
-    if (!profile || profile.credits < 1) {
+    const unlimitedReplies = hasUnlimitedAiReplies(profile);
+    if (!profile || (!unlimitedReplies && profile.credits < 1)) {
       if (profile) await sendFreeUpgradeEmail(supabase, userId, supabaseUrl, supabaseKey);
       return new Response(
         JSON.stringify({
@@ -315,14 +317,25 @@ ${responseT.important}`;
 
     // A single DB transaction verifies review ownership and atomically
     // consumes a credit; concurrent requests cannot overspend the balance.
-    const { data: newCredits, error: debitError } = await supabase.rpc("consume_review_ai_credit", {
-      p_user_id: userId,
-      p_review_id: reviewId,
-      p_response: aiResponse,
-      p_description: `${t.aiResponseFor} ${review.author}`,
-    });
-    if (debitError) throw debitError;
-    if (typeof newCredits !== "number" || newCredits < 0) {
+    let newCredits = profile.credits;
+    if (unlimitedReplies) {
+      // Pro/Business explicitly include unlimited replies. Do not debit their
+      // separate credit balance for ordinary Google review responses.
+      const { error: writeError } = await supabase.from("reviews")
+        .update({ ai_response: aiResponse, needs_new_response: false })
+        .eq("id", reviewId).eq("user_id", userId);
+      if (writeError) throw writeError;
+    } else {
+      const { data: remaining, error: debitError } = await supabase.rpc("consume_review_ai_credit", {
+        p_user_id: userId,
+        p_review_id: reviewId,
+        p_response: aiResponse,
+        p_description: `${t.aiResponseFor} ${review.author}`,
+      });
+      if (debitError) throw debitError;
+      newCredits = typeof remaining === "number" ? remaining : -1;
+    }
+    if (!unlimitedReplies && (typeof newCredits !== "number" || newCredits < 0)) {
       await sendFreeUpgradeEmail(supabase, userId, supabaseUrl, supabaseKey);
       return new Response(JSON.stringify({
         error: t.insufficientCredits, code: "UPGRADE_REQUIRED",
@@ -337,7 +350,7 @@ ${responseT.important}`;
       message: `${t.responseFor} ${review.author}`,
       review_id: reviewId,
     });
-    if (newCredits === 0) {
+    if (!unlimitedReplies && newCredits === 0) {
       await sendFreeUpgradeEmail(supabase, userId, supabaseUrl, supabaseKey);
     }
 
