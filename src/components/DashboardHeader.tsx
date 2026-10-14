@@ -78,10 +78,10 @@ export const DashboardHeader = ({ className }: { className?: string } = {}) => {
 
   return (
     <header className={`sticky top-0 z-50 bg-background/95 backdrop-blur-xl border-b border-border/50 ${className ?? ""}`}>
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="flex items-center justify-between gap-2 h-14">
-          <Link to="/dashboard" className="flex-shrink-0 md:hidden" aria-label="GoogleReviewAI home">
-            <RankiLogo className="text-foreground scale-90" />
+      <div className="max-w-7xl mx-auto px-2.5 sm:px-4">
+        <div className="flex items-center justify-between gap-1.5 sm:gap-2 h-14 min-w-0">
+          <Link to="/dashboard" className="flex-shrink-0 min-w-0 md:hidden" aria-label="GoogleReviewAI home">
+            <RankiLogo compactOnMobile className="text-foreground gap-1.5 sm:gap-2" />
           </Link>
           <div className="flex-1" />
           {/* Credits pill */}
@@ -102,13 +102,13 @@ export const DashboardHeader = ({ className }: { className?: string } = {}) => {
           </button>
 
           {/* Language switcher */}
-          <LanguageSwitcher variant="dropdown" />
+          <LanguageSwitcher variant="dropdown" className="px-1.5 sm:px-3 gap-1 sm:gap-2" />
 
           {/* Notifications */}
           <Button
             variant="ghost"
             size="icon"
-            className="relative h-10 w-10 rounded-xl"
+            className="relative h-10 w-10 shrink-0 rounded-xl"
             onClick={() => navigate("/notifications")}
             aria-label="Notifications"
           >
@@ -123,7 +123,7 @@ export const DashboardHeader = ({ className }: { className?: string } = {}) => {
           {/* User menu */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl">
+              <Button variant="ghost" size="icon" className="h-10 w-10 shrink-0 rounded-xl">
                 <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-xs">
                   <span className="text-xs font-bold text-primary-foreground">
                     {profile?.full_name?.charAt(0).toUpperCase() ||
