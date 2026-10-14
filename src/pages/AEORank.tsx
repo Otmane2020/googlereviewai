@@ -42,6 +42,7 @@ interface ScheduledContent {
   content_type: string;
   scheduled_date: string;
   status: string;
+  google_post_id?: string | null;
   title: string | null;
   content: string | null;
   question: string | null;
@@ -776,7 +777,7 @@ const AEORank = () => {
                               </Button>
                             )}
                             
-                            {item.question && item.status !== "published" && (
+                            {item.question && item.status !== "published" && !item.google_post_id && (
                               <Button 
                                 size="sm"
                                 className="h-7 px-2 bg-secondary hover:bg-secondary/90"
