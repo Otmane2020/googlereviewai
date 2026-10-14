@@ -210,7 +210,13 @@ serve(async (req) => {
           console.log(`Fetching reviews for ${locationTitle} (Location ID: ${locationId})`);
 
           const matchedBusinessId = businessMap.get(locationId);
-          console.log(`Matched business_id: ${matchedBusinessId || "NOT FOUND"}`);
+          if (!matchedBusinessId) {
+            // Retain Google discovery, but never import/reply on reviews of
+            // a location outside the customer's managed-location selection.
+            console.log(`Skipping unmanaged Google location: ${locationId}`);
+            continue;
+          }
+          console.log(`Matched business_id: ${matchedBusinessId}`);
 
           try {
             let nextPageToken: string | null = null;
