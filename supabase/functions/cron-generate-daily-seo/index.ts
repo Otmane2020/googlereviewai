@@ -178,11 +178,23 @@ serve(async (req) => {
           const article = pendingArticles[0];
           console.log(`[CRON-SEO] Generating content for article: ${article.title}`);
 
+          // Rotate editorial categories without inventing offers or company news.
+          const day = Math.floor(Date.parse(today + "T00:00:00Z") / 86400000);
+          const editorialModes = ["news", "information", "spotlight"] as const;
+          const editorialMode = editorialModes[((day % 3) + 3) % 3];
+          const editorialDirections = {
+            news: "ACTUALITÉ : informations utiles et vérifiables sur le métier ou l'établissement. Ne jamais inventer de nouveauté, annonce ni fait récent.",
+            information: "INFORMATION : conseil pratique, guide court, réponses utiles aux questions des clients.",
+            spotlight: "À DÉCOUVRIR : mettre en avant uniquement un service ou produit réellement mentionné dans la description. Aucune promotion ni remise inventée.",
+          };
           // Build the prompt for content generation
           const systemPrompt = `Tu es un expert en SEO local et en rédaction de contenu pour Google Business Profile.
 Génère un article SEO de 200-300 mots maximum optimisé pour la publication Google My Business.
 
 RÈGLES STRICTES:
+- Catégorie éditoriale du jour : ${editorialDirections[editorialMode]}
+- Ne jamais inventer des réductions, durées, prix, événements, résultats ou nouvelles de l'entreprise.
+- Ne pas répéter systématiquement des messages commerciaux ou superlatifs.
 - L'article doit être informatif et engageant
 - Inclure naturellement des mots-clés SEO locaux
 - Le contenu doit être adapté au format Google Posts (1500 caractères max)
