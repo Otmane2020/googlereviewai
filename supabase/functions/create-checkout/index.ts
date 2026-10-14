@@ -68,16 +68,8 @@ const CREDIT_AMOUNTS: Record<string, number> = {
   credits_10000: 10000,
 };
 
-// Plans that get a free trial (7-day trial on every GoogleReviewAI plan)
-const TRIAL_PLANS = [
-  "ranki_starter", "ranki_pro", "ranki_business",
-  "ranki_starter_monthly", "ranki_starter_yearly",
-  "ranki_pro_monthly", "ranki_pro_yearly",
-  "ranki_business_monthly", "ranki_business_yearly",
-  "starter_monthly", "starter_yearly",
-];
-const TRIAL_DAYS = 7;
-
+// GoogleReviewAI plans charge immediately: no 7-day free trial.
+// Preserve the separate, legacy all-in-one yearly offer below.
 // All-in-one yearly gets 60 days trial (2 months free)
 const ALLINONE_YEARLY_TRIAL_DAYS = 60;
 
@@ -243,9 +235,6 @@ serve(async (req) => {
       customerId = customer.id;
     }
 
-    // Determine if this cart has a trial-eligible plan
-    const hasTrialPlan = items.some(item => TRIAL_PLANS.includes(item.priceKey));
-
     // Build line items
     const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [];
     
@@ -301,7 +290,7 @@ serve(async (req) => {
       metadata,
     };
 
-    // Determine trial period
+    // Only the separate legacy all-in-one yearly offer retains its own promotion.
     const hasAllinoneYearly = items.some(item => item.priceKey === "allinone_yearly");
     
     // Add trial period for eligible plans (if not skipped)
@@ -315,15 +304,6 @@ serve(async (req) => {
           },
         };
         console.log(`[create-checkout] Adding 60-day trial for allinone_yearly`);
-      } else if (hasTrialPlan) {
-        // 3 days trial for starter plans
-        sessionParams.subscription_data = {
-          trial_period_days: TRIAL_DAYS,
-          metadata: {
-            supabase_user_id: user.id,
-          },
-        };
-        console.log(`[create-checkout] Adding 3-day trial for starter plan`);
       }
     }
 
