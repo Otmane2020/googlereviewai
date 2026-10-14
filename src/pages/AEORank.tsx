@@ -459,8 +459,8 @@ const AEORank = () => {
 
       await fetchScheduledContent(selectedBusiness!.id);
       toast({ 
-        title: "Publié sur Google !", 
-        description: "The Q&A was published on your Google Business Profile" 
+        title: data?.status === "published" ? "Post publié sur Google !" : "Post transmis à Google", 
+        description: data?.status === "published" ? "Post Google Business en ligne." : "La publication peut encore être en modération." 
       });
     } catch (error: any) {
       console.error("Error publishing:", error);
@@ -491,7 +491,7 @@ const AEORank = () => {
     } else {
       toast({
         title: "Heure mise à jour",
-        description: `Auto-publishing will run at ${hour.toString().padStart(2, "0")}:00 UTC`,
+        description: `Génération programmée à ${hour.toString().padStart(2, "0")}:00. Les FAQ ne sont pas publiées automatiquement sur Google.`,
       });
     }
   };
@@ -561,7 +561,7 @@ const AEORank = () => {
                 <Badge variant="secondary" className="text-[10px] px-1.5">AEO</Badge>
               </h1>
               <p className="text-xs text-muted-foreground">
-                30 jours de Q&R automatiques pour ChatGPT, Perplexity & Google AI
+                30 jours de FAQ AEO générées. Publication Google possible uniquement comme post soumis à modération.
               </p>
             </div>
           </div>
