@@ -1,0 +1,54 @@
+name: Deploy GoogleReviewAI Google Business media
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "supabase/functions/_shared/gmbImages.ts"
+      - "supabase/functions/generate-gmb-image/**"
+      - "supabase/functions/publish-gmb-post/**"
+      - "supabase/functions/sync-gmb-posts/**"
+      - "supabase/functions/cron-generate-daily-seo/**"
+      - "supabase/functions/cron-publish-scheduled-content/**"
+      - "supabase/migrations/*gmb_generated_images_bucket.sql"
+      - "supabase/config.toml"
+      - ".github/workflows/deploy-gmb-media.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-google-review-ai-gmb
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      SUPABASE_PROJECT_REF: hlruprayqfnatnldrski
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate exact connected Supabase project and secret
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$SUPABASE_ACCESS_TOKEN" || { echo "::error::SUPABASE_ACCESS_TOKEN is missing."; exit 1; }
+          grep -Fx 'project_id = "hlruprayqfnatnldrski"' supabase/config.toml
+          grep -A1 '^  \[functions.generate-gmb-image\]' supabase/config.toml | grep -q 'verify_jwt = true'
+          grep -A1 '^  \[functions.publish-gmb-post\]' supabase/config.toml | grep -q 'verify_jwt = false'
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - name: Deploy authenticated manual AI image generator
+        run: supabase functions deploy generate-gmb-image --project-ref "$SUPABASE_PROJECT_REF"
+      - name: Deploy Google post publisher with automatic image and CTA
+        run: supabase functions deploy publish-gmb-post --project-ref "$SUPABASE_PROJECT_REF" --no-verify-jwt
+      - name: Deploy Google post state reconciliation
+        run: supabase functions deploy sync-gmb-posts --project-ref "$SUPABASE_PROJECT_REF" --no-verify-jwt
+      - name: Deploy daily editorial rotation
+        run: supabase functions deploy cron-generate-daily-seo --project-ref "$SUPABASE_PROJECT_REF" --no-verify-jwt
+      - name: Deploy scheduled Google post publisher
+        run: supabase functions deploy cron-publish-scheduled-content --project-ref "$SUPABASE_PROJECT_REF" --no-verify-jwt
