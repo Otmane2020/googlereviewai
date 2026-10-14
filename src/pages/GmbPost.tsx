@@ -20,6 +20,7 @@ interface Business {
   name: string;
   google_place_id: string | null;
   profile_image_url: string | null;
+  website: string | null;
 }
 
 interface GmbPost {
@@ -31,6 +32,7 @@ interface GmbPost {
   created_at: string;
   cta_type: string | null;
   cta_url: string | null;
+  media_url: string | null;
 }
 
 export default function GmbPost() {
@@ -60,8 +62,10 @@ export default function GmbPost() {
   const [selectedBusinessId, setSelectedBusinessId] = useState<string>("");
   const [postType, setPostType] = useState("STANDARD");
   const [content, setContent] = useState("");
-  const [ctaType, setCtaType] = useState("NONE");
+  const [ctaType, setCtaType] = useState("LEARN_MORE");
   const [ctaUrl, setCtaUrl] = useState("");
+  const [mediaUrl, setMediaUrl] = useState("");
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
   // Champs spécifiques EVENT / OFFER
   const [eventTitle, setEventTitle] = useState("");
   const [startDate, setStartDate] = useState("");
@@ -90,7 +94,7 @@ export default function GmbPost() {
   const fetchBusinesses = async () => {
     const { data, error } = await supabase
       .from("businesses")
-      .select("id, name, google_place_id, profile_image_url")
+      .select("id, name, google_place_id, profile_image_url, website")
       .eq("is_active", true)
       .order("name");
 
@@ -101,6 +105,34 @@ export default function GmbPost() {
       }
     }
     setIsLoading(false);
+  };
+
+  useEffect(() => {
+    const business = businesses.find(b => b.id === selectedBusinessId);
+    setCtaUrl(business?.website?.startsWith("http") ? business.website : business?.website ? "https://" + business.website : "");
+    setMediaUrl("");
+  }, [selectedBusinessId, businesses]);
+
+  const handleGenerateImage = async () => {
+    if (!selectedBusinessId || !content.trim()) {
+      toast.error(t("Saisissez le texte avant de générer une photo.", "Write the post text before generating a photo."));
+      return;
+    }
+    setIsGeneratingImage(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-gmb-image", {
+        body: { business_id: selectedBusinessId, summary: content.trim() },
+      });
+      if (error || !data?.success || !data?.image_url) throw new Error(data?.error || error?.message || "Image unavailable");
+      setMediaUrl(data.image_url);
+      toast.success(t("Image IA générée !", "AI photo generated!"));
+    } catch (error) {
+      toast.error(t("Génération impossible", "Image generation failed"), {
+        description: error instanceof Error ? error.message : undefined,
+      });
+    } finally {
+      setIsGeneratingImage(false);
+    }
   };
 
   const fetchRecentPosts = async () => {
@@ -135,7 +167,7 @@ export default function GmbPost() {
       return;
     }
 
-    if (ctaType && ctaType !== "NONE" && !ctaUrl) {
+    if (!ctaUrl.trim() && !businesses.find(b => b.id === selectedBusinessId)?.website) {
       toast.error(t("Veuillez saisir une URL pour le bouton d'action", "Please enter a URL for the action button"));
       return;
     }
@@ -164,8 +196,9 @@ export default function GmbPost() {
           business_id: selectedBusinessId,
           summary: content,
           topic_type: postType,
-          cta_type: ctaType && ctaType !== "NONE" ? ctaType : undefined,
-          cta_url: ctaType && ctaType !== "NONE" ? ctaUrl : undefined,
+          cta_type: postType === "OFFER" ? undefined : (ctaType && ctaType !== "NONE" ? ctaType : "LEARN_MORE"),
+          cta_url: ctaUrl || undefined,
+          media_url: mediaUrl || undefined,
           event_title: (postType === "EVENT" || postType === "OFFER") ? eventTitle : undefined,
           start_date: (postType === "EVENT" || postType === "OFFER") ? startDate : undefined,
           end_date: (postType === "EVENT" || postType === "OFFER") ? endDate : undefined,
@@ -177,16 +210,21 @@ export default function GmbPost() {
       if (error) throw error;
 
       if (data?.success) {
-        toast.success(t("Publication réussie !", "Successfully published!"), {
-          description: t("Votre publication est désormais visible sur votre fiche Google Business", "Your post is now visible on your Google Business profile"),
+        toast.success(data.state === "LIVE"
+          ? t("Publication visible sur Google !", "Post is live on Google!")
+          : t("Post transmis à Google", "Post sent to Google"), {
+          description: data.state === "LIVE"
+            ? t("Google confirme la mise en ligne.", "Google confirmed the post is live.")
+            : t("En attente de validation par Google, ne republiez pas.", "Awaiting Google approval; do not resubmit."),
           action: {
             label: t("Voir", "View"),
             onClick: () => window.open("https://business.google.com", "_blank"),
           },
         });
         setContent("");
-        setCtaType("NONE");
-        setCtaUrl("");
+        setCtaType("LEARN_MORE");
+        setCtaUrl(selectedBusiness?.website?.startsWith("http") ? selectedBusiness.website : selectedBusiness?.website ? "https://" + selectedBusiness.website : "");
+        setMediaUrl("");
         setEventTitle("");
         setStartDate("");
         setEndDate("");
@@ -205,7 +243,9 @@ export default function GmbPost() {
       }
     } catch (error) {
       console.error("Publish error:", error);
-      toast.error(t("Erreur lors de la publication", "Error while publishing"));
+      toast.error(t("Erreur lors de la publication", "Error while publishing"), {
+        description: error instanceof Error ? error.message : undefined,
+      });
     } finally {
       setIsPublishing(false);
     }
@@ -223,19 +263,14 @@ export default function GmbPost() {
 
   const getStatusBadge = (status: string) => {
     if (status === "published") {
-      return (
-        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-emerald-500/20 text-emerald-600">
-          <Check className="w-3 h-3" />
-          {t("Publié", "Published")}
-        </span>
-      );
+      return <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-emerald-500/20 text-emerald-600"><Check className="w-3 h-3" />{t("Google : en ligne", "Google: Live")}</span>;
     }
-    return (
-      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-amber-500/20 text-amber-600">
-        <Clock className="w-3 h-3" />
-        {t("En attente", "Pending")}
-      </span>
-    );
+    if (status === "rejected") {
+      return <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-red-500/20 text-red-600"><AlertCircle className="w-3 h-3" />{t("Refusé par Google", "Rejected")}</span>;
+    }
+    return <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-amber-500/20 text-amber-600">
+      <Clock className="w-3 h-3" />{status === "processing" ? t("Google : en cours", "Google: Processing") : t("Non confirmé", "Unverified")}
+    </span>;
   };
 
   if (isLoading) {
@@ -420,12 +455,34 @@ export default function GmbPost() {
                 <Textarea
                   placeholder={t("Informez vos clients : actualités, événements, offres spéciales...", "Inform your customers: news, events, special offers...")}
                   value={content}
-                  onChange={(e) => setContent(e.target.value.slice(0, 1500))}
+                  onChange={(e) => { setContent(e.target.value.slice(0, 1500)); setMediaUrl(""); }}
                   className="min-h-[120px] resize-none"
                 />
                 <p className="text-xs text-muted-foreground text-right mt-1">
                   {content.length}/1500 {t("caractères", "characters")}
                 </p>
+              </div>
+
+              {/* Generated photo (automatically created at publish time if missing) */}
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">{t("Photo Google Business", "Google Business photo")}</Label>
+                <p className="text-xs text-muted-foreground">{t(
+                  "Générez et prévisualisez votre image. Sans image choisie, GoogleReviewAI en générera une automatiquement à la publication.",
+                  "Generate and preview your image. If none is selected, an AI image will be generated when you publish.",
+                )}</p>
+                <Button type="button" variant="outline" onClick={handleGenerateImage}
+                  disabled={isGeneratingImage || isPublishing || !content.trim()}>
+                  {isGeneratingImage ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Megaphone className="w-4 h-4 mr-2" />}
+                  {isGeneratingImage ? t("Génération de l'image...", "Generating image...") : t("Générer une image IA", "Generate AI photo")}
+                </Button>
+                {mediaUrl && (
+                  <div className="space-y-2">
+                    <img src={mediaUrl} alt={t("Aperçu de l'image pour Google", "Google photo preview")} className="w-full max-h-64 rounded-xl object-cover border" />
+                    <Button type="button" size="sm" variant="ghost" onClick={() => setMediaUrl("")}>
+                      {t("Retirer l'image", "Remove photo")}
+                    </Button>
+                  </div>
+                )}
               </div>
 
               {/* CTA */}
@@ -463,7 +520,7 @@ export default function GmbPost() {
                 className="w-full bg-emerald-500 hover:bg-emerald-600" 
                 size="lg"
                 onClick={handlePublish}
-                disabled={isPublishing || !content.trim()}
+                disabled={isPublishing || isGeneratingImage || !content.trim()}
               >
                 {isPublishing ? (
                   <>
@@ -526,6 +583,9 @@ export default function GmbPost() {
                           {getStatusBadge(post.status)}
                         </div>
                         <p className="text-sm line-clamp-2">{post.summary}</p>
+                        {post.media_url && <img src={post.media_url} alt="" className="mt-2 h-24 w-40 object-cover rounded-lg border" />}
+                        {post.cta_url && <a href={post.cta_url} target="_blank" rel="noopener noreferrer"
+                          className="text-xs text-primary underline mt-2 inline-block">{t("En savoir plus", "Learn more")}</a>}
                         <p className="text-xs text-muted-foreground mt-1">
                           {format(new Date(post.posted_at || post.created_at), isEN ? "MMM d, yyyy 'at' HH:mm" : "d MMM yyyy 'à' HH:mm", { locale: isEN ? enUS : fr })}
                         </p>
