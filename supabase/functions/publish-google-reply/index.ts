@@ -56,6 +56,22 @@ serve(async (req) => {
       throw new Error("Review not found");
     }
 
+    // Server-side enforcement: do not publish a reply for a location
+    // that was discovered but not selected under the customer's plan.
+    const googleLocationId = String(review.location_id || "").split("/").pop();
+    const { data: managedBusiness } = await supabaseAdmin
+      .from("businesses")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("google_place_id", googleLocationId)
+      .eq("is_active", true)
+      .maybeSingle();
+    if (!managedBusiness) {
+      return new Response(JSON.stringify({ success: false, message: "Cet établissement n'est pas actif dans votre forfait." }), {
+        status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     if (!review.ai_response) {
       throw new Error("No AI response to publish");
     }

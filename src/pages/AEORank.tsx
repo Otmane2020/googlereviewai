@@ -3,6 +3,7 @@ import { useNavigate } from "@/lib/router-compat";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useRequireSubscription } from "@/hooks/useRequireSubscription";
+import { includesPremiumModules, isCurrentModuleSubscription } from "@/lib/planEntitlements";
 import { BusinessSubscriptionSelector } from "@/components/BusinessSubscriptionSelector";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { ArticlePreviewDialog } from "@/components/ArticlePreviewDialog";
@@ -41,6 +42,7 @@ interface ScheduledContent {
   content_type: string;
   scheduled_date: string;
   status: string;
+  google_post_id?: string | null;
   title: string | null;
   content: string | null;
   question: string | null;
@@ -88,13 +90,14 @@ const AEORank = () => {
     // Also check if user has a paid plan (Pro or Business)
     const { data: profile } = await supabase
       .from("profiles")
-      .select("plan_name")
+      .select("plan_name,plan_id,subscription_status,current_period_end,trial_end")
       .eq("id", user.id)
       .single();
     
-    const planLower = profile?.plan_name?.toLowerCase() || "";
-    const hasPaidPlan = ["pro", "business", "quotidien", "agence", "pro annuel", "business annuel"].some((n) => planLower.includes(n));
-    setIsSubscribed(!!subscription || hasPaidPlan);
+    // A plan name without an active billing status is not a premium entitlement.
+    // Old module rows marked active but past current_period_end are not valid.
+    setIsSubscribed(includesPremiumModules(profile) ||
+      (subscription ? isCurrentModuleSubscription(subscription) : false));
   };
 
   const fetchData = async () => {
@@ -105,7 +108,8 @@ const AEORank = () => {
         supabase
           .from("businesses")
           .select("id, name, address, description, categories, auto_keywords, website, website_content, gmb_language")
-          .eq("user_id", user!.id),
+          .eq("user_id", user!.id)
+          .eq("is_active", true),
         supabase
           .from("ai_settings")
           .select("publication_hour")
@@ -456,8 +460,8 @@ const AEORank = () => {
 
       await fetchScheduledContent(selectedBusiness!.id);
       toast({ 
-        title: "Publié sur Google !", 
-        description: "The Q&A was published on your Google Business Profile" 
+        title: data?.status === "published" ? "Post publié sur Google !" : "Post transmis à Google", 
+        description: data?.status === "published" ? "Post Google Business en ligne." : "La publication peut encore être en modération." 
       });
     } catch (error: any) {
       console.error("Error publishing:", error);
@@ -488,7 +492,7 @@ const AEORank = () => {
     } else {
       toast({
         title: "Heure mise à jour",
-        description: `Auto-publishing will run at ${hour.toString().padStart(2, "0")}:00 UTC`,
+        description: `Génération programmée à ${hour.toString().padStart(2, "0")}:00. Les FAQ ne sont pas publiées automatiquement sur Google.`,
       });
     }
   };
@@ -558,7 +562,7 @@ const AEORank = () => {
                 <Badge variant="secondary" className="text-[10px] px-1.5">AEO</Badge>
               </h1>
               <p className="text-xs text-muted-foreground">
-                30 jours de Q&R automatiques pour ChatGPT, Perplexity & Google AI
+                30 jours de FAQ AEO générées. Publication Google possible uniquement comme post soumis à modération.
               </p>
             </div>
           </div>
@@ -773,7 +777,7 @@ const AEORank = () => {
                               </Button>
                             )}
                             
-                            {item.question && item.status !== "published" && (
+                            {item.question && item.status !== "published" && !item.google_post_id && (
                               <Button 
                                 size="sm"
                                 className="h-7 px-2 bg-secondary hover:bg-secondary/90"

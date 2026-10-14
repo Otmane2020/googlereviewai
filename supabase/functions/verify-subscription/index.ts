@@ -127,11 +127,18 @@ serve(async (req) => {
 
     // Subscription is valid - pick the highest tier item when multiple exist
     const planMapping: Record<string, { name: string; credits: number; maxBusinesses: number; tier: number; agencyPool?: number }> = {
+      // Current EUR GoogleReviewAI Stripe prices — keep in sync with webhook.
+      "price_1TjxSJEfti9t9nN9XgMVswCh": { name: "Starter", credits: 50, maxBusinesses: 1, tier: 1 },
+      "price_1TjxSJEfti9t9nN91VDBOxZX": { name: "Starter Annuel", credits: 50, maxBusinesses: 1, tier: 1 },
+      "price_1TjxSKEfti9t9nN9HAzRfqz8": { name: "Pro", credits: 300, maxBusinesses: 3, tier: 3 },
+      "price_1TjxSKEfti9t9nN9iv48DJvm": { name: "Pro Annuel", credits: 300, maxBusinesses: 3, tier: 3 },
+      "price_1TjxSLEfti9t9nN9DqcufGNo": { name: "Business", credits: 1000, maxBusinesses: 999, tier: 4 },
+      "price_1TjxSLEfti9t9nN9GrF6F0Pw": { name: "Business Annuel", credits: 1000, maxBusinesses: 999, tier: 4 },
       "price_1SrHtCEfti9t9nN9L8Fytsni": { name: "Starter", credits: 10, maxBusinesses: 1, tier: 1 },
-      "price_1SrHtDEfti9t9nN96yIPGiOo": { name: "Pro", credits: 100, maxBusinesses: 2, tier: 3 },
+      "price_1SrHtDEfti9t9nN96yIPGiOo": { name: "Pro", credits: 100, maxBusinesses: 3, tier: 3 },
       "price_1SrHtEEfti9t9nN9mq7MrV3G": { name: "Business", credits: 400, maxBusinesses: 999, tier: 4 },
       "price_1SrHtOEfti9t9nN9fG4lSroa": { name: "Starter Annuel", credits: 10, maxBusinesses: 1, tier: 1 },
-      "price_1SrHtPEfti9t9nN9dnZ0sXpi": { name: "Pro Annuel", credits: 100, maxBusinesses: 2, tier: 3 },
+      "price_1SrHtPEfti9t9nN9dnZ0sXpi": { name: "Pro Annuel", credits: 100, maxBusinesses: 3, tier: 3 },
       "price_1SrHtQEfti9t9nN9GKvr4NSt": { name: "Business Annuel", credits: 400, maxBusinesses: 999, tier: 4 },
       "price_1TSa8pEfti9t9nN9JHI4owg3": { name: "Quotidien", credits: 200, maxBusinesses: 3, tier: 2 },
       "price_1TU9QcEfti9t9nN9MwGBzftO": { name: "Quotidien", credits: 200, maxBusinesses: 3, tier: 2 },

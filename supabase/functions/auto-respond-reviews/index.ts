@@ -3,6 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getGoogleAccessToken } from "../_shared/googleAuth.ts";
 import { callOpenRouterWithFallback } from "../_shared/openrouter.ts";
 import { sendFreeUpgradeEmail } from "../_shared/free-upgrade.ts";
+import { hasUnlimitedAiReplies } from "../_shared/plan-access.ts";
 import { resolveEmailLang } from "../_shared/email-lang.ts";
 
 const corsHeaders = {
@@ -243,11 +244,12 @@ serve(async (req) => {
         // Get profile with credits and email
         const { data: profile } = await supabase
           .from("profiles")
-          .select("credits, google_refresh_token, email, full_name, preferred_language")
+          .select("credits, plan_name, subscription_status, current_period_end, trial_end, google_refresh_token, email, full_name, preferred_language")
           .eq("id", userSettings.user_id)
           .single();
 
-        if (!profile || profile.credits < 1) {
+        const unlimitedReplies = hasUnlimitedAiReplies(profile);
+        if (!profile || (!unlimitedReplies && profile.credits < 1)) {
           console.log("[AutoRespond] User has no AI credits:", userSettings.user_id);
           if (profile) {
             // Do not email all existing exhausted accounts from a routine cron.
@@ -330,14 +332,16 @@ serve(async (req) => {
 
         for (const review of reviews) {
           const googleLocationId = String(review.location_id || "").split("/").pop();
-          const business = connectedBusinesses?.find(b => b.google_place_id === googleLocationId)
-            || connectedBusinesses?.[0];
-          const businessName = business?.name || "Our team";
+          const business = connectedBusinesses?.find(b => b.google_place_id === googleLocationId);
+          // A review from an inactive location must never consume credits
+          // or receive an automated response on behalf of another business.
+          if (!business) continue;
+          const businessName = business.name;
           const brandVoice = (business?.ai_response_model || null) as BrandVoiceProfile | null;
           const responseLanguage = await resolveEmailLang(
             profile.email, null, userSettings.user_id, business?.id,
           );
-          if (profile.credits < 1) break;
+          if (!unlimitedReplies && profile.credits < 1) break;
 
           // Check if review is old enough based on auto_reply_delay
           // Use the SYNC time (created_at) not the Google review date
@@ -370,29 +374,42 @@ serve(async (req) => {
           // Atomic credit debit + response write prevents overspending during
           // concurrent automatic and manual generation.
           const isEditedReview = review.needs_new_response === true;
-          const { data: newCredits, error: consumeError } = await supabase.rpc(
-            "consume_review_ai_credit", {
-              p_user_id: userSettings.user_id,
-              p_review_id: review.id,
-              p_response: aiResponse,
-              p_description: isEditedReview
-                ? "Nouvelle réponse IA pour un avis modifié"
-                : "Auto-réponse IA aux avis Google",
-            },
-          );
-          if (consumeError) {
-            console.error("[AutoRespond] Failed to consume credit:", consumeError);
-            continue;
+          let newCredits = profile.credits;
+          if (unlimitedReplies) {
+            // Paid Pro and Business include unlimited review AI replies.
+            const { error: writeError } = await supabase.from("reviews")
+              .update({ ai_response: aiResponse, needs_new_response: false })
+              .eq("id", review.id).eq("user_id", userSettings.user_id);
+            if (writeError) {
+              console.error("[AutoRespond] Paid reply save failed", writeError);
+              continue;
+            }
+          } else {
+            const { data: remaining, error: consumeError } = await supabase.rpc(
+              "consume_review_ai_credit", {
+                p_user_id: userSettings.user_id,
+                p_review_id: review.id,
+                p_response: aiResponse,
+                p_description: isEditedReview
+                  ? "Nouvelle réponse IA pour un avis modifié"
+                  : "Auto-réponse IA aux avis Google",
+              },
+            );
+            if (consumeError) {
+              console.error("[AutoRespond] Failed to consume credit:", consumeError);
+              continue;
+            }
+            if (typeof remaining !== "number" || remaining < 0) {
+              profile.credits = 0;
+              await sendFreeUpgradeEmail(supabase, userSettings.user_id, supabaseUrl, supabaseServiceKey);
+              break;
+            }
+            newCredits = remaining;
+            profile.credits = newCredits;
           }
-          if (typeof newCredits !== "number" || newCredits < 0) {
-            profile.credits = 0;
-            await sendFreeUpgradeEmail(supabase, userSettings.user_id, supabaseUrl, supabaseServiceKey);
-            break;
-          }
-          profile.credits = newCredits;
 
           totalResponses++;
-          if (newCredits === 0) {
+          if (!unlimitedReplies && newCredits === 0) {
             await sendFreeUpgradeEmail(supabase, userSettings.user_id, supabaseUrl, supabaseServiceKey);
           }
 

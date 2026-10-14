@@ -386,7 +386,8 @@ const Reviews = () => {
   const filteredReviews = useMemo(() => {
     // If filtering by specific review_id, find in all reviews (ignore business filter)
     if (filterReviewId) {
-      const reviewById = reviews.find(r => r.id.toString() === filterReviewId);
+      // Notification links must never reveal or manage an inactive location.
+      const reviewById = businessReviews.find(r => r.id.toString() === filterReviewId);
       return reviewById ? [reviewById] : [];
     }
 
@@ -400,7 +401,7 @@ const Reviews = () => {
         (filterStatus === "published" && (review.published_to_google || review.google_reply));
       return matchesSearch && matchesRating && matchesStatus;
     });
-  }, [businessReviews, reviews, filterReviewId, searchTerm, filterRating, filterStatus]);
+  }, [businessReviews, filterReviewId, searchTerm, filterRating, filterStatus]);
 
   const totalPages = Math.ceil(filteredReviews.length / REVIEWS_PER_PAGE);
   const paginatedReviews = filteredReviews.slice((currentPage - 1) * REVIEWS_PER_PAGE, currentPage * REVIEWS_PER_PAGE);
@@ -460,13 +461,18 @@ const Reviews = () => {
   const handleSelectBusiness = async () => {
     if (!user) return;
     
-    const result = await syncBusinesses();
-    if (result?.requires_selection) {
+    // Always refresh Google's full list so users can swap the locations
+    // included in their plan, even when all managed slots are already full.
+    const result = await syncBusinesses(true);
+    if (result?.requires_selection || (result?.success && result?.google_businesses?.length)) {
       setGoogleBusinessesForSelection(result.google_businesses || []);
       setMaxBusinessesLimit(result.max_businesses || 1);
       setShowSelectBusinessesDialog(true);
     } else if (result?.success) {
       fetchData(false);
+    } else {
+      toast({ title: "Synchronisation impossible", description: result?.message || "Vérifiez la connexion Google dans Paramètres.", variant: "destructive" });
+      if (result?.requires_reconnect) setShowReconnectDialog(true);
     }
   };
 
@@ -587,6 +593,10 @@ const Reviews = () => {
                 </DialogContent>
               </Dialog>
 
+              <Button type="button" variant="outline" size="sm" className="shrink-0 h-9" disabled={isSyncingBusinesses} onClick={() => void handleSelectBusiness()}>
+                {isSyncingBusinesses ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Building2 className="h-4 w-4 mr-1" />}
+                {i18n.language?.startsWith("fr") ? "Gérer les établissements" : "Manage locations"}
+              </Button>
               {/* Business info */}
               <div className="flex-1 min-w-0">
                 {/* Badge + Actions row */}
@@ -1163,6 +1173,7 @@ const Reviews = () => {
         onOpenChange={setShowSelectBusinessesDialog}
         businesses={googleBusinessesForSelection}
         maxBusinesses={maxBusinessesLimit}
+        initialSelectedGooglePlaceIds={businesses.map((business) => business.google_place_id).filter((id): id is string => Boolean(id))}
         userId={user?.id || ""}
         onSuccess={handleBusinessSelectionSuccess}
       />

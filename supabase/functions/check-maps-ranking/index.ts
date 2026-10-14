@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
+import { activePlanTier } from "../_shared/plan-access.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -324,6 +325,16 @@ serve(async (req) => {
     const user = userData.user;
     if (!user) throw new Error("User not authenticated");
     logStep("User authenticated", { userId: user.id });
+    // GEO rank tracking is a paid Pro/Business feature.
+    const { data: profile } = await supabaseClient.from("profiles")
+      .select("plan_name,subscription_status,current_period_end,trial_end")
+      .eq("id", user.id).maybeSingle();
+    if (!["pro", "business"].includes(activePlanTier(profile))) {
+      return new Response(JSON.stringify({ success: false, error: "Le suivi GEO est réservé aux forfaits Pro et Business." }), {
+        status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
 
     // Parse request body
     const { business_id, keyword, grid_size, spacing_m } = await req.json();
@@ -344,6 +355,7 @@ serve(async (req) => {
       .select("id, name, google_place_id, address")
       .eq("id", business_id)
       .eq("user_id", user.id)
+      .eq("is_active", true)
       .single();
 
     if (businessError || !business) {

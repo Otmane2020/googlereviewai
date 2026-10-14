@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { activePlanTier } from "../_shared/plan-access.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -62,17 +63,11 @@ function getTodayInTimezone(timezone: string): string {
 async function hasDailyPlan(supabase: any, userId: string): Promise<boolean> {
   const { data: profile } = await supabase
     .from("profiles")
-    .select("plan_name, subscription_status")
+    .select("plan_name, subscription_status, current_period_end, trial_end")
     .eq("id", userId)
     .single();
 
-  if (!profile) return false;
-
-  const validStatuses = ["active", "trial", "trialing"];
-  if (!validStatuses.includes(profile.subscription_status || "")) return false;
-
-  const dailyPlans = ["daily", "pro", "business"];
-  return dailyPlans.includes((profile.plan_name || "").toLowerCase());
+  return ["pro", "business"].includes(activePlanTier(profile));
 }
 
 serve(async (req) => {
@@ -112,12 +107,8 @@ serve(async (req) => {
       const dayOfWeek = getDayOfWeekInTimezone(timezone);
       const isDailyUser = await hasDailyPlan(supabase, userId);
 
-      // Free users: publish only on Mondays (dayOfWeek === 1)
-      // Daily users: publish every day
-      if (!isDailyUser && dayOfWeek !== 1) {
-        console.log(`[CRON-PUBLISH] User ${userId}: free plan, skipping (not Monday)`);
-        continue;
-      }
+      // Automatic Google publishing belongs to Pro and Business only.
+      if (!isDailyUser) continue;
 
       console.log(`[CRON-PUBLISH] User ${userId}: ${isDailyUser ? "daily" : "weekly"} (${timezone}, ${today})`);
 
@@ -132,30 +123,10 @@ serve(async (req) => {
       for (const business of businesses) {
         if (!business.google_place_id) continue;
 
-        // Publish AEO Q&A (daily users only, or Monday for free)
-        if (isDailyUser || dayOfWeek === 1) {
-          const { data: aeoContent } = await supabase
-            .from("scheduled_content")
-            .select("*")
-            .eq("business_id", business.id)
-            .eq("user_id", userId)
-            .eq("content_type", "aeo_qa")
-            .eq("scheduled_date", today)
-            .eq("status", "generated")
-            .is("published_at", null)
-            .limit(1)
-            .single();
-
-          if (aeoContent?.question && aeoContent?.answer) {
-            try {
-              const { error: publishError } = await supabase.functions.invoke("publish-gmb-qa", {
-                body: { content_id: aeoContent.id },
-              });
-              if (publishError) { errors++; } else { publishedAEO++; }
-            } catch { errors++; }
-          }
-        }
-
+        // Google discontinued the Business Profile Q&A API on 2025-11-03.
+        // Keep generated questions and answers as drafts for the user to reuse
+        // on their website/FAQ, and never report these as published to Google.
+        // See https://developers.google.com/my-business/content/qanda/change-log
         // Publish SEO article
         const { data: seoContent } = await supabase
           .from("scheduled_content")

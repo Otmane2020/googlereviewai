@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { managedLocationLimit } from "../_shared/plan-access.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -37,7 +38,7 @@ serve(async (req) => {
 
     const { data: profile, error: profileError } = await admin
       .from("profiles")
-      .select("google_refresh_token, max_businesses")
+      .select("google_refresh_token, max_businesses, plan_name, subscription_status, current_period_end, trial_end")
       .eq("id", user.id)
       .maybeSingle();
     if (profileError || !profile) return json({ success: false, error: "Profile unavailable" }, 500);
@@ -55,7 +56,7 @@ serve(async (req) => {
         connected: Boolean(profile.google_refresh_token),
         active_count: activeBusinesses?.length || 0,
         active_google_place_ids: (activeBusinesses || []).map((b) => b.google_place_id).filter(Boolean),
-        max_businesses: profile.max_businesses || 1,
+        max_businesses: managedLocationLimit(profile),
       });
     }
 

@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { managedLocationLimit } from "../_shared/plan-access.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -55,7 +56,7 @@ serve(async (req) => {
     // Get user's plan limit
     const { data: profile, error: profileError } = await supabaseAdmin
       .from("profiles")
-      .select("max_businesses")
+      .select("plan_name,subscription_status,trial_end,current_period_end,max_businesses")
       .eq("id", user.id)
       .single();
 
@@ -64,11 +65,12 @@ serve(async (req) => {
     }
 
     // Enforce plan limit
-    if (businesses.length > profile.max_businesses) {
+    const permittedLocations = managedLocationLimit(profile);
+    if (businesses.length > permittedLocations) {
       return new Response(
         JSON.stringify({ 
           success: false, 
-          error: `Your plan allows only ${profile.max_businesses} business(es). You selected ${businesses.length}.` 
+          error: `Your plan allows only ${permittedLocations} business(es). You selected ${businesses.length}.` 
         }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );

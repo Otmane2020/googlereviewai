@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Crown, ShieldCheck, Coins, Loader2, Check, RefreshCw, ArrowRight, ChevronDown, CheckCircle2, LockKeyhole } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BrandSparkle } from "@/components/BrandSparkle";
+import { effectivePlanTier, isActivePaidPlan, type PlanProfile } from "@/lib/planEntitlements";
 
 interface CreditPack {
   price: number;
@@ -72,8 +73,8 @@ const PLANS: PlanCard[] = [
     monthly: { price: "49€", key: "ranki_pro_monthly" },
     yearly:  { price: "470€", key: "ranki_pro_yearly" },
     features: {
-      fr: ["Jusqu'à 3 établissements", "Réponses IA illimitées", "GEO Rank quotidien", "Posts SEO + Q&R AEO automatiques", "Support prioritaire"],
-      en: ["Up to 3 locations", "Unlimited AI replies", "Daily GEO ranking", "Automatic SEO posts + AEO Q&A", "Priority support"],
+      fr: ["Jusqu'à 3 établissements", "Réponses IA illimitées", "GEO Rank quotidien", "Posts Google soumis à validation + FAQ AEO générées", "Support prioritaire"],
+      en: ["Up to 3 locations", "Unlimited AI replies", "Daily GEO ranking", "Google posts subject to approval + generated AEO FAQs", "Priority support"],
     },
     highlight: true,
   },
@@ -84,8 +85,8 @@ const PLANS: PlanCard[] = [
     monthly: { price: "99€", key: "ranki_business_monthly" },
     yearly:  { price: "950,40€", key: "ranki_business_yearly" },
     features: {
-      fr: ["Établissements illimités", "Posts & Q&R illimités", "API & webhooks", "Manager dédié", "Rapports personnalisés"],
-      en: ["Unlimited locations", "Unlimited posts & Q&A", "API & webhooks", "Dedicated manager", "Custom reports"],
+      fr: ["Établissements illimités", "Création de posts & FAQ illimitée (diffusion Google sous réserve)", "API & webhooks", "Manager dédié", "Rapports personnalisés"],
+      en: ["Unlimited locations", "Unlimited post & FAQ creation (Google moderation applies)", "API & webhooks", "Dedicated manager", "Custom reports"],
     },
   },
 ];
@@ -108,11 +109,67 @@ export const UpgradeDialog = ({ open, onOpenChange, currentPlan, exhausted = fal
   const [selectedPackKey, setSelectedPackKey] = useState("credits_100");
   const [showAllPacks, setShowAllPacks] = useState(false);
 
-  const currentNormalized = normalizePlan(currentPlan);
+  const [liveProfile, setLiveProfile] = useState<PlanProfile | null>(null);
+  const [checkingPlan, setCheckingPlan] = useState(false);
+
+  useEffect(() => {
+    if (!open) return;
+    let active = true;
+    setCheckingPlan(true);
+    (async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        if (active) { setLiveProfile(null); setCheckingPlan(false); }
+        return;
+      }
+      const { data, error } = await supabase.from("profiles")
+        .select("plan_name,plan_id,subscription_status,current_period_end,trial_end")
+        .eq("id", user.id).maybeSingle();
+      if (active) {
+        setLiveProfile(error ? null : data);
+        if (!error && data?.plan_id) {
+          // Show the actual Stripe billing cadence when this dialog opens.
+          const annualPrices = [
+            "price_1TjxSJEfti9t9nN91VDBOxZX",
+            "price_1TjxSKEfti9t9nN9iv48DJvm",
+            "price_1TjxSLEfti9t9nN9GrF6F0Pw",
+            "price_1SrHtOEfti9t9nN9fG4lSroa",
+            "price_1SrHtPEfti9t9nN9dnZ0sXpi",
+            "price_1SrHtQEfti9t9nN9GKvr4NSt",
+          ];
+          setBilling(annualPrices.includes(data.plan_id) ? "yearly" : "monthly");
+        }
+        setCheckingPlan(false);
+      }
+    })();
+    return () => { active = false; };
+  }, [open]);
+
+  const currentNormalized = liveProfile && isActivePaidPlan(liveProfile)
+    ? effectivePlanTier(liveProfile) : null;
+  const currentPriceId = isActivePaidPlan(liveProfile) ? liveProfile?.plan_id : null;
+  const priceIds: Record<string, string> = {
+    ranki_starter_monthly: "price_1TjxSJEfti9t9nN9XgMVswCh",
+    ranki_starter_yearly: "price_1TjxSJEfti9t9nN91VDBOxZX",
+    ranki_pro_monthly: "price_1TjxSKEfti9t9nN9HAzRfqz8",
+    ranki_pro_yearly: "price_1TjxSKEfti9t9nN9iv48DJvm",
+    ranki_business_monthly: "price_1TjxSLEfti9t9nN9DqcufGNo",
+    ranki_business_yearly: "price_1TjxSLEfti9t9nN9GrF6F0Pw",
+  };
 
   const handleCheckout = async (priceKey: string) => {
     setLoadingKey(priceKey);
     try {
+      // An existing paid subscription must be changed through Stripe Billing
+      // rather than creating a duplicate checkout subscription.
+      if (currentNormalized) {
+        const { data: portal, error: portalError } = await supabase.functions.invoke("create-portal-session", {
+          body: { returnUrl: window.location.href },
+        });
+        if (portalError || !portal?.url) throw portalError || new Error("Unable to open billing portal");
+        window.location.href = portal.url;
+        return;
+      }
       const { data, error } = await supabase.functions.invoke("create-checkout", {
         body: {
           priceKey,
@@ -245,7 +302,7 @@ export const UpgradeDialog = ({ open, onOpenChange, currentPlan, exhausted = fal
             {PLANS.map((plan) => {
               const tier = billing === "yearly" ? plan.yearly : plan.monthly;
               const features = isEN ? plan.features.en : plan.features.fr;
-              const isCurrent = currentNormalized === plan.id;
+              const isCurrent = Boolean(currentNormalized === plan.id && currentPriceId === priceIds[tier.key]);
               const isLoading = loadingKey === tier.key;
               return (
                 <div
@@ -297,7 +354,7 @@ export const UpgradeDialog = ({ open, onOpenChange, currentPlan, exhausted = fal
                       ? <Loader2 className="size-4 animate-spin" />
                       : isCurrent
                         ? (isEN ? "Current plan" : "Offre actuelle")
-                        : <>{isEN ? "Choose" : "Choisir"} {plan.name}<ArrowRight className="size-4" /></>}
+                        : <>{currentNormalized ? (isEN ? "Manage billing" : "Gérer l'abonnement") : (isEN ? "Choose" : "Choisir")} {plan.name}<ArrowRight className="size-4" /></>}
                   </Button>
                 </div>
               );

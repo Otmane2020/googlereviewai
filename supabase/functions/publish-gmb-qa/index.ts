@@ -17,6 +17,18 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
+    const authHeader = req.headers.get("Authorization") || "";
+    const anonClient = createClient(
+      supabaseUrl,
+      Deno.env.get("SUPABASE_ANON_KEY") || "",
+      { global: { headers: { Authorization: authHeader } } },
+    );
+    const { data: { user }, error: userError } = await anonClient.auth.getUser();
+    if (userError || !user) {
+      return new Response(JSON.stringify({ success: false, error: "Unauthorized" }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
     const { content_id } = await req.json();
 
     if (!content_id) {
@@ -37,6 +49,7 @@ serve(async (req) => {
         )
       `)
       .eq("id", content_id)
+      .eq("user_id", user.id)
       .single();
 
     if (contentError || !content) {
@@ -54,6 +67,15 @@ serve(async (req) => {
     if (!business?.google_place_id) {
       throw new Error("Business not linked to Google My Business");
     }
+    const { data: managedBusiness } = await supabase.from("businesses")
+      .select("id").eq("id", business.id).eq("user_id", user.id)
+      .eq("is_active", true).maybeSingle();
+    if (!managedBusiness) {
+      return new Response(JSON.stringify({ success: false, error: "Établissement non actif dans votre forfait." }), {
+        status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
 
     // Get Google access token using shared helper
     const tokenResult = await getGoogleAccessToken(supabase, content.user_id);
@@ -164,14 +186,20 @@ serve(async (req) => {
       throw new Error(publishError || "Failed to publish post to Google");
     }
 
-    // Update the scheduled content as published
+    // A Google Local Post is NOT a Q&A API entry. Google may moderate
+    // and reject a successfully created Local Post.
+    const googleState = String(publishedPost.state || publishedPost.localPostState || "").toUpperCase();
+    const accepted = googleState !== "REJECTED";
+    const finalStatus = googleState === "LIVE" ? "published"
+      : googleState === "REJECTED" ? "error" : "pending";
+
     const { error: updateError } = await supabase
       .from("scheduled_content")
       .update({
-        status: "published",
-        published_at: new Date().toISOString(),
+        status: finalStatus,
+        published_at: finalStatus === "published" ? new Date().toISOString() : null,
         google_post_id: publishedPost.name || null,
-        error_message: null,
+        error_message: accepted ? null : "Google a refusé ce post.",
       })
       .eq("id", content_id);
 
@@ -183,15 +211,16 @@ serve(async (req) => {
     await supabase.from("notifications").insert({
       user_id: content.user_id,
       type: "qa_published",
-      title: "Q&A publié sur Google",
-      message: `Le Q&A "${content.question?.slice(0, 50)}..." a été publié sur Google My Business.`,
+      title: "Post Google Business : " + (finalStatus === "published" ? "publié" : finalStatus === "pending" ? "en modération" : "refusé"),
+      message: `La FAQ "${content.question?.slice(0, 50)}..." a été envoyée comme post Google Business (${finalStatus}).`,
     });
 
     return new Response(
       JSON.stringify({ 
-        success: true, 
+        success: accepted,
+        status: finalStatus,
         google_post_id: publishedPost.name,
-        message: "Q&A published successfully" 
+        message: finalStatus === "published" ? "Google Business post published" : finalStatus === "pending" ? "Post sent to Google for moderation" : "Google rejected the post" 
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
