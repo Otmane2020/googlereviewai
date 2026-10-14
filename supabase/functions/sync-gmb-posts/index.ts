@@ -212,4 +212,24 @@ async function syncPostsToDb(
     console.error("[sync-gmb-posts] Error upserting posts:", error);
     throw error;
   }
+
+  // Reconcile scheduled SEO articles with Google's authoritative moderation
+  // result, including posts that were accepted but not yet LIVE.
+  for (const post of postsData) {
+    if (!post.google_post_id) continue;
+    const verifiedStatus = post.status === "published" ? "published"
+      : post.status === "rejected" ? "rejected" : "processing";
+    const { error: scheduleError } = await supabase.from("scheduled_content")
+      .update({
+        status: verifiedStatus,
+        published_at: verifiedStatus === "published" ? new Date().toISOString() : null,
+        error_message: verifiedStatus === "rejected" ? "Google a refusé cette publication." : null,
+      })
+      .eq("user_id", userId)
+      .eq("business_id", businessId)
+      .eq("google_post_id", post.google_post_id);
+    if (scheduleError) {
+      console.error("[sync-gmb-posts] Cannot update SEO moderation status", scheduleError.message);
+    }
+  }
 }
