@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useRequireSubscription } from "@/hooks/useRequireSubscription";
+import { includesPremiumModules, isCurrentModuleSubscription } from "@/lib/planEntitlements";
 import { BusinessSubscriptionSelector } from "@/components/BusinessSubscriptionSelector";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { ArticlePreviewDialog } from "@/components/ArticlePreviewDialog";
@@ -90,13 +91,14 @@ const SEOAutoPost = () => {
     // Also check if user has a paid plan (Pro or Business)
     const { data: profile } = await supabase
       .from("profiles")
-      .select("plan_name")
+      .select("plan_name,plan_id,subscription_status,current_period_end,trial_end")
       .eq("id", user.id)
       .single();
     
-    const planLower = profile?.plan_name?.toLowerCase() || "";
-    const hasPaidPlan = ["pro", "business", "quotidien", "agence", "pro annuel", "business annuel"].some((n) => planLower.includes(n));
-    setIsSubscribed(!!subscription || hasPaidPlan);
+    // A plan name without an active billing status is not a premium entitlement.
+    // Old module rows marked active but past current_period_end are not valid.
+    setIsSubscribed(includesPremiumModules(profile) ||
+      (subscription ? isCurrentModuleSubscription(subscription) : false));
   };
 
   const fetchData = async () => {
@@ -107,7 +109,8 @@ const SEOAutoPost = () => {
         supabase
           .from("businesses")
           .select("id, name, address, description, categories, auto_keywords")
-          .eq("user_id", user!.id),
+          .eq("user_id", user!.id)
+          .eq("is_active", true),
         supabase
           .from("ai_settings")
           .select("publication_hour")
