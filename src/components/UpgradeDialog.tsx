@@ -9,7 +9,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Crown, Shield, Coins, ChevronDown, Loader2, Check } from "lucide-react";
+import { Crown, Shield, Coins, ChevronDown, Loader2, Check, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BrandSparkle } from "@/components/BrandSparkle";
 import {
@@ -42,6 +42,9 @@ interface UpgradeDialogProps {
   onOpenChange: (open: boolean) => void;
   currentPlan?: string;
   exhausted?: boolean;
+  locked?: boolean;
+  onRetry?: () => void;
+  onSignOut?: () => void;
 }
 
 type Billing = "monthly" | "yearly";
@@ -102,7 +105,7 @@ const normalizePlan = (plan?: string): "starter" | "pro" | "business" | null => 
   return null;
 };
 
-export const UpgradeDialog = ({ open, onOpenChange, currentPlan, exhausted = false }: UpgradeDialogProps) => {
+export const UpgradeDialog = ({ open, onOpenChange, currentPlan, exhausted = false, locked = false, onRetry, onSignOut }: UpgradeDialogProps) => {
   const { i18n } = useTranslation();
   const isEN = i18n.language?.toLowerCase().startsWith("en");
   const [billing, setBilling] = useState<Billing>("monthly");
@@ -161,19 +164,23 @@ export const UpgradeDialog = ({ open, onOpenChange, currentPlan, exhausted = fal
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl p-0 overflow-hidden bg-gradient-to-b from-background to-muted/30 max-h-[90vh] overflow-y-auto">
+    <Dialog open={open} onOpenChange={locked ? () => {} : onOpenChange}>
+      <DialogContent
+        onInteractOutside={locked ? (event) => event.preventDefault() : undefined}
+        onEscapeKeyDown={locked ? (event) => event.preventDefault() : undefined}
+        className={`max-w-3xl p-0 overflow-hidden bg-gradient-to-b from-background to-muted/30 max-h-[90vh] overflow-y-auto ${locked ? "[&>button.absolute]:hidden" : ""}`}
+      >
         <div className="relative px-6 pt-8 pb-4 text-center bg-gradient-to-br from-primary/10 via-primary/5 to-transparent">
           <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center mx-auto mb-3 shadow-xl shadow-primary/30">
             <Crown className="w-7 h-7 text-primary-foreground" />
           </div>
           <DialogHeader>
             <DialogTitle className="text-xl font-bold text-foreground">
-              {exhausted ? (isEN ? "Your 3 free AI replies are used" : "Vos 3 réponses IA gratuites sont utilisées") : (isEN ? "Choose your plan" : "Choisissez votre plan")}
+              {exhausted ? (isEN ? "Your credit balance is empty" : "Votre solde de crédits est épuisé") : (isEN ? "Choose your plan" : "Choisissez votre plan")}
             </DialogTitle>
           </DialogHeader>
           <p className="text-sm text-muted-foreground mt-2">
-            {exhausted ? (isEN ? "Upgrade to keep answering Google reviews with AI." : "Passez à un abonnement pour continuer à répondre aux avis Google avec l’IA.") : (isEN ? "7-day free trial. Cancel anytime." : "Essai gratuit 7 jours. Résiliable à tout moment.")}
+            {exhausted ? (isEN ? "Top up credits or choose a plan to unlock your dashboard." : "Rechargez vos crédits ou choisissez un abonnement pour retrouver votre tableau de bord.") : (isEN ? "7-day free trial. Cancel anytime." : "Essai gratuit 7 jours. Résiliable à tout moment.")}
           </p>
 
           {/* Billing toggle */}
@@ -300,6 +307,22 @@ export const UpgradeDialog = ({ open, onOpenChange, currentPlan, exhausted = fal
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
+
+        {locked && (
+          <div className="px-4 pb-4 flex flex-wrap items-center justify-center gap-2">
+            {onRetry && (
+              <Button size="sm" variant="outline" className="gap-2" onClick={onRetry}>
+                <RefreshCw className="h-4 w-4" />
+                {isEN ? "I paid — check my balance" : "J'ai payé — vérifier mon solde"}
+              </Button>
+            )}
+            {onSignOut && (
+              <Button size="sm" variant="ghost" onClick={onSignOut}>
+                {isEN ? "Sign out" : "Se déconnecter"}
+              </Button>
+            )}
+          </div>
+        )}
 
         <div className="flex items-center justify-center gap-2 pb-4 text-xs text-muted-foreground">
           <BrandSparkle className="w-3 h-3 text-foreground" />
