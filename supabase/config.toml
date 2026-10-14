@@ -39,6 +39,8 @@ project_id = "hlruprayqfnatnldrski"
     verify_jwt = false
   [functions.generate-old-reviews-batch]
     verify_jwt = false
+  [functions.manage-google-connection]
+    verify_jwt = false
   [functions.get-google-oauth-url]
     verify_jwt = false
   [functions.google-oauth-callback]
