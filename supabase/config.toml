@@ -47,6 +47,8 @@ project_id = "hlruprayqfnatnldrski"
     verify_jwt = false
   [functions.process-email-queue]
     verify_jwt = true
+  [functions.generate-gmb-image]
+    verify_jwt = true
   [functions.publish-gmb-post]
     verify_jwt = false
   [functions.publish-gmb-qa]
