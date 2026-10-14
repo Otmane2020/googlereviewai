@@ -54,11 +54,14 @@ export function GoogleBusinessIntegration({ onBusinessesChanged }: GoogleBusines
       return;
     }
     setChecking(true);
-    const { data, error: requestError } = await supabase.functions.invoke("manage-google-connection", {
-      body: { action: "status" },
-    });
+    // Read safe, authenticated status directly from the database.
+    // The original edge function isn't always deployed with the web build,
+    // which previously made an existing Google connection look disconnected.
+    const { data, error: requestError } = await (supabase as any)
+      .rpc("get_my_google_connection_status");
     if (requestError || !data?.success) {
-      setError(tr("Impossible de vérifier la connexion Google.", "Unable to check Google connection."));
+      setStatus(null);
+      setError(requestError?.message || tr("Statut Google temporairement indisponible. Réessayez.", "Google status temporarily unavailable. Please retry."));
     } else {
       setError(null);
       setStatus({
@@ -142,12 +145,25 @@ export function GoogleBusinessIntegration({ onBusinessesChanged }: GoogleBusines
       const { data, error: requestError } = await supabase.functions.invoke("manage-google-connection", {
         body: { action: "disconnect" },
       });
+      let localOnly = false;
       if (requestError || !data?.success) {
-        throw new Error(data?.error || requestError?.message || "Unable to disconnect Google");
+        // When the Edge Function is not deployed, disconnect locally through
+        // the authenticated RPC. It does not pretend Google revoked the token.
+        const fallback = await (supabase as any).rpc("disconnect_my_google_connection");
+        if (fallback.error || !fallback.data?.success) {
+          throw new Error(fallback.error?.message || data?.error || requestError?.message || "Unable to disconnect Google");
+        }
+        localOnly = true;
       }
       setRequiresReconnect(false);
       await loadStatus();
-      toast({ title: tr("Google Business déconnecté", "Google Business disconnected") });
+      onBusinessesChanged?.();
+      toast({
+        title: tr("Google Business déconnecté", "Google Business disconnected"),
+        description: localOnly
+          ? tr("Accès supprimé de cette application. Pour révoquer aussi l'autorisation côté Google, ouvrez la sécurité de votre compte Google.", "Access removed from this app. To revoke Google's authorization too, open your Google Account security settings.")
+          : undefined,
+      });
     } catch (e) {
       setError(e instanceof Error ? e.message : tr("Déconnexion impossible", "Disconnection failed"));
     } finally {
@@ -156,69 +172,85 @@ export function GoogleBusinessIntegration({ onBusinessesChanged }: GoogleBusines
   };
 
   const connected = !!status?.connected;
+  const unknown = !checking && !status;
   const disabled = busy || isSyncing || checking || isConnecting;
   return (
     <>
-      <div className="rounded-2xl border border-border/70 bg-card overflow-hidden shadow-sm">
-        <div className="flex items-center gap-2 border-b border-border/60 p-4">
+      <section className="rounded-2xl border border-border/70 bg-card shadow-sm overflow-hidden">
+        <div className="flex items-center gap-2 border-b border-border/60 px-4 py-3.5 sm:px-5">
           <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
             <Link2 className="h-4 w-4 text-primary" />
           </div>
           <h2 className="font-semibold text-sm">{tr("Intégrations", "Integrations")}</h2>
         </div>
-        <div className="p-4 sm:p-5 space-y-4">
+        <div className="p-4 sm:p-5 space-y-3.5">
           <div className="flex items-start gap-3">
             <div className="h-11 w-11 rounded-xl border border-border bg-white flex items-center justify-center shrink-0">
               <span className="text-2xl font-bold" style={{ color: "#4285F4" }} aria-hidden="true">G</span>
             </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex flex-wrap items-center gap-2">
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5">
                 <h3 className="font-semibold text-sm text-foreground">Google Business Profile</h3>
-                {checking ? <Badge variant="outline">{tr("Vérification…", "Checking…")}</Badge>
-                  : connected && !requiresReconnect ? (
-                    <Badge variant="outline" className="border-emerald-500/30 text-emerald-700 bg-emerald-500/5">
-                      <Check className="h-3 w-3 mr-1" />{tr("Compte lié", "Account linked")}
-                    </Badge>
-                  ) : (
-                    <Badge variant="secondary" className="text-muted-foreground">{tr("Non connecté", "Disconnected")}</Badge>
-                  )}
+                {checking ? (
+                  <Badge variant="outline"><Loader2 className="h-3 w-3 animate-spin mr-1" />{tr("Vérification", "Checking")}</Badge>
+                ) : unknown ? (
+                  <Badge variant="outline" className="text-amber-700">{tr("Statut inconnu", "Status unavailable")}</Badge>
+                ) : connected && !requiresReconnect ? (
+                  <Badge variant="outline" className="border-emerald-500/30 text-emerald-700 bg-emerald-500/5">
+                    <Check className="h-3 w-3 mr-1" />{tr("Autorisation enregistrée", "Authorization saved")}
+                  </Badge>
+                ) : (
+                  <Badge variant="secondary">{tr("Reconnexion nécessaire", "Reconnect required")}</Badge>
+                )}
               </div>
               <p className="text-xs leading-relaxed text-muted-foreground mt-1">
-                {tr("Synchronisation des établissements et des avis Google.", "Sync Google locations and reviews.")}
+                {tr("Synchronisez vos fiches et avis Google. L'autorisation enregistrée n'est pas un test d'accès Google en direct.",
+                  "Sync Google locations and reviews. A saved authorization does not confirm live Google API access.")}
               </p>
-              {status && <p className="text-xs text-muted-foreground mt-1">
-                {status.active_count} / {status.max_businesses} {tr("établissement(s) actif(s)", "active location(s)")}
-              </p>}
+              {status && (
+                <p className="text-xs text-muted-foreground mt-1 font-medium">
+                  {status.active_count} / {status.max_businesses} {tr("établissement(s) géré(s)", "managed location(s)")}
+                </p>
+              )}
             </div>
           </div>
 
-          {error && <div role="alert" className="text-xs leading-relaxed rounded-xl bg-destructive/5 text-destructive border border-destructive/20 p-3 flex gap-2">
-            <AlertTriangle className="h-4 w-4 shrink-0" /><span className="flex-1">{error}</span>
-            <Button variant="ghost" size="sm" onClick={() => void loadStatus()}>{tr("Vérifier", "Retry")}</Button>
+          {error && <div role="alert" className="text-xs leading-relaxed rounded-xl bg-amber-500/5 text-amber-800 dark:text-amber-200 border border-amber-500/25 px-3 py-2.5 flex items-start gap-2">
+            <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
+            <span className="flex-1 min-w-0 break-words">{error}</span>
+            <Button type="button" variant="ghost" size="sm" className="shrink-0 h-8" onClick={() => void loadStatus()}>
+              <RefreshCw className="h-3.5 w-3.5 mr-1" />{tr("Réessayer", "Retry")}
+            </Button>
           </div>}
-          {requiresReconnect && <p className="text-xs text-amber-700">
-            {tr("Google a refusé la synchronisation : autorisez à nouveau l'accès.", "Google refused syncing: grant access again.")}
+          {requiresReconnect && <p className="text-xs text-amber-700 dark:text-amber-300">
+            {tr("Google a refusé la synchronisation. Autorisez à nouveau l'accès.", "Google refused syncing. Reauthorize access.")}
           </p>}
-          <div className="flex flex-wrap gap-2">
-            {connected && !requiresReconnect && (
-              <Button size="sm" onClick={() => void syncGoogle()} disabled={disabled} className="gap-1.5">
+          <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
+            {(connected || unknown) && !requiresReconnect && (
+              <Button type="button" size="sm" variant="default" onClick={() => void syncGoogle()} disabled={disabled} className="w-full sm:w-auto gap-1.5">
                 {isSyncing || busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
                 {tr("Synchroniser", "Sync now")}
               </Button>
             )}
-            <Button size="sm" variant={connected && !requiresReconnect ? "outline" : "default"} onClick={() => void connectGoogle()} disabled={disabled}>
-              {isConnecting ? <Loader2 className="h-4 w-4 mr-1.5 animate-spin" /> : <Link2 className="h-4 w-4 mr-1.5" />}
-              {connected ? tr("Reconnecter", "Reconnect") : tr("Connecter Google", "Connect Google")}
+            <Button type="button" size="sm" variant={connected || unknown ? "outline" : "default"}
+              onClick={() => void connectGoogle()} disabled={disabled} className="w-full sm:w-auto gap-1.5">
+              {isConnecting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Link2 className="h-4 w-4" />}
+              {connected || unknown ? tr("Reconnecter", "Reconnect") : tr("Connecter", "Connect")}
             </Button>
-            {connected && <Button variant="outline" size="sm" className="text-destructive hover:text-destructive gap-1.5" onClick={() => void disconnect()} disabled={disabled}>
-              <Link2Off className="h-4 w-4" />{tr("Déconnecter", "Disconnect")}
-            </Button>}
+            {connected && (
+              <Button type="button" size="sm" variant="ghost"
+                className="col-span-2 sm:col-span-1 justify-start w-full sm:w-auto text-destructive hover:text-destructive gap-1.5"
+                disabled={disabled} onClick={() => void disconnect()}>
+                <Link2Off className="h-4 w-4" />{tr("Déconnecter", "Disconnect")}
+              </Button>
+            )}
           </div>
           <p className="text-[11px] leading-relaxed text-muted-foreground">
-            {tr("Un nouvel établissement ? Cliquez sur Synchroniser pour le récupérer et le sélectionner selon votre forfait.", "New location? Click Sync to discover it and select it within your plan.")}
+            {tr("Nouvel établissement ? Synchronisez, puis sélectionnez les fiches à gérer selon votre forfait.",
+              "New location? Sync, then choose the locations to manage within your plan.")}
           </p>
         </div>
-      </div>
+      </section>
       {user && <SelectBusinessesDialog
         open={selectionOpen}
         onOpenChange={setSelectionOpen}
