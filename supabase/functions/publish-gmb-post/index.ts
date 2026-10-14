@@ -1,271 +1,239 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getGoogleAccessToken } from "../_shared/googleAuth.ts";
+import { generateGmbImage } from "../_shared/gmbImages.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
-
-interface PublishRequest {
+type PostKind = "STANDARD" | "EVENT" | "OFFER";
+type RequestBody = {
   business_id: string;
   summary: string;
-  topic_type?: "STANDARD" | "EVENT" | "OFFER";
+  topic_type?: PostKind;
   cta_type?: string;
   cta_url?: string;
   media_url?: string;
-  post_id?: string; // If provided, update existing scheduled post
-  user_id?: string; // For cron/admin calls
-  // EVENT / OFFER fields
+  scheduled_content_id?: string;
+  post_id?: string; // Deprecated alias for scheduled_content_id.
+  user_id?: string; // Allowed ONLY for a service-role-authenticated cron.
   event_title?: string;
-  start_date?: string; // ISO datetime
-  end_date?: string;   // ISO datetime
+  start_date?: string;
+  end_date?: string;
   coupon_code?: string;
   terms_conditions?: string;
+  editorial_mode?: "news" | "information" | "spotlight";
+};
+
+function httpsUrl(value: unknown): string | null {
+  if (typeof value !== "string" || !value.trim()) return null;
+  try {
+    const input = value.trim();
+    const url = new URL(input.includes("://") ? input : "https://" + input);
+    if (url.protocol !== "https:" || url.username || url.password || !url.hostname) return null;
+    if (url.hostname === "localhost" || url.hostname.endsWith(".localhost")) return null;
+    if (/^(127|10|0|169\\.254|192\\.168)\\./.test(url.hostname)) return null;
+    if (/^172\\.(1[6-9]|2\\d|3[01])\\./.test(url.hostname)) return null;
+    return url.toString();
+  } catch { return null; }
+}
+
+function googleDate(iso: string) {
+  const date = new Date(iso);
+  if (!Number.isFinite(date.valueOf())) throw new Error("Invalid event date");
+  return {
+    value: date.valueOf(),
+    day: { year: date.getUTCFullYear(), month: date.getUTCMonth() + 1, day: date.getUTCDate() },
+    time: { hours: date.getUTCHours(), minutes: date.getUTCMinutes(), seconds: date.getUTCSeconds(), nanos: 0 },
+  };
+}
+
+function jsonResponse(body: unknown, status = 200) {
+  return new Response(JSON.stringify(body), { status, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 }
 
 serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
-  }
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+  if (req.method !== "POST") return jsonResponse({ success: false, error: "Method not allowed" }, 405);
+  let acceptedRemoteId: string | null = null;
 
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
-
-    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
-
-    const body: PublishRequest = await req.json();
-    const { business_id, summary, topic_type = "STANDARD", cta_type, cta_url, media_url, post_id, user_id: cronUserId, event_title, start_date, end_date, coupon_code, terms_conditions } = body;
-
+    const service = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const anon = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const admin = createClient(supabaseUrl, service);
+    const body = await req.json() as RequestBody;
+    const authHeader = req.headers.get("Authorization") || "";
+    const serviceCall = authHeader === "Bearer " + service;
     let userId: string;
 
-    // Check if this is a cron call (user_id provided) or user call (auth header)
-    if (cronUserId) {
-      // Cron job call - use provided user_id
-      userId = cronUserId;
-      console.log("[publish-gmb-post] Cron call for user:", userId);
+    if (body.user_id) {
+      if (!serviceCall) return jsonResponse({ success: false, error: "Cron authorization required" }, 403);
+      userId = body.user_id;
+    } else if (serviceCall) {
+      // The scheduled publisher must identify its account explicitly.
+      return jsonResponse({ success: false, error: "Missing user_id for internal publication" }, 400);
     } else {
-      // User call - verify auth
-      const authHeader = req.headers.get("Authorization");
-      if (!authHeader) {
-        throw new Error("No authorization header");
-      }
-
-      const supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
-        global: { headers: { Authorization: authHeader } },
-      });
-
-      const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
-      if (userError || !user) {
-        throw new Error("User not authenticated");
-      }
+      if (!authHeader) return jsonResponse({ success: false, error: "Authentication required" }, 401);
+      const session = createClient(supabaseUrl, anon, { global: { headers: { Authorization: authHeader } } });
+      const { data: { user }, error } = await session.auth.getUser();
+      if (!user || error) return jsonResponse({ success: false, error: "Invalid user session" }, 401);
       userId = user.id;
-      console.log("[publish-gmb-post] User call:", userId);
     }
 
-    if (!business_id || !summary) {
-      throw new Error("business_id and summary are required");
+    const summary = String(body.summary || "").replace(/<[^>]*>/g, " ").trim().slice(0, 1500);
+    const topic = body.topic_type || "STANDARD";
+    if (!body.business_id || !summary || !["STANDARD", "EVENT", "OFFER"].includes(topic)) {
+      return jsonResponse({ success: false, error: "Invalid post: business, summary or topic" }, 400);
+    }
+    const { data: business } = await admin.from("businesses")
+      .select("id,name,address,website,description,categories,google_place_id,gmb_language")
+      .eq("id", body.business_id).eq("user_id", userId).eq("is_active", true).maybeSingle();
+    if (!business || !business.google_place_id) {
+      return jsonResponse({ success: false, error: "Business is not connected to Google" }, 400);
     }
 
-    console.log(`[publish-gmb-post] Publishing post for business: ${business_id}`);
-
-    // Verify business ownership
-    const { data: business, error: bizError } = await supabaseAdmin
-      .from("businesses")
-      .select("id, name, google_place_id")
-      .eq("id", business_id)
-      .eq("user_id", userId)
-      .single();
-
-    if (bizError || !business) {
-      throw new Error("Business not found or access denied");
+    const scheduledContentId = body.scheduled_content_id || body.post_id;
+    if (scheduledContentId) {
+      const { data: queued } = await admin.from("scheduled_content")
+        .select("id,google_post_id").eq("id", scheduledContentId)
+        .eq("user_id", userId).eq("business_id", business.id).maybeSingle();
+      if (!queued) return jsonResponse({ success: false, error: "Scheduled article was not found" }, 404);
+      if (queued.google_post_id) {
+        return jsonResponse({ success: true, already_exists: true, state: "PROCESSING", post: { name: queued.google_post_id } });
+      }
     }
 
-    if (!business.google_place_id) {
-      throw new Error("Business has no Google Place ID");
+    const website = httpsUrl(body.cta_url) || httpsUrl(business.website);
+    if (!website) {
+      return jsonResponse({ success: false, error: "Add a valid business website HTTPS URL to enable En savoir plus." }, 400);
     }
 
-    // Get Google access token
-    const tokenResult = await getGoogleAccessToken(supabaseAdmin, userId);
-    if (!tokenResult.token) {
-      return new Response(
-        JSON.stringify({
-          success: false,
-          error: tokenResult.error || "No Google access token",
-          requires_reconnect: tokenResult.requires_reconnect,
-        }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    const accessToken = tokenResult.token;
-
-    // Get Google account
-    const accountsResponse = await fetch(
-      "https://mybusinessaccountmanagement.googleapis.com/v1/accounts",
-      { headers: { Authorization: `Bearer ${accessToken}` } }
+    const finalImage = body.media_url ? httpsUrl(body.media_url) : await generateGmbImage(
+      admin, userId, business, summary, body.editorial_mode || "information",
     );
+    if (!finalImage) return jsonResponse({ success: false, error: "A valid public HTTPS photo is required." }, 400);
 
-    if (!accountsResponse.ok) {
-      throw new Error("Failed to fetch Google accounts");
-    }
-
-    const accountsData = await accountsResponse.json();
-    const accounts = accountsData.accounts || [];
-
-    if (accounts.length === 0) {
-      throw new Error("No Google Business accounts found");
-    }
-
-    // Build the post body
-    const postBody: any = {
-      languageCode: "fr",
-      summary: summary,
-      topicType: topic_type,
+    const postBody: Record<string, unknown> = {
+      languageCode: business.gmb_language?.startsWith("en") ? "en" : "fr",
+      summary,
+      topicType: topic,
+      media: [{ mediaFormat: "PHOTO", sourceUrl: finalImage }],
     };
 
-    // Add call to action if provided
-    if (cta_type && cta_url) {
-      postBody.callToAction = {
-        actionType: cta_type,
-        url: cta_url,
+    if (topic === "OFFER" || topic === "EVENT") {
+      if (!body.event_title?.trim() || !body.start_date || !body.end_date) {
+        return jsonResponse({ success: false, error: "Offer and event require real title and dates." }, 400);
+      }
+      const start = googleDate(body.start_date);
+      const end = googleDate(body.end_date);
+      if (start.value >= end.value || end.value <= Date.now()) {
+        return jsonResponse({ success: false, error: "Event or offer end date must be in the future." }, 400);
+      }
+      postBody.event = {
+        title: body.event_title.trim().slice(0, 58),
+        schedule: { startDate: start.day, startTime: start.time, endDate: end.day, endTime: end.time },
       };
-    }
-
-    // Add media if provided
-    if (media_url) {
-      postBody.media = [{
-        mediaFormat: "PHOTO",
-        sourceUrl: media_url,
-      }];
-    }
-
-    // EVENT / OFFER : ajouter event { title, schedule { startDate, endDate, startTime, endTime } }
-    const buildDateTime = (iso?: string) => {
-      if (!iso) return null;
-      const d = new Date(iso);
-      if (isNaN(d.getTime())) return null;
-      return {
-        date: { year: d.getUTCFullYear(), month: d.getUTCMonth() + 1, day: d.getUTCDate() },
-        time: { hours: d.getUTCHours(), minutes: d.getUTCMinutes(), seconds: 0, nanos: 0 },
-      };
-    };
-
-    if ((topic_type === "EVENT" || topic_type === "OFFER") && event_title && start_date && end_date) {
-      const start = buildDateTime(start_date);
-      const end = buildDateTime(end_date);
-      if (start && end) {
-        postBody.event = {
-          title: event_title,
-          schedule: {
-            startDate: start.date,
-            startTime: start.time,
-            endDate: end.date,
-            endTime: end.time,
-          },
+      if (topic === "OFFER") {
+        postBody.offer = {
+          ...(body.coupon_code?.trim() ? { couponCode: body.coupon_code.trim() } : {}),
+          ...(body.terms_conditions?.trim() ? { termsConditions: body.terms_conditions.trim() } : {}),
+          redeemOnlineUrl: website,
         };
       }
     }
-
-    if (topic_type === "OFFER") {
-      postBody.offer = {
-        ...(coupon_code ? { couponCode: coupon_code } : {}),
-        ...(terms_conditions ? { termsConditions: terms_conditions } : {}),
-      };
+    if (topic !== "OFFER") {
+      postBody.callToAction = { actionType: body.cta_type && body.cta_type !== "NONE" ? body.cta_type : "LEARN_MORE", url: website };
     }
 
-    let publishedPost = null;
-    let publishError = null;
+    const token = await getGoogleAccessToken(admin, userId);
+    if (!token.token) return jsonResponse({ success: false, error: token.error || "Reconnect Google", requires_reconnect: token.requires_reconnect }, 401);
+    const accountsResponse = await fetch("https://mybusinessaccountmanagement.googleapis.com/v1/accounts", {
+      headers: { Authorization: "Bearer " + token.token },
+    });
+    if (!accountsResponse.ok) throw new Error("Unable to read Google accounts (" + accountsResponse.status + ")");
+    const accounts = (await accountsResponse.json()).accounts || [];
+    if (!accounts.length) throw new Error("No Google Business accounts were found.");
 
-    // Try to publish to Google
+    let googlePost: { name?: string; state?: string; searchUrl?: string; summary?: string } | null = null;
+    let lastError = "";
     for (const account of accounts) {
-      const accountId = account.name.split("/")[1];
-      
-      // Try different URL formats
-      const urls = [
-        `https://mybusiness.googleapis.com/v4/accounts/${accountId}/locations/${business.google_place_id}/localPosts`,
-        `https://mybusiness.googleapis.com/v4/${account.name}/locations/${business.google_place_id}/localPosts`,
-      ];
-
-      for (const url of urls) {
-        try {
-          console.log(`[publish-gmb-post] Trying URL: ${url}`);
-          
-          const response = await fetch(url, {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(postBody),
-          });
-
-          if (response.ok) {
-            publishedPost = await response.json();
-            console.log(`[publish-gmb-post] Post published successfully:`, publishedPost.name);
-            break;
-          } else {
-            const errorText = await response.text();
-            console.log(`[publish-gmb-post] URL failed (${response.status}):`, errorText);
-            publishError = `${response.status}: ${errorText}`;
-          }
-        } catch (e) {
-          console.error(`[publish-gmb-post] Request failed:`, e);
-          publishError = e instanceof Error ? e.message : "Unknown error";
-        }
+      if (!/^accounts\\/[^/]+$/.test(account.name || "")) continue;
+      const url = "https://mybusiness.googleapis.com/v4/" + account.name + "/locations/" + business.google_place_id + "/localPosts";
+      // Duplicate-safe: a prior accepted create can exist even if its response was lost.
+      const listing = await fetch(url + "?pageSize=100", { headers: { Authorization: "Bearer " + token.token } });
+      if (!listing.ok) {
+        lastError = "Google listing unavailable (" + listing.status + ")";
+        continue;
       }
+      const foundPosts = ((await listing.json()).localPosts || []) as typeof googlePost[];
+      const matching = foundPosts.find((post) => post && post.summary?.trim() === summary);
+      if (matching?.name) { googlePost = matching; break; }
 
-      if (publishedPost) break;
+      let response: Response;
+      try {
+        response = await fetch(url, {
+          method: "POST",
+          headers: { Authorization: "Bearer " + token.token, "Content-Type": "application/json" },
+          body: JSON.stringify(postBody),
+        });
+      } catch {
+        // Network timeout after create has unknown outcome. Never blindly retry on another account.
+        throw new Error("Google creation outcome is unknown. Check Google Business before retrying.");
+      }
+      if (response.ok) {
+        googlePost = await response.json();
+        acceptedRemoteId = googlePost?.name || null;
+        break;
+      }
+      const detail = (await response.text()).slice(0, 450);
+      lastError = "Google API " + response.status + ": " + detail;
+      // A rate-limit or server error can happen after Google started processing.
+      if (response.status === 429 || response.status >= 500) throw new Error(lastError + " (do not blindly retry)");
     }
+    if (!googlePost?.name) throw new Error(lastError || "Google refused the post.");
 
-    if (!publishedPost) {
-      throw new Error(publishError || "Failed to publish post to Google");
+    acceptedRemoteId = googlePost.name;
+    if (!googlePost.state) {
+      try {
+        const read = await fetch("https://mybusiness.googleapis.com/v4/" + googlePost.name, {
+          headers: { Authorization: "Bearer " + token.token },
+        });
+        if (read.ok) googlePost = { ...googlePost, ...await read.json() };
+      } catch { /* The ID has been accepted; Google moderation may still be pending. */ }
     }
+    const googleState = (googlePost.state || "").toUpperCase();
+    const status = googleState === "LIVE" ? "published" : googleState === "REJECTED" ? "rejected"
+      : googleState === "PROCESSING" ? "processing" : "unverified";
 
-    // Save to database
-    const postData = {
+    const { error: saveError } = await admin.from("gmb_posts").upsert({
       user_id: userId,
-      business_id: business_id,
-      google_post_id: publishedPost.name,
-      topic_type: topic_type,
-      summary: summary,
-      cta_type: cta_type || null,
-      cta_url: cta_url || null,
-      media_url: media_url || null,
+      business_id: business.id,
+      google_post_id: googlePost.name,
+      topic_type: topic,
+      summary,
+      cta_type: topic === "OFFER" ? null : (body.cta_type && body.cta_type !== "NONE" ? body.cta_type : "LEARN_MORE"),
+      cta_url: website,
+      media_url: finalImage,
       posted_at: new Date().toISOString(),
-      status: "published",
-    };
+      status,
+    }, { onConflict: "google_post_id" });
+    if (saveError) console.error("[publish-gmb-post] Google accepted ID but database save failed:", saveError.message);
 
-    if (post_id) {
-      // Update existing scheduled post
-      await supabaseAdmin
-        .from("gmb_posts")
-        .update({
-          ...postData,
-          scheduled_for: null,
-        })
-        .eq("id", post_id)
-        .eq("user_id", userId);
-    } else {
-      // Insert new post
-      await supabaseAdmin.from("gmb_posts").insert(postData);
+    if (scheduledContentId && status !== "rejected") {
+      const { error: scheduleError } = await admin.from("scheduled_content")
+        .update({ status: "published", google_post_id: googlePost.name, published_at: new Date().toISOString(), error_message: null })
+        .eq("id", scheduledContentId).eq("business_id", business.id).eq("user_id", userId);
+      if (scheduleError) console.error("[publish-gmb-post] Scheduled-content save failed:", scheduleError.message);
     }
-
-    return new Response(
-      JSON.stringify({
-        success: true,
-        post: publishedPost,
-        message: "Post published to Google My Business",
-      }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return jsonResponse({ success: status !== "rejected", state: googleState || "UNVERIFIED",
+      post: googlePost, media_url: finalImage, cta_url: website,
+      ...(saveError ? { warning: "Google accepted the post but history sync failed." } : {}),
+    });
   } catch (error) {
-    console.error("[publish-gmb-post] Error:", error);
-    return new Response(
-      JSON.stringify({ success: false, error: error instanceof Error ? error.message : "Unknown error" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    const message = error instanceof Error ? error.message : "Failed to submit to Google";
+    console.error("[publish-gmb-post]", message);
+    return jsonResponse({ success: false, error: message, ...(acceptedRemoteId ? { accepted_remote_id: acceptedRemoteId } : {}) }, 500);
   }
 });
