@@ -171,14 +171,27 @@ serve(async (req) => {
 
         if (seoContent?.content) {
           try {
-            const { error: publishError } = await supabase.functions.invoke("publish-gmb-post", {
+            // Rotate business update / practical advice / product-or-service spotlight.
+            // Spotlight is a STANDARD post; we never invent a real discount.
+            const day = Math.floor(Date.parse(today + "T00:00:00Z") / 86400000);
+            const modes = ["news", "information", "spotlight"] as const;
+            const editorialMode = modes[((day % 3) + 3) % 3];
+            const { data: result, error: publishError } = await supabase.functions.invoke("publish-gmb-post", {
               body: {
                 business_id: business.id,
+                user_id: userId,
                 summary: seoContent.content.slice(0, 1500),
-                post_id: seoContent.id,
+                scheduled_content_id: seoContent.id,
+                editorial_mode: editorialMode,
+                topic_type: "STANDARD",
               },
             });
-            if (publishError) { errors++; } else { publishedSEO++; }
+            if (publishError || !result?.success) {
+              console.error("[CRON-PUBLISH] Google Business post failed:", result?.error || publishError?.message);
+              errors++;
+            } else {
+              publishedSEO++;
+            }
           } catch { errors++; }
         }
       }
