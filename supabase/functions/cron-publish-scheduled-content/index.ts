@@ -123,30 +123,10 @@ serve(async (req) => {
       for (const business of businesses) {
         if (!business.google_place_id) continue;
 
-        // Publish AEO Q&A (daily users only, or Monday for free)
-        if (isDailyUser) {
-          const { data: aeoContent } = await supabase
-            .from("scheduled_content")
-            .select("*")
-            .eq("business_id", business.id)
-            .eq("user_id", userId)
-            .eq("content_type", "aeo_qa")
-            .eq("scheduled_date", today)
-            .eq("status", "generated")
-            .is("published_at", null)
-            .limit(1)
-            .single();
-
-          if (aeoContent?.question && aeoContent?.answer) {
-            try {
-              const { error: publishError } = await supabase.functions.invoke("publish-gmb-qa", {
-                body: { content_id: aeoContent.id },
-              });
-              if (publishError) { errors++; } else { publishedAEO++; }
-            } catch { errors++; }
-          }
-        }
-
+        // Google discontinued the Business Profile Q&A API on 2025-11-03.
+        // Keep generated questions and answers as drafts for the user to reuse
+        // on their website/FAQ, and never report these as published to Google.
+        // See https://developers.google.com/my-business/content/qanda/change-log
         // Publish SEO article
         const { data: seoContent } = await supabase
           .from("scheduled_content")
