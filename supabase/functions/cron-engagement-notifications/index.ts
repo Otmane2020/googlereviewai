@@ -59,7 +59,6 @@ serve(async (req) => {
     const emailsSent: string[] = [];
     const now = new Date();
     const hour = now.getHours();
-    const today = now.toISOString().split("T")[0];
 
     // Morning notifications (around 9 AM)
     const isMorning = hour >= 8 && hour <= 10;
