@@ -537,7 +537,9 @@ ${lang.jsonOnly}
         message: error instanceof Error ? error.message : "Unknown error",
         fallback: true,
       }),
-      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      // Non-2xx is essential: the UI must never record a failed AI call as
+      // a successfully generated empty article or an empty 30-day plan.
+      { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
 });
