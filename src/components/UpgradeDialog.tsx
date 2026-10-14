@@ -127,6 +127,18 @@ export const UpgradeDialog = ({ open, onOpenChange, currentPlan, exhausted = fal
         .eq("id", user.id).maybeSingle();
       if (active) {
         setLiveProfile(error ? null : data);
+        if (!error && data?.plan_id) {
+          // Show the actual Stripe billing cadence when this dialog opens.
+          const annualPrices = [
+            "price_1TjxSJEfti9t9nN91VDBOxZX",
+            "price_1TjxSKEfti9t9nN9iv48DJvm",
+            "price_1TjxSLEfti9t9nN9GrF6F0Pw",
+            "price_1SrHtOEfti9t9nN9fG4lSroa",
+            "price_1SrHtPEfti9t9nN9dnZ0sXpi",
+            "price_1SrHtQEfti9t9nN9GKvr4NSt",
+          ];
+          setBilling(annualPrices.includes(data.plan_id) ? "yearly" : "monthly");
+        }
         setCheckingPlan(false);
       }
     })();
