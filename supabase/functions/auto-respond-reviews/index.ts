@@ -330,9 +330,11 @@ serve(async (req) => {
 
         for (const review of reviews) {
           const googleLocationId = String(review.location_id || "").split("/").pop();
-          const business = connectedBusinesses?.find(b => b.google_place_id === googleLocationId)
-            || connectedBusinesses?.[0];
-          const businessName = business?.name || "Our team";
+          const business = connectedBusinesses?.find(b => b.google_place_id === googleLocationId);
+          // A review from an inactive location must never consume credits
+          // or receive an automated response on behalf of another business.
+          if (!business) continue;
+          const businessName = business.name;
           const brandVoice = (business?.ai_response_model || null) as BrandVoiceProfile | null;
           const responseLanguage = await resolveEmailLang(
             profile.email, null, userSettings.user_id, business?.id,
