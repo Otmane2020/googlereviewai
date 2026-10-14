@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { activePlanTier } from "../_shared/plan-access.ts";
+import { hasSeoAutomationAccess } from "../_shared/plan-access.ts";
 import { callOpenRouterWithFallback } from "../_shared/openrouter.ts";
 
 const corsHeaders = {
@@ -102,7 +102,7 @@ serve(async (req) => {
           .single();
 
         // Starter/free plans cannot generate automatic SEO posts.
-        const isDailyUser = ["pro", "business"].includes(activePlanTier(profile));
+        const isDailyUser = await hasSeoAutomationAccess(supabase, userId, profile);
         if (!isDailyUser) continue;
 
         const timezone = userSetting.timezone || "Europe/Paris";

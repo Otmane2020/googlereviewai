@@ -5,7 +5,9 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useRequireSubscription } from "@/hooks/useRequireSubscription";
 import { includesPremiumModules, isCurrentModuleSubscription } from "@/lib/planEntitlements";
-import { BusinessSubscriptionSelector } from "@/components/BusinessSubscriptionSelector";
+import { UpgradeDialog } from "@/components/UpgradeDialog";
+import { SelectBusinessesDialog } from "@/components/SelectBusinessesDialog";
+import { useSyncGoogleBusinesses } from "@/hooks/useSyncGoogleBusinesses";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { ArticlePreviewDialog } from "@/components/ArticlePreviewDialog";
 import { Button } from "@/components/ui/button";
@@ -33,6 +35,7 @@ interface Business {
   description: string | null;
   categories: string[] | null;
   auto_keywords: string[] | null;
+  google_place_id?: string | null;
 }
 
 interface ScheduledContent {
@@ -66,6 +69,12 @@ const SEOAutoPost = () => {
   const [showPreviewDialog, setShowPreviewDialog] = useState(false);
   const [businessDialogOpen, setBusinessDialogOpen] = useState(false);
   const [publicationHour, setPublicationHour] = useState(7);
+  const [seoUpgradeOpen, setSeoUpgradeOpen] = useState(false);
+  const [manageBusinessesOpen, setManageBusinessesOpen] = useState(false);
+  const [googleBusinesses, setGoogleBusinesses] = useState<{ name: string; google_place_id: string; address: string | null; phone: string | null; website: string | null }[]>([]);
+  const [selectionLimit, setSelectionLimit] = useState(1);
+  const [activeGoogleIds, setActiveGoogleIds] = useState<string[]>([]);
+  const { syncBusinesses, isSyncing: syncingBusinesses } = useSyncGoogleBusinesses();
 
   // Use subscription verification hook
   const { loading: subscriptionLoading } = useRequireSubscription();
@@ -108,7 +117,7 @@ const SEOAutoPost = () => {
       const [businessRes, aiSettingsRes] = await Promise.all([
         supabase
           .from("businesses")
-          .select("id, name, address, description, categories, auto_keywords")
+          .select("id, name, address, description, categories, auto_keywords, google_place_id")
           .eq("user_id", user!.id)
           .eq("is_active", true),
         supabase
@@ -126,8 +135,12 @@ const SEOAutoPost = () => {
       }
       
       if (businessRes.data && businessRes.data.length > 0) {
-        setSelectedBusiness(businessRes.data[0] as Business);
-        await fetchScheduledContent(businessRes.data[0].id);
+        const nextBusiness = businessRes.data.find((b) => b.id === selectedBusiness?.id) || businessRes.data[0];
+        setSelectedBusiness(nextBusiness as Business);
+        await fetchScheduledContent(nextBusiness.id);
+      } else {
+        setSelectedBusiness(null);
+        setScheduledContent([]);
       }
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -146,48 +159,23 @@ const SEOAutoPost = () => {
     setScheduledContent((data as ScheduledContent[]) || []);
   };
 
-  const handleSubscribe = async (selectedBusinessIds: string[], annual: boolean = false, quantity: number = 1) => {
-    try {
-      const priceKey = annual ? "seo_yearly" : "seo_monthly";
-
-      const { data: addData, error: addError } = await supabase.functions.invoke("add-subscription-item", {
-        body: { priceKey, quantity }
-      });
-
-      if (addData?.success) {
-        toast({
-          title: t("Module activé !", "Module activated!"),
-          description: t("Le module SEO a été ajouté à votre abonnement.", "The SEO module has been added to your subscription."),
-        });
-        setIsSubscribed(true);
-        checkSubscription();
-        return;
-      }
-
-      const needsCheckout =
-        addData?.requiresCheckout ||
-        addError?.message?.includes("No active subscription") ||
-        addError?.message?.includes("No Stripe customer");
-
-      if (needsCheckout) {
-        const { data, error } = await supabase.functions.invoke("create-checkout", {
-          body: { priceKey, quantity, selectedBusinessIds }
-        });
-        if (error) throw error;
-        if (data?.url) {
-          window.location.href = data.url;
-        }
-      } else if (addError) {
-        throw addError;
-      }
-    } catch (error: any) {
-      console.error("Subscription error:", error);
-      toast({
-        title: t("Erreur", "Error"),
-        description: error?.message || t("Impossible de créer la session de paiement", "Unable to create payment session"),
-        variant: "destructive"
-      });
+  const manageLocations = async () => {
+    const result = await syncBusinesses(true);
+    if (!result.success) {
+      toast({ title: t("Synchronisation Google impossible", "Google sync failed"),
+        description: result.message || t("Reconnectez Google dans Paramètres.", "Reconnect Google in Settings."),
+        variant: "destructive" });
+      if (result.requires_reconnect) navigate("/settings");
+      return;
     }
+    if (!result.google_businesses?.length) {
+      toast({ title: t("Aucun établissement Google", "No Google locations found"), variant: "destructive" });
+      return;
+    }
+    setActiveGoogleIds(businesses.map(b => (b as Business & {google_place_id?: string}).google_place_id).filter((id): id is string => !!id));
+    setGoogleBusinesses(result.google_businesses);
+    setSelectionLimit(result.max_businesses || 1);
+    setManageBusinessesOpen(true);
   };
 
   const handlePreviewArticle = (article: ScheduledContent) => {
@@ -198,6 +186,10 @@ const SEOAutoPost = () => {
   const analyzeAndGeneratePlan = async () => {
     if (!selectedBusiness) return;
     
+    if (!isSubscribed) {
+      toast({ title: t("Abonnement requis", "Subscription required"), description: t("Le SEO automatique nécessite Pro ou Business.", "SEO automation requires Pro or Business."), variant: "destructive" });
+      return;
+    }
     setGenerating(true);
     try {
       // Generate keywords from business info using AI
@@ -210,10 +202,14 @@ const SEOAutoPost = () => {
         },
       });
 
-      if (analysisError) throw analysisError;
+      if (analysisError || analysisData?.error) throw new Error(analysisData?.message || analysisError?.message || "SEO analysis failed");
+
+      const keywords: string[] = Array.isArray(analysisData?.keywords)
+        ? analysisData.keywords.filter((x: unknown): x is string => typeof x === "string" && x.trim().length > 0)
+        : [];
+      if (!keywords.length) throw new Error(t("L'analyse IA n'a retourné aucun mot-clé. Réessayez.", "AI returned no keywords. Please retry."));
 
       // Update business with auto-detected keywords
-      const keywords = analysisData?.keywords || [];
       await supabase
         .from("businesses")
         .update({ 
@@ -234,9 +230,9 @@ const SEOAutoPost = () => {
         },
       });
 
-      if (titlesError) throw titlesError;
-
-      const titles = titlesData?.titles || [];
+      if (titlesError || titlesData?.error) throw new Error(titlesData?.message || titlesError?.message || "SEO titles generation failed");
+      const titles: string[] = Array.isArray(titlesData?.titles) ? titlesData.titles : [];
+      if (!titles.length) throw new Error(t("Aucun titre SEO généré. Réessayez.", "No SEO titles generated. Please retry."));
 
       // Generate 30-day plan with titles
       const today = startOfToday();
@@ -260,12 +256,13 @@ const SEOAutoPost = () => {
         });
       }
 
-      // Insert all planned content - use ignoreDuplicates: false to replace existing titles
+      // Never overwrite generated or already published work when rebuilding
+      // the 30-day plan. Retain existing articles and their Google post IDs.
       const { error: insertError } = await supabase
         .from("scheduled_content")
-        .upsert(planItems, { 
+        .upsert(planItems, {
           onConflict: "user_id,business_id,content_type,scheduled_date",
-          ignoreDuplicates: false 
+          ignoreDuplicates: true,
         });
 
       if (insertError) throw insertError;
@@ -296,11 +293,12 @@ const SEOAutoPost = () => {
 
   const generateContentForDay = async (item: ScheduledContent) => {
     try {
-      // Update status to generating
-      await supabase
+      if (!selectedBusiness || !isSubscribed) throw new Error("Abonnement ou établissement inactif.");
+      const { error: startError } = await supabase
         .from("scheduled_content")
-        .update({ status: "generating" })
-        .eq("id", item.id);
+        .update({ status: "generating", error_message: null })
+        .eq("id", item.id).eq("user_id", user!.id).eq("business_id", selectedBusiness.id);
+      if (startError) throw startError;
 
       // Refresh UI
       await fetchScheduledContent(selectedBusiness!.id);
@@ -316,18 +314,30 @@ const SEOAutoPost = () => {
         },
       });
 
-      if (error) throw error;
+      if (error || data?.error) {
+        let details = data?.message || error?.message;
+        if (error && "context" in error) {
+          const context = (error as any).context;
+          const errorBody = await context?.json?.().catch(() => null);
+          details = errorBody?.message || details;
+        }
+        throw new Error(details || "SEO generation failed");
+      }
 
       const article = data?.article;
-      
-      await supabase
+      if (typeof article?.content !== "string" || article.content.trim().length < 80) {
+        throw new Error(t("L'IA n'a pas renvoyé de contenu SEO valide.", "AI did not return a valid SEO article."));
+      }
+      const { error: saveError } = await supabase
         .from("scheduled_content")
-        .update({ 
+        .update({
           status: "generated",
-          content: article?.content || null,
+          content: article.content,
           title: article?.title || item.title,
+          error_message: null,
         })
-        .eq("id", item.id);
+        .eq("id", item.id).eq("user_id", user!.id).eq("business_id", selectedBusiness.id);
+      if (saveError) throw saveError;
 
       await fetchScheduledContent(selectedBusiness!.id);
       toast({ title: t("Article généré !", "Article generated!") });
@@ -335,7 +345,7 @@ const SEOAutoPost = () => {
       await supabase
         .from("scheduled_content")
         .update({ status: "failed", error_message: error.message })
-        .eq("id", item.id);
+        .eq("id", item.id).eq("user_id", user!.id);
       
       await fetchScheduledContent(selectedBusiness!.id);
       toast({ title: t("Erreur", "Error"), description: error.message, variant: "destructive" });
@@ -353,8 +363,12 @@ const SEOAutoPost = () => {
       const { data, error } = await supabase.functions.invoke("publish-gmb-post", {
         body: {
           business_id: selectedBusiness!.id,
-          summary: item.content.slice(0, 1500),
-          post_id: item.id,
+          // Google Business posts are short plain-text updates, not full articles.
+          summary: [item.title, item.content].filter(Boolean).join("\n\n")
+            .replace(/[#*_~`]/g, "").replace(/\[(.*?)\]\((.*?)\)/g, "$1")
+            .slice(0, 1500),
+          scheduled_content_id: item.id,
+          topic_type: "STANDARD",
         },
       });
 
@@ -375,9 +389,10 @@ const SEOAutoPost = () => {
       }
 
       await fetchScheduledContent(selectedBusiness!.id);
-      toast({ 
-        title: t("Publié sur Google !", "Published on Google!"), 
-        description: t("L'article a été publié sur votre fiche Google Business", "The article has been published on your Google Business profile")
+      const live = data?.state === "LIVE";
+      toast({
+        title: live ? t("Publié sur Google", "Published on Google") : t("Post transmis à Google", "Post submitted to Google"),
+        description: live ? t("La publication est en ligne.", "Post is live.") : t("Publication reçue, en attente de validation Google. Aucun succès définitif annoncé.", "Submitted for Google moderation; not confirmed live."),
       });
     } catch (error: any) {
       console.error("Error publishing:", error);
@@ -433,6 +448,10 @@ const SEOAutoPost = () => {
     }
     
     switch (status) {
+      case "processing":
+        return <Badge variant="outline">{t("Modération Google", "Google moderation")}</Badge>;
+      case "rejected":
+        return <Badge variant="destructive">{t("Refusé par Google", "Rejected by Google")}</Badge>;
       case "published":
         return <Badge className="bg-secondary text-secondary-foreground"><Check className="w-3 h-3 mr-1" />{t("Publié", "Published")}</Badge>;
       case "generated":
@@ -479,7 +498,7 @@ const SEOAutoPost = () => {
               </p>
             </div>
           </div>
-          {selectedBusiness && !isSubscribed && (
+          {selectedBusiness && isSubscribed && (
             <Button
               onClick={analyzeAndGeneratePlan}
               disabled={generating}
@@ -502,7 +521,7 @@ const SEOAutoPost = () => {
           {selectedBusiness && isSubscribed && (
             <div className="w-full text-xs text-muted-foreground bg-emerald-500/10 border border-emerald-500/20 rounded-lg px-3 py-2 flex items-center gap-2">
               <CheckCircle className="w-3.5 h-3.5 text-emerald-600" />
-              {t("Pilote automatique actif — articles SEO publiés chaque jour.", "Autopilot active — SEO posts published daily.")}
+              {t("SEO activé — publication soumise à Google et à sa modération.", "SEO enabled — Google may moderate or reject posts.")}
             </div>
           )}
         </div>
@@ -592,6 +611,10 @@ const SEOAutoPost = () => {
                     </Dialog>
                   </div>
                   
+                  <Button size="sm" variant="outline" className="mt-3 w-full" disabled={syncingBusinesses} onClick={() => void manageLocations()}>
+                    {syncingBusinesses ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Building2 className="w-4 h-4 mr-2" />}
+                    {t("Gérer les établissements SEO", "Manage SEO locations")}
+                  </Button>
                   {/* Keywords section */}
                   {selectedBusiness.auto_keywords && selectedBusiness.auto_keywords.length > 0 && (
                     <div className="flex flex-wrap gap-1 mt-3 pt-3 border-t border-border">
@@ -611,13 +634,15 @@ const SEOAutoPost = () => {
               </Card>
             )}
 
-            {/* Subscription Banner with Business Selector */}
+            {/* SEO is included in Pro/Business; do not sell outdated per-location modules. */}
             {!isSubscribed && (
-              <BusinessSubscriptionSelector
-                businesses={businesses}
-                moduleType="seo"
-                onSubscribe={handleSubscribe}
-              />
+              <Card className="p-4 border-primary/30">
+                <p className="text-sm font-medium">{t("Le SEO automatique est inclus dans Pro et Business", "SEO automation is included in Pro and Business")}</p>
+                <p className="text-xs text-muted-foreground mt-1">{t("Choisissez un forfait pour générer des articles et gérer vos établissements actifs.", "Choose a plan to generate articles for your selected locations.")}</p>
+                <Button size="sm" className="mt-3" onClick={() => setSeoUpgradeOpen(true)}>
+                  {t("Voir les forfaits", "View plans")}
+                </Button>
+              </Card>
             )}
 
             {/* Articles - Mobile optimized */}
@@ -683,7 +708,7 @@ const SEOAutoPost = () => {
                               >
                                 <Eye className="w-3 h-3" />
                               </Button>
-                              {isSubscribed && item.status === "pending" && (
+                              {isSubscribed && ["pending", "failed"].includes(item.status) && (
                                 <Button 
                                   size="sm" 
                                   variant="outline"
@@ -704,7 +729,7 @@ const SEOAutoPost = () => {
                                     e.stopPropagation();
                                     publishToGMB(item);
                                   }}
-                                  disabled={publishing === item.id}
+                                  disabled={publishing === item.id || Boolean((item as ScheduledContent & { google_post_id?: string | null }).google_post_id)}
                                 >
                                   {publishing === item.id ? (
                                     <Loader2 className="w-3 h-3 animate-spin" />
@@ -737,14 +762,24 @@ const SEOAutoPost = () => {
       </main>
 
       <MobileBottomNav />
+      <SelectBusinessesDialog
+        open={manageBusinessesOpen}
+        onOpenChange={setManageBusinessesOpen}
+        businesses={googleBusinesses}
+        maxBusinesses={selectionLimit}
+        userId={user?.id || ""}
+        initialSelectedGooglePlaceIds={activeGoogleIds}
+        onSuccess={() => void fetchData()}
+      />
 
       {/* Article Preview Dialog */}
+      <UpgradeDialog open={seoUpgradeOpen} onOpenChange={setSeoUpgradeOpen} />
       <ArticlePreviewDialog
         open={showPreviewDialog}
         onOpenChange={setShowPreviewDialog}
         article={selectedArticle}
         isSubscribed={isSubscribed}
-        onSubscribe={(annual) => handleSubscribe(businesses.map(b => b.id), annual)}
+        onSubscribe={() => setSeoUpgradeOpen(true)}
       />
     </div>
   );

@@ -1,13 +1,12 @@
 // Shared AI caller with free-tier first + paid fallback
 // Tries OpenRouter free models, then Lovable AI Gateway (free Gemini) as ultimate fallback.
 
+// Reliable low-cost models before rate-limited free endpoints.
+// The old default list contained retired experimental/free model IDs.
 export const OPENROUTER_FALLBACK_MODELS = [
-  // Currently-available OpenRouter free models (Nov 2025)
-  "deepseek/deepseek-chat-v3.1:free",
+  "deepseek/deepseek-chat",
+  "google/gemini-2.5-flash-lite",
   "meta-llama/llama-3.3-70b-instruct:free",
-  "google/gemini-2.0-flash-exp:free",
-  "qwen/qwen-2.5-72b-instruct:free",
-  "mistralai/mistral-small-3.1-24b-instruct:free",
 ];
 
 // Lovable AI Gateway free models (used when OpenRouter is exhausted)
