@@ -55,6 +55,7 @@ END;
 $$;
 
 REVOKE ALL ON FUNCTION public.get_my_google_connection_status() FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.get_my_google_connection_status() FROM anon;
 GRANT EXECUTE ON FUNCTION public.get_my_google_connection_status() TO authenticated;
 
 -- Fallback for local disconnection if the Edge endpoint is not deployed.
@@ -87,4 +88,5 @@ END;
 $$;
 
 REVOKE ALL ON FUNCTION public.disconnect_my_google_connection() FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.disconnect_my_google_connection() FROM anon;
 GRANT EXECUTE ON FUNCTION public.disconnect_my_google_connection() TO authenticated;
