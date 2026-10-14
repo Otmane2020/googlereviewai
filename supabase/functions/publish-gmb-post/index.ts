@@ -33,8 +33,8 @@ function httpsUrl(value: unknown): string | null {
     const url = new URL(input.includes("://") ? input : "https://" + input);
     if (url.protocol !== "https:" || url.username || url.password || !url.hostname) return null;
     if (url.hostname === "localhost" || url.hostname.endsWith(".localhost")) return null;
-    if (/^(127|10|0|169\\.254|192\\.168)\\./.test(url.hostname)) return null;
-    if (/^172\\.(1[6-9]|2\\d|3[01])\\./.test(url.hostname)) return null;
+    if (/^(127|10|0|169\.254|192\.168)\./.test(url.hostname)) return null;
+    if (/^172\.(1[6-9]|2\d|3[01])\./.test(url.hostname)) return null;
     return url.toString();
   } catch { return null; }
 }
@@ -159,7 +159,7 @@ serve(async (req) => {
     let googlePost: { name?: string; state?: string; searchUrl?: string; summary?: string } | null = null;
     let lastError = "";
     for (const account of accounts) {
-      if (!/^accounts\\/[^/]+$/.test(account.name || "")) continue;
+      if (!/^accounts\/[^/]+$/.test(account.name || "")) continue;
       const url = "https://mybusiness.googleapis.com/v4/" + account.name + "/locations/" + business.google_place_id + "/localPosts";
       // Duplicate-safe: a prior accepted create can exist even if its response was lost.
       const listing = await fetch(url + "?pageSize=100", { headers: { Authorization: "Bearer " + token.token } });
