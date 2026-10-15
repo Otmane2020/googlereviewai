@@ -818,7 +818,7 @@ const AEORank = () => {
                           </div>
                         ) : (
                           <p className="text-xs text-muted-foreground italic">
-                            Q&A not generated • {item.keyword_used}
+                            {tr("FAQ non générée", "FAQ not generated")} • {item.keyword_used}
                           </p>
                         )}
                         {item.keyword_used && item.question && (
