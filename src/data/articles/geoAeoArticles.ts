@@ -131,15 +131,15 @@ export const geoAeoArticles: SeoArticle[] = [
   },
   {
     slug: "answer-engine-optimization-guide",
-    title: "Answer Engine Optimization: How to Build Content That Delivers the Best Answer",
-    description: "A practical AEO guide covering question research, answer blocks, evidence, structured data and measurement.",
-    category: "AEO",
-    targetKeyword: "answer engine optimization",
-    keywords: ["AEO strategy", "answer-first content", "featured answers", "AI answer optimization"],
+    title: "Generative Engine Optimization: How to Build Content That Delivers the Best Answer",
+    description: "A practical GEO guide covering question research, answer blocks, evidence, structured data and measurement.",
+    category: "GEO",
+    targetKeyword: "generative engine optimization",
+    keywords: ["GEO strategy", "answer-first content", "featured answers", "AI answer optimization"],
     publishedAt: "2026-09-19",
     updatedAt: "2026-09-19",
     readTime: "13 min",
-    intro: "Answer engine optimization, or AEO, is the practice of designing information so a search engine, voice assistant or generative answer system can locate a correct passage and still preserve the context a person needs. It is not a trick for making every paragraph short. Strong AEO combines a direct response with supporting detail, reliable sourcing, clear editorial ownership and a page structure that makes natural follow-up questions easy to resolve. The best AEO page does two jobs at once: it gives a fast answer to a narrow question and it provides enough depth for a reader to verify, qualify and act on that answer.",
+    intro: "Generative engine optimization, or GEO, is the practice of designing information so a search engine, voice assistant or generative answer system can locate a correct passage and still preserve the context a person needs. It is not a trick for making every paragraph short. Strong GEO combines a direct response with supporting detail, reliable sourcing, clear editorial ownership and a page structure that makes natural follow-up questions easy to resolve. The best GEO page does two jobs at once: it gives a fast answer to a narrow question and it provides enough depth for a reader to verify, qualify and act on that answer.",
     quickAnswer: "To optimize for answer engines, identify the exact question and the decision behind it, place a concise accurate answer near a descriptive heading, explain conditions and exceptions, support important claims with primary evidence, and connect the passage to a complete page. Use structured data only when it accurately describes visible content, and measure whether extracted answers remain correct rather than focusing only on impressions.",
     keyTakeaways: [
       "Research question families and follow-up intent instead of chasing isolated keywords.",
@@ -150,7 +150,7 @@ export const geoAeoArticles: SeoArticle[] = [
     ],
     sections: [
       {
-        heading: "AEO starts with the decision behind the question",
+        heading: "GEO starts with the decision behind the question",
         paragraphs: [
           "A keyword can reveal phrasing, but an answer strategy must understand why the person is asking. Someone who searches whether review automation is safe may actually be deciding whether to let software publish customer replies. That person will probably ask which reviews require human approval, what information the model can see, how brand voice is preserved and what happens when a complaint involves legal or personal information. A page that answers only the first phrase may earn an impression while failing the real decision.",
           "Build a question tree for each important topic. Start with the primary question, then map definition, qualification, comparison, risk, process, cost, timing, exceptions and next steps. Group questions on one page when they share the same audience and evidence. Split them when the context changes significantly. For example, a general guide to responding to reviews can include tone and workflow, while a separate page on medical review replies may need privacy and clinical constraints that deserve specialized treatment.",
@@ -162,7 +162,7 @@ export const geoAeoArticles: SeoArticle[] = [
         paragraphs: [
           "An answer engine may surface only a small section of a page. The opening sentence under an important heading should therefore name the subject, answer the question and include any condition that would materially change the meaning. Avoid vague pronouns that depend on the previous section. Avoid absolute language when the answer varies by location, product version, policy or user circumstances.",
           "A useful test is to copy the first two or three sentences into a blank document. Would a reader understand what is being discussed? Would the answer remain true without the rest of the page? If not, rewrite it. After the concise answer, add depth: why the answer is true, an example, important exceptions, a source, and the next action. This layered pattern is stronger than either extreme. A one-sentence page lacks context; a 2,000-word wall of prose hides the answer.",
-          "For factual or policy-sensitive topics, include dates or version context where freshness matters. If a platform rule can change, cite the current official documentation and avoid wording that pretends the rule is permanent. Answer extraction magnifies outdated statements, so maintainability is part of AEO."
+          "For factual or policy-sensitive topics, include dates or version context where freshness matters. If a platform rule can change, cite the current official documentation and avoid wording that pretends the rule is permanent. Answer extraction magnifies outdated statements, so maintainability is part of GEO."
         ]
       },
       {
@@ -193,7 +193,7 @@ export const geoAeoArticles: SeoArticle[] = [
         heading: "Make expertise and editorial ownership visible",
         paragraphs: [
           "Answer engines increasingly operate in an environment full of automatically generated text. One way to make useful content more defensible is to show who is responsible for it. Name the editorial team or qualified reviewer where that information helps the reader evaluate the page. Explain the methodology behind examples or tests. Use real update dates that correspond to meaningful review rather than changing timestamps automatically.",
-          "Specialized subjects require stronger governance. Health, finance, law, safety and other high-impact topics should be reviewed by appropriately qualified people. State jurisdiction and scope. Avoid personalized advice when the page is intended as general information. AEO does not justify simplifying a complex decision until it becomes unsafe or misleading.",
+          "Specialized subjects require stronger governance. Health, finance, law, safety and other high-impact topics should be reviewed by appropriately qualified people. State jurisdiction and scope. Avoid personalized advice when the page is intended as general information. GEO does not justify simplifying a complex decision until it becomes unsafe or misleading.",
           "For commercial software content, editorial ownership can include product version, test environment and limitations. If a feature behaves differently by integration, say so. A precise answer with visible boundaries is more useful than a sweeping claim that becomes wrong as soon as one condition changes."
         ]
       },
@@ -210,7 +210,7 @@ export const geoAeoArticles: SeoArticle[] = [
         paragraphs: [
           "Article and BreadcrumbList structured data can help describe a guide and its place in the site. FAQPage markup can represent visible questions and answers where the implementation follows current search guidelines, but rich-result display is never guaranteed. Structured data should summarize what users can actually see. It must not introduce ratings, authors, prices, services or claims that are missing from the page.",
           "Keep canonical URLs, dates, publisher identity and page content aligned. When an article is materially updated, change the visible information and metadata together. Validate the markup after deployment and monitor templates because structured-data errors can spread sitewide.",
-          "Do not confuse schema with AEO itself. A perfectly marked-up page with vague, unsupported content is still a weak answer source. Structured data is useful when it clarifies an already strong page."
+          "Do not confuse schema with GEO itself. A perfectly marked-up page with vague, unsupported content is still a weak answer source. Structured data is useful when it clarifies an already strong page."
         ]
       },
       {
@@ -218,19 +218,19 @@ export const geoAeoArticles: SeoArticle[] = [
         paragraphs: [
           "Voice queries often contain more context than typed keywords. A person may ask where they can get a tire repaired near them right now, whether a restaurant has vegan options, or whether a clinic accepts walk-ins. The useful answer depends on current location, time, inventory or policy. Write pages that expose these operational facts clearly instead of trying to mimic conversational filler.",
           "Conversational search also creates follow-up questions. A user may first ask for a definition and then ask whether the recommendation applies in a particular circumstance. Pages that explain conditions and alternatives are better prepared for this behavior than pages optimized around one exact phrase.",
-          "For local AEO, keep hours, service boundaries, booking rules and contact options current. A beautifully written answer cannot compensate for an outdated operational fact when the user is ready to act."
+          "For local GEO, keep hours, service boundaries, booking rules and contact options current. A beautifully written answer cannot compensate for an outdated operational fact when the user is ready to act."
         ]
       },
       {
         heading: "Measure answer quality rather than word count alone",
         paragraphs: [
-          "AEO measurement should begin with coverage. Are the important customer questions answered on pages that search engines can discover? Next, inspect whether impressions and visits come from the intended queries. Review search snippets and AI citations when available. Manually test whether extracted passages remain accurate when separated from the page. A concise answer that attracts the wrong audience is not success.",
+          "GEO measurement should begin with coverage. Are the important customer questions answered on pages that search engines can discover? Next, inspect whether impressions and visits come from the intended queries. Review search snippets and AI citations when available. Manually test whether extracted passages remain accurate when separated from the page. A concise answer that attracts the wrong audience is not success.",
           "Track qualified actions after answer-oriented visits, such as bookings, calls, signups or visits to decision pages. Monitor support conversations to see whether content reduces repeated confusion. If the same question keeps reaching support, the page may be difficult to find, too vague or missing an important condition.",
           "Avoid setting a universal article length target as a quality metric. Length is useful only when it reflects the depth required by the topic. A product compatibility answer may need 200 words; a complete implementation guide may need 2,000. For this editorial program, long-form pages are intentionally comprehensive, but every section should still earn its place."
         ]
       },
       {
-        heading: "A repeatable AEO publishing workflow",
+        heading: "A repeatable GEO publishing workflow",
         paragraphs: [
           "Begin with a real question set from search data, sales calls, support tickets, reviews and expert interviews. Group related questions by decision. Choose one primary page and define the user outcome. Draft the direct answers first, then add evidence, examples, limitations and related steps. Ask a subject-matter reviewer to challenge the claims rather than merely proofread the wording.",
           "Next, improve scanability with descriptive headings, lists, tables or steps where appropriate. Add internal links to genuine follow-up resources. Add structured data only after the visible content is final. Publish, inspect rendering and indexing, then monitor the queries and feedback the page attracts. Update the page when the answer changes, not because a calendar says every article needs a new date.",
@@ -239,8 +239,8 @@ export const geoAeoArticles: SeoArticle[] = [
       }
     ],
     faq: [
-      { question: "Is AEO the same as SEO?", answer: "AEO focuses on making correct answers and supporting context easy to retrieve, while SEO covers broader discovery, crawling, rankings and user acquisition. Strong technical SEO and useful content support both." },
-      { question: "How many words should an AEO answer contain?", answer: "There is no universal count. The concise answer should be as short as possible without losing an important condition, then the page should provide the evidence and depth the decision requires." },
+      { question: "Is GEO the same as SEO?", answer: "GEO focuses on making correct answers and supporting context easy to retrieve, while SEO covers broader discovery, crawling, rankings and user acquisition. Strong technical SEO and useful content support both." },
+      { question: "How many words should an GEO answer contain?", answer: "There is no universal count. The concise answer should be as short as possible without losing an important condition, then the page should provide the evidence and depth the decision requires." },
       { question: "Does FAQ schema guarantee a rich result or AI citation?", answer: "No. Structured data can describe eligible visible content, but search engines and answer systems control how results are displayed and which sources are selected." },
       { question: "Should every page begin with a short answer?", answer: "Only when a concise answer helps the user. Some pages are primarily tools, comparisons or workflows and may need a different opening. The principle is clarity, not a rigid template." },
       { question: "How do I know whether an extracted answer is good?", answer: "Test the passage outside its original page. It should identify the subject, answer the question accurately, preserve material conditions and avoid implying certainty that the full source does not support." }
