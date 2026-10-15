@@ -273,7 +273,8 @@ const Dashboard = () => {
       .from("scheduled_content")
       .select("status, scheduled_date")
       .eq("user_id", user.id)
-      .eq("content_type", "aeo_qa");
+      .eq("content_type", "aeo_qa")
+      .eq("business_id", target?.id || "00000000-0000-0000-0000-000000000000");
     
     if (aeoData) {
       const planned = aeoData.length;
