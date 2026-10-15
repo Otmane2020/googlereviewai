@@ -16,17 +16,11 @@ const PaymentCanceled = () => {
           Your payment was not completed. Your card has not been charged.
         </p>
         <div className="space-y-2">
-          <Button onClick={() => navigate("/checkout")} className="w-full h-12">
+          <Button onClick={() => navigate("/onboarding?step=plan")} className="w-full h-12">
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to checkout
+            Back to choose a plan
           </Button>
-          <Button
-            variant="ghost"
-            onClick={() => navigate("/dashboard")}
-            className="w-full h-10"
-          >
-            Go to dashboard
-          </Button>
+
         </div>
       </div>
     </div>
