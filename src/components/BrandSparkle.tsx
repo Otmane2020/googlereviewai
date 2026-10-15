@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import logoMark from "@/assets/logo-mark.png";
 
 interface BrandSparkleProps extends React.HTMLAttributes<HTMLImageElement> {
   className?: string;
@@ -9,7 +10,7 @@ interface BrandSparkleProps extends React.HTMLAttributes<HTMLImageElement> {
  */
 export const BrandSparkle = ({ className, ...props }: BrandSparkleProps) => (
   <img
-    src="/logo-mark.png"
+    src={logoMark}
     alt=""
     aria-hidden="true"
     draggable={false}
