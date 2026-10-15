@@ -75,22 +75,60 @@ const Onboarding = () => {
   const [planLoading, setPlanLoading] = useState<string | null>(null);
   const [billing, setBilling] = useState<"monthly" | "yearly">("monthly");
 
-  const purgeAndSignOut = async () => {
-    try {
-      await supabase.functions.invoke("purge-account-no-gmb");
-    } catch (error) {
-      console.warn("[Onboarding] account purge failed:", error);
-    } finally {
-      await supabase.auth.signOut();
-      navigate("/auth?gmb_required=1", { replace: true });
-    }
-  };
-
   const loadBusinesses = async () => {
     if (!user) return;
-    const { data: biz } = await supabase.from("businesses").select("id, name").eq("user_id", user.id);
-    setBusinesses(biz || []);
-    if (biz && biz.length > 0 && !selectedBusinessId) setSelectedBusinessId(biz[0].id);
+    const { data, error } = await supabase.from("businesses")
+      .select("id,name").eq("user_id", user.id).eq("is_active", true)
+      .order("name");
+    if (error) throw new Error(error.message);
+    const saved = localStorage.getItem("googlereviewai.com_selected_business_" + user.id);
+    const active = data || [];
+    setBusinesses(active);
+    setSelectedBusinessId(prev => active.find(b => b.id === prev)?.id
+      || active.find(b => b.id === saved)?.id || active[0]?.id || "");
+  };
+
+  const discoverGoogleLocations = async () => {
+    if (!user) return;
+    setDiscovering(true);
+    setSyncError(null);
+    setNeedsReconnect(false);
+    try {
+      // The initial Google sign-in requests business.manage AND offline access.
+      // Reuse the saved provider refresh token instead of forcing another OAuth.
+      const { data, error } = await supabase.functions.invoke("sync-google-businesses", { body: {} });
+      if (error) {
+        let message = error.message;
+        try {
+          const details = await error.context?.clone?.().json?.();
+          message = details?.message || details?.error || message;
+        } catch {}
+        throw new Error(message);
+      }
+      if (!data?.success) {
+        setNeedsReconnect(Boolean(data?.requires_reconnect));
+        throw new Error(data?.message || data?.error || "Google Business sync failed");
+      }
+      if (data.requires_selection && data.google_businesses?.length) {
+        setDiscoveredLocations(data.google_businesses);
+        setLocationLimit(data.max_businesses || 1);
+        setLocationSelectionOpen(true);
+        return;
+      }
+      await loadBusinesses();
+      if (data.businesses?.length === 0) {
+        setSyncError(isFrench
+          ? "Google n'a trouvé aucune fiche accessible. Vérifiez le compte propriétaire de votre fiche dans Google Business Profile. Votre compte Reviews AI reste conservé."
+          : "Google found no accessible locations. Check the Google account that manages your Business Profile. Your Reviews AI account is kept.");
+      }
+    } catch (e) {
+      const message = e instanceof Error ? e.message : "Google sync failed";
+      setSyncError(message);
+      // A temporary Google API error must NEVER delete a legitimate user account.
+      console.warn("[Onboarding] Google discovery error:", message);
+    } finally {
+      setDiscovering(false);
+    }
   };
 
   useEffect(() => {
@@ -98,48 +136,37 @@ const Onboarding = () => {
       navigate("/auth", { replace: true });
       return;
     }
+    let active = true;
     (async () => {
       const [{ data: profile }, { data: biz }] = await Promise.all([
-        supabase.from("profiles").select("google_refresh_token, full_name, onboarding_completed").eq("id", user.id).maybeSingle(),
-        supabase.from("businesses").select("id, name").eq("user_id", user.id),
+        supabase.from("profiles").select("google_refresh_token,full_name,onboarding_completed")
+          .eq("id", user.id).maybeSingle(),
+        supabase.from("businesses").select("id,name,is_active").eq("user_id", user.id),
       ]);
-      // Only redirect completed users after confirming a GMB location exists.
-      // A Google account without GMB must be purged and asked to choose another account.
-      if (profile?.onboarding_completed && biz && biz.length > 0) {
+      if (!active) return;
+      const managed = (biz || []).filter(b => b.is_active);
+      if (profile?.onboarding_completed && managed.length > 0) {
         navigate("/dashboard", { replace: true });
         return;
       }
-      setHasGoogle(!!profile?.google_refresh_token);
-      setSignature(profile?.full_name ? `The ${profile.full_name} team` : "The team");
-      setBusinesses(biz || []);
-      if (biz && biz.length > 0) setSelectedBusinessId(biz[0].id);
-
-      // If Google is connected but no businesses yet, trigger sync
-      if (profile?.google_refresh_token && (!biz || biz.length === 0)) {
-        try {
-          await supabase.functions.invoke("sync-google-businesses", { body: { user_id: user.id } });
-          const { data: fresh } = await supabase.from("businesses").select("id, name").eq("user_id", user.id);
-          setBusinesses(fresh || []);
-          if (fresh && fresh.length > 0) {
-            setSelectedBusinessId((prev) => prev || fresh[0].id);
-            setNoGmbAccount(false);
-          } else {
-            // Google account has no Google Business Profile:
-            // remove the account entirely and send the user back to sign-in
-            setNoGmbAccount(true);
-            await purgeAndSignOut();
-          }
-
-        } catch (e) {
-          console.warn("[Onboarding] sync-google-businesses failed:", e);
-          // Treat a failed/empty GMB sync as a blocked account, never continue onboarding.
-          setNoGmbAccount(true);
-          await purgeAndSignOut();
-          return;
-        }
+      const authorized = Boolean(profile?.google_refresh_token);
+      setHasGoogle(authorized);
+      setSignature(profile?.full_name
+        ? (isFrench ? "L'équipe " + profile.full_name : "The " + profile.full_name + " team")
+        : (isFrench ? "L'équipe" : "The team"));
+      setBusinesses(managed);
+      const remembered = localStorage.getItem("googlereviewai.com_selected_business_" + user.id);
+      setSelectedBusinessId(managed.find(b => b.id === remembered)?.id || managed[0]?.id || "");
+      if (!managed.length && authorized) await discoverGoogleLocations();
+      if (!managed.length && !authorized) {
+        setNeedsReconnect(true);
+        setSyncError(isFrench
+          ? "L'autorisation Google Business n'a pas été enregistrée lors de la connexion. Renouvelez-la uniquement si nécessaire."
+          : "Google Business authorization was not saved during sign-in. Renew permission only if needed.");
       }
     })();
-  }, [user, navigate]);
+    return () => { active = false; };
+  }, [user?.id, navigate]);
 
   const next = () => setStep((s) => Math.min(s + 1, STEPS.length - 1));
   const back = () => setStep((s) => Math.max(s - 1, 0));
@@ -147,13 +174,23 @@ const Onboarding = () => {
   const handleConnectGoogle = async () => {
     setLoading(true);
     try {
-      // Remember to come back to onboarding after the Google round-trip
       sessionStorage.setItem("google_oauth_return_to", "/onboarding");
       await initiateOAuth();
     } catch (e) {
-      toast({ title: "Erreur", description: "Impossible de démarrer la connexion Google", variant: "destructive" });
+      toast({
+        title: isFrench ? "Erreur" : "Error",
+        description: isFrench ? "Impossible de renouveler l'accès Google Business." : "Could not renew Google Business access.",
+        variant: "destructive",
+      });
+    } finally {
       setLoading(false);
     }
+  };
+
+  const handleContinueLocation = () => {
+    if (!user || !selectedBusinessId) return;
+    localStorage.setItem("googlereviewai.com_selected_business_" + user.id, selectedBusinessId);
+    next();
   };
 
   const handleSaveAI = async () => {
