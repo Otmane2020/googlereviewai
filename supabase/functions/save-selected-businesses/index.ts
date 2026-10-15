@@ -14,6 +14,7 @@ interface BusinessInput {
   phone: string | null;
   website: string | null;
   description?: string | null;
+  profile_image_url?: string | null;
 }
 
 serve(async (req) => {
@@ -78,17 +79,36 @@ serve(async (req) => {
 
     // Never deactivate existing locations before the new selection is safely
     // stored. A failed upsert must not make every establishment disappear.
-    // Prepare businesses for upsert
-    const businessesData = businesses.map((b) => ({
-      user_id: user.id,
-      name: b.name,
-      google_place_id: b.google_place_id,
-      address: b.address,
-      phone: b.phone,
-      website: b.website,
-      description: b.description || null,
-      is_active: true,
-    }));
+    // Google media URLs are optional and may be missing due to API permissions.
+    // Only persist HTTPS Google-hosted photos returned from the discovery flow.
+    // If Google provides no image, omit the column so upsert preserves a
+    // previously imported cover instead of replacing it with null.
+    const validGooglePhoto = (candidate?: string | null): string | null => {
+      if (!candidate) return null;
+      try {
+        const url = new URL(candidate);
+        const host = url.hostname.toLowerCase();
+        if (url.protocol !== "https:") return null;
+        const allowed = ["googleusercontent.com", "ggpht.com", "googleapis.com", "google.com", "gstatic.com"];
+        return allowed.some(domain => host === domain || host.endsWith("." + domain)) ? url.toString() : null;
+      } catch {
+        return null;
+      }
+    };
+    const businessesData = businesses.map((b) => {
+      const image = validGooglePhoto(b.profile_image_url);
+      return {
+        user_id: user.id,
+        name: b.name,
+        google_place_id: b.google_place_id,
+        address: b.address,
+        phone: b.phone,
+        website: b.website,
+        description: b.description || null,
+        is_active: true,
+        ...(image ? { profile_image_url: image } : {}),
+      };
+    });
 
     console.log(`Saving ${businessesData.length} selected businesses for user ${user.id}`);
 

@@ -7,6 +7,7 @@ interface GoogleBusiness {
   address: string | null;
   phone: string | null;
   website: string | null;
+  profile_image_url?: string | null;
 }
 
 interface SyncResult {
