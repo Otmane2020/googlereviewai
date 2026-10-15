@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useRequireSubscription } from "@/hooks/useRequireSubscription";
-import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
@@ -851,7 +850,6 @@ const AISettingsPage = () => {
         )}
       </main>
 
-      <MobileBottomNav />
       <UpgradeDialog 
         open={upgradeOpen} 
         onOpenChange={setUpgradeOpen} 

@@ -442,7 +442,7 @@
     "helpSupport": "Aide & support",
     "signOut": "Se déconnecter",
     "language": "Langue",
-    "visibilityBoost": "Visibilité Boost",
+    "visibilityBoost": "Boost de visibilité",
     "myCompany": "Mon entreprise",
     "googleReviews": "Avis Google",
     "googlePost": "Post Google"
@@ -976,7 +976,7 @@
   },
   "notificationsPage": {
     "title": "Notifications",
-    "markAllRead": "Tout marquer lu",
+    "markAllRead": "Tout marquer comme lu",
     "search": "Rechercher...",
     "enabled": "Notifications activées",
     "blocked": "Notifications bloquées",

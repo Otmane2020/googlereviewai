@@ -9,19 +9,19 @@ const MIN = 5000;
 const MAX = 10_000_000;
 
 function detectImage(bytes: Uint8Array): Pick<GeneratedGmbImage, "mime" | "extension"> {
-  if (bytes.length < MIN || bytes.length > MAX) throw new Error("Taille d'image invalide (5 Ko à 10 Mo).");
+  if (bytes.length < MIN || bytes.length > MAX) throw new Error("Invalid image size (5 KB to 10 MB).");
   if (bytes[0] === 255 && bytes[1] === 216 && bytes[2] === 255) return { mime: "image/jpeg", extension: "jpg" };
   if (bytes[0] === 137 && bytes[1] === 80 && bytes[2] === 78 && bytes[3] === 71) return { mime: "image/png", extension: "png" };
   if (String.fromCharCode(...bytes.slice(0, 4)) === "RIFF" && String.fromCharCode(...bytes.slice(8, 12)) === "WEBP") {
     return { mime: "image/webp", extension: "webp" };
   }
-  throw new Error("Réponse invalide : ni JPEG, ni PNG, ni WebP.");
+  throw new Error("Unsupported image response: expected JPEG, PNG or WebP.");
 }
 
 export function parseGeneratedImageBase64(input: string, provider: GeneratedGmbImage["provider"]): GeneratedGmbImage {
   const value = input.trim().replace(/^data:image\/(?:png|jpeg|jpg|webp)(?:;charset=[\w-]+)?;base64,/i, "").replace(/\s/g, "");
-  if (!/^[A-Za-z0-9+/]+={0,2}$/.test(value)) throw new Error("Image Base64 invalide.");
-  if (Math.floor(value.length * .75) < MIN || Math.floor(value.length * .75) > MAX + 3) throw new Error("Taille Base64 invalide.");
+  if (!/^[A-Za-z0-9+/]+={0,2}$/.test(value)) throw new Error("Invalid Base64 image data.");
+  if (Math.floor(value.length * .75) < MIN || Math.floor(value.length * .75) > MAX + 3) throw new Error("Invalid Base64 image size.");
   const bytes = Uint8Array.from(atob(value), (ch) => ch.charCodeAt(0));
   return { bytes, ...detectImage(bytes), provider };
 }
@@ -29,7 +29,7 @@ export function parseGeneratedImageBase64(input: string, provider: GeneratedGmbI
 async function cloudflareImage(prompt: string): Promise<GeneratedGmbImage> {
   const account = Deno.env.get("CLOUDFLARE_ACCOUNT_ID") || Deno.env.get("CF_ACCOUNT_ID");
   const token = Deno.env.get("CLOUDFLARE_API_TOKEN") || Deno.env.get("CF_API_TOKEN") || Deno.env.get("CLOUDFLARE_WORKERS_AI_TOKEN");
-  if (!account || !token) throw new Error("Secrets Cloudflare Workers AI manquants.");
+  if (!account || !token) throw new Error("Cloudflare Workers AI secrets are missing.");
   const response = await fetch(
     "https://api.cloudflare.com/client/v4/accounts/" + encodeURIComponent(account) + "/ai/run/@cf/black-forest-labs/flux-1-schnell",
     { method: "POST", headers: { Authorization: "Bearer " + token, "Content-Type": "application/json" },
@@ -37,7 +37,7 @@ async function cloudflareImage(prompt: string): Promise<GeneratedGmbImage> {
   );
   if (!response.ok) {
     const payload = await response.json().catch(() => null) as { errors?: { message?: string }[] } | null;
-    if (response.status === 401 || response.status === 403) throw new Error("Cloudflare : token invalide ou permission Workers AI manquante.");
+    if (response.status === 401 || response.status === 403) throw new Error("Cloudflare token invalid or missing Workers AI permission.");
     const msg = payload?.errors?.map((x) => x.message).filter(Boolean).join("; ");
     throw new Error("Cloudflare HTTP " + response.status + (msg ? ": " + msg.slice(0, 170) : ""));
   }
@@ -50,14 +50,14 @@ async function cloudflareImage(prompt: string): Promise<GeneratedGmbImage> {
   };
   const image = payload.result?.image || payload.image;
   if (payload.success === false || !image) {
-    throw new Error(payload.errors?.map((x) => x.message).filter(Boolean).join("; ") || "Cloudflare n'a retourné aucune image.");
+    throw new Error(payload.errors?.map((x) => x.message).filter(Boolean).join("; ") || "Cloudflare returned no image.");
   }
   return parseGeneratedImageBase64(image, "cloudflare");
 }
 
 async function openRouterImage(prompt: string): Promise<GeneratedGmbImage> {
   const key = Deno.env.get("OPENROUTER_API_KEY");
-  if (!key) throw new Error("Clé OpenRouter manquante.");
+  if (!key) throw new Error("OPENROUTER_API_KEY is missing.");
   const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST", headers: {
       Authorization: "Bearer " + key, "Content-Type": "application/json",
@@ -78,7 +78,7 @@ async function openRouterImage(prompt: string): Promise<GeneratedGmbImage> {
     error?: { message?: string };
   };
   const image = payload.choices?.[0]?.message?.images?.find(x => x.image_url?.url?.startsWith("data:image/"))?.image_url?.url;
-  if (!image) throw new Error(payload.error?.message || "OpenRouter n'a retourné aucune image.");
+  if (!image) throw new Error(payload.error?.message || "OpenRouter returned no image.");
   return parseGeneratedImageBase64(image, "openrouter");
 }
 
@@ -89,7 +89,7 @@ export async function generateGmbImageBytes(prompt: string): Promise<GeneratedGm
   );
   const hasOr = Boolean(Deno.env.get("OPENROUTER_API_KEY"));
   if (!hasCf && !hasOr) {
-    throw new Error("Configurez les secrets CLOUDFLARE_ACCOUNT_ID et CLOUDFLARE_API_TOKEN (Workers AI), ou OPENROUTER_API_KEY, sur le backend.");
+    throw new Error("Image generation is not configured: set CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_API_TOKEN or OPENROUTER_API_KEY on the backend.");
   }
   const errors: string[] = [];
   if (hasCf) {
@@ -108,5 +108,5 @@ export async function generateGmbImageBytes(prompt: string): Promise<GeneratedGm
       errors.push(msg);
     }
   }
-  throw new Error("Génération d'image impossible : " + errors.join(" | ").slice(0, 450));
+  throw new Error("Image generation failed: " + errors.join(" | ").slice(0, 450));
 }

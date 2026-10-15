@@ -3,7 +3,6 @@ import { useNavigate } from "@/lib/router-compat";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -39,7 +38,7 @@ export default function GmbPost() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { i18n } = useTranslation();
-  const isEN = i18n.language?.toLowerCase().startsWith("en");
+  const isEN = !i18n.language?.toLowerCase().startsWith("fr");
   const t = (fr: string, en: string) => (isEN ? en : fr);
 
   const POST_TYPES = [
@@ -113,7 +112,22 @@ export default function GmbPost() {
     setMediaUrl("");
   }, [selectedBusinessId, businesses]);
 
+  const imageErrorMessage = (message: string) => {
+    if (/OPENROUTER_API_KEY|not configured|missing API key/i.test(message))
+      return t("La génération d'images n'est pas configurée. Contactez le support.", "Image generation is not configured. Contact support.");
+    if (/\b(401|403)\b|authentication|invalid api key|unauthorized/i.test(message))
+      return t("L'authentification du fournisseur d'images a échoué.", "Image provider authentication failed.");
+    if (/\b429\b|rate.limit|quota|daily image limit|insufficient credits/i.test(message))
+      return t("Limite du service d'images atteinte. Réessayez plus tard.", "Image service limit reached. Please try again later.");
+    if (/storage|bucket|upload|save generated/i.test(message))
+      return t("L'image n'a pas pu être enregistrée. Réessayez plus tard.", "The image could not be saved. Please try again later.");
+    if (/timeout|abort|network|failed to fetch/i.test(message))
+      return t("Délai de génération dépassé. Réessayez.", "Image generation timed out. Please retry.");
+    return t("Service de génération d'images temporairement indisponible. Vous pouvez publier sans image.", "Image generation is temporarily unavailable. You can still publish without an image.");
+  };
+
   const handleGenerateImage = async () => {
+    if (isGeneratingImage) return;
     if (!selectedBusinessId || !content.trim()) {
       toast.error(t("Saisissez le texte avant de générer une photo.", "Write the post text before generating a photo."));
       return;
@@ -138,8 +152,10 @@ export default function GmbPost() {
       setMediaUrl(data.image_url);
       toast.success(t("Image IA générée !", "AI photo generated!"));
     } catch (error) {
+      const details = error instanceof Error ? error.message : String(error);
+      console.error("[generate-gmb-image] Image generation failed:", details);
       toast.error(t("Génération impossible", "Image generation failed"), {
-        description: error instanceof Error ? error.message : undefined,
+        description: imageErrorMessage(details),
       });
     } finally {
       setIsGeneratingImage(false);
@@ -611,7 +627,6 @@ export default function GmbPost() {
         </Card>
       </div>
 
-      <MobileBottomNav />
     </div>
   );
 }

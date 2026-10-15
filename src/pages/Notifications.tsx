@@ -5,7 +5,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useNotifications, type Notification as AppNotification } from "@/hooks/useNotifications";
 import { useWebPush } from "@/hooks/useWebPush";
 import { usePWA } from "@/hooks/usePWA";
-import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
@@ -20,6 +19,56 @@ import { useTranslation } from "react-i18next";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+
+
+/**
+ * Historical notifications were saved as fully rendered FR/EN sentences.
+ * Localize known event envelopes at display time without rewriting user data
+ * or translating the customer's quoted review.
+ */
+const localizeStoredNotification = (notification: AppNotification, english: boolean) => {
+  const title = notification.title || "";
+  const message = notification.message || "";
+  if (notification.type === "reply_published") {
+    const match = message.match(/^Réponse à (.+?) publiée sur Google\.?$/i)
+      || message.match(/^Reply to (.+?) (?:was )?published on Google\.?$/i);
+    const author = match?.[1];
+    return {
+      title: english ? "Reply published" : "Réponse publiée",
+      message: author
+        ? (english ? "Reply to " + author + " published on Google." : "Réponse à " + author + " publiée sur Google.")
+        : message,
+    };
+  }
+  if (notification.type === "ai_response") {
+    const match = message.match(/^(?:Réponse générée pour l['’]avis de|Réponse pour|Response generated for review by|Response for)\s+(.+?)\.?$/i);
+    const author = match?.[1];
+    return {
+      title: english ? "AI response generated" : "Réponse IA générée",
+      message: author
+        ? (english ? "Response generated for review by " + author : "Réponse générée pour l'avis de " + author)
+        : message,
+    };
+  }
+  if (notification.type === "new_review") {
+    const rating = title.match(/([1-5])[\s-]?(?:star|étoile)/i)?.[1];
+    let localizedMessage = message;
+    const frenchEnvelope = message.match(/^(.+?) a laissé un avis de ([1-5]) étoiles?\s*:\s*(.+)$/i);
+    const englishEnvelope = message.match(/^(.+?) left a ([1-5])-star review\s*:\s*(.+)$/i);
+    if (english && frenchEnvelope) {
+      localizedMessage = frenchEnvelope[1] + " left a " + frenchEnvelope[2] + "-star review: " + frenchEnvelope[3];
+    } else if (!english && englishEnvelope) {
+      localizedMessage = englishEnvelope[1] + " a laissé un avis de " + englishEnvelope[2] + " étoiles : " + englishEnvelope[3];
+    }
+    return {
+      title: rating
+        ? (english ? "New " + rating + "-star review" : "Nouvel avis " + rating + " étoiles")
+        : (english ? "New review" : "Nouvel avis"),
+      message: localizedMessage,
+    };
+  }
+  return { title, message };
+};
 
 const styleForType = (type: string) => {
   if (["new_review", "pending_reviews", "review_deleted", "review_edited"].includes(type))
@@ -48,7 +97,7 @@ const notificationDestination = (n: AppNotification) => {
 
 const Notifications = () => {
   const { i18n } = useTranslation();
-  const isEN = i18n.language?.toLowerCase().startsWith("en");
+  const isEN = !i18n.language?.toLowerCase().startsWith("fr");
   const tr = (frText: string, enText: string) => isEN ? enText : frText;
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
@@ -221,6 +270,7 @@ const Notifications = () => {
             <div className="divide-y divide-border/60">
               {notifications.map((notification) => {
                 const { Icon, iconClass, bgClass, category, categoryEN } = styleForType(notification.type);
+                const localized = localizeStoredNotification(notification, isEN);
                 const date = new Date(notification.created_at);
                 const time = Number.isNaN(date.getTime()) ? "" : formatDistanceToNow(date, { addSuffix: true, locale: isEN ? enUS : fr });
                 return (
@@ -234,8 +284,8 @@ const Notifications = () => {
                         <span className="text-[11px] font-medium text-muted-foreground">{isEN ? categoryEN : category}</span>
                         <span className="text-[11px] text-muted-foreground">· {time}</span>
                       </div>
-                      <p className={"text-sm text-foreground leading-snug " + (!notification.read ? "font-semibold" : "font-medium")}>{notification.title}</p>
-                      <p className="text-sm text-muted-foreground leading-relaxed mt-1 break-words">{notification.message}</p>
+                      <p className={"text-sm text-foreground leading-snug " + (!notification.read ? "font-semibold" : "font-medium")}>{localized.title}</p>
+                      <p className="text-sm text-muted-foreground leading-relaxed mt-1 break-words">{localized.message}</p>
                     </button>
                     {!notification.read && <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -261,7 +311,6 @@ const Notifications = () => {
           </div>}
         </section>
       </main>
-      <MobileBottomNav />
     </div>
   );
 };

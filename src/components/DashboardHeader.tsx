@@ -20,7 +20,7 @@ interface UserProfile {
 export const DashboardHeader = ({ className }: { className?: string } = {}) => {
   const { user } = useAuth();
   const { i18n } = useTranslation();
-  const isFr = !i18n.language?.toLowerCase().startsWith("en");
+  const isFr = (i18n.language || "en").toLowerCase().startsWith("fr");
   const navigate = useNavigate();
   const { unreadCount } = useNotifications();
   const [profile, setProfile] = useState<UserProfile | null>(null);

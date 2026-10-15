@@ -6,7 +6,6 @@ import { useRequireSubscription } from "@/hooks/useRequireSubscription";
 import { includesPremiumModules, isCurrentModuleSubscription } from "@/lib/planEntitlements";
 import { BusinessSubscriptionSelector } from "@/components/BusinessSubscriptionSelector";
 import { ManageLocationsDialog } from "@/components/ManageLocationsDialog";
-import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { ArticlePreviewDialog } from "@/components/ArticlePreviewDialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -835,8 +834,6 @@ const AEORank = () => {
           </>
         )}
       </main>
-
-      <MobileBottomNav />
 
       <ManageLocationsDialog
         open={manageLocationsOpen}
