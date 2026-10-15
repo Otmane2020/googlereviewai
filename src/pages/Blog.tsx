@@ -185,7 +185,7 @@ const Blog = () => {
                     <Search className="w-6 h-6 text-primary" />
                     New SEO guides
                   </h2>
-                  <p className="text-muted-foreground mt-2">30 in-depth articles built around distinct SEO, local-search, AEO, GEO and review-management intents.</p>
+                  <p className="text-muted-foreground mt-2">30 in-depth articles built around distinct SEO, local-search, GEO, GEO and review-management intents.</p>
                 </div>
 
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
