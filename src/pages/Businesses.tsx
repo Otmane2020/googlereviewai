@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useRequireSubscription } from "@/hooks/useRequireSubscription";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { SelectBusinessesDialog } from "@/components/SelectBusinessesDialog";
+import { ManageLocationsDialog } from "@/components/ManageLocationsDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -78,6 +79,7 @@ const BusinessesPage = () => {
   // Plan limit state
   const [maxBusinesses, setMaxBusinesses] = useState(1);
   const [showSelectDialog, setShowSelectDialog] = useState(false);
+  const [manageLocationsOpen, setManageLocationsOpen] = useState(false);
   const [googleBusinessesForSelection, setGoogleBusinessesForSelection] = useState<any[]>([]);
 
   // Use subscription verification hook
@@ -91,15 +93,8 @@ const BusinessesPage = () => {
   }, [subscriptionLoading, user]);
 
   const fetchMaxBusinesses = async () => {
-    if (!user) return;
-    const { data } = await supabase
-      .from("profiles")
-      .select("max_businesses")
-      .eq("id", user.id)
-      .single();
-    if (data) {
-      setMaxBusinesses(data.max_businesses || 1);
-    }
+    const { data, error } = await (supabase as any).rpc("get_my_google_connection_status");
+    if (!error && data?.success) setMaxBusinesses(data.max_businesses || 1);
   };
 
   const fetchBusinesses = async () => {
@@ -199,33 +194,9 @@ const BusinessesPage = () => {
   };
 
   // Force show selection dialog for "Edit" button
-  const handleChangeBusinesses = async () => {
-    // Pass true to force selection mode
-    const result = await syncBusinesses(true);
-    
-    if (!result.success) {
-      toast({
-        title: t("Synchronisation impossible", "Sync failed"),
-        description: result.message || t("Vérifiez la connexion Google dans Paramètres.", "Check Google connection in Settings."),
-        variant: "destructive",
-      });
-      if (result.requires_reconnect) navigate("/settings");
-      return;
-    }
-    if (result?.google_businesses && result.google_businesses.length > 0) {
-      // Always show selection dialog when user wants to change businesses
-      setGoogleBusinessesForSelection(result.google_businesses);
-      setMaxBusinesses(result.max_businesses || maxBusinesses);
-      setShowSelectDialog(true);
-    } else {
-      // No businesses from Google
-      fetchBusinesses();
-      toast({
-        title: "Synchronisation",
-        description: "Aucun établissement Google trouvé sur votre compte.",
-        variant: "destructive",
-      });
-    }
+  const handleChangeBusinesses = () => {
+    // Local management is available even when Google APIs fail.
+    setManageLocationsOpen(true);
   };
 
   const handleBusinessSelectionSuccess = () => {
@@ -429,14 +400,8 @@ const BusinessesPage = () => {
               disabled={isSyncing}
               className={`gap-2 ${businesses.length >= maxBusinesses ? "flex-1" : ""}`}
             >
-              {isSyncing ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <RefreshCw className="w-4 h-4" />
-              )}
-              <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent font-semibold">
-                {isSyncing ? t("Sync...", "Sync...") : t("Modifier", "Edit")}
-              </span>
+              <Building2 className="w-4 h-4" />
+              <span className="font-semibold">{t("Cocher les fiches à gérer", "Select managed locations")}</span>
             </Button>
           </div>
         </div>
@@ -981,6 +946,9 @@ const BusinessesPage = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      <ManageLocationsDialog open={manageLocationsOpen} onOpenChange={setManageLocationsOpen}
+        onSuccess={async () => { await fetchBusinesses(); await fetchMaxBusinesses(); }} />
 
       {/* Business Selection Dialog */}
       {user && (
