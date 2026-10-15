@@ -69,7 +69,7 @@ const PLANS: PlanCard[] = [
   {
     id: "pro",
     name: "Pro",
-    tagline: { fr: "Avis + GEO + SEO/GEO auto", en: "Reviews + GEO + SEO/GEO auto" },
+    tagline: { fr: "Avis + Avis + SEO & GEO auto", en: "Reviews + Avis + SEO & GEO auto" },
     monthly: { price: "49€", key: "ranki_pro_monthly" },
     yearly:  { price: "470€", key: "ranki_pro_yearly" },
     features: {
