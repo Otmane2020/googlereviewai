@@ -98,7 +98,7 @@ export const ExitIntentPopup = () => {
             <p className="text-sm text-muted-foreground mb-1">Offer spéciale</p>
             <p className="text-3xl font-bold text-foreground">2 mois GRATUITS</p>
             <p className="text-sm text-muted-foreground mt-1">
-              Essayez GoogleReviewAI sans risque pendant 60 jours
+              Essayez Reviews AI sans risque pendant 60 jours
             </p>
           </div>
 
