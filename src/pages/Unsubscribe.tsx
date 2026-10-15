@@ -43,7 +43,7 @@ export default function Unsubscribe() {
             <MailX className="w-10 h-10 mx-auto text-amber-500" />
             <h1 className="text-xl font-bold">Se désabonner des emails</h1>
             <p className="text-sm text-muted-foreground">
-              Vous ne recevrez plus d'emails de GoogleReviewAI (hors emails de sécurité et de compte).
+              Vous ne recevrez plus d'emails de Reviews AI (hors emails de sécurité et de compte).
             </p>
             <Button className="w-full" onClick={confirm} disabled={submitting}>
               {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Confirmer le désabonnement"}
