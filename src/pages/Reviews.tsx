@@ -85,6 +85,10 @@ interface Business {
   total_reviews: number | null;
   rating: number | null;
   maps_url: string | null;
+  last_reviews_sync_at: string | null;
+  last_reviews_sync_status: string | null;
+  last_reviews_sync_error: string | null;
+  last_google_reviews_total: number | null;
 }
 
 const REVIEWS_PER_PAGE = 10;
@@ -174,7 +178,7 @@ const Reviews = () => {
     if (!silent) setLoading(true);
     
     const [businessesRes, reviewsRes, profileRes] = await Promise.all([
-      supabase.from("businesses").select("id, name, google_place_id, total_reviews, rating, maps_url").eq("user_id", user.id).eq("is_active", true),
+      supabase.from("businesses").select("id, name, google_place_id, total_reviews, rating, maps_url, last_reviews_sync_at, last_reviews_sync_status, last_reviews_sync_error, last_google_reviews_total").eq("user_id", user.id).eq("is_active", true),
       supabase.from("reviews").select("*").eq("user_id", user.id).order("review_date", { ascending: false }),
       supabase.from("profiles").select("credits, plan_name").eq("id", user.id).single()
     ]);
@@ -465,16 +469,26 @@ const Reviews = () => {
     return sum / businessReviews.length;
   }, [businessReviews]);
 
-  // Handle sync with automatic token refresh
   const handleSync = async () => {
-    const result = await syncReviews();
-    if (result?.success) {
+    if (!selectedBusinessId) return;
+    const result = await syncReviews(selectedBusinessId);
+    if (result.empty_from_google) {
+      toast({
+        title: i18n.language?.startsWith("fr") ? "Google renvoie zéro avis pour cette fiche" : "Google returned zero reviews",
+        description: result.message,
+        variant: "destructive",
+      });
+    } else if (result.success) {
       setLastSyncTime(new Date());
-      fetchData(); // Refresh data after sync
+      toast({ title: i18n.language?.startsWith("fr") ? "Synchronisation terminée" : "Sync complete",
+        description: result.message });
+    } else {
+      toast({ title: i18n.language?.startsWith("fr") ? "Avis Google non importés" : "Google reviews not imported",
+        description: result.errors?.join(" · ") || result.message,
+        variant: "destructive" });
     }
-    if (result?.requires_reconnect) {
-      setShowReconnectDialog(true);
-    }
+    if (result.requires_reconnect) setShowReconnectDialog(true);
+    await fetchData(false);
   };
 
   // Handle selecting a business when none are active
@@ -654,6 +668,27 @@ const Reviews = () => {
                   </div>
                 </div>
 
+                {selectedBusiness && selectedBusiness.last_reviews_sync_status &&
+                  selectedBusiness.last_reviews_sync_status !== "reviews_imported" && (
+                    <div className="mb-2 rounded-lg bg-amber-500/5 border border-amber-500/25 px-3 py-2 text-xs text-foreground leading-relaxed">
+                      <p className="font-semibold">
+                        {i18n.language?.startsWith("fr") ? "État de l'import Google" : "Google review import status"}
+                      </p>
+                      <p className="mt-0.5 text-muted-foreground break-words">
+                        {selectedBusiness.last_reviews_sync_error ||
+                          (selectedBusiness.last_reviews_sync_status === "google_empty"
+                            ? (i18n.language?.startsWith("fr")
+                              ? "L'API Google n'a renvoyé aucun avis pour cette fiche, même si un avis peut être visible sur Google Maps. Vérifiez que la fiche et le compte Google connecté correspondent."
+                              : "Google's API returned no reviews for this listing, even if a review appears on Maps. Verify the connected Google account and listing.")
+                            : selectedBusiness.last_reviews_sync_status)}
+                      </p>
+                      {selectedBusiness.last_reviews_sync_at && (
+                        <p className="mt-1 text-muted-foreground">
+                          {new Date(selectedBusiness.last_reviews_sync_at).toLocaleString(dateLocale)}
+                        </p>
+                      )}
+                    </div>
+                  )}
                 {/* One accessible location picker (also opened via the avatar). */}
                 <button type="button" onClick={() => setBusinessDialogOpen(true)}
                   className="flex items-center gap-1.5 min-w-0 max-w-full hover:opacity-70 transition-opacity text-left rounded-md"

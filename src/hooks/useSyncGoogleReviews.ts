@@ -9,6 +9,7 @@ export interface SyncReviewsResult {
   errors?: string[];
   requires_reconnect?: boolean;
   partial?: boolean;
+  empty_from_google?: boolean;
 }
 
 export const useSyncGoogleReviews = () => {
@@ -61,6 +62,7 @@ export const useSyncGoogleReviews = () => {
         synced_count: data.synced_count || 0,
         errors: data.errors,
         partial: data.partial || Boolean(data.errors?.length),
+        empty_from_google: data.empty_from_google === true,
         requires_reconnect: data.requires_reconnect,
       };
       setLastSyncResult(result);

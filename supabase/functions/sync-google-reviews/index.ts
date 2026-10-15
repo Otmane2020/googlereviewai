@@ -240,6 +240,10 @@ serve(async (req) => {
           }
           matchedLocations++;
           console.log(`Matched business_id: ${matchedBusinessId}`);
+          const errorsBeforeLocation = errors.length;
+          let googleTotalForLocation: number | null = null;
+          let returnedForLocation = 0;
+          let validGoogleResponse = false;
 
           try {
             let nextPageToken: string | null = null;
@@ -294,6 +298,11 @@ serve(async (req) => {
               if (pageCount === 1) fetchedLocations++;
               const reviewsData = await reviewsResponse.json();
               const reviews = reviewsData.reviews || [];
+              validGoogleResponse = true;
+              returnedForLocation += reviews.length;
+              if (pageCount === 1 && Number.isFinite(Number(reviewsData.totalReviewCount))) {
+                googleTotalForLocation = Number(reviewsData.totalReviewCount);
+              }
               nextPageToken = reviewsData.nextPageToken || null;
               
               // Extract Google's totalReviewCount and averageRating from the response
@@ -537,6 +546,20 @@ serve(async (req) => {
             console.error(`Error fetching reviews for ${locationTitle}:`, error);
             errors.push(`${locationTitle}: ${error instanceof Error ? error.message : "Unknown error"}`);
           }
+
+          if (validGoogleResponse && googleTotalForLocation !== null && googleTotalForLocation > returnedForLocation) {
+            errors.push(`${locationTitle}: Google annonce ${googleTotalForLocation} avis mais n'en renvoie que ${returnedForLocation} via son API.`);
+          }
+          const locationErrors = errors.slice(errorsBeforeLocation);
+          const status = locationErrors.length ? "api_error"
+            : returnedForLocation ? "reviews_imported" : validGoogleResponse ? "google_empty" : "api_error";
+          const { error: diagnosticError } = await supabaseAdmin.from("businesses").update({
+            last_reviews_sync_at: new Date().toISOString(),
+            last_reviews_sync_status: status,
+            last_reviews_sync_error: locationErrors.length ? locationErrors.join(" ; ").slice(0, 1200) : null,
+            last_google_reviews_total: googleTotalForLocation,
+          }).eq("id", matchedBusinessId).eq("user_id", user.id);
+          if (diagnosticError) errors.push(`Diagnostic de synchronisation : ${diagnosticError.message}`);
         }
       } catch (error) {
         console.error(`Error processing account ${accountName}:`, error);
@@ -684,10 +707,14 @@ serve(async (req) => {
     }
     const requiresReconnect = Boolean(tokenResult.requires_reconnect || hasApiDisabledError);
     const complete = errors.length === 0;
+    const noReviewsReturned = complete && matchedLocations > 0 && fetchedLocations > 0 && allReviews.length === 0;
     const response = {
       success: complete,
       partial: !complete && allReviews.length > 0,
-      message: complete
+      empty_from_google: noReviewsReturned,
+      message: noReviewsReturned
+        ? "L’API Google a répondu, mais n’a renvoyé aucun avis pour cette fiche. Si vous voyez un avis sur Google Maps, vérifiez la validation de la fiche, les droits du compte et la disponibilité de l’avis dans l’API."
+        : complete
         ? `Synchronisation terminée : ${allReviews.length} avis, ${fetchedLocations} fiche(s) lue(s).`
         : `Synchronisation incomplète : ${errors.join(" ; ")}`,
       reviews: allReviews,

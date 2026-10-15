@@ -219,6 +219,10 @@ export type Database = {
       }
       businesses: {
         Row: {
+          last_reviews_sync_at: string | null
+          last_reviews_sync_status: string | null
+          last_reviews_sync_error: string | null
+          last_google_reviews_total: number | null
           address: string | null
           ai_response_model: Json | null
           auto_keywords: string[] | null
@@ -242,6 +246,10 @@ export type Database = {
           website_content: string | null
         }
         Insert: {
+          last_reviews_sync_at?: string | null
+          last_reviews_sync_status?: string | null
+          last_reviews_sync_error?: string | null
+          last_google_reviews_total?: number | null
           address?: string | null
           ai_response_model?: Json | null
           auto_keywords?: string[] | null
@@ -265,6 +273,10 @@ export type Database = {
           website_content?: string | null
         }
         Update: {
+          last_reviews_sync_at?: string | null
+          last_reviews_sync_status?: string | null
+          last_reviews_sync_error?: string | null
+          last_google_reviews_total?: number | null
           address?: string | null
           ai_response_model?: Json | null
           auto_keywords?: string[] | null
