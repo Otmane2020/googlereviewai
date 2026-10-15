@@ -65,10 +65,10 @@ serve(async (req) => {
         Authorization: `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: `${BRAND_NAME} Support <${SUPPORT_EMAIL}>`,
+        from: Deno.env.get("REVIEWSAI_SUPPORT_FROM") || `${BRAND_NAME} Support <support@ranki.ai>`,
         to: [NOTIFY_EMAIL],
         reply_to: senderEmail || undefined,
-        subject: `[Google Review AI Support] ${subject}`,
+        subject: `[Reviews AI Support] ${subject}`,
         html: emailHtml,
       }),
     });
