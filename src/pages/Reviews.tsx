@@ -11,6 +11,7 @@ import { toast } from "@/hooks/use-toast";
 import { UpgradeDialog } from "@/components/UpgradeDialog";
 import { ResponsePreviewDialog } from "@/components/ResponsePreviewDialog";
 import { SelectBusinessesDialog } from "@/components/SelectBusinessesDialog";
+import { ManageLocationsDialog } from "@/components/ManageLocationsDialog";
 import { ReconnectGoogleDialog } from "@/components/ReconnectGoogleDialog";
 import { Star, Search, Loader2, RefreshCw, ChevronLeft, ChevronRight, ChevronDown, Send, Copy, CheckCircle, Clock, MessageSquare, Building2, Pencil, ExternalLink, MapPin } from "lucide-react";
 import {
@@ -127,6 +128,7 @@ const Reviews = () => {
   
   // Business selection dialog states
   const [showSelectBusinessesDialog, setShowSelectBusinessesDialog] = useState(false);
+  const [manageLocationsOpen, setManageLocationsOpen] = useState(false);
   const [showReconnectDialog, setShowReconnectDialog] = useState(false);
   const [googleBusinessesForSelection, setGoogleBusinessesForSelection] = useState<any[]>([]);
   const [maxBusinessesLimit, setMaxBusinessesLimit] = useState(1);
@@ -188,15 +190,18 @@ const Reviews = () => {
       setCurrentPlan(profileRes.data.plan_name || null);
     }
     
-    // Auto-select first business if none selected or saved selection not found
-    if (businessesList.length > 0) {
-      const savedBusinessId = localStorage.getItem(`googlereviewai.com_selected_business_${user.id}`);
-      if (savedBusinessId && businessesList.some(b => b.id === savedBusinessId)) {
-        setSelectedBusinessId(savedBusinessId);
-      } else {
-        setSelectedBusinessId(businessesList[0].id);
-        localStorage.setItem(`googlereviewai.com_selected_business_${user.id}`, businessesList[0].id);
-      }
+    // Links from /businesses?business=... and dashboard share the same
+    // selected business as the Reviews dropdown and summary cards.
+    const deepLink = new URLSearchParams(window.location.search).get("business");
+    const storedId = localStorage.getItem(`googlereviewai.com_selected_business_${user.id}`);
+    const target = businessesList.find(b => b.id === deepLink || b.google_place_id === deepLink)
+      || businessesList.find(b => b.id === storedId)
+      || businessesList[0];
+    if (target) {
+      setSelectedBusinessId(target.id);
+      if (storedId !== target.id) localStorage.setItem(`googlereviewai.com_selected_business_${user.id}`, target.id);
+    } else {
+      setSelectedBusinessId("");
     }
     
     setLoading(false);
@@ -611,7 +616,7 @@ const Reviews = () => {
               {/* Compact edit action, not a long button squeezing the business name on phones. */}
               <Button type="button" variant="outline" size="icon"
                 className="shrink-0 h-9 w-9 rounded-xl order-last" disabled={isSyncingBusinesses}
-                onClick={() => void handleSelectBusiness()}
+                onClick={() => setManageLocationsOpen(true)}
                 aria-label={i18n.language?.startsWith("fr") ? "Modifier les établissements gérés" : "Manage locations"}
                 title={i18n.language?.startsWith("fr") ? "Modifier les établissements" : "Manage locations"}>
                 {isSyncingBusinesses ? <Loader2 className="h-4 w-4 animate-spin" /> : <Pencil className="h-4 w-4" />}
@@ -819,7 +824,7 @@ const Reviews = () => {
             <p className="text-muted-foreground text-sm mb-6">
               {t("reviewsPage.noBusinessSelectedDesc")}
             </p>
-            <Button onClick={handleSelectBusiness} disabled={isSyncingBusinesses}>
+            <Button onClick={() => setManageLocationsOpen(true)} disabled={isSyncingBusinesses}>
               {isSyncingBusinesses ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />{t("reviewsPage.loading")}</>
@@ -1193,6 +1198,9 @@ const Reviews = () => {
         publishingId={publishingId}
       />
       
+      <ManageLocationsDialog open={manageLocationsOpen} onOpenChange={setManageLocationsOpen}
+        onSuccess={() => fetchData(false)} />
+
       {/* Business Selection Dialog */}
       <SelectBusinessesDialog
         open={showSelectBusinessesDialog}
