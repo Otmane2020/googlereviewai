@@ -32,7 +32,7 @@ const getPlans = (isFrench: boolean): Plan[] => [
   },
   {
     name: "Pro",
-    tagline: isFrench ? "Avis + GEO + SEO/GEO automatiques" : "Automated reviews + GEO + SEO/GEO",
+    tagline: isFrench ? "Avis + SEO & GEO automatiques" : "Automated reviews + SEO & GEO",
     monthly: { price: "49€", perMonth: isFrench ? "/mois" : "/month", priceKey: "ranki_pro_monthly" },
     yearly: { price: "470€", perMonth: isFrench ? "/an" : "/year", priceKey: "ranki_pro_yearly" },
     features: isFrench
@@ -47,8 +47,8 @@ const getPlans = (isFrench: boolean): Plan[] => [
     monthly: { price: "99€", perMonth: isFrench ? "/mois" : "/month", priceKey: "ranki_business_monthly" },
     yearly: { price: "950,40€", perMonth: isFrench ? "/an" : "/year", priceKey: "ranki_business_yearly" },
     features: isFrench
-      ? ["Établissements illimités", "Réponses IA illimitées + GEO + SEO/GEO", "Création de posts et FAQ illimitée (publication Google selon validation)", "API & webhooks avancés", "Manager dédié", "Rapports personnalisés"]
-      : ["Unlimited locations", "Unlimited AI replies + GEO + SEO/GEO", "Unlimited post and FAQ creation (Google approval required)", "Advanced API and webhooks", "Dedicated account manager", "Custom reports"],
+      ? ["Établissements illimités", "Réponses IA illimitées + SEO & GEO", "Création de posts et FAQ illimitée (publication Google selon validation)", "API & webhooks avancés", "Manager dédié", "Rapports personnalisés"]
+      : ["Unlimited locations", "Unlimited AI replies + SEO & GEO", "Unlimited post and FAQ creation (Google approval required)", "Advanced API and webhooks", "Dedicated account manager", "Custom reports"],
     cta: isFrench ? "Choisir cette offre" : "Choose this plan",
   },
 ];
