@@ -22,64 +22,51 @@ function parseStarRating(starRating: string | number | undefined): number {
 // Fetch all GMB accounts for a user
 async function fetchGMBAccounts(accessToken: string): Promise<{ accounts: any[]; error?: string }> {
   try {
-    const response = await fetch(
-      "https://mybusinessaccountmanagement.googleapis.com/v1/accounts",
-      { headers: { Authorization: `Bearer ${accessToken}` } }
-    );
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("[CRON] Failed to fetch GMB accounts:", response.status, errorText);
-      return { accounts: [], error: `Failed to fetch accounts: ${response.status}` };
-    }
-
-    const data = await response.json();
-    return { accounts: data.accounts || [] };
+    const accounts: any[] = [];
+    let nextPage: string | undefined;
+    let pages = 0;
+    do {
+      const url = new URL("https://mybusinessaccountmanagement.googleapis.com/v1/accounts");
+      if (nextPage) url.searchParams.set("pageToken", nextPage);
+      const res = await fetch(url.toString(), { headers: { Authorization: `Bearer ${accessToken}` } });
+      if (!res.ok) return { accounts: [], error: `Google accounts API HTTP ${res.status}` };
+      const body = await res.json();
+      accounts.push(...(body.accounts || []));
+      nextPage = body.nextPageToken;
+      pages++;
+    } while (nextPage && pages < 25);
+    if (nextPage) return { accounts: [], error: "Google account pagination incomplete" };
+    return { accounts };
   } catch (error) {
-    console.error("[CRON] Exception fetching GMB accounts:", error);
-    return { accounts: [], error: error instanceof Error ? error.message : "Unknown error" };
+    return { accounts: [], error: error instanceof Error ? error.message : "Google account discovery failed" };
   }
 }
 
-// Fetch locations with FULL business info (website, description, address, phone, categories, etc.)
 async function fetchGMBLocations(accessToken: string, accountName: string): Promise<{ locations: any[]; error?: string }> {
   try {
-    // Extended readMask to get all business info
     const readMask = [
-      "name",
-      "title",
-      "storefrontAddress",
-      "websiteUri",
-      "regularHours",
-      "phoneNumbers",
-      "categories",
-      "profile",
-      "metadata",
+      "name", "title", "storefrontAddress", "websiteUri", "regularHours",
+      "phoneNumbers", "categories", "profile", "metadata",
     ].join(",");
-
-    const response = await fetch(
-      `https://mybusinessbusinessinformation.googleapis.com/v1/${accountName}/locations?readMask=${readMask}`,
-      { headers: { Authorization: `Bearer ${accessToken}` } }
-    );
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error(`[CRON] Failed to fetch locations for ${accountName}:`, response.status);
-      return { locations: [], error: `Failed to fetch locations: ${response.status}` };
-    }
-
-    const data = await response.json();
-    const locations = data.locations || [];
-    
-    // Debug: log what Google returns
-    for (const loc of locations) {
-      console.log(`[CRON] Location ${loc.title}: websiteUri=${loc.websiteUri || 'NOT SET'}`);
-    }
-    
+    const locations: any[] = [];
+    let nextPage: string | undefined;
+    let pages = 0;
+    do {
+      const url = new URL(`https://mybusinessbusinessinformation.googleapis.com/v1/${accountName}/locations`);
+      url.searchParams.set("readMask", readMask);
+      url.searchParams.set("pageSize", "100");
+      if (nextPage) url.searchParams.set("pageToken", nextPage);
+      const res = await fetch(url.toString(), { headers: { Authorization: `Bearer ${accessToken}` } });
+      if (!res.ok) return { locations: [], error: `Google locations API HTTP ${res.status}` };
+      const body = await res.json();
+      locations.push(...(body.locations || []));
+      nextPage = body.nextPageToken;
+      pages++;
+    } while (nextPage && pages < 25);
+    if (nextPage) return { locations: [], error: "Google locations pagination incomplete" };
     return { locations };
   } catch (error) {
-    console.error(`[CRON] Exception fetching locations for ${accountName}:`, error);
-    return { locations: [], error: error instanceof Error ? error.message : "Unknown error" };
+    return { locations: [], error: error instanceof Error ? error.message : "Google location discovery failed" };
   }
 }
 
@@ -400,7 +387,7 @@ async function syncLocationReviews(
     } while (nextPageToken && pageCount < MAX_PAGES);
 
     if (pageCount >= MAX_PAGES && nextPageToken) {
-      console.warn(`[CRON] ⚠️ Reached max pages (${MAX_PAGES})`);
+      errors.push(`Google review pagination incomplete for location ${locationId}`);
     }
 
     // DELETION DETECTION: SAFE VERSION WITH STRICT GUARDRAILS
@@ -611,6 +598,9 @@ serve(async (req) => {
 
         console.log(`[CRON] User has ${businessIdMap.size} active businesses`);
 
+        // Only report a clean sync if at least one managed Google location
+        // was actually found in the connected Google accounts.
+        let matchedManagedLocations = 0;
         // Process each account
         for (const account of accounts) {
           const accountName = account.name;
@@ -632,8 +622,9 @@ serve(async (req) => {
             const businessId = businessIdMap.get(locationId);
 
             if (!businessId) {
-              continue; // Not in user's saved businesses
+              continue; // Not in the user's selected managed locations
             }
+            matchedManagedLocations++;
 
             console.log(`[CRON] 📍 Processing: ${location.title || locationId}`);
 
@@ -657,6 +648,9 @@ serve(async (req) => {
           }
         }
 
+        if (businessIdMap.size > 0 && matchedManagedLocations === 0) {
+          userErrors.push("Aucune fiche active du forfait n'est accessible avec le compte Google connecté. Vérifiez la fiche choisie dans Paramètres.");
+        }
         totalSynced += userSynced;
         totalNewReviews += userNewReviews;
         totalDeleted += userDeleted;
