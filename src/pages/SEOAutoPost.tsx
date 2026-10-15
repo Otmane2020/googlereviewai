@@ -149,6 +149,7 @@ const SEOAutoPost = () => {
       .select("*")
       .eq("business_id", businessId)
       .eq("user_id", user!.id)
+      .eq("content_type", "seo_article")
       .order("scheduled_date", { ascending: true });
     
     setScheduledContent((data as ScheduledContent[]) || []);
