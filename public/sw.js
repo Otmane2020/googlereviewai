@@ -1,4 +1,4 @@
-// GoogleReviewAI Service Worker - VAPID Web Push + PushAlert Integration
+// Reviews AI Service Worker - VAPID Web Push + PushAlert Integration
 // Cache version: 2026-02-22-v4
 var CACHE_VERSION = 'googlereviewai.com-v5';
 
@@ -52,11 +52,11 @@ self.addEventListener('push', function(event) {
     try {
       data = event.data.json();
     } catch (e) {
-      data = { title: 'GoogleReviewAI', body: event.data.text() };
+      data = { title: 'Reviews AI', body: event.data.text() };
     }
   }
 
-  var title = data.title || 'GoogleReviewAI';
+  var title = data.title || 'Reviews AI';
   var options = {
     body: data.body || '',
     icon: data.icon || '/icon-512x512.png',

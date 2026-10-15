@@ -1,6 +1,6 @@
-// Shared inline styles for GoogleReviewAI transactional emails
-export const BRAND = 'GoogleReviewAI'
-export const SITE_URL = 'https://googlereviewai.com'
+// Shared inline styles for Reviews AI transactional emails
+export const BRAND = 'Reviews AI'
+export const SITE_URL = 'https://reviewsai.store'
 
 export const colors = {
   blue: '#4285F4',

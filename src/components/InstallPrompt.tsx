@@ -38,7 +38,7 @@ export const InstallPrompt = () => {
     setInstalling(true);
     try {
       const installed = await promptInstall();
-      if (installed) handleDismiss();
+      if (installed) handleDismiss(); // User accepted browser prompt; appinstalled still confirms actual installation.
     } catch (e) {
       console.error("[InstallPrompt] native install failed:", e);
     } finally {
@@ -53,9 +53,9 @@ export const InstallPrompt = () => {
         <div className="bg-card rounded-2xl shadow-2xl w-full max-w-sm p-6 animate-scale-in">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <img src="/icon-192x192.png" alt="GoogleReviewAI" className="w-12 h-12 rounded-xl shadow-sm" />
+              <img src="/icon-192x192.png" alt="Reviews AI" className="w-12 h-12 rounded-xl shadow-sm" />
               <div>
-                <h3 className="font-bold text-base">{isFrench ? "Installer GoogleReviewAI" : "Install GoogleReviewAI"}</h3>
+                <h3 className="font-bold text-base">{isFrench ? "Installer Reviews AI" : "Install Reviews AI"}</h3>
                 <p className="text-xs text-muted-foreground">{isFrench ? "Accès rapide + notifications" : "Quick access + notifications"}</p>
               </div>
             </div>
@@ -84,7 +84,7 @@ export const InstallPrompt = () => {
           ) : canInstall ? (
             <>
               <p className="text-sm text-muted-foreground mb-5">
-                {isFrench ? "Installez GoogleReviewAI sur votre appareil pour un accès en un clic et recevoir les notifications de nouveaux avis." : "Install GoogleReviewAI on your device for one-click access and notifications about new reviews."}
+                {isFrench ? "Installez Reviews AI sur votre appareil pour un accès en un clic et recevoir les notifications de nouveaux avis." : "Install Reviews AI on your device for one-click access and notifications about new reviews."}
               </p>
               <div className="flex gap-2">
                 <Button variant="outline" onClick={handleDismiss} className="flex-1">{isFrench ? "Plus tard" : "Later"}</Button>
@@ -112,14 +112,14 @@ export const InstallPrompt = () => {
     <div className="fixed left-2 right-2 bottom-[80px] md:bottom-4 z-40 bg-primary text-primary-foreground shadow-2xl rounded-2xl animate-fade-in">
       <div className="px-3 py-2.5 flex items-center justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0">
-          <img src="/icon-192x192.png" alt="GoogleReviewAI" className="w-9 h-9 rounded-xl flex-shrink-0 shadow-md" />
+          <img src="/icon-192x192.png" alt="Reviews AI" className="w-9 h-9 rounded-xl flex-shrink-0 shadow-md" />
           <div className="min-w-0">
-            <p className="font-semibold text-sm truncate">{isFrench ? "Installer GoogleReviewAI" : "Install GoogleReviewAI"}</p>
+            <p className="font-semibold text-sm truncate">{isFrench ? "Installer Reviews AI" : "Install Reviews AI"}</p>
             <p className="text-xs opacity-90 truncate">{isFrench ? "Accès rapide + notifications" : "Quick access + notifications"}</p>
           </div>
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
-          <Button size="sm" variant="secondary" onClick={handleOpenModal} className="h-8 px-3 text-xs font-medium">
+          <Button size="sm" variant="secondary" onClick={canInstall ? handleNativeInstall : handleOpenModal} className="h-8 px-3 text-xs font-medium">
             <Download className="w-3.5 h-3.5 mr-1" />
             {isFrench ? "Installer" : "Install"}
           </Button>

@@ -43,4 +43,4 @@ Disallow: /mobile-ads
 
 # Public marketing, blog, and Google My Business / GMB review reply pages
 # remain crawlable via Allow: / above. No separate bot groups override exclusions.
-Sitemap: https://googlereviewai.com/sitemap.xml
+Sitemap: https://reviewsai.store/sitemap.xml

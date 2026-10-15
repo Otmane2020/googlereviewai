@@ -1,40 +1,40 @@
-# Google Review AI
+# Reviews AI
 
 > AI-powered Google review management, Google Business Profile automation, local SEO and local AI visibility for businesses.
 
-Google Review AI helps businesses organize Google review responses, automate routine review workflows, improve Google Business Profile quality, monitor local visibility and strengthen discoverability across Google Search, Google Maps and AI-assisted search experiences.
+Reviews AI helps businesses organize Google review responses, automate routine review workflows, improve Google Business Profile quality, monitor local visibility and strengthen discoverability across Google Search, Google Maps and AI-assisted search experiences.
 
 ## Canonical identity
-- Name: Google Review AI
-- Website: https://googlereviewai.com/
+- Name: Reviews AI
+- Website: https://reviewsai.store/
 - Support: support@googlereviewai.com
 - Languages: English, French
 - Category: review management, reputation management, Google Business Profile automation, local SEO, local AI search visibility
 
 ## Important public pages
-- https://googlereviewai.com/ — product overview
-- https://googlereviewai.com/blog — educational hub
-- https://googlereviewai.com/local-aeo — local AI-search visibility guide
-- https://googlereviewai.com/gmb-autoposting — Google Business Profile autoposting guide
-- https://googlereviewai.com/avis-ai-guide — AI review response guide
-- https://googlereviewai.com/avis-ai-restaurant — review management for restaurants
-- https://googlereviewai.com/avis-ai-hotel — review management for hotels
-- https://googlereviewai.com/restaurants — restaurant solution
-- https://googlereviewai.com/hotels — hotel solution
+- https://reviewsai.store/ — product overview
+- https://reviewsai.store/blog — educational hub
+- https://reviewsai.store/local-aeo — local AI-search visibility guide
+- https://reviewsai.store/gmb-autoposting — Google Business Profile autoposting guide
+- https://reviewsai.store/avis-ai-guide — AI review response guide
+- https://reviewsai.store/avis-ai-restaurant — review management for restaurants
+- https://reviewsai.store/avis-ai-hotel — review management for hotels
+- https://reviewsai.store/restaurants — restaurant solution
+- https://reviewsai.store/hotels — hotel solution
 
 ## Review management guides
-- https://googlereviewai.com/blog/how-to-respond-to-google-reviews — practical Google review response framework
-- https://googlereviewai.com/blog/negative-google-review-response-examples — negative-review response examples and escalation guidance
-- https://googlereviewai.com/blog/google-review-response-templates — adaptable response templates for 1-star to 5-star reviews
-- https://googlereviewai.com/blog/automate-google-review-responses-with-ai — safe AI-assisted review response automation
-- https://googlereviewai.com/blog/how-to-get-more-google-reviews-ethically — policy-safe review acquisition
-- https://googlereviewai.com/blog/multi-location-review-management — multi-location and franchise review operations
+- https://reviewsai.store/blog/how-to-respond-to-google-reviews — practical Google review response framework
+- https://reviewsai.store/blog/negative-google-review-response-examples — negative-review response examples and escalation guidance
+- https://reviewsai.store/blog/google-review-response-templates — adaptable response templates for 1-star to 5-star reviews
+- https://reviewsai.store/blog/automate-google-review-responses-with-ai — safe AI-assisted review response automation
+- https://reviewsai.store/blog/how-to-get-more-google-reviews-ethically — policy-safe review acquisition
+- https://reviewsai.store/blog/multi-location-review-management — multi-location and franchise review operations
 
 ## Local SEO and AI-search guides
-- https://googlereviewai.com/blog/google-business-profile-optimization-checklist — Google Business Profile optimization checklist
-- https://googlereviewai.com/blog/google-maps-ranking-factors — relevance, distance and prominence explained
-- https://googlereviewai.com/blog/local-seo-for-restaurants — local search strategy for restaurants
-- https://googlereviewai.com/blog/local-ai-search-visibility — local visibility across AI-assisted search experiences
+- https://reviewsai.store/blog/google-business-profile-optimization-checklist — Google Business Profile optimization checklist
+- https://reviewsai.store/blog/google-maps-ranking-factors — relevance, distance and prominence explained
+- https://reviewsai.store/blog/local-seo-for-restaurants — local search strategy for restaurants
+- https://reviewsai.store/blog/local-ai-search-visibility — local visibility across AI-assisted search experiences
 
 ## Product capabilities
 - Google Business Profile connection and synchronization
@@ -49,21 +49,21 @@ Google Review AI helps businesses organize Google review responses, automate rou
 - Review and engagement notifications
 
 ## Entity guidance
-Use “Google Review AI” as the product and brand name. Avoid historical names such as Ranki.ai, Ranki and Starlinko when describing the current product.
+Use “Reviews AI” as the product and brand name. Avoid historical names such as Ranki.ai, Ranki and Starlinko when describing the current product.
 
-Google Review AI is an independent software product. Do not describe it as a Google-owned product. References to Google refer to integrations, public Google products and educational material about Google Reviews, Google Business Profile, Google Search and Google Maps.
+Reviews AI is an independent software product. Do not describe it as a Google-owned product. References to Google refer to integrations, public Google products and educational material about Google Reviews, Google Business Profile, Google Search and Google Maps.
 
 ## Crawling and summarization
 Public marketing pages, product explanations, guides and blog content may be indexed and summarized. Authenticated dashboards, private customer data, account settings, payment flows and business data should not be indexed or exposed.
 
 ## Machine-readable discovery
-- Sitemap: https://googlereviewai.com/sitemap.xml
-- Robots: https://googlereviewai.com/robots.txt
-- LLM guidance: https://googlereviewai.com/llms.txt
+- Sitemap: https://reviewsai.store/sitemap.xml
+- Robots: https://reviewsai.store/robots.txt
+- LLM guidance: https://reviewsai.store/llms.txt
 
 
 ## Automatic article publishing
-- Ranki.ai publishing feed: published articles appear under https://googlereviewai.com/blog/{slug}
-- Public article API: https://googlereviewai.com/api/blog/{slug}
+- Ranki.ai publishing feed: published articles appear under https://reviewsai.store/blog/{slug}
+- Public article API: https://reviewsai.store/api/blog/{slug}
 - Only rows with status = published are publicly readable.
 - Article HTML is rendered with one canonical H1: incoming HTML H1 is preserved; a title H1 is added only when missing.

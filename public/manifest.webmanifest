@@ -1,7 +1,7 @@
 {
-  "name": "Google Review AI - Review Replies & Local SEO",
-  "short_name": "Google Review AI",
-  "description": "AI-powered Google review replies, local SEO automation and local visibility tracking.",
+  "name": "Reviews AI — Google Reviews, SEO & GEO",
+  "short_name": "Reviews AI",
+  "description": "AI-powered Google review replies, local SEO and GEO visibility.",
   "id": "/",
   "start_url": "/",
   "scope": "/",
@@ -10,7 +10,17 @@
   "theme_color": "#4285F4",
   "orientation": "portrait-primary",
   "icons": [
-    {"src":"/icon-192x192.png","sizes":"192x192","type":"image/png","purpose":"any"},
-    {"src":"/icon-512x512.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}
+    {
+      "src": "/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
   ]
 }
