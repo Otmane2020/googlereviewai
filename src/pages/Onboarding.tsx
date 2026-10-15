@@ -9,13 +9,14 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "@/hooks/use-toast";
-import { Check, ArrowRight, Building2, MessageCircle, Crown, Loader2, Star, AlertTriangle } from "lucide-react";
+import { ArrowRight, MessageCircle, Crown, Loader2, Star, AlertTriangle } from "lucide-react";
 import { useGoogleOAuth } from "@/hooks/useGoogleOAuth";
 import { BrandSparkle } from "@/components/BrandSparkle";
+import { SelectBusinessesDialog } from "@/components/SelectBusinessesDialog";
 import { useTranslation } from "react-i18next";
 import { normalizeLanguage } from "@/i18n/config";
 
-const STEPS = ["Welcome", "Connect Google", "Choose location", "AI tone", "Pick a plan"];
+const STEPS = ["Welcome", "Choose location", "AI tone", "Pick a plan"];
 
 const PLANS = [
   {
@@ -24,7 +25,7 @@ const PLANS = [
     name: "Starter",
     monthly: "9,99€",
     yearly: "95,90€",
-    desc: "Réponses IA aux avis Google · 1 établissement · 7j gratuits",
+    desc: "Réponses IA aux avis Google · 1 établissement ",
   },
   {
     keyMonthly: "ranki_pro_monthly",
@@ -32,7 +33,7 @@ const PLANS = [
     name: "Pro",
     monthly: "49€",
     yearly: "470€",
-    desc: "Avis + SEO & GEO auto · 3 établissements · 7j gratuits",
+    desc: "Avis + SEO & GEO auto · 3 établissements",
     highlight: true,
   },
   {
@@ -41,7 +42,7 @@ const PLANS = [
     name: "Business",
     monthly: "99€",
     yearly: "950,40€",
-    desc: "Tout illimité · multi-établissements · 7j gratuits",
+    desc: "Tout illimité · multi-établissements",
   },
 ];
 
@@ -57,7 +58,13 @@ const Onboarding = () => {
   const { initiateOAuth } = useGoogleOAuth();
   const { i18n } = useTranslation();
   const isFrench = normalizeLanguage(i18n.resolvedLanguage || i18n.language) === "fr";
-  const [noGmbAccount, setNoGmbAccount] = useState(false);
+  const labels = isFrench ? ["Bienvenue", "Choisir une fiche", "Réponses IA", "Choisir un forfait"] : STEPS;
+  const [syncError, setSyncError] = useState<string | null>(null);
+  const [needsReconnect, setNeedsReconnect] = useState(false);
+  const [discovering, setDiscovering] = useState(false);
+  const [locationSelectionOpen, setLocationSelectionOpen] = useState(false);
+  const [discoveredLocations, setDiscoveredLocations] = useState<{name: string; google_place_id: string; address: string | null; phone: string | null; website: string | null}[]>([]);
+  const [locationLimit, setLocationLimit] = useState(1);
   const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [hasGoogle, setHasGoogle] = useState(false);
@@ -68,22 +75,60 @@ const Onboarding = () => {
   const [planLoading, setPlanLoading] = useState<string | null>(null);
   const [billing, setBilling] = useState<"monthly" | "yearly">("monthly");
 
-  const purgeAndSignOut = async () => {
-    try {
-      await supabase.functions.invoke("purge-account-no-gmb");
-    } catch (error) {
-      console.warn("[Onboarding] account purge failed:", error);
-    } finally {
-      await supabase.auth.signOut();
-      navigate("/auth?gmb_required=1", { replace: true });
-    }
-  };
-
   const loadBusinesses = async () => {
     if (!user) return;
-    const { data: biz } = await supabase.from("businesses").select("id, name").eq("user_id", user.id);
-    setBusinesses(biz || []);
-    if (biz && biz.length > 0 && !selectedBusinessId) setSelectedBusinessId(biz[0].id);
+    const { data, error } = await supabase.from("businesses")
+      .select("id,name").eq("user_id", user.id).eq("is_active", true)
+      .order("name");
+    if (error) throw new Error(error.message);
+    const saved = localStorage.getItem("googlereviewai.com_selected_business_" + user.id);
+    const active = data || [];
+    setBusinesses(active);
+    setSelectedBusinessId(prev => active.find(b => b.id === prev)?.id
+      || active.find(b => b.id === saved)?.id || active[0]?.id || "");
+  };
+
+  const discoverGoogleLocations = async () => {
+    if (!user) return;
+    setDiscovering(true);
+    setSyncError(null);
+    setNeedsReconnect(false);
+    try {
+      // The initial Google sign-in requests business.manage AND offline access.
+      // Reuse the saved provider refresh token instead of forcing another OAuth.
+      const { data, error } = await supabase.functions.invoke("sync-google-businesses", { body: {} });
+      if (error) {
+        let message = error.message;
+        try {
+          const details = await error.context?.clone?.().json?.();
+          message = details?.message || details?.error || message;
+        } catch {}
+        throw new Error(message);
+      }
+      if (!data?.success) {
+        setNeedsReconnect(Boolean(data?.requires_reconnect));
+        throw new Error(data?.message || data?.error || "Google Business sync failed");
+      }
+      if (data.requires_selection && data.google_businesses?.length) {
+        setDiscoveredLocations(data.google_businesses);
+        setLocationLimit(data.max_businesses || 1);
+        if (step === 1) setLocationSelectionOpen(true);
+        return;
+      }
+      await loadBusinesses();
+      if (data.businesses?.length === 0) {
+        setSyncError(isFrench
+          ? "Google n'a trouvé aucune fiche accessible. Vérifiez le compte propriétaire de votre fiche dans Google Business Profile. Votre compte Reviews AI reste conservé."
+          : "Google found no accessible locations. Check the Google account that manages your Business Profile. Your Reviews AI account is kept.");
+      }
+    } catch (e) {
+      const message = e instanceof Error ? e.message : "Google sync failed";
+      setSyncError(message);
+      // A temporary Google API error must NEVER delete a legitimate user account.
+      console.warn("[Onboarding] Google discovery error:", message);
+    } finally {
+      setDiscovering(false);
+    }
   };
 
   useEffect(() => {
@@ -91,48 +136,57 @@ const Onboarding = () => {
       navigate("/auth", { replace: true });
       return;
     }
+    let active = true;
     (async () => {
       const [{ data: profile }, { data: biz }] = await Promise.all([
-        supabase.from("profiles").select("google_refresh_token, full_name, onboarding_completed").eq("id", user.id).maybeSingle(),
-        supabase.from("businesses").select("id, name").eq("user_id", user.id),
+        supabase.from("profiles").select("google_refresh_token,full_name,onboarding_completed")
+          .eq("id", user.id).maybeSingle(),
+        supabase.from("businesses").select("id,name,is_active").eq("user_id", user.id),
       ]);
-      // Only redirect completed users after confirming a GMB location exists.
-      // A Google account without GMB must be purged and asked to choose another account.
-      if (profile?.onboarding_completed && biz && biz.length > 0) {
+      if (!active) return;
+      const managed = (biz || []).filter(b => b.is_active);
+      if (profile?.onboarding_completed && managed.length > 0) {
         navigate("/dashboard", { replace: true });
         return;
       }
-      setHasGoogle(!!profile?.google_refresh_token);
-      setSignature(profile?.full_name ? `The ${profile.full_name} team` : "The team");
-      setBusinesses(biz || []);
-      if (biz && biz.length > 0) setSelectedBusinessId(biz[0].id);
-
-      // If Google is connected but no businesses yet, trigger sync
-      if (profile?.google_refresh_token && (!biz || biz.length === 0)) {
-        try {
-          await supabase.functions.invoke("sync-google-businesses", { body: { user_id: user.id } });
-          const { data: fresh } = await supabase.from("businesses").select("id, name").eq("user_id", user.id);
-          setBusinesses(fresh || []);
-          if (fresh && fresh.length > 0) {
-            setSelectedBusinessId((prev) => prev || fresh[0].id);
-            setNoGmbAccount(false);
-          } else {
-            // Google account has no Google Business Profile:
-            // remove the account entirely and send the user back to sign-in
-            setNoGmbAccount(true);
-            await purgeAndSignOut();
-          }
-
-        } catch (e) {
-          console.warn("[Onboarding] sync-google-businesses failed:", e);
-          // Treat a failed/empty GMB sync as a blocked account, never continue onboarding.
-          setNoGmbAccount(true);
-          await purgeAndSignOut();
-          return;
+      let authorized = Boolean(profile?.google_refresh_token);
+      if (!authorized) {
+        // The initial sign-in may carry the provider refresh token even when
+        // /auth has not yet persisted it. Save it before offering another OAuth.
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user?.id === user.id && session.provider_refresh_token) {
+          const { error: tokenError } = await supabase.from("profiles").update({
+            google_refresh_token: session.provider_refresh_token,
+            google_access_token: null,
+            google_token_expires_at: null,
+          }).eq("id", user.id);
+          authorized = !tokenError;
         }
       }
+      if (!active) return;
+      setHasGoogle(authorized);
+      setSignature(profile?.full_name
+        ? (isFrench ? "L'équipe " + profile.full_name : "The " + profile.full_name + " team")
+        : (isFrench ? "L'équipe" : "The team"));
+      setBusinesses(managed);
+      const remembered = localStorage.getItem("googlereviewai.com_selected_business_" + user.id);
+      setSelectedBusinessId(managed.find(b => b.id === remembered)?.id || managed[0]?.id || "");
+      if (!managed.length && authorized) await discoverGoogleLocations();
+      if (!managed.length && !authorized) {
+        setNeedsReconnect(true);
+        setSyncError(isFrench
+          ? "L'autorisation Google Business n'a pas été enregistrée lors de la connexion. Renouvelez-la uniquement si nécessaire."
+          : "Google Business authorization was not saved during sign-in. Renew permission only if needed.");
+      }
     })();
-  }, [user, navigate]);
+    return () => { active = false; };
+  }, [user?.id, navigate]);
+
+  useEffect(() => {
+    if (step === 1 && discoveredLocations.length > 0 && businesses.length === 0) {
+      setLocationSelectionOpen(true);
+    }
+  }, [step, discoveredLocations.length, businesses.length]);
 
   const next = () => setStep((s) => Math.min(s + 1, STEPS.length - 1));
   const back = () => setStep((s) => Math.max(s - 1, 0));
@@ -140,13 +194,23 @@ const Onboarding = () => {
   const handleConnectGoogle = async () => {
     setLoading(true);
     try {
-      // Remember to come back to onboarding after the Google round-trip
       sessionStorage.setItem("google_oauth_return_to", "/onboarding");
       await initiateOAuth();
     } catch (e) {
-      toast({ title: "Erreur", description: "Impossible de démarrer la connexion Google", variant: "destructive" });
+      toast({
+        title: isFrench ? "Erreur" : "Error",
+        description: isFrench ? "Impossible de renouveler l'accès Google Business." : "Could not renew Google Business access.",
+        variant: "destructive",
+      });
+    } finally {
       setLoading(false);
     }
+  };
+
+  const handleContinueLocation = () => {
+    if (!user || !selectedBusinessId) return;
+    localStorage.setItem("googlereviewai.com_selected_business_" + user.id, selectedBusinessId);
+    next();
   };
 
   const handleSaveAI = async () => {
@@ -157,7 +221,7 @@ const Onboarding = () => {
       .upsert({ user_id: user.id, tone, signature, enabled: true } as any, { onConflict: "user_id" });
     setLoading(false);
     if (error) {
-      toast({ title: "Erreur", description: error.message, variant: "destructive" });
+      toast({ title: isFrench ? "Erreur" : "Error", description: error.message, variant: "destructive" });
       return;
     }
     next();
@@ -182,7 +246,7 @@ const Onboarding = () => {
         throw new Error("Lien de paiement indisponible");
       }
     } catch (e: unknown) {
-      toast({ title: "Erreur", description: e instanceof Error ? e.message : "Paiement échoué", variant: "destructive" });
+      toast({ title: isFrench ? "Erreur" : "Error", description: e instanceof Error ? e.message : (isFrench ? "Paiement échoué" : "Payment failed"), variant: "destructive" });
       setPlanLoading(null);
     }
   };
@@ -193,8 +257,8 @@ const Onboarding = () => {
       <div className="w-full max-w-2xl space-y-6">
         <div className="space-y-2">
           <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span>Step {step + 1} of {STEPS.length}</span>
-            <span>{STEPS[step]}</span>
+            <span>{isFrench ? "Étape" : "Step"} {step + 1} {isFrench ? "sur" : "of"} {STEPS.length}</span>
+            <span>{labels[step]}</span>
           </div>
           <Progress value={((step + 1) / STEPS.length) * 100} className="h-2" />
         </div>
@@ -206,12 +270,12 @@ const Onboarding = () => {
                 <div className="w-16 h-16 mx-auto rounded-2xl bg-primary/10 flex items-center justify-center">
                   <BrandSparkle className="w-8 h-8 text-primary" />
                 </div>
-                <h2 className="text-2xl font-bold">Welcome to Reviews AI 👋</h2>
+                <h2 className="text-2xl font-bold">{isFrench ? "Bienvenue sur Reviews AI 👋" : "Welcome to Reviews AI 👋"}</h2>
                 <p className="text-muted-foreground">
-                  Let's set you up in under 2 minutes. We'll connect your Google Business, pick a location, tune your AI voice, and choose a plan.
+                  {isFrench ? "Vous êtes déjà connecté avec Google. Choisissez votre fiche, personnalisez les réponses IA et choisissez un forfait." : "You are already signed in with Google. Choose your business, set up AI replies, and pick a plan."}
                 </p>
                 <Button size="lg" onClick={next} className="rounded-xl">
-                  Get started <ArrowRight className="w-4 h-4 ml-2" />
+                  {isFrench ? "Commencer" : "Get started"} <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
               </div>
             )}
@@ -220,86 +284,29 @@ const Onboarding = () => {
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                    <Building2 className="w-6 h-6 text-primary" />
-                  </div>
-                  <div>
-                    <h2 className="text-xl font-bold">Connect Google Business</h2>
-                    <p className="text-sm text-muted-foreground">We need access to read reviews and post on your behalf.</p>
-                  </div>
-                </div>
-
-                {noGmbAccount && (
-                  <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 space-y-3">
-                    <div className="flex items-start gap-3 text-amber-700">
-                      <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" />
-                      <div className="text-sm">
-                        <p className="font-semibold">
-                          {isFrench
-                            ? "Merci de vous connecter avec un compte GMB (Google Business Profile)."
-                            : "Please sign in with a Google Business Profile (GMB) account."}
-                        </p>
-                        <p className="text-amber-700/80 mt-1">
-                          {isFrench
-                            ? "Le compte Google utilisé ne gère aucune fiche établissement. Connectez-vous avec le compte Google qui administre votre fiche Google Business."
-                            : "The Google account you used doesn't manage any business listing. Sign in with the Google account that manages your Google Business Profile."}
-                        </p>
-                      </div>
-                    </div>
-                    <Button onClick={handleConnectGoogle} disabled={loading} variant="outline" className="w-full rounded-xl border-amber-500/40">
-                      {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : isFrench ? "Se connecter avec un autre compte Google" : "Sign in with another Google account"}
-                    </Button>
-                  </div>
-                )}
-
-                {hasGoogle && !noGmbAccount ? (
-                  <div className="flex items-center gap-2 p-4 rounded-xl bg-emerald-500/10 text-emerald-700 border border-emerald-500/20">
-                    <Check className="w-5 h-5" /> Google Business already connected.
-                  </div>
-                ) : !hasGoogle ? (
-                  <Button onClick={handleConnectGoogle} disabled={loading} size="lg" className="w-full rounded-xl">
-                    {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Connect with Google"}
-                  </Button>
-                ) : null}
-
-                <div className="flex justify-between pt-2">
-                  <Button variant="ghost" onClick={back}>Retour</Button>
-                  <Button onClick={next}>Continue <ArrowRight className="w-4 h-4 ml-2" /></Button>
-                </div>
-              </div>
-            )}
-
-            {step === 2 && (
-              <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
                     <Star className="w-6 h-6 text-primary" />
                   </div>
                   <div>
-                    <h2 className="text-xl font-bold">Choose your main location</h2>
-                    <p className="text-sm text-muted-foreground">You can add more later.</p>
+                    <h2 className="text-xl font-bold">{isFrench ? "Choisissez votre établissement principal" : "Choose your main location"}</h2>
+                    <p className="text-sm text-muted-foreground">{isFrench ? "Vous pourrez en ajouter plus tard." : "You can add more later."}</p>
                   </div>
                 </div>
 
                 {businesses.length === 0 ? (
-                  <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 space-y-3">
-                    <div className="flex items-start gap-3 text-amber-700">
-                      <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" />
-                      <div className="text-sm">
-                        <p className="font-semibold">
-                          {isFrench
-                            ? "Merci de vous connecter avec un compte GMB (Google Business Profile)."
-                            : "Please sign in with a Google Business Profile (GMB) account."}
-                        </p>
-                        <p className="text-amber-700/80 mt-1">
-                          {isFrench
-                            ? "Aucune fiche établissement n'est associée au compte Google connecté. Reconnectez-vous avec le compte qui gère votre fiche Google Business."
-                            : "No business listing is linked to the connected Google account. Reconnect with the account that manages your Google Business Profile."}
-                        </p>
+                  <div className="p-4 rounded-xl border border-amber-500/30 bg-amber-500/5 space-y-3">
+                    <div className="flex gap-2 text-sm items-start">
+                      {discovering ? <Loader2 className="w-5 h-5 shrink-0 animate-spin" /> : <AlertTriangle className="w-5 h-5 shrink-0 text-amber-600" />}
+                      <div>
+                        <p className="font-semibold">{discovering ? (isFrench ? "Recherche des fiches Google…" : "Finding Google locations…") : (isFrench ? "Aucune fiche disponible" : "No locations available")}</p>
+                        {syncError && <p role="alert" className="mt-1 text-muted-foreground break-words">{syncError}</p>}
                       </div>
                     </div>
-                    <Button onClick={handleConnectGoogle} disabled={loading} variant="outline" className="w-full rounded-xl border-amber-500/40">
-                      {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : isFrench ? "Reconnecter un compte Google Business" : "Reconnect a Google Business account"}
+                    <Button type="button" variant="outline" className="w-full"
+                      disabled={discovering || !hasGoogle} onClick={() => void discoverGoogleLocations()}>
+                      {isFrench ? "Rechercher mes fiches" : "Find my Google locations"}
                     </Button>
+                    {needsReconnect && <Button type="button" variant="ghost" className="w-full" disabled={loading || discovering}
+                      onClick={handleConnectGoogle}>{isFrench ? "Renouveler l'autorisation Google" : "Renew Google permission"}</Button>}
                   </div>
                 ) : (
                   <RadioGroup value={selectedBusinessId} onValueChange={setSelectedBusinessId} className="space-y-2">
@@ -317,21 +324,21 @@ const Onboarding = () => {
                 )}
 
                 <div className="flex justify-between pt-2">
-                  <Button variant="ghost" onClick={back}>Retour</Button>
-                  <Button onClick={next}>Continue <ArrowRight className="w-4 h-4 ml-2" /></Button>
+                  <Button variant="ghost" onClick={back}>{isFrench ? "Retour" : "Back"}</Button>
+                  <Button onClick={handleContinueLocation} disabled={!selectedBusinessId || discovering}>{isFrench ? "Continuer" : "Continue"} <ArrowRight className="w-4 h-4 ml-2" /></Button>
                 </div>
               </div>
             )}
 
-            {step === 3 && (
+            {step === 2 && (
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
                     <MessageCircle className="w-6 h-6 text-primary" />
                   </div>
                   <div>
-                    <h2 className="text-xl font-bold">Set your AI tone</h2>
-                    <p className="text-sm text-muted-foreground">How should Reviews AI reply to reviews?</p>
+                    <h2 className="text-xl font-bold">{isFrench ? "Choisissez le ton des réponses IA" : "Set your AI tone"}</h2>
+                    <p className="text-sm text-muted-foreground">{isFrench ? "Comment Reviews AI doit-il répondre aux avis ?" : "How should Reviews AI reply to reviews?"}</p>
                   </div>
                 </div>
 
@@ -344,36 +351,36 @@ const Onboarding = () => {
                     >
                       <RadioGroupItem id={t.value} value={t.value} className="mt-0.5" />
                       <div>
-                        <div className="font-semibold">{t.label}</div>
-                        <div className="text-xs text-muted-foreground">{t.desc}</div>
+                        <div className="font-semibold">{isFrench ? ({friendly: "Chaleureux", professional: "Professionnel", concise: "Concis"} as Record<string,string>)[t.value] : t.label}</div>
+                        <div className="text-xs text-muted-foreground">{isFrench ? ({friendly: "Accueillant, naturel et sympathique", professional: "Formel, soigné et fidèle à votre marque", concise: "Court et direct"} as Record<string,string>)[t.value] : t.desc}</div>
                       </div>
                     </Label>
                   ))}
                 </RadioGroup>
 
                 <div className="space-y-2">
-                  <Label htmlFor="sig">Reply signature</Label>
-                  <Input id="sig" value={signature} onChange={(e) => setSignature(e.target.value)} placeholder="The team" />
+                  <Label htmlFor="sig">{isFrench ? "Signature des réponses" : "Reply signature"}</Label>
+                  <Input id="sig" value={signature} onChange={(e) => setSignature(e.target.value)} placeholder={isFrench ? "L’équipe" : "The team"} />
                 </div>
 
                 <div className="flex justify-between pt-2">
-                  <Button variant="ghost" onClick={back}>Retour</Button>
+                  <Button variant="ghost" onClick={back}>{isFrench ? "Retour" : "Back"}</Button>
                   <Button onClick={handleSaveAI} disabled={loading}>
-                    {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <>Save & continue <ArrowRight className="w-4 h-4 ml-2" /></>}
+                    {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <>{isFrench ? "Enregistrer et continuer" : "Save & continue"} <ArrowRight className="w-4 h-4 ml-2" /></>}
                   </Button>
                 </div>
               </div>
             )}
 
-            {step === 4 && (
+            {step === 3 && (
               <div className="space-y-5">
                 <div className="text-center">
                   <div className="w-14 h-14 mx-auto rounded-2xl bg-primary/10 flex items-center justify-center mb-3">
                     <Crown className="w-7 h-7 text-primary" />
                   </div>
-                  <h2 className="text-2xl font-bold">Choisissez votre plan</h2>
+                  <h2 className="text-2xl font-bold">{isFrench ? "Choisissez votre forfait" : "Choose your plan"}</h2>
                   <p className="text-sm text-muted-foreground mt-1">
-                    Paiement sécurisé. Résiliable à tout moment.
+                    {isFrench ? "Paiement sécurisé. Résiliable à tout moment." : "Secure checkout. Cancel anytime."}
                   </p>
                 </div>
 
@@ -386,7 +393,7 @@ const Onboarding = () => {
                         billing === "monthly" ? "bg-foreground text-background" : "text-muted-foreground"
                       }`}
                     >
-                      Mensuel
+                      {isFrench ? "Mensuel" : "Monthly"}
                     </button>
                     <button
                       type="button"
@@ -395,7 +402,7 @@ const Onboarding = () => {
                         billing === "yearly" ? "bg-foreground text-background" : "text-muted-foreground"
                       }`}
                     >
-                      Annuel
+                      {isFrench ? "Annuel" : "Yearly"}
                       <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-600">-20%</span>
                     </button>
                   </div>
@@ -403,9 +410,16 @@ const Onboarding = () => {
 
                 <div className="grid sm:grid-cols-3 gap-3">
                   {PLANS.map((p) => {
-                    const key = billing === "yearly" ? p.keyYearly : p.keyMonthly;
-                    const price = billing === "yearly" ? p.yearly : p.monthly;
-                    const period = billing === "yearly" ? "/an" : "/mois";
+                    const euroKey = billing === "yearly" ? p.keyYearly : p.keyMonthly;
+                    const key = isFrench ? euroKey : euroKey + "_usd";
+                    const euroPrice = billing === "yearly" ? p.yearly : p.monthly;
+                    const price = isFrench ? euroPrice : "$" + euroPrice.replace("€", "").replace(",", ".");
+                    const period = billing === "yearly" ? (isFrench ? "/an" : "/year") : (isFrench ? "/mois" : "/month");
+                    const description = isFrench ? p.desc : (p.name === "Starter"
+                      ? "AI replies to Google reviews · 1 location"
+                      : p.name === "Pro"
+                        ? "Reviews + automated SEO & GEO · 3 locations"
+                        : "Complete suite · multiple locations");
                     return (
                       <button
                         key={p.name}
@@ -419,7 +433,7 @@ const Onboarding = () => {
                       >
                         <div className="font-bold">{p.name}</div>
                         <div className="text-2xl font-extrabold mt-1">{price}<span className="text-xs font-normal text-muted-foreground">{period}</span></div>
-                        <div className="text-xs text-muted-foreground mt-1">{p.desc}</div>
+                        <div className="text-xs text-muted-foreground mt-1">{description}</div>
                         {planLoading === key && (
                           <Loader2 className="w-4 h-4 animate-spin mt-2 text-primary" />
                         )}
@@ -429,7 +443,7 @@ const Onboarding = () => {
                 </div>
 
                 <div className="flex justify-start items-center pt-2">
-                  <Button variant="ghost" onClick={back}>Retour</Button>
+                  <Button variant="ghost" onClick={back}>{isFrench ? "Retour" : "Back"}</Button>
                 </div>
               </div>
             )}
@@ -437,6 +451,14 @@ const Onboarding = () => {
           </CardContent>
         </Card>
       </div>
+      {user && <SelectBusinessesDialog
+        open={locationSelectionOpen}
+        onOpenChange={setLocationSelectionOpen}
+        businesses={discoveredLocations}
+        maxBusinesses={locationLimit}
+        userId={user.id}
+        onSuccess={() => { void loadBusinesses(); setSyncError(null); }}
+      />}
     </div>
   );
 };
