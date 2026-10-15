@@ -13,7 +13,7 @@ const PaymentSuccess = () => {
   const { user } = useAuth();
   const [status, setStatus] = useState<"processing" | "success" | "pending">("processing");
   const [retryKey, setRetryKey] = useState(0);
-  const isOnboardingPayment = new URLSearchParams(window.location.search).get("source") === "onboarding";
+  const isOnboardingPayment = typeof window !== "undefined" && new URLSearchParams(window.location.search).get("source") === "onboarding";
   const [planName, setPlanName] = useState<string | null>(null);
 
   useEffect(() => {
