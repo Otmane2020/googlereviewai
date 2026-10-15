@@ -700,16 +700,6 @@ serve(async (req) => {
       }
     }
 
-    // Individual managed locations must never be declared synced when absent
-    // from the connected Google account (even if another managed location works).
-    const { data: checkedLocations } = await supabaseAdmin.from("businesses")
-      .select("id,google_place_id,last_reviews_sync_at").eq("user_id", user.id)
-      .eq("is_active", true);
-    for (const managed of checkedLocations || []) {
-      if (!managed.google_place_id || !businessMap.has(managed.google_place_id)) continue;
-      // This can be handled by the periodic cron; don't overwrite an older
-      // actual API error simply because this call did not find the location.
-    }
     if (matchedLocations === 0 && businessMap.size > 0) {
       errors.push("Aucune des fiches actives sélectionnées n'a été trouvée dans les comptes Google accessibles. Vérifiez que le bon établissement Sweet Deco est autorisé.");
     } else if (matchedLocations > 0 && fetchedLocations === 0 && errors.length === 0) {
@@ -717,10 +707,14 @@ serve(async (req) => {
     }
     const requiresReconnect = Boolean(tokenResult.requires_reconnect || hasApiDisabledError);
     const complete = errors.length === 0;
+    const noReviewsReturned = complete && matchedLocations > 0 && fetchedLocations > 0 && allReviews.length === 0;
     const response = {
       success: complete,
       partial: !complete && allReviews.length > 0,
-      message: complete
+      empty_from_google: noReviewsReturned,
+      message: noReviewsReturned
+        ? "L’API Google a répondu, mais n’a renvoyé aucun avis pour cette fiche. Si vous voyez un avis sur Google Maps, vérifiez la validation de la fiche, les droits du compte et la disponibilité de l’avis dans l’API."
+        : complete
         ? `Synchronisation terminée : ${allReviews.length} avis, ${fetchedLocations} fiche(s) lue(s).`
         : `Synchronisation incomplète : ${errors.join(" ; ")}`,
       reviews: allReviews,
