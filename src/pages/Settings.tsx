@@ -76,6 +76,40 @@ const SettingsPage = () => {
   const [connectedBusinessLanguages, setConnectedBusinessLanguages] = useState<ConnectedBusinessLanguage[]>([]);
   const [businessRefreshKey, setBusinessRefreshKey] = useState(0);
   const [manageLocationsOpen, setManageLocationsOpen] = useState(false);
+  const [otherReviewLocation, setOtherReviewLocation] = useState<{
+    name: string; count: number;
+  } | null>(null);
+  const [activeImportDiagnostic, setActiveImportDiagnostic] = useState<{
+    name: string; status: string | null; details: string | null;
+  } | null>(null);
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    void supabase.from("businesses")
+      .select("id,name,is_active,total_reviews,google_place_id,last_reviews_sync_status,last_reviews_sync_error")
+      .eq("user_id", user.id)
+      .then(({ data, error }) => {
+        if (cancelled || error || !data) return;
+        const stored = localStorage.getItem("googlereviewai.com_selected_business_" + user.id);
+        const active = data.find(b => b.is_active && b.id === stored)
+          || data.find(b => b.is_active);
+        if (!active) { setOtherReviewLocation(null); setActiveImportDiagnostic(null); return; }
+        const brand = (active.name || "").split(/\s*[-–—]\s*/)[0].trim().toLowerCase();
+        const other = data.filter(b => !b.is_active && b.google_place_id
+          && b.name.toLowerCase().startsWith(brand + " -")
+          && Number(b.total_reviews || 0) > 0)
+          .sort((a,b) => Number(b.total_reviews || 0) - Number(a.total_reviews || 0))[0];
+        setOtherReviewLocation(Number(active.total_reviews || 0) === 0 && other
+          ? { name: other.name, count: Number(other.total_reviews) } : null);
+        setActiveImportDiagnostic({
+          name: active.name,
+          status: active.last_reviews_sync_status,
+          details: active.last_reviews_sync_error,
+        });
+      });
+    return () => { cancelled = true; };
+  }, [user?.id, businessRefreshKey]);
+
   const [savingBusinessLanguage, setSavingBusinessLanguage] = useState<string | null>(null);
 
   useEffect(() => {
@@ -461,6 +495,35 @@ const SettingsPage = () => {
                 <Building2 className="h-4 w-4" />
                 {i18n.language?.startsWith("fr") ? "Choisir les établissements" : "Select managed locations"}
               </Button>
+              {otherReviewLocation && (
+                <div className="mt-4 rounded-xl border border-blue-500/25 bg-blue-500/5 p-3 text-xs leading-relaxed">
+                  <p className="font-semibold">
+                    {i18n.language?.startsWith("fr") ? "Une autre fiche possède des avis" : "Another location has reviews"}
+                  </p>
+                  <p className="mt-1 text-muted-foreground">
+                    {i18n.language?.startsWith("fr")
+                      ? `« ${otherReviewLocation.name} » est enregistrée avec ${otherReviewLocation.count} avis. Elle est distincte de votre fiche active. Choisissez la fiche souhaitée sans mélanger les avis.`
+                      : `“${otherReviewLocation.name}” is recorded with ${otherReviewLocation.count} reviews. It is a different listing from your active business. Select the correct listing without mixing reviews.`}
+                  </p>
+                </div>
+              )}
+              {activeImportDiagnostic && (
+                <div className="mt-3 rounded-xl border border-border bg-muted/30 p-3 text-xs leading-relaxed">
+                  <p className="font-semibold text-foreground">
+                    {i18n.language?.startsWith("fr") ? "Diagnostic des avis Google" : "Google review import diagnostics"}
+                  </p>
+                  <p className="mt-1 text-muted-foreground break-words">{activeImportDiagnostic.name}</p>
+                  <p className="mt-1">
+                    {i18n.language?.startsWith("fr") ? "Dernier résultat" : "Last result"}:{" "}
+                    <span className="font-medium">
+                      {activeImportDiagnostic.status || (i18n.language?.startsWith("fr") ? "non vérifié" : "not checked")}
+                    </span>
+                  </p>
+                  {activeImportDiagnostic.details && (
+                    <p role="alert" className="mt-1 text-destructive break-words">{activeImportDiagnostic.details}</p>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>
