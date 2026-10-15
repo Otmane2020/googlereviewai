@@ -9,7 +9,7 @@ const corsHeaders = {
 
 // Price IDs mapping
 const PRICE_IDS: Record<string, string> = {
-  // ===== NEW GoogleReviewAI plans (June 2026) =====
+  // ===== NEW Reviews AI plans (June 2026) =====
   ranki_starter_monthly: "price_1TjxSJEfti9t9nN9XgMVswCh",  // 9.99€/mo
   ranki_starter_yearly:  "price_1TjxSJEfti9t9nN91VDBOxZX",  // 95.90€/yr (-20%)
   ranki_pro_monthly:     "price_1TjxSKEfti9t9nN9HAzRfqz8",  // 49€/mo
@@ -68,7 +68,7 @@ const CREDIT_AMOUNTS: Record<string, number> = {
   credits_10000: 10000,
 };
 
-// GoogleReviewAI plans charge immediately: no 7-day free trial.
+// Reviews AI plans charge immediately: no 7-day free trial.
 // Preserve the separate, legacy all-in-one yearly offer below.
 // All-in-one yearly gets 60 days trial (2 months free)
 const ALLINONE_YEARLY_TRIAL_DAYS = 60;

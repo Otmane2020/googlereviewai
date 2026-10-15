@@ -84,7 +84,7 @@ serve(async (req) => {
     }
 
     const priceId = PRICE_IDS[priceKey as keyof typeof PRICE_IDS];
-    const origin = req.headers.get("origin") || "https://googlereviewai.com";
+    const origin = req.headers.get("origin") || "https://reviewsai.store";
 
     // Check if customer already exists
     const customers = await stripe.customers.list({

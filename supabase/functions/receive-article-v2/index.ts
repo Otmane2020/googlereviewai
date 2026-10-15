@@ -6,7 +6,7 @@ const corsHeaders = {
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 }
 
-const SITE_URL = 'https://googlereviewai.com'
+const SITE_URL = 'https://reviewsai.store'
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -88,7 +88,7 @@ Deno.serve(async (req) => {
           slug: sanitizedSlug,
           source_id: articleSourceId ?? null,
           meta_description: articleMetaDescription ?? null,
-          author: (author as string) || 'Équipe GoogleReviewAI',
+          author: (author as string) || 'Équipe Reviews AI',
           updated_at: new Date().toISOString(),
         },
         { onConflict: 'slug' }
