@@ -307,9 +307,9 @@ const SettingsPage = () => {
         </div>
       </div>
 
-      <main className="max-w-4xl mx-auto p-6 space-y-8">
+      <main className="max-w-4xl mx-auto px-3.5 sm:px-6 py-5 sm:py-8 space-y-5 sm:space-y-7">
         {/* Profilee section */}
-        <div className="bg-card rounded-2xl border border-border p-6">
+        <div className="reviewai-surface p-4 sm:p-6">
           <div className="flex items-center gap-3 mb-6">
             <User className="w-5 h-5 text-primary" />
             <h2 className="font-semibold text-foreground">{t("settingsPage.profile")}</h2>
@@ -351,7 +351,7 @@ const SettingsPage = () => {
         </div>
 
         {/* Language section */}
-        <div className="bg-card rounded-2xl border border-border p-6">
+        <div className="reviewai-surface p-4 sm:p-6">
           <div className="flex items-center gap-3 mb-2">
             <Globe className="w-5 h-5 text-primary" />
             <h2 className="font-semibold text-foreground">{t("sidebar.language")}</h2>
@@ -385,7 +385,7 @@ const SettingsPage = () => {
 
         {/* Explicit language per Google Business location, separate from UI language */}
         {connectedBusinessLanguages.length > 0 && (
-          <div className="bg-card rounded-2xl border border-border p-6">
+          <div className="reviewai-surface p-4 sm:p-6">
             <div className="flex items-center gap-3 mb-2">
               <Globe className="w-5 h-5 text-primary" />
               <h2 className="font-semibold text-foreground">
@@ -422,7 +422,7 @@ const SettingsPage = () => {
         )}
 
         {/* Subscription section */}
-        <div className="bg-card rounded-2xl border border-border p-6">
+        <div className="reviewai-surface p-4 sm:p-6">
           <div className="flex items-center gap-3 mb-6">
             <CreditCard className="w-5 h-5 text-primary" />
             <h2 className="font-semibold text-foreground">{t("settingsPage.subscription")}</h2>
@@ -481,7 +481,7 @@ const SettingsPage = () => {
 
         {/* Google Business integration: status is verified, never hard-coded. */}
         <GoogleBusinessIntegration onBusinessesChanged={() => setBusinessRefreshKey((v) => v + 1)} />
-        <div id="managed-locations" className="bg-card rounded-2xl border border-border p-4 sm:p-5">
+        <div id="managed-locations" className="reviewai-surface p-4 sm:p-5">
           <div className="flex items-start gap-3">
             <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
               <Building2 className="h-5 w-5 text-primary" />
@@ -532,7 +532,7 @@ const SettingsPage = () => {
         </div>
 
         {/* Security section */}
-        <div className="bg-card rounded-2xl border border-border p-6">
+        <div className="reviewai-surface p-4 sm:p-6">
           <div className="flex items-center gap-3 mb-6">
             <Shield className="w-5 h-5 text-primary" />
             <h2 className="font-semibold text-foreground">{t("settingsPage.security")}</h2>
@@ -586,7 +586,7 @@ const SettingsPage = () => {
         </div>
 
         {/* Notifications section */}
-        <div className="bg-card rounded-2xl border border-border p-6">
+        <div className="reviewai-surface p-4 sm:p-6">
           <div className="flex items-center gap-3 mb-6">
             <Bell className="w-5 h-5 text-primary" />
             <h2 className="font-semibold text-foreground">{t("settingsPage.notifications")}</h2>
