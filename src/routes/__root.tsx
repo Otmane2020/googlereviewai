@@ -1,5 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
 import type { QueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { QueryClientProvider } from "@tanstack/react-query";
 import {
   HeadContent,
@@ -322,18 +323,21 @@ function AppShell() {
   );
 }
 
-function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
-  console.error(error);
+function ErrorComponent({ error, reset }: { error: unknown; reset: () => void }) {
+  const safeError = error instanceof Error ? error : new Error(String(error));
+  console.error(safeError);
+  const { i18n } = useTranslation();
+  const fr = i18n.language?.startsWith("fr");
   const router = useRouter();
   useEffect(() => {
-    reportLovableError(error, { boundary: "tanstack_root_error_component" });
+    reportLovableError(safeError, { boundary: "tanstack_root_error_component" });
   }, [error]);
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-6">
       <div className="max-w-md w-full text-center space-y-4">
-        <h1 className="text-xl font-semibold text-foreground">This page didn&apos;t load</h1>
+        <h1 className="text-xl font-semibold text-foreground">{fr ? "Cette page n’a pas pu charger" : "This page didn’t load"}</h1>
         <p className="text-muted-foreground">
-          Something went wrong on our end. You can try refreshing or head back home.
+          {fr ? "Une erreur s’est produite. Réessayez ou retournez à l’accueil." : "Something went wrong. Please try again or return home."}
         </p>
         <div className="flex items-center justify-center gap-2 flex-wrap">
           <button
@@ -343,10 +347,10 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
               reset();
             }}
           >
-            Try again
+            {fr ? "Réessayer" : "Try again"}
           </button>
           <a className="px-4 py-2 rounded-md border border-border text-foreground" href="/">
-            Go home
+            {fr ? "Accueil" : "Go home"}
           </a>
         </div>
       </div>
