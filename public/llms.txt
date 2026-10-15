@@ -7,7 +7,7 @@ Reviews AI helps businesses organize Google review responses, automate routine r
 ## Canonical identity
 - Name: Reviews AI
 - Website: https://reviewsai.store/
-- Support: support@googlereviewai.com
+- Support: support@reviewsai.store
 - Languages: English, French
 - Category: review management, reputation management, Google Business Profile automation, local SEO, local AI search visibility
 
