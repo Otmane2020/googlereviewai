@@ -190,14 +190,14 @@ const Auth = () => {
               <span>{t("auth.back")}</span>
             </Link>
             <div className="flex items-center gap-2">
-              <LanguageSwitcher variant="flags" />
+              <LanguageSwitcher variant="dropdown" />
               <RankiLogo showBadge={false} compactOnMobile />
             </div>
           </div>
         </div>
 
         <div className="hidden lg:flex justify-end p-5">
-          <LanguageSwitcher variant="flags" />
+          <LanguageSwitcher variant="dropdown" />
         </div>
 
         <div className="flex-1 flex items-center justify-center px-4 py-7 sm:px-8">
