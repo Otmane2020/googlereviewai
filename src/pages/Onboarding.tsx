@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "@/hooks/use-toast";
-import { Check, ArrowRight, Building2, MessageCircle, Crown, Loader2, Star, AlertTriangle } from "lucide-react";
+import { ArrowRight, MessageCircle, Crown, Loader2, Star, AlertTriangle } from "lucide-react";
 import { useGoogleOAuth } from "@/hooks/useGoogleOAuth";
 import { BrandSparkle } from "@/components/BrandSparkle";
 import { SelectBusinessesDialog } from "@/components/SelectBusinessesDialog";
@@ -207,7 +207,7 @@ const Onboarding = () => {
       .upsert({ user_id: user.id, tone, signature, enabled: true } as any, { onConflict: "user_id" });
     setLoading(false);
     if (error) {
-      toast({ title: "Erreur", description: error.message, variant: "destructive" });
+      toast({ title: isFrench ? "Erreur" : "Error", description: error.message, variant: "destructive" });
       return;
     }
     next();
@@ -232,7 +232,7 @@ const Onboarding = () => {
         throw new Error("Lien de paiement indisponible");
       }
     } catch (e: unknown) {
-      toast({ title: "Erreur", description: e instanceof Error ? e.message : "Paiement échoué", variant: "destructive" });
+      toast({ title: isFrench ? "Erreur" : "Error", description: e instanceof Error ? e.message : (isFrench ? "Paiement échoué" : "Payment failed"), variant: "destructive" });
       setPlanLoading(null);
     }
   };
