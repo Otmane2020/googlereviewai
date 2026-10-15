@@ -4,7 +4,7 @@ Production-ready Chrome extension package for AI-assisted customer review replie
 
 ## Brand
 
-The extension reuses the official GoogleReviewAI visual system from the main application: official review-bubble mark, Inter/system typography, light slate surfaces, white cards, Google-style blue accents, AI blue `#1769FF`, and 12–14 px rounded corners.
+The extension reuses the official Reviews AI visual system from the main application: official review-bubble mark, Inter/system typography, light slate surfaces, white cards, Google-style blue accents, AI blue `#1769FF`, and 12–14 px rounded corners.
 
 Public extension name: **Business Reviews AI**.
 
@@ -17,7 +17,7 @@ Help a user draft, review, copy, and insert an AI-assisted reply to a customer r
 - `activeTab`: access only to the active tab after the user invokes the extension.
 - `scripting`: detect visible review context and insert a user-approved draft on explicit action.
 - `storage`: remember the business name locally.
-- Supabase host permission: call the existing GoogleReviewAI AI-generation backend.
+- Supabase host permission: call the existing Reviews AI AI-generation backend.
 
 There is no persistent Google content script and no broad Google host permission.
 
@@ -45,7 +45,7 @@ GitHub Actions also publishes these as the `business-reviews-ai-chrome-store` wo
 See `chrome-extension/store-listing/STORE_LISTING.md` for the name, descriptions, single-purpose text, permission justifications, reviewer instructions and data-disclosure answers.
 
 Privacy policy URL:
-`https://googlereviewai.com/business-reviews-ai-extension-privacy.html`
+`https://reviewsai.store/business-reviews-ai-extension-privacy.html`
 
 ## Final publisher-account steps
 

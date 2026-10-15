@@ -4,7 +4,7 @@
   "short_name": "Business Reviews AI",
   "version": "1.0.0",
   "description": "Draft AI-assisted replies for reviews you are viewing on Google Maps™ or Google Business Profile™, then copy or insert them.",
-  "homepage_url": "https://googlereviewai.com",
+  "homepage_url": "https://reviewsai.store",
   "permissions": ["activeTab", "scripting", "storage"],
   "host_permissions": ["https://hlruprayqfnatnldrski.supabase.co/*"],
   "icons": {

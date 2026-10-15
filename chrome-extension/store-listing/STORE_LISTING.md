@@ -24,7 +24,7 @@ Key features:
 - No advertising or cross-site tracking
 
 Privacy-first design:
-The extension only accesses the active page after the user opens it. For AI generation, the review text, rating and business name are sent to the GoogleReviewAI backend solely to generate the requested reply. The extension may keep the business name in local Chrome storage for convenience.
+The extension only accesses the active page after the user opens it. For AI generation, the review text, rating and business name are sent to the Reviews AI backend solely to generate the requested reply. The extension may keep the business name in local Chrome storage for convenience.
 
 Google Maps and Google Business Profile are trademarks of Google LLC. Business Reviews AI is independent and is not affiliated with, sponsored by, or endorsed by Google LLC.
 
@@ -36,13 +36,13 @@ Primary: French
 Additional: English
 
 ## Homepage
-https://googlereviewai.com
+https://reviewsai.store
 
 ## Support URL
-https://googlereviewai.com
+https://reviewsai.store
 
 ## Privacy policy URL
-https://googlereviewai.com/business-reviews-ai-extension-privacy.html
+https://reviewsai.store/business-reviews-ai-extension-privacy.html
 
 ## Single purpose statement
 Business Reviews AI helps a user draft, review, copy, and insert an AI-assisted reply to a customer review the user is currently viewing.
@@ -59,7 +59,7 @@ Used only on explicit user actions to extract the visible review context and to 
 Used to store the business name locally for convenience between extension sessions.
 
 ### Host permission: hlruprayqfnatnldrski.supabase.co
-Used only to send the review text, rating, and business name to the GoogleReviewAI backend when the user requests AI reply generation.
+Used only to send the review text, rating, and business name to the Reviews AI backend when the user requests AI reply generation.
 
 ## Chrome Web Store data disclosure
 Data type handled: Website content (visible review text, rating, and business name) when the user explicitly requests detection/generation.
