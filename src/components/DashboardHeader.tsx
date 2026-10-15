@@ -39,15 +39,15 @@ export const DashboardHeader = ({ className }: { className?: string } = {}) => {
   }, [user?.id]);
 
   return (
-    <header className={`sticky top-0 z-50 bg-background/95 backdrop-blur-xl border-b border-border/60 ${className || ""}`}>
+    <header className={`sticky top-0 z-50 bg-card/96 backdrop-blur-xl border-b border-border/50 shadow-[0_2px_16px_rgba(42,59,124,0.035)] ${className || ""}`}>
       <div className="max-w-7xl mx-auto px-3 sm:px-4">
-        <div className="flex h-14 sm:h-16 items-center gap-2 justify-between min-w-0">
+        <div className="flex h-[60px] sm:h-[68px] items-center gap-2 justify-between min-w-0">
           <Link to="/dashboard" className="flex items-center min-w-0 shrink-0 md:hidden" aria-label="ReviewAI home">
             <RankiLogo compactOnMobile className="gap-1.5 text-foreground" />
           </Link>
           <div className="flex-1 min-w-0" />
           <button type="button" onClick={() => setUpgradeDialogOpen(true)}
-            className="inline-flex h-9 sm:h-10 items-center gap-1.5 rounded-xl bg-primary/10 px-2.5 sm:px-3 text-primary font-semibold shrink-0 hover:bg-primary/15"
+            className="inline-flex h-9 sm:h-10 items-center gap-1.5 rounded-xl bg-[#3B54F5]/8 border border-[#3B54F5]/10 px-2.5 sm:px-3 text-primary font-semibold shrink-0 hover:bg-primary/15 transition-colors"
             aria-label={isFr ? `${profile?.credits ?? 0} crédits, gérer le solde` : `${profile?.credits ?? 0} credits, manage balance`}>
             <BrandSparkle className="h-4 w-4 shrink-0" />
             <span className="text-sm tabular-nums">{profile?.credits ?? 0}</span>
@@ -56,7 +56,7 @@ export const DashboardHeader = ({ className }: { className?: string } = {}) => {
           </button>
 
           <Button type="button" variant="ghost" size="icon"
-            className="relative h-10 w-10 shrink-0 rounded-xl" onClick={() => navigate("/notifications")}
+            className="relative h-10 w-10 shrink-0 rounded-xl hover:bg-primary/5" onClick={() => navigate("/notifications")}
             aria-label={isFr ? "Notifications" : "Notifications"}>
             <Bell className="h-5 w-5" />
             {unreadCount > 0 && (
