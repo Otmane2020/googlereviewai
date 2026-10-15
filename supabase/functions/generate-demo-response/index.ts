@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { callOpenRouterWithFallback } from "../_shared/openrouter.ts";
+import { defaultReviewSignature, ensureReviewSignature } from "../_shared/review-signature.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -23,6 +24,7 @@ serve(async (req) => {
       throw new Error("OPENROUTER_API_KEY not configured");
     }
 
+    const signature = defaultReviewSignature(businessName, "fr");
     const systemPrompt = `Tu es un assistant qui génère des réponses professionnelles aux avis Google pour "${businessName}".
 
 Règles:
@@ -32,7 +34,7 @@ Règles:
 - Si avis positif: valorise le feedback
 - Si avis négatif: excuse-toi et propose de résoudre
 - N'invente jamais de détails
-- Termine par une signature simple type "L'équipe ${businessName}"`;
+- Termine par EXACTEMENT cette signature : "${signature}". N'ajoute ni catégorie commerciale ni description de la fiche Google à la signature.`;
 
     const userPrompt = `Génère une réponse pour cet avis:
 Note: ${review.rating}/5 étoiles
@@ -55,10 +57,11 @@ Commentaire: ${review.text || "(Aucun commentaire)"}`;
       throw new Error("No response generated");
     }
 
-    console.log(`[generate-demo-response] Generated response: ${aiResponse.substring(0, 50)}...`);
+    const signedResponse = ensureReviewSignature(aiResponse, signature);
+    console.log(`[generate-demo-response] Generated response: ${signedResponse.substring(0, 50)}...`);
 
     return new Response(
-      JSON.stringify({ response: aiResponse }),
+      JSON.stringify({ response: signedResponse }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
 
