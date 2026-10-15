@@ -25,7 +25,7 @@ const PLANS = [
     name: "Starter",
     monthly: "9,99€",
     yearly: "95,90€",
-    desc: "Réponses IA aux avis Google · 1 établissement · 7j gratuits",
+    desc: "Réponses IA aux avis Google · 1 établissement ",
   },
   {
     keyMonthly: "ranki_pro_monthly",
@@ -33,7 +33,7 @@ const PLANS = [
     name: "Pro",
     monthly: "49€",
     yearly: "470€",
-    desc: "Avis + SEO & GEO auto · 3 établissements · 7j gratuits",
+    desc: "Avis + SEO & GEO auto · 3 établissements",
     highlight: true,
   },
   {
@@ -42,7 +42,7 @@ const PLANS = [
     name: "Business",
     monthly: "99€",
     yearly: "950,40€",
-    desc: "Tout illimité · multi-établissements · 7j gratuits",
+    desc: "Tout illimité · multi-établissements",
   },
 ];
 
@@ -112,7 +112,7 @@ const Onboarding = () => {
       if (data.requires_selection && data.google_businesses?.length) {
         setDiscoveredLocations(data.google_businesses);
         setLocationLimit(data.max_businesses || 1);
-        setLocationSelectionOpen(true);
+        if (step === 1) setLocationSelectionOpen(true);
         return;
       }
       await loadBusinesses();
@@ -167,6 +167,12 @@ const Onboarding = () => {
     })();
     return () => { active = false; };
   }, [user?.id, navigate]);
+
+  useEffect(() => {
+    if (step === 1 && discoveredLocations.length > 0 && businesses.length === 0) {
+      setLocationSelectionOpen(true);
+    }
+  }, [step, discoveredLocations.length, businesses.length]);
 
   const next = () => setStep((s) => Math.min(s + 1, STEPS.length - 1));
   const back = () => setStep((s) => Math.max(s - 1, 0));
@@ -317,8 +323,8 @@ const Onboarding = () => {
                     <MessageCircle className="w-6 h-6 text-primary" />
                   </div>
                   <div>
-                    <h2 className="text-xl font-bold">Set your AI tone</h2>
-                    <p className="text-sm text-muted-foreground">How should Reviews AI reply to reviews?</p>
+                    <h2 className="text-xl font-bold">{isFrench ? "Choisissez le ton des réponses IA" : "Set your AI tone"}</h2>
+                    <p className="text-sm text-muted-foreground">{isFrench ? "Comment Reviews AI doit-il répondre aux avis ?" : "How should Reviews AI reply to reviews?"}</p>
                   </div>
                 </div>
 
@@ -331,22 +337,22 @@ const Onboarding = () => {
                     >
                       <RadioGroupItem id={t.value} value={t.value} className="mt-0.5" />
                       <div>
-                        <div className="font-semibold">{t.label}</div>
-                        <div className="text-xs text-muted-foreground">{t.desc}</div>
+                        <div className="font-semibold">{isFrench ? ({friendly: "Chaleureux", professional: "Professionnel", concise: "Concis"} as Record<string,string>)[t.value] : t.label}</div>
+                        <div className="text-xs text-muted-foreground">{isFrench ? ({friendly: "Accueillant, naturel et sympathique", professional: "Formel, soigné et fidèle à votre marque", concise: "Court et direct"} as Record<string,string>)[t.value] : t.desc}</div>
                       </div>
                     </Label>
                   ))}
                 </RadioGroup>
 
                 <div className="space-y-2">
-                  <Label htmlFor="sig">Reply signature</Label>
-                  <Input id="sig" value={signature} onChange={(e) => setSignature(e.target.value)} placeholder="The team" />
+                  <Label htmlFor="sig">{isFrench ? "Signature des réponses" : "Reply signature"}</Label>
+                  <Input id="sig" value={signature} onChange={(e) => setSignature(e.target.value)} placeholder={isFrench ? "L’équipe" : "The team"} />
                 </div>
 
                 <div className="flex justify-between pt-2">
-                  <Button variant="ghost" onClick={back}>Retour</Button>
+                  <Button variant="ghost" onClick={back}>{isFrench ? "Retour" : "Back"}</Button>
                   <Button onClick={handleSaveAI} disabled={loading}>
-                    {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <>Save & continue <ArrowRight className="w-4 h-4 ml-2" /></>}
+                    {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <>{isFrench ? "Enregistrer et continuer" : "Save & continue"} <ArrowRight className="w-4 h-4 ml-2" /></>}
                   </Button>
                 </div>
               </div>
@@ -358,9 +364,9 @@ const Onboarding = () => {
                   <div className="w-14 h-14 mx-auto rounded-2xl bg-primary/10 flex items-center justify-center mb-3">
                     <Crown className="w-7 h-7 text-primary" />
                   </div>
-                  <h2 className="text-2xl font-bold">Choisissez votre plan</h2>
+                  <h2 className="text-2xl font-bold">{isFrench ? "Choisissez votre forfait" : "Choose your plan"}</h2>
                   <p className="text-sm text-muted-foreground mt-1">
-                    Paiement sécurisé. Résiliable à tout moment.
+                    {isFrench ? "Paiement sécurisé. Résiliable à tout moment." : "Secure checkout. Cancel anytime."}
                   </p>
                 </div>
 
@@ -373,7 +379,7 @@ const Onboarding = () => {
                         billing === "monthly" ? "bg-foreground text-background" : "text-muted-foreground"
                       }`}
                     >
-                      Mensuel
+                      {isFrench ? "Mensuel" : "Monthly"}
                     </button>
                     <button
                       type="button"
@@ -382,7 +388,7 @@ const Onboarding = () => {
                         billing === "yearly" ? "bg-foreground text-background" : "text-muted-foreground"
                       }`}
                     >
-                      Annuel
+                      {isFrench ? "Annuel" : "Yearly"}
                       <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-600">-20%</span>
                     </button>
                   </div>
@@ -390,9 +396,16 @@ const Onboarding = () => {
 
                 <div className="grid sm:grid-cols-3 gap-3">
                   {PLANS.map((p) => {
-                    const key = billing === "yearly" ? p.keyYearly : p.keyMonthly;
-                    const price = billing === "yearly" ? p.yearly : p.monthly;
-                    const period = billing === "yearly" ? "/an" : "/mois";
+                    const euroKey = billing === "yearly" ? p.keyYearly : p.keyMonthly;
+                    const key = isFrench ? euroKey : euroKey + "_usd";
+                    const euroPrice = billing === "yearly" ? p.yearly : p.monthly;
+                    const price = isFrench ? euroPrice : "$" + euroPrice.replace("€", "").replace(",", ".");
+                    const period = billing === "yearly" ? (isFrench ? "/an" : "/year") : (isFrench ? "/mois" : "/month");
+                    const description = isFrench ? p.desc : (p.name === "Starter"
+                      ? "AI replies to Google reviews · 1 location"
+                      : p.name === "Pro"
+                        ? "Reviews + automated SEO & GEO · 3 locations"
+                        : "Complete suite · multiple locations");
                     return (
                       <button
                         key={p.name}
@@ -406,7 +419,7 @@ const Onboarding = () => {
                       >
                         <div className="font-bold">{p.name}</div>
                         <div className="text-2xl font-extrabold mt-1">{price}<span className="text-xs font-normal text-muted-foreground">{period}</span></div>
-                        <div className="text-xs text-muted-foreground mt-1">{p.desc}</div>
+                        <div className="text-xs text-muted-foreground mt-1">{description}</div>
                         {planLoading === key && (
                           <Loader2 className="w-4 h-4 animate-spin mt-2 text-primary" />
                         )}
@@ -416,7 +429,7 @@ const Onboarding = () => {
                 </div>
 
                 <div className="flex justify-start items-center pt-2">
-                  <Button variant="ghost" onClick={back}>Retour</Button>
+                  <Button variant="ghost" onClick={back}>{isFrench ? "Retour" : "Back"}</Button>
                 </div>
               </div>
             )}
