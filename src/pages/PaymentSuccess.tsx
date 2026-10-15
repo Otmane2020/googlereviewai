@@ -5,12 +5,15 @@ import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { isActivePaidPlan } from "@/lib/planEntitlements";
 
 const PaymentSuccess = () => {
   const navigate = useNavigate();
   const { clearCart } = useCart();
   const { user } = useAuth();
-  const [status, setStatus] = useState<"processing" | "success">("processing");
+  const [status, setStatus] = useState<"processing" | "success" | "pending">("processing");
+  const [retryKey, setRetryKey] = useState(0);
+  const isOnboardingPayment = new URLSearchParams(window.location.search).get("source") === "onboarding";
   const [planName, setPlanName] = useState<string | null>(null);
 
   useEffect(() => {
@@ -29,12 +32,21 @@ const PaymentSuccess = () => {
 
       const { data: profile } = await supabase
         .from("profiles")
-        .select("plan_name, subscription_status, credits")
+        .select("plan_name, subscription_status, credits, current_period_end, trial_end")
         .eq("id", user.id)
         .maybeSingle();
 
       const activeStatuses = ["active", "trial", "trialing"];
-      if (profile?.plan_name && activeStatuses.includes(profile.subscription_status || "")) {
+      const active = isOnboardingPayment
+        ? isActivePaidPlan(profile)
+        : Boolean(profile?.plan_name && activeStatuses.includes(profile.subscription_status || ""));
+      if (active && profile) {
+        // The subscription is server-confirmed; ONLY now finish onboarding.
+        if (isOnboardingPayment) {
+          const { error: updateError } = await supabase.from("profiles")
+            .update({ onboarding_completed: true }).eq("id", user.id);
+          if (updateError) console.warn("[PaymentSuccess] Could not update onboarding flag", updateError.message);
+        }
         if (!cancelled) {
           setPlanName(profile.plan_name);
           setStatus("success");
@@ -43,7 +55,9 @@ const PaymentSuccess = () => {
       }
 
       if (attempts >= maxAttempts) {
-        if (!cancelled) setStatus("success"); // fail-open, webhook will catch up
+        // A successful Stripe redirect does not by itself prove an active plan.
+        // Preserve the previous behavior of other checkout flows (e.g. shop orders).
+        if (!cancelled) setStatus(isOnboardingPayment ? "pending" : "success");
         return;
       }
       setTimeout(poll, 2000);
@@ -55,7 +69,7 @@ const PaymentSuccess = () => {
     return () => {
       cancelled = true;
     };
-  }, [clearCart, user]);
+  }, [clearCart, user, retryKey, isOnboardingPayment]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
@@ -67,6 +81,20 @@ const PaymentSuccess = () => {
             <p className="text-muted-foreground">
               Nous activons votre abonnement, cela ne prend que quelques secondes.
             </p>
+          </>
+        ) : status === "pending" ? (
+          <>
+            <h1 className="text-2xl font-bold mb-2">Vérification en attente</h1>
+            <p className="text-muted-foreground mb-6">
+              Nous n'avons pas encore pu confirmer votre abonnement auprès de Stripe.
+              Si le paiement a été effectué, ne recommencez pas le paiement : réessayez la vérification.
+            </p>
+            <Button onClick={() => { setStatus("processing"); setRetryKey(k => k + 1); }} className="w-full h-12">
+              Vérifier à nouveau
+            </Button>
+            <Button variant="ghost" onClick={() => navigate("/onboarding?step=plan")} className="w-full mt-2">
+              Retour au choix du forfait
+            </Button>
           </>
         ) : (
           <>
