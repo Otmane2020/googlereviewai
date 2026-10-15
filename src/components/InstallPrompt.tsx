@@ -53,7 +53,7 @@ export const InstallPrompt = () => {
         <div className="bg-card rounded-2xl shadow-2xl w-full max-w-sm p-6 animate-scale-in">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <img src="/icon-192x192.png" alt="Reviews AI" className="w-12 h-12 rounded-xl shadow-sm" />
+              <img src="/icon-192x192.png?v=reviews-ai-20261015" alt="Reviews AI" className="w-12 h-12 rounded-xl shadow-sm" />
               <div>
                 <h3 className="font-bold text-base">{isFrench ? "Installer Reviews AI" : "Install Reviews AI"}</h3>
                 <p className="text-xs text-muted-foreground">{isFrench ? "Accès rapide + notifications" : "Quick access + notifications"}</p>
@@ -112,7 +112,7 @@ export const InstallPrompt = () => {
     <div className="fixed left-2 right-2 bottom-[80px] md:bottom-4 z-40 bg-primary text-primary-foreground shadow-2xl rounded-2xl animate-fade-in">
       <div className="px-3 py-2.5 flex items-center justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0">
-          <img src="/icon-192x192.png" alt="Reviews AI" className="w-9 h-9 rounded-xl flex-shrink-0 shadow-md" />
+          <img src="/icon-192x192.png?v=reviews-ai-20261015" alt="Reviews AI" className="w-9 h-9 rounded-xl flex-shrink-0 shadow-md" />
           <div className="min-w-0">
             <p className="font-semibold text-sm truncate">{isFrench ? "Installer Reviews AI" : "Install Reviews AI"}</p>
             <p className="text-xs opacity-90 truncate">{isFrench ? "Accès rapide + notifications" : "Quick access + notifications"}</p>
