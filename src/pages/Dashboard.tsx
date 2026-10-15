@@ -609,7 +609,7 @@ const Dashboard = () => {
               </Link>
             </div>
           )}
-          {stats.total === 0 && allBusinesses.some(b => b.id === selectedBusinessId &&
+          {recentReviews.length === 0 && allBusinesses.some(b => b.id === selectedBusinessId &&
             b.last_reviews_sync_status && b.last_reviews_sync_status !== "reviews_imported") && (
             <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-3 text-xs space-y-1">
               <p className="font-semibold text-foreground">
