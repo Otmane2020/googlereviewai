@@ -6,6 +6,7 @@ on:
     branches: [main]
     paths:
       - "supabase/functions/_shared/gmbImages.ts"
+      - "supabase/functions/_shared/gmbImageProviders.ts"
       - "supabase/functions/generate-gmb-image/**"
       - "supabase/functions/publish-gmb-post/**"
       - "supabase/functions/sync-gmb-posts/**"
