@@ -9,7 +9,7 @@ const groups = [
     title: "Google Review AI",
     links: [
       { label: "Home", href: "/" },
-      { label: "Local AEO & AI Search Visibility", href: "/local-aeo" },
+      { label: "Local GEO & AI Search Visibility", href: "/local-geo" },
       { label: "Google Business Profile Autoposting", href: "/gmb-autoposting" },
       { label: "AI Review Reply Guide", href: "/avis-ai-guide" },
       { label: "Review Reply AI Chrome Extension", href: "/review-reply-ai-google-business-profile" },
