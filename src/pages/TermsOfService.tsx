@@ -134,7 +134,7 @@ const TermsOfService = () => {
             <h2 className="text-xl font-semibold text-foreground mb-4">Contact</h2>
             <ul className="list-none text-muted-foreground space-y-2">
               <li><strong>Support :</strong> support@ranki.ai</li>
-              <li><strong>Questions légales :</strong> legal@googlereviewai.com</li>
+              <li><strong>Questions légales :</strong> legal@reviewsai.store</li>
             </ul>
           </section>
 
@@ -143,7 +143,7 @@ const TermsOfService = () => {
               <strong>Éditeur :</strong> Reviews AI PRO – 280 Boulevard de la Boissière, 93100 Montreuil, France
             </p>
             <p className="text-sm text-muted-foreground">
-              SIRET : 897 801 775 00015 – contact@googlereviewai.com
+              SIRET : 897 801 775 00015 – contact@reviewsai.store
             </p>
             <p className="text-sm text-muted-foreground mt-4">
               © 2025 Reviews AI – Tous droits réservés.
