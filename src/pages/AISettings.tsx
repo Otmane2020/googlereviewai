@@ -191,7 +191,7 @@ const AISettingsPage = () => {
     tone: "friendly",
     response_length: "M",
     include_signature: true,
-    signature: "The {business_name} team",
+    signature: isEN ? "The {business_name} team" : "L\'équipe {business_name}",
     custom_template: "",
     auto_reply_delay: 5,
     only_positive_reviews: true,
@@ -264,7 +264,7 @@ const AISettingsPage = () => {
           tone: settingsRes.data.tone ?? "friendly",
           response_length: settingsRes.data.response_length ?? "M",
           include_signature: settingsRes.data.include_signature ?? true,
-          signature: settingsRes.data.signature ?? "The {business_name} team",
+          signature: settingsRes.data.signature ?? (isEN ? "The {business_name} team" : "L\'équipe {business_name}"),
           custom_template: settingsRes.data.custom_template || "",
           auto_reply_delay: settingsRes.data.auto_reply_delay ?? 5,
           only_positive_reviews: settingsRes.data.only_positive_reviews ?? true,
@@ -503,9 +503,16 @@ const AISettingsPage = () => {
               <Input
                 value={settings.signature}
                 onChange={(e) => updateSettings({ signature: e.target.value })}
-                placeholder="The {business_name} team"
+                placeholder={isEN ? "The {business_name} team" : "L\'équipe {business_name}"}
                 className="mt-3 rounded-xl bg-muted/50 border-0"
               />
+            )}
+            {settings.include_signature && (
+              <p className="mt-2 px-1 text-xs text-muted-foreground">
+                {isEN
+                  ? "Default: “The Sweet Deco team” — not “The Sweet Deco - Furniture Wholesaler team”. {business_name} uses the short brand. Your custom signature is preserved."
+                  : "Par défaut : « L'équipe Sweet Deco » et non « L'équipe Sweet Deco - Grossiste de Meubles ». {business_name} représente le nom de marque raccourci. Votre signature personnalisée est conservée."}
+              </p>
             )}
           </div>
 
