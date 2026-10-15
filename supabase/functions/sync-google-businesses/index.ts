@@ -331,13 +331,13 @@ serve(async (req) => {
     }
     const hasSelectedBusinesses = existingPlaceIds.size > 0;
 
-    // Existing selections remain active, but when a newly discovered location
-    // exceeds the plan's limit, offer the user a real selection dialog.
-    const newlyDiscovered = businessesData.filter((business) => !existingPlaceIds.has(business.google_place_id));
-    const needsSelection = businessesData.length > maxBusinesses &&
-      (!hasSelectedBusinesses || newlyDiscovered.length > 0);
+    // Location selection is an onboarding decision, not a repeated sync action.
+    // If at least one active location was already chosen, preserve that set
+    // even when Google later reports additional locations over the plan limit.
+    // Only a new account with NO active selection needs the onboarding picker.
+    const needsSelection = businessesData.length > maxBusinesses && !hasSelectedBusinesses;
     if (needsSelection) {
-      console.log(`User has ${businessesData.length} businesses but plan allows ${maxBusinesses}. No selection made yet. Returning for selection.`);
+      console.log(`Initial selection needed: ${businessesData.length} Google locations exceed plan limit ${maxBusinesses} and none is active.`);
       return new Response(
         JSON.stringify({ 
           success: true, 
