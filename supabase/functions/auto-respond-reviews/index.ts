@@ -5,6 +5,7 @@ import { callOpenRouterWithFallback } from "../_shared/openrouter.ts";
 import { sendFreeUpgradeEmail } from "../_shared/free-upgrade.ts";
 import { hasUnlimitedAiReplies } from "../_shared/plan-access.ts";
 import { resolveEmailLang } from "../_shared/email-lang.ts";
+import { resolveReviewSignature, ensureReviewSignature } from "../_shared/review-signature.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -31,6 +32,7 @@ async function generateAIResponse(
   businessName: string,
   brandVoice?: BrandVoiceProfile | null,
   responseLanguage: "fr" | "en" = "fr",
+  legacyAccountFullName?: string | null,
 ): Promise<string | null> {
   const OPENROUTER_API_KEY = Deno.env.get("OPENROUTER_API_KEY");
   if (!OPENROUTER_API_KEY) {
@@ -41,7 +43,13 @@ async function generateAIResponse(
   const tone = aiSettings?.tone || "friendly";
   const responseLength = aiSettings?.response_length || "M";
   const includeSignature = aiSettings?.include_signature ?? true;
-  const signature = aiSettings?.signature?.replace("{business_name}", businessName) || "";
+  const signature = resolveReviewSignature({
+    businessName,
+    language: responseLanguage,
+    configuredSignature: aiSettings?.signature,
+    includeSignature,
+    legacyAccountFullName,
+  });
   const customTemplate = aiSettings?.custom_template || "";
 
   const lengthMap: Record<string, string> = {
@@ -78,10 +86,9 @@ IMPORTANT: Imite exactement ce style pour que la réponse semble écrite par la 
 `;
   }
 
-  // Determine which signature to use (user settings takes priority over brand voice)
-  const finalSignature = includeSignature && signature 
-    ? signature 
-    : (brandVoice?.signature_style || "");
+  // Settings, including disabling the signature, always take precedence over
+  // inferred brand voice. The standard sign-off is the short brand only.
+  const finalSignature = signature;
 
   // Build system prompt
   let systemPrompt = `You are an AI assistant that generates professional responses to customer reviews. Write the entire reply in ${responseLanguage === "en" ? "English" : "French"}, irrespective of the language of the review text. Do not switch languages.`;
@@ -97,7 +104,7 @@ IMPORTANT: Imite exactement ce style pour que la réponse semble écrite par la 
   systemPrompt += `\nAlways thank the customer and address their specific feedback.
 ${review.rating >= 4 ? "This is a positive review, express gratitude." : "This is a critical review, show empathy and offer to improve."}
 ${customTemplate ? `Additional instructions: ${customTemplate}` : ""}
-${finalSignature ? `IMPORTANT: End the response with this exact signature: "${finalSignature}"` : ""}
+${finalSignature ? `IMPORTANT: End the response with this EXACT signature: "${finalSignature}". Never append the descriptive Google listing/category, address or city to the signature.` : "Do not add any signature."}
 Do not include any greeting like "Cher client" - start directly with the response.`;
 
   try {
@@ -107,7 +114,7 @@ Do not include any greeting like "Cher client" - start directly with the respons
         { role: "user", content: `Generate a response for this ${review.rating}-star review from ${review.author}: "${review.comment || "No comment provided"}"` },
       ],
     });
-    return content || null;
+    return content ? ensureReviewSignature(content, finalSignature) : null;
   } catch (err) {
     console.error("[AutoRespond] OpenRouter all-models error:", err);
     return null;
@@ -366,7 +373,8 @@ serve(async (req) => {
             userSettings,
             businessName,
             brandVoice,
-            responseLanguage
+            responseLanguage,
+            profile.full_name,
           );
 
           if (!aiResponse) continue;
