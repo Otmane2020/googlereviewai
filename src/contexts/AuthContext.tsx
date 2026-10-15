@@ -13,7 +13,11 @@ interface AuthContextType {
   signOut: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+// Reuse one context instance across hot reloads so providers and consumers never mismatch.
+const globalKey = "__googlereviewai_auth_context__";
+const AuthContext: React.Context<AuthContextType | undefined> =
+  ((globalThis as Record<string, unknown>)[globalKey] as React.Context<AuthContextType | undefined>) ??
+  ((globalThis as Record<string, unknown>)[globalKey] = createContext<AuthContextType | undefined>(undefined)) as React.Context<AuthContextType | undefined>;
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
