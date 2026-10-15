@@ -32,7 +32,7 @@ const PLANS = [
     name: "Pro",
     monthly: "49€",
     yearly: "470€",
-    desc: "Avis + GEO + SEO/AEO auto · 3 établissements · 7j gratuits",
+    desc: "Avis + SEO & GEO auto · 3 établissements · 7j gratuits",
     highlight: true,
   },
   {

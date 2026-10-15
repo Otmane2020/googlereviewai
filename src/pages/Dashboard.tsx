@@ -273,7 +273,8 @@ const Dashboard = () => {
       .from("scheduled_content")
       .select("status, scheduled_date")
       .eq("user_id", user.id)
-      .eq("content_type", "aeo_qa");
+      .eq("content_type", "aeo_qa")
+      .eq("business_id", target?.id || "00000000-0000-0000-0000-000000000000");
     
     if (aeoData) {
       const planned = aeoData.length;
@@ -761,7 +762,7 @@ const Dashboard = () => {
         )}
 
         {/* GEO Autoposting Block - AI-generated Q&A scheduled to GMB */}
-        <Link to="/aeo-rank" className="block">
+        <Link to="/geo-rank" className="block">
           <div className="relative overflow-hidden rounded-2xl p-5 bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-700 shadow-lg shadow-violet-500/30 transition-all hover:shadow-xl">
             <div className="absolute -top-8 -right-8 w-32 h-32 bg-white/10 rounded-full blur-2xl" />
             <div className="absolute -bottom-6 -left-6 w-24 h-24 bg-white/5 rounded-full blur-xl" />

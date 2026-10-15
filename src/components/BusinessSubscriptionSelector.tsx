@@ -79,7 +79,7 @@ export const BusinessSubscriptionSelector = ({
     onSubscribe(selectedIds, isAnnual, quantity);
   };
 
-  const moduleLabel = moduleType === "aeo" ? "AEO" : "SEO";
+  const moduleLabel = moduleType === "aeo" ? "GEO" : "SEO";
 
   return (
     <>

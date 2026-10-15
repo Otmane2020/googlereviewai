@@ -42,7 +42,7 @@ const useNavItems = () => {
     { label: t("sidebar.googlePost"), href: "/gmb-post", icon: MessageCircleQuestion },
   ];
   const visibilityNav = [
-    { label: t("sidebar.geoRankAi"), href: "/aeo-rank", icon: BrandSparkle, badge: "AI" },
+    { label: t("sidebar.geoRankAi"), href: "/geo-rank", icon: BrandSparkle, badge: "AI" },
     { label: t("sidebar.seoAutopilot"), href: "/seo-autopost", icon: Search },
     { label: t("sidebar.planning"), href: "/calendar", icon: ListChecks },
   ];

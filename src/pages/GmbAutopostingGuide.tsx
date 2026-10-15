@@ -40,7 +40,7 @@ const GmbAutopostingGuide = () => {
     },
     {
       icon: Target,
-      title: "Questions & Réponses AEO",
+      title: "FAQ GEO générées",
       description: "Générez des FAQ optimisées pour apparaître dans les résultats IA (ChatGPT, Google AI)."
     },
     {
@@ -71,7 +71,7 @@ const GmbAutopostingGuide = () => {
     {
       title: "Q&A pour ChatGPT",
       content: "Q: Quels sont les horaires d'ouverture de [Entreprise] ?\nR: Nous sommes ouverts du lundi au samedi de 9h à 19h. Fermé le dimanche.",
-      type: "AEO"
+      type: "GEO"
     }
   ];
 
@@ -81,14 +81,14 @@ const GmbAutopostingGuide = () => {
         <title>Autoposting Google My Business avec IA - Améliorer son SEO Local | GoogleReviewAI</title>
         <meta 
           name="description" 
-          content="Automatisez vos publications Google My Business avec l'IA. Posts quotidiens, Q&A optimisés AEO, articles SEO locaux. Boostez votre référencement local sans effort." 
+          content="Automatisez vos publications Google My Business avec l'IA. Posts quotidiens, Q&A optimisés GEO, articles SEO locaux. Boostez votre référencement local sans effort." 
         />
         <meta name="keywords" content="google my business autoposting, publication automatique gmb, seo local ia, posts gmb automatiques, référencement local, aeo chatgpt" />
         <link rel="canonical" href="https://googlereviewai.com/gmb-autoposting" />
         
         {/* Open Graph */}
         <meta property="og:title" content="Autoposting Google My Business avec IA - Boostez votre SEO Local" />
-        <meta property="og:description" content="Publications automatiques sur GMB, Q&A AEO pour ChatGPT, articles SEO locaux. L'IA au service de votre visibilité." />
+        <meta property="og:description" content="Publications automatiques sur GMB, Q&A GEO pour ChatGPT, articles SEO locaux. L'IA au service de votre visibilité." />
         <meta property="og:url" content="https://googlereviewai.com/gmb-autoposting" />
         <meta property="og:type" content="website" />
         <meta property="og:image" content="https://googlereviewai.com/og-image.png" />
@@ -106,7 +106,7 @@ const GmbAutopostingGuide = () => {
             "name": "GoogleReviewAI - Autoposting Google My Business",
             "applicationCategory": "BusinessApplication",
             "operatingSystem": "Web",
-            "description": "Solution IA d'autoposting pour Google My Business. Publications automatiques, Q&A AEO, articles SEO locaux.",
+            "description": "Solution IA d'autoposting pour Google My Business. Publications automatiques, Q&A GEO, articles SEO locaux.",
             "offers": {
               "@type": "Offer",
               "price": "0",
@@ -143,10 +143,10 @@ const GmbAutopostingGuide = () => {
               },
               {
                 "@type": "Question",
-                "name": "Qu'est-ce que l'AEO (Answer Engine Optimization) ?",
+                "name": "Qu'est-ce que l'GEO (Generative Engine Optimization) ?",
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": "L'AEO optimise votre contenu pour les moteurs de réponse IA comme ChatGPT et Google AI Overview. En publiant des questions-réponses structurées, vous augmentez vos chances d'être cité par ces assistants IA."
+                  "text": "L'GEO optimise votre contenu pour les moteurs de réponse IA comme ChatGPT et Google AI Overview. En publiant des FAQ structurées sur votre site Web, vous améliorez l'accessibilité des informations de votre entreprise aux moteurs IA."
                 }
               }
             ]
@@ -341,7 +341,7 @@ const GmbAutopostingGuide = () => {
                   <div className="space-y-4">
                     <h3 className="text-xl font-semibold flex items-center gap-2">
                       <BotIcon className="w-5 h-5 text-primary" />
-                      Optimisation pour l'IA (AEO)
+                      Optimisation pour l'IA (GEO)
                     </h3>
                     <ul className="space-y-3">
                       {[

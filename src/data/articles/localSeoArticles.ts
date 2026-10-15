@@ -141,7 +141,7 @@ export const localSeoArticles: SeoArticle[] = [
     slug: "faq-schema-local-business",
     title: "Local Business FAQs: Research, Writing and Schema Best Practices",
     description: "Build useful local business FAQ content from real customer questions, write answer-ready responses and implement schema responsibly.",
-    category: "AEO",
+    category: "GEO",
     targetKeyword: "local business FAQ schema",
     keywords: ["FAQ schema local business", "local FAQ SEO", "FAQPage structured data", "answer engine FAQ"],
     publishedAt: "2026-09-16",
@@ -194,7 +194,7 @@ export const localSeoArticles: SeoArticle[] = [
         paragraphs: [
           "Local businesses often avoid pricing FAQs because the exact price varies. That creates an information gap competitors or third parties may fill. If a fixed price is impossible, explain the pricing structure. Name the factors that materially change the quote, provide legitimate ranges if the business can support them, and describe how a customer obtains a confirmed price.",
           "Avoid publishing a low teaser number that almost no customer receives. It may generate clicks but increases mistrust and support friction. If taxes, travel fees, materials or after-hours surcharges apply, explain them where relevant. When prices change frequently, connect the FAQ to a maintained pricing source rather than duplicating numbers across old articles.",
-          "A transparent pricing answer can be valuable for AEO because it resolves a high-intent question while preserving the conditions needed for accuracy."
+          "A transparent pricing answer can be valuable for GEO because it resolves a high-intent question while preserving the conditions needed for accuracy."
         ]
       },
       {
@@ -202,7 +202,7 @@ export const localSeoArticles: SeoArticle[] = [
         paragraphs: [
           "Some FAQs can influence high-impact decisions. A dental practice, law firm, financial service or safety contractor should not let an unreviewed marketing writer publish definitive professional advice merely because the question attracts search traffic. Define the scope, involve qualified reviewers and separate general information from personalized advice.",
           "For medical questions, avoid diagnosing through a general FAQ. Explain when urgent professional evaluation is needed and how to contact the practice. For legal content, identify jurisdiction and avoid guarantees. For safety topics, prefer official instructions and clear escalation paths over simplified shortcuts.",
-          "AEO rewards clarity, but clarity without appropriate caution can become dangerous. Strong editorial governance is part of optimization."
+          "GEO rewards clarity, but clarity without appropriate caution can become dangerous. Strong editorial governance is part of optimization."
         ]
       },
       {
@@ -266,7 +266,7 @@ export const localSeoArticles: SeoArticle[] = [
       { question: "Does FAQ schema guarantee a Google rich result?", answer: "No. Search engines control eligibility and display, and policies change. Use FAQ markup only as an accurate description of visible content, not as a guaranteed search feature." },
       { question: "How many questions should a local business FAQ have?", answer: "Use as many as genuinely help the user. Organize large sets by topic and move complex subjects into dedicated guides. Quality and maintainability matter more than a target number." },
       { question: "Should the same FAQs appear on every location page?", answer: "Only organization-wide answers that truly apply everywhere should be reused carefully. Location pages should prioritize distinct local facts such as hours, access, parking and service availability." },
-      { question: "Are short FAQ answers better for AEO?", answer: "Short answers are useful when they remain complete. Include conditions, limitations and next steps when those details change the meaning." },
+      { question: "Are short FAQ answers better for GEO?", answer: "Short answers are useful when they remain complete. Include conditions, limitations and next steps when those details change the meaning." },
       { question: "Where should FAQ ideas come from?", answer: "Use support conversations, calls, sales objections, reviews, Search Console, paid search terms, internal search and front-line staff. Those sources reflect real customer uncertainty." }
     ],
     relatedSlugs: ["answer-engine-optimization-guide", "local-business-schema-markup", "voice-search-local-seo"],

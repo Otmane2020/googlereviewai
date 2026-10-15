@@ -18,7 +18,7 @@ const AVAILABLE_MODULES = [
   {
     priceKeyMonthly: "aeo_monthly",
     priceKeyYearly: "aeo_yearly",
-    name: "ChatGPT Rank (AEO)",
+    name: "ChatGPT Rank (GEO)",
     description: "Get cited by ChatGPT & Perplexity",
     priceMonthly: 49,
     priceYearly: 39.2,

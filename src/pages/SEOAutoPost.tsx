@@ -6,8 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useRequireSubscription } from "@/hooks/useRequireSubscription";
 import { includesPremiumModules, isCurrentModuleSubscription } from "@/lib/planEntitlements";
 import { UpgradeDialog } from "@/components/UpgradeDialog";
-import { SelectBusinessesDialog } from "@/components/SelectBusinessesDialog";
-import { useSyncGoogleBusinesses } from "@/hooks/useSyncGoogleBusinesses";
+import { ManageLocationsDialog } from "@/components/ManageLocationsDialog";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { ArticlePreviewDialog } from "@/components/ArticlePreviewDialog";
 import { Button } from "@/components/ui/button";
@@ -71,10 +70,6 @@ const SEOAutoPost = () => {
   const [publicationHour, setPublicationHour] = useState(7);
   const [seoUpgradeOpen, setSeoUpgradeOpen] = useState(false);
   const [manageBusinessesOpen, setManageBusinessesOpen] = useState(false);
-  const [googleBusinesses, setGoogleBusinesses] = useState<{ name: string; google_place_id: string; address: string | null; phone: string | null; website: string | null }[]>([]);
-  const [selectionLimit, setSelectionLimit] = useState(1);
-  const [activeGoogleIds, setActiveGoogleIds] = useState<string[]>([]);
-  const { syncBusinesses, isSyncing: syncingBusinesses } = useSyncGoogleBusinesses();
 
   // Use subscription verification hook
   const { loading: subscriptionLoading } = useRequireSubscription();
@@ -154,29 +149,13 @@ const SEOAutoPost = () => {
       .select("*")
       .eq("business_id", businessId)
       .eq("user_id", user!.id)
+      .eq("content_type", "seo_article")
       .order("scheduled_date", { ascending: true });
     
     setScheduledContent((data as ScheduledContent[]) || []);
   };
 
-  const manageLocations = async () => {
-    const result = await syncBusinesses(true);
-    if (!result.success) {
-      toast({ title: t("Synchronisation Google impossible", "Google sync failed"),
-        description: result.message || t("Reconnectez Google dans Paramètres.", "Reconnect Google in Settings."),
-        variant: "destructive" });
-      if (result.requires_reconnect) navigate("/settings");
-      return;
-    }
-    if (!result.google_businesses?.length) {
-      toast({ title: t("Aucun établissement Google", "No Google locations found"), variant: "destructive" });
-      return;
-    }
-    setActiveGoogleIds(businesses.map(b => (b as Business & {google_place_id?: string}).google_place_id).filter((id): id is string => !!id));
-    setGoogleBusinesses(result.google_businesses);
-    setSelectionLimit(result.max_businesses || 1);
-    setManageBusinessesOpen(true);
-  };
+  const manageLocations = () => setManageBusinessesOpen(true);
 
   const handlePreviewArticle = (article: ScheduledContent) => {
     setSelectedArticle(article);
@@ -492,12 +471,17 @@ const SEOAutoPost = () => {
               <FileText className="w-5 h-5 text-primary" />
             </div>
             <div className="min-w-0">
-              <h1 className="text-lg font-bold text-foreground truncate">SEO & AEO AutoPost</h1>
+              <h1 className="text-lg font-bold text-foreground truncate">SEO & GEO AutoPost</h1>
               <p className="text-xs text-muted-foreground">
                 {t("Planification automatique sur 30 jours", "30-day automatic planning")}
               </p>
             </div>
           </div>
+          <Button type="button" size="sm" variant="outline"
+            className="w-full mb-3 gap-2" onClick={manageLocations}>
+            <Building2 className="h-4 w-4" />
+            {t("Gérer mes établissements SEO & GEO", "Manage my SEO & GEO locations")}
+          </Button>
           {selectedBusiness && isSubscribed && (
             <Button
               onClick={analyzeAndGeneratePlan}
@@ -581,6 +565,7 @@ const SEOAutoPost = () => {
                                 key={business.id}
                                 onClick={() => {
                                   setSelectedBusiness(business);
+                                  if (user) localStorage.setItem("googlereviewai.com_selected_business_" + user.id, business.id);
                                   fetchScheduledContent(business.id);
                                   setBusinessDialogOpen(false);
                                 }}
@@ -611,10 +596,6 @@ const SEOAutoPost = () => {
                     </Dialog>
                   </div>
                   
-                  <Button size="sm" variant="outline" className="mt-3 w-full" disabled={syncingBusinesses} onClick={() => void manageLocations()}>
-                    {syncingBusinesses ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Building2 className="w-4 h-4 mr-2" />}
-                    {t("Gérer les établissements SEO", "Manage SEO locations")}
-                  </Button>
                   {/* Keywords section */}
                   {selectedBusiness.auto_keywords && selectedBusiness.auto_keywords.length > 0 && (
                     <div className="flex flex-wrap gap-1 mt-3 pt-3 border-t border-border">
@@ -762,14 +743,10 @@ const SEOAutoPost = () => {
       </main>
 
       <MobileBottomNav />
-      <SelectBusinessesDialog
+      <ManageLocationsDialog
         open={manageBusinessesOpen}
         onOpenChange={setManageBusinessesOpen}
-        businesses={googleBusinesses}
-        maxBusinesses={selectionLimit}
-        userId={user?.id || ""}
-        initialSelectedGooglePlaceIds={activeGoogleIds}
-        onSuccess={() => void fetchData()}
+        onSuccess={() => fetchData()}
       />
 
       {/* Article Preview Dialog */}

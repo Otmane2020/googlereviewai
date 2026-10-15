@@ -26,7 +26,7 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    console.log("[CRON-AEO] Starting daily Q&A generation...");
+    console.log("[CRON-GEO] Starting daily Q&A generation...");
 
     // Only current premium subscriptions can generate scheduled Google Q&A.
     const { data: allProfiles } = await supabase
@@ -34,7 +34,7 @@ serve(async (req) => {
       .select("id, plan_name, subscription_status, current_period_end, trial_end");
 
     const eligibleUserIds = (allProfiles || []).filter((p: any) => ["pro", "business"].includes(activePlanTier(p))).map((p: any) => p.id);
-    console.log(`[CRON-AEO] Total users: ${eligibleUserIds.length}`);
+    console.log(`[CRON-GEO] Total users: ${eligibleUserIds.length}`);
 
     const today = new Date().toISOString().split("T")[0];
     let generatedCount = 0;
@@ -126,19 +126,19 @@ serve(async (req) => {
           if (insertError) { errorCount++; } else { generatedCount++; }
         }
       } catch (userError) {
-        console.error(`[CRON-AEO] Error for user ${userId}:`, userError);
+        console.error(`[CRON-GEO] Error for user ${userId}:`, userError);
         errorCount++;
       }
     }
 
-    console.log(`[CRON-AEO] Done. Generated: ${generatedCount}, Errors: ${errorCount}`);
+    console.log(`[CRON-GEO] Done. Generated: ${generatedCount}, Errors: ${errorCount}`);
 
     return new Response(
       JSON.stringify({ success: true, generated: generatedCount, errors: errorCount }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
-    console.error("[CRON-AEO] Fatal:", error);
+    console.error("[CRON-GEO] Fatal:", error);
     return new Response(
       JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }

@@ -74,15 +74,15 @@ const LocalAEO = () => {
   const aeoFaqs = [
     {
       question: "Comment apparaître dans les réponses de ChatGPT pour les recherches locales ?",
-      answer: "Pour apparaître dans ChatGPT pour les recherches locales, il faut publier du contenu structuré en format question-réponse sur votre fiche Google Business Profile. GoogleReviewAI automatise ce processus via son module AEO qui génère et publie quotidiennement des Q&A optimisés spécifiquement pour les moteurs de réponse IA."
+      answer: "Pour renforcer votre visibilité dans les moteurs IA, créez des contenus GEO utiles et des FAQ sur votre site. GoogleReviewAI aide à préparer ces contenus. Les anciennes questions-réponses Google Business ne sont plus publiables via API."
     },
     {
-      question: "Qu'est-ce que l'AEO (Answer Engine Optimization) ?",
-      answer: "L'AEO (Answer Engine Optimization) est le référencement pour les moteurs de réponse IA comme ChatGPT, Gemini, Claude et Perplexity. Contrairement au SEO qui optimise pour les moteurs de recherche traditionnels, l'AEO optimise votre contenu pour être cité directement dans les réponses des assistants IA."
+      question: "Qu'est-ce que l'GEO (Generative Engine Optimization) ?",
+      answer: "L'GEO (Generative Engine Optimization) est le référencement pour les moteurs de réponse IA comme ChatGPT, Gemini, Claude et Perplexity. Contrairement au SEO qui optimise pour les moteurs de recherche traditionnels, l'GEO optimise votre contenu pour être cité directement dans les réponses des assistants IA."
     },
     {
-      question: "Quelle est la différence entre SEO local et AEO local ?",
-      answer: "Le SEO local optimise votre positionnement dans Google Maps et les résultats de recherche locaux. L'AEO local optimise votre contenu pour que les assistants IA (ChatGPT, Gemini) recommandent votre entreprise lorsque les utilisateurs posent des questions sur des services près de chez eux. GoogleReviewAI combine les deux pour maximiser votre visibilité."
+      question: "Quelle est la différence entre SEO local et GEO local ?",
+      answer: "Le SEO local optimise votre positionnement dans Google Maps et les résultats de recherche locaux. L'GEO local optimise votre contenu pour que les assistants IA (ChatGPT, Gemini) recommandent votre entreprise lorsque les utilisateurs posent des questions sur des services près de chez eux. GoogleReviewAI combine les deux pour maximiser votre visibilité."
     },
     {
       question: "Comment GoogleReviewAI génère-t-il des Q&A pour ChatGPT ?",
@@ -90,33 +90,33 @@ const LocalAEO = () => {
     },
     {
       question: "Combien de temps faut-il pour apparaître dans les réponses IA ?",
-      answer: "Les premiers résultats sont généralement visibles en 30 à 60 jours. GoogleReviewAI publie du contenu AEO quotidiennement, créant un effet cumulatif. Plus votre contenu est riche et régulier, plus les chances d'être cité par ChatGPT et les autres IA augmentent."
+      answer: "Le référencement GEO est progressif et les résultats ne sont pas garantis. GoogleReviewAI génère des contenus et des FAQ que vous pouvez publier sur vos propres supports afin d'améliorer la visibilité de votre activité."
     },
     {
-      question: "L'AEO fonctionne-t-il pour tous les secteurs d'activité ?",
-      answer: "Oui, l'AEO est efficace pour toutes les entreprises locales : restaurants, hôtels, salons de coiffure, garages, professionnels de santé, commerces, artisans. GoogleReviewAI adapte le contenu Q&A à chaque secteur pour répondre aux questions que les utilisateurs posent réellement aux assistants IA."
+      question: "L'GEO fonctionne-t-il pour tous les secteurs d'activité ?",
+      answer: "Oui, l'GEO est efficace pour toutes les entreprises locales : restaurants, hôtels, salons de coiffure, garages, professionnels de santé, commerces, artisans. GoogleReviewAI adapte le contenu Q&A à chaque secteur pour répondre aux questions que les utilisateurs posent réellement aux assistants IA."
     }
   ];
 
   return (
     <div className="min-h-screen bg-background">
       <Helmet>
-        <title>Local AEO – Apparaissez dans ChatGPT & Gemini | GoogleReviewAI</title>
+        <title>Local GEO – Apparaissez dans ChatGPT & Gemini | GoogleReviewAI</title>
         <meta
           name="description"
-          content="Optimisez votre visibilité locale dans ChatGPT, Gemini et les assistants IA. Générez automatiquement des Q&A AEO pour être recommandé par l'IA. Essai gratuit."
+          content="Optimisez votre visibilité locale dans ChatGPT, Gemini et les assistants IA. Générez automatiquement des Q&A GEO pour être recommandé par l'IA. Essai gratuit."
         />
-        <link rel="canonical" href="https://googlereviewai.com/local-aeo" />
-        <meta property="og:title" content="Local AEO – Apparaissez dans ChatGPT & Gemini" />
+        <link rel="canonical" href="https://googlereviewai.com/local-geo" />
+        <meta property="og:title" content="Local GEO – Apparaissez dans ChatGPT & Gemini" />
         <meta property="og:description" content="Optimisez votre présence pour les moteurs de réponse IA. Q&A automatiques publiés sur Google Business Profile." />
-        <meta property="og:url" content="https://googlereviewai.com/local-aeo" />
+        <meta property="og:url" content="https://googlereviewai.com/local-geo" />
         <meta property="og:type" content="website" />
         <meta property="og:image" content="https://googlereviewai.com/og-image.png" />
       </Helmet>
       <FAQPageSchema faqs={aeoFaqs} />
       <BreadcrumbSchema items={[
         { name: "Accueil", url: "https://googlereviewai.com" },
-        { name: "Local AEO", url: "https://googlereviewai.com/local-aeo" }
+        { name: "Local GEO", url: "https://googlereviewai.com/local-geo" }
       ]} />
       <Header />
       
@@ -139,7 +139,7 @@ const LocalAEO = () => {
               </h1>
               
               <p className="text-lg sm:text-xl text-white/80 mb-8 max-w-2xl mx-auto">
-                Local AEO (Answer Engine Optimization) optimise votre présence pour les assistants IA. 
+                Local GEO (Generative Engine Optimization) optimise votre présence pour les assistants IA. 
                 Quand les utilisateurs demandent des recommandations locales à ChatGPT, Gemini ou Perplexity, 
                 votre entreprise apparaît en premier.
               </p>
@@ -161,17 +161,17 @@ const LocalAEO = () => {
           </div>
         </section>
 
-        {/* What is Local AEO */}
+        {/* What is Local GEO */}
         <section className="py-16 bg-muted/30">
           <div className="container mx-auto px-4">
             <div className="max-w-3xl mx-auto text-center mb-12">
               <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-4">
-                Qu'est-ce que le Local AEO ?
+                Qu'est-ce que le Local GEO ?
               </h2>
               <p className="text-muted-foreground text-lg">
-                L'AEO (Answer Engine Optimization) est le nouveau SEO pour l'ère de l'IA. 
+                L'GEO (Generative Engine Optimization) est le nouveau SEO pour l'ère de l'IA. 
                 Contrairement au SEO traditionnel qui optimise pour les moteurs de recherche, 
-                le Local AEO optimise votre contenu pour être cité par les assistants IA 
+                le Local GEO optimise votre contenu pour être cité par les assistants IA 
                 comme ChatGPT, Gemini, Claude et Perplexity.
               </p>
             </div>
@@ -235,7 +235,7 @@ const LocalAEO = () => {
             <div className="max-w-4xl mx-auto">
               <div className="text-center mb-12">
                 <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-4">
-                  Pourquoi Adopter le Local AEO ?
+                  Pourquoi Adopter le Local GEO ?
                 </h2>
                 <p className="text-muted-foreground">
                   Les assistants IA deviennent le nouveau moteur de recherche. Soyez prêt.

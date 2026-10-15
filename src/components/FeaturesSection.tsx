@@ -60,7 +60,7 @@ export const FeaturesSection = () => {
       badge: t("features.exclusive"),
       badgeColor: "bg-primary text-primary-foreground",
       details: {
-        title: t("features.chatgptVisibility") + " (AEO)",
+        title: t("features.chatgptVisibility") + " (GEO)",
         description: t("features.chatgptVisibilityDetail"),
         benefits: [
           t("features.chatgptVisibilityBenefit1"),

@@ -29,7 +29,7 @@ const styleForType = (type: string) => {
   if (type.startsWith("seo_"))
     return { Icon: FileText, iconClass: "text-blue-600", bgClass: "bg-blue-500/10", category: "SEO", categoryEN: "SEO" };
   if (type.startsWith("aeo_") || type === "qa_published")
-    return { Icon: Target, iconClass: "text-emerald-600", bgClass: "bg-emerald-500/10", category: "AEO", categoryEN: "AEO" };
+    return { Icon: Target, iconClass: "text-emerald-600", bgClass: "bg-emerald-500/10", category: "GEO", categoryEN: "GEO" };
   if (type === "low_credits")
     return { Icon: Wallet, iconClass: "text-orange-600", bgClass: "bg-orange-500/10", category: "Crédits", categoryEN: "Credits" };
   return { Icon: Bell, iconClass: "text-primary", bgClass: "bg-primary/10", category: "Information", categoryEN: "Information" };
@@ -40,7 +40,7 @@ const notificationDestination = (n: AppNotification) => {
   if (["new_review", "pending_reviews", "review_deleted", "review_edited", "reply_published"].includes(n.type))
     return "/reviews";
   if (n.type.startsWith("seo_")) return "/seo-autopost";
-  if (n.type.startsWith("aeo_") || n.type === "qa_published") return "/aeo-rank";
+  if (n.type.startsWith("aeo_") || n.type === "qa_published") return "/geo-rank";
   if (n.type === "low_credits") return "/select-plan";
   if (n.type === "ai_tip") return "/ai-settings";
   return "/dashboard";

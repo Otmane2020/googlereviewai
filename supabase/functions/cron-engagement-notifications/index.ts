@@ -298,7 +298,7 @@ serve(async (req) => {
             notifications.push({
               user_id: profile.id,
               title: isEn ? "💡 New: ChatGPT Rank" : "💡 Nouveau: ChatGPT Rank",
-              message: isEn ? "Appear in ChatGPT and other AI answers. Discover AEO!" : "Apparaissez dans les réponses de ChatGPT et autres IA. Découvrez AEO !",
+              message: isEn ? "Appear in ChatGPT and other AI answers. Discover GEO!" : "Apparaissez dans les réponses de ChatGPT et autres IA. Découvrez GEO !",
               type: "aeo_promo",
             });
           }
