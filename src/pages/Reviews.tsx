@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useRequireSubscription } from "@/hooks/useRequireSubscription";
+import { includesPremiumModules } from "@/lib/planEntitlements";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -127,6 +128,7 @@ const Reviews = () => {
   const [upgradeAfterPreview, setUpgradeAfterPreview] = useState(false);
   const [userCredits, setUserCredits] = useState<number>(0);
   const [currentPlan, setCurrentPlan] = useState<string | null>(null);
+  const [unlimitedAiReplies, setUnlimitedAiReplies] = useState(false);
   const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
   const [previewReview, setPreviewReview] = useState<Review | null>(null);
   
@@ -180,7 +182,7 @@ const Reviews = () => {
     const [businessesRes, reviewsRes, profileRes] = await Promise.all([
       supabase.from("businesses").select("id, name, google_place_id, total_reviews, rating, maps_url, last_reviews_sync_at, last_reviews_sync_status, last_reviews_sync_error, last_google_reviews_total").eq("user_id", user.id).eq("is_active", true),
       supabase.from("reviews").select("*").eq("user_id", user.id).order("review_date", { ascending: false }),
-      supabase.from("profiles").select("credits, plan_name").eq("id", user.id).single()
+      supabase.from("profiles").select("credits, plan_name, subscription_status, current_period_end, trial_end").eq("id", user.id).single()
     ]);
 
     const businessesList = businessesRes.data || [];
@@ -192,6 +194,7 @@ const Reviews = () => {
     if (profileRes.data) {
       setUserCredits(profileRes.data.credits || 0);
       setCurrentPlan(profileRes.data.plan_name || null);
+      setUnlimitedAiReplies(includesPremiumModules(profileRes.data));
     }
     
     // Links from /businesses?business=... and dashboard share the same
@@ -269,65 +272,98 @@ const Reviews = () => {
   }, [user, fetchData, generatingId, publishingId, isSyncing]);
 
   const generateAIResponse = async (reviewId: number) => {
-    if (!user) return;
-    
-    // Check credits before generating
-    if (userCredits < 1) {
+    if (!user || generatingId !== null) return;
+
+    // Active Pro/Business plans include unlimited AI replies, even with
+    // zero numerical credits. Starter/free plans use the remaining balance.
+    if (!unlimitedAiReplies && userCredits < 1) {
       setUpgradeDialogOpen(true);
       return;
     }
-    
-    setGeneratingId(reviewId);
 
+    setGeneratingId(reviewId);
     try {
       const { data, error } = await supabase.functions.invoke("generate-ai-response", {
-        body: { 
-          reviewId, 
-          userId: user.id,
-          businessId: selectedBusinessId // Pass the selected business
+        body: {
+          reviewId,
+          businessId: selectedBusinessId,
+          language: i18n.language?.startsWith("en") ? "en" : "fr",
         },
       });
 
       if (error) {
-        if ((error as any)?.context?.status === 402) {
-          setUserCredits(0);
+        // Supabase FunctionsHttpError holds the meaningful backend JSON in
+        // context; otherwise users only see "Edge Function returned non-2xx".
+        const context = (error as { context?: Response }).context;
+        const status = context?.status;
+        let serverError: { error?: string; code?: string; upgrade_required?: boolean } | null = null;
+        try {
+          serverError = await context?.clone?.().json?.() ?? null;
+        } catch {
+          // Network error or non-JSON response.
+        }
+        if (status === 402 || serverError?.upgrade_required || serverError?.code === "UPGRADE_REQUIRED") {
+          await fetchData(true);
           setUpgradeDialogOpen(true);
           return;
         }
-        throw error;
+        throw new Error(serverError?.error ||
+          (status === 401 ? (i18n.language?.startsWith("en") ? "Session expired. Please sign in again." : "Session expirée. Reconnectez-vous.") :
+          status === 403 ? (i18n.language?.startsWith("en") ? "This Google location is not active in your plan." : "Cet établissement Google n'est pas actif dans votre forfait.") :
+          status === 429 ? (i18n.language?.startsWith("en") ? "Too many requests. Please try again shortly." : "Trop de demandes. Réessayez dans quelques instants.") :
+          error.message || "AI generation failed"));
       }
       if (data?.upgrade_required || data?.code === "UPGRADE_REQUIRED") {
-        setUserCredits(0);
+        await fetchData(true);
         setUpgradeDialogOpen(true);
         return;
       }
       if (data?.error) throw new Error(data.error);
+      if (data?.success !== true || typeof data?.response !== "string" || !data.response.trim()) {
+        throw new Error(i18n.language?.startsWith("en")
+          ? "The AI service returned no reply. Please try again."
+          : "Le service IA n'a retourné aucune réponse. Veuillez réessayer.");
+      }
 
-      // Update local credits count
-      setUserCredits(data.credits_remaining || 0);
-      
-      // Fetch the updated review to show in preview dialog
+      // The credit is debited atomically by the backend only on success.
+      // Keep the current credit count if the server omitted this field.
+      if (typeof data.credits_remaining === "number") {
+        setUserCredits(data.credits_remaining);
+      }
+
       const { data: updatedReview } = await supabase
         .from("reviews")
         .select("*")
         .eq("id", reviewId)
-        .single();
-      
-      if (updatedReview) {
-        setPreviewReview(updatedReview as Review);
-        setPreviewDialogOpen(true);
-      }
+        .eq("user_id", user.id)
+        .maybeSingle();
 
-      // Invite upgrade as soon as the third complimentary response is used,
-      // without covering the reply preview.
-      if (data.credits_remaining === 0 && (!currentPlan || currentPlan.toLowerCase() === "free")) {
-        if (updatedReview) setUpgradeAfterPreview(true);
-        else setUpgradeDialogOpen(true);
-      }
+      // Show the returned text even if this secondary read is delayed.
+      const preview = updatedReview || {
+        ...reviews.find(r => r.id === reviewId),
+        id: reviewId,
+        ai_response: data.response,
+      };
+      setReviews(previous => previous.map(r =>
+        r.id === reviewId ? { ...r, ai_response: data.response, needs_new_response: false } : r
+      ));
+      setPreviewReview(preview as Review);
+      setPreviewDialogOpen(true);
 
-      toast({ title: t("reviewsPage.toastReady"), description: t("reviewsPage.toastReadyDesc", { n: data.credits_remaining }) });
+      if (!unlimitedAiReplies && data.credits_remaining === 0) {
+        setUpgradeAfterPreview(true);
+      }
+      toast({
+        title: t("reviewsPage.toastReady"),
+        description: t("reviewsPage.toastReadyDesc", { n: data.credits_remaining ?? userCredits }),
+      });
     } catch (error) {
-      toast({ title: t("reviewsPage.toastError"), description: error instanceof Error ? error.message : t("reviewsPage.toastGenFail"), variant: "destructive" });
+      console.error("[Reviews] generate-ai-response failed", error);
+      toast({
+        title: t("reviewsPage.toastError"),
+        description: error instanceof Error ? error.message : t("reviewsPage.toastGenFail"),
+        variant: "destructive",
+      });
     } finally {
       setGeneratingId(null);
     }
