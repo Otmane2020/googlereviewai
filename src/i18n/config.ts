@@ -3,12 +3,14 @@ import { initReactI18next } from "react-i18next";
 
 import en from "./locales/en.json";
 import fr from "./locales/fr.json";
+import { getVisitorCountry } from "./visitor-country";
 
 export type AppLanguage = "fr" | "en";
 
 const LANGUAGE_KEY = "app_language";
 const EXPLICIT_LANGUAGE_KEY = "app_language_explicit";
 const LEGACY_LANGUAGE_KEY = "i18nextLng";
+const GEO_LANGUAGE_KEY = "app_language_geo";
 const OAUTH_LANGUAGE_KEY = "oauth_language";
 
 export const normalizeLanguage = (value: string | null | undefined): AppLanguage | null => {
@@ -36,12 +38,46 @@ export const getExplicitLanguage = (): AppLanguage | null => {
 
 export const getPreferredLocalLanguage = (): AppLanguage => {
   try {
-    // English is the public-site default. Only an explicit user selection may
-    // override it; the browser locale must not silently switch the landing page.
-    return getExplicitLanguage() || "en";
+    // A deliberate user choice always overrides visitor geography.
+    // Without an edge country header, English is the safe default.
+    return getExplicitLanguage() ||
+      normalizeLanguage(localStorage.getItem(GEO_LANGUAGE_KEY)) || "en";
   } catch {
     return "en";
   }
+};
+
+let countryCheckInFlight: Promise<AppLanguage> | null = null;
+
+/**
+ * Detect the visitor's country from server-side hosting headers once per app
+ * startup, without forwarding IP addresses to any third-party API.
+ * Apply French only for FR; everywhere else remains English.
+ */
+export const detectVisitorDefaultLanguage = (): Promise<AppLanguage> => {
+  if (countryCheckInFlight) return countryCheckInFlight;
+  countryCheckInFlight = (async () => {
+    if (getExplicitLanguage()) return getPreferredLocalLanguage();
+    try {
+      const country = await getVisitorCountry();
+      // A user may have chosen the language while this request was pending.
+      if (getExplicitLanguage()) return getPreferredLocalLanguage();
+      if (!country) return getPreferredLocalLanguage();
+
+      const detected: AppLanguage = country === "FR" ? "fr" : "en";
+      try { localStorage.setItem(GEO_LANGUAGE_KEY, detected); } catch {}
+      persistLanguage(detected);
+      if (normalizeLanguage(i18n.resolvedLanguage || i18n.language) !== detected) {
+        await i18n.changeLanguage(detected);
+      }
+      return detected;
+    } catch {
+      // If edge geo is not configured, keep English and never guess from
+      // browser timezone/locale (which is different from IP location).
+      return getPreferredLocalLanguage();
+    }
+  })();
+  return countryCheckInFlight;
 };
 
 export const persistLanguage = (language: AppLanguage, explicit = false) => {
