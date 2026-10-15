@@ -523,11 +523,11 @@ const Dashboard = () => {
                   </p>
                   <Select value={selectedBusinessId || allBusinesses[0].id}
                     onValueChange={v => { void switchDashboardLocation(v); }}>
-                    <SelectTrigger className="w-full min-w-0 h-auto border-0 px-0 py-1 bg-transparent shadow-none focus:ring-0 gap-1 items-start [&>svg]:shrink-0 [&>svg]:mt-1">
-                      <span className="text-sm sm:text-base font-bold text-foreground leading-snug text-left break-words whitespace-normal">
-                        {allBusinesses.find(b => b.id === selectedBusinessId)?.name || primaryBusinessName || allBusinesses[0].name}
-                      </span>
-                      <SelectValue className="sr-only" />
+                    <SelectTrigger
+                      title={allBusinesses.find(b => b.id === selectedBusinessId)?.name || allBusinesses[0].name}
+                      aria-label={i18n.language?.startsWith("fr") ? "Changer l'établissement" : "Choose business"}
+                      className="w-full min-w-0 h-auto border-0 px-0 py-1 bg-transparent shadow-none focus:ring-0 gap-1 items-start text-sm sm:text-base font-bold text-foreground leading-snug [&>span]:!line-clamp-none [&>span]:!whitespace-normal [&>span]:!break-words [&>span]:!text-left [&>svg]:shrink-0 [&>svg]:mt-1">
+                      <SelectValue placeholder={i18n.language?.startsWith("fr") ? "Choisir un établissement" : "Select location"} />
                     </SelectTrigger>
                     <SelectContent className="max-w-[92vw]">
                       {allBusinesses.map(b => <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>)}
