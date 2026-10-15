@@ -94,10 +94,9 @@ serve(async (req) => {
   try {
     const { reviewId, businessId, language: requestLanguage } = await req.json();
 
-    const OPENROUTER_API_KEY = Deno.env.get("OPENROUTER_API_KEY");
-    if (!OPENROUTER_API_KEY) {
-      throw new Error("OPENROUTER_API_KEY is not configured");
-    }
+    // OpenRouter is preferred, but the shared AI caller already supports a
+    // second provider. Never reject generation before trying that fallback.
+    // Missing both providers is reported clearly by the AI caller.
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -136,18 +135,22 @@ serve(async (req) => {
       throw new Error("User profile not found");
     }
 
-    // Enforce managed-location selection on the backend, not just the UI.
+    // Enforce membership of a managed Google location. A review can contain
+    // a resource path (accounts/.../locations/ID) or just the bare location ID;
+    // compare normalized IDs and never use a user-supplied businessId as proof.
     if (review && !reviewResult.error) {
-      const locationId = String(review.location_id || "").split("/").pop();
-      const { data: managedBusiness } = await supabase
+      const locationId = String(review.location_id || "").split("/").filter(Boolean).pop();
+      const { data: managedLocations, error: managedError } = await supabase
         .from("businesses")
-        .select("id")
+        .select("id,google_place_id")
         .eq("user_id", userId)
-        .eq("google_place_id", locationId)
-        .eq("is_active", true)
-        .maybeSingle();
+        .eq("is_active", true);
+      if (managedError) throw managedError;
+      const managedBusiness = (managedLocations || []).find(b =>
+        String(b.google_place_id || "").split("/").filter(Boolean).pop() === locationId
+      );
       if (!managedBusiness) {
-        return new Response(JSON.stringify({ error: "Établissement non actif dans votre forfait", code: "LOCATION_NOT_MANAGED" }), {
+        return new Response(JSON.stringify({ error: "Cet avis ne fait pas partie de vos établissements actifs.", code: "LOCATION_NOT_MANAGED" }), {
           status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
@@ -191,9 +194,10 @@ serve(async (req) => {
       const { data } = await supabase
         .from("businesses")
         .select("id, name, description, gmb_language, ai_response_model")
-        .eq("google_place_id", review.location_id)
+        .eq("google_place_id", String(review.location_id).split("/").filter(Boolean).pop() || "")
         .eq("user_id", userId)
-        .single();
+        .eq("is_active", true)
+        .maybeSingle();
       business = data;
     }
 
@@ -301,7 +305,12 @@ ${responseT.important}`;
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      throw new Error("OpenRouter API error");
+      // No credits are debited on generation failure. Return a useful code
+      // without exposing provider keys or untrusted upstream response bodies.
+      return new Response(JSON.stringify({
+        error: "Service de génération IA momentanément indisponible. Veuillez réessayer.",
+        code: "AI_PROVIDER_UNAVAILABLE",
+      }), { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
     console.log("AI response generated:", aiResponse?.substring(0, 80));
