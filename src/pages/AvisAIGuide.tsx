@@ -156,7 +156,7 @@ const AvisAIGuide = () => {
                       </a>
                     </li>
                     <li>
-                      <a href="#googlereviewai.com" className="text-muted-foreground hover:text-primary transition-colors">
+                      <a href="#reviewsai.store" className="text-muted-foreground hover:text-primary transition-colors">
                         4. Automatiser la gestion des avis avec Reviews AI
                       </a>
                     </li>
@@ -310,7 +310,7 @@ const AvisAIGuide = () => {
                   </section>
 
                   {/* Section 4 - Reviews AI */}
-                  <section id="googlereviewai.com" className="mb-12">
+                  <section id="reviewsai.store" className="mb-12">
                     <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
                       <Zap className="w-6 h-6 text-primary" />
                       Automatiser la gestion des avis avec Reviews AI
