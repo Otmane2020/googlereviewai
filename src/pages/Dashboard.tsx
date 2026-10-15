@@ -75,7 +75,6 @@ const Dashboard = () => {
   const [primaryBusinessName, setPrimaryBusinessName] = useState<string | null>(null);
   const [allBusinesses, setAllBusinesses] = useState<{ id: string; name: string; google_place_id: string | null; profile_image_url: string | null; maps_url: string | null; address: string | null; rating: number | null; total_reviews: number | null; last_reviews_sync_status: string | null; last_reviews_sync_error: string | null; last_reviews_sync_at: string | null; last_google_reviews_total: number | null }[]>([]);
   const [locationSyncError, setLocationSyncError] = useState<string | null>(null);
-  const [alternateLocation, setAlternateLocation] = useState<{ name: string; count: number } | null>(null);
   const [selectedBusinessId, setSelectedBusinessId] = useState<string | null>(null);
   const [aeoStats, setAeoStats] = useState({ planned: 0, ready: 0, published: 0, nextDate: null as string | null });
   const [syncStatus, setSyncStatus] = useState<SyncStatus | null>(null);
@@ -248,13 +247,6 @@ const Dashboard = () => {
       return new Date(b.review_date).getTime() - new Date(a.review_date).getTime();
     });
     setRecentReviews(sortedReviews.slice(0, 5));
-
-    const suggested = savedLocations
-      .filter(b => !b.is_active && b.google_place_id && Number(b.total_reviews || 0) > 0)
-      .sort((a, b) => Number(b.total_reviews || 0) - Number(a.total_reviews || 0))[0];
-    setAlternateLocation(target && scopedReviews.length === 0 && Number(target.total_reviews || 0) === 0 && suggested
-      ? { name: suggested.name, count: Number(suggested.total_reviews) }
-      : null);
 
     const localTotal = scopedReviews.length;
     const googleTotal = target?.total_reviews || 0;
@@ -509,141 +501,75 @@ const Dashboard = () => {
 
 
         <main className="max-w-7xl mx-auto px-4 md:px-6 py-5 md:py-8 space-y-4">
-          {/* Business identity hero — location image and complete name, mobile-first. */}
+          {/* Compact active Google Business identity, no oversized hero card. */}
           {allBusinesses.length > 0 ? (
-            <section className="overflow-hidden rounded-2xl border border-border/70 bg-card shadow-sm">
-              <div className="flex items-start gap-3 sm:gap-5 p-3.5 sm:p-5 min-w-0">
-                <div className="relative shrink-0 h-20 w-20 sm:h-28 sm:w-28 rounded-2xl bg-primary/10 border border-border/60 overflow-hidden flex items-center justify-center">
-                  <Building2 className="h-9 w-9 sm:h-12 sm:w-12 text-primary/30" aria-hidden="true" />
+            <section className="rounded-2xl border border-border/70 bg-card px-3 py-3 sm:px-4 sm:py-3.5 shadow-sm">
+              <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                <div className="relative shrink-0 h-14 w-14 sm:h-16 sm:w-16 rounded-xl bg-primary/10 border border-border/60 overflow-hidden flex items-center justify-center">
+                  <Building2 className="h-7 w-7 text-primary/35" aria-hidden="true" />
                   {allBusinesses.find(b => b.id === selectedBusinessId)?.profile_image_url && (
-                    <img
-                      key={selectedBusinessId || "business-image"}
+                    <img key={selectedBusinessId || "business-cover"}
                       src={allBusinesses.find(b => b.id === selectedBusinessId)!.profile_image_url!}
                       alt={primaryBusinessName || "Google Business"}
-                      className="absolute inset-0 h-full w-full object-cover"
-                      loading="eager"
+                      className="absolute inset-0 h-full w-full object-cover" loading="eager"
                       referrerPolicy="no-referrer"
                       onError={event => { event.currentTarget.style.display = "none"; }}
                     />
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-[11px] uppercase tracking-wider font-semibold text-primary mb-1">
-                    Google Business · {i18n.language?.startsWith("fr") ? "Établissement actif" : "Active location"}
+                  <p className="text-[10px] font-semibold tracking-wide uppercase text-primary leading-tight">
+                    Google Business <span className="text-emerald-600">· {i18n.language?.startsWith("fr") ? "Fiche active" : "Active"}</span>
                   </p>
                   <Select value={selectedBusinessId || allBusinesses[0].id}
                     onValueChange={v => { void switchDashboardLocation(v); }}>
-                    <SelectTrigger className="w-full h-auto py-1 px-0 text-left border-0 shadow-none bg-transparent focus:ring-0 gap-1 [&>svg]:h-4 [&>svg]:w-4 [&>svg]:shrink-0">
-                      <span className="text-base sm:text-xl leading-tight font-bold break-words whitespace-normal text-left">
+                    <SelectTrigger className="w-full min-w-0 h-auto border-0 px-0 py-1 bg-transparent shadow-none focus:ring-0 gap-1 items-start [&>svg]:shrink-0 [&>svg]:mt-1">
+                      <span className="text-sm sm:text-base font-bold text-foreground leading-snug text-left break-words whitespace-normal">
                         {allBusinesses.find(b => b.id === selectedBusinessId)?.name || primaryBusinessName || allBusinesses[0].name}
                       </span>
                       <SelectValue className="sr-only" />
                     </SelectTrigger>
-                    <SelectContent className="max-w-[90vw]">
-                      {allBusinesses.map(b => (
-                        <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
-                      ))}
+                    <SelectContent className="max-w-[92vw]">
+                      {allBusinesses.map(b => <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>)}
                     </SelectContent>
                   </Select>
-                  {allBusinesses.find(b => b.id === selectedBusinessId)?.address && (
-                    <p className="text-xs text-muted-foreground mt-1 break-words line-clamp-2">
-                      {allBusinesses.find(b => b.id === selectedBusinessId)?.address}
-                    </p>
-                  )}
-                  <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
-                    {Number(allBusinesses.find(b => b.id === selectedBusinessId)?.rating || 0) > 0 && (
-                      <span className="inline-flex gap-1 items-center font-semibold text-foreground">
-                        <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
-                        {Number(allBusinesses.find(b => b.id === selectedBusinessId)?.rating).toFixed(1)}
-                      </span>
-                    )}
-                    <span className="text-muted-foreground">
-                      {stats.total} {i18n.language?.startsWith("fr") ? "avis" : "reviews"}
-                    </span>
-                  </div>
+                  <p className="text-[11px] leading-tight text-muted-foreground">
+                    {allBusinesses.find(b => b.id === selectedBusinessId)?.rating
+                      ? <><Star className="h-3 w-3 inline mr-0.5 text-amber-500 fill-amber-500" />
+                        {Number(allBusinesses.find(b => b.id === selectedBusinessId)?.rating).toFixed(1)} · </>
+                      : null}
+                    {stats.total} {i18n.language?.startsWith("fr") ? "avis enregistrés" : "reviews in app"}
+                  </p>
                 </div>
-              </div>
-              <div className="border-t border-border/60 bg-muted/25 flex items-center justify-between gap-2 px-3.5 sm:px-5 py-2.5">
-                <a
-                  href={allBusinesses.find(b => b.id === selectedBusinessId)?.maps_url || "/settings#managed-locations"}
-                  target={allBusinesses.find(b => b.id === selectedBusinessId)?.maps_url ? "_blank" : undefined}
-                  rel="noopener noreferrer"
-                  className="text-xs font-semibold text-primary hover:underline underline-offset-2">
-                  {i18n.language?.startsWith("fr") ? "Voir ma fiche Google" : "Open Google listing"}
-                  <ArrowUpRight className="inline w-3.5 h-3.5 ml-1" />
-                </a>
-                <Button type="button" variant="outline" size="sm" className="h-9 gap-1.5 shrink-0"
-                  onClick={async () => {
-                    if (selectedBusinessId) await switchDashboardLocation(selectedBusinessId);
-                  }}
-                  disabled={isSyncingReviews} aria-label={i18n.language?.startsWith("fr") ? "Synchroniser les avis de la fiche" : "Sync location reviews"}>
-                  {isSyncingReviews ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
-                  <span className="hidden min-[370px]:inline">{i18n.language?.startsWith("fr") ? "Synchroniser" : "Sync"}</span>
-                </Button>
+                <div className="shrink-0 flex flex-col items-center justify-center gap-1">
+                  <a href={allBusinesses.find(b => b.id === selectedBusinessId)?.maps_url || "/settings#managed-locations"}
+                    target={allBusinesses.find(b => b.id === selectedBusinessId)?.maps_url ? "_blank" : undefined}
+                    rel="noopener noreferrer"
+                    className="h-8 w-8 inline-flex items-center justify-center rounded-lg hover:bg-muted text-primary"
+                    title={i18n.language?.startsWith("fr") ? "Ouvrir la fiche sur Google" : "Open Google listing"}
+                    aria-label={i18n.language?.startsWith("fr") ? "Ouvrir la fiche sur Google" : "Open Google listing"}>
+                    <ArrowUpRight className="h-4 w-4" />
+                  </a>
+                  <Button type="button" variant="ghost" size="icon" className="h-8 w-8 rounded-lg"
+                    onClick={() => { if (selectedBusinessId) void switchDashboardLocation(selectedBusinessId); }}
+                    disabled={isSyncingReviews}
+                    title={i18n.language?.startsWith("fr") ? "Synchroniser les avis" : "Sync reviews"}
+                    aria-label={i18n.language?.startsWith("fr") ? "Synchroniser les avis" : "Sync reviews"}>
+                    {isSyncingReviews ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+                  </Button>
+                </div>
               </div>
             </section>
           ) : (
-            <section className="rounded-2xl border border-border bg-card p-5">
-              <h1 className="font-semibold text-lg">{i18n.language?.startsWith("fr") ? "Aucun établissement actif" : "No active location"}</h1>
-              <p className="text-xs text-muted-foreground mt-1">
-                {i18n.language?.startsWith("fr") ? "Sélectionnez les établissements à gérer dans les Paramètres." : "Select your managed Google locations in Settings."}
+            <section className="rounded-xl border border-border bg-card p-3 flex items-center justify-between gap-2">
+              <p className="text-xs text-muted-foreground">
+                {i18n.language?.startsWith("fr") ? "Aucune fiche active — sélectionnez-en une dans Paramètres." : "No active location — select one in Settings."}
               </p>
-              <Button type="button" className="mt-3" size="sm" onClick={() => navigate("/settings#managed-locations")}>
-                {i18n.language?.startsWith("fr") ? "Configurer les établissements" : "Configure locations"}
+              <Button type="button" size="sm" variant="outline" onClick={() => navigate("/settings#managed-locations")}>
+                {i18n.language?.startsWith("fr") ? "Configurer" : "Configure"}
               </Button>
             </section>
           )}
-          {alternateLocation && (
-            <div className="rounded-xl border border-blue-500/25 bg-blue-500/5 px-4 py-3 text-xs leading-relaxed text-foreground">
-              <p className="font-semibold">
-                {i18n.language?.startsWith("fr") ? "Vous cherchez les avis de Sweet Deco ?" : "Looking for another location's reviews?"}
-              </p>
-              <p className="mt-1 text-muted-foreground">
-                {i18n.language?.startsWith("fr")
-                  ? `La fiche sélectionnée ne contient aucun avis. « ${alternateLocation.name} » est enregistrée avec ${alternateLocation.count} avis Google, mais n'est pas actuellement gérée dans ce forfait.`
-                  : `The selected Google listing has no reviews. “${alternateLocation.name}” is saved with ${alternateLocation.count} Google reviews but is not an active managed location.`}
-              </p>
-              <Link to="/settings#managed-locations" className="mt-2 inline-flex items-center gap-1 font-semibold text-primary underline underline-offset-2">
-                {i18n.language?.startsWith("fr") ? "Choisir la bonne fiche dans Paramètres" : "Select the correct listing in Settings"}
-                <ChevronRight className="h-3.5 w-3.5" />
-              </Link>
-            </div>
-          )}
-          {recentReviews.length === 0 && allBusinesses.some(b => b.id === selectedBusinessId &&
-            b.last_reviews_sync_status && b.last_reviews_sync_status !== "reviews_imported") && (
-            <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-3 text-xs space-y-1">
-              <p className="font-semibold text-foreground">
-                {i18n.language?.startsWith("fr") ? "Google n'a pas transmis les avis de cette fiche" : "Google did not return reviews for this listing"}
-              </p>
-              <p className="text-muted-foreground break-words">
-                {allBusinesses.find(b => b.id === selectedBusinessId)?.last_reviews_sync_error ||
-                  (i18n.language?.startsWith("fr")
-                    ? "La dernière réponse de l'API Google n'a renvoyé aucun avis. Cela peut être lié aux droits de la fiche, à sa vérification ou au délai de disponibilité d'un nouvel avis."
-                    : "Google's last API response contained no reviews. Check listing permissions, verification, and possible review delays.")}
-              </p>
-              {allBusinesses.find(b => b.id === selectedBusinessId)?.last_reviews_sync_at && (
-                <p className="text-[11px] text-muted-foreground">
-                  {new Date(allBusinesses.find(b => b.id === selectedBusinessId)!.last_reviews_sync_at!).toLocaleString(i18n.language?.startsWith("fr") ? "fr-FR" : "en-US")}
-                </p>
-              )}
-              <Link to="/settings#managed-locations" className="text-primary underline font-semibold inline-block pt-1">
-                {i18n.language?.startsWith("fr") ? "Vérifier le compte et la fiche Google" : "Check Google account and listing"}
-              </Link>
-            </div>
-          )}
-          {locationSyncError && (
-            <div role="alert" className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-3 text-xs text-amber-800 dark:text-amber-200 flex gap-2">
-              <AlertCircle className="h-4 w-4 shrink-0" />
-              <div className="flex-1 break-words">
-                <p className="font-semibold">{i18n.language?.startsWith("fr") ? "Synchronisation à vérifier" : "Sync needs attention"}</p>
-                <p className="mt-1">{locationSyncError}</p>
-                <Link to="/settings#managed-locations" className="inline-block mt-2 underline font-medium">
-                  {i18n.language?.startsWith("fr") ? "Vérifier ma connexion Google" : "Check Google connection"}
-                </Link>
-              </div>
-            </div>
-          )}
-
         {/* Trial Banner */}
         {profile?.subscription_status === "trial" && (
           <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-secondary/10 rounded-2xl p-4 border border-primary/20">

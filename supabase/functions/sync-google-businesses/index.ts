@@ -213,9 +213,13 @@ serve(async (req) => {
           if (res.ok) {
             const data = await res.json();
             const items = data.mediaItems || [];
-            const photo = items.find((m: any) => m.locationAssociation?.category === "PROFILE") ||
-                          items.find((m: any) => m.locationAssociation?.category === "COVER") ||
-                          items[0];
+            // Match the cover image that visitors see at the top of Google
+            // Business Profile. A PROFILE avatar may be different from this.
+            const validPhoto = (m: any) => m?.mediaFormat === "PHOTO" &&
+              typeof m?.googleUrl === "string" && /^https:\/\//.test(m.googleUrl);
+            const cover = items.find((m: any) => m.locationAssociation?.category === "COVER" && validPhoto(m));
+            const profile = items.find((m: any) => m.locationAssociation?.category === "PROFILE" && validPhoto(m));
+            const photo = cover || profile || items.find(validPhoto);
             return photo?.googleUrl || null;
           }
           return null;
@@ -297,11 +301,29 @@ serve(async (req) => {
     // Check if user already has active businesses selected
     const { data: existingBusinesses } = await supabaseAdmin
       .from("businesses")
-      .select("google_place_id")
+      .select("id,google_place_id,profile_image_url")
       .eq("user_id", user.id)
       .eq("is_active", true);
 
     const existingPlaceIds = new Set((existingBusinesses || []).map(b => b.google_place_id));
+    // Refresh the selected listing's real Google cover even when we are about
+    // to return a selection dialog for newly discovered locations.
+    for (const saved of existingBusinesses || []) {
+      const cover = mediaMap[saved.google_place_id];
+      if (!cover || cover === saved.profile_image_url) continue;
+      const { error: photoError } = await supabaseAdmin.from("businesses")
+        .update({ profile_image_url: cover, updated_at: new Date().toISOString() })
+        .eq("id", saved.id).eq("user_id", user.id);
+      if (photoError) console.error("[Google media] Cover update failed", photoError.message);
+    }
+    // Do not erase a previously valid cover when Google media temporarily
+    // responds with an empty array or lacks media permission.
+    for (const business of businessesData) {
+      const saved = (existingBusinesses || []).find(b => b.google_place_id === business.google_place_id);
+      if (!business.profile_image_url && saved?.profile_image_url) {
+        business.profile_image_url = saved.profile_image_url;
+      }
+    }
     const hasSelectedBusinesses = existingPlaceIds.size > 0;
 
     // Existing selections remain active, but when a newly discovered location
