@@ -550,12 +550,12 @@ const Reviews = () => {
           <h1 className="text-lg sm:text-xl font-bold text-foreground mb-3">{t("reviewsPage.title")}</h1>
           
           {/* Business card style selector */}
-          <div className="bg-card rounded-2xl border border-border p-3 sm:p-4">
+          <div className="reviewai-surface p-3 sm:p-4">
             <div className="flex items-start gap-2.5 sm:gap-3 min-w-0">
               {/* Logo / Avatar */}
               <Dialog open={businessDialogOpen} onOpenChange={setBusinessDialogOpen}>
                 <DialogTrigger asChild>
-                  <button className="w-11 h-11 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center flex-shrink-0 border border-primary/20 overflow-hidden hover:shadow-md transition-all">
+                  <button className="w-11 h-11 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center flex-shrink-0 border border-primary/20 overflow-hidden hover:shadow-md transition-all">
                     {selectedBusiness?.google_place_id ? (
                       <img 
                         src="https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png"
@@ -785,7 +785,7 @@ const Reviews = () => {
 
         {/* Google-style Star Rating Filter */}
         {selectedBusinessId && !filterReviewId && (
-          <div className="bg-card rounded-xl border border-border p-4">
+          <div className="reviewai-surface p-4">
             <div className="flex flex-col sm:flex-row gap-4">
               {/* Rating Distribution */}
               <div className="flex-1 space-y-2">
@@ -853,7 +853,7 @@ const Reviews = () => {
 
         {/* Reviews List */}
         {businesses.length === 0 ? (
-          <div className="bg-card rounded-xl border border-border p-12 text-center">
+          <div className="reviewai-surface p-8 sm:p-12 text-center">
             <Building2 className="w-12 h-12 mx-auto mb-4 text-muted-foreground/30" />
             <h2 className="text-lg font-semibold text-foreground mb-2">{t("reviewsPage.noBusinessSelectedTitle")}</h2>
             <p className="text-muted-foreground text-sm mb-6">
@@ -870,7 +870,7 @@ const Reviews = () => {
             </Button>
           </div>
         ) : !selectedBusinessId ? (
-          <div className="bg-card rounded-xl border border-border p-12 text-center">
+          <div className="reviewai-surface p-8 sm:p-12 text-center">
             <Building2 className="w-12 h-12 mx-auto mb-4 text-muted-foreground/30" />
             <h2 className="text-lg font-semibold text-foreground mb-2">{t("reviewsPage.selectBusiness")}</h2>
             <p className="text-muted-foreground text-sm">
@@ -878,7 +878,7 @@ const Reviews = () => {
             </p>
           </div>
         ) : paginatedReviews.length === 0 ? (
-          <div className="bg-card rounded-xl border border-border p-12 text-center">
+          <div className="reviewai-surface p-8 sm:p-12 text-center">
             <MessageSquare className="w-12 h-12 mx-auto mb-4 text-muted-foreground/30" />
             <h2 className="text-lg font-semibold text-foreground mb-2">{t("reviewsPage.noReviews")}</h2>
             <p className="text-muted-foreground text-sm">
@@ -888,7 +888,7 @@ const Reviews = () => {
         ) : (
           <div className="space-y-3">
             {paginatedReviews.map((review) => (
-              <div key={review.id} className="bg-card rounded-xl border border-border p-4 hover:shadow-xs transition-shadow">
+              <div key={review.id} className="reviewai-surface p-4 hover:shadow-xs transition-shadow">
                 <div className="flex items-start gap-4">
                   {/* Avatar */}
                   <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold flex-shrink-0">
