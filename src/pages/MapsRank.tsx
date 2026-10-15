@@ -26,6 +26,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { MapPin, Search, Grid3X3, History, Loader2, Target, Building2, Star, Users, Pencil } from "lucide-react";
 
 interface Business {
@@ -82,6 +83,8 @@ const MapsRank = () => {
   const { user, loading: authLoading } = useAuth();
   const { loading: subLoading } = useRequireSubscription();
   const navigate = useNavigate();
+  const { i18n } = useTranslation();
+  const tr = (fr: string, en: string) => i18n.language?.toLowerCase().startsWith("fr") ? fr : en;
   const [searchParams] = useSearchParams();
 
   const [businesses, setBusinesses] = useState<Business[]>([]);
@@ -181,13 +184,13 @@ const MapsRank = () => {
 
   const handleScan = async () => {
     if (!selectedBusiness || !keyword.trim()) {
-      toast.error("Sélectionnez un établissement et saisissez un mot-clé");
+      toast.error(tr("Sélectionnez un établissement et saisissez un mot-clé", "Select a location and enter a keyword"));
       return;
     }
 
     const business = businesses.find(b => b.id === selectedBusiness);
     if (!business?.google_place_id) {
-      toast.error("Cet établissement n'est pas connecté à Google. Reconnectez-le depuis Établissements.");
+      toast.error(tr("Cet établissement n'est pas connecté à Google. Reconnectez-le depuis Établissements.", "This location is not connected to Google. Reconnect it from Businesses."));
       return;
     }
 
@@ -239,7 +242,7 @@ const MapsRank = () => {
         ...result,
         points: processedPoints,
       });
-      toast.success(`Scan terminé ! ${result.points.length} points analysés`);
+      toast.success(tr(`Scan terminé ! ${result.points.length} points analysés`, `Scan complete! ${result.points.length} points analyzed`));
 
       // Refresh history
       const { data: newHistory } = await supabase
@@ -311,10 +314,10 @@ const MapsRank = () => {
         // Fetch previous rank for this keyword
         await fetchPreviousRank(scanData.keyword);
         
-        toast.success("Scan chargé depuis l'historique");
+        toast.success(tr("Scan chargé depuis l'historique", "Scan loaded from history"));
       }
     } catch (error) {
-      toast.error("Erreur lors du chargement du scan");
+      toast.error(tr("Erreur lors du chargement du scan", "Failed to load scan"));
     }
   };
 
@@ -387,7 +390,7 @@ const MapsRank = () => {
               GEO Maps Rank
             </h1>
             <p className="text-muted-foreground mt-1">
-              Mesurez votre visibilité GEO et votre position Google Maps, établissement par établissement.
+              {tr("Mesurez votre visibilité GEO et votre position Google Maps, établissement par établissement.","Track GEO visibility and your Google Maps position for each location.")}
             </p>
           </div>
         </div>
@@ -398,19 +401,19 @@ const MapsRank = () => {
             <CardHeader className="pb-4">
               <CardTitle className="flex items-center gap-2 text-base">
                 <Grid3X3 className="w-4 h-4" />
-                Configuration
+                {tr("Configuration","Configuration")}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               {/* Business selector */}
               <div className="space-y-2">
-                <Label htmlFor="business" className="text-xs">Établissement</Label>
+                <Label htmlFor="business" className="text-xs">{tr("Établissement","Location")}</Label>
                 <Select value={selectedBusiness} onValueChange={v => {
                   setSelectedBusiness(v);
                   if (user) localStorage.setItem("googlereviewai.com_selected_business_" + user.id, v);
                 }}>
                   <SelectTrigger className="h-9">
-                    <SelectValue placeholder="Select" />
+                    <SelectValue placeholder={tr("Choisir","Select")} />
                   </SelectTrigger>
                   <SelectContent>
                     {businesses.map((b) => (
@@ -429,19 +432,19 @@ const MapsRank = () => {
                 <Button type="button" size="sm" variant="outline" className="w-full gap-2"
                   onClick={() => setManageLocationsOpen(true)}>
                   <Pencil className="w-4 h-4" />
-                  Gérer les établissements GEO
+                  {tr("Gérer les établissements GEO","Manage GEO locations")}
                 </Button>
               </div>
 
               {/* Keywords Section */}
               {selectedBusiness && user && (
                 <div className="space-y-2 pt-2 border-t">
-                  <Label className="text-xs">Mot-clé</Label>
+                  <Label className="text-xs">{tr("Mot-clé","Keyword")}</Label>
                   <div className="relative mb-2">
                     <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
                     <Input
                       id="keyword"
-                      placeholder="Ex: restaurant italien"
+                      placeholder={tr("Ex. : restaurant italien", "E.g. Italian restaurant")}
                       value={keyword}
                       onChange={(e) => setKeyword(e.target.value)}
                       className="pl-8 h-9 text-sm"
@@ -459,22 +462,22 @@ const MapsRank = () => {
 
               {/* Grid size */}
               <div className="space-y-2">
-                <Label className="text-xs">Grille</Label>
+                <Label className="text-xs">{tr("Grille","Grid")}</Label>
                 <Select value={gridSize} onValueChange={setGridSize}>
                   <SelectTrigger className="h-9">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="3">3×3 (9 pts)</SelectItem>
-                    <SelectItem value="5">5×5 (25 pts)</SelectItem>
-                    <SelectItem value="7">7×7 (49 pts)</SelectItem>
+                    <SelectItem value="3">3×3 (9 {tr("points","points")})</SelectItem>
+                    <SelectItem value="5">5×5 (25 {tr("points","points")})</SelectItem>
+                    <SelectItem value="7">7×7 (49 {tr("points","points")})</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               {/* Spacing */}
               <div className="space-y-2">
-                <Label className="text-xs">Espacement</Label>
+                <Label className="text-xs">{tr("Espacement","Spacing")}</Label>
                 <Select value={spacing} onValueChange={setSpacing}>
                   <SelectTrigger className="h-9">
                     <SelectValue />
@@ -499,12 +502,12 @@ const MapsRank = () => {
                 {isScanning ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Scan...
+                    {tr("Scan...","Scanning...")}
                   </>
                 ) : (
                   <>
                     <MapPin className="w-4 h-4 mr-2" />
-                    Lancer le scan
+                    {tr("Lancer le scan","Start scan")}
                   </>
                 )}
               </Button>
@@ -514,7 +517,7 @@ const MapsRank = () => {
                 <div className="pt-4 border-t">
                   <h3 className="font-medium text-xs mb-2 flex items-center gap-1.5 text-muted-foreground">
                     <History className="w-3.5 h-3.5" />
-                    Historique
+                    {tr("Historique","History")}
                   </h3>
                   <ScrollArea className="h-32">
                     <div className="space-y-1.5 pr-2">
@@ -626,7 +629,7 @@ const MapsRank = () => {
                     </Badge>
                   </div>
                   <CardDescription className="text-xs">
-                    {selectedPoint.total_results} businesses in this zone
+                    {selectedPoint.total_results} {tr("établissements dans cette zone", "businesses in this zone")}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -666,7 +669,7 @@ const MapsRank = () => {
                     </ScrollArea>
                   ) : (
                     <p className="text-sm text-muted-foreground text-center py-4">
-                      Aucun concurrent dans cette zone
+                      {tr("Aucun concurrent dans cette zone","No competitors in this zone")}
                     </p>
                   )}
                 </CardContent>
@@ -679,10 +682,10 @@ const MapsRank = () => {
                 <CardHeader className="pb-3">
                   <CardTitle className="text-base flex items-center gap-2">
                     <Users className="w-4 h-4" />
-                    Top Concurrents
+                    {tr("Top Concurrents","Top competitors")}
                   </CardTitle>
                   <CardDescription className="text-xs">
-                    Most present in your area
+                    {tr("Most present in your area","Most visible in your area")}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -705,10 +708,10 @@ const MapsRank = () => {
                             <p className="font-medium text-sm truncate">{comp.name}</p>
                             <div className="flex flex-wrap items-center gap-2 text-[10px] mt-1">
                               <Badge variant="outline" className="h-4 px-1.5 text-[10px]">
-                                {comp.appearances} zones
+                                {comp.appearances} {tr("zones","zones")}
                               </Badge>
                               <span className="text-muted-foreground flex items-center gap-0.5">
-                                Pos. moy: #{comp.avgPosition.toFixed(1)}
+                                {tr("Position moyenne :","Average position:")} #{comp.avgPosition.toFixed(1)}
                               </span>
                               {comp.rating && (
                                 <span className="flex items-center gap-0.5 text-muted-foreground">
@@ -730,7 +733,7 @@ const MapsRank = () => {
             {scanResult && (
               <Card>
                 <CardContent className="p-4">
-                  <h4 className="text-xs font-medium mb-3 text-muted-foreground">Légende</h4>
+                  <h4 className="text-xs font-medium mb-3 text-muted-foreground">{tr("Légende","Legend")}</h4>
                   <div className="grid grid-cols-2 gap-2 text-xs">
                     <div className="flex items-center gap-2">
                       <div className="w-4 h-4 rounded-full bg-green-500" />
@@ -750,12 +753,12 @@ const MapsRank = () => {
                     </div>
                     <div className="flex items-center gap-2 col-span-2">
                       <div className="w-4 h-4 rounded-full bg-muted-foreground/50" />
-                      <span>Introuvable</span>
+                      <span>{tr("Introuvable","Not found")}</span>
                     </div>
                   </div>
                   <div className="mt-3 pt-3 border-t">
                     <p className="text-[10px] text-muted-foreground">
-                      N=Nord, S=Sud, E=Est, O=Ouest, NE=Nord-Est, etc.
+                      {tr("N = Nord, S = Sud, E = Est, O = Ouest, NE = Nord-Est, etc.", "N = North, S = South, E = East, W = West, NE = Northeast, etc.")}
                     </p>
                   </div>
                 </CardContent>
