@@ -491,10 +491,10 @@ const Dashboard = () => {
   return (
     <>
       <Helmet>
-        <title>Dashboard | GoogleReviewAI</title>
-        <meta name="description" content="Your GoogleReviewAI dashboard: AI review responses, GEO ranking and local SEO performance at a glance." />
+        <title>Dashboard | Reviews AI</title>
+        <meta name="description" content="Your Reviews AI dashboard: AI review responses, GEO ranking and local SEO performance at a glance." />
         <meta name="robots" content="noindex, nofollow" />
-        <link rel="canonical" href="https://googlereviewai.com/dashboard" />
+        <link rel="canonical" href="https://reviewsai.store/dashboard" />
       </Helmet>
       <div className="bg-gradient-to-b from-background to-muted/20">
         {/* Mobile-only header (desktop uses sidebar layout) */}
@@ -886,7 +886,7 @@ const Dashboard = () => {
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-semibold uppercase tracking-wide">
                   <Sparkles className="w-3 h-3" /> Nouveau
                 </span>
-                <span className="text-xs text-muted-foreground">Boutique GoogleReviewAI</span>
+                <span className="text-xs text-muted-foreground">Boutique Reviews AI</span>
               </div>
               <div className="font-semibold text-foreground text-sm leading-tight">
                 Plaque NFC + QR Google Avis

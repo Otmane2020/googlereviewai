@@ -141,10 +141,10 @@ const Auth = () => {
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
       <Helmet>
-        <title>Sign in or create your account | GoogleReviewAI</title>
-        <meta name="description" content="Access your GoogleReviewAI account to manage AI review responses, local SEO and GEO ranking for your business." />
+        <title>Sign in or create your account | Reviews AI</title>
+        <meta name="description" content="Access your Reviews AI account to manage AI review responses, local SEO and GEO ranking for your business." />
         <meta name="robots" content="noindex, follow" />
-        <link rel="canonical" href="https://googlereviewai.com/auth" />
+        <link rel="canonical" href="https://reviewsai.store/auth" />
       </Helmet>
 
       {/* Left panel */}
@@ -173,7 +173,7 @@ const Auth = () => {
           </ul>
         </div>
         <p className="text-card/60 text-sm">
-          © {new Date().getFullYear()} GoogleReviewAI. {t("common.allRightsReserved")}
+          © {new Date().getFullYear()} Reviews AI. {t("common.allRightsReserved")}
         </p>
       </div>
 
