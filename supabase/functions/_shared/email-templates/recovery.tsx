@@ -23,16 +23,16 @@ interface RecoveryEmailProps {
 
 const copy = {
   fr: {
-    preview: 'Réinitialisez votre mot de passe GoogleReviewAI',
+    preview: 'Réinitialisez votre mot de passe Reviews AI',
     title: 'Réinitialiser votre mot de passe',
-    p1: 'Nous avons reçu une demande de réinitialisation du mot de passe de votre compte GoogleReviewAI. Cliquez sur le bouton ci-dessous pour en choisir un nouveau.',
+    p1: 'Nous avons reçu une demande de réinitialisation du mot de passe de votre compte Reviews AI. Cliquez sur le bouton ci-dessous pour en choisir un nouveau.',
     cta: 'Réinitialiser le mot de passe',
     foot: "Si vous n'êtes pas à l'origine de cette demande, vous pouvez ignorer cet e-mail en toute sécurité — votre mot de passe restera inchangé.",
   },
   en: {
-    preview: 'Reset your GoogleReviewAI password',
+    preview: 'Reset your Reviews AI password',
     title: 'Reset your password',
-    p1: 'We received a request to reset the password for your GoogleReviewAI account. Click the button below to choose a new one.',
+    p1: 'We received a request to reset the password for your Reviews AI account. Click the button below to choose a new one.',
     cta: 'Reset password',
     foot: "If you didn't request this, you can safely ignore this email — your password will stay unchanged.",
   },
@@ -48,7 +48,7 @@ export const RecoveryEmail = ({ confirmationUrl, lang }: RecoveryEmailProps) => 
       <Body style={main}>
         <Container style={container}>
           <Section style={brand}>
-            <Text style={brandText}>GoogleReviewAI</Text>
+            <Text style={brandText}>Reviews AI</Text>
           </Section>
           <Heading style={h1}>{t.title}</Heading>
           <Text style={text}>{t.p1}</Text>

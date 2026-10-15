@@ -36,7 +36,7 @@ interface InviteEmailProps {
 
 const copy = {
   fr: {
-    preview: 'Vous avez été invité sur GoogleReviewAI',
+    preview: 'Vous avez été invité sur Reviews AI',
     title: 'Vous avez été invité',
     p1: 'Vous avez été invité à rejoindre',
     p1End: ", la plateforme pour vous positionner dans ChatGPT, Gemini et Perplexity. Acceptez l'invitation pour créer votre compte.",
@@ -44,7 +44,7 @@ const copy = {
     foot: "Si vous n'attendiez pas cette invitation, vous pouvez ignorer cet e-mail en toute sécurité.",
   },
   en: {
-    preview: "You've been invited to GoogleReviewAI",
+    preview: "You've been invited to Reviews AI",
     title: "You've been invited",
     p1: "You've been invited to join",
     p1End: ', the platform that gets your business recommended by ChatGPT, Gemini and Perplexity. Accept the invitation to create your account.',
@@ -63,13 +63,13 @@ export const InviteEmail = ({ siteUrl, confirmationUrl, lang }: InviteEmailProps
       <Body style={main}>
         <Container style={container}>
           <Section style={brand}>
-            <Text style={brandText}>GoogleReviewAI</Text>
+            <Text style={brandText}>Reviews AI</Text>
           </Section>
           <Heading style={h1}>{t.title}</Heading>
           <Text style={text}>
             {t.p1}{' '}
             <Link href={siteUrl} style={link}>
-              <strong>GoogleReviewAI</strong>
+              <strong>Reviews AI</strong>
             </Link>
             {t.p1End}
           </Text>
