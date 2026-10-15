@@ -26,6 +26,8 @@ jobs:
           bun-version: latest
       - name: Install dependencies
         run: bun install --frozen-lockfile
+      - name: Test AI review reply signatures
+        run: bun test scripts/review-signature.test.mjs
       - name: Build TanStack Start
         run: bun run build
       - name: Typecheck
