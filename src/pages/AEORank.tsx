@@ -662,6 +662,7 @@ const AEORank = () => {
                                 key={business.id}
                                 onClick={() => {
                                   setSelectedBusiness(business);
+                                  if (user) localStorage.setItem("googlereviewai.com_selected_business_" + user.id, business.id);
                                   fetchScheduledContent(business.id);
                                   setBusinessDialogOpen(false);
                                 }}
