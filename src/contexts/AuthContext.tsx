@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useRef, useState, ReactNode } from "react";
+import { createContext, type Context, useContext, useEffect, useRef, useState, ReactNode } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import i18n, { getExplicitLanguage, getPreferredLocalLanguage, normalizeLanguage, persistLanguage, preserveLanguageForOAuth } from "@/i18n/config";
@@ -13,7 +13,11 @@ interface AuthContextType {
   signOut: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+// Reuse one context instance across hot reloads so providers and consumers never mismatch.
+const globalKey = "__googlereviewai_auth_context__";
+const AuthContext: Context<AuthContextType | undefined> =
+  ((globalThis as Record<string, unknown>)[globalKey] as Context<AuthContextType | undefined>) ??
+  ((globalThis as Record<string, unknown>)[globalKey] = createContext<AuthContextType | undefined>(undefined)) as Context<AuthContextType | undefined>;
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
