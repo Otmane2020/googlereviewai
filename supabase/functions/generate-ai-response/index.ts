@@ -295,6 +295,10 @@ ${responseT.important}`;
         messages: [{ role: "user", content: prompt }],
         temperature: 0.5,
         max_tokens: 250,
+        // Restrict this short review task to two fast endpoints before trying
+        // the gateway fallback. A hung provider must not block the user.
+        models: ["deepseek/deepseek-chat", "google/gemini-2.5-flash-lite"],
+        request_timeout_ms: 12000,
       })).trim();
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
