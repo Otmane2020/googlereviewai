@@ -98,7 +98,7 @@ export const RankiPricingSection = () => {
       <div className="container mx-auto px-4 sm:px-6">
         <div className="max-w-2xl mx-auto text-center mb-10">
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-foreground tracking-tight">
-            {isFrench ? "Une tarification simple." : "Simple pricing."} <span className="text-primary">{isFrench ? "Une visibilité IA massive." : "Massive AI visibility."}</span>
+            {isFrench ? "Des offres simples." : "Simple plans."} <span className="text-[#3B54F5]">{isFrench ? "Un meilleur suivi de vos avis." : "Better customer conversations."}</span>
           </h2>
           <p className="mt-4 text-lg text-muted-foreground">
             {isFrench ? "Des offres claires, sans engagement. Paiement sécurisé et résiliation à tout moment." : "Straightforward pricing, no commitment. Secure checkout and cancel anytime."}
