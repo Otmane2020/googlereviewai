@@ -114,7 +114,7 @@ const LandingPremium = () => {
  
    const features = [
      { icon: GoogleIcon, label: "SEO Google", desc: "Visibilité locale optimisée" },
-     { icon: ChatGPTIcon, label: "AEO ChatGPT", desc: "Recommandé par l'IA" },
+     { icon: ChatGPTIcon, label: "GEO ChatGPT", desc: "Recommandé par l'IA" },
      { icon: MessageSquare, label: "Avis Google", desc: "Réponses automatiques IA" },
      { icon: FileText, label: "Publications IA", desc: "Contenus optimisés auto" },
      { icon: BarChart3, label: "Dashboard", desc: "Statistiques complètes" },
@@ -131,7 +131,7 @@ const LandingPremium = () => {
     const landingFaqs = [
       {
         question: "Que comprend le Pack Complet GoogleReviewAI ?",
-        answer: "Le Pack Complet GoogleReviewAI inclut toutes les fonctionnalités : réponses automatiques IA aux avis Google, SEO local automatisé avec publications quotidiennes, AEO pour apparaître dans ChatGPT et les IA, dashboard de suivi et statistiques complètes. Un seul prix, aucune option cachée."
+        answer: "Le Pack Complet GoogleReviewAI inclut toutes les fonctionnalités : réponses automatiques IA aux avis Google, SEO local automatisé avec publications quotidiennes, GEO pour apparaître dans ChatGPT et les IA, dashboard de suivi et statistiques complètes. Un seul prix, aucune option cachée."
       },
       {
         question: "Combien coûte GoogleReviewAI ?",
@@ -143,21 +143,21 @@ const LandingPremium = () => {
       },
       {
         question: "Combien de temps faut-il pour voir des résultats ?",
-        answer: "Les premiers résultats sont visibles dès les premières semaines avec les réponses automatiques aux avis. L'effet cumulatif sur le SEO local et l'AEO se manifeste en 30 à 60 jours avec une augmentation progressive de la visibilité sur Google et les moteurs de réponse IA."
+        answer: "Les premiers résultats sont visibles dès les premières semaines avec les réponses automatiques aux avis. L'effet cumulatif sur le SEO local et l'GEO se manifeste en 30 à 60 jours avec une augmentation progressive de la visibilité sur Google et les moteurs de réponse IA."
       }
     ];
  
    return (
      <div className="min-h-screen bg-background">
        <Helmet>
-         <title>GoogleReviewAI Pack Complet – SEO + AEO + Avis IA | Tout-en-Un</title>
+         <title>GoogleReviewAI Pack Complet – SEO + GEO + Avis IA | Tout-en-Un</title>
          <meta
            name="description"
-           content="Boostez votre visibilité sur Google & ChatGPT avec le Pack Complet GoogleReviewAI. Réponses IA aux avis, SEO local, AEO ChatGPT. À partir de 32,50€/mois."
+           content="Boostez votre visibilité sur Google & ChatGPT avec le Pack Complet GoogleReviewAI. Réponses IA aux avis, SEO local, GEO ChatGPT. À partir de 32,50€/mois."
          />
          <link rel="canonical" href="https://googlereviewai.com/landing" />
          <meta property="og:title" content="GoogleReviewAI Pack Complet – Visibilité Google & ChatGPT" />
-         <meta property="og:description" content="Un seul pack, un seul prix. SEO + AEO + Avis Google IA. Passez devant vos concurrents en 60 jours." />
+         <meta property="og:description" content="Un seul pack, un seul prix. SEO + GEO + Avis Google IA. Passez devant vos concurrents en 60 jours." />
          <meta property="og:url" content="https://googlereviewai.com/landing" />
          <meta property="og:type" content="product" />
          <meta property="og:image" content="https://googlereviewai.com/og-image.png" />
@@ -211,7 +211,7 @@ const LandingPremium = () => {
              </span>
              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-card/10 text-card rounded-full text-sm font-medium">
                <Check className="w-4 h-4 text-secondary" />
-               AEO + SEO inclus
+               GEO + SEO inclus
              </span>
            </div>
  
@@ -322,7 +322,7 @@ const LandingPremium = () => {
            <div className="mt-10 text-center">
              <div className="inline-flex items-center gap-3 px-6 py-3 bg-card rounded-full border border-border shadow-xs">
                <Bot className="w-5 h-5 text-primary" />
-               <span className="text-foreground font-medium">SEO + AEO inclus automatiquement</span>
+               <span className="text-foreground font-medium">SEO + GEO inclus automatiquement</span>
                <span className="px-2 py-0.5 bg-secondary/20 text-secondary text-xs font-semibold rounded-full">Pas d'option cachée</span>
              </div>
            </div>
@@ -458,13 +458,13 @@ const LandingPremium = () => {
          </div>
        </section>
  
-       {/* SEO & AEO Section */}
+       {/* SEO & GEO Section */}
        <section className="py-16 sm:py-24 bg-muted/50">
          <div className="container mx-auto px-5">
            <div className="max-w-3xl mx-auto text-center">
              <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-primary/10 rounded-full mb-4">
                <Bot className="w-4 h-4 text-primary" />
-               <span className="text-primary text-sm font-semibold">SEO + AEO = Visibilité maximale</span>
+               <span className="text-primary text-sm font-semibold">SEO + GEO = Visibilité maximale</span>
              </div>
              <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-6">
                GoogleReviewAI ne fait pas que du SEO classique
@@ -487,7 +487,7 @@ const LandingPremium = () => {
                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-secondary/20 to-secondary/5 flex items-center justify-center mb-4">
                    <ChatGPTIcon className="w-6 h-6 text-secondary" />
                  </div>
-                 <h3 className="text-lg font-bold text-foreground mb-2">AEO – IA & ChatGPT</h3>
+                 <h3 className="text-lg font-bold text-foreground mb-2">GEO – IA & ChatGPT</h3>
                  <p className="text-muted-foreground text-sm">
                    Contenus structurés pour être recommandé par ChatGPT, Google AI, Gemini et les assistants IA de nouvelle génération.
                  </p>
