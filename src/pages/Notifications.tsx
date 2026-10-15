@@ -30,8 +30,8 @@ const localizeStoredNotification = (notification: AppNotification, english: bool
   const title = notification.title || "";
   const message = notification.message || "";
   if (notification.type === "reply_published") {
-    const match = message.match(/^Réponse à (.+?) publiée sur Google\\.?$/i)
-      || message.match(/^Reply to (.+?) (?:was )?published on Google\\.?$/i);
+    const match = message.match(/^Réponse à (.+?) publiée sur Google\.?$/i)
+      || message.match(/^Reply to (.+?) (?:was )?published on Google\.?$/i);
     const author = match?.[1];
     return {
       title: english ? "Reply published" : "Réponse publiée",
@@ -41,7 +41,7 @@ const localizeStoredNotification = (notification: AppNotification, english: bool
     };
   }
   if (notification.type === "ai_response") {
-    const match = message.match(/^(?:Réponse générée pour l['’]avis de|Réponse pour|Response generated for review by|Response for)\\s+(.+?)\\.?$/i);
+    const match = message.match(/^(?:Réponse générée pour l['’]avis de|Réponse pour|Response generated for review by|Response for)\s+(.+?)\.?$/i);
     const author = match?.[1];
     return {
       title: english ? "AI response generated" : "Réponse IA générée",
@@ -51,10 +51,10 @@ const localizeStoredNotification = (notification: AppNotification, english: bool
     };
   }
   if (notification.type === "new_review") {
-    const rating = title.match(/([1-5])[\\s-]?(?:star|étoile)/i)?.[1];
+    const rating = title.match(/([1-5])[\s-]?(?:star|étoile)/i)?.[1];
     let localizedMessage = message;
-    const frenchEnvelope = message.match(/^(.+?) a laissé un avis de ([1-5]) étoiles?\\s*:\\s*(.+)$/i);
-    const englishEnvelope = message.match(/^(.+?) left a ([1-5])-star review\\s*:\\s*(.+)$/i);
+    const frenchEnvelope = message.match(/^(.+?) a laissé un avis de ([1-5]) étoiles?\s*:\s*(.+)$/i);
+    const englishEnvelope = message.match(/^(.+?) left a ([1-5])-star review\s*:\s*(.+)$/i);
     if (english && frenchEnvelope) {
       localizedMessage = frenchEnvelope[1] + " left a " + frenchEnvelope[2] + "-star review: " + frenchEnvelope[3];
     } else if (!english && englishEnvelope) {
