@@ -2,8 +2,8 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 const NOTIFY_EMAIL = "oben.rockman@gmail.com";
-const SUPPORT_EMAIL = "support@googlereviewai.com";
-const BRAND_NAME = "Google Review AI";
+const SUPPORT_EMAIL = "support@reviewsai.store";
+const BRAND_NAME = "Reviews AI";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
