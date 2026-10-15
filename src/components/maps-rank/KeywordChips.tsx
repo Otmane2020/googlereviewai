@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,6 +32,8 @@ export const KeywordChips = ({
   onKeywordSelect,
   businessCategories = [],
 }: KeywordChipsProps) => {
+  const { i18n } = useTranslation();
+  const tr = (fr: string, en: string) => i18n.language?.startsWith("fr") ? fr : en;
   const [savedKeywords, setSavedKeywords] = useState<SavedKeyword[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddPopover, setShowAddPopover] = useState(false);
@@ -116,7 +119,7 @@ export const KeywordChips = ({
   const suggestions = getSuggestions();
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("fr-FR", {
+    return new Date(dateString).toLocaleDateString(i18n.language?.startsWith("fr") ? "fr-FR" : "en-US", {
       day: "numeric",
       month: "short",
     });
@@ -128,7 +131,7 @@ export const KeywordChips = ({
       <div className="space-y-2">
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <History className="w-3 h-3" />
-          <span>Keywords récents</span>
+          <span>{tr("Mots-clés récents","Recent keywords")}</span>
         </div>
         
         {loading ? (
@@ -179,7 +182,7 @@ export const KeywordChips = ({
         <div className="space-y-2">
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <BrandSparkle className="w-3 h-3" />
-            <span>Suggestions</span>
+            <span>{tr("Suggestions","Suggestions")}</span>
           </div>
           <div className="flex flex-wrap gap-1.5">
             {suggestions.map((suggestion) => (
@@ -210,7 +213,7 @@ export const KeywordChips = ({
             <div className="relative">
               <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
               <Input
-                placeholder="Nouveau mot-clé..."
+                placeholder={tr("Nouveau mot-clé…", "New keyword…")}
                 value={newKeyword}
                 onChange={(e) => setNewKeyword(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleAddKeyword()}
