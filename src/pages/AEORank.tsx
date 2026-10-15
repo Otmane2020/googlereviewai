@@ -256,8 +256,8 @@ const AEORank = () => {
         description: analysisData?.description || selectedBusiness.description,
       });
 
-      console.log(`[AEO] Website content: ${websiteContent ? websiteContent.length + ' chars' : 'NULL'}`);
-      console.log(`[AEO] Keywords: ${keywords.length}`);
+      console.log(`[GEO] Website content: ${websiteContent ? websiteContent.length + ' chars' : 'NULL'}`);
+      console.log(`[GEO] Keywords: ${keywords.length}`);
 
       // STEP 4: Create 30-day plan
       const today = startOfToday();
