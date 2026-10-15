@@ -16,6 +16,7 @@ import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { SelectBusinessesDialog } from "@/components/SelectBusinessesDialog";
 import { useTranslation } from "react-i18next";
 import { normalizeLanguage } from "@/i18n/config";
+import { isActivePaidPlan } from "@/lib/planEntitlements";
 
 const STEPS = ["Welcome", "Choose location", "AI tone", "Pick a plan"];
 
@@ -67,6 +68,7 @@ const Onboarding = () => {
   const [discoveredLocations, setDiscoveredLocations] = useState<{name: string; google_place_id: string; address: string | null; phone: string | null; website: string | null; profile_image_url?: string | null}[]>([]);
   const [locationLimit, setLocationLimit] = useState(1);
   const [step, setStep] = useState(0);
+  const [freeLoading, setFreeLoading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [hasGoogle, setHasGoogle] = useState(false);
   const [businesses, setBusinesses] = useState<{ id: string; name: string }[]>([]);
@@ -160,16 +162,37 @@ const Onboarding = () => {
     }
     let active = true;
     (async () => {
-      const [{ data: profile }, { data: biz }] = await Promise.all([
-        supabase.from("profiles").select("google_refresh_token,full_name,onboarding_completed")
+      const [{ data: profile }, { data: biz }, { data: aiSettings }] = await Promise.all([
+        supabase.from("profiles").select("google_refresh_token,full_name,onboarding_completed,free_plan_selected_at,plan_name,subscription_status,current_period_end,trial_end")
           .eq("id", user.id).maybeSingle(),
         supabase.from("businesses").select("id,name,is_active").eq("user_id", user.id),
+        supabase.from("ai_settings").select("user_id").eq("user_id", user.id).maybeSingle(),
       ]);
       if (!active) return;
       const managed = (biz || []).filter(b => b.is_active);
-      if (profile?.onboarding_completed && managed.length > 0) {
+      // A checkout attempt is NOT a completed onboarding. Legacy accounts may
+      // have onboarding_completed=true from an abandoned Stripe checkout.
+      const paid = isActivePaidPlan(profile);
+      const explicitFree = Boolean(profile?.onboarding_completed && profile?.free_plan_selected_at);
+      if ((paid || explicitFree) && managed.length > 0) {
         navigate("/dashboard", { replace: true });
         return;
+      }
+
+      // Rehydrate the last valid wizard step after refresh or a cancelled payment.
+      // Prefer an explicit last-step request for the Stripe cancellation return.
+      const savedStep = Number(localStorage.getItem("reviewsai_onboarding_step_" + user.id) || "0");
+      const returningFromCheckout = new URLSearchParams(window.location.search).get("step") === "plan";
+      if (managed.length > 0) {
+        if (returningFromCheckout || profile?.onboarding_completed || savedStep >= 3 || Boolean(aiSettings?.user_id)) {
+          setStep(3);
+        } else if (savedStep >= 2) {
+          setStep(2);
+        } else if (savedStep >= 1) {
+          setStep(1);
+        }
+      } else if (savedStep >= 1) {
+        setStep(1);
       }
       let authorized = Boolean(profile?.google_refresh_token);
       if (!authorized) {
@@ -210,8 +233,12 @@ const Onboarding = () => {
     }
   }, [step, discoveredLocations.length, businesses.length]);
 
-  const next = () => setStep((s) => Math.min(s + 1, STEPS.length - 1));
-  const back = () => setStep((s) => Math.max(s - 1, 0));
+  const saveStep = (nextStep: number) => {
+    setStep(nextStep);
+    if (user) localStorage.setItem("reviewsai_onboarding_step_" + user.id, String(nextStep));
+  };
+  const next = () => saveStep(Math.min(step + 1, STEPS.length - 1));
+  const back = () => saveStep(Math.max(step - 1, 0));
 
   const handleConnectGoogle = async () => {
     setLoading(true);
@@ -253,12 +280,13 @@ const Onboarding = () => {
     if (!user || !priceKey) return;
     setPlanLoading(priceKey);
     try {
-      await supabase.from("profiles").update({ onboarding_completed: true } as any).eq("id", user.id);
+      // Never complete onboarding until Stripe confirms an active subscription.
+      localStorage.setItem("reviewsai_onboarding_step_" + user.id, "3");
       const { data, error } = await supabase.functions.invoke("create-checkout", {
         body: {
           priceKey,
-          successUrl: `${window.location.origin}/dashboard?success=true`,
-          cancelUrl: `${window.location.origin}/onboarding`,
+          successUrl: `${window.location.origin}/payment-success`,
+          cancelUrl: `${window.location.origin}/onboarding?step=plan`,
         },
       });
       if (error) throw error;
@@ -273,6 +301,33 @@ const Onboarding = () => {
     }
   };
 
+  const handleContinueFree = async () => {
+    if (!user || freeLoading || planLoading) return;
+    setFreeLoading(true);
+    try {
+      // This only records an explicit choice. The original welcome grant is
+      // lifetime-only and must never be reissued or reset by this action.
+      const { data, error } = await supabase.from("profiles")
+        .update({
+          free_plan_selected_at: new Date().toISOString(),
+          onboarding_completed: true,
+        })
+        .eq("id", user.id)
+        .select("id")
+        .maybeSingle();
+      if (error || !data) throw new Error(error?.message || "Unable to save free plan");
+      localStorage.removeItem("reviewsai_onboarding_step_" + user.id);
+      navigate("/dashboard", { replace: true });
+    } catch (error) {
+      toast({
+        title: isFrench ? "Erreur" : "Error",
+        description: error instanceof Error ? error.message : (isFrench ? "Impossible d'activer l'accès gratuit" : "Could not activate free access"),
+        variant: "destructive",
+      });
+    } finally {
+      setFreeLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen reviewai-wizard-bg flex items-start justify-center px-3 py-5 sm:px-6 sm:py-10">
@@ -509,6 +564,30 @@ const Onboarding = () => {
                       </button>
                     );
                   })}
+                </div>
+
+                <div className="reviewai-soft-card rounded-2xl p-4 sm:p-5 text-center space-y-3 border border-primary/15 bg-primary/[0.03]">
+                  <div className="space-y-1">
+                    <p className="font-bold text-foreground">
+                      {isFrench ? "Vous préférez essayer gratuitement ?" : "Prefer to try for free?"}
+                    </p>
+                    <p className="text-xs sm:text-sm text-muted-foreground">
+                      {isFrench
+                        ? "3 crédits IA offerts une seule fois. Sans carte bancaire ni abonnement."
+                        : "3 complimentary AI credits, once per account. No card or subscription required."}
+                    </p>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full sm:w-auto min-h-11 rounded-xl border-primary/35 font-semibold"
+                    onClick={handleContinueFree}
+                    disabled={freeLoading || planLoading !== null}
+                  >
+                    {freeLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+                    {isFrench ? "Continuer sans forfait — 3 crédits gratuits" : "Continue without a plan — 3 free credits"}
+                    {!freeLoading && <ArrowRight className="w-4 h-4 ml-2" />}
+                  </Button>
                 </div>
 
                 <div className="flex justify-start items-center border-t border-border/60 pt-5">
