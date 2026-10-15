@@ -433,7 +433,7 @@ const MapsRank = () => {
                 </Button>
               </div>
 
-              {/* Keywords Section */}}
+              {/* Keywords Section */}
               {selectedBusiness && user && (
                 <div className="space-y-2 pt-2 border-t">
                   <Label className="text-xs">Mot-clé</Label>
