@@ -55,17 +55,26 @@ export const SelectBusinessesDialog = ({
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
 
+  // Depend on the stable IDs, not on an array object created by a parent
+  // render. A re-render while the dialog is open must not clear user's ticks.
+  const availableLocationKeys = businesses.map(b => b.google_place_id).join("|");
+  const initiallySelectedKeys = initialSelectedGooglePlaceIds.join("|");
+
   useEffect(() => {
     if (!open) return;
-    const availableIds = new Set(businesses.map(b => b.google_place_id));
-    setSelected(new Set(
-      initialSelectedGooglePlaceIds.filter(id => availableIds.has(id)).slice(0, limit),
-    ));
+    const availableIds = new Set(availableLocationKeys.split("|").filter(Boolean));
+    const validInitial = initiallySelectedKeys.split("|").filter(id => availableIds.has(id)).slice(0, limit);
+    // Starter is a single choice. Preselect the first available location
+    // for an immediately usable dialog; tapping another replaces the choice.
+    if (validInitial.length === 0 && limit === 1 && availableLocationKeys) {
+      validInitial.push(availableLocationKeys.split("|")[0]);
+    }
+    setSelected(new Set(validInitial));
     setSaveError(null);
-  }, [open, businesses, initialSelectedGooglePlaceIds, limit]);
+  }, [open, availableLocationKeys, initiallySelectedKeys, limit]);
 
   const toggleBusiness = (googlePlaceId: string) => {
-    if (saving) return;
+    if (saving || !googlePlaceId) return;
     setSaveError(null);
     if (!selected.has(googlePlaceId) && selected.size >= limit && limit !== 1) {
       toast({

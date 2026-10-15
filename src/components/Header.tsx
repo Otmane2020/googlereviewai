@@ -38,7 +38,7 @@ export const Header = () => {
           </div>
 
           <div className="hidden md:flex items-center gap-2">
-            <LanguageSwitcher variant="flags" />
+            <LanguageSwitcher variant="dropdown" />
             <Link to="/auth">
               <Button variant="outline" size="sm">{t("header.signIn")}</Button>
             </Link>

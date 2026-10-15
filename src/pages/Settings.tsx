@@ -15,7 +15,8 @@ import { toast } from "@/hooks/use-toast";
 import { User, Mail, CreditCard, Shield, Building2, Bell, BellOff, BellRing, Save, Loader2, Crown, Check, Settings as SettingsIcon, Link2, ExternalLink, Send, Globe } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "react-i18next";
-import { persistLanguage } from "@/i18n/config";
+import { getExplicitLanguage } from "@/i18n/config";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { BrandSparkle } from "@/components/BrandSparkle";
 import { GoogleBusinessIntegration } from "@/components/GoogleBusinessIntegration";
 import { ManageLocationsDialog } from "@/components/ManageLocationsDialog";
@@ -46,25 +47,6 @@ const SettingsPage = () => {
   const tr = (fr: string, en: string) => i18n.language?.startsWith("fr") ? fr : en;
   const [currentLang, setCurrentLang] = useState(i18n.language?.startsWith("fr") ? "fr" : "en");
   useEffect(() => { setCurrentLang(i18n.language?.startsWith("fr") ? "fr" : "en"); }, [i18n.language]);
-  const handleLanguageChange = async (lng: "fr" | "en") => {
-    setCurrentLang(lng);
-    persistLanguage(lng, true);
-    await i18n.changeLanguage(lng);
-    if (user) {
-      const { error } = await supabase
-        .from("profiles")
-        .update({ preferred_language: lng })
-        .eq("id", user.id);
-      if (!error) {
-        toast({
-          title: lng === "fr" ? "Langue mise à jour" : "Language updated",
-          description: lng === "fr"
-            ? "Les emails et notifications seront en français."
-            : "Emails and notifications will be in English.",
-        });
-      }
-    }
-  };
   const { isNativeApp, canUsePushAlert } = useDeviceDetection();
   const webPush = useWebPush();
   const [pushPermission, setPushPermission] = useState<NotificationPermission | "unsupported">("default");
@@ -189,12 +171,11 @@ const SettingsPage = () => {
       setProfilee(data as Profilee);
       setFullName(data.full_name || "");
       const pl = (data as any).preferred_language;
-      if (pl === "fr" || pl === "en") {
+      // A choice made through the flag dropdown always takes priority over
+      // the saved profile and the automatically detected visitor country.
+      if ((pl === "fr" || pl === "en") && !getExplicitLanguage()) {
         setCurrentLang(pl);
-        if (i18n.language !== pl) {
-          i18n.changeLanguage(pl);
-          try { localStorage.setItem("i18nextLng", pl); } catch {}
-        }
+        if (i18n.language !== pl) void i18n.changeLanguage(pl);
       }
     }
     
@@ -361,25 +342,11 @@ const SettingsPage = () => {
               ? "Langue de l'interface et langue par défaut des emails si aucune langue Google Business n'est définie."
               : "Interface language and fallback for emails when no Google Business language is set."}
           </p>
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              type="button"
-              onClick={() => handleLanguageChange("fr")}
-              className={`flex items-center gap-3 rounded-xl border p-3 text-left transition-all ${currentLang === "fr" ? "border-primary bg-primary/5 ring-2 ring-primary/30" : "border-border hover:bg-muted/50"}`}
-            >
-              <svg width="28" height="20" viewBox="0 0 3 2" className="rounded-sm shrink-0"><rect width="1" height="2" x="0" fill="#002654" /><rect width="1" height="2" x="1" fill="#FFFFFF" /><rect width="1" height="2" x="2" fill="#CE1126" /></svg>
-              <div><p className="text-sm font-semibold text-foreground">Français</p><p className="text-xs text-muted-foreground">FR</p></div>
-              {currentLang === "fr" && <Check className="w-4 h-4 text-primary ml-auto" />}
-            </button>
-            <button
-              type="button"
-              onClick={() => handleLanguageChange("en")}
-              className={`flex items-center gap-3 rounded-xl border p-3 text-left transition-all ${currentLang === "en" ? "border-primary bg-primary/5 ring-2 ring-primary/30" : "border-border hover:bg-muted/50"}`}
-            >
-              <svg width="28" height="20" viewBox="0 0 60 30" className="rounded-sm shrink-0"><clipPath id="s-en"><path d="M0,0 v30 h60 v-30 z"/></clipPath><clipPath id="t-en"><path d="M30,15 h30 v15 z v15 h-30 z h-30 v-15 z v-15 h30 z"/></clipPath><g clipPath="url(#s-en)"><path d="M0,0 v30 h60 v-30 z" fill="#012169"/><path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" strokeWidth="6"/><path d="M0,0 L60,30 M60,0 L0,30" clipPath="url(#t-en)" stroke="#C8102E" strokeWidth="4"/><path d="M30,0 v30 M0,15 h60" stroke="#fff" strokeWidth="10"/><path d="M30,0 v30 M0,15 h60" stroke="#C8102E" strokeWidth="6"/></g></svg>
-              <div><p className="text-sm font-semibold text-foreground">English</p><p className="text-xs text-muted-foreground">EN</p></div>
-              {currentLang === "en" && <Check className="w-4 h-4 text-primary ml-auto" />}
-            </button>
+          <div className="flex items-center justify-between gap-4 rounded-xl border border-border/70 bg-muted/25 p-3">
+            <p className="text-sm text-muted-foreground">
+              {currentLang === "fr" ? "Langue de l’application" : "Application language"}
+            </p>
+            <LanguageSwitcher variant="dropdown" />
           </div>
         </div>
 

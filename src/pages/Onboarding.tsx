@@ -116,7 +116,20 @@ const Onboarding = () => {
         setHasGoogle(true);
         setSyncError(null);
         setNeedsReconnect(false);
-        setDiscoveredLocations(data.google_businesses);
+        // The current Edge Function can lag behind the frontend deployment.
+        // Fall back to previously imported official Google cover photos without
+        // requiring another Google OAuth flow or leaking photos across users.
+        const { data: savedPhotos } = await supabase.from("businesses")
+          .select("google_place_id,profile_image_url").eq("user_id", user.id);
+        const photoByLocation = new Map(
+          (savedPhotos || []).filter(b => b.google_place_id && b.profile_image_url)
+            .map(b => [b.google_place_id, b.profile_image_url]),
+        );
+        setDiscoveredLocations(data.google_businesses.map((business: typeof discoveredLocations[number]) => ({
+          ...business,
+          profile_image_url: business.profile_image_url
+            || photoByLocation.get(business.google_place_id) || null,
+        })));
         setLocationLimit(data.max_businesses || 1);
         if (step === 1) setLocationSelectionOpen(true);
         return;
@@ -270,7 +283,7 @@ const Onboarding = () => {
             <span className="hidden sm:inline text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">
               {isFrench ? "Configuration du compte" : "Account setup"}
             </span>
-            <LanguageSwitcher variant="flags" />
+            <LanguageSwitcher variant="dropdown" />
           </div>
         </header>
         <div className="reviewai-surface px-4 pt-4 pb-3 sm:px-6 sm:pt-5 sm:pb-4 space-y-3">
