@@ -28,6 +28,8 @@ jobs:
         run: bun install --frozen-lockfile
       - name: Test AI review reply signatures
         run: bun test scripts/review-signature.test.mjs
+      - name: Test Cloudflare image generation and fallback
+        run: bun test scripts/gmb-image-providers.test.mjs
       - name: Build TanStack Start
         run: bun run build
       - name: Typecheck
