@@ -74,7 +74,7 @@ const LocalAEO = () => {
   const aeoFaqs = [
     {
       question: "Comment apparaître dans les réponses de ChatGPT pour les recherches locales ?",
-      answer: "Pour renforcer votre visibilité dans les moteurs IA, créez des contenus GEO utiles et des FAQ sur votre site. GoogleReviewAI aide à préparer ces contenus. Les anciennes questions-réponses Google Business ne sont plus publiables via API."
+      answer: "Pour renforcer votre visibilité dans les moteurs IA, créez des contenus GEO utiles et des FAQ sur votre site. Reviews AI aide à préparer ces contenus. Les anciennes questions-réponses Google Business ne sont plus publiables via API."
     },
     {
       question: "Qu'est-ce que l'GEO (Generative Engine Optimization) ?",
@@ -82,41 +82,41 @@ const LocalAEO = () => {
     },
     {
       question: "Quelle est la différence entre SEO local et GEO local ?",
-      answer: "Le SEO local optimise votre positionnement dans Google Maps et les résultats de recherche locaux. L'GEO local optimise votre contenu pour que les assistants IA (ChatGPT, Gemini) recommandent votre entreprise lorsque les utilisateurs posent des questions sur des services près de chez eux. GoogleReviewAI combine les deux pour maximiser votre visibilité."
+      answer: "Le SEO local optimise votre positionnement dans Google Maps et les résultats de recherche locaux. L'GEO local optimise votre contenu pour que les assistants IA (ChatGPT, Gemini) recommandent votre entreprise lorsque les utilisateurs posent des questions sur des services près de chez eux. Reviews AI combine les deux pour maximiser votre visibilité."
     },
     {
-      question: "Comment GoogleReviewAI génère-t-il des Q&A pour ChatGPT ?",
-      answer: "GoogleReviewAI utilise l'IA pour analyser votre activité, vos mots-clés et votre zone géographique. Il génère ensuite des questions-réponses pertinentes en format structuré et les publie automatiquement sur votre fiche Google Business Profile chaque jour, maximisant vos chances d'être cité par les IA."
+      question: "Comment Reviews AI génère-t-il des Q&A pour ChatGPT ?",
+      answer: "Reviews AI utilise l'IA pour analyser votre activité, vos mots-clés et votre zone géographique. Il génère ensuite des questions-réponses pertinentes en format structuré et les publie automatiquement sur votre fiche Google Business Profile chaque jour, maximisant vos chances d'être cité par les IA."
     },
     {
       question: "Combien de temps faut-il pour apparaître dans les réponses IA ?",
-      answer: "Le référencement GEO est progressif et les résultats ne sont pas garantis. GoogleReviewAI génère des contenus et des FAQ que vous pouvez publier sur vos propres supports afin d'améliorer la visibilité de votre activité."
+      answer: "Le référencement GEO est progressif et les résultats ne sont pas garantis. Reviews AI génère des contenus et des FAQ que vous pouvez publier sur vos propres supports afin d'améliorer la visibilité de votre activité."
     },
     {
       question: "L'GEO fonctionne-t-il pour tous les secteurs d'activité ?",
-      answer: "Oui, l'GEO est efficace pour toutes les entreprises locales : restaurants, hôtels, salons de coiffure, garages, professionnels de santé, commerces, artisans. GoogleReviewAI adapte le contenu Q&A à chaque secteur pour répondre aux questions que les utilisateurs posent réellement aux assistants IA."
+      answer: "Oui, l'GEO est efficace pour toutes les entreprises locales : restaurants, hôtels, salons de coiffure, garages, professionnels de santé, commerces, artisans. Reviews AI adapte le contenu Q&A à chaque secteur pour répondre aux questions que les utilisateurs posent réellement aux assistants IA."
     }
   ];
 
   return (
     <div className="min-h-screen bg-background">
       <Helmet>
-        <title>Local GEO – Apparaissez dans ChatGPT & Gemini | GoogleReviewAI</title>
+        <title>Local GEO – Apparaissez dans ChatGPT & Gemini | Reviews AI</title>
         <meta
           name="description"
           content="Optimisez votre visibilité locale dans ChatGPT, Gemini et les assistants IA. Générez automatiquement des Q&A GEO pour être recommandé par l'IA. Essai gratuit."
         />
-        <link rel="canonical" href="https://googlereviewai.com/local-geo" />
+        <link rel="canonical" href="https://reviewsai.store/local-geo" />
         <meta property="og:title" content="Local GEO – Apparaissez dans ChatGPT & Gemini" />
         <meta property="og:description" content="Optimisez votre présence pour les moteurs de réponse IA. Q&A automatiques publiés sur Google Business Profile." />
-        <meta property="og:url" content="https://googlereviewai.com/local-geo" />
+        <meta property="og:url" content="https://reviewsai.store/local-geo" />
         <meta property="og:type" content="website" />
-        <meta property="og:image" content="https://googlereviewai.com/og-image.png" />
+        <meta property="og:image" content="https://reviewsai.store/og-image.png" />
       </Helmet>
       <FAQPageSchema faqs={aeoFaqs} />
       <BreadcrumbSchema items={[
-        { name: "Accueil", url: "https://googlereviewai.com" },
-        { name: "Local GEO", url: "https://googlereviewai.com/local-geo" }
+        { name: "Accueil", url: "https://reviewsai.store" },
+        { name: "Local GEO", url: "https://reviewsai.store/local-geo" }
       ]} />
       <Header />
       
@@ -209,7 +209,7 @@ const LocalAEO = () => {
                 Comment ça Fonctionne ?
               </h2>
               <p className="text-muted-foreground max-w-2xl mx-auto">
-                GoogleReviewAI génère et publie automatiquement du contenu optimisé pour l'IA sur votre fiche Google My Business
+                Reviews AI génère et publie automatiquement du contenu optimisé pour l'IA sur votre fiche Google My Business
               </p>
             </div>
 
@@ -270,7 +270,7 @@ const LocalAEO = () => {
                   Ready à Dominer l'IA Locale ?
                 </h2>
                 <p className="text-muted-foreground mb-6 max-w-xl mx-auto">
-                  Rejoignez les entreprises qui utilisent déjà GoogleReviewAI pour apparaître 
+                  Rejoignez les entreprises qui utilisent déjà Reviews AI pour apparaître 
                   dans les réponses de ChatGPT et des autres assistants IA.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">

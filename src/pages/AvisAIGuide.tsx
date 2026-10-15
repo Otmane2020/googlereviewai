@@ -28,11 +28,11 @@ const AvisAIGuide = () => {
       <FAQPageSchema faqs={[
         {
           question: "Comment répondre aux avis Google avec l'IA ?",
-          answer: "Utilisez une solution IA spécialisée comme GoogleReviewAI qui se connecte à votre fiche Google Business Profile, analyse chaque avis reçu (contenu, note, contexte) et génère automatiquement une réponse personnalisée publiée directement sur Google en moins de 2 heures."
+          answer: "Utilisez une solution IA spécialisée comme Reviews AI qui se connecte à votre fiche Google Business Profile, analyse chaque avis reçu (contenu, note, contexte) et génère automatiquement une réponse personnalisée publiée directement sur Google en moins de 2 heures."
         },
         {
           question: "Est-ce que les réponses IA aux avis sont naturelles ?",
-          answer: "Oui, les réponses générées par l'IA de GoogleReviewAI sont personnalisées en fonction du contenu spécifique de chaque avis, du ton de votre entreprise et de votre secteur d'activité. Elles sont conçues pour paraître humaines et professionnelles, sans effet copié-collé."
+          answer: "Oui, les réponses générées par l'IA de Reviews AI sont personnalisées en fonction du contenu spécifique de chaque avis, du ton de votre entreprise et de votre secteur d'activité. Elles sont conçues pour paraître humaines et professionnelles, sans effet copié-collé."
         },
         {
           question: "Répondre aux avis Google améliore-t-il le SEO local ?",
@@ -40,30 +40,30 @@ const AvisAIGuide = () => {
         },
         {
           question: "Peut-on automatiser les réponses aux avis tout en gardant le contrôle ?",
-          answer: "Oui, GoogleReviewAI permet de configurer un mode semi-automatique où les réponses sont générées par l'IA mais soumises à votre validation avant publication. Vous pouvez aussi modifier les réponses ou activer le mode 100% automatique pour un gain de temps maximal."
+          answer: "Oui, Reviews AI permet de configurer un mode semi-automatique où les réponses sont générées par l'IA mais soumises à votre validation avant publication. Vous pouvez aussi modifier les réponses ou activer le mode 100% automatique pour un gain de temps maximal."
         },
         {
           question: "Combien d'avis peut-on traiter avec l'IA ?",
-          answer: "GoogleReviewAI peut traiter un nombre illimité d'avis. Que vous receviez 5 ou 500 avis par mois, l'IA analyse et répond à chacun de manière personnalisée, 24h/24 et 7j/7, sans aucune limite."
+          answer: "Reviews AI peut traiter un nombre illimité d'avis. Que vous receviez 5 ou 500 avis par mois, l'IA analyse et répond à chacun de manière personnalisée, 24h/24 et 7j/7, sans aucune limite."
         }
       ]} />
       <BreadcrumbSchema items={[
-        { name: "Accueil", url: "https://googlereviewai.com" },
-        { name: "Blog", url: "https://googlereviewai.com/blog" },
-        { name: "Guide IA Avis Clients", url: "https://googlereviewai.com/avis-ai-guide" }
+        { name: "Accueil", url: "https://reviewsai.store" },
+        { name: "Blog", url: "https://reviewsai.store/blog" },
+        { name: "Guide IA Avis Clients", url: "https://reviewsai.store/avis-ai-guide" }
       ]} />
       <Helmet>
-        <title>Comment l'IA révolutionne la gestion des avis clients en 2026 | GoogleReviewAI</title>
+        <title>Comment l'IA révolutionne la gestion des avis clients en 2026 | Reviews AI</title>
         <meta 
           name="description" 
-          content="Découvrez comment utiliser l'IA pour répondre automatiquement aux avis Google. Guide complet sur l'automatisation des réponses aux avis clients avec GoogleReviewAI." 
+          content="Découvrez comment utiliser l'IA pour répondre automatiquement aux avis Google. Guide complet sur l'automatisation des réponses aux avis clients avec Reviews AI." 
         />
-        <meta name="keywords" content="répondre avis clients IA, automatiser avis Google, gestion avis automatique, IA avis clients, GoogleReviewAI" />
-        <link rel="canonical" href="https://googlereviewai.com/avis-ai-guide" />
+        <meta name="keywords" content="répondre avis clients IA, automatiser avis Google, gestion avis automatique, IA avis clients, Reviews AI" />
+        <link rel="canonical" href="https://reviewsai.store/avis-ai-guide" />
         
         <meta property="og:title" content="Comment l'IA révolutionne la gestion des avis clients en 2026" />
         <meta property="og:description" content="Guide complet pour automatiser vos réponses aux avis Google avec l'intelligence artificielle." />
-        <meta property="og:url" content="https://googlereviewai.com/avis-ai-guide" />
+        <meta property="og:url" content="https://reviewsai.store/avis-ai-guide" />
         <meta property="og:type" content="article" />
         
         <script type="application/ld+json">
@@ -74,14 +74,14 @@ const AvisAIGuide = () => {
             "description": "Guide complet pour automatiser vos réponses aux avis Google avec l'intelligence artificielle.",
             "author": {
               "@type": "Organization",
-              "name": "GoogleReviewAI"
+              "name": "Reviews AI"
             },
             "publisher": {
               "@type": "Organization",
-              "name": "GoogleReviewAI",
+              "name": "Reviews AI",
               "logo": {
                 "@type": "ImageObject",
-                "url": "https://googlereviewai.com/og-image.png"
+                "url": "https://reviewsai.store/og-image.png"
               }
             },
             "datePublished": "2026-02-01",
@@ -131,7 +131,7 @@ const AvisAIGuide = () => {
                     <User className="w-5 h-5 text-primary" />
                   </div>
                   <div>
-                    <p className="font-medium">Par l'équipe GoogleReviewAI</p>
+                    <p className="font-medium">Par l'équipe Reviews AI</p>
                     <p className="text-sm text-muted-foreground">Experts en gestion de réputation</p>
                   </div>
                 </div>
@@ -157,7 +157,7 @@ const AvisAIGuide = () => {
                     </li>
                     <li>
                       <a href="#googlereviewai.com" className="text-muted-foreground hover:text-primary transition-colors">
-                        4. Automatiser la gestion des avis avec GoogleReviewAI
+                        4. Automatiser la gestion des avis avec Reviews AI
                       </a>
                     </li>
                     <li>
@@ -302,21 +302,21 @@ const AvisAIGuide = () => {
                       </CardContent>
                     </Card>
 
-                    <h3 className="text-xl font-semibold mt-8 mb-4">2) Automatiser intelligemment avec GoogleReviewAI</h3>
+                    <h3 className="text-xl font-semibold mt-8 mb-4">2) Automatiser intelligemment avec Reviews AI</h3>
                     
                     <p className="text-muted-foreground mb-4">
-                      GoogleReviewAI a été conçu spécifiquement pour la <strong>gestion automatisée des avis clients</strong>.
+                      Reviews AI a été conçu spécifiquement pour la <strong>gestion automatisée des avis clients</strong>.
                     </p>
                   </section>
 
-                  {/* Section 4 - GoogleReviewAI */}
+                  {/* Section 4 - Reviews AI */}
                   <section id="googlereviewai.com" className="mb-12">
                     <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
                       <Zap className="w-6 h-6 text-primary" />
-                      Automatiser la gestion des avis avec GoogleReviewAI
+                      Automatiser la gestion des avis avec Reviews AI
                     </h2>
 
-                    <p className="text-muted-foreground mb-6">Avec GoogleReviewAI, vous pouvez :</p>
+                    <p className="text-muted-foreground mb-6">Avec Reviews AI, vous pouvez :</p>
 
                     <div className="grid gap-4 mb-8">
                       {[
@@ -337,7 +337,7 @@ const AvisAIGuide = () => {
                       ))}
                     </div>
 
-                    <p className="text-muted-foreground mb-4">L'IA GoogleReviewAI analyse :</p>
+                    <p className="text-muted-foreground mb-4">L'IA Reviews AI analyse :</p>
                     
                     <ul className="space-y-2 mb-8">
                       <li className="flex items-start gap-3">
@@ -370,7 +370,7 @@ const AvisAIGuide = () => {
                     {/* Example response */}
                     <div className="bg-muted/50 rounded-xl p-6 mb-8">
                       <p className="text-sm font-medium text-muted-foreground mb-3">
-                        💬 Exemple de réponse générée par l'IA GoogleReviewAI :
+                        💬 Exemple de réponse générée par l'IA Reviews AI :
                       </p>
                       <blockquote className="border-l-4 border-primary pl-4 italic text-foreground">
                         « Merci beaucoup pour votre retour. Nous sommes ravis d'apprendre que votre expérience 
@@ -415,7 +415,7 @@ const AvisAIGuide = () => {
                           👉 C'est ce qu'on appelle aujourd'hui l'AEO (Answer Engine Optimization)
                         </p>
                         <p className="text-muted-foreground">
-                          GoogleReviewAI optimise automatiquement vos réponses pour ces nouveaux usages.
+                          Reviews AI optimise automatiquement vos réponses pour ces nouveaux usages.
                         </p>
                       </CardContent>
                     </Card>
@@ -430,7 +430,7 @@ const AvisAIGuide = () => {
                         "Les avis clients sont un levier stratégique",
                         "La gestion manuelle ne scale pas",
                         "L'IA permet rapidité, cohérence et performance",
-                        "GoogleReviewAI transforme vos avis en avantage concurrentiel"
+                        "Reviews AI transforme vos avis en avantage concurrentiel"
                       ].map((item, index) => (
                         <Card key={index} className="border-primary/20">
                           <CardContent className="p-4 flex items-center gap-3">
@@ -450,7 +450,7 @@ const AvisAIGuide = () => {
                     Passez à la gestion intelligente des avis clients
                   </h2>
                   <p className="text-muted-foreground mb-6 max-w-xl mx-auto">
-                    Découvrez comment GoogleReviewAI vous permet de gagner du temps, améliorer votre réputation 
+                    Découvrez comment Reviews AI vous permet de gagner du temps, améliorer votre réputation 
                     et booster votre visibilité en ligne.
                   </p>
                   <p className="text-lg font-semibold text-primary mb-6">
