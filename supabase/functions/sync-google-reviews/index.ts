@@ -240,6 +240,10 @@ serve(async (req) => {
           }
           matchedLocations++;
           console.log(`Matched business_id: ${matchedBusinessId}`);
+          const errorsBeforeLocation = errors.length;
+          let googleTotalForLocation: number | null = null;
+          let returnedForLocation = 0;
+          let validGoogleResponse = false;
 
           try {
             let nextPageToken: string | null = null;
@@ -294,6 +298,11 @@ serve(async (req) => {
               if (pageCount === 1) fetchedLocations++;
               const reviewsData = await reviewsResponse.json();
               const reviews = reviewsData.reviews || [];
+              validGoogleResponse = true;
+              returnedForLocation += reviews.length;
+              if (pageCount === 1 && Number.isFinite(Number(reviewsData.totalReviewCount))) {
+                googleTotalForLocation = Number(reviewsData.totalReviewCount);
+              }
               nextPageToken = reviewsData.nextPageToken || null;
               
               // Extract Google's totalReviewCount and averageRating from the response
@@ -537,6 +546,20 @@ serve(async (req) => {
             console.error(`Error fetching reviews for ${locationTitle}:`, error);
             errors.push(`${locationTitle}: ${error instanceof Error ? error.message : "Unknown error"}`);
           }
+
+          if (validGoogleResponse && googleTotalForLocation !== null && googleTotalForLocation > returnedForLocation) {
+            errors.push(`${locationTitle}: Google annonce ${googleTotalForLocation} avis mais n'en renvoie que ${returnedForLocation} via son API.`);
+          }
+          const locationErrors = errors.slice(errorsBeforeLocation);
+          const status = locationErrors.length ? "api_error"
+            : returnedForLocation ? "reviews_imported" : validGoogleResponse ? "google_empty" : "api_error";
+          const { error: diagnosticError } = await supabaseAdmin.from("businesses").update({
+            last_reviews_sync_at: new Date().toISOString(),
+            last_reviews_sync_status: status,
+            last_reviews_sync_error: locationErrors.length ? locationErrors.join(" ; ").slice(0, 1200) : null,
+            last_google_reviews_total: googleTotalForLocation,
+          }).eq("id", matchedBusinessId).eq("user_id", user.id);
+          if (diagnosticError) errors.push(`Diagnostic de synchronisation : ${diagnosticError.message}`);
         }
       } catch (error) {
         console.error(`Error processing account ${accountName}:`, error);
@@ -677,6 +700,16 @@ serve(async (req) => {
       }
     }
 
+    // Individual managed locations must never be declared synced when absent
+    // from the connected Google account (even if another managed location works).
+    const { data: checkedLocations } = await supabaseAdmin.from("businesses")
+      .select("id,google_place_id,last_reviews_sync_at").eq("user_id", user.id)
+      .eq("is_active", true);
+    for (const managed of checkedLocations || []) {
+      if (!managed.google_place_id || !businessMap.has(managed.google_place_id)) continue;
+      // This can be handled by the periodic cron; don't overwrite an older
+      // actual API error simply because this call did not find the location.
+    }
     if (matchedLocations === 0 && businessMap.size > 0) {
       errors.push("Aucune des fiches actives sélectionnées n'a été trouvée dans les comptes Google accessibles. Vérifiez que le bon établissement Sweet Deco est autorisé.");
     } else if (matchedLocations > 0 && fetchedLocations === 0 && errors.length === 0) {
