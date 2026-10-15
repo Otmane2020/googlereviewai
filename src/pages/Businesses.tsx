@@ -369,7 +369,7 @@ const BusinessesPage = () => {
                 {t("Gérez vos profils Google", "Manage your Google profiles")}
               </p>
             </div>
-            <Badge variant="outline" className="gap-1 flex-shrink-0 bg-gradient-to-r from-primary/10 to-secondary/10 border-primary/30">
+            <Badge variant="outline" className="gap-1 flex-shrink-0 bg-primary/5 border-primary/30">
               <Crown className="w-3 h-3 text-primary" />
               <span className="font-semibold">{businesses.filter(b => b.is_active).length}/{maxBusinesses}</span>
             </Badge>
@@ -412,7 +412,7 @@ const BusinessesPage = () => {
 
         {/* Businesses grid */}
         {businesses.length === 0 ? (
-          <div className="bg-card rounded-2xl border border-border p-8 text-center">
+          <div className="reviewai-surface p-8 text-center">
             <Building2 className="w-12 h-12 mx-auto mb-3 text-muted-foreground/30" />
             <h2 className="text-lg font-semibold text-foreground mb-2">
               {t("Aucun établissement", "No business")}
@@ -436,12 +436,12 @@ const BusinessesPage = () => {
               return (
                 <div
                   key={business.id}
-                  className="bg-card rounded-xl border border-border p-4 hover:shadow-md transition-all active:scale-[0.98]"
+                  className="reviewai-surface p-4 hover:shadow-md transition-all active:scale-[0.98]"
                 >
                   {/* Header: Logo + Name + Badge */}
                   <div className="flex items-start gap-3 mb-3">
                     {/* Logo / Photo */}
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center flex-shrink-0 border border-primary/20 overflow-hidden">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center flex-shrink-0 border border-primary/20 overflow-hidden">
                       {business.profile_image_url ? (
                         <img 
                           src={business.profile_image_url}
