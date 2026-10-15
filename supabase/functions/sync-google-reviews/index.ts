@@ -125,15 +125,27 @@ serve(async (req) => {
     }
 
     const accountsData = await accountsResponse.json();
-    const accounts = accountsData.accounts || [];
+    const accounts = [...(accountsData.accounts || [])];
+    let nextAccounts = accountsData.nextPageToken as string | undefined;
+    let accountPages = 1;
+    while (nextAccounts && accountPages < 25) {
+      const url = "https://mybusinessaccountmanagement.googleapis.com/v1/accounts?pageToken=" + encodeURIComponent(nextAccounts);
+      const response = await fetch(url, { headers: { Authorization: `Bearer ${accessToken}` } });
+      if (!response.ok) throw new Error(`Google Business accounts pagination HTTP ${response.status}`);
+      const page = await response.json();
+      accounts.push(...(page.accounts || []));
+      nextAccounts = page.nextPageToken;
+      accountPages++;
+    }
+    if (nextAccounts) throw new Error("Google Business account list was truncated.");
     
     console.log(`Found ${accounts.length} Google Business accounts`);
 
     if (accounts.length === 0) {
       return new Response(
         JSON.stringify({ 
-          success: true, 
-          message: "No Google Business accounts found. Make sure you have access to at least one business.",
+          success: false,
+          message: "Aucun compte Google Business accessible. Vérifiez les autorisations Google.",
           reviews: [],
           synced_count: 0
         }),
@@ -171,6 +183,8 @@ serve(async (req) => {
     const allGoogleReviewIds: string[] = []; // Track all review IDs from Google
     const errors: string[] = [];
     let hasApiDisabledError = false;
+    let matchedLocations = 0;
+    let fetchedLocations = 0;
 
     // For each account, fetch locations and their reviews
     for (const account of accounts) {
@@ -180,24 +194,32 @@ serve(async (req) => {
 
       try {
         // Get locations for this account
-        const locationsResponse = await fetch(
-          `https://mybusinessbusinessinformation.googleapis.com/v1/${accountName}/locations?readMask=name,title,storefrontAddress`,
-          {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
+        // Enumerate every page. A selected managed listing may not appear
+        // among Google's first 100 locations.
+        const locations: any[] = [];
+        let nextLocations: string | undefined;
+        let locationPages = 0;
+        let locationFetchError = false;
+        do {
+          const url = new URL(`https://mybusinessbusinessinformation.googleapis.com/v1/${accountName}/locations`);
+          url.searchParams.set("readMask", "name,title,storefrontAddress");
+          url.searchParams.set("pageSize", "100");
+          if (nextLocations) url.searchParams.set("pageToken", nextLocations);
+          const response = await fetch(url.toString(), { headers: { Authorization: `Bearer ${accessToken}` } });
+          if (!response.ok) {
+            errors.push(`Compte Google ${accountId} : impossible d'accéder aux fiches (${response.status})`);
+            locationFetchError = true;
+            break;
           }
-        );
-
-        if (!locationsResponse.ok) {
-          const errorText = await locationsResponse.text();
-          console.error(`Failed to fetch locations for ${accountName}:`, locationsResponse.status, errorText);
-          errors.push(`Account ${accountId}: Failed to fetch locations (${locationsResponse.status})`);
+          const page = await response.json();
+          locations.push(...(page.locations || []));
+          nextLocations = page.nextPageToken;
+          locationPages++;
+        } while (nextLocations && locationPages < 25);
+        if (locationFetchError || nextLocations) {
+          if (nextLocations) errors.push(`Compte Google ${accountId} : liste de fiches incomplète`);
           continue;
         }
-
-        const locationsData = await locationsResponse.json();
-        const locations = locationsData.locations || [];
         
         console.log(`Found ${locations.length} locations for ${accountName}`);
 
@@ -216,6 +238,7 @@ serve(async (req) => {
             console.log(`Skipping unmanaged Google location: ${locationId}`);
             continue;
           }
+          matchedLocations++;
           console.log(`Matched business_id: ${matchedBusinessId}`);
 
           try {
@@ -268,6 +291,7 @@ serve(async (req) => {
                 break;
               }
 
+              if (pageCount === 1) fetchedLocations++;
               const reviewsData = await reviewsResponse.json();
               const reviews = reviewsData.reviews || [];
               nextPageToken = reviewsData.nextPageToken || null;
@@ -507,7 +531,7 @@ serve(async (req) => {
             } while (nextPageToken && pageCount < MAX_PAGES);
             
             if (pageCount >= MAX_PAGES && nextPageToken) {
-              console.warn(`Reached max page limit (${MAX_PAGES}) for ${locationTitle}, some reviews may not be synced`);
+              errors.push(`${locationTitle} : Google possède d’autres pages d’avis, synchronisation partielle`);
             }
           } catch (error) {
             console.error(`Error fetching reviews for ${locationTitle}:`, error);
@@ -525,9 +549,7 @@ serve(async (req) => {
     let deletedCount = 0;
     
     // GUARD 1: Skip deletion if there were API errors (403, 429, etc.)
-    const hasCriticalErrors = errors.some(e => 
-      e.includes("403") || e.includes("429") || e.includes("Quota exceeded") || e.includes("Permission denied")
-    );
+    const hasCriticalErrors = errors.length > 0;
     
     if (hasCriticalErrors) {
       console.log("[SAFETY] Skipping deletion detection due to API errors - avoiding false positives");
@@ -655,18 +677,34 @@ serve(async (req) => {
       }
     }
 
-    // Determine requires_reconnect based on all error types
-    const requiresReconnect = tokenResult.requires_reconnect || hasApiDisabledError;
-
+    if (matchedLocations === 0 && businessMap.size > 0) {
+      errors.push("Aucune des fiches actives sélectionnées n'a été trouvée dans les comptes Google accessibles. Vérifiez que le bon établissement Sweet Deco est autorisé.");
+    } else if (matchedLocations > 0 && fetchedLocations === 0 && errors.length === 0) {
+      errors.push("Fiche Google trouvée, mais aucun appel de récupération des avis n'a abouti.");
+    }
+    const requiresReconnect = Boolean(tokenResult.requires_reconnect || hasApiDisabledError);
+    const complete = errors.length === 0;
     const response = {
-      success: true,
-      message: `Synced ${allReviews.length} reviews${deletedCount > 0 ? `, deleted ${deletedCount} removed reviews` : ''}`,
+      success: complete,
+      partial: !complete && allReviews.length > 0,
+      message: complete
+        ? `Synchronisation terminée : ${allReviews.length} avis, ${fetchedLocations} fiche(s) lue(s).`
+        : `Synchronisation incomplète : ${errors.join(" ; ")}`,
       reviews: allReviews,
       synced_count: allReviews.length,
+      matched_locations: matchedLocations,
+      fetched_locations: fetchedLocations,
       deleted_count: deletedCount,
       errors: errors.length > 0 ? errors : undefined,
-      requires_reconnect: requiresReconnect
+      requires_reconnect: requiresReconnect,
     };
+
+    await supabaseAdmin.from("ai_settings").update({
+      last_sync_at: new Date().toISOString(),
+      last_sync_status: complete ? "success" : allReviews.length > 0 ? "partial" : "error",
+      last_sync_error: errors.length ? errors.join(" ; ").slice(0, 1500) : null,
+      reviews_synced_count: allReviews.length,
+    }).eq("user_id", user.id);
 
     return new Response(
       JSON.stringify(response),

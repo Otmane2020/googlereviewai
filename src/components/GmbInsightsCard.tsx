@@ -19,9 +19,10 @@ interface GmbInsights {
 
 interface GmbInsightsCardProps {
   userId: string;
+  businessId?: string | null;
 }
 
-export function GmbInsightsCard({ userId }: GmbInsightsCardProps) {
+export function GmbInsightsCard({ userId, businessId }: GmbInsightsCardProps) {
   const navigate = useNavigate();
   const [insights, setInsights] = useState<GmbInsights | null>(null);
   const [loading, setLoading] = useState(true);
@@ -34,7 +35,7 @@ export function GmbInsightsCard({ userId }: GmbInsightsCardProps) {
 
     try {
       const { data, error: fnError } = await supabase.functions.invoke("get-gmb-insights", {
-        body: { days: 30 },
+        body: { days: 30, business_id: businessId || null },
       });
 
       if (fnError) throw fnError;
@@ -57,10 +58,13 @@ export function GmbInsightsCard({ userId }: GmbInsightsCardProps) {
   };
 
   useEffect(() => {
-    if (userId) {
-      fetchInsights();
+    if (userId && businessId) {
+      void fetchInsights();
+    } else {
+      setInsights(null);
+      setLoading(false);
     }
-  }, [userId]);
+  }, [userId, businessId]);
 
   const formatNumber = (num: number) => {
     if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;

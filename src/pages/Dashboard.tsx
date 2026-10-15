@@ -12,7 +12,6 @@ import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { ConnectGMBDialog } from "@/components/ConnectGMBDialog";
 import { SyncProgressOverlay } from "@/components/SyncProgressOverlay";
 import { SelectBusinessesDialog } from "@/components/SelectBusinessesDialog";
-import { ManageLocationsDialog } from "@/components/ManageLocationsDialog";
 import { ReconnectGoogleDialog } from "@/components/ReconnectGoogleDialog";
 import { LowCreditsBanner } from "@/components/LowCreditsBanner";
 import { UpgradeDialog } from "@/components/UpgradeDialog";
@@ -74,8 +73,9 @@ const Dashboard = () => {
   const [recentReviews, setRecentReviews] = useState<Review[]>([]);
   const [stats, setStats] = useState({ total: 0, avgRating: 0, aiResponses: 0, pending: 0, businesses: 0, responseRate: 0 });
   const [primaryBusinessName, setPrimaryBusinessName] = useState<string | null>(null);
-  const [allBusinesses, setAllBusinesses] = useState<{ id: string; name: string; google_place_id: string | null }[]>([]);
-  const [manageLocationsOpen, setManageLocationsOpen] = useState(false);
+  const [allBusinesses, setAllBusinesses] = useState<{ id: string; name: string; google_place_id: string | null; profile_image_url: string | null; maps_url: string | null; address: string | null; rating: number | null; total_reviews: number | null }[]>([]);
+  const [locationSyncError, setLocationSyncError] = useState<string | null>(null);
+  const [alternateLocation, setAlternateLocation] = useState<{ name: string; count: number } | null>(null);
   const [selectedBusinessId, setSelectedBusinessId] = useState<string | null>(null);
   const [aeoStats, setAeoStats] = useState({ planned: 0, ready: 0, published: 0, nextDate: null as string | null });
   const [syncStatus, setSyncStatus] = useState<SyncStatus | null>(null);
@@ -214,7 +214,7 @@ const Dashboard = () => {
 
     const [profileRes, businessesRes, syncStatusRes] = await Promise.all([
       supabase.from("profiles").select("*").eq("id", user.id).maybeSingle(),
-      supabase.from("businesses").select("id, name, google_place_id, total_reviews, rating", { count: "exact" }).eq("user_id", user.id).eq("is_active", true),
+      supabase.from("businesses").select("id, name, google_place_id, profile_image_url, maps_url, address, total_reviews, rating, is_active", { count: "exact" }).eq("user_id", user.id),
       supabase.from("ai_settings").select("last_sync_at, last_sync_status, last_sync_error, reviews_synced_count").eq("user_id", user.id).maybeSingle()
     ]);
     
@@ -225,7 +225,8 @@ const Dashboard = () => {
     // The dashboard displays the same active establishment as /reviews.
     // Never mix replies from inactive/other Google locations with the
     // selected location's totals (which caused impossible rates > 100%).
-    const managed = businessesRes.data || [];
+    const savedLocations = businessesRes.data || [];
+    const managed = savedLocations.filter(b => b.is_active);
     const savedId = localStorage.getItem(`googlereviewai.com_selected_business_${user.id}`);
     const target = managed.find(b => b.id === savedId) || managed[0] || null;
     if (target?.id && savedId !== target.id) {
@@ -233,7 +234,7 @@ const Dashboard = () => {
     }
     setSelectedBusinessId(target?.id || null);
     setPrimaryBusinessName(target?.name || null);
-    setAllBusinesses(managed.map(b => ({ id: b.id, name: b.name, google_place_id: b.google_place_id })));
+    setAllBusinesses(managed.map(b => ({ id: b.id, name: b.name, google_place_id: b.google_place_id, profile_image_url: b.profile_image_url, maps_url: b.maps_url, address: b.address, rating: b.rating, total_reviews: b.total_reviews })));
 
     const scopedReviews = target?.google_place_id
       ? allReviews.filter(r => r.location_id === target.google_place_id)
@@ -247,6 +248,13 @@ const Dashboard = () => {
       return new Date(b.review_date).getTime() - new Date(a.review_date).getTime();
     });
     setRecentReviews(sortedReviews.slice(0, 5));
+
+    const suggested = savedLocations
+      .filter(b => !b.is_active && b.google_place_id && Number(b.total_reviews || 0) > 0)
+      .sort((a, b) => Number(b.total_reviews || 0) - Number(a.total_reviews || 0))[0];
+    setAlternateLocation(target && scopedReviews.length === 0 && Number(target.total_reviews || 0) === 0 && suggested
+      ? { name: suggested.name, count: Number(suggested.total_reviews) }
+      : null);
 
     const localTotal = scopedReviews.length;
     const googleTotal = target?.total_reviews || 0;
@@ -288,6 +296,31 @@ const Dashboard = () => {
 
     setLoading(false);
   }, [user]);
+
+
+  const switchDashboardLocation = async (businessId: string) => {
+    if (!user) return;
+    localStorage.setItem(`googlereviewai.com_selected_business_${user.id}`, businessId);
+    setSelectedBusinessId(businessId);
+    setLocationSyncError(null);
+    await fetchData();
+    const next = allBusinesses.find(b => b.id === businessId);
+    if (!next?.google_place_id) {
+      setLocationSyncError(i18n.language?.startsWith("fr")
+        ? "Cette fiche n'a pas de lien Google Business vérifié. Associez-la dans Paramètres."
+        : "This location has no verified Google Business link. Connect it in Settings.");
+      return;
+    }
+    // Fetch only the selected location, not every Google account/business.
+    const response = await syncReviews(businessId);
+    if (!response?.success || response.errors?.length) {
+      setLocationSyncError(response?.errors?.join(" · ") || response?.message ||
+        (i18n.language?.startsWith("fr") ? "Impossible de synchroniser cette fiche." : "Unable to sync this location."));
+    } else {
+      setLocationSyncError(null);
+    }
+    await fetchData();
+  };
 
   // Show the upgrade once after the free quota is exhausted, including
   // automatically generated replies. Do not interrupt every dashboard visit.
@@ -476,71 +509,118 @@ const Dashboard = () => {
 
 
         <main className="max-w-7xl mx-auto px-4 md:px-6 py-5 md:py-8 space-y-4">
-          <div className="flex items-center justify-between gap-2 min-w-0">
-            <div className="min-w-0 flex-1">
-              <p className="text-sm text-muted-foreground">{t("dashboardPage.welcomeBack")}</p>
-              {allBusinesses.length ? (
-                <div className="flex flex-col items-start gap-1.5 min-w-0">
+          {/* Business identity hero — location image and complete name, mobile-first. */}
+          {allBusinesses.length > 0 ? (
+            <section className="overflow-hidden rounded-2xl border border-border/70 bg-card shadow-sm">
+              <div className="flex items-start gap-3 sm:gap-5 p-3.5 sm:p-5 min-w-0">
+                <div className="relative shrink-0 h-20 w-20 sm:h-28 sm:w-28 rounded-2xl bg-primary/10 border border-border/60 overflow-hidden flex items-center justify-center">
+                  <Building2 className="h-9 w-9 sm:h-12 sm:w-12 text-primary/30" aria-hidden="true" />
+                  {allBusinesses.find(b => b.id === selectedBusinessId)?.profile_image_url && (
+                    <img
+                      key={selectedBusinessId || "business-image"}
+                      src={allBusinesses.find(b => b.id === selectedBusinessId)!.profile_image_url!}
+                      alt={primaryBusinessName || "Google Business"}
+                      className="absolute inset-0 h-full w-full object-cover"
+                      loading="eager"
+                      referrerPolicy="no-referrer"
+                      onError={event => { event.currentTarget.style.display = "none"; }}
+                    />
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[11px] uppercase tracking-wider font-semibold text-primary mb-1">
+                    Google Business · {i18n.language?.startsWith("fr") ? "Établissement actif" : "Active location"}
+                  </p>
                   <Select value={selectedBusinessId || allBusinesses[0].id}
-                    onValueChange={(v) => {
-                      localStorage.setItem(`googlereviewai.com_selected_business_${user?.id}`, v);
-                      setSelectedBusinessId(v);
-                      const found = allBusinesses.find(b => b.id === v);
-                      if (found) setPrimaryBusinessName(found.name);
-                      void fetchData();
-                    }}>
-                    <SelectTrigger className="h-auto w-auto max-w-[55vw] sm:max-w-md px-0 py-0 border-0 bg-transparent shadow-none focus:ring-0 text-xl md:text-2xl font-bold text-foreground hover:opacity-80 [&>svg]:opacity-70">
-                      <SelectValue />
+                    onValueChange={v => { void switchDashboardLocation(v); }}>
+                    <SelectTrigger className="w-full h-auto py-1 px-0 text-left border-0 shadow-none bg-transparent focus:ring-0 gap-1 [&>svg]:h-4 [&>svg]:w-4 [&>svg]:shrink-0">
+                      <span className="text-base sm:text-xl leading-tight font-bold break-words whitespace-normal text-left">
+                        {allBusinesses.find(b => b.id === selectedBusinessId)?.name || primaryBusinessName || allBusinesses[0].name}
+                      </span>
+                      <SelectValue className="sr-only" />
                     </SelectTrigger>
-                    <SelectContent className="max-w-[85vw]">
-                      {allBusinesses.map(b => <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>)}
+                    <SelectContent className="max-w-[90vw]">
+                      {allBusinesses.map(b => (
+                        <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
-                  <button type="button" className="inline-flex items-center gap-1.5 text-xs text-primary hover:underline underline-offset-2"
-                    onClick={() => setManageLocationsOpen(true)}>
-                    <Pencil className="h-3.5 w-3.5" />
-                    {i18n.language?.startsWith("fr") ? "Gérer les fiches de mon forfait" : "Manage plan locations"}
-                    {profile && <span className="text-muted-foreground">({allBusinesses.length}/{profile.max_businesses || 1})</span>}
-                  </button>
+                  {allBusinesses.find(b => b.id === selectedBusinessId)?.address && (
+                    <p className="text-xs text-muted-foreground mt-1 break-words line-clamp-2">
+                      {allBusinesses.find(b => b.id === selectedBusinessId)?.address}
+                    </p>
+                  )}
+                  <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
+                    {Number(allBusinesses.find(b => b.id === selectedBusinessId)?.rating || 0) > 0 && (
+                      <span className="inline-flex gap-1 items-center font-semibold text-foreground">
+                        <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+                        {Number(allBusinesses.find(b => b.id === selectedBusinessId)?.rating).toFixed(1)}
+                      </span>
+                    )}
+                    <span className="text-muted-foreground">
+                      {stats.total} {i18n.language?.startsWith("fr") ? "avis" : "reviews"}
+                    </span>
+                  </div>
                 </div>
-              ) : (
-                <div className="flex flex-col gap-1">
-                  <h1 className="text-xl md:text-2xl font-bold text-foreground">{profile?.full_name?.split(" ")[0] || "👋"}</h1>
-                  <button type="button" className="inline-flex gap-1.5 items-center text-xs text-primary"
-                    onClick={() => setManageLocationsOpen(true)}><Building2 className="h-3.5 w-3.5" />
-                    {i18n.language?.startsWith("fr") ? "Choisir mes établissements" : "Choose my locations"}
-                  </button>
-                </div>
-              )}
-            </div>
-            <div className="flex items-center gap-2 shrink-0">
-              <div className="text-center px-3 sm:px-4 py-2 bg-primary/10 rounded-xl md:hidden">
-                <div className="text-lg font-bold text-primary">{profile?.credits || 0}</div>
-                <div className="text-[10px] text-muted-foreground">{t("dashboardPage.credits")}</div>
               </div>
-              <Button 
-              variant="outline" 
-              size="icon"
-              className="rounded-xl h-12 w-12"
-              onClick={async () => { 
-                setShowSyncProgress(true);
-                setSyncStep("businesses");
-                await syncBusinesses(); 
-                setSyncStep("reviews");
-                const syncResult = await syncReviews();
-                setSyncStep("complete");
-                fetchData();
-                if (syncResult?.requires_reconnect) {
-                  setShowSyncProgress(false);
-                  setShowReconnectDialog(true);
-                }
-              }}
-              disabled={isSyncing}
-            >
-              {isSyncing ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
-            </Button>
-          </div>
-        </div>
+              <div className="border-t border-border/60 bg-muted/25 flex items-center justify-between gap-2 px-3.5 sm:px-5 py-2.5">
+                <a
+                  href={allBusinesses.find(b => b.id === selectedBusinessId)?.maps_url || "/settings#managed-locations"}
+                  target={allBusinesses.find(b => b.id === selectedBusinessId)?.maps_url ? "_blank" : undefined}
+                  rel="noopener noreferrer"
+                  className="text-xs font-semibold text-primary hover:underline underline-offset-2">
+                  {i18n.language?.startsWith("fr") ? "Voir ma fiche Google" : "Open Google listing"}
+                  <ArrowUpRight className="inline w-3.5 h-3.5 ml-1" />
+                </a>
+                <Button type="button" variant="outline" size="sm" className="h-9 gap-1.5 shrink-0"
+                  onClick={async () => {
+                    if (selectedBusinessId) await switchDashboardLocation(selectedBusinessId);
+                  }}
+                  disabled={isSyncingReviews} aria-label={i18n.language?.startsWith("fr") ? "Synchroniser les avis de la fiche" : "Sync location reviews"}>
+                  {isSyncingReviews ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+                  <span className="hidden min-[370px]:inline">{i18n.language?.startsWith("fr") ? "Synchroniser" : "Sync"}</span>
+                </Button>
+              </div>
+            </section>
+          ) : (
+            <section className="rounded-2xl border border-border bg-card p-5">
+              <h1 className="font-semibold text-lg">{i18n.language?.startsWith("fr") ? "Aucun établissement actif" : "No active location"}</h1>
+              <p className="text-xs text-muted-foreground mt-1">
+                {i18n.language?.startsWith("fr") ? "Sélectionnez les établissements à gérer dans les Paramètres." : "Select your managed Google locations in Settings."}
+              </p>
+              <Button type="button" className="mt-3" size="sm" onClick={() => navigate("/settings#managed-locations")}>
+                {i18n.language?.startsWith("fr") ? "Configurer les établissements" : "Configure locations"}
+              </Button>
+            </section>
+          )}
+          {alternateLocation && (
+            <div className="rounded-xl border border-blue-500/25 bg-blue-500/5 px-4 py-3 text-xs leading-relaxed text-foreground">
+              <p className="font-semibold">
+                {i18n.language?.startsWith("fr") ? "Vous cherchez les avis de Sweet Deco ?" : "Looking for another location's reviews?"}
+              </p>
+              <p className="mt-1 text-muted-foreground">
+                {i18n.language?.startsWith("fr")
+                  ? `La fiche sélectionnée ne contient aucun avis. « ${alternateLocation.name} » est enregistrée avec ${alternateLocation.count} avis Google, mais n'est pas actuellement gérée dans ce forfait.`
+                  : `The selected Google listing has no reviews. “${alternateLocation.name}” is saved with ${alternateLocation.count} Google reviews but is not an active managed location.`}
+              </p>
+              <Link to="/settings#managed-locations" className="mt-2 inline-flex items-center gap-1 font-semibold text-primary underline underline-offset-2">
+                {i18n.language?.startsWith("fr") ? "Choisir la bonne fiche dans Paramètres" : "Select the correct listing in Settings"}
+                <ChevronRight className="h-3.5 w-3.5" />
+              </Link>
+            </div>
+          )}
+          {locationSyncError && (
+            <div role="alert" className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-3 text-xs text-amber-800 dark:text-amber-200 flex gap-2">
+              <AlertCircle className="h-4 w-4 shrink-0" />
+              <div className="flex-1 break-words">
+                <p className="font-semibold">{i18n.language?.startsWith("fr") ? "Synchronisation à vérifier" : "Sync needs attention"}</p>
+                <p className="mt-1">{locationSyncError}</p>
+                <Link to="/settings#managed-locations" className="inline-block mt-2 underline font-medium">
+                  {i18n.language?.startsWith("fr") ? "Vérifier ma connexion Google" : "Check Google connection"}
+                </Link>
+              </div>
+            </div>
+          )}
 
         {/* Trial Banner */}
         {profile?.subscription_status === "trial" && (
@@ -758,7 +838,7 @@ const Dashboard = () => {
 
         {/* GMB Performance Stats */}
         {user && hasGoogleConnected && (
-          <GmbInsightsCard userId={user.id} />
+          <GmbInsightsCard userId={user.id} businessId={selectedBusinessId} />
         )}
 
         {/* GEO Autoposting Block - AI-generated Q&A scheduled to GMB */}
@@ -962,8 +1042,6 @@ const Dashboard = () => {
         </div>
           </main>
 
-          <ManageLocationsDialog open={manageLocationsOpen} onOpenChange={setManageLocationsOpen}
-            onSuccess={async () => { await fetchData(); }} />
 
           {/* GMB Connection Dialog for email users */}
           <ConnectGMBDialog open={showGMBDialog} onOpenChange={setShowGMBDialog} />

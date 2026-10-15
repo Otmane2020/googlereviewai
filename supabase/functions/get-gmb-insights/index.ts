@@ -98,7 +98,7 @@ async function fetchMetric(
   if (!response.ok) {
     const errorText = await response.text();
     console.error(`[GMB Insights] Error fetching ${metric}:`, response.status, errorText);
-    return 0;
+    throw new Error(`Google Performance API HTTP ${response.status} for ${metric}`);
   }
 
   const data = await response.json();
@@ -213,7 +213,10 @@ serve(async (req) => {
       "BUSINESS_FOOD_ORDERS",
     ];
 
-    // Aggregate metrics across all businesses
+    // Metrics unavailable from Google must NOT silently appear as genuine zero
+    // visits/calls. Keep partial results but surface API authorization errors.
+    const metricErrors: string[] = [];
+    let metricRequestsSucceeded = 0;
     const totals: Record<string, number> = {};
     for (const metric of metrics) {
       totals[metric] = 0;
@@ -232,10 +235,24 @@ serve(async (req) => {
             end
           );
           totals[metric] += value;
+          metricRequestsSucceeded++;
         } catch (e) {
           console.error(`[GMB Insights] Error fetching ${metric} for ${business.name}:`, e);
+          metricErrors.push(e instanceof Error ? e.message : "Google Performance unavailable");
         }
       }
+    }
+
+    if (metricRequestsSucceeded === 0) {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: metricErrors[0] || "Aucune donnée Google Performance accessible pour cet établissement.",
+          insights: null,
+          requires_reconnect: metricErrors.some(e => /HTTP 401|HTTP 403/.test(e)),
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
     }
 
     // Calculate combined impressions
@@ -262,7 +279,7 @@ serve(async (req) => {
     console.log("[GMB Insights] Final insights:", insights);
 
     return new Response(
-      JSON.stringify({ success: true, insights }),
+      JSON.stringify({ success: true, insights, warning: metricErrors.length ? `${metricErrors.length} indicateur(s) Google indisponible(s).` : null }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error: unknown) {

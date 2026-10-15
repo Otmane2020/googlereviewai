@@ -12,11 +12,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
-import { User, Mail, CreditCard, Shield, Bell, BellOff, BellRing, Save, Loader2, Crown, Check, Settings as SettingsIcon, Link2, ExternalLink, Send, Globe } from "lucide-react";
+import { User, Mail, CreditCard, Shield, Building2, Bell, BellOff, BellRing, Save, Loader2, Crown, Check, Settings as SettingsIcon, Link2, ExternalLink, Send, Globe } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "react-i18next";
 import { BrandSparkle } from "@/components/BrandSparkle";
 import { GoogleBusinessIntegration } from "@/components/GoogleBusinessIntegration";
+import { ManageLocationsDialog } from "@/components/ManageLocationsDialog";
 
 interface ConnectedBusinessLanguage {
   id: string;
@@ -74,6 +75,7 @@ const SettingsPage = () => {
   const [openingPortal, setOpeningPortal] = useState(false);
   const [connectedBusinessLanguages, setConnectedBusinessLanguages] = useState<ConnectedBusinessLanguage[]>([]);
   const [businessRefreshKey, setBusinessRefreshKey] = useState(0);
+  const [manageLocationsOpen, setManageLocationsOpen] = useState(false);
   const [savingBusinessLanguage, setSavingBusinessLanguage] = useState<string | null>(null);
 
   useEffect(() => {
@@ -442,6 +444,26 @@ const SettingsPage = () => {
 
         {/* Google Business integration: status is verified, never hard-coded. */}
         <GoogleBusinessIntegration onBusinessesChanged={() => setBusinessRefreshKey((v) => v + 1)} />
+        <div id="managed-locations" className="bg-card rounded-2xl border border-border p-4 sm:p-5">
+          <div className="flex items-start gap-3">
+            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+              <Building2 className="h-5 w-5 text-primary" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <h3 className="font-semibold text-sm">{i18n.language?.startsWith("fr") ? "Établissements gérés" : "Managed Google locations"}</h3>
+              <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                {i18n.language?.startsWith("fr")
+                  ? "Choisissez les fiches qui utilisent vos places de forfait pour les avis, le SEO et le GEO. Vous pouvez changer de fiche sans perdre les avis historiques."
+                  : "Choose which Google locations use your plan slots for Reviews, SEO and GEO. Switching does not delete historical reviews."}
+              </p>
+              <Button type="button" size="sm" className="mt-3 w-full sm:w-auto gap-2"
+                onClick={() => setManageLocationsOpen(true)}>
+                <Building2 className="h-4 w-4" />
+                {i18n.language?.startsWith("fr") ? "Choisir les établissements" : "Select managed locations"}
+              </Button>
+            </div>
+          </div>
+        </div>
 
         {/* Security section */}
         <div className="bg-card rounded-2xl border border-border p-6">
@@ -674,6 +696,8 @@ const SettingsPage = () => {
         </div>
       </main>
 
+      <ManageLocationsDialog open={manageLocationsOpen} onOpenChange={setManageLocationsOpen}
+        onSuccess={async () => { setBusinessRefreshKey(v => v + 1); }} />
       <MobileBottomNav />
       
       <UpgradeDialog 
