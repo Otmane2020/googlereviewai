@@ -12,6 +12,8 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PWRouteImport } from './routes/PW'
 import { Route as AeoRankRouteImport } from './routes/aeo-rank'
+import { Route as AiGoogleReviewReplyRouteImport } from './routes/ai-google-review-reply'
+import { Route as AiReviewReplyGeneratorRouteImport } from './routes/ai-review-reply-generator'
 import { Route as AiSettingsRouteImport } from './routes/ai-settings'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AvisAiGuideRouteImport } from './routes/avis-ai-guide'
@@ -24,12 +26,17 @@ import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as ChoosePlanRouteImport } from './routes/choose-plan'
 import { Route as CommandesRouteImport } from './routes/commandes'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as GeoRankRouteImport } from './routes/geo-rank'
 import { Route as GmbAutopostingRouteImport } from './routes/gmb-autoposting'
 import { Route as GmbPostRouteImport } from './routes/gmb-post'
+import { Route as GoogleBusinessReviewRepliesRouteImport } from './routes/google-business-review-replies'
+import { Route as GoogleReviewManagementRouteImport } from './routes/google-review-management'
+import { Route as GoogleReviewResponseGeneratorRouteImport } from './routes/google-review-response-generator'
 import { Route as HotelsRouteImport } from './routes/hotels'
 import { Route as InstallRouteImport } from './routes/install'
 import { Route as LandingRouteImport } from './routes/landing'
 import { Route as LocalAeoRouteImport } from './routes/local-aeo'
+import { Route as LocalGeoRouteImport } from './routes/local-geo'
 import { Route as MapsRankRouteImport } from './routes/maps-rank'
 import { Route as MobileAdsRouteImport } from './routes/mobile-ads'
 import { Route as NotificationsRouteImport } from './routes/notifications'
@@ -41,6 +48,7 @@ import { Route as ProspectionStickersRouteImport } from './routes/prospection-st
 import { Route as QrGratuitRouteImport } from './routes/qr-gratuit'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as RestaurantsRouteImport } from './routes/restaurants'
+import { Route as ReviewManagementSoftwareRouteImport } from './routes/review-management-software'
 import { Route as ReviewReplyAiGoogleBusinessProfileRouteImport } from './routes/review-reply-ai-google-business-profile'
 import { Route as ReviewsRouteImport } from './routes/reviews'
 import { Route as SelectPlanRouteImport } from './routes/select-plan'
@@ -77,6 +85,16 @@ const PWRoute = PWRouteImport.update({
 const AeoRankRoute = AeoRankRouteImport.update({
   id: '/aeo-rank',
   path: '/aeo-rank',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AiGoogleReviewReplyRoute = AiGoogleReviewReplyRouteImport.update({
+  id: '/ai-google-review-reply',
+  path: '/ai-google-review-reply',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AiReviewReplyGeneratorRoute = AiReviewReplyGeneratorRouteImport.update({
+  id: '/ai-review-reply-generator',
+  path: '/ai-review-reply-generator',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AiSettingsRoute = AiSettingsRouteImport.update({
@@ -139,6 +157,11 @@ const DashboardRoute = DashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GeoRankRoute = GeoRankRouteImport.update({
+  id: '/geo-rank',
+  path: '/geo-rank',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GmbAutopostingRoute = GmbAutopostingRouteImport.update({
   id: '/gmb-autoposting',
   path: '/gmb-autoposting',
@@ -149,6 +172,23 @@ const GmbPostRoute = GmbPostRouteImport.update({
   path: '/gmb-post',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GoogleBusinessReviewRepliesRoute =
+  GoogleBusinessReviewRepliesRouteImport.update({
+    id: '/google-business-review-replies',
+    path: '/google-business-review-replies',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const GoogleReviewManagementRoute = GoogleReviewManagementRouteImport.update({
+  id: '/google-review-management',
+  path: '/google-review-management',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GoogleReviewResponseGeneratorRoute =
+  GoogleReviewResponseGeneratorRouteImport.update({
+    id: '/google-review-response-generator',
+    path: '/google-review-response-generator',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const HotelsRoute = HotelsRouteImport.update({
   id: '/hotels',
   path: '/hotels',
@@ -167,6 +207,11 @@ const LandingRoute = LandingRouteImport.update({
 const LocalAeoRoute = LocalAeoRouteImport.update({
   id: '/local-aeo',
   path: '/local-aeo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LocalGeoRoute = LocalGeoRouteImport.update({
+  id: '/local-geo',
+  path: '/local-geo',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MapsRankRoute = MapsRankRouteImport.update({
@@ -224,6 +269,12 @@ const RestaurantsRoute = RestaurantsRouteImport.update({
   path: '/restaurants',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ReviewManagementSoftwareRoute =
+  ReviewManagementSoftwareRouteImport.update({
+    id: '/review-management-software',
+    path: '/review-management-software',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ReviewReplyAiGoogleBusinessProfileRoute =
   ReviewReplyAiGoogleBusinessProfileRouteImport.update({
     id: '/review-reply-ai-google-business-profile',
@@ -340,6 +391,8 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/PW': typeof PWRoute
   '/aeo-rank': typeof AeoRankRoute
+  '/ai-google-review-reply': typeof AiGoogleReviewReplyRoute
+  '/ai-review-reply-generator': typeof AiReviewReplyGeneratorRoute
   '/ai-settings': typeof AiSettingsRoute
   '/auth': typeof AuthRoute
   '/avis-ai-guide': typeof AvisAiGuideRoute
@@ -352,12 +405,17 @@ export interface FileRoutesByFullPath {
   '/choose-plan': typeof ChoosePlanRoute
   '/commandes': typeof CommandesRoute
   '/dashboard': typeof DashboardRoute
+  '/geo-rank': typeof GeoRankRoute
   '/gmb-autoposting': typeof GmbAutopostingRoute
   '/gmb-post': typeof GmbPostRoute
+  '/google-business-review-replies': typeof GoogleBusinessReviewRepliesRoute
+  '/google-review-management': typeof GoogleReviewManagementRoute
+  '/google-review-response-generator': typeof GoogleReviewResponseGeneratorRoute
   '/hotels': typeof HotelsRoute
   '/install': typeof InstallRoute
   '/landing': typeof LandingRoute
   '/local-aeo': typeof LocalAeoRoute
+  '/local-geo': typeof LocalGeoRoute
   '/maps-rank': typeof MapsRankRoute
   '/mobile-ads': typeof MobileAdsRoute
   '/notifications': typeof NotificationsRoute
@@ -369,6 +427,7 @@ export interface FileRoutesByFullPath {
   '/qr-gratuit': typeof QrGratuitRoute
   '/reset-password': typeof ResetPasswordRoute
   '/restaurants': typeof RestaurantsRoute
+  '/review-management-software': typeof ReviewManagementSoftwareRoute
   '/review-reply-ai-google-business-profile': typeof ReviewReplyAiGoogleBusinessProfileRoute
   '/reviews': typeof ReviewsRoute
   '/select-plan': typeof SelectPlanRoute
@@ -396,6 +455,8 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/PW': typeof PWRoute
   '/aeo-rank': typeof AeoRankRoute
+  '/ai-google-review-reply': typeof AiGoogleReviewReplyRoute
+  '/ai-review-reply-generator': typeof AiReviewReplyGeneratorRoute
   '/ai-settings': typeof AiSettingsRoute
   '/auth': typeof AuthRoute
   '/avis-ai-guide': typeof AvisAiGuideRoute
@@ -408,12 +469,17 @@ export interface FileRoutesByTo {
   '/choose-plan': typeof ChoosePlanRoute
   '/commandes': typeof CommandesRoute
   '/dashboard': typeof DashboardRoute
+  '/geo-rank': typeof GeoRankRoute
   '/gmb-autoposting': typeof GmbAutopostingRoute
   '/gmb-post': typeof GmbPostRoute
+  '/google-business-review-replies': typeof GoogleBusinessReviewRepliesRoute
+  '/google-review-management': typeof GoogleReviewManagementRoute
+  '/google-review-response-generator': typeof GoogleReviewResponseGeneratorRoute
   '/hotels': typeof HotelsRoute
   '/install': typeof InstallRoute
   '/landing': typeof LandingRoute
   '/local-aeo': typeof LocalAeoRoute
+  '/local-geo': typeof LocalGeoRoute
   '/maps-rank': typeof MapsRankRoute
   '/mobile-ads': typeof MobileAdsRoute
   '/notifications': typeof NotificationsRoute
@@ -425,6 +491,7 @@ export interface FileRoutesByTo {
   '/qr-gratuit': typeof QrGratuitRoute
   '/reset-password': typeof ResetPasswordRoute
   '/restaurants': typeof RestaurantsRoute
+  '/review-management-software': typeof ReviewManagementSoftwareRoute
   '/review-reply-ai-google-business-profile': typeof ReviewReplyAiGoogleBusinessProfileRoute
   '/reviews': typeof ReviewsRoute
   '/select-plan': typeof SelectPlanRoute
@@ -453,6 +520,8 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/PW': typeof PWRoute
   '/aeo-rank': typeof AeoRankRoute
+  '/ai-google-review-reply': typeof AiGoogleReviewReplyRoute
+  '/ai-review-reply-generator': typeof AiReviewReplyGeneratorRoute
   '/ai-settings': typeof AiSettingsRoute
   '/auth': typeof AuthRoute
   '/avis-ai-guide': typeof AvisAiGuideRoute
@@ -465,12 +534,17 @@ export interface FileRoutesById {
   '/choose-plan': typeof ChoosePlanRoute
   '/commandes': typeof CommandesRoute
   '/dashboard': typeof DashboardRoute
+  '/geo-rank': typeof GeoRankRoute
   '/gmb-autoposting': typeof GmbAutopostingRoute
   '/gmb-post': typeof GmbPostRoute
+  '/google-business-review-replies': typeof GoogleBusinessReviewRepliesRoute
+  '/google-review-management': typeof GoogleReviewManagementRoute
+  '/google-review-response-generator': typeof GoogleReviewResponseGeneratorRoute
   '/hotels': typeof HotelsRoute
   '/install': typeof InstallRoute
   '/landing': typeof LandingRoute
   '/local-aeo': typeof LocalAeoRoute
+  '/local-geo': typeof LocalGeoRoute
   '/maps-rank': typeof MapsRankRoute
   '/mobile-ads': typeof MobileAdsRoute
   '/notifications': typeof NotificationsRoute
@@ -482,6 +556,7 @@ export interface FileRoutesById {
   '/qr-gratuit': typeof QrGratuitRoute
   '/reset-password': typeof ResetPasswordRoute
   '/restaurants': typeof RestaurantsRoute
+  '/review-management-software': typeof ReviewManagementSoftwareRoute
   '/review-reply-ai-google-business-profile': typeof ReviewReplyAiGoogleBusinessProfileRoute
   '/reviews': typeof ReviewsRoute
   '/select-plan': typeof SelectPlanRoute
@@ -511,6 +586,8 @@ export interface FileRouteTypes {
     | '/'
     | '/PW'
     | '/aeo-rank'
+    | '/ai-google-review-reply'
+    | '/ai-review-reply-generator'
     | '/ai-settings'
     | '/auth'
     | '/avis-ai-guide'
@@ -523,12 +600,17 @@ export interface FileRouteTypes {
     | '/choose-plan'
     | '/commandes'
     | '/dashboard'
+    | '/geo-rank'
     | '/gmb-autoposting'
     | '/gmb-post'
+    | '/google-business-review-replies'
+    | '/google-review-management'
+    | '/google-review-response-generator'
     | '/hotels'
     | '/install'
     | '/landing'
     | '/local-aeo'
+    | '/local-geo'
     | '/maps-rank'
     | '/mobile-ads'
     | '/notifications'
@@ -540,6 +622,7 @@ export interface FileRouteTypes {
     | '/qr-gratuit'
     | '/reset-password'
     | '/restaurants'
+    | '/review-management-software'
     | '/review-reply-ai-google-business-profile'
     | '/reviews'
     | '/select-plan'
@@ -567,6 +650,8 @@ export interface FileRouteTypes {
     | '/'
     | '/PW'
     | '/aeo-rank'
+    | '/ai-google-review-reply'
+    | '/ai-review-reply-generator'
     | '/ai-settings'
     | '/auth'
     | '/avis-ai-guide'
@@ -579,12 +664,17 @@ export interface FileRouteTypes {
     | '/choose-plan'
     | '/commandes'
     | '/dashboard'
+    | '/geo-rank'
     | '/gmb-autoposting'
     | '/gmb-post'
+    | '/google-business-review-replies'
+    | '/google-review-management'
+    | '/google-review-response-generator'
     | '/hotels'
     | '/install'
     | '/landing'
     | '/local-aeo'
+    | '/local-geo'
     | '/maps-rank'
     | '/mobile-ads'
     | '/notifications'
@@ -596,6 +686,7 @@ export interface FileRouteTypes {
     | '/qr-gratuit'
     | '/reset-password'
     | '/restaurants'
+    | '/review-management-software'
     | '/review-reply-ai-google-business-profile'
     | '/reviews'
     | '/select-plan'
@@ -623,6 +714,8 @@ export interface FileRouteTypes {
     | '/'
     | '/PW'
     | '/aeo-rank'
+    | '/ai-google-review-reply'
+    | '/ai-review-reply-generator'
     | '/ai-settings'
     | '/auth'
     | '/avis-ai-guide'
@@ -635,12 +728,17 @@ export interface FileRouteTypes {
     | '/choose-plan'
     | '/commandes'
     | '/dashboard'
+    | '/geo-rank'
     | '/gmb-autoposting'
     | '/gmb-post'
+    | '/google-business-review-replies'
+    | '/google-review-management'
+    | '/google-review-response-generator'
     | '/hotels'
     | '/install'
     | '/landing'
     | '/local-aeo'
+    | '/local-geo'
     | '/maps-rank'
     | '/mobile-ads'
     | '/notifications'
@@ -652,6 +750,7 @@ export interface FileRouteTypes {
     | '/qr-gratuit'
     | '/reset-password'
     | '/restaurants'
+    | '/review-management-software'
     | '/review-reply-ai-google-business-profile'
     | '/reviews'
     | '/select-plan'
@@ -680,6 +779,8 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   PWRoute: typeof PWRoute
   AeoRankRoute: typeof AeoRankRoute
+  AiGoogleReviewReplyRoute: typeof AiGoogleReviewReplyRoute
+  AiReviewReplyGeneratorRoute: typeof AiReviewReplyGeneratorRoute
   AiSettingsRoute: typeof AiSettingsRoute
   AuthRoute: typeof AuthRoute
   AvisAiGuideRoute: typeof AvisAiGuideRoute
@@ -692,12 +793,17 @@ export interface RootRouteChildren {
   ChoosePlanRoute: typeof ChoosePlanRoute
   CommandesRoute: typeof CommandesRoute
   DashboardRoute: typeof DashboardRoute
+  GeoRankRoute: typeof GeoRankRoute
   GmbAutopostingRoute: typeof GmbAutopostingRoute
   GmbPostRoute: typeof GmbPostRoute
+  GoogleBusinessReviewRepliesRoute: typeof GoogleBusinessReviewRepliesRoute
+  GoogleReviewManagementRoute: typeof GoogleReviewManagementRoute
+  GoogleReviewResponseGeneratorRoute: typeof GoogleReviewResponseGeneratorRoute
   HotelsRoute: typeof HotelsRoute
   InstallRoute: typeof InstallRoute
   LandingRoute: typeof LandingRoute
   LocalAeoRoute: typeof LocalAeoRoute
+  LocalGeoRoute: typeof LocalGeoRoute
   MapsRankRoute: typeof MapsRankRoute
   MobileAdsRoute: typeof MobileAdsRoute
   NotificationsRoute: typeof NotificationsRoute
@@ -709,6 +815,7 @@ export interface RootRouteChildren {
   QrGratuitRoute: typeof QrGratuitRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   RestaurantsRoute: typeof RestaurantsRoute
+  ReviewManagementSoftwareRoute: typeof ReviewManagementSoftwareRoute
   ReviewReplyAiGoogleBusinessProfileRoute: typeof ReviewReplyAiGoogleBusinessProfileRoute
   ReviewsRoute: typeof ReviewsRoute
   SelectPlanRoute: typeof SelectPlanRoute
@@ -754,6 +861,20 @@ declare module '@tanstack/react-router' {
       path: '/aeo-rank'
       fullPath: '/aeo-rank'
       preLoaderRoute: typeof AeoRankRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ai-google-review-reply': {
+      id: '/ai-google-review-reply'
+      path: '/ai-google-review-reply'
+      fullPath: '/ai-google-review-reply'
+      preLoaderRoute: typeof AiGoogleReviewReplyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ai-review-reply-generator': {
+      id: '/ai-review-reply-generator'
+      path: '/ai-review-reply-generator'
+      fullPath: '/ai-review-reply-generator'
+      preLoaderRoute: typeof AiReviewReplyGeneratorRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/ai-settings': {
@@ -840,6 +961,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/geo-rank': {
+      id: '/geo-rank'
+      path: '/geo-rank'
+      fullPath: '/geo-rank'
+      preLoaderRoute: typeof GeoRankRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/gmb-autoposting': {
       id: '/gmb-autoposting'
       path: '/gmb-autoposting'
@@ -852,6 +980,27 @@ declare module '@tanstack/react-router' {
       path: '/gmb-post'
       fullPath: '/gmb-post'
       preLoaderRoute: typeof GmbPostRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/google-business-review-replies': {
+      id: '/google-business-review-replies'
+      path: '/google-business-review-replies'
+      fullPath: '/google-business-review-replies'
+      preLoaderRoute: typeof GoogleBusinessReviewRepliesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/google-review-management': {
+      id: '/google-review-management'
+      path: '/google-review-management'
+      fullPath: '/google-review-management'
+      preLoaderRoute: typeof GoogleReviewManagementRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/google-review-response-generator': {
+      id: '/google-review-response-generator'
+      path: '/google-review-response-generator'
+      fullPath: '/google-review-response-generator'
+      preLoaderRoute: typeof GoogleReviewResponseGeneratorRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/hotels': {
@@ -880,6 +1029,13 @@ declare module '@tanstack/react-router' {
       path: '/local-aeo'
       fullPath: '/local-aeo'
       preLoaderRoute: typeof LocalAeoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/local-geo': {
+      id: '/local-geo'
+      path: '/local-geo'
+      fullPath: '/local-geo'
+      preLoaderRoute: typeof LocalGeoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/maps-rank': {
@@ -957,6 +1113,13 @@ declare module '@tanstack/react-router' {
       path: '/restaurants'
       fullPath: '/restaurants'
       preLoaderRoute: typeof RestaurantsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/review-management-software': {
+      id: '/review-management-software'
+      path: '/review-management-software'
+      fullPath: '/review-management-software'
+      preLoaderRoute: typeof ReviewManagementSoftwareRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/review-reply-ai-google-business-profile': {
@@ -1120,6 +1283,8 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   PWRoute: PWRoute,
   AeoRankRoute: AeoRankRoute,
+  AiGoogleReviewReplyRoute: AiGoogleReviewReplyRoute,
+  AiReviewReplyGeneratorRoute: AiReviewReplyGeneratorRoute,
   AiSettingsRoute: AiSettingsRoute,
   AuthRoute: AuthRoute,
   AvisAiGuideRoute: AvisAiGuideRoute,
@@ -1132,12 +1297,17 @@ const rootRouteChildren: RootRouteChildren = {
   ChoosePlanRoute: ChoosePlanRoute,
   CommandesRoute: CommandesRoute,
   DashboardRoute: DashboardRoute,
+  GeoRankRoute: GeoRankRoute,
   GmbAutopostingRoute: GmbAutopostingRoute,
   GmbPostRoute: GmbPostRoute,
+  GoogleBusinessReviewRepliesRoute: GoogleBusinessReviewRepliesRoute,
+  GoogleReviewManagementRoute: GoogleReviewManagementRoute,
+  GoogleReviewResponseGeneratorRoute: GoogleReviewResponseGeneratorRoute,
   HotelsRoute: HotelsRoute,
   InstallRoute: InstallRoute,
   LandingRoute: LandingRoute,
   LocalAeoRoute: LocalAeoRoute,
+  LocalGeoRoute: LocalGeoRoute,
   MapsRankRoute: MapsRankRoute,
   MobileAdsRoute: MobileAdsRoute,
   NotificationsRoute: NotificationsRoute,
@@ -1149,6 +1319,7 @@ const rootRouteChildren: RootRouteChildren = {
   QrGratuitRoute: QrGratuitRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   RestaurantsRoute: RestaurantsRoute,
+  ReviewManagementSoftwareRoute: ReviewManagementSoftwareRoute,
   ReviewReplyAiGoogleBusinessProfileRoute:
     ReviewReplyAiGoogleBusinessProfileRoute,
   ReviewsRoute: ReviewsRoute,
