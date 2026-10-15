@@ -6,7 +6,7 @@ import {
   Head,
   Heading,
   Hr,
-  Html,
+  Html, Img,
   Preview,
   Section,
   Text,
@@ -55,6 +55,10 @@ const Email = ({ name = '', lang = 'fr' }: Props) => {
       <Body style={main}>
         <Container style={container}>
           <Section style={bar} />
+          <Section style={{ padding: '16px 0 6px' }}>
+            <Img src="https://reviewsai.store/icon-192x192.png" width="36" height="36" alt="Reviews AI" style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: '12px' }} />
+            <Text style={{ fontSize: '18px', fontWeight: '700', display: 'inline-block', verticalAlign: 'middle', color: '#111827', margin: '0' }}>{BRAND}</Text>
+          </Section>
           <Heading style={heading}>{t.title}</Heading>
           <Text style={paragraph}>{t.hi(name)}</Text>
           <Text style={paragraph}>{t.p1}</Text>

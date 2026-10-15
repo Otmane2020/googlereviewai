@@ -1,6 +1,6 @@
 // Reviews AI Service Worker - VAPID Web Push + PushAlert Integration
 // Cache version: 2026-02-22-v4
-var CACHE_VERSION = 'googlereviewai.com-v5';
+var CACHE_VERSION = 'reviewsai-logo-v6';
 
 // Listen for skip waiting message from client
 self.addEventListener('message', function(event) {

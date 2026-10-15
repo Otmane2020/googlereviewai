@@ -74,7 +74,7 @@ const getProHeader = () => `
     <table cellpadding="0" cellspacing="0" border="0">
       <tr>
         <td style="vertical-align: middle;">
-          <img src="https://reviewsai.store/favicon.png" width="32" height="32" alt="Reviews AI" style="display: block;" />
+          <img src="https://reviewsai.store/icon-192x192.png" width="32" height="32" alt="Reviews AI" style="display: block;" />
         </td>
         <td style="vertical-align: middle; padding-left: 12px;">
           <span style="font-family: ${STYLES.fontFamily}; font-weight: 600; font-size: 18px; color: ${STYLES.textPrimary};">Reviews AI</span>
@@ -90,7 +90,7 @@ const getProFooter = (rights: string) => `
       © 2025 Reviews AI. ${rights}
     </p>
     <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textMuted}; font-size: 12px; margin: 0;">
-      <a href="https://reviewsai.store" style="color: ${STYLES.brandBlue}; text-decoration: none;">googlereviewai.com</a>
+      <a href="https://reviewsai.store" style="color: ${STYLES.brandBlue}; text-decoration: none;">reviewsai.store</a>
     </p>
   </div>
 `;

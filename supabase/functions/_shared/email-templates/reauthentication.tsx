@@ -2,7 +2,7 @@
 
 import * as React from 'npm:react@18.3.1'
 
-import { Body, Container, Head, Heading, Html, Preview, Section, Text } from 'npm:@react-email/components@0.0.22'
+import { Body, Container, Head, Heading, Html, Img, Preview, Section, Text } from 'npm:@react-email/components@0.0.22'
 import { brand, brandText, codeStyle, container, footer, h1, main, pickLang, text } from './auth-theme.ts'
 
 interface ReauthenticationEmailProps {
@@ -35,7 +35,8 @@ export const ReauthenticationEmail = ({ token, lang }: ReauthenticationEmailProp
       <Body style={main}>
         <Container style={container}>
           <Section style={brand}>
-            <Text style={brandText}>Reviews AI</Text>
+            <Img src="https://reviewsai.store/icon-192x192.png" width="36" height="36" alt="Reviews AI" style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: '12px' }} />
+            <Text style={{ ...brandText, display: 'inline-block', verticalAlign: 'middle' }}>Reviews AI</Text>
           </Section>
           <Heading style={h1}>{t.title}</Heading>
           <Text style={text}>{t.p1}</Text>
