@@ -428,7 +428,7 @@ const AEORank = () => {
         .eq("id", item.id);
 
       await fetchScheduledContent(selectedBusiness!.id);
-      toast({ title: tr("Q&A generated!", "FAQ generated!") });
+      toast({ title: tr("FAQ générée !", "FAQ generated!") });
     } catch (error: any) {
       await supabase
         .from("scheduled_content")
@@ -618,10 +618,10 @@ const AEORank = () => {
             <Building2 className="w-10 h-10 mx-auto mb-3 text-muted-foreground/30" />
             <h3 className="text-base font-medium text-foreground mb-2">{tr("Aucun établissement", "No locations")}</h3>
             <p className="text-xs text-muted-foreground mb-4">
-              {tr("Connect your Google Business Profile first", "Connectez d'abord votre fiche Google Business")}
+              {tr("Connectez d'abord votre fiche Google Business", "Connect your Google Business Profile first")}
             </p>
             <Button onClick={() => navigate("/businesses")} size="sm">
-              {tr("Add a business", "Ajouter un établissement")}
+              {tr("Ajouter un établissement", "Add a business")}
             </Button>
           </Card>
         ) : (
@@ -730,7 +730,7 @@ const AEORank = () => {
               <div className="flex items-center justify-between mt-3 p-2 bg-muted/50 rounded-lg border border-border/50">
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   <Settings className="w-3.5 h-3.5" />
-                  <span>{tr("Publication auto :", "Génération programmée :")}</span>
+                  <span>{tr("Génération programmée :", "Scheduled generation:")}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <select
