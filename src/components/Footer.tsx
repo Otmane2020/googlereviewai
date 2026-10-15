@@ -18,7 +18,7 @@ export const Footer = () => {
       { label: t("landingUI.footer.terms"), href: "/terms" },
     ]},
     { title: t("landingUI.footer.support"), links: [
-      { label: "support@googlereviewai.com", href: "mailto:support@googlereviewai.com" },
+      { label: "support@reviewsai.store", href: "mailto:support@reviewsai.store" },
     ]},
   ];
 
