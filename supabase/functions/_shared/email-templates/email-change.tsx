@@ -8,7 +8,7 @@ import {
   Container,
   Head,
   Heading,
-  Html,
+  Html, Img,
   Link,
   Preview,
   Section,
@@ -67,7 +67,8 @@ export const EmailChangeEmail = ({ oldEmail, newEmail, confirmationUrl, lang }: 
       <Body style={main}>
         <Container style={container}>
           <Section style={brand}>
-            <Text style={brandText}>Reviews AI</Text>
+            <Img src="https://reviewsai.store/icon-192x192.png" width="36" height="36" alt="Reviews AI" style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: '12px' }} />
+            <Text style={{ ...brandText, display: 'inline-block', verticalAlign: 'middle' }}>Reviews AI</Text>
           </Section>
           <Heading style={h1}>{t.title}</Heading>
           <Text style={text}>
