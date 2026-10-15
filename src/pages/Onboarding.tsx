@@ -149,7 +149,21 @@ const Onboarding = () => {
         navigate("/dashboard", { replace: true });
         return;
       }
-      const authorized = Boolean(profile?.google_refresh_token);
+      let authorized = Boolean(profile?.google_refresh_token);
+      if (!authorized) {
+        // The initial sign-in may carry the provider refresh token even when
+        // /auth has not yet persisted it. Save it before offering another OAuth.
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user?.id === user.id && session.provider_refresh_token) {
+          const { error: tokenError } = await supabase.from("profiles").update({
+            google_refresh_token: session.provider_refresh_token,
+            google_access_token: null,
+            google_token_expires_at: null,
+          }).eq("id", user.id);
+          authorized = !tokenError;
+        }
+      }
+      if (!active) return;
       setHasGoogle(authorized);
       setSignature(profile?.full_name
         ? (isFrench ? "L'équipe " + profile.full_name : "The " + profile.full_name + " team")
