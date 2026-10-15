@@ -1019,6 +1019,7 @@ export type Database = {
           current_streak: number | null
           email: string
           free_upgrade_email_claimed_at: string | null
+          free_plan_selected_at: string | null
           full_name: string | null
           google_access_token: string | null
           google_refresh_token: string | null
@@ -1049,6 +1050,7 @@ export type Database = {
           current_streak?: number | null
           email: string
           free_upgrade_email_claimed_at?: string | null
+          free_plan_selected_at?: string | null
           full_name?: string | null
           google_access_token?: string | null
           google_refresh_token?: string | null
@@ -1079,6 +1081,7 @@ export type Database = {
           current_streak?: number | null
           email?: string
           free_upgrade_email_claimed_at?: string | null
+          free_plan_selected_at?: string | null
           full_name?: string | null
           google_access_token?: string | null
           google_refresh_token?: string | null
