@@ -616,10 +616,10 @@ const Dashboard = () => {
               </div>
               <div className="flex-1">
                 <h3 className="font-bold text-accent-foreground text-lg mb-1">
-                  🎉 Last step: Connect Google
+                  {t("dashboardPage.connectGoogleTitle")}
                 </h3>
                 <p className="text-accent-foreground/80 text-sm mb-3">
-                  Link your Google account to sync your reviews and start using AI.
+                  {t("dashboardPage.connectGoogleDescription")}
                 </p>
                 <Button 
                   onClick={() => setShowGMBDialog(true)}
@@ -668,12 +668,12 @@ const Dashboard = () => {
                       Last sync: {(() => {
                         const diff = Date.now() - new Date(syncStatus.last_sync_at).getTime();
                         const secs = Math.floor(diff / 1000);
-                        if (secs < 60) return "just now";
+                        if (secs < 60) return t("dashboardPage.syncJustNow");
                         const mins = Math.floor(secs / 60);
-                        if (mins < 60) return `${mins} min ago`;
+                        if (mins < 60) return t("dashboardPage.syncMinutesAgo", { count: mins });
                         const hours = Math.floor(mins / 60);
-                        if (hours < 24) return `${hours}h ago`;
-                        return `${Math.floor(hours / 24)}d ago`;
+                        if (hours < 24) return t("dashboardPage.syncHoursAgo", { count: hours });
+                        return t("dashboardPage.syncDaysAgo", { count: Math.floor(hours / 24) });
                       })()}
                     </p>
                   )}
@@ -719,7 +719,7 @@ const Dashboard = () => {
                 </div>
                 <div>
                   <p className="text-white/80 text-sm font-medium">
-                    {urgencyLevel === "green" ? "Tout est à jour !" : "Avis sans réponse"}
+                    {urgencyLevel === "green" ? t("dashboardPage.bannerAllClear") : t("dashboardPage.bannerUnanswered")}
                   </p>
                   <div className="text-3xl font-bold text-white">{stats.pending}</div>
                 </div>
@@ -886,7 +886,7 @@ const Dashboard = () => {
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-semibold uppercase tracking-wide">
                   <Sparkles className="w-3 h-3" /> Nouveau
                 </span>
-                <span className="text-xs text-muted-foreground">Boutique Reviews AI</span>
+                <span className="text-xs text-muted-foreground">{t("dashboardPage.shopName")}</span>
               </div>
               <div className="font-semibold text-foreground text-sm leading-tight">
                 Plaque NFC + QR Google Avis
@@ -983,7 +983,7 @@ const Dashboard = () => {
                 disabled={isSyncing}
               >
                 {isSyncing ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <RefreshCw className="w-4 h-4 mr-2" />}
-                Sync
+                {t("dashboardPage.syncErrorTitle")}
               </Button>
             </div>
           )}
