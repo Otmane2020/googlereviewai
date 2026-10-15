@@ -166,7 +166,7 @@ const Onboarding = () => {
         supabase.from("profiles").select("google_refresh_token,full_name,onboarding_completed,free_plan_selected_at,plan_name,subscription_status,current_period_end,trial_end")
           .eq("id", user.id).maybeSingle(),
         supabase.from("businesses").select("id,name,is_active").eq("user_id", user.id),
-        supabase.from("ai_settings").select("user_id").eq("user_id", user.id).maybeSingle(),
+        supabase.from("ai_settings").select("user_id,signature,tone").eq("user_id", user.id).maybeSingle(),
       ]);
       if (!active) return;
       const managed = (biz || []).filter(b => b.is_active);
@@ -210,9 +210,15 @@ const Onboarding = () => {
       }
       if (!active) return;
       setHasGoogle(authorized);
-      setSignature(profile?.full_name
-        ? (isFrench ? "L'équipe " + profile.full_name : "The " + profile.full_name + " team")
-        : (isFrench ? "L'équipe" : "The team"));
+      // The default signature follows the short public BRAND of the selected
+      // Google location, never the account owner's personal name.
+      const defaultSignature = isFrench ? "L'équipe {business_name}" : "The {business_name} team";
+      const storedSignature = aiSettings?.signature?.trim();
+      const isLegacyPersonalDefault = Boolean(profile?.full_name && storedSignature &&
+        ["L'équipe " + profile.full_name, "The " + profile.full_name + " team"]
+          .some(value => value.toLowerCase() === storedSignature.toLowerCase()));
+      setSignature(storedSignature && !isLegacyPersonalDefault ? storedSignature : defaultSignature);
+      if (aiSettings?.tone) setTone(aiSettings.tone);
       setBusinesses(managed);
       const remembered = localStorage.getItem("googlereviewai.com_selected_business_" + user.id);
       setSelectedBusinessId(managed.find(b => b.id === remembered)?.id || managed[0]?.id || "");
@@ -481,7 +487,12 @@ const Onboarding = () => {
 
                 <div className="space-y-2">
                   <Label htmlFor="sig">{isFrench ? "Signature des réponses" : "Reply signature"}</Label>
-                  <Input id="sig" className="h-12 rounded-xl bg-background" value={signature} onChange={(e) => setSignature(e.target.value)} placeholder={isFrench ? "L’équipe" : "The team"} />
+                  <Input id="sig" className="h-12 rounded-xl bg-background" value={signature} onChange={(e) => setSignature(e.target.value)} placeholder={isFrench ? "L'équipe {business_name}" : "The {business_name} team"} />
+                  <p className="text-xs text-muted-foreground">
+                    {isFrench
+                      ? "Le nom de la marque est raccourci automatiquement : « Sweet Deco - Grossiste de Meubles » devient « L'équipe Sweet Deco ». Vos signatures personnalisées restent possibles."
+                      : "The brand is shortened automatically: “Sweet Deco - Furniture Wholesaler” becomes “The Sweet Deco team”. Custom signatures are supported."}
+                  </p>
                 </div>
 
                 <div className="flex justify-between items-center gap-3 border-t border-border/60 pt-5 mt-5">
