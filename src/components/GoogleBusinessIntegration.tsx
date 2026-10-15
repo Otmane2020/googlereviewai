@@ -46,6 +46,12 @@ export function GoogleBusinessIntegration({ onBusinessesChanged }: GoogleBusines
   const [availableBusinesses, setAvailableBusinesses] = useState<GoogleBusiness[]>([]);
   const [initialSelectedIds, setInitialSelectedIds] = useState<string[]>([]);
   const [selectionLimit, setSelectionLimit] = useState(1);
+  const [syncInfo, setSyncInfo] = useState<{
+    auto_sync_reviews: boolean | null;
+    last_sync_at: string | null;
+    last_sync_status: string | null;
+    last_sync_error: string | null;
+  } | null>(null);
 
   const loadStatus = useCallback(async () => {
     if (!user) {
@@ -54,6 +60,9 @@ export function GoogleBusinessIntegration({ onBusinessesChanged }: GoogleBusines
       return;
     }
     setChecking(true);
+    const syncQuery = supabase.from("ai_settings")
+      .select("auto_sync_reviews,last_sync_at,last_sync_status,last_sync_error")
+      .eq("user_id", user.id).maybeSingle();
     // Read safe, authenticated status directly from the database.
     // The original edge function isn't always deployed with the web build,
     // which previously made an existing Google connection look disconnected.
@@ -72,6 +81,8 @@ export function GoogleBusinessIntegration({ onBusinessesChanged }: GoogleBusines
       });
       if (!data.connected) setRequiresReconnect(false);
     }
+    const syncState = await syncQuery;
+    setSyncInfo(syncState.data || null);
     setChecking(false);
   }, [user, i18n.language]);
 
@@ -120,6 +131,7 @@ export function GoogleBusinessIntegration({ onBusinessesChanged }: GoogleBusines
       });
       // Reviews are handled by a separate endpoint after locations are discovered.
       await refreshReviews();
+      await loadStatus();
     } finally {
       setBusy(false);
     }
@@ -211,6 +223,21 @@ export function GoogleBusinessIntegration({ onBusinessesChanged }: GoogleBusines
                 <p className="text-xs text-muted-foreground mt-1 font-medium">
                   {status.active_count} / {status.max_businesses} {tr("établissement(s) géré(s)", "managed location(s)")}
                 </p>
+              )}
+              {syncInfo && (
+                <div className="mt-2 text-[11px] leading-relaxed text-muted-foreground space-y-0.5">
+                  <p>
+                    {tr("Synchronisation automatique", "Automatic review sync")}:{" "}
+                    <span className="font-semibold text-foreground">
+                      {syncInfo.auto_sync_reviews ? tr("activée", "enabled") : tr("désactivée", "disabled")}
+                    </span>
+                  </p>
+                  <p>{tr("Dernier passage", "Last sync")}: {syncInfo.last_sync_at
+                    ? new Date(syncInfo.last_sync_at).toLocaleString(isEN ? "en-US" : "fr-FR")
+                    : tr("aucun", "none")}</p>
+                  {syncInfo.last_sync_status && <p>{tr("Statut", "Status")}: {syncInfo.last_sync_status}</p>}
+                  {syncInfo.last_sync_error && <p className="text-destructive break-words">{syncInfo.last_sync_error}</p>}
+                </div>
               )}
             </div>
           </div>
