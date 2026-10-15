@@ -24,6 +24,7 @@ interface CallOpts {
   referer?: string;
   title?: string;
   apiKey?: string;
+  request_timeout_ms?: number;
 }
 
 async function tryEndpoint(
@@ -49,6 +50,9 @@ async function tryEndpoint(
       ...extraHeaders,
     },
     body: JSON.stringify(body),
+    // Optional per-model timeout prevents a stalled model from keeping the
+    // entire review generation operation waiting indefinitely.
+    signal: opts.request_timeout_ms ? AbortSignal.timeout(opts.request_timeout_ms) : undefined,
   });
 
   // Retryable: deprecated, rate-limited, insufficient credits, server errors
