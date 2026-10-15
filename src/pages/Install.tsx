@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { usePWA } from "@/hooks/usePWA";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Download, Smartphone, Check, Share, Plus, MoreVertical } from "lucide-react";
@@ -6,56 +7,15 @@ import { RankiLogo } from "@/components/StarlinkoLogo";
 import { useNavigate } from "@/lib/router-compat";
 import { Helmet } from "react-helmet";
 
-interface BeforeInstallPromptEvent extends Event {
-  prompt: () => Promise<void>;
-  userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
-}
-
 const Install = () => {
   const navigate = useNavigate();
-  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
-  const [isInstalled, setIsInstalled] = useState(false);
-  const [isIOS, setIsIOS] = useState(false);
-  const [isStandalone, setIsStandalone] = useState(false);
-
-  useEffect(() => {
-    // Check if already installed
-    const checkStandalone = window.matchMedia("(display-mode: standalone)").matches;
-    setIsStandalone(checkStandalone);
-    
-    // Check if iOS
-    const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-    setIsIOS(iOS);
-
-    // Listen for install prompt
-    const handleBeforeInstallPrompt = (e: Event) => {
-      e.preventDefault();
-      setDeferredPrompt(e as BeforeInstallPromptEvent);
-    };
-
-    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
-
-    // Listen for app installed
-    window.addEventListener("appinstalled", () => {
-      setIsInstalled(true);
-      setDeferredPrompt(null);
-    });
-
-    return () => {
-      window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
-    };
-  }, []);
+  const { isInstalled, isStandalone, isIOS, canInstall, promptInstall } = usePWA();
+  const [installRequested, setInstallRequested] = useState(false);
 
   const handleInstall = async () => {
-    if (!deferredPrompt) return;
-
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    
-    if (outcome === "accepted") {
-      setIsInstalled(true);
-    }
-    setDeferredPrompt(null);
+    // Direct browser install prompt on the click gesture; success is confirmed separately.
+    const accepted = await promptInstall();
+    if (accepted) setInstallRequested(true);
   };
 
   if (isStandalone) {
@@ -68,7 +28,7 @@ const Install = () => {
             </div>
             <CardTitle className="text-2xl">Application installée !</CardTitle>
             <CardDescription>
-              Vous utilisez déjà GoogleReviewAI en tant qu'application
+              Vous utilisez déjà Reviews AI en tant qu'application
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -95,7 +55,7 @@ const Install = () => {
             </div>
             <CardTitle className="text-2xl text-secondary">Installation réussie !</CardTitle>
             <CardDescription>
-              GoogleReviewAI a été ajouté à votre écran d'accueil
+              Reviews AI a été ajouté à votre écran d'accueil
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -114,17 +74,17 @@ const Install = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-background to-secondary/5 p-4 safe-area-insets">
       <Helmet>
-        <title>Install GoogleReviewAI | Google Reviews PWA</title>
+        <title>Install Reviews AI | Google Reviews PWA</title>
         <meta 
           name="description" 
-          content="Installez l'application GoogleReviewAI sur votre téléphone. Accédez à vos avis Google depuis votre écran d'accueil, même hors ligne." 
+          content="Installez l'application Reviews AI sur votre téléphone. Accédez à vos avis Google depuis votre écran d'accueil et recevez vos notifications." 
         />
-        <meta name="keywords" content="installer googlereviewai.com, application avis google, PWA, mobile app" />
-        <link rel="canonical" href="https://googlereviewai.com/install" />
+        <meta name="keywords" content="installer googlereviewai.com, application avis Google, PWA, mobile app" />
+        <link rel="canonical" href="https://reviewsai.store/install" />
         
-        <meta property="og:title" content="Install GoogleReviewAI - Google Reviews app" />
-        <meta property="og:description" content="Installez l'app GoogleReviewAI pour gérer vos avis Google partout." />
-        <meta property="og:url" content="https://googlereviewai.com/install" />
+        <meta property="og:title" content="Install Reviews AI - Google Reviews app" />
+        <meta property="og:description" content="Installez l'app Reviews AI pour gérer vos avis Google partout." />
+        <meta property="og:url" content="https://reviewsai.store/install" />
         <meta property="og:type" content="website" />
       </Helmet>
       <Card className="w-full max-w-md">
@@ -132,7 +92,7 @@ const Install = () => {
           <div className="flex justify-center mb-4">
             <RankiLogo className="h-16 w-auto" />
           </div>
-          <CardTitle className="text-2xl">Installer GoogleReviewAI</CardTitle>
+          <CardTitle className="text-2xl">Installer Reviews AI</CardTitle>
           <CardDescription>
             Installez l'application sur votre appareil pour un accès rapide
           </CardDescription>
@@ -154,12 +114,15 @@ const Install = () => {
                 <Download className="h-5 w-5 text-secondary" />
               </div>
               <div>
-                <p className="font-medium">Fonctionne hors ligne</p>
-                <p className="text-sm text-muted-foreground">Consultez vos avis sans connexion</p>
+                <p className="font-medium">Notifications d’avis</p>
+                <p className="text-sm text-muted-foreground">Restez informé des nouveaux avis</p>
               </div>
             </div>
           </div>
 
+          {installRequested && !isInstalled && (
+            <p className="text-sm text-muted-foreground" role="status">Confirmez l’installation dans votre navigateur. Vous pourrez ensuite ouvrir Reviews AI depuis votre écran d’accueil.</p>
+          )}
           {/* Install instructions */}
           {isIOS ? (
             <div className="p-4 rounded-lg border bg-card">
@@ -183,14 +146,14 @@ const Install = () => {
                 </li>
               </ol>
             </div>
-          ) : deferredPrompt ? (
+          ) : canInstall ? (
             <Button onClick={handleInstall} size="lg" className="w-full">
               <Download className="mr-2 h-5 w-5" />
               Installer l'application
             </Button>
           ) : (
             <div className="p-4 rounded-lg border bg-card">
-              <h3 className="font-semibold mb-3">Comment installer sur Android :</h3>
+              <h3 className="font-semibold mb-3">Installation manuelle (Chrome, Edge ou Android) :</h3>
               <ol className="space-y-3 text-sm">
                 <li className="flex items-start gap-3">
                   <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold">1</span>

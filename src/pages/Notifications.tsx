@@ -86,7 +86,7 @@ const Notifications = () => {
     if (enabled && isIOS && !isInstalled && !isStandalone) {
       toast({
         title: tr("Installez l'application", "Install the app first"),
-        description: tr("Sur iPhone, ajoutez GoogleReviewAI à l'écran d'accueil avant d'activer les notifications.", "On iPhone, add GoogleReviewAI to your Home Screen before enabling notifications."),
+        description: tr("Sur iPhone, ajoutez Reviews AI à l'écran d'accueil avant d'activer les notifications.", "On iPhone, add Reviews AI to your Home Screen before enabling notifications."),
         variant: "destructive",
       });
       return;
@@ -117,9 +117,9 @@ const Notifications = () => {
   return (
     <div className="min-h-screen bg-background pb-20 md:pb-8">
       <Helmet>
-        <title>{tr("Notifications", "Notifications")} | GoogleReviewAI</title>
+        <title>{tr("Notifications", "Notifications")} | Reviews AI</title>
         <meta name="robots" content="noindex, nofollow" />
-        <link rel="canonical" href="https://googlereviewai.com/notifications" />
+        <link rel="canonical" href="https://reviewsai.store/notifications" />
       </Helmet>
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 py-7 space-y-6">

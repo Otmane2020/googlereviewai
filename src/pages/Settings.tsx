@@ -279,10 +279,10 @@ const SettingsPage = () => {
   return (
     <div className="min-h-screen bg-muted/30">
       <Helmet>
-        <title>Account settings | GoogleReviewAI</title>
-        <meta name="description" content="Manage your GoogleReviewAI account, subscription, notifications and connected Google Business Profile locations." />
+        <title>Account settings | Reviews AI</title>
+        <meta name="description" content="Manage your Reviews AI account, subscription, notifications and connected Google Business Profile locations." />
         <meta name="robots" content="noindex, nofollow" />
-        <link rel="canonical" href="https://googlereviewai.com/settings" />
+        <link rel="canonical" href="https://reviewsai.store/settings" />
       </Helmet>
 
 

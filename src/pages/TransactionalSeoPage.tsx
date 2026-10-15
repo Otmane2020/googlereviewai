@@ -16,15 +16,15 @@ export default function TransactionalSeoPage({ config }: { config: Transactional
     "@graph": [
       {
         "@type": "SoftwareApplication",
-        name: "Google Review AI",
+        name: "Reviews AI",
         applicationCategory: "BusinessApplication",
         operatingSystem: "Web",
-        url: `https://googlereviewai.com/${config.slug}`,
+        url: `https://reviewsai.store/${config.slug}`,
         description: config.metaDescription,
         publisher: {
           "@type": "Organization",
-          name: "Google Review AI",
-          url: "https://googlereviewai.com/",
+          name: "Reviews AI",
+          url: "https://reviewsai.store/",
         },
       },
       {
@@ -157,9 +157,9 @@ export default function TransactionalSeoPage({ config }: { config: Transactional
         <section className="bg-primary text-primary-foreground">
           <div className="container mx-auto max-w-4xl px-5 py-16 text-center">
             <h2 className="text-3xl font-bold sm:text-4xl">Turn customer reviews into a repeatable workflow</h2>
-            <p className="mx-auto mt-4 max-w-2xl text-primary-foreground/80">Use GoogleReviewAI to reduce repetitive writing, respond more consistently and keep control over every published message.</p>
+            <p className="mx-auto mt-4 max-w-2xl text-primary-foreground/80">Use Reviews AI to reduce repetitive writing, respond more consistently and keep control over every published message.</p>
             <Button asChild size="lg" variant="secondary" className="mt-8 gap-2">
-              <Link to="/auth">Start with GoogleReviewAI <ArrowRight className="h-4 w-4" /></Link>
+              <Link to="/auth">Start with Reviews AI <ArrowRight className="h-4 w-4" /></Link>
             </Button>
           </div>
         </section>

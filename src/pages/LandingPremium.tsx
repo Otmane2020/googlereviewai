@@ -130,16 +130,16 @@ const LandingPremium = () => {
 
     const landingFaqs = [
       {
-        question: "Que comprend le Pack Complet GoogleReviewAI ?",
-        answer: "Le Pack Complet GoogleReviewAI inclut toutes les fonctionnalités : réponses automatiques IA aux avis Google, SEO local automatisé avec publications quotidiennes, GEO pour apparaître dans ChatGPT et les IA, dashboard de suivi et statistiques complètes. Un seul prix, aucune option cachée."
+        question: "Que comprend le Pack Complet Reviews AI ?",
+        answer: "Le Pack Complet Reviews AI inclut toutes les fonctionnalités : réponses automatiques IA aux avis Google, SEO local automatisé avec publications quotidiennes, GEO pour apparaître dans ChatGPT et les IA, dashboard de suivi et statistiques complètes. Un seul prix, aucune option cachée."
       },
       {
-        question: "Combien coûte GoogleReviewAI ?",
-        answer: "GoogleReviewAI est à 39€/mois en mensuel, ou 32,50€/mois en engagement annuel (soit 390€/an avec 2 mois offerts). Toutes les fonctionnalités sont incluses sans option ni add-on supplémentaire."
+        question: "Combien coûte Reviews AI ?",
+        answer: "Reviews AI est à 39€/mois en mensuel, ou 32,50€/mois en engagement annuel (soit 390€/an avec 2 mois offerts). Toutes les fonctionnalités sont incluses sans option ni add-on supplémentaire."
       },
       {
-        question: "Puis-je essayer GoogleReviewAI gratuitement ?",
-        answer: "Oui, GoogleReviewAI propose un essai gratuit de 7 jours sans carte bancaire. Vous pouvez tester toutes les fonctionnalités et annuler à tout moment si la solution ne vous convient pas."
+        question: "Puis-je essayer Reviews AI gratuitement ?",
+        answer: "Oui, Reviews AI propose un essai gratuit de 7 jours sans carte bancaire. Vous pouvez tester toutes les fonctionnalités et annuler à tout moment si la solution ne vous convient pas."
       },
       {
         question: "Combien de temps faut-il pour voir des résultats ?",
@@ -150,17 +150,17 @@ const LandingPremium = () => {
    return (
      <div className="min-h-screen bg-background">
        <Helmet>
-         <title>GoogleReviewAI Pack Complet – SEO + GEO + Avis IA | Tout-en-Un</title>
+         <title>Reviews AI Pack Complet – SEO + GEO + Avis IA | Tout-en-Un</title>
          <meta
            name="description"
-           content="Boostez votre visibilité sur Google & ChatGPT avec le Pack Complet GoogleReviewAI. Réponses IA aux avis, SEO local, GEO ChatGPT. À partir de 32,50€/mois."
+           content="Boostez votre visibilité sur Google & ChatGPT avec le Pack Complet Reviews AI. Réponses IA aux avis, SEO local, GEO ChatGPT. À partir de 32,50€/mois."
          />
-         <link rel="canonical" href="https://googlereviewai.com/landing" />
-         <meta property="og:title" content="GoogleReviewAI Pack Complet – Visibilité Google & ChatGPT" />
+         <link rel="canonical" href="https://reviewsai.store/landing" />
+         <meta property="og:title" content="Reviews AI Pack Complet – Visibilité Google & ChatGPT" />
          <meta property="og:description" content="Un seul pack, un seul prix. SEO + GEO + Avis Google IA. Passez devant vos concurrents en 60 jours." />
-         <meta property="og:url" content="https://googlereviewai.com/landing" />
+         <meta property="og:url" content="https://reviewsai.store/landing" />
          <meta property="og:type" content="product" />
-         <meta property="og:image" content="https://googlereviewai.com/og-image.png" />
+         <meta property="og:image" content="https://reviewsai.store/og-image.png" />
        </Helmet>
         <ProductSchema />
         <FAQPageSchema faqs={landingFaqs} />
@@ -255,7 +255,7 @@ const LandingPremium = () => {
          </div>
        </section>
  
-       {/* Why GoogleReviewAI */}
+       {/* Why Reviews AI */}
        <section className="py-16 sm:py-24 bg-background">
          <div className="container mx-auto px-5">
            <div className="text-center mb-12">
@@ -264,7 +264,7 @@ const LandingPremium = () => {
                <span className="text-primary text-sm font-semibold">Pourquoi ça fonctionne</span>
              </div>
              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-4">
-               GoogleReviewAI automatise ce que vos concurrents font encore à la main
+               Reviews AI automatise ce que vos concurrents font encore à la main
              </h2>
            </div>
  
@@ -291,7 +291,7 @@ const LandingPremium = () => {
            <div className="text-center mb-12">
              <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-secondary/10 rounded-full mb-4">
                <BrandSparkle className="w-4 h-4 text-secondary" />
-               <span className="text-secondary text-sm font-semibold">L'offre unique GoogleReviewAI</span>
+               <span className="text-secondary text-sm font-semibold">L'offre unique Reviews AI</span>
              </div>
              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-4">
                Tous les leviers activés
@@ -467,7 +467,7 @@ const LandingPremium = () => {
                <span className="text-primary text-sm font-semibold">SEO + GEO = Visibilité maximale</span>
              </div>
              <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-6">
-               GoogleReviewAI ne fait pas que du SEO classique
+               Reviews AI ne fait pas que du SEO classique
              </h2>
              <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
                Il vous rend <span className="text-foreground font-semibold">visible ET recommandé</span> sur Google, dans ChatGPT, et dans les moteurs IA nouvelle génération.
@@ -508,7 +508,7 @@ const LandingPremium = () => {
         <FAQSection
           faqs={landingFaqs}
           title="Questions fréquentes"
-          subtitle="Les réponses aux questions que vous vous posez sur GoogleReviewAI"
+          subtitle="Les réponses aux questions que vous vous posez sur Reviews AI"
           badgeText="FAQ"
         />
   
@@ -519,7 +519,7 @@ const LandingPremium = () => {
              Ready à passer devant vos concurrents ?
            </h2>
            <p className="text-card/80 text-lg mb-8 max-w-xl mx-auto">
-             Rejoignez +2000 entreprises qui utilisent GoogleReviewAI pour leur visibilité en ligne.
+             Rejoignez +2000 entreprises qui utilisent Reviews AI pour leur visibilité en ligne.
            </p>
            <Button 
              variant="hero" 

@@ -6,7 +6,7 @@ import { seoArticles } from "@/data/seoArticles";
 
 const groups = [
   {
-    title: "Google Review AI",
+    title: "Reviews AI",
     links: [
       { label: "Home", href: "/" },
       { label: "Local GEO & AI Search Visibility", href: "/local-geo" },
@@ -43,13 +43,13 @@ const Sitemap = () => (
   <div className="min-h-screen bg-background text-foreground">
     <Helmet>
       <html lang="en" />
-      <title>Sitemap | Google Review AI</title>
-      <meta name="description" content="Browse the public pages, local SEO guides and Google review resources available on Google Review AI." />
-      <link rel="canonical" href="https://googlereviewai.com/sitemap" />
+      <title>Sitemap | Reviews AI</title>
+      <meta name="description" content="Browse the public pages, local SEO guides and Google review resources available on Reviews AI." />
+      <link rel="canonical" href="https://reviewsai.store/sitemap" />
       <meta name="robots" content="index, follow" />
-      <meta property="og:title" content="Sitemap | Google Review AI" />
-      <meta property="og:description" content="Browse Google Review AI pages, guides and resources." />
-      <meta property="og:url" content="https://googlereviewai.com/sitemap" />
+      <meta property="og:title" content="Sitemap | Reviews AI" />
+      <meta property="og:description" content="Browse Reviews AI pages, guides and resources." />
+      <meta property="og:url" content="https://reviewsai.store/sitemap" />
       <meta property="og:type" content="website" />
     </Helmet>
 
@@ -57,9 +57,9 @@ const Sitemap = () => (
     <main className="pt-24 pb-20">
       <div className="container mx-auto max-w-6xl px-5 sm:px-6">
         <div className="max-w-2xl mb-12">
-          <p className="text-sm font-semibold text-[#4285F4] mb-3">Google Review AI</p>
+          <p className="text-sm font-semibold text-[#4285F4] mb-3">Reviews AI</p>
           <h1 className="text-4xl sm:text-5xl font-bold tracking-tight mb-4">Sitemap</h1>
-          <p className="text-lg text-muted-foreground">Find the public product pages, guides and educational resources available on Google Review AI.</p>
+          <p className="text-lg text-muted-foreground">Find the public product pages, guides and educational resources available on Reviews AI.</p>
         </div>
 
         <div className="grid gap-6 md:grid-cols-3 mb-12">

@@ -13,4 +13,4 @@ The extension never publishes a reply automatically. It only inserts the generat
 
 ## Chrome Web Store
 
-Zip the contents of this directory (with `manifest.json` at the ZIP root). Use the public privacy policy at https://googlereviewai.com/privacy.
+Zip the contents of this directory (with `manifest.json` at the ZIP root). Use the public privacy policy at https://reviewsai.store/privacy.

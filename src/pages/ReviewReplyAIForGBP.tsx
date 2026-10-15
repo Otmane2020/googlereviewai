@@ -13,10 +13,10 @@ const ReviewReplyAIForGBP = () => {
     <div className="min-h-screen bg-background text-foreground">
       <Helmet>
         <html lang="en" />
-        <title>GMB Review Auto Reply for Google Business Profile | GoogleReviewAI</title>
+        <title>GMB Review Auto Reply for Google Business Profile | Reviews AI</title>
         <meta
           name="description"
-          content="GMB review auto reply with AI for Google Business Profile. Generate personalized Google review responses in seconds using the GoogleReviewAI Chrome extension."
+          content="GMB review auto reply with AI for Google Business Profile. Generate personalized Google review responses in seconds using the Reviews AI Chrome extension."
         />
         <meta
           name="keywords"
@@ -24,12 +24,12 @@ const ReviewReplyAIForGBP = () => {
         />
         <link
           rel="canonical"
-          href="https://googlereviewai.com/review-reply-ai-google-business-profile"
+          href="https://reviewsai.store/review-reply-ai-google-business-profile"
         />
         <meta name="robots" content="index, follow, max-image-preview:large" />
         <meta
           property="og:title"
-          content="GMB Review Auto Reply for Google Business Profile | GoogleReviewAI"
+          content="GMB Review Auto Reply for Google Business Profile | Reviews AI"
         />
         <meta
           property="og:description"
@@ -37,10 +37,10 @@ const ReviewReplyAIForGBP = () => {
         />
         <meta
           property="og:url"
-          content="https://googlereviewai.com/review-reply-ai-google-business-profile"
+          content="https://reviewsai.store/review-reply-ai-google-business-profile"
         />
         <meta property="og:type" content="website" />
-        <meta property="og:image" content="https://googlereviewai.com/landing/review-ai-workflow.jpg" />
+        <meta property="og:image" content="https://reviewsai.store/landing/review-ai-workflow.jpg" />
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
@@ -50,13 +50,13 @@ const ReviewReplyAIForGBP = () => {
             operatingSystem: "Google Chrome",
             description:
               "A Chrome extension that helps businesses create personalized replies to Google Business Profile reviews.",
-            url: "https://googlereviewai.com/review-reply-ai-google-business-profile",
+            url: "https://reviewsai.store/review-reply-ai-google-business-profile",
             installUrl: CHROME_STORE_URL,
-            image: "https://googlereviewai.com/landing/review-ai-workflow.jpg",
+            image: "https://reviewsai.store/landing/review-ai-workflow.jpg",
             publisher: {
               "@type": "Organization",
-              name: "GoogleReviewAI",
-              url: "https://googlereviewai.com/",
+              name: "Reviews AI",
+              url: "https://reviewsai.store/",
             },
           })}
         </script>
@@ -86,7 +86,7 @@ const ReviewReplyAIForGBP = () => {
                   </a>
                 </Button>
                 <Button asChild size="lg" variant="outline">
-                  <Link to="/#reviews-ai">See GoogleReviewAI</Link>
+                  <Link to="/#reviews-ai">See Reviews AI</Link>
                 </Button>
               </div>
               <div className="mt-7 flex flex-wrap gap-x-6 gap-y-3 text-sm text-muted-foreground">

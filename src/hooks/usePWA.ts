@@ -140,18 +140,25 @@ export const usePWA = () => {
   }, []);
 
   const promptInstall = useCallback(async () => {
-    if (!deferredPrompt) return false;
-
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-
-    if (outcome === "accepted") {
-      setIsInstalled(true);
+    // The browser may emit beforeinstallprompt before this hook mounts.
+    const event = deferredPrompt || window.__rankiBeforeInstallPrompt;
+    if (!event) return false;
+    try {
+      await event.prompt();
+      const { outcome } = await event.userChoice;
+      // A user accepting the dialog is NOT proof that the PWA is installed.
+      // Only appinstalled / standalone mode can confirm installation.
+      window.__rankiBeforeInstallPrompt = null;
+      setDeferredPrompt(null);
       setCanInstall(false);
+      return outcome === "accepted";
+    } catch (error) {
+      console.warn("[Reviews AI] PWA install prompt unavailable:", error);
+      window.__rankiBeforeInstallPrompt = null;
+      setDeferredPrompt(null);
+      setCanInstall(false);
+      return false;
     }
-    window.__rankiBeforeInstallPrompt = null;
-    setDeferredPrompt(null);
-    return outcome === "accepted";
   }, [deferredPrompt]);
 
   const forceUpdate = useCallback(() => {

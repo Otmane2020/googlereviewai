@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 const productImages = [
   {
     src: "/landing/review-ai-workflow.jpg",
-    alt: "Google Review AI extension generating a personalized reply to a Google review",
+    alt: "Reviews AI extension generating a personalized reply to a Google review",
   },
   {
     src: "/landing/reply-to-reviews-ai.jpg",

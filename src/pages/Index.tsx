@@ -44,7 +44,7 @@ const Index = () => {
   }));
 
   const title = i18n.language?.startsWith("fr")
-    ? "Réponse automatique aux avis Google & GMB IA | GoogleReviewAI"
+    ? "Réponse automatique aux avis Google & GMB IA | Reviews AI"
     : "Google My Businesss Review - AutoReply with AI";
   const description = i18n.language?.startsWith("fr")
     ? "Automatisez les réponses aux avis Google Business Profile (GMB) grâce à l’IA. Répondez aux avis clients, gagnez du temps et gérez votre e-réputation."
@@ -56,32 +56,32 @@ const Index = () => {
     "@graph": [
       {
         "@type": "WebSite",
-        "@id": "https://googlereviewai.com/#website",
-        "url": "https://googlereviewai.com/",
-        "name": "Google Review AI",
+        "@id": "https://reviewsai.store/#website",
+        "url": "https://reviewsai.store/",
+        "name": "Reviews AI",
         "description": description,
         "inLanguage": i18n.language?.startsWith("fr") ? "fr" : "en"
       },
       {
         "@type": "Organization",
-        "@id": "https://googlereviewai.com/#organization",
-        "name": "Google Review AI",
-        "url": "https://googlereviewai.com/",
+        "@id": "https://reviewsai.store/#organization",
+        "name": "Reviews AI",
+        "url": "https://reviewsai.store/",
         "logo": {
           "@type": "ImageObject",
-          "url": "https://googlereviewai.com/icon-512x512.png"
+          "url": "https://reviewsai.store/icon-512x512.png"
         },
         "email": "support@googlereviewai.com"
       },
       {
         "@type": "SoftwareApplication",
-        "@id": "https://googlereviewai.com/#software",
-        "name": "Google Review AI",
-        "url": "https://googlereviewai.com/",
+        "@id": "https://reviewsai.store/#software",
+        "name": "Reviews AI",
+        "url": "https://reviewsai.store/",
         "applicationCategory": "BusinessApplication",
         "operatingSystem": "Web",
         "description": description,
-        "publisher": { "@id": "https://googlereviewai.com/#organization" },
+        "publisher": { "@id": "https://reviewsai.store/#organization" },
         "featureList": [
           "AI-generated responses to Google reviews",
           "Google Business Profile review management",
@@ -100,17 +100,17 @@ const Index = () => {
         <title>{title}</title>
         <meta name="description" content={description} />
         <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
-        <link rel="canonical" href="https://googlereviewai.com/" />
+        <link rel="canonical" href="https://reviewsai.store/" />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://googlereviewai.com/" />
+        <meta property="og:url" content="https://reviewsai.store/" />
         <meta property="og:title" content={title} />
         <meta property="og:description" content={description} />
-        <meta property="og:image" content="https://googlereviewai.com/og-image.png" />
+        <meta property="og:image" content="https://reviewsai.store/og-image.png" />
         <meta property="og:locale" content={locale} />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={title} />
         <meta name="twitter:description" content={description} />
-        <meta name="twitter:image" content="https://googlereviewai.com/og-image.png" />
+        <meta name="twitter:image" content="https://reviewsai.store/og-image.png" />
         <script type="application/ld+json">{JSON.stringify(homepageSchema)}</script>
       </Helmet>
 

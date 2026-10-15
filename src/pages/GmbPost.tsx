@@ -468,7 +468,7 @@ export default function GmbPost() {
               <div className="space-y-2">
                 <Label className="text-sm font-medium">{t("Photo Google Business", "Google Business photo")}</Label>
                 <p className="text-xs text-muted-foreground">{t(
-                  "Générez et prévisualisez votre image. Sans image choisie, GoogleReviewAI en générera une automatiquement à la publication.",
+                  "Générez et prévisualisez votre image. Sans image choisie, Reviews AI en générera une automatiquement à la publication.",
                   "Generate and preview your image. If none is selected, an AI image will be generated when you publish.",
                 )}</p>
                 <Button type="button" variant="outline" onClick={handleGenerateImage}

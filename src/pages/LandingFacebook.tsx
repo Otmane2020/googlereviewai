@@ -12,7 +12,7 @@ const TESTIMONIALS = [
   {
     name: "Marc D.",
     business: "Restaurant Le Provençal",
-    text: "Depuis GoogleReviewAI, je réponds à tous mes avis en 2 minutes au lieu de 30. Mes clients adorent !",
+    text: "Depuis Reviews AI, je réponds à tous mes avis en 2 minutes au lieu de 30. Mes clients adorent !",
     rating: 5,
   },
   {
@@ -62,10 +62,10 @@ const LandingFacebook = () => {
   return (
     <div className="min-h-screen bg-background">
       <Helmet>
-        <title>GoogleReviewAI - Automatisez vos Avis Google avec l'IA | 2 Mois Gratuits</title>
-        <meta name="description" content="Répondez à tous vos avis Google en 1 clic grâce à l'IA. Essai gratuit 2 mois, sans carte bancaire. +500 entreprises utilisent GoogleReviewAI." />
+        <title>Reviews AI - Automatisez vos Avis Google avec l'IA | 2 Mois Gratuits</title>
+        <meta name="description" content="Répondez à tous vos avis Google en 1 clic grâce à l'IA. Essai gratuit 2 mois, sans carte bancaire. +500 entreprises utilisent Reviews AI." />
         <meta name="robots" content="noindex, nofollow" />
-        <link rel="canonical" href="https://googlereviewai.com/lp/facebook" />
+        <link rel="canonical" href="https://reviewsai.store/lp/facebook" />
       </Helmet>
 
       {/* Sticky Header */}
@@ -102,7 +102,7 @@ const LandingFacebook = () => {
             </h1>
 
             <p className="text-lg sm:text-xl text-card/85 max-w-xl mx-auto mb-8 leading-relaxed animate-fade-in">
-              GoogleReviewAI répond à chaque avis en quelques secondes. 
+              Reviews AI répond à chaque avis en quelques secondes. 
               Plus de temps perdu, plus de clients satisfaits.
             </p>
 
@@ -271,7 +271,7 @@ const LandingFacebook = () => {
             <a href="/privacy" className="hover:text-foreground transition-colors">Confidentialité</a>
             <a href="/terms" className="hover:text-foreground transition-colors">CGU</a>
           </div>
-          <span>© 2025 GoogleReviewAI</span>
+          <span>© 2025 Reviews AI</span>
         </div>
       </footer>
     </div>

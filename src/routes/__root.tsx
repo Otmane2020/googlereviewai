@@ -40,13 +40,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         content:
           "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover",
       },
-      { title: "Google My Businesss Review - AutoReply with AI" },
+      { title: "Reviews AI — Google Reviews, Local SEO & GEO" },
       {
         name: "description",
         content:
           "Automate Google Business Profile (GMB) review replies with AI. Respond to customer reviews automatically, save time and manage your Google reputation.",
       },
-      { name: "author", content: "Google Review AI" },
+      { name: "author", content: "Reviews AI" },
       { name: "google-site-verification", content: "07-mTOgobA9QM8vgRLYvmLuHBrEU8mVCDhG0HfNEbmw" },
       {
         name: "googlebot",
@@ -59,7 +59,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "theme-color", content: "#ffffff" },
       { name: "apple-mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-status-bar-style", content: "default" },
-      { name: "apple-mobile-web-app-title", content: "Google Review AI" },
+      { name: "apple-mobile-web-app-title", content: "Reviews AI" },
       { name: "mobile-web-app-capable", content: "yes" },
       { name: "format-detection", content: "telephone=no" },
       { name: "msapplication-TileColor", content: "#4285F4" },
@@ -71,11 +71,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         content:
           "Automate Google Business Profile (GMB) review replies with AI. Respond to customer reviews automatically, save time and manage your Google reputation.",
       },
-      { property: "og:image", content: "https://googlereviewai.com/og-image.png" },
+      { property: "og:image", content: "https://reviewsai.store/og-image.png" },
       { property: "og:image:width", content: "1200" },
       { property: "og:image:height", content: "630" },
       { property: "og:locale", content: "en_US" },
-      { property: "og:site_name", content: "Google Review AI" },
+      { property: "og:site_name", content: "Reviews AI" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "Google My Businesss Review - AutoReply with AI" },
       {
@@ -83,7 +83,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         content:
           "Automate Google Business Profile (GMB) review replies with AI. Respond to customer reviews automatically, save time and manage your Google reputation.",
       },
-      { name: "twitter:image", content: "https://googlereviewai.com/og-image.png" },
+      { name: "twitter:image", content: "https://reviewsai.store/og-image.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
@@ -241,7 +241,7 @@ function AppShell() {
         const existing = await navigator.serviceWorker.getRegistration("/");
         if (!existing) {
           await navigator.serviceWorker.register("/sw.js", { scope: "/" });
-          console.log("[SW] Registered GoogleReviewAI SW");
+          console.log("[SW] Registered Reviews AI SW");
         }
       } catch (e) {
         console.warn("[SW] Failed to register service worker:", e);

@@ -23,16 +23,16 @@ interface MagicLinkEmailProps {
 
 const copy = {
   fr: {
-    preview: 'Votre lien de connexion GoogleReviewAI',
-    title: 'Connectez-vous à GoogleReviewAI',
-    p1: 'Cliquez sur le bouton ci-dessous pour accéder en toute sécurité à votre tableau de bord GoogleReviewAI. Ce lien expirera prochainement.',
+    preview: 'Votre lien de connexion Reviews AI',
+    title: 'Connectez-vous à Reviews AI',
+    p1: 'Cliquez sur le bouton ci-dessous pour accéder en toute sécurité à votre tableau de bord Reviews AI. Ce lien expirera prochainement.',
     cta: 'Se connecter',
     foot: "Si vous n'êtes pas à l'origine de cette demande, vous pouvez ignorer cet e-mail en toute sécurité.",
   },
   en: {
-    preview: 'Your GoogleReviewAI login link',
-    title: 'Sign in to GoogleReviewAI',
-    p1: 'Click the button below to securely access your GoogleReviewAI dashboard. This link will expire soon.',
+    preview: 'Your Reviews AI login link',
+    title: 'Sign in to Reviews AI',
+    p1: 'Click the button below to securely access your Reviews AI dashboard. This link will expire soon.',
     cta: 'Sign in',
     foot: "If you didn't request this, you can safely ignore this email.",
   },
@@ -48,7 +48,7 @@ export const MagicLinkEmail = ({ confirmationUrl, lang }: MagicLinkEmailProps) =
       <Body style={main}>
         <Container style={container}>
           <Section style={brand}>
-            <Text style={brandText}>GoogleReviewAI</Text>
+            <Text style={brandText}>Reviews AI</Text>
           </Section>
           <Heading style={h1}>{t.title}</Heading>
           <Text style={text}>{t.p1}</Text>

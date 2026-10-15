@@ -348,10 +348,10 @@ const BusinessesPage = () => {
   return (
     <div className="min-h-screen bg-muted/30 pb-20">
       <Helmet>
-        <title>Your businesses | GoogleReviewAI</title>
-        <meta name="description" content="Manage your Google Business Profile locations, keywords and AI settings in GoogleReviewAI." />
+        <title>Your businesses | Reviews AI</title>
+        <meta name="description" content="Manage your Google Business Profile locations, keywords and AI settings in Reviews AI." />
         <meta name="robots" content="noindex, nofollow" />
-        <link rel="canonical" href="https://googlereviewai.com/businesses" />
+        <link rel="canonical" href="https://reviewsai.store/businesses" />
       </Helmet>
 
 

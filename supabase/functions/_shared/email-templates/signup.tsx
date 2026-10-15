@@ -44,7 +44,7 @@ const copy = {
     ask1: 'Veuillez confirmer votre adresse e-mail (',
     ask2: ') pour activer votre compte :',
     cta: "Vérifier l'e-mail",
-    foot: "Si vous n'avez pas créé de compte GoogleReviewAI, vous pouvez ignorer cet e-mail en toute sécurité.",
+    foot: "Si vous n'avez pas créé de compte Reviews AI, vous pouvez ignorer cet e-mail en toute sécurité.",
   },
   en: {
     preview: 'Confirm your email to start getting visible on AI search',
@@ -54,7 +54,7 @@ const copy = {
     ask1: 'Please confirm your email address (',
     ask2: ') to activate your account:',
     cta: 'Verify email',
-    foot: "If you didn't create a GoogleReviewAI account, you can safely ignore this email.",
+    foot: "If you didn't create a Reviews AI account, you can safely ignore this email.",
   },
 }
 
@@ -68,13 +68,13 @@ export const SignupEmail = ({ siteUrl, recipient, confirmationUrl, lang }: Signu
       <Body style={main}>
         <Container style={container}>
           <Section style={brand}>
-            <Text style={brandText}>GoogleReviewAI</Text>
+            <Text style={brandText}>Reviews AI</Text>
           </Section>
           <Heading style={h1}>{t.title}</Heading>
           <Text style={text}>
             {t.intro}{' '}
             <Link href={siteUrl} style={link}>
-              <strong>GoogleReviewAI</strong>
+              <strong>Reviews AI</strong>
             </Link>
             {t.introEnd}
           </Text>

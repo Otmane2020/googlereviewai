@@ -42,7 +42,7 @@ export const Footer = () => {
           </div>)}
         </div>
         <div className="pt-6 sm:pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-xs sm:text-sm text-white/60 text-center sm:text-left">© {new Date().getFullYear()} GoogleReviewAI – {t("landingUI.footer.rights")}.</p>
+          <p className="text-xs sm:text-sm text-white/60 text-center sm:text-left">© {new Date().getFullYear()} Reviews AI – {t("landingUI.footer.rights")}.</p>
           <div className="flex items-center gap-1.5 text-xs sm:text-sm text-white/60"><span className="h-1.5 w-1.5 rounded-full bg-[#4285F4]"/><span className="h-1.5 w-1.5 rounded-full bg-[#EA4335]"/><span className="h-1.5 w-1.5 rounded-full bg-[#FBBC05]"/><span className="h-1.5 w-1.5 rounded-full bg-[#34A853] mr-1"/>{t("landingUI.footer.tagShort")}</div>
         </div>
       </div>

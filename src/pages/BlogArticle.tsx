@@ -38,7 +38,7 @@ const BlogArticle = () => {
           title: ranki.title,
           body: html,
           meta_description: ranki.excerpt,
-          author: "GoogleReviewAI",
+          author: "Reviews AI",
           published_at: ranki.published_at,
           updated_at: ranki.updated_at,
           cover_url: ranki.cover_url,
@@ -58,7 +58,7 @@ const BlogArticle = () => {
   });
 
   if (staticArticle) {
-    const canonical = `https://googlereviewai.com/blog/${staticArticle.slug}`;
+    const canonical = `https://reviewsai.store/blog/${staticArticle.slug}`;
     const articleText = [
       staticArticle.intro,
       staticArticle.quickAnswer,
@@ -82,16 +82,16 @@ const BlogArticle = () => {
       mainEntityOfPage: canonical,
       author: {
         "@type": "Organization",
-        name: "Google Review AI",
-        url: "https://googlereviewai.com",
+        name: "Reviews AI",
+        url: "https://reviewsai.store",
       },
       publisher: {
         "@type": "Organization",
-        name: "Google Review AI",
-        url: "https://googlereviewai.com",
+        name: "Reviews AI",
+        url: "https://reviewsai.store",
         logo: {
           "@type": "ImageObject",
-          url: "https://googlereviewai.com/icon-512x512.png",
+          url: "https://reviewsai.store/icon-512x512.png",
         },
       },
       keywords: staticArticle.keywords.join(", "),
@@ -116,8 +116,8 @@ const BlogArticle = () => {
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
       itemListElement: [
-        { "@type": "ListItem", position: 1, name: "Home", item: "https://googlereviewai.com/" },
-        { "@type": "ListItem", position: 2, name: "Blog", item: "https://googlereviewai.com/blog" },
+        { "@type": "ListItem", position: 1, name: "Home", item: "https://reviewsai.store/" },
+        { "@type": "ListItem", position: 2, name: "Blog", item: "https://reviewsai.store/blog" },
         { "@type": "ListItem", position: 3, name: staticArticle.title, item: canonical },
       ],
     };
@@ -126,23 +126,23 @@ const BlogArticle = () => {
       <>
         <Helmet>
           <html lang={staticArticle.slug.endsWith("-fr") ? "fr" : "en"} />
-          <title>{staticArticle.title} | Google Review AI</title>
+          <title>{staticArticle.title} | Reviews AI</title>
           <meta name="description" content={staticArticle.description} />
           <meta name="keywords" content={[staticArticle.targetKeyword, ...staticArticle.keywords].join(", ")} />
           <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large" />
           <link rel="canonical" href={canonical} />
           {staticArticle.category.includes("GEO &") && (
             <>
-              <link rel="alternate" hrefLang="en" href={`https://googlereviewai.com/blog/${staticArticle.slug.replace(/-fr$/, "")}`} />
-              <link rel="alternate" hrefLang="fr" href={`https://googlereviewai.com/blog/${staticArticle.slug.replace(/-fr$/, "")}-fr`} />
-              <link rel="alternate" hrefLang="x-default" href={`https://googlereviewai.com/blog/${staticArticle.slug.replace(/-fr$/, "")}`} />
+              <link rel="alternate" hrefLang="en" href={`https://reviewsai.store/blog/${staticArticle.slug.replace(/-fr$/, "")}`} />
+              <link rel="alternate" hrefLang="fr" href={`https://reviewsai.store/blog/${staticArticle.slug.replace(/-fr$/, "")}-fr`} />
+              <link rel="alternate" hrefLang="x-default" href={`https://reviewsai.store/blog/${staticArticle.slug.replace(/-fr$/, "")}`} />
             </>
           )}
           <meta property="og:type" content="article" />
           <meta property="og:title" content={staticArticle.title} />
           <meta property="og:description" content={staticArticle.description} />
           <meta property="og:url" content={canonical} />
-          <meta property="og:image" content="https://googlereviewai.com/og-image.png" />
+          <meta property="og:image" content="https://reviewsai.store/og-image.png" />
           <meta name="twitter:card" content="summary_large_image" />
           <meta name="twitter:title" content={staticArticle.title} />
           <meta name="twitter:description" content={staticArticle.description} />
@@ -174,7 +174,7 @@ const BlogArticle = () => {
                   {staticArticle.description}
                 </p>
                 <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-                  <span className="flex items-center gap-1.5"><User className="w-4 h-4" />Google Review AI Editorial Team</span>
+                  <span className="flex items-center gap-1.5"><User className="w-4 h-4" />Reviews AI Editorial Team</span>
                   <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4" />Updated {new Date(`${staticArticle.updatedAt}T00:00:00`).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}</span>
                   <span className="flex items-center gap-1.5"><Clock className="w-4 h-4" />{calculatedReadTime} read</span>
                 </div>
@@ -268,7 +268,7 @@ const BlogArticle = () => {
             <section className="py-12 bg-muted/30">
               <div className="container mx-auto px-4 text-center max-w-2xl">
                 <h2 className="text-2xl font-bold mb-4">Turn review management into a repeatable system</h2>
-                <p className="text-muted-foreground mb-6">Use Google Review AI to organize review replies, local visibility and reputation workflows from one place.</p>
+                <p className="text-muted-foreground mb-6">Use Reviews AI to organize review replies, local visibility and reputation workflows from one place.</p>
                 <Button asChild size="lg"><Link to="/auth">Start free</Link></Button>
               </div>
             </section>
@@ -324,13 +324,13 @@ const BlogArticle = () => {
   });
   const readingTime = Math.ceil(stripHtml(dynamicArticle.body).split(/\s+/).length / 200);
   const dynamicDescription = dynamicArticle.meta_description || `${stripHtml(dynamicArticle.body).slice(0, 157)}…`;
-  const dynamicCanonical = `https://googlereviewai.com/blog/${dynamicArticle.slug}`;
+  const dynamicCanonical = `https://reviewsai.store/blog/${dynamicArticle.slug}`;
 
   return (
     <>
       <Helmet>
         <html lang="en" />
-        <title>{dynamicArticle.title} | Google Review AI Blog</title>
+        <title>{dynamicArticle.title} | Reviews AI Blog</title>
         <meta name="description" content={dynamicDescription} />
         <meta name="robots" content="index, follow" />
         <link rel="canonical" href={dynamicCanonical} />
@@ -338,7 +338,7 @@ const BlogArticle = () => {
         <meta property="og:description" content={dynamicDescription} />
         <meta property="og:url" content={dynamicCanonical} />
         <meta property="og:type" content="article" />
-        <meta property="og:image" content="https://googlereviewai.com/og-image.png" />
+        <meta property="og:image" content="https://reviewsai.store/og-image.png" />
         <script type="application/ld+json">{JSON.stringify({
           "@context": "https://schema.org",
           "@type": "Article",
@@ -347,8 +347,8 @@ const BlogArticle = () => {
           datePublished: dynamicArticle.published_at,
           dateModified: dynamicArticle.updated_at,
           mainEntityOfPage: dynamicCanonical,
-          author: { "@type": "Organization", name: dynamicArticle.author || "Google Review AI" },
-          publisher: { "@type": "Organization", name: "Google Review AI", url: "https://googlereviewai.com" },
+          author: { "@type": "Organization", name: dynamicArticle.author || "Reviews AI" },
+          publisher: { "@type": "Organization", name: "Reviews AI", url: "https://reviewsai.store" },
         })}</script>
       </Helmet>
 
@@ -364,7 +364,7 @@ const BlogArticle = () => {
               <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 leading-tight">{dynamicArticle.title}</h1>
             )}
             <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-              <span className="flex items-center gap-1"><User className="w-4 h-4" />{dynamicArticle.author || "Google Review AI Team"}</span>
+              <span className="flex items-center gap-1"><User className="w-4 h-4" />{dynamicArticle.author || "Reviews AI Team"}</span>
               <span className="flex items-center gap-1"><Calendar className="w-4 h-4" />{publishedDate}</span>
               <span className="flex items-center gap-1"><Clock className="w-4 h-4" />{readingTime} min read</span>
             </div>
@@ -375,7 +375,7 @@ const BlogArticle = () => {
           <section className="py-12 bg-muted/30">
             <div className="container mx-auto px-4 text-center max-w-2xl">
               <h2 className="text-2xl font-bold mb-4">Ready to improve your local visibility?</h2>
-              <p className="text-muted-foreground mb-6">Use Google Review AI to manage reviews and strengthen your local presence.</p>
+              <p className="text-muted-foreground mb-6">Use Reviews AI to manage reviews and strengthen your local presence.</p>
               <Button asChild size="lg"><Link to="/auth">Start free</Link></Button>
             </div>
           </section>

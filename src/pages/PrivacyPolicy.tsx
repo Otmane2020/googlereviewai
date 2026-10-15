@@ -7,17 +7,17 @@ const PrivacyPolicy = () => {
   return (
     <div className="min-h-screen bg-background">
       <Helmet>
-        <title>Politique de Confidentialité | GoogleReviewAI</title>
+        <title>Politique de Confidentialité | Reviews AI</title>
         <meta 
           name="description" 
-          content="Découvrez comment GoogleReviewAI protège vos données personnelles. Politique RGPD, droits d'accès, de rectification et de suppression de vos informations." 
+          content="Découvrez comment Reviews AI protège vos données personnelles. Politique RGPD, droits d'accès, de rectification et de suppression de vos informations." 
         />
-        <meta name="keywords" content="politique confidentialité, RGPD, protection données, vie privée, GoogleReviewAI" />
-        <link rel="canonical" href="https://googlereviewai.com/privacy" />
+        <meta name="keywords" content="politique confidentialité, RGPD, protection données, vie privée, Reviews AI" />
+        <link rel="canonical" href="https://reviewsai.store/privacy" />
         
-        <meta property="og:title" content="Politique de Confidentialité | GoogleReviewAI" />
+        <meta property="og:title" content="Politique de Confidentialité | Reviews AI" />
         <meta property="og:description" content="Protection de vos données personnelles conforme au RGPD." />
-        <meta property="og:url" content="https://googlereviewai.com/privacy" />
+        <meta property="og:url" content="https://reviewsai.store/privacy" />
         <meta property="og:type" content="website" />
       </Helmet>
       <div className="container max-w-4xl mx-auto px-4 py-12">
@@ -35,9 +35,9 @@ const PrivacyPolicy = () => {
           <section className="mb-10">
             <h2 className="text-xl font-semibold text-foreground mb-4">Résumé de notre engagement</h2>
             <p className="text-muted-foreground">
-              Chez GoogleReviewAI, nous nous engageons à protéger votre vie privée et vos données personnelles. 
+              Chez Reviews AI, nous nous engageons à protéger votre vie privée et vos données personnelles. 
               Cette politique décrit comment vos informations sont collectées, utilisées et protégées 
-              lorsque vous utilisez notre plateforme SaaS GoogleReviewAI.
+              lorsque vous utilisez notre plateforme SaaS Reviews AI.
             </p>
           </section>
 
@@ -72,7 +72,7 @@ const PrivacyPolicy = () => {
               <li><strong>Stripe :</strong> pour la gestion des paiements et abonnements.</li>
             </ul>
             <p className="text-muted-foreground mt-4">
-              <strong>Engagement :</strong> GoogleReviewAI ne vend, ne loue et ne partage jamais vos données 
+              <strong>Engagement :</strong> Reviews AI ne vend, ne loue et ne partage jamais vos données 
               personnelles à des tiers à des fins commerciales.
             </p>
           </section>
@@ -140,13 +140,13 @@ const PrivacyPolicy = () => {
 
           <footer className="border-t border-border pt-6 mt-10">
             <p className="text-sm text-muted-foreground">
-              <strong>Éditeur :</strong> GoogleReviewAI – 280 Boulevard de la Boissière, 93100 Montreuil, France
+              <strong>Éditeur :</strong> Reviews AI – 280 Boulevard de la Boissière, 93100 Montreuil, France
             </p>
             <p className="text-sm text-muted-foreground">
               SIRET : 897 801 775 00015 – contact@googlereviewai.com
             </p>
             <p className="text-sm text-muted-foreground mt-4">
-              © 2025 GoogleReviewAI – Tous droits réservés.
+              © 2025 Reviews AI – Tous droits réservés.
             </p>
           </footer>
         </div>

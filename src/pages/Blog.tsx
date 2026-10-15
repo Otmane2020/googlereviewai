@@ -106,7 +106,7 @@ const Blog = () => {
         slug: r.slug,
         body: r.content_html || "",
         meta_description: r.excerpt,
-        author: "GoogleReviewAI",
+        author: "Reviews AI",
         published_at: r.published_at,
         created_at: r.created_at,
       }));
@@ -136,28 +136,28 @@ const Blog = () => {
     <>
       <Helmet>
         <html lang="en" />
-        <title>Google Reviews, Local SEO & AI Search Guides | Google Review AI</title>
+        <title>Google Reviews, Local SEO & AI Search Guides | Reviews AI</title>
         <meta
           name="description"
           content="Practical guides on Google review management, Google Business Profile optimization, Google Maps rankings, local SEO and AI search visibility."
         />
         <meta name="robots" content="index, follow" />
-        <link rel="canonical" href="https://googlereviewai.com/blog" />
-        <meta property="og:title" content="Google Review AI Guides — Reviews, Local SEO & AI Search" />
+        <link rel="canonical" href="https://reviewsai.store/blog" />
+        <meta property="og:title" content="Reviews AI Guides — Reviews, Local SEO & AI Search" />
         <meta property="og:description" content="Actionable guides for improving review management and local visibility." />
-        <meta property="og:url" content="https://googlereviewai.com/blog" />
+        <meta property="og:url" content="https://reviewsai.store/blog" />
         <meta property="og:type" content="website" />
-        <meta property="og:image" content="https://googlereviewai.com/og-image.png" />
+        <meta property="og:image" content="https://reviewsai.store/og-image.png" />
         <script type="application/ld+json">{JSON.stringify({
           "@context": "https://schema.org",
           "@type": "CollectionPage",
-          name: "Google Review AI Guides",
+          name: "Reviews AI Guides",
           description: "Guides on Google reviews, Google Business Profile, local SEO and AI search visibility.",
-          url: "https://googlereviewai.com/blog",
+          url: "https://reviewsai.store/blog",
           hasPart: seoArticles.map((article) => ({
             "@type": "Article",
             headline: article.title,
-            url: `https://googlereviewai.com/blog/${article.slug}`,
+            url: `https://reviewsai.store/blog/${article.slug}`,
           })),
         })}</script>
       </Helmet>
@@ -281,7 +281,7 @@ const Blog = () => {
           <section className="py-12 sm:py-16 bg-muted/30">
             <div className="container mx-auto px-4 text-center">
               <h2 className="text-2xl sm:text-3xl font-bold mb-4">Put the guides into practice</h2>
-              <p className="text-muted-foreground mb-6 max-w-xl mx-auto">Manage reviews, monitor local visibility and build a repeatable reputation workflow with Google Review AI.</p>
+              <p className="text-muted-foreground mb-6 max-w-xl mx-auto">Manage reviews, monitor local visibility and build a repeatable reputation workflow with Reviews AI.</p>
               <Link to="/auth" className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-lg font-medium hover:bg-primary/90 transition-colors">Start free <ArrowRight className="w-4 h-4" /></Link>
             </div>
           </section>

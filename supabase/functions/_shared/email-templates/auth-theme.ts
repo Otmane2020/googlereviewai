@@ -1,4 +1,4 @@
-// Shared styles for auth email templates (GoogleReviewAI)
+// Shared styles for auth email templates (Reviews AI)
 export type AuthLang = 'fr' | 'en'
 
 export const pickLang = (lang?: string): AuthLang => (lang === 'en' ? 'en' : 'fr')
