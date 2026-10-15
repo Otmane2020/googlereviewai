@@ -2,106 +2,90 @@ import { useEffect } from "react";
 import { useNavigate } from "@/lib/router-compat";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/contexts/AuthContext";
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
-import { RankiHero } from "@/components/ranki/RankiHero";
-import { GeoRankSection } from "@/components/ranki/GeoRankSection";
-import { HowItWorksSection } from "@/components/ranki/HowItWorksSection";
-import { ReviewsAISection } from "@/components/ranki/ReviewsAISection";
-import { DashboardPreviewSection } from "@/components/ranki/DashboardPreviewSection";
-import { RankiPricingSection } from "@/components/ranki/RankiPricingSection";
-import { FAQSection } from "@/components/FAQSection";
-import { CTASection } from "@/components/CTASection";
-import { ReviewAIShowcaseSection } from "@/components/ReviewAIShowcaseSection";
-import { Loader2 } from "lucide-react";
 import { Helmet } from "react-helmet";
-import { MobileStickyButton } from "@/components/MobileStickyButton";
+import { Loader2 } from "lucide-react";
+import ProductHuntLanding from "@/components/launch/ProductHuntLanding";
 
+/** Primary ReviewsAI homepage, also served via the /landing marketing alias. */
 const Index = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
-  const { t, i18n } = useTranslation();
+  const { i18n } = useTranslation();
+  const fr = (i18n.resolvedLanguage || i18n.language || "en").toLowerCase().startsWith("fr");
 
   useEffect(() => {
-    if (!loading && user) {
-      navigate("/dashboard", { replace: true });
-    }
+    if (!loading && user) navigate("/dashboard", { replace: true });
   }, [user, loading, navigate]);
 
-  // Render the landing content even while auth resolves so SSR output (and Google)
-  // sees the full page; logged-in users are redirected by the effect above.
+  // Public SEO HTML remains SSR-renderable while authentication resolves.
   if (user) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <div className="flex min-h-screen items-center justify-center bg-background" aria-label={fr ? "Ouverture de votre espace" : "Opening your dashboard"}>
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
 
-  const faqs = (t("landing.faq", { returnObjects: true }) as { q: string; a: string }[]).map((f) => ({
-    question: f.q,
-    answer: f.a,
-  }));
+  const title = fr
+    ? "ReviewsAI — Répondez aux avis Google avec l’IA | Réputation & visibilité locale"
+    : "ReviewsAI — AI Replies for Google Reviews | Local Reputation Management";
+  const description = fr
+    ? "Préparez des réponses IA naturelles aux avis Google, gardez le contrôle de vos établissements et suivez votre réputation locale. 3 réponses IA gratuites, sans carte bancaire."
+    : "Draft thoughtful, on-brand Google review replies with AI, manage your locations and stay on top of your local reputation. Try 3 free AI replies. No credit card.";
+  const locale = fr ? "fr_FR" : "en_US";
+  const language = fr ? "fr" : "en";
 
-  const title = i18n.language?.startsWith("fr")
-    ? "Réponse automatique aux avis Google & GMB IA | Reviews AI"
-    : "Google My Businesss Review - AutoReply with AI";
-  const description = i18n.language?.startsWith("fr")
-    ? "Automatisez les réponses aux avis Google Business Profile (GMB) grâce à l’IA. Répondez aux avis clients, gagnez du temps et gérez votre e-réputation."
-    : "Automate Google Business Profile (GMB) review replies with AI. Respond to customer reviews automatically, save time and manage your Google reputation.";
-  const locale = i18n.language?.startsWith("fr") ? "fr_FR" : "en_US";
-
-  const homepageSchema = {
+  const structuredData = {
     "@context": "https://schema.org",
     "@graph": [
       {
-        "@type": "WebSite",
-        "@id": "https://reviewsai.store/#website",
-        "url": "https://reviewsai.store/",
-        "name": "Reviews AI",
-        "description": description,
-        "inLanguage": i18n.language?.startsWith("fr") ? "fr" : "en"
-      },
-      {
         "@type": "Organization",
         "@id": "https://reviewsai.store/#organization",
-        "name": "Reviews AI",
-        "url": "https://reviewsai.store/",
-        "logo": {
-          "@type": "ImageObject",
-          "url": "https://reviewsai.store/icon-512x512.png"
-        },
-        "email": "support@reviewsai.store"
+        name: "ReviewsAI",
+        url: "https://reviewsai.store/",
+        logo: "https://reviewsai.store/icon-512x512.png",
+        email: "support@reviewsai.store",
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://reviewsai.store/#website",
+        name: "ReviewsAI",
+        url: "https://reviewsai.store/",
+        inLanguage: language,
+        description,
+        publisher: { "@id": "https://reviewsai.store/#organization" },
       },
       {
         "@type": "SoftwareApplication",
         "@id": "https://reviewsai.store/#software",
-        "name": "Reviews AI",
-        "url": "https://reviewsai.store/",
-        "applicationCategory": "BusinessApplication",
-        "operatingSystem": "Web",
-        "description": description,
-        "publisher": { "@id": "https://reviewsai.store/#organization" },
-        "featureList": [
-          "AI-generated responses to Google reviews",
+        name: "ReviewsAI",
+        applicationCategory: "BusinessApplication",
+        operatingSystem: "Web",
+        url: "https://reviewsai.store/",
+        description,
+        inLanguage: language,
+        publisher: { "@id": "https://reviewsai.store/#organization" },
+        featureList: [
+          "AI-drafted Google review replies",
           "Google Business Profile review management",
-          "Local SEO visibility tracking",
-          "Local rank tracking",
-          "AI search visibility tracking"
-        ]
-      }
-    ]
+          "Review alerts",
+          "Brand voice and signature customization",
+          "Local search visibility features on eligible plans",
+        ],
+      },
+    ],
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <>
       <Helmet>
-        <html lang={i18n.language} />
+        <html lang={language} />
         <title>{title}</title>
         <meta name="description" content={description} />
-        <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+        <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large" />
         <link rel="canonical" href="https://reviewsai.store/" />
         <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="ReviewsAI" />
         <meta property="og:url" content="https://reviewsai.store/" />
         <meta property="og:title" content={title} />
         <meta property="og:description" content={description} />
@@ -111,29 +95,10 @@ const Index = () => {
         <meta name="twitter:title" content={title} />
         <meta name="twitter:description" content={description} />
         <meta name="twitter:image" content="https://reviewsai.store/og-image.png" />
-        <script type="application/ld+json">{JSON.stringify(homepageSchema)}</script>
+        <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
       </Helmet>
-
-      <Header />
-      <main>
-        <RankiHero />
-        <GeoRankSection />
-        <HowItWorksSection />
-        <ReviewAIShowcaseSection />
-        <ReviewsAISection />
-        <DashboardPreviewSection />
-        <RankiPricingSection />
-        <FAQSection
-          faqs={faqs}
-          title={t("landing.faqTitle")}
-          subtitle={t("landing.faqSubtitle")}
-          badgeText={t("landing.faqBadge")}
-        />
-        <CTASection />
-      </main>
-      <Footer />
-      <MobileStickyButton />
-    </div>
+      <ProductHuntLanding />
+    </>
   );
 };
 
