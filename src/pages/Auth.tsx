@@ -38,7 +38,7 @@ const Auth = () => {
         const { data, error } = await supabase.functions.invoke("create-checkout", {
           body: {
             priceKey,
-            successUrl: `${window.location.origin}/payment-success`,
+            successUrl: `${window.location.origin}/payment-success?source=onboarding`,
             cancelUrl: `${window.location.origin}/onboarding?step=plan`,
           },
         });
