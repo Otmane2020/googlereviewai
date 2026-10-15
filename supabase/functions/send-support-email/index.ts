@@ -7,7 +7,8 @@ const corsHeaders = {
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 const SUPPORT_EMAIL = "oben.rockman@gmail.com";
-const FROM_EMAIL = "Reviews AI Support <support@ranki.ai>";
+// Use the new domain only after it is verified with Resend.
+const FROM_EMAIL = Deno.env.get("REVIEWSAI_SUPPORT_FROM") || "Reviews AI Support <support@ranki.ai>";
 
 // Professional email design system
 const STYLES = {
