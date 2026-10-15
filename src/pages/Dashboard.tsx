@@ -12,6 +12,7 @@ import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { ConnectGMBDialog } from "@/components/ConnectGMBDialog";
 import { SyncProgressOverlay } from "@/components/SyncProgressOverlay";
 import { SelectBusinessesDialog } from "@/components/SelectBusinessesDialog";
+import { ManageLocationsDialog } from "@/components/ManageLocationsDialog";
 import { ReconnectGoogleDialog } from "@/components/ReconnectGoogleDialog";
 import { LowCreditsBanner } from "@/components/LowCreditsBanner";
 import { UpgradeDialog } from "@/components/UpgradeDialog";
@@ -29,7 +30,7 @@ declare global {
 
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Star, Building2, TrendingUp, ChevronRight, RefreshCw, Loader2, MessageSquare, AlertCircle, CheckCircle2, Clock, ArrowUpRight, Percent, Link2, Smartphone, Sparkles } from "lucide-react";
+import { Star, Building2, TrendingUp, ChevronRight, RefreshCw, Loader2, MessageSquare, AlertCircle, CheckCircle2, Clock, ArrowUpRight, Percent, Link2, Smartphone, Sparkles, Pencil } from "lucide-react";
 import { BrandSparkle } from "@/components/BrandSparkle";
 import plaqueFront from "@/assets/nfc-plaque-front.jpg";
 
@@ -45,6 +46,7 @@ interface Profile {
 
 interface Review {
   id: number;
+  location_id: string;
   author: string;
   rating: number;
   comment: string | null;
@@ -72,7 +74,8 @@ const Dashboard = () => {
   const [recentReviews, setRecentReviews] = useState<Review[]>([]);
   const [stats, setStats] = useState({ total: 0, avgRating: 0, aiResponses: 0, pending: 0, businesses: 0, responseRate: 0 });
   const [primaryBusinessName, setPrimaryBusinessName] = useState<string | null>(null);
-  const [allBusinesses, setAllBusinesses] = useState<{ id: string; name: string }[]>([]);
+  const [allBusinesses, setAllBusinesses] = useState<{ id: string; name: string; google_place_id: string | null }[]>([]);
+  const [manageLocationsOpen, setManageLocationsOpen] = useState(false);
   const [selectedBusinessId, setSelectedBusinessId] = useState<string | null>(null);
   const [aeoStats, setAeoStats] = useState({ planned: 0, ready: 0, published: 0, nextDate: null as string | null });
   const [syncStatus, setSyncStatus] = useState<SyncStatus | null>(null);
@@ -195,7 +198,7 @@ const Dashboard = () => {
     while (hasMore) {
       const { data, error } = await supabase
         .from("reviews")
-        .select("id, author, rating, comment, review_date, ai_response, google_reply, published_to_google")
+        .select("id, location_id, author, rating, comment, review_date, ai_response, google_reply, published_to_google")
         .eq("user_id", user.id)
         .order("review_date", { ascending: false })
         .range(page * pageSize, (page + 1) * pageSize - 1);
@@ -211,7 +214,7 @@ const Dashboard = () => {
 
     const [profileRes, businessesRes, syncStatusRes] = await Promise.all([
       supabase.from("profiles").select("*").eq("id", user.id).maybeSingle(),
-      supabase.from("businesses").select("id, name, total_reviews, rating", { count: "exact" }).eq("user_id", user.id).eq("is_active", true),
+      supabase.from("businesses").select("id, name, google_place_id, total_reviews, rating", { count: "exact" }).eq("user_id", user.id).eq("is_active", true),
       supabase.from("ai_settings").select("last_sync_at, last_sync_status, last_sync_error, reviews_synced_count").eq("user_id", user.id).maybeSingle()
     ]);
     
@@ -219,55 +222,50 @@ const Dashboard = () => {
 
     if (profileRes.data) setProfile(profileRes.data as Profile);
     
-    // Helper to check if review has a real google reply
-    const hasReply = (r: Review) => r.google_reply && r.google_reply.trim() !== '';
-    
-    // Sort by pending first (no Google reply = not answered on Google), then by date
-    const sortedReviews = allReviews.sort((a, b) => {
-      // Pending reviews first (no Google reply = unanswered on Google)
-      const aPending = !a.published_to_google && !hasReply(a);
-      const bPending = !b.published_to_google && !hasReply(b);
-      if (aPending && !bPending) return -1;
-      if (!aPending && bPending) return 1;
-      // Then by date
+    // The dashboard displays the same active establishment as /reviews.
+    // Never mix replies from inactive/other Google locations with the
+    // selected location's totals (which caused impossible rates > 100%).
+    const managed = businessesRes.data || [];
+    const savedId = localStorage.getItem(`googlereviewai.com_selected_business_${user.id}`);
+    const target = managed.find(b => b.id === savedId) || managed[0] || null;
+    if (target?.id && savedId !== target.id) {
+      localStorage.setItem(`googlereviewai.com_selected_business_${user.id}`, target.id);
+    }
+    setSelectedBusinessId(target?.id || null);
+    setPrimaryBusinessName(target?.name || null);
+    setAllBusinesses(managed.map(b => ({ id: b.id, name: b.name, google_place_id: b.google_place_id })));
+
+    const scopedReviews = target?.google_place_id
+      ? allReviews.filter(r => r.location_id === target.google_place_id)
+      : [];
+    const hasGoogleReply = (r: Review) => Boolean(r.google_reply && r.google_reply.trim());
+    const isAnswered = (r: Review) => Boolean(r.published_to_google || hasGoogleReply(r));
+    const sortedReviews = [...scopedReviews].sort((a, b) => {
+      const aPending = !isAnswered(a);
+      const bPending = !isAnswered(b);
+      if (aPending !== bPending) return aPending ? -1 : 1;
       return new Date(b.review_date).getTime() - new Date(a.review_date).getTime();
     });
-    
     setRecentReviews(sortedReviews.slice(0, 5));
-    
-    const total = allReviews.length;
-    const avgRating = total > 0 ? allReviews.reduce((sum, r) => sum + r.rating, 0) / total : 0;
-    
-    // Use Google's official total from businesses table if available (sum of all active businesses)
-    const businessesList = businessesRes.data || [];
-    const googleTotal = businessesList.reduce((sum: number, b: { total_reviews?: number | null }) => sum + (b.total_reviews || 0), 0);
-    const googleAvgRating = businessesList.reduce((sum: number, b: { rating?: number | null }) => sum + (b.rating || 0), 0) / (businessesList.length || 1);
-    setPrimaryBusinessName((businessesList[0] as { name?: string })?.name || null);
-    const bizListTyped = businessesList.map((b: any) => ({ id: b.id, name: b.name }));
-    setAllBusinesses(bizListTyped);
-    setSelectedBusinessId((prev) => prev && bizListTyped.some(b => b.id === prev) ? prev : (bizListTyped[0]?.id ?? null));
-    
-    // Use Google's count if available and greater than 0, otherwise fall back to local count
-    const displayTotal = googleTotal > 0 ? googleTotal : total;
-    const displayAvgRating = googleTotal > 0 ? googleAvgRating : avgRating;
-    
-    // Standardized counts (same logic as Reviews page):
-    // - pending = no published_to_google AND no google_reply (truly unanswered)
-    // - aiReady = has AI response but not published and no google_reply (ready to publish)
-    // - responded = published_to_google OR has google_reply (answered)
-    const hasGoogleReply = (r: Review) => r.google_reply && r.google_reply.trim() !== '';
-    const pending = allReviews.filter(r => !r.published_to_google && !hasGoogleReply(r)).length;
-    const aiReady = allReviews.filter(r => r.ai_response && !r.published_to_google && !hasGoogleReply(r)).length;
-    const responded = allReviews.filter(r => r.published_to_google || hasGoogleReply(r)).length;
-    const responseRate = displayTotal > 0 ? Math.round((responded / displayTotal) * 100) : 0;
-    
+
+    const localTotal = scopedReviews.length;
+    const googleTotal = target?.total_reviews || 0;
+    const displayTotal = Math.max(localTotal, googleTotal);
+    const localAverage = localTotal
+      ? scopedReviews.reduce((sum, r) => sum + r.rating, 0) / localTotal : 0;
+    const displayAverage = target?.rating && target.rating > 0 ? target.rating : localAverage;
+    const responded = scopedReviews.filter(isAnswered).length;
+    const pending = scopedReviews.filter(r => !isAnswered(r)).length;
+    const aiReady = scopedReviews.filter(r => r.ai_response && !isAnswered(r)).length;
+    const responseRate = displayTotal ? Math.min(100, Math.round(100 * responded / displayTotal)) : 0;
+
     setStats({
       total: displayTotal,
-      avgRating: Number(displayAvgRating.toFixed(1)),
+      avgRating: Number(displayAverage.toFixed(1)),
       aiResponses: aiReady,
       pending,
-      businesses: businessesRes.count || 0,
-      responseRate
+      businesses: managed.length,
+      responseRate,
     });
 
     // Fetch AEO autoposting stats (Q&A scheduled content)
@@ -477,33 +475,45 @@ const Dashboard = () => {
 
 
         <main className="max-w-7xl mx-auto px-4 md:px-6 py-5 md:py-8 space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
+          <div className="flex items-center justify-between gap-2 min-w-0">
+            <div className="min-w-0 flex-1">
               <p className="text-sm text-muted-foreground">{t("dashboardPage.welcomeBack")}</p>
-              {allBusinesses.length > 1 ? (
-                <Select
-                  value={selectedBusinessId ?? allBusinesses[0]?.id}
-                  onValueChange={(v) => {
-                    setSelectedBusinessId(v);
-                    const found = allBusinesses.find(b => b.id === v);
-                    if (found) setPrimaryBusinessName(found.name);
-                  }}
-                >
-                  <SelectTrigger className="h-auto p-0 border-0 bg-transparent shadow-none focus:ring-0 text-xl md:text-2xl font-bold text-foreground hover:opacity-80 [&>svg]:opacity-60 max-w-[70vw] md:max-w-md">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="max-w-[90vw]">
-                    {allBusinesses.map((b) => (
-                      <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              {allBusinesses.length ? (
+                <div className="flex flex-col items-start gap-1.5 min-w-0">
+                  <Select value={selectedBusinessId || allBusinesses[0].id}
+                    onValueChange={(v) => {
+                      localStorage.setItem(`googlereviewai.com_selected_business_${user?.id}`, v);
+                      setSelectedBusinessId(v);
+                      const found = allBusinesses.find(b => b.id === v);
+                      if (found) setPrimaryBusinessName(found.name);
+                      void fetchData();
+                    }}>
+                    <SelectTrigger className="h-auto w-auto max-w-[55vw] sm:max-w-md px-0 py-0 border-0 bg-transparent shadow-none focus:ring-0 text-xl md:text-2xl font-bold text-foreground hover:opacity-80 [&>svg]:opacity-70">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="max-w-[85vw]">
+                      {allBusinesses.map(b => <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                  <button type="button" className="inline-flex items-center gap-1.5 text-xs text-primary hover:underline underline-offset-2"
+                    onClick={() => setManageLocationsOpen(true)}>
+                    <Pencil className="h-3.5 w-3.5" />
+                    {i18n.language?.startsWith("fr") ? "Gérer les fiches de mon forfait" : "Manage plan locations"}
+                    {profile && <span className="text-muted-foreground">({allBusinesses.length}/{profile.max_businesses || 1})</span>}
+                  </button>
+                </div>
               ) : (
-                <h1 className="text-xl md:text-2xl font-bold text-foreground">{primaryBusinessName || profile?.full_name?.split(" ")[0] || "👋"}</h1>
+                <div className="flex flex-col gap-1">
+                  <h1 className="text-xl md:text-2xl font-bold text-foreground">{profile?.full_name?.split(" ")[0] || "👋"}</h1>
+                  <button type="button" className="inline-flex gap-1.5 items-center text-xs text-primary"
+                    onClick={() => setManageLocationsOpen(true)}><Building2 className="h-3.5 w-3.5" />
+                    {i18n.language?.startsWith("fr") ? "Choisir mes établissements" : "Choose my locations"}
+                  </button>
+                </div>
               )}
             </div>
-            <div className="flex items-center gap-2">
-              <div className="text-center px-4 py-2 bg-primary/10 rounded-xl md:hidden">
+            <div className="flex items-center gap-2 shrink-0">
+              <div className="text-center px-3 sm:px-4 py-2 bg-primary/10 rounded-xl md:hidden">
                 <div className="text-lg font-bold text-primary">{profile?.credits || 0}</div>
                 <div className="text-[10px] text-muted-foreground">{t("dashboardPage.credits")}</div>
               </div>
@@ -950,6 +960,9 @@ const Dashboard = () => {
           )}
         </div>
           </main>
+
+          <ManageLocationsDialog open={manageLocationsOpen} onOpenChange={setManageLocationsOpen}
+            onSuccess={async () => { await fetchData(); }} />
 
           {/* GMB Connection Dialog for email users */}
           <ConnectGMBDialog open={showGMBDialog} onOpenChange={setShowGMBDialog} />
