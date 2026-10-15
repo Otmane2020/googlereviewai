@@ -7,8 +7,8 @@ const corsHeaders = {
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 const NOTIFY_EMAIL = "oben.rockman@gmail.com";
-const SUPPORT_EMAIL = "support@googlereviewai.com";
-const BRAND_NAME = "Google Review AI";
+const SUPPORT_EMAIL = "support@reviewsai.store";
+const BRAND_NAME = "Reviews AI";
 
 const escapeHtml = (value: unknown) => String(value ?? "")
   .replaceAll("&", "&amp;")
@@ -66,10 +66,10 @@ serve(async (req) => {
         Authorization: `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: `${BRAND_NAME} Support <${SUPPORT_EMAIL}>`,
+        from: Deno.env.get("REVIEWSAI_SUPPORT_FROM") || `${BRAND_NAME} Support <support@ranki.ai>`,
         to: [NOTIFY_EMAIL],
         reply_to: senderEmail || undefined,
-        subject: `[Google Review AI Support] ${subject}`,
+        subject: `[Reviews AI Support] ${subject}`,
         html: emailHtml,
       }),
     });
