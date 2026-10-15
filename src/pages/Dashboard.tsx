@@ -75,6 +75,7 @@ const Dashboard = () => {
   const [primaryBusinessName, setPrimaryBusinessName] = useState<string | null>(null);
   const [allBusinesses, setAllBusinesses] = useState<{ id: string; name: string; google_place_id: string | null; profile_image_url: string | null; maps_url: string | null; address: string | null; rating: number | null; total_reviews: number | null }[]>([]);
   const [locationSyncError, setLocationSyncError] = useState<string | null>(null);
+  const [alternateLocation, setAlternateLocation] = useState<{ name: string; count: number } | null>(null);
   const [selectedBusinessId, setSelectedBusinessId] = useState<string | null>(null);
   const [aeoStats, setAeoStats] = useState({ planned: 0, ready: 0, published: 0, nextDate: null as string | null });
   const [syncStatus, setSyncStatus] = useState<SyncStatus | null>(null);
@@ -213,7 +214,7 @@ const Dashboard = () => {
 
     const [profileRes, businessesRes, syncStatusRes] = await Promise.all([
       supabase.from("profiles").select("*").eq("id", user.id).maybeSingle(),
-      supabase.from("businesses").select("id, name, google_place_id, profile_image_url, maps_url, address, total_reviews, rating", { count: "exact" }).eq("user_id", user.id).eq("is_active", true),
+      supabase.from("businesses").select("id, name, google_place_id, profile_image_url, maps_url, address, total_reviews, rating, is_active", { count: "exact" }).eq("user_id", user.id),
       supabase.from("ai_settings").select("last_sync_at, last_sync_status, last_sync_error, reviews_synced_count").eq("user_id", user.id).maybeSingle()
     ]);
     
@@ -224,7 +225,8 @@ const Dashboard = () => {
     // The dashboard displays the same active establishment as /reviews.
     // Never mix replies from inactive/other Google locations with the
     // selected location's totals (which caused impossible rates > 100%).
-    const managed = businessesRes.data || [];
+    const savedLocations = businessesRes.data || [];
+    const managed = savedLocations.filter(b => b.is_active);
     const savedId = localStorage.getItem(`googlereviewai.com_selected_business_${user.id}`);
     const target = managed.find(b => b.id === savedId) || managed[0] || null;
     if (target?.id && savedId !== target.id) {
@@ -246,6 +248,13 @@ const Dashboard = () => {
       return new Date(b.review_date).getTime() - new Date(a.review_date).getTime();
     });
     setRecentReviews(sortedReviews.slice(0, 5));
+
+    const suggested = savedLocations
+      .filter(b => !b.is_active && b.google_place_id && Number(b.total_reviews || 0) > 0)
+      .sort((a, b) => Number(b.total_reviews || 0) - Number(a.total_reviews || 0))[0];
+    setAlternateLocation(target && scopedReviews.length === 0 && Number(target.total_reviews || 0) === 0 && suggested
+      ? { name: suggested.name, count: Number(suggested.total_reviews) }
+      : null);
 
     const localTotal = scopedReviews.length;
     const googleTotal = target?.total_reviews || 0;
@@ -583,6 +592,22 @@ const Dashboard = () => {
                 {i18n.language?.startsWith("fr") ? "Configurer les établissements" : "Configure locations"}
               </Button>
             </section>
+          )}
+          {alternateLocation && (
+            <div className="rounded-xl border border-blue-500/25 bg-blue-500/5 px-4 py-3 text-xs leading-relaxed text-foreground">
+              <p className="font-semibold">
+                {i18n.language?.startsWith("fr") ? "Vous cherchez les avis de Sweet Deco ?" : "Looking for another location's reviews?"}
+              </p>
+              <p className="mt-1 text-muted-foreground">
+                {i18n.language?.startsWith("fr")
+                  ? `La fiche sélectionnée ne contient aucun avis. « ${alternateLocation.name} » est enregistrée avec ${alternateLocation.count} avis Google, mais n'est pas actuellement gérée dans ce forfait.`
+                  : `The selected Google listing has no reviews. “${alternateLocation.name}” is saved with ${alternateLocation.count} Google reviews but is not an active managed location.`}
+              </p>
+              <Link to="/settings#managed-locations" className="mt-2 inline-flex items-center gap-1 font-semibold text-primary underline underline-offset-2">
+                {i18n.language?.startsWith("fr") ? "Choisir la bonne fiche dans Paramètres" : "Select the correct listing in Settings"}
+                <ChevronRight className="h-3.5 w-3.5" />
+              </Link>
+            </div>
           )}
           {locationSyncError && (
             <div role="alert" className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-3 text-xs text-amber-800 dark:text-amber-200 flex gap-2">
