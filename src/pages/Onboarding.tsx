@@ -12,10 +12,11 @@ import { toast } from "@/hooks/use-toast";
 import { Check, ArrowRight, Building2, MessageCircle, Crown, Loader2, Star, AlertTriangle } from "lucide-react";
 import { useGoogleOAuth } from "@/hooks/useGoogleOAuth";
 import { BrandSparkle } from "@/components/BrandSparkle";
+import { SelectBusinessesDialog } from "@/components/SelectBusinessesDialog";
 import { useTranslation } from "react-i18next";
 import { normalizeLanguage } from "@/i18n/config";
 
-const STEPS = ["Welcome", "Connect Google", "Choose location", "AI tone", "Pick a plan"];
+const STEPS = ["Welcome", "Choose location", "AI tone", "Pick a plan"];
 
 const PLANS = [
   {
@@ -57,7 +58,13 @@ const Onboarding = () => {
   const { initiateOAuth } = useGoogleOAuth();
   const { i18n } = useTranslation();
   const isFrench = normalizeLanguage(i18n.resolvedLanguage || i18n.language) === "fr";
-  const [noGmbAccount, setNoGmbAccount] = useState(false);
+  const labels = isFrench ? ["Bienvenue", "Choisir une fiche", "Réponses IA", "Choisir un forfait"] : STEPS;
+  const [syncError, setSyncError] = useState<string | null>(null);
+  const [needsReconnect, setNeedsReconnect] = useState(false);
+  const [discovering, setDiscovering] = useState(false);
+  const [locationSelectionOpen, setLocationSelectionOpen] = useState(false);
+  const [discoveredLocations, setDiscoveredLocations] = useState<{name: string; google_place_id: string; address: string | null; phone: string | null; website: string | null}[]>([]);
+  const [locationLimit, setLocationLimit] = useState(1);
   const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [hasGoogle, setHasGoogle] = useState(false);
@@ -193,8 +200,8 @@ const Onboarding = () => {
       <div className="w-full max-w-2xl space-y-6">
         <div className="space-y-2">
           <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span>Step {step + 1} of {STEPS.length}</span>
-            <span>{STEPS[step]}</span>
+            <span>{isFrench ? "Étape" : "Step"} {step + 1} {isFrench ? "sur" : "of"} {STEPS.length}</span>
+            <span>{labels[step]}</span>
           </div>
           <Progress value={((step + 1) / STEPS.length) * 100} className="h-2" />
         </div>
@@ -206,12 +213,12 @@ const Onboarding = () => {
                 <div className="w-16 h-16 mx-auto rounded-2xl bg-primary/10 flex items-center justify-center">
                   <BrandSparkle className="w-8 h-8 text-primary" />
                 </div>
-                <h2 className="text-2xl font-bold">Welcome to Reviews AI 👋</h2>
+                <h2 className="text-2xl font-bold">{isFrench ? "Bienvenue sur Reviews AI 👋" : "Welcome to Reviews AI 👋"}</h2>
                 <p className="text-muted-foreground">
-                  Let's set you up in under 2 minutes. We'll connect your Google Business, pick a location, tune your AI voice, and choose a plan.
+                  {isFrench ? "Vous êtes déjà connecté avec Google. Choisissez votre fiche, personnalisez les réponses IA et choisissez un forfait." : "You are already signed in with Google. Choose your business, set up AI replies, and pick a plan."}
                 </p>
                 <Button size="lg" onClick={next} className="rounded-xl">
-                  Get started <ArrowRight className="w-4 h-4 ml-2" />
+                  {isFrench ? "Commencer" : "Get started"} <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
               </div>
             )}
@@ -220,86 +227,29 @@ const Onboarding = () => {
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                    <Building2 className="w-6 h-6 text-primary" />
-                  </div>
-                  <div>
-                    <h2 className="text-xl font-bold">Connect Google Business</h2>
-                    <p className="text-sm text-muted-foreground">We need access to read reviews and post on your behalf.</p>
-                  </div>
-                </div>
-
-                {noGmbAccount && (
-                  <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 space-y-3">
-                    <div className="flex items-start gap-3 text-amber-700">
-                      <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" />
-                      <div className="text-sm">
-                        <p className="font-semibold">
-                          {isFrench
-                            ? "Merci de vous connecter avec un compte GMB (Google Business Profile)."
-                            : "Please sign in with a Google Business Profile (GMB) account."}
-                        </p>
-                        <p className="text-amber-700/80 mt-1">
-                          {isFrench
-                            ? "Le compte Google utilisé ne gère aucune fiche établissement. Connectez-vous avec le compte Google qui administre votre fiche Google Business."
-                            : "The Google account you used doesn't manage any business listing. Sign in with the Google account that manages your Google Business Profile."}
-                        </p>
-                      </div>
-                    </div>
-                    <Button onClick={handleConnectGoogle} disabled={loading} variant="outline" className="w-full rounded-xl border-amber-500/40">
-                      {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : isFrench ? "Se connecter avec un autre compte Google" : "Sign in with another Google account"}
-                    </Button>
-                  </div>
-                )}
-
-                {hasGoogle && !noGmbAccount ? (
-                  <div className="flex items-center gap-2 p-4 rounded-xl bg-emerald-500/10 text-emerald-700 border border-emerald-500/20">
-                    <Check className="w-5 h-5" /> Google Business already connected.
-                  </div>
-                ) : !hasGoogle ? (
-                  <Button onClick={handleConnectGoogle} disabled={loading} size="lg" className="w-full rounded-xl">
-                    {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Connect with Google"}
-                  </Button>
-                ) : null}
-
-                <div className="flex justify-between pt-2">
-                  <Button variant="ghost" onClick={back}>Retour</Button>
-                  <Button onClick={next}>Continue <ArrowRight className="w-4 h-4 ml-2" /></Button>
-                </div>
-              </div>
-            )}
-
-            {step === 2 && (
-              <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
                     <Star className="w-6 h-6 text-primary" />
                   </div>
                   <div>
-                    <h2 className="text-xl font-bold">Choose your main location</h2>
-                    <p className="text-sm text-muted-foreground">You can add more later.</p>
+                    <h2 className="text-xl font-bold">{isFrench ? "Choisissez votre établissement principal" : "Choose your main location"}</h2>
+                    <p className="text-sm text-muted-foreground">{isFrench ? "Vous pourrez en ajouter plus tard." : "You can add more later."}</p>
                   </div>
                 </div>
 
                 {businesses.length === 0 ? (
-                  <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 space-y-3">
-                    <div className="flex items-start gap-3 text-amber-700">
-                      <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" />
-                      <div className="text-sm">
-                        <p className="font-semibold">
-                          {isFrench
-                            ? "Merci de vous connecter avec un compte GMB (Google Business Profile)."
-                            : "Please sign in with a Google Business Profile (GMB) account."}
-                        </p>
-                        <p className="text-amber-700/80 mt-1">
-                          {isFrench
-                            ? "Aucune fiche établissement n'est associée au compte Google connecté. Reconnectez-vous avec le compte qui gère votre fiche Google Business."
-                            : "No business listing is linked to the connected Google account. Reconnect with the account that manages your Google Business Profile."}
-                        </p>
+                  <div className="p-4 rounded-xl border border-amber-500/30 bg-amber-500/5 space-y-3">
+                    <div className="flex gap-2 text-sm items-start">
+                      {discovering ? <Loader2 className="w-5 h-5 shrink-0 animate-spin" /> : <AlertTriangle className="w-5 h-5 shrink-0 text-amber-600" />}
+                      <div>
+                        <p className="font-semibold">{discovering ? (isFrench ? "Recherche des fiches Google…" : "Finding Google locations…") : (isFrench ? "Aucune fiche disponible" : "No locations available")}</p>
+                        {syncError && <p role="alert" className="mt-1 text-muted-foreground break-words">{syncError}</p>}
                       </div>
                     </div>
-                    <Button onClick={handleConnectGoogle} disabled={loading} variant="outline" className="w-full rounded-xl border-amber-500/40">
-                      {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : isFrench ? "Reconnecter un compte Google Business" : "Reconnect a Google Business account"}
+                    <Button type="button" variant="outline" className="w-full"
+                      disabled={discovering || !hasGoogle} onClick={() => void discoverGoogleLocations()}>
+                      {isFrench ? "Rechercher mes fiches" : "Find my Google locations"}
                     </Button>
+                    {needsReconnect && <Button type="button" variant="ghost" className="w-full" disabled={loading || discovering}
+                      onClick={handleConnectGoogle}>{isFrench ? "Renouveler l'autorisation Google" : "Renew Google permission"}</Button>}
                   </div>
                 ) : (
                   <RadioGroup value={selectedBusinessId} onValueChange={setSelectedBusinessId} className="space-y-2">
@@ -317,13 +267,13 @@ const Onboarding = () => {
                 )}
 
                 <div className="flex justify-between pt-2">
-                  <Button variant="ghost" onClick={back}>Retour</Button>
-                  <Button onClick={next}>Continue <ArrowRight className="w-4 h-4 ml-2" /></Button>
+                  <Button variant="ghost" onClick={back}>{isFrench ? "Retour" : "Back"}</Button>
+                  <Button onClick={handleContinueLocation} disabled={!selectedBusinessId || discovering}>{isFrench ? "Continuer" : "Continue"} <ArrowRight className="w-4 h-4 ml-2" /></Button>
                 </div>
               </div>
             )}
 
-            {step === 3 && (
+            {step === 2 && (
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
@@ -365,7 +315,7 @@ const Onboarding = () => {
               </div>
             )}
 
-            {step === 4 && (
+            {step === 3 && (
               <div className="space-y-5">
                 <div className="text-center">
                   <div className="w-14 h-14 mx-auto rounded-2xl bg-primary/10 flex items-center justify-center mb-3">
@@ -437,6 +387,14 @@ const Onboarding = () => {
           </CardContent>
         </Card>
       </div>
+      {user && <SelectBusinessesDialog
+        open={locationSelectionOpen}
+        onOpenChange={setLocationSelectionOpen}
+        businesses={discoveredLocations}
+        maxBusinesses={locationLimit}
+        userId={user.id}
+        onSuccess={() => { void loadBusinesses(); setSyncError(null); }}
+      />}
     </div>
   );
 };
