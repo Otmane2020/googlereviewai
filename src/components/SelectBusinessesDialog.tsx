@@ -135,7 +135,7 @@ export const SelectBusinessesDialog = ({
   };
 
   return (
-    <Dialog open={open} onOpenChange={nextOpen => { if (!saving) onOpenChange(nextOpen); }}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="flex w-[calc(100vw-24px)] max-w-xl flex-col gap-0 overflow-hidden rounded-[22px] border-border/70 bg-background p-0 shadow-2xl max-h-[min(88dvh,760px)] sm:rounded-[24px]">
         <DialogHeader className="shrink-0 space-y-2 border-b border-border/70 bg-card px-4 pb-4 pt-5 pr-12 text-left sm:px-6 sm:pt-6">
           <DialogTitle className="flex items-center gap-2 text-lg font-bold leading-tight text-foreground">
