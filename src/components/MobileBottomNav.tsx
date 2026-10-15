@@ -121,7 +121,7 @@ export const MobileBottomNav = () => {
                   <Languages className="h-4 w-4 text-muted-foreground" />
                   {isFr ? "Langue" : "Language"}
                 </span>
-                <LanguageSwitcher variant="flags" />
+                <LanguageSwitcher variant="dropdown" />
               </div>
             </div>
             <div className="grid grid-cols-3 gap-2.5 mt-3">
