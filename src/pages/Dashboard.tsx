@@ -838,7 +838,7 @@ const Dashboard = () => {
 
         {/* GMB Performance Stats */}
         {user && hasGoogleConnected && (
-          <GmbInsightsCard userId={user.id} />
+          <GmbInsightsCard userId={user.id} businessId={selectedBusinessId} />
         )}
 
         {/* GEO Autoposting Block - AI-generated Q&A scheduled to GMB */}
