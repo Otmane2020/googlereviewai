@@ -560,11 +560,11 @@ const MapsRank = () => {
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center gap-2 text-base">
                   <MapPin className="w-4 h-4" />
-                  Carte de classement
+                  {tr("Carte de classement", "Ranking map")}
                 </CardTitle>
                 {scanResult && (
                   <CardDescription className="text-xs">
-                    Click a point to see details • Labels: N=North, S=South, E=East, W=West
+                    {tr("Cliquez sur un point pour voir les détails. N = Nord, S = Sud, E = Est, O = Ouest.", "Click a point to see details. N = North, S = South, E = East, W = West.")}
                   </CardDescription>
                 )}
               </CardHeader>
@@ -573,7 +573,7 @@ const MapsRank = () => {
                   <div className="w-full h-[400px] bg-muted/50 rounded-xl flex flex-col items-center justify-center text-center p-6">
                     <MapPin className="w-16 h-16 text-muted-foreground/30 mb-4" />
                     <p className="text-muted-foreground text-sm">
-                      Configurez et lancez un scan pour voir votre classement sur la carte
+                      {tr("Configurez et lancez un scan pour voir votre classement sur la carte", "Configure and run a scan to view your ranking on the map")}
                     </p>
                   </div>
                 ) : (
