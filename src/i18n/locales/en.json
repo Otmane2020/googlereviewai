@@ -152,7 +152,7 @@
     "reviews": "Reviews",
     "businesses": "Businesses",
     "seoAuto": "SEO Auto",
-    "aeoRank": "AEO Rank",
+    "aeoRank": "GEO Rank",
     "mapsRank": "Maps Rank",
     "aiSettings": "AI Settings",
     "settings": "Settings",
@@ -195,7 +195,7 @@
   "features": {
     "title": "Everything you need",
     "subtitle": "to manage your Google reviews",
-    "badge": "SEO + AEO + AI",
+    "badge": "SEO + GEO + AI",
     "sectionTitle": "Stay ahead of your competitors",
     "sectionSubtitle": "Google visibility, ChatGPT, and customer satisfaction. All in one.",
     "aiResponses": "AI-powered responses",
@@ -217,7 +217,7 @@
     "chatgptVisibility": "ChatGPT Visibility",
     "chatgptVisibilitySubtitle": "Appear in AI responses",
     "chatgptVisibilityDesc": "Create optimized Q&A to appear in ChatGPT, Perplexity, and other AI responses.",
-    "chatgptVisibilityDetail": "Answer Engine Optimization (AEO) allows you to be directly cited in AI responses like ChatGPT, Perplexity, or Google AI.",
+    "chatgptVisibilityDetail": "Generative Engine Optimization (GEO) allows you to be directly cited in AI responses like ChatGPT, Perplexity, or Google AI.",
     "chatgptVisibilityBenefit1": "Q&A optimized for AI",
     "chatgptVisibilityBenefit2": "Positioning on conversational queries",
     "chatgptVisibilityBenefit3": "New source of qualified traffic",
@@ -263,7 +263,7 @@
     "role2": "Marketing Director",
     "role3": "Director",
     "text1": "GoogleReviewAI revolutionized our review management. We respond to 50 reviews per week in 5 minutes instead of 2 hours!",
-    "text2": "Thanks to AEO, we now appear in ChatGPT responses. Our quote requests have skyrocketed.",
+    "text2": "Thanks to GEO, we now appear in ChatGPT responses. Our quote requests have skyrocketed.",
     "text3": "The automatically generated SEO articles got us to the first page of Google for 12 local keywords.",
     "highlight1": "+85% responses",
     "highlight2": "+120% leads",
@@ -343,7 +343,7 @@
       "title": "One offer. Everything included.",
       "subtitle": "Google visibility, ChatGPT and review management. Everything you need to dominate your local market.",
       "name": "GoogleReviewAI All-in-One",
-      "description": "Complete SEO + AEO + AI Responses package",
+      "description": "Complete SEO + GEO + AI Responses package",
       "feature1": "Unlimited AI responses to Google reviews",
       "feature2": "Automatically generated SEO articles",
       "feature3": "ChatGPT & AI engines visibility",
@@ -389,7 +389,7 @@
       "business1": "Everything in Pro +",
       "business2": "300 credits/month",
       "business3": "10 locations",
-      "business4": "AEO for ChatGPT",
+      "business4": "GEO for ChatGPT",
       "business5": "Priority support"
     }
   },
@@ -590,7 +590,7 @@
     "generateContent": "Generate content"
   },
   "aeo": {
-    "title": "AEO Rank",
+    "title": "GEO Rank",
     "description": "Optimize your visibility on AI search engines.",
     "questions": "Questions",
     "generateQA": "Generate Q&A"
