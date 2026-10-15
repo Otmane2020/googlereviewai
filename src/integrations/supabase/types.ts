@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.5"
+    PostgrestVersion: "13.0.5"
   }
   public: {
     Tables: {
@@ -219,10 +219,6 @@ export type Database = {
       }
       businesses: {
         Row: {
-          last_reviews_sync_at: string | null
-          last_reviews_sync_status: string | null
-          last_reviews_sync_error: string | null
-          last_google_reviews_total: number | null
           address: string | null
           ai_response_model: Json | null
           auto_keywords: string[] | null
@@ -234,6 +230,10 @@ export type Database = {
           google_place_id: string | null
           id: string
           is_active: boolean | null
+          last_google_reviews_total: number | null
+          last_reviews_sync_at: string | null
+          last_reviews_sync_error: string | null
+          last_reviews_sync_status: string | null
           maps_url: string | null
           name: string
           phone: string | null
@@ -246,10 +246,6 @@ export type Database = {
           website_content: string | null
         }
         Insert: {
-          last_reviews_sync_at?: string | null
-          last_reviews_sync_status?: string | null
-          last_reviews_sync_error?: string | null
-          last_google_reviews_total?: number | null
           address?: string | null
           ai_response_model?: Json | null
           auto_keywords?: string[] | null
@@ -261,6 +257,10 @@ export type Database = {
           google_place_id?: string | null
           id?: string
           is_active?: boolean | null
+          last_google_reviews_total?: number | null
+          last_reviews_sync_at?: string | null
+          last_reviews_sync_error?: string | null
+          last_reviews_sync_status?: string | null
           maps_url?: string | null
           name: string
           phone?: string | null
@@ -273,10 +273,6 @@ export type Database = {
           website_content?: string | null
         }
         Update: {
-          last_reviews_sync_at?: string | null
-          last_reviews_sync_status?: string | null
-          last_reviews_sync_error?: string | null
-          last_google_reviews_total?: number | null
           address?: string | null
           ai_response_model?: Json | null
           auto_keywords?: string[] | null
@@ -288,6 +284,10 @@ export type Database = {
           google_place_id?: string | null
           id?: string
           is_active?: boolean | null
+          last_google_reviews_total?: number | null
+          last_reviews_sync_at?: string | null
+          last_reviews_sync_error?: string | null
+          last_reviews_sync_status?: string | null
           maps_url?: string | null
           name?: string
           phone?: string | null
@@ -1018,6 +1018,7 @@ export type Database = {
           current_period_start: string | null
           current_streak: number | null
           email: string
+          free_upgrade_email_claimed_at: string | null
           full_name: string | null
           google_access_token: string | null
           google_refresh_token: string | null
@@ -1047,6 +1048,7 @@ export type Database = {
           current_period_start?: string | null
           current_streak?: number | null
           email: string
+          free_upgrade_email_claimed_at?: string | null
           full_name?: string | null
           google_access_token?: string | null
           google_refresh_token?: string | null
@@ -1076,6 +1078,7 @@ export type Database = {
           current_period_start?: string | null
           current_streak?: number | null
           email?: string
+          free_upgrade_email_claimed_at?: string | null
           full_name?: string | null
           google_access_token?: string | null
           google_refresh_token?: string | null
@@ -1649,19 +1652,34 @@ export type Database = {
         Args: { _amount: number; _business_id: string }
         Returns: boolean
       }
+      claim_free_upgrade_email: {
+        Args: { p_user_id: string }
+        Returns: boolean
+      }
       consume_business_credit: {
         Args: { _business_id: string; _description?: string }
         Returns: boolean
+      }
+      consume_review_ai_credit: {
+        Args: {
+          p_description?: string
+          p_response: string
+          p_review_id: number
+          p_user_id: string
+        }
+        Returns: number
       }
       delete_email: {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
       }
+      disconnect_my_google_connection: { Args: never; Returns: Json }
       email_queue_dispatch: { Args: never; Returns: undefined }
       enqueue_email: {
         Args: { payload: Json; queue_name: string }
         Returns: number
       }
+      get_my_google_connection_status: { Args: never; Returns: Json }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1687,6 +1705,10 @@ export type Database = {
         }[]
       }
       refill_monthly_credits: { Args: never; Returns: undefined }
+      set_my_managed_google_locations: {
+        Args: { selected_ids: string[] }
+        Returns: Json
+      }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
