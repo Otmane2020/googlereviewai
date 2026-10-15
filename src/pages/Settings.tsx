@@ -15,6 +15,7 @@ import { toast } from "@/hooks/use-toast";
 import { User, Mail, CreditCard, Shield, Building2, Bell, BellOff, BellRing, Save, Loader2, Crown, Check, Settings as SettingsIcon, Link2, ExternalLink, Send, Globe } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "react-i18next";
+import { persistLanguage } from "@/i18n/config";
 import { BrandSparkle } from "@/components/BrandSparkle";
 import { GoogleBusinessIntegration } from "@/components/GoogleBusinessIntegration";
 import { ManageLocationsDialog } from "@/components/ManageLocationsDialog";
@@ -44,10 +45,11 @@ const SettingsPage = () => {
   const { t, i18n } = useTranslation();
   const tr = (fr: string, en: string) => i18n.language?.startsWith("fr") ? fr : en;
   const [currentLang, setCurrentLang] = useState(i18n.language?.startsWith("fr") ? "fr" : "en");
+  useEffect(() => { setCurrentLang(i18n.language?.startsWith("fr") ? "fr" : "en"); }, [i18n.language]);
   const handleLanguageChange = async (lng: "fr" | "en") => {
     setCurrentLang(lng);
-    i18n.changeLanguage(lng);
-    try { localStorage.setItem("i18nextLng", lng); } catch {}
+    persistLanguage(lng, true);
+    await i18n.changeLanguage(lng);
     if (user) {
       const { error } = await supabase
         .from("profiles")
