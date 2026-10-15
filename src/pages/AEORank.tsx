@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useRequireSubscription } from "@/hooks/useRequireSubscription";
 import { includesPremiumModules, isCurrentModuleSubscription } from "@/lib/planEntitlements";
 import { BusinessSubscriptionSelector } from "@/components/BusinessSubscriptionSelector";
+import { ManageLocationsDialog } from "@/components/ManageLocationsDialog";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { ArticlePreviewDialog } from "@/components/ArticlePreviewDialog";
 import { Button } from "@/components/ui/button";
@@ -64,6 +65,7 @@ const AEORank = () => {
   const [selectedArticle, setSelectedArticle] = useState<ScheduledContent | null>(null);
   const [showPreviewDialog, setShowPreviewDialog] = useState(false);
   const [businessDialogOpen, setBusinessDialogOpen] = useState(false);
+  const [manageLocationsOpen, setManageLocationsOpen] = useState(false);
   const [publicationHour, setPublicationHour] = useState(7);
 
   // Use subscription verification hook
@@ -125,8 +127,14 @@ const AEORank = () => {
       }
       
       if (businessRes.data && businessRes.data.length > 0) {
-        setSelectedBusiness(businessRes.data[0] as Business);
-        await fetchScheduledContent(businessRes.data[0].id);
+        const selected = businessRes.data.find(b => b.id === selectedBusiness?.id)
+          || businessRes.data.find(b => b.id === localStorage.getItem("googlereviewai.com_selected_business_" + user!.id))
+          || businessRes.data[0];
+        setSelectedBusiness(selected as Business);
+        await fetchScheduledContent(selected.id);
+      } else {
+        setSelectedBusiness(null);
+        setScheduledContent([]);
       }
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -158,7 +166,7 @@ const AEORank = () => {
       if (addData?.success) {
         toast({
           title: "Module activé !",
-          description: "Le module AEO a été ajouté à votre abonnement.",
+          description: "Le module GEO a été ajouté à votre abonnement.",
         });
         setIsSubscribed(true);
         checkSubscription();
@@ -559,13 +567,18 @@ const AEORank = () => {
             <div className="min-w-0">
               <h1 className="text-lg font-bold text-foreground flex items-center gap-2">
                 GEO Rank AI
-                <Badge variant="secondary" className="text-[10px] px-1.5">AEO</Badge>
+                <Badge variant="secondary" className="text-[10px] px-1.5">GEO</Badge>
               </h1>
               <p className="text-xs text-muted-foreground">
-                30 jours de FAQ AEO générées. Publication Google possible uniquement comme post soumis à modération.
+                30 jours de contenus GEO et FAQ pour les moteurs IA. Les posts Google sont soumis à modération ; les Q&R natives Google ne sont plus disponibles.
               </p>
             </div>
           </div>
+          <Button type="button" variant="outline" size="sm"
+            className="w-full mb-3 gap-2" onClick={() => setManageLocationsOpen(true)}>
+            <Building2 className="w-4 h-4" />
+            Gérer mes établissements GEO
+          </Button>
           {selectedBusiness && !isSubscribed && (
             <Button
               onClick={analyzeAndGeneratePlan}
@@ -589,7 +602,7 @@ const AEORank = () => {
           {selectedBusiness && isSubscribed && (
             <div className="w-full text-xs text-muted-foreground bg-emerald-500/10 border border-emerald-500/20 rounded-lg px-3 py-2 flex items-center gap-2">
               <CheckCircle className="w-3.5 h-3.5 text-emerald-600" />
-              Pilote automatique actif — les Q&R sont générées et publiées chaque jour.
+              Génération GEO active — les FAQ restent disponibles et ne sont pas automatiquement publiées comme Q&R Google.
             </div>
           )}
         </div>
@@ -820,6 +833,12 @@ const AEORank = () => {
       </main>
 
       <MobileBottomNav />
+
+      <ManageLocationsDialog
+        open={manageLocationsOpen}
+        onOpenChange={setManageLocationsOpen}
+        onSuccess={() => fetchData()}
+      />
 
       {/* Preview Dialog */}
       <ArticlePreviewDialog
