@@ -11,7 +11,6 @@ import { DashboardLayout } from "@/components/DashboardLayout";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { ConnectGMBDialog } from "@/components/ConnectGMBDialog";
 import { SyncProgressOverlay } from "@/components/SyncProgressOverlay";
-import { SelectBusinessesDialog } from "@/components/SelectBusinessesDialog";
 import { ReconnectGoogleDialog } from "@/components/ReconnectGoogleDialog";
 import { LowCreditsBanner } from "@/components/LowCreditsBanner";
 import { UpgradeDialog } from "@/components/UpgradeDialog";
@@ -88,10 +87,7 @@ const Dashboard = () => {
   const hasCheckedGMBRef = useRef(false);
   const hasHandledOAuthRef = useRef(false);
   
-  // Business selection dialog state
-  const [showSelectBusinessesDialog, setShowSelectBusinessesDialog] = useState(false);
-  const [googleBusinessesForSelection, setGoogleBusinessesForSelection] = useState<any[]>([]);
-  const [maxBusinessesLimit, setMaxBusinessesLimit] = useState(1);
+  // Location selection belongs exclusively to onboarding.
   const [showReconnectDialog, setShowReconnectDialog] = useState(false);
 
   // LinkedIn Insight Tag - track dashboard view
@@ -162,9 +158,17 @@ const Dashboard = () => {
             
             if (businessResult?.requires_selection) {
               setShowSyncProgress(false);
-              setGoogleBusinessesForSelection(businessResult.google_businesses || []);
-              setMaxBusinessesLimit(businessResult.max_businesses || 1);
-              setShowSelectBusinessesDialog(true);
+              // Never open location selection in the dashboard. If the user has
+              // no previously selected business, onboarding owns this step.
+              const { count } = await supabase.from("businesses")
+                .select("id", { count: "exact", head: true })
+                .eq("user_id", user.id).eq("is_active", true);
+              if (!count) {
+                navigate("/onboarding", { replace: true });
+                return;
+              }
+              await syncReviews();
+              setLoading(false);
             } else {
               setSyncStep("reviews");
               await syncReviews();
@@ -329,23 +333,11 @@ const Dashboard = () => {
   // Use subscription verification hook
   const { loading: subscriptionLoading } = useRequireSubscription();
 
-  // Check for pending business selection from Auth flow (immediate popup)
+  // Discard stale selections from older Auth flows. Do not re-open a
+  // location dialog in the dashboard after onboarding is complete.
   useEffect(() => {
-    const pendingSelection = sessionStorage.getItem("pending_business_selection");
-    if (pendingSelection && user) {
-      try {
-        const { businesses, maxBusinesses } = JSON.parse(pendingSelection);
-        setGoogleBusinessesForSelection(businesses);
-        setMaxBusinessesLimit(maxBusinesses);
-        setShowSelectBusinessesDialog(true);
-        sessionStorage.removeItem("pending_business_selection");
-        console.log("[Dashboard] Showing immediate business selection from Auth flow");
-      } catch (e) {
-        console.error("[Dashboard] Failed to parse pending selection:", e);
-        sessionStorage.removeItem("pending_business_selection");
-      }
-    }
-  }, [user]);
+    if (user) sessionStorage.removeItem("pending_business_selection");
+  }, [user?.id]);
 
   // Fetch data when subscription is verified
   useEffect(() => {
@@ -354,77 +346,52 @@ const Dashboard = () => {
     }
   }, [subscriptionLoading, user, fetchData]);
 
-  // Auto-sync on first login only (silent after first time)
-  // Skip if selection dialog is already shown from Auth flow
+  // Auto-sync on first login; all later syncs are silent. Newly discovered
+  // Google locations must not interrupt the dashboard or change the selection.
   useEffect(() => {
     const autoSync = async () => {
-      // Skip if already showing selection from Auth flow
-      if (showSelectBusinessesDialog) {
-        console.log("[Dashboard] Skipping auto-sync, selection dialog already shown");
-        return;
-      }
-      
       if (!loading && user && session?.provider_token && !hasSyncedRef.current) {
         hasSyncedRef.current = true;
-        
-        // Check if this is the first sync ever for this user
-        const hasInitialSynced = localStorage.getItem(`googlereviewai.com_initial_sync_${user.id}`);
-        
-        if (!hasInitialSynced) {
-          // First time: show animation (only if not already synced from Auth)
+        const initialSyncKey = `googlereviewai.com_initial_sync_${user.id}`;
+        const firstSync = !localStorage.getItem(initialSyncKey);
+
+        if (firstSync) {
           setShowSyncProgress(true);
           setSyncStep("businesses");
-          const businessResult = await syncBusinesses();
-          
-          // Check if user needs to select businesses (has more than plan allows)
-          if (businessResult?.requires_selection) {
-            setShowSyncProgress(false);
-            setGoogleBusinessesForSelection(businessResult.google_businesses || []);
-            setMaxBusinessesLimit(businessResult.max_businesses || 1);
-            setShowSelectBusinessesDialog(true);
-            // Keep hasSyncedRef true to prevent loop - selection will handle the rest
-            return;
-          }
-          
-          setSyncStep("reviews");
-          await syncReviews();
-          setSyncStep("complete");
-          localStorage.setItem(`googlereviewai.com_initial_sync_${user.id}`, "true");
-        } else {
-          // Silent sync in background
-          const businessResult = await syncBusinesses();
-          
-          // Check if user needs to select businesses
-          if (businessResult?.requires_selection) {
-            setGoogleBusinessesForSelection(businessResult.google_businesses || []);
-            setMaxBusinessesLimit(businessResult.max_businesses || 1);
-            setShowSelectBusinessesDialog(true);
-            return;
-          }
-          
-          await syncReviews();
         }
-        fetchData();
+
+        try {
+          const businessResult = await syncBusinesses();
+          if (!businessResult?.success) {
+            setShowSyncProgress(false);
+            return;
+          }
+          if (businessResult.requires_selection) {
+            const { count } = await supabase.from("businesses")
+              .select("id", { count: "exact", head: true })
+              .eq("user_id", user.id).eq("is_active", true);
+            if (!count) {
+              setShowSyncProgress(false);
+              navigate("/onboarding", { replace: true });
+              return;
+            }
+          }
+
+          if (firstSync) setSyncStep("reviews");
+          await syncReviews();
+          if (firstSync) {
+            setSyncStep("complete");
+            localStorage.setItem(initialSyncKey, "true");
+          }
+          await fetchData();
+        } catch (error) {
+          console.error("[Dashboard] Background Google sync failed", error);
+          setShowSyncProgress(false);
+        }
       }
     };
-    autoSync();
-  }, [loading, user, session, syncBusinesses, syncReviews, fetchData, showSelectBusinessesDialog]);
-  
-  // Handle successful business selection
-  const handleBusinessSelectionSuccess = async () => {
-    // Now sync reviews for the selected businesses
-    setShowSyncProgress(true);
-    setSyncStep("reviews");
-    await syncReviews();
-    setSyncStep("complete");
-    
-    // Mark initial sync as complete
-    if (user) {
-      localStorage.setItem(`googlereviewai.com_initial_sync_${user.id}`, "true");
-    }
-    
-    fetchData();
-  };
+    void autoSync();
+  }, [loading, user, session, syncBusinesses, syncReviews, fetchData, navigate]);
 
   // Check if user has Google connected (has refresh token stored)
   const [hasGoogleConnected, setHasGoogleConnected] = useState<boolean | null>(null);
@@ -998,18 +965,6 @@ const Dashboard = () => {
             currentStep={syncStep}
             onComplete={() => setShowSyncProgress(false)}
           />
-
-          {/* Business Selection Dialog */}
-          {user && (
-            <SelectBusinessesDialog
-              open={showSelectBusinessesDialog}
-              onOpenChange={setShowSelectBusinessesDialog}
-              businesses={googleBusinessesForSelection}
-              maxBusinesses={maxBusinessesLimit}
-              userId={user.id}
-              onSuccess={handleBusinessSelectionSuccess}
-            />
-          )}
 
           {/* Free quota conversion prompt, shown only once per account */}
           <UpgradeDialog
