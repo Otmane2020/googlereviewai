@@ -5,7 +5,6 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useRequireSubscription } from "@/hooks/useRequireSubscription";
-import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { SelectBusinessesDialog } from "@/components/SelectBusinessesDialog";
 import { ManageLocationsDialog } from "@/components/ManageLocationsDialog";
 import { Button } from "@/components/ui/button";
@@ -962,7 +961,6 @@ const BusinessesPage = () => {
         />
       )}
 
-      <MobileBottomNav />
     </div>
   );
 };
