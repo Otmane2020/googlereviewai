@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useRequireSubscription } from "@/hooks/useRequireSubscription";
 import { supabase } from "@/integrations/supabase/client";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
+import { ManageLocationsDialog } from "@/components/ManageLocationsDialog";
 import { lazy, Suspense } from "react";
 import { ClientOnly } from "@tanstack/react-router";
 import { processPointsWithDirections } from "@/components/maps-rank/processPoints";
@@ -25,7 +26,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
-import { MapPin, Search, Grid3X3, History, Loader2, Target, Building2, Star, Users } from "lucide-react";
+import { MapPin, Search, Grid3X3, History, Loader2, Target, Building2, Star, Users, Pencil } from "lucide-react";
 
 interface Business {
   id: string;
@@ -85,6 +86,8 @@ const MapsRank = () => {
 
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [selectedBusiness, setSelectedBusiness] = useState<string>("");
+  const [manageLocationsOpen, setManageLocationsOpen] = useState(false);
+  const [locationsVersion, setLocationsVersion] = useState(0);
   const [keyword, setKeyword] = useState("");
   const [gridSize, setGridSize] = useState<string>("3");
   const [spacing, setSpacing] = useState<string>("1000");
@@ -112,14 +115,19 @@ const MapsRank = () => {
         const urlBusinessId = searchParams.get("business_id");
         if (urlBusinessId && data.some(b => b.id === urlBusinessId)) {
           setSelectedBusiness(urlBusinessId);
-        } else if (data.length > 0 && !selectedBusiness) {
-          setSelectedBusiness(data[0].id);
+        } else if (data.length > 0) {
+          const remembered = localStorage.getItem("googlereviewai.com_selected_business_" + user.id);
+          const candidate = data.find(b => b.id === selectedBusiness) || data.find(b => b.id === remembered) || data[0];
+          setSelectedBusiness(candidate.id);
+        } else {
+          setSelectedBusiness("");
+          setScanResult(null);
         }
       }
     };
 
     fetchBusinesses();
-  }, [user]);
+  }, [user, locationsVersion]);
 
   // Set keyword from URL params
   useEffect(() => {
@@ -376,10 +384,10 @@ const MapsRank = () => {
           <div>
             <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
               <Target className="w-6 h-6 text-primary" />
-              Maps Rank
+              GEO Maps Rank
             </h1>
             <p className="text-muted-foreground mt-1">
-              Analyze your Google Maps ranking by geographic zone
+              Mesurez votre visibilité GEO et votre position Google Maps, établissement par établissement.
             </p>
           </div>
         </div>
@@ -397,7 +405,10 @@ const MapsRank = () => {
               {/* Business selector */}
               <div className="space-y-2">
                 <Label htmlFor="business" className="text-xs">Établissement</Label>
-                <Select value={selectedBusiness} onValueChange={setSelectedBusiness}>
+                <Select value={selectedBusiness} onValueChange={v => {
+                  setSelectedBusiness(v);
+                  if (user) localStorage.setItem("googlereviewai.com_selected_business_" + user.id, v);
+                }}>
                   <SelectTrigger className="h-9">
                     <SelectValue placeholder="Select" />
                   </SelectTrigger>
@@ -415,9 +426,14 @@ const MapsRank = () => {
                     ))}
                   </SelectContent>
                 </Select>
+                <Button type="button" size="sm" variant="outline" className="w-full gap-2"
+                  onClick={() => setManageLocationsOpen(true)}>
+                  <Pencil className="w-4 h-4" />
+                  Gérer les établissements GEO
+                </Button>
               </div>
 
-              {/* Keywords Section */}
+              {/* Keywords Section */}}
               {selectedBusiness && user && (
                 <div className="space-y-2 pt-2 border-t">
                   <Label className="text-xs">Mot-clé</Label>
@@ -749,6 +765,8 @@ const MapsRank = () => {
         </div>
       </main>
 
+      <ManageLocationsDialog open={manageLocationsOpen} onOpenChange={setManageLocationsOpen}
+        onSuccess={() => setLocationsVersion(v => v + 1)} />
       <MobileBottomNav />
     </div>
   );
