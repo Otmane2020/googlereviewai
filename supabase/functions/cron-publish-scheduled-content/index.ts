@@ -168,7 +168,7 @@ serve(async (req) => {
       }
     }
 
-    console.log(`[CRON-PUBLISH] ✅ AEO:${publishedAEO} SEO:${publishedSEO} Errors:${errors}`);
+    console.log(`[CRON-PUBLISH] ✅ GEO:${publishedAEO} SEO:${publishedSEO} Errors:${errors}`);
 
     return new Response(
       JSON.stringify({
