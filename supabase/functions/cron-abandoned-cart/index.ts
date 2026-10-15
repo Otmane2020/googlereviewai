@@ -65,7 +65,7 @@ function emailTemplate1(name: string, cartSummary: string, lang: Lang = "fr"): s
       </div>
     </div>
     <div style="padding:24px;text-align:center;border-top:1px solid #e5e7eb;">
-      <p style="font-family:-apple-system,sans-serif;color:#9ca3af;font-size:12px;margin:0;">© 2025 Reviews AI · <a href="https://reviewsai.store" style="color:#9ca3af;">googlereviewai.com</a></p>
+      <p style="font-family:-apple-system,sans-serif;color:#9ca3af;font-size:12px;margin:0;">© 2025 Reviews AI · <a href="https://reviewsai.store" style="color:#9ca3af;">reviewsai.store</a></p>
     </div>
   </div>
 </body>

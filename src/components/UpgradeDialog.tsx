@@ -69,7 +69,7 @@ const PLANS: PlanCard[] = [
   {
     id: "pro",
     name: "Pro",
-    tagline: { fr: "Avis + Avis + SEO & GEO auto", en: "Reviews + Avis + SEO & GEO auto" },
+    tagline: { fr: "Avis + SEO & GEO automatiques", en: "Reviews + automated SEO & GEO" },
     monthly: { price: "49€", key: "ranki_pro_monthly" },
     yearly:  { price: "470€", key: "ranki_pro_yearly" },
     features: {
@@ -136,6 +136,9 @@ export const UpgradeDialog = ({ open, onOpenChange, currentPlan, exhausted = fal
             "price_1SrHtOEfti9t9nN9fG4lSroa",
             "price_1SrHtPEfti9t9nN9dnZ0sXpi",
             "price_1SrHtQEfti9t9nN9GKvr4NSt",
+            "price_1UQtGMEfti9t9nN973J7Avoy",
+            "price_1UQtGWEfti9t9nN9QNQxVIYI",
+            "price_1UQtGbEfti9t9nN9cNGQpdnJ",
           ];
           setBilling(annualPrices.includes(data.plan_id) ? "yearly" : "monthly");
         }
@@ -155,6 +158,12 @@ export const UpgradeDialog = ({ open, onOpenChange, currentPlan, exhausted = fal
     ranki_pro_yearly: "price_1TjxSKEfti9t9nN9iv48DJvm",
     ranki_business_monthly: "price_1TjxSLEfti9t9nN9DqcufGNo",
     ranki_business_yearly: "price_1TjxSLEfti9t9nN9GrF6F0Pw",
+    ranki_starter_monthly_usd: "price_1UQtGKEfti9t9nN9XyTCtHYK",
+    ranki_starter_yearly_usd: "price_1UQtGMEfti9t9nN973J7Avoy",
+    ranki_pro_monthly_usd: "price_1UQtGUEfti9t9nN9Fsfqwlfj",
+    ranki_pro_yearly_usd: "price_1UQtGWEfti9t9nN9QNQxVIYI",
+    ranki_business_monthly_usd: "price_1UQtGZEfti9t9nN9143Lii65",
+    ranki_business_yearly_usd: "price_1UQtGbEfti9t9nN9cNGQpdnJ",
   };
 
   const handleCheckout = async (priceKey: string) => {
@@ -300,7 +309,10 @@ export const UpgradeDialog = ({ open, onOpenChange, currentPlan, exhausted = fal
 
           <div className="grid grid-cols-1 md:grid-cols-3 items-stretch gap-3 sm:gap-4">
             {PLANS.map((plan) => {
-              const tier = billing === "yearly" ? plan.yearly : plan.monthly;
+              const eur = billing === "yearly" ? plan.yearly : plan.monthly;
+              const tier = isEN
+                ? { price: "$" + eur.price.replace("€", "").replace(",", "."), key: eur.key + "_usd" }
+                : eur;
               const features = isEN ? plan.features.en : plan.features.fr;
               const isCurrent = Boolean(currentNormalized === plan.id && currentPriceId === priceIds[tier.key]);
               const isLoading = loadingKey === tier.key;
@@ -331,7 +343,7 @@ export const UpgradeDialog = ({ open, onOpenChange, currentPlan, exhausted = fal
                   </div>
                   {billing === "yearly" && (
                     <p className="mt-1 text-xs text-muted-foreground">
-                      {isEN ? "Approx." : "Soit env."} {(parseFloat(tier.price.replace(",", ".").replace("€", "")) / 12).toFixed(2).replace(".", ",")} €/{isEN ? "month" : "mois"}
+                      {isEN ? "Approx." : "Soit env."} {new Intl.NumberFormat(isEN ? "en-US" : "fr-FR", { style: "currency", currency: isEN ? "USD" : "EUR" }).format(Number(tier.price.replace(/[^0-9.,]/g, "").replace(",", ".")) / 12)}/{isEN ? "month" : "mois"}
                     </p>
                   )}
                   <div className="my-4 border-t border-border/60" />

@@ -22,6 +22,13 @@ const PLAN_CONFIG: Record<string, { credits: number; maxBusinesses: number; plan
   "price_1TjxSKEfti9t9nN9iv48DJvm": { credits: 300, maxBusinesses: 3,   planName: "Pro Annuel",      tier: 3 }, // 470€/yr
   "price_1TjxSLEfti9t9nN9DqcufGNo": { credits: 1000,maxBusinesses: 999, planName: "Business",        tier: 4 }, // 99€/mo
   "price_1TjxSLEfti9t9nN9GrF6F0Pw": { credits: 1000,maxBusinesses: 999, planName: "Business Annuel", tier: 4 }, // 950.40€/yr
+  // USD 2026 plans, same product entitlements
+  "price_1UQtGKEfti9t9nN9XyTCtHYK": { credits: 50, maxBusinesses: 1, planName: "Starter", tier: 1 },
+  "price_1UQtGMEfti9t9nN973J7Avoy": { credits: 50, maxBusinesses: 1, planName: "Starter Annuel", tier: 1 },
+  "price_1UQtGUEfti9t9nN9Fsfqwlfj": { credits: 300, maxBusinesses: 3, planName: "Pro", tier: 3 },
+  "price_1UQtGWEfti9t9nN9QNQxVIYI": { credits: 300, maxBusinesses: 3, planName: "Pro Annuel", tier: 3 },
+  "price_1UQtGZEfti9t9nN9143Lii65": { credits: 1000, maxBusinesses: 999, planName: "Business", tier: 4 },
+  "price_1UQtGbEfti9t9nN9cNGQpdnJ": { credits: 1000, maxBusinesses: 999, planName: "Business Annuel", tier: 4 },
   // ===== Legacy =====
   "price_1SrHtCEfti9t9nN9L8Fytsni": { credits: 10, maxBusinesses: 1, planName: "Starter", tier: 1 },
   "price_1SrHtDEfti9t9nN96yIPGiOo": { credits: 100, maxBusinesses: 2, planName: "Pro", tier: 3 },

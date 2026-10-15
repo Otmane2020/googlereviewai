@@ -88,7 +88,7 @@ const getProFooter = (t: typeof emailTranslations.fr) => `
       © 2025 Reviews AI. ${t.allRightsReserved}
     </p>
     <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textMuted}; font-size: 12px; margin: 0;">
-      <a href="https://reviewsai.store" style="color: ${STYLES.brandBlue}; text-decoration: none;">googlereviewai.com</a>
+      <a href="https://reviewsai.store" style="color: ${STYLES.brandBlue}; text-decoration: none;">reviewsai.store</a>
     </p>
   </div>
 `;

@@ -23,8 +23,8 @@ const getPlans = (isFrench: boolean): Plan[] => [
   {
     name: "Starter",
     tagline: isFrench ? "Avis Google" : "Google reviews",
-    monthly: { price: "9,99€", perMonth: isFrench ? "/mois" : "/month", priceKey: "ranki_starter_monthly" },
-    yearly: { price: "95,90€", perMonth: isFrench ? "/an" : "/year", priceKey: "ranki_starter_yearly" },
+    monthly: { price: isFrench ? "9,99 €" : "$9.99", perMonth: isFrench ? "/mois" : "/month", priceKey: isFrench ? "ranki_starter_monthly" : "ranki_starter_monthly_usd" },
+    yearly: { price: isFrench ? "95,90 €" : "$95.90", perMonth: isFrench ? "/an" : "/year", priceKey: isFrench ? "ranki_starter_yearly" : "ranki_starter_yearly_usd" },
     features: isFrench
       ? ["1 établissement Google My Business", "Réponses IA automatiques 24/7 aux avis Google", "50 crédits de réponses IA par mois", "Alertes email & push sur nouveaux avis", "Tableau de bord avis", "Accès API Google Business vérifié"]
       : ["1 Google Business Profile location", "24/7 automatic AI replies to Google reviews", "50 AI reply credits per month", "Email and push alerts for new reviews", "Review management dashboard", "Verified Google Business API access"],
@@ -33,8 +33,8 @@ const getPlans = (isFrench: boolean): Plan[] => [
   {
     name: "Pro",
     tagline: isFrench ? "Avis + SEO & GEO automatiques" : "Automated reviews + SEO & GEO",
-    monthly: { price: "49€", perMonth: isFrench ? "/mois" : "/month", priceKey: "ranki_pro_monthly" },
-    yearly: { price: "470€", perMonth: isFrench ? "/an" : "/year", priceKey: "ranki_pro_yearly" },
+    monthly: { price: isFrench ? "49 €" : "$49", perMonth: isFrench ? "/mois" : "/month", priceKey: isFrench ? "ranki_pro_monthly" : "ranki_pro_monthly_usd" },
+    yearly: { price: isFrench ? "470 €" : "$470", perMonth: isFrench ? "/an" : "/year", priceKey: isFrench ? "ranki_pro_yearly" : "ranki_pro_yearly_usd" },
     features: isFrench
       ? ["Jusqu'à 3 établissements", "Réponses IA illimitées aux avis Google", "GEO Rank quotidien (suivi positionnement Maps)", "Posts Google soumis à validation + FAQ GEO générées", "Notifications temps réel", "Support prioritaire"]
       : ["Up to 3 locations", "Unlimited AI replies to Google reviews", "Daily GEO Rank tracking on Maps", "Google posts subject to approval + generated GEO FAQs", "Real-time notifications", "Priority support"],
@@ -44,8 +44,8 @@ const getPlans = (isFrench: boolean): Plan[] => [
   {
     name: "Business",
     tagline: isFrench ? "Multi-établissements illimités" : "Unlimited locations",
-    monthly: { price: "99€", perMonth: isFrench ? "/mois" : "/month", priceKey: "ranki_business_monthly" },
-    yearly: { price: "950,40€", perMonth: isFrench ? "/an" : "/year", priceKey: "ranki_business_yearly" },
+    monthly: { price: isFrench ? "99 €" : "$99", perMonth: isFrench ? "/mois" : "/month", priceKey: isFrench ? "ranki_business_monthly" : "ranki_business_monthly_usd" },
+    yearly: { price: isFrench ? "950,40 €" : "$950.40", perMonth: isFrench ? "/an" : "/year", priceKey: isFrench ? "ranki_business_yearly" : "ranki_business_yearly_usd" },
     features: isFrench
       ? ["Établissements illimités", "Réponses IA illimitées + SEO & GEO", "Création de posts et FAQ illimitée (publication Google selon validation)", "API & webhooks avancés", "Manager dédié", "Rapports personnalisés"]
       : ["Unlimited locations", "Unlimited AI replies + SEO & GEO", "Unlimited post and FAQ creation (Google approval required)", "Advanced API and webhooks", "Dedicated account manager", "Custom reports"],
@@ -169,7 +169,7 @@ export const RankiPricingSection = () => {
 
                 {billing === "yearly" && (
                   <div className={`mt-1 text-xs ${p.highlight ? "text-background/80" : "text-muted-foreground"}`}>
-                    {isFrench ? "Soit" : "That’s"} {(parseFloat(tier.price.replace(",", ".").replace("€", "")) / 12).toFixed(2).replace(".", ",")}€/{isFrench ? "mois" : "month"}
+                    {isFrench ? "Soit" : "That’s"} {new Intl.NumberFormat(isFrench ? "fr-FR" : "en-US", { style: "currency", currency: isFrench ? "EUR" : "USD" }).format(Number(tier.price.replace(/[^0-9.,]/g, "").replace(",", ".")) / 12)}/{isFrench ? "mois" : "month"}
                   </div>
                 )}
 

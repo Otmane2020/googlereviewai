@@ -135,7 +135,7 @@ const getProHeader = () => `
 const getProFooter = (rights: string) => `
   <div style="padding: 24px; text-align: center; border-top: 1px solid ${STYLES.borderLight};">
     <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textMuted}; font-size: 12px; margin: 0 0 8px 0;">© 2025 Reviews AI. ${rights}</p>
-    <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textMuted}; font-size: 12px; margin: 0;"><a href="https://reviewsai.store" style="color: ${STYLES.brandBlue}; text-decoration: none;">googlereviewai.com</a></p>
+    <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textMuted}; font-size: 12px; margin: 0;"><a href="https://reviewsai.store" style="color: ${STYLES.brandBlue}; text-decoration: none;">reviewsai.store</a></p>
   </div>`;
 
 const getProButton = (text: string, url: string) => `

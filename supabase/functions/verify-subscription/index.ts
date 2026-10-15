@@ -134,6 +134,13 @@ serve(async (req) => {
       "price_1TjxSKEfti9t9nN9iv48DJvm": { name: "Pro Annuel", credits: 300, maxBusinesses: 3, tier: 3 },
       "price_1TjxSLEfti9t9nN9DqcufGNo": { name: "Business", credits: 1000, maxBusinesses: 999, tier: 4 },
       "price_1TjxSLEfti9t9nN9GrF6F0Pw": { name: "Business Annuel", credits: 1000, maxBusinesses: 999, tier: 4 },
+  // USD 2026 plans, same product entitlements
+      "price_1UQtGKEfti9t9nN9XyTCtHYK": { name: "Starter", credits: 50, maxBusinesses: 1, tier: 1 },
+      "price_1UQtGMEfti9t9nN973J7Avoy": { name: "Starter Annuel", credits: 50, maxBusinesses: 1, tier: 1 },
+      "price_1UQtGUEfti9t9nN9Fsfqwlfj": { name: "Pro", credits: 300, maxBusinesses: 3, tier: 3 },
+      "price_1UQtGWEfti9t9nN9QNQxVIYI": { name: "Pro Annuel", credits: 300, maxBusinesses: 3, tier: 3 },
+      "price_1UQtGZEfti9t9nN9143Lii65": { name: "Business", credits: 1000, maxBusinesses: 999, tier: 4 },
+      "price_1UQtGbEfti9t9nN9cNGQpdnJ": { name: "Business Annuel", credits: 1000, maxBusinesses: 999, tier: 4 },
       "price_1SrHtCEfti9t9nN9L8Fytsni": { name: "Starter", credits: 10, maxBusinesses: 1, tier: 1 },
       "price_1SrHtDEfti9t9nN96yIPGiOo": { name: "Pro", credits: 100, maxBusinesses: 3, tier: 3 },
       "price_1SrHtEEfti9t9nN9mq7MrV3G": { name: "Business", credits: 400, maxBusinesses: 999, tier: 4 },

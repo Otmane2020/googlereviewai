@@ -71,7 +71,7 @@ const Index = () => {
           "@type": "ImageObject",
           "url": "https://reviewsai.store/icon-512x512.png"
         },
-        "email": "support@googlereviewai.com"
+        "email": "support@reviewsai.store"
       },
       {
         "@type": "SoftwareApplication",

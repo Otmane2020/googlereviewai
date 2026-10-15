@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Eye, Globe, Phone, MapPin, RefreshCw, Loader2, TrendingUp, MessageSquare, Calendar, UtensilsCrossed } from "lucide-react";
 import { useNavigate } from "@/lib/router-compat";
+import { useTranslation } from "react-i18next";
 
 interface GmbInsights {
   profileViews: number;
@@ -24,6 +25,8 @@ interface GmbInsightsCardProps {
 
 export function GmbInsightsCard({ userId, businessId }: GmbInsightsCardProps) {
   const navigate = useNavigate();
+  const { i18n } = useTranslation();
+  const tr = (fr: string, en: string) => i18n.language?.startsWith("fr") ? fr : en;
   const [insights, setInsights] = useState<GmbInsights | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -51,7 +54,7 @@ export function GmbInsightsCard({ userId, businessId }: GmbInsightsCardProps) {
       }
     } catch (e) {
       console.error("[GmbInsights] Error:", e);
-      setError("Unable to load stats");
+      setError(tr("Impossible de charger les statistiques Google.", "Unable to load Google statistics."));
     } finally {
       setLoading(false);
     }
@@ -74,28 +77,28 @@ export function GmbInsightsCard({ userId, businessId }: GmbInsightsCardProps) {
 
   const stats = [
     {
-      label: "Vues du profil",
+      label: tr("Vues du profil","Profile views"),
       value: insights?.profileViews || 0,
       icon: Eye,
       color: "text-orange-500",
       bgColor: "bg-orange-500/10",
     },
     {
-      label: "Clics site web",
+      label: tr("Clics site web","Website clicks"),
       value: insights?.websiteClicks || 0,
       icon: Globe,
       color: "text-blue-500",
       bgColor: "bg-blue-500/10",
     },
     {
-      label: "Appels",
+      label: tr("Appels","Calls"),
       value: insights?.phoneCalls || 0,
       icon: Phone,
       color: "text-emerald-500",
       bgColor: "bg-emerald-500/10",
     },
     {
-      label: "Directions",
+      label: tr("Directions","Directions"),
       value: insights?.directionRequests || 0,
       icon: MapPin,
       color: "text-red-500",
@@ -106,21 +109,21 @@ export function GmbInsightsCard({ userId, businessId }: GmbInsightsCardProps) {
   // Additional stats if they exist
   const additionalStats = [
     insights?.bookings && insights.bookings > 0 && {
-      label: "Bookings",
+      label: tr("Réservations","Bookings"),
       value: insights.bookings,
       icon: Calendar,
       color: "text-purple-500",
       bgColor: "bg-purple-500/10",
     },
     insights?.conversations && insights.conversations > 0 && {
-      label: "Messages",
+      label: tr("Messages","Messages"),
       value: insights.conversations,
       icon: MessageSquare,
       color: "text-cyan-500",
       bgColor: "bg-cyan-500/10",
     },
     insights?.foodOrders && insights.foodOrders > 0 && {
-      label: "Commandes",
+      label: tr("Commandes","Orders"),
       value: insights.foodOrders,
       icon: UtensilsCrossed,
       color: "text-amber-500",
@@ -134,7 +137,7 @@ export function GmbInsightsCard({ userId, businessId }: GmbInsightsCardProps) {
         <CardHeader className="pb-2">
           <CardTitle className="text-base flex items-center gap-2">
             <TrendingUp className="w-4 h-4 text-primary" />
-            Performances Google
+            {tr("Performances Google", "Google Performance")}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -152,19 +155,19 @@ export function GmbInsightsCard({ userId, businessId }: GmbInsightsCardProps) {
         <CardHeader className="pb-2">
           <CardTitle className="text-base flex items-center gap-2">
             <TrendingUp className="w-4 h-4 text-amber-500" />
-            Performances Google
+            {tr("Performances Google", "Google Performance")}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground mb-3">
-            Reconnectez Google pour voir les statistiques.
+            {tr("Reconnectez Google pour voir les statistiques.", "Reconnect Google to see your performance data.")}
           </p>
           <Button 
             variant="outline" 
             size="sm"
             onClick={() => navigate("/settings")}
           >
-            Reconnecter
+            {tr("Reconnecter", "Reconnect")}
           </Button>
         </CardContent>
       </Card>
@@ -177,7 +180,7 @@ export function GmbInsightsCard({ userId, businessId }: GmbInsightsCardProps) {
         <CardHeader className="pb-2">
           <CardTitle className="text-base flex items-center gap-2">
             <TrendingUp className="w-4 h-4 text-primary" />
-            Performances Google
+            {tr("Performances Google", "Google Performance")}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -189,7 +192,7 @@ export function GmbInsightsCard({ userId, businessId }: GmbInsightsCardProps) {
             className="mt-2"
           >
             <RefreshCw className="w-4 h-4 mr-2" />
-            Retry
+            {tr("Réessayer", "Retry")}
           </Button>
         </CardContent>
       </Card>
@@ -256,7 +259,7 @@ export function GmbInsightsCard({ userId, businessId }: GmbInsightsCardProps) {
         {/* Period indicator */}
         <div className="flex items-center justify-center">
           <span className="text-xs px-3 py-1 rounded-full bg-muted text-muted-foreground">
-            30 derniers jours
+            {tr("30 derniers jours", "Last 30 days")}
           </span>
         </div>
       </CardContent>

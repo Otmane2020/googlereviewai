@@ -48,8 +48,8 @@ const EMAIL_TEMPLATES: Record<string, React.ComponentType<any>> = {
 
 // Configuration
 const SITE_NAME = "Reviews AI"
-const SENDER_DOMAIN = "notify.ranki.ai" // verified sending domain — keep until googlereviewai.com email is set up
-const ROOT_DOMAIN = "googlereviewai.com"
+const SENDER_DOMAIN = "notify.ranki.ai" // verified sending domain; update only after configuring sender DNS
+const ROOT_DOMAIN = "reviewsai.store"
 const FROM_DOMAIN = "ranki.ai" // Domain shown in From address (must stay on the verified domain)
 
 // Sample data for preview mode ONLY (not used in actual email sending).

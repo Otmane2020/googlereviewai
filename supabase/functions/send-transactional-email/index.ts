@@ -5,17 +5,17 @@ import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors'
 import { TEMPLATES } from '../_shared/transactional-email-templates/registry.ts'
 import { resolveEmailLang } from '../_shared/email-lang.ts'
 
-// Configuration baked in at scaffold time — do NOT change these manually.
-// To update, re-run the email domain setup flow.
+// Sender DNS must be configured with the email provider before switching.
+// Use environment overrides to migrate to reviewsai.store without interrupting receipts.
 const SITE_NAME = "Reviews AI"
 // SENDER_DOMAIN is the verified sender subdomain FQDN (e.g., "notify.example.com").
 // It MUST match the subdomain delegated to Lovable's nameservers — never the root domain.
 // The email API looks up this exact domain; a mismatch causes "No email domain record found".
-const SENDER_DOMAIN = "notify.googlereviewai.com"
+const SENDER_DOMAIN = Deno.env.get("REVIEWSAI_TRANSACTIONAL_SENDER_DOMAIN") || "notify.googlereviewai.com"
 // FROM_DOMAIN is the domain shown in the From: header (e.g., "example.com").
 // When display_from_root is enabled, this can be the root domain for cleaner branding,
 // even though actual sending uses the subdomain above.
-const FROM_DOMAIN = "googlereviewai.com"
+const FROM_DOMAIN = Deno.env.get("REVIEWSAI_TRANSACTIONAL_FROM_DOMAIN") || "googlereviewai.com"
 
 function redactEmail(email: string | null | undefined): string {
   if (!email) return '***'

@@ -538,7 +538,7 @@ const Dashboard = () => {
                       ? <><Star className="h-3 w-3 inline mr-0.5 text-amber-500 fill-amber-500" />
                         {Number(allBusinesses.find(b => b.id === selectedBusinessId)?.rating).toFixed(1)} · </>
                       : null}
-                    {stats.total} {i18n.language?.startsWith("fr") ? "avis enregistrés" : "reviews in app"}
+                    {t("dashboardPage.reviewsInApp", { count: stats.total })}
                   </p>
                 </div>
                 <div className="shrink-0 flex flex-col items-center justify-center gap-1">
@@ -616,10 +616,10 @@ const Dashboard = () => {
               </div>
               <div className="flex-1">
                 <h3 className="font-bold text-accent-foreground text-lg mb-1">
-                  🎉 Last step: Connect Google
+                  {t("dashboardPage.connectGoogleTitle")}
                 </h3>
                 <p className="text-accent-foreground/80 text-sm mb-3">
-                  Link your Google account to sync your reviews and start using AI.
+                  {t("dashboardPage.connectGoogleDescription")}
                 </p>
                 <Button 
                   onClick={() => setShowGMBDialog(true)}
@@ -643,7 +643,7 @@ const Dashboard = () => {
                       d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                     />
                   </svg>
-                  Connecter Google Business
+                  {t("dashboardPage.connectGoogleButton")}
                 </Button>
               </div>
             </div>
@@ -661,19 +661,19 @@ const Dashboard = () => {
                 <AlertCircle className="w-4 h-4 text-destructive" />
                 <div>
                   <p className="text-xs font-medium text-foreground">
-                    Sync error
+                    {t("dashboardPage.syncErrorTitle")}
                   </p>
                   {syncStatus.last_sync_at && (
                     <p className="text-[10px] text-muted-foreground">
-                      Last sync: {(() => {
+                      {t("dashboardPage.lastSyncLabel")} {(() => {
                         const diff = Date.now() - new Date(syncStatus.last_sync_at).getTime();
                         const secs = Math.floor(diff / 1000);
-                        if (secs < 60) return "just now";
+                        if (secs < 60) return t("dashboardPage.syncJustNow");
                         const mins = Math.floor(secs / 60);
-                        if (mins < 60) return `${mins} min ago`;
+                        if (mins < 60) return t("dashboardPage.syncMinutesAgo", { count: mins });
                         const hours = Math.floor(mins / 60);
-                        if (hours < 24) return `${hours}h ago`;
-                        return `${Math.floor(hours / 24)}d ago`;
+                        if (hours < 24) return t("dashboardPage.syncHoursAgo", { count: hours });
+                        return t("dashboardPage.syncDaysAgo", { count: Math.floor(hours / 24) });
                       })()}
                     </p>
                   )}
@@ -686,7 +686,7 @@ const Dashboard = () => {
                   className="text-xs text-destructive h-7"
                   onClick={() => setShowReconnectDialog(true)}
                 >
-                  Reconnect
+                  {t("dashboardPage.reconnect")}
                 </Button>
               )}
             </div>
@@ -719,7 +719,7 @@ const Dashboard = () => {
                 </div>
                 <div>
                   <p className="text-white/80 text-sm font-medium">
-                    {urgencyLevel === "green" ? "Tout est à jour !" : "Avis sans réponse"}
+                    {urgencyLevel === "green" ? t("dashboardPage.bannerAllClear") : t("dashboardPage.bannerUnanswered")}
                   </p>
                   <div className="text-3xl font-bold text-white">{stats.pending}</div>
                 </div>
@@ -884,15 +884,15 @@ const Dashboard = () => {
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-semibold uppercase tracking-wide">
-                  <Sparkles className="w-3 h-3" /> Nouveau
+                  <Sparkles className="w-3 h-3" /> {t("dashboardPage.shopNew")}
                 </span>
-                <span className="text-xs text-muted-foreground">Boutique Reviews AI</span>
+                <span className="text-xs text-muted-foreground">{t("dashboardPage.shopName")}</span>
               </div>
               <div className="font-semibold text-foreground text-sm leading-tight">
-                Plaque NFC + QR Google Avis
+                {t("dashboardPage.shopProduct")}
               </div>
               <div className="text-xs text-muted-foreground mt-0.5">
-                Vos clients tapent ou scannent — multipliez vos avis x3
+                {t("dashboardPage.shopDescription")}
               </div>
             </div>
             <div className="flex flex-col items-end gap-1 flex-shrink-0">
@@ -942,12 +942,12 @@ const Dashboard = () => {
                         {review.ai_response || review.google_reply ? (
                           <span className="text-[10px] bg-green-500/10 text-green-600 px-2 py-0.5 rounded-full font-medium flex items-center gap-1">
                             <CheckCircle2 className="w-2.5 h-2.5" />
-                            {review.google_reply ? "Replied" : "AI ready"}
+                            {review.google_reply ? t("dashboardPage.reviewReplied") : t("dashboardPage.reviewAiReady")}
                           </span>
                         ) : (
                           <span className="text-[10px] bg-orange-500/10 text-orange-600 px-2 py-0.5 rounded-full font-medium flex items-center gap-1 animate-pulse">
                             <AlertCircle className="w-2.5 h-2.5" />
-                            À répondre
+                            {t("dashboardPage.reviewToAnswer")}
                           </span>
                         )}
                       </div>
@@ -983,7 +983,7 @@ const Dashboard = () => {
                 disabled={isSyncing}
               >
                 {isSyncing ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <RefreshCw className="w-4 h-4 mr-2" />}
-                Sync
+                {t("dashboardPage.syncErrorTitle")}
               </Button>
             </div>
           )}

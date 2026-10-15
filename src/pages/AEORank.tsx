@@ -23,6 +23,7 @@ import {
 import { HelpCircle, Loader2, Calendar, Check, Clock, AlertCircle, RefreshCw, Building2, Send, Lock, Eye, List, TrendingUp, ChevronDown, CheckCircle, Settings } from "lucide-react";
 import { format, addDays, startOfToday, isSameDay } from "date-fns";
 import { BrandSparkle } from "@/components/BrandSparkle";
+import { useTranslation } from "react-i18next";
 
 
 interface Business {
@@ -54,6 +55,8 @@ interface ScheduledContent {
 const AEORank = () => {
   const { user, session } = useAuth();
   const navigate = useNavigate();
+  const { i18n } = useTranslation();
+  const tr = (fr: string, en: string) => i18n.language?.toLowerCase().startsWith("fr") ? fr : en;
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [scheduledContent, setScheduledContent] = useState<ScheduledContent[]>([]);
   const [loading, setLoading] = useState(true);
@@ -165,8 +168,8 @@ const AEORank = () => {
 
       if (addData?.success) {
         toast({
-          title: "Module activé !",
-          description: "Le module GEO a été ajouté à votre abonnement.",
+          title: tr("Module activé !", "Module enabled!"),
+          description: tr("Le module GEO a été ajouté à votre abonnement.", "The GEO module has been added to your plan."),
         });
         setIsSubscribed(true);
         checkSubscription();
@@ -193,7 +196,7 @@ const AEORank = () => {
     } catch (error: any) {
       console.error("Subscription error:", error);
       toast({
-        title: "Erreur",
+        title: tr("Erreur", "Error"),
         description: error?.message || "Impossible de créer la session de paiement",
         variant: "destructive"
       });
@@ -220,8 +223,8 @@ const AEORank = () => {
         .neq("status", "published");
 
       toast({ 
-        title: "Analyse en cours...", 
-        description: "Analyse du site web avec Firecrawl..." 
+        title: tr("Analyse en cours...", "Analyzing..."), 
+        description: tr("Analyse du site web avec Firecrawl...", "Analyzing website content with Firecrawl...") 
       });
 
       // STEP 2: Call analyze-business-website to scrape with Firecrawl
@@ -288,7 +291,7 @@ const AEORank = () => {
       if (insertError) throw insertError;
 
       toast({ 
-        title: "Plan créé ! Génération des Q&R...", 
+        title: tr("Plan créé ! Génération des Q&R...", "Plan created! Generating FAQs..."), 
         description: `30 days planned with ${keywords.length} keywords` 
       });
 
@@ -363,13 +366,13 @@ const AEORank = () => {
       }
 
       toast({ 
-        title: "Terminé !", 
+        title: tr("Terminé !", "Completed!"), 
         description: `${generatedCount} Q&As generated with ${keywords.length} keywords`
       });
     } catch (error: any) {
       console.error("Error generating plan:", error);
       toast({ 
-        title: "Erreur", 
+        title: tr("Erreur", "Error"), 
         description: error.message || "Unable to generate plan", 
         variant: "destructive" 
       });
@@ -408,7 +411,7 @@ const AEORank = () => {
           .update({ status: "failed", error_message: msg })
           .eq("id", item.id);
         await fetchScheduledContent(selectedBusiness!.id);
-        toast({ title: "Échec de la génération", description: msg, variant: "destructive" });
+        toast({ title: tr("Échec de la génération", "Generation failed"), description: msg, variant: "destructive" });
         return;
       }
 
@@ -425,20 +428,20 @@ const AEORank = () => {
         .eq("id", item.id);
 
       await fetchScheduledContent(selectedBusiness!.id);
-      toast({ title: "Q&A generated!" });
+      toast({ title: tr("FAQ générée !", "FAQ generated!") });
     } catch (error: any) {
       await supabase
         .from("scheduled_content")
         .update({ status: "failed", error_message: error.message })
         .eq("id", item.id);
       
-      toast({ title: "Erreur", description: error.message, variant: "destructive" });
+      toast({ title: tr("Erreur", "Error"), description: error.message, variant: "destructive" });
     }
   };
 
   const publishToGMB = async (item: ScheduledContent) => {
     if (!item.question || !item.answer) {
-      toast({ title: "Erreur", description: "La Q&R doit d'abord être générée", variant: "destructive" });
+      toast({ title: tr("Erreur", "Error"), description: tr("La Q&R doit d'abord être générée", "Generate the FAQ first"), variant: "destructive" });
       return;
     }
 
@@ -454,8 +457,8 @@ const AEORank = () => {
       
       if (data?.requires_reconnect) {
         toast({ 
-          title: "Reconnexion requise", 
-          description: "Reconnectez-vous avec Google depuis le Tableau de bord", 
+          title: tr("Reconnexion requise", "Reconnection required"), 
+          description: tr("Reconnectez-vous avec Google depuis le Tableau de bord", "Reconnect Google from Dashboard"), 
           variant: "destructive" 
         });
         setPublishing(null);
@@ -474,7 +477,7 @@ const AEORank = () => {
     } catch (error: any) {
       console.error("Error publishing:", error);
       toast({ 
-        title: "Erreur de publication", 
+        title: tr("Erreur de publication", "Publishing error"), 
         description: error.message || "Impossible de publier sur Google", 
         variant: "destructive" 
       });
@@ -493,14 +496,14 @@ const AEORank = () => {
     if (error) {
       console.error("Error saving publication hour:", error);
       toast({
-        title: "Erreur",
-        description: "Impossible d'enregistrer l'heure de publication",
+        title: tr("Erreur", "Error"),
+        description: tr("Impossible d'enregistrer l'heure de publication", "Could not save generation time"),
         variant: "destructive"
       });
     } else {
       toast({
-        title: "Heure mise à jour",
-        description: `Génération programmée à ${hour.toString().padStart(2, "0")}:00. Les FAQ ne sont pas publiées automatiquement sur Google.`,
+        title: tr("Heure mise à jour", "Schedule updated"),
+        description: tr(`Génération prévue à ${hour.toString().padStart(2, "0")}:00 UTC. Les FAQ ne sont pas publiées automatiquement sur Google.`, `Generation scheduled for ${hour.toString().padStart(2, "0")}:00 UTC. FAQs are not automatically published as native Google Q&As.`),
       });
     }
   };
@@ -524,16 +527,16 @@ const AEORank = () => {
     
     switch (status) {
       case "published":
-        return <Badge className="bg-secondary text-secondary-foreground"><Check className="w-3 h-3 mr-1" />Publié</Badge>;
+        return <Badge className="bg-secondary text-secondary-foreground"><Check className="w-3 h-3 mr-1" />{tr("Publié", "Published")}</Badge>;
       case "generated":
-        return <Badge className="bg-primary text-primary-foreground"><BrandSparkle className="w-3 h-3 mr-1" />Prêt</Badge>;
+        return <Badge className="bg-primary text-primary-foreground"><BrandSparkle className="w-3 h-3 mr-1" />{tr("Prêt", "Ready")}</Badge>;
       case "generating":
-        return <Badge variant="outline"><Loader2 className="w-3 h-3 mr-1 animate-spin" />En cours</Badge>;
+        return <Badge variant="outline"><Loader2 className="w-3 h-3 mr-1 animate-spin" />{tr("En cours", "In progress")}</Badge>;
       case "failed":
       case "error":
-        return <Badge variant="destructive"><AlertCircle className="w-3 h-3 mr-1" />Échec</Badge>;
+        return <Badge variant="destructive"><AlertCircle className="w-3 h-3 mr-1" />{tr("Échec", "Failed")}</Badge>;
       default:
-        return <Badge variant="secondary"><Clock className="w-3 h-3 mr-1" />Planifié</Badge>;
+        return <Badge variant="secondary"><Clock className="w-3 h-3 mr-1" />{tr("Planifié", "Scheduled")}</Badge>;
     }
   };
 
@@ -570,14 +573,14 @@ const AEORank = () => {
                 <Badge variant="secondary" className="text-[10px] px-1.5">GEO</Badge>
               </h1>
               <p className="text-xs text-muted-foreground">
-                30 jours de contenus GEO et FAQ pour les moteurs IA. Les posts Google sont soumis à modération ; les Q&R natives Google ne sont plus disponibles.
+                {tr("30 jours de contenus GEO et FAQ pour les moteurs IA. Les posts Google sont soumis à modération ; les Q&R natives Google ne sont plus disponibles.", "30 days of GEO content and FAQs for AI search. Google posts are moderated; native Google Q&A publishing is no longer available.")}
               </p>
             </div>
           </div>
           <Button type="button" variant="outline" size="sm"
             className="w-full mb-3 gap-2" onClick={() => setManageLocationsOpen(true)}>
             <Building2 className="w-4 h-4" />
-            Gérer mes établissements GEO
+            {tr("Gérer mes établissements GEO", "Manage GEO locations")}
           </Button>
           {selectedBusiness && !isSubscribed && (
             <Button
@@ -589,12 +592,12 @@ const AEORank = () => {
               {generating ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Génération...
+                  {tr("Génération...", "Generating...")}
                 </>
               ) : (
                 <>
                   <BrandSparkle className="w-4 h-4 mr-2" />
-                  Analyser & Générer
+                  {tr("Analyser & Générer", "Analyze & Generate")}
                 </>
               )}
             </Button>
@@ -602,7 +605,7 @@ const AEORank = () => {
           {selectedBusiness && isSubscribed && (
             <div className="w-full text-xs text-muted-foreground bg-emerald-500/10 border border-emerald-500/20 rounded-lg px-3 py-2 flex items-center gap-2">
               <CheckCircle className="w-3.5 h-3.5 text-emerald-600" />
-              Génération GEO active — les FAQ restent disponibles et ne sont pas automatiquement publiées comme Q&R Google.
+              {tr("Génération GEO active — les FAQ restent disponibles et ne sont pas automatiquement publiées comme Q&R Google.", "GEO generation enabled — your FAQs remain available and are not automatically published as native Google Q&As.")}
             </div>
           )}
         </div>
@@ -613,12 +616,12 @@ const AEORank = () => {
         {businesses.length === 0 ? (
           <Card className="p-6 text-center">
             <Building2 className="w-10 h-10 mx-auto mb-3 text-muted-foreground/30" />
-            <h3 className="text-base font-medium text-foreground mb-2">Aucun établissement</h3>
+            <h3 className="text-base font-medium text-foreground mb-2">{tr("Aucun établissement", "No locations")}</h3>
             <p className="text-xs text-muted-foreground mb-4">
-              Connect your Google Business Profile first
+              {tr("Connectez d'abord votre fiche Google Business", "Connect your Google Business Profile first")}
             </p>
             <Button onClick={() => navigate("/businesses")} size="sm">
-              Add a business
+              {tr("Ajouter un établissement", "Add a business")}
             </Button>
           </Card>
         ) : (
@@ -650,7 +653,7 @@ const AEORank = () => {
                       </DialogTrigger>
                       <DialogContent className="sm:max-w-md">
                         <DialogHeader>
-                          <DialogTitle>Vos établissements</DialogTitle>
+                          <DialogTitle>{tr("Vos établissements", "Your locations")}</DialogTitle>
                         </DialogHeader>
                         <div className="space-y-1 mt-4">
                           {businesses.map((business) => {
@@ -727,7 +730,7 @@ const AEORank = () => {
               <div className="flex items-center justify-between mt-3 p-2 bg-muted/50 rounded-lg border border-border/50">
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   <Settings className="w-3.5 h-3.5" />
-                  <span>Publication auto :</span>
+                  <span>{tr("Génération programmée :", "Scheduled generation:")}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <select
@@ -741,7 +744,7 @@ const AEORank = () => {
                       </option>
                     ))}
                   </select>
-                  <Badge variant="secondary" className="text-[10px]">Quotidien</Badge>
+                  <Badge variant="secondary" className="text-[10px]">{tr("Quotidien", "Daily")}</Badge>
                 </div>
               </div>
 
@@ -750,9 +753,9 @@ const AEORank = () => {
                 {scheduledContent.length === 0 ? (
                   <Card className="p-5 text-center">
                     <HelpCircle className="w-8 h-8 mx-auto mb-2 text-muted-foreground/30" />
-                    <h3 className="text-sm font-medium text-foreground mb-1">Aucune Q&R planifiée</h3>
+                    <h3 className="text-sm font-medium text-foreground mb-1">{tr("Aucune Q&R planifiée", "No GEO FAQs scheduled")}</h3>
                     <p className="text-xs text-muted-foreground">
-                      Cliquez sur « Analyser & Générer » pour créer votre plan sur 30 jours
+                      {tr("Cliquez sur « Analyser & Générer » pour créer votre plan sur 30 jours", "Select Analyze & Generate to create your 30-day plan")}
                     </p>
                   </Card>
                 ) : (
@@ -815,7 +818,7 @@ const AEORank = () => {
                           </div>
                         ) : (
                           <p className="text-xs text-muted-foreground italic">
-                            Q&A not generated • {item.keyword_used}
+                            {tr("FAQ non générée", "FAQ not generated")} • {item.keyword_used}
                           </p>
                         )}
                         {item.keyword_used && item.question && (
