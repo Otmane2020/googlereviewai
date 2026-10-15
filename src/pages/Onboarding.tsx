@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "@/hooks/use-toast";
-import { ArrowRight, MessageCircle, Crown, Loader2, Star, AlertTriangle } from "lucide-react";
+import { ArrowRight, MessageCircle, Crown, Loader2, Star, AlertTriangle, Building2 } from "lucide-react";
 import { useGoogleOAuth } from "@/hooks/useGoogleOAuth";
 import { BrandSparkle } from "@/components/BrandSparkle";
 import { RankiLogo } from "@/components/StarlinkoLogo";
@@ -111,11 +111,19 @@ const Onboarding = () => {
         throw new Error(data?.message || data?.error || "Google Business sync failed");
       }
       if (data.requires_selection && data.google_businesses?.length) {
+        // Google has returned real locations: it IS connected. A pending
+        // location selection is not a connection failure.
+        setHasGoogle(true);
+        setSyncError(null);
+        setNeedsReconnect(false);
         setDiscoveredLocations(data.google_businesses);
         setLocationLimit(data.max_businesses || 1);
         if (step === 1) setLocationSelectionOpen(true);
         return;
       }
+      setHasGoogle(true);
+      setSyncError(null);
+      setNeedsReconnect(false);
       await loadBusinesses();
       if (data.businesses?.length === 0) {
         setSyncError(isFrench
@@ -312,21 +320,48 @@ const Onboarding = () => {
                 </div>
 
                 {businesses.length === 0 ? (
-                  <div className="p-4 rounded-xl border border-amber-500/30 bg-amber-500/5 space-y-3">
-                    <div className="flex gap-2 text-sm items-start">
-                      {discovering ? <Loader2 className="w-5 h-5 shrink-0 animate-spin" /> : <AlertTriangle className="w-5 h-5 shrink-0 text-amber-600" />}
-                      <div>
-                        <p className="font-semibold">{discovering ? (isFrench ? "Recherche des fiches Google…" : "Finding Google locations…") : (isFrench ? "Aucune fiche disponible" : "No locations available")}</p>
-                        {syncError && <p role="alert" className="mt-1 text-muted-foreground break-words">{syncError}</p>}
+                  discoveredLocations.length > 0 ? (
+                    <div className="reviewai-soft-card p-4 sm:p-5 space-y-3">
+                      <div className="flex items-start gap-3">
+                        <div className="h-10 w-10 shrink-0 rounded-xl bg-primary/10 flex items-center justify-center">
+                          <Building2 className="h-5 w-5 text-primary" />
+                        </div>
+                        <div className="min-w-0 flex-1 space-y-1">
+                          <p className="font-semibold text-sm text-foreground">
+                            {isFrench ? "Vos fiches Google sont disponibles" : "Your Google locations are available"}
+                          </p>
+                          <p className="text-xs leading-relaxed text-muted-foreground">
+                            {isFrench
+                              ? `${discoveredLocations.length} établissements trouvés. Votre connexion Google fonctionne. Choisissez ceux que vous souhaitez gérer selon votre forfait.`
+                              : `${discoveredLocations.length} locations found. Google is connected. Choose the locations to manage within your plan.`}
+                          </p>
+                        </div>
                       </div>
+                      <Button type="button" className="w-full rounded-xl" onClick={() => setLocationSelectionOpen(true)}>
+                        {isFrench ? "Sélectionner mes établissements" : "Select my locations"}
+                      </Button>
                     </div>
-                    <Button type="button" variant="outline" className="w-full"
-                      disabled={discovering || !hasGoogle} onClick={() => void discoverGoogleLocations()}>
-                      {isFrench ? "Rechercher mes fiches" : "Find my Google locations"}
-                    </Button>
-                    {needsReconnect && <Button type="button" variant="ghost" className="w-full" disabled={loading || discovering}
-                      onClick={handleConnectGoogle}>{isFrench ? "Renouveler l'autorisation Google" : "Renew Google permission"}</Button>}
-                  </div>
+                  ) : (
+                    <div className="p-4 rounded-xl border border-amber-500/30 bg-amber-500/5 space-y-3">
+                      <div className="flex gap-2 text-sm items-start">
+                        {discovering ? <Loader2 className="w-5 h-5 shrink-0 animate-spin" /> : <AlertTriangle className="w-5 h-5 shrink-0 text-amber-600" />}
+                        <div>
+                          <p className="font-semibold">{discovering
+                            ? (isFrench ? "Recherche des fiches Google…" : "Finding Google locations…")
+                            : (isFrench ? "Aucune fiche disponible" : "No locations available")}</p>
+                          {syncError && <p role="alert" className="mt-1 text-muted-foreground break-words">{syncError}</p>}
+                        </div>
+                      </div>
+                      <Button type="button" variant="outline" className="w-full"
+                        disabled={discovering || !hasGoogle} onClick={() => void discoverGoogleLocations()}>
+                        {isFrench ? "Rechercher mes fiches" : "Find my Google locations"}
+                      </Button>
+                      {needsReconnect && <Button type="button" variant="ghost" className="w-full"
+                        disabled={loading || discovering} onClick={handleConnectGoogle}>
+                        {isFrench ? "Renouveler l’autorisation Google" : "Renew Google permission"}
+                      </Button>
+                    </div>
+                  )
                 ) : (
                   <RadioGroup value={selectedBusinessId} onValueChange={setSelectedBusinessId} className="space-y-2">
                     {businesses.map((b) => (
@@ -482,7 +517,13 @@ const Onboarding = () => {
         businesses={discoveredLocations}
         maxBusinesses={locationLimit}
         userId={user.id}
-        onSuccess={() => { void loadBusinesses(); setSyncError(null); }}
+        onSuccess={() => {
+          setSyncError(null);
+          setNeedsReconnect(false);
+          void loadBusinesses()
+            .then(() => setDiscoveredLocations([]))
+            .catch(e => setSyncError(e instanceof Error ? e.message : String(e)));
+        }}
       />}
     </div>
   );
