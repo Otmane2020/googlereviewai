@@ -7,7 +7,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Progress } from "@/components/ui/progress";
 import { toast } from "@/hooks/use-toast";
 import { ArrowRight, MessageCircle, Crown, Loader2, Star, AlertTriangle } from "lucide-react";
 import { useGoogleOAuth } from "@/hooks/useGoogleOAuth";
@@ -302,8 +301,8 @@ const Onboarding = () => {
 
             {step === 1 && (
               <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                <div className="flex items-center gap-3 sm:gap-4">
+                  <div className="w-12 h-12 sm:w-14 sm:h-14 shrink-0 rounded-2xl bg-primary/10 border border-primary/10 flex items-center justify-center">
                     <Star className="w-6 h-6 text-primary" />
                   </div>
                   <div>
@@ -334,7 +333,7 @@ const Onboarding = () => {
                       <Label
                         key={b.id}
                         htmlFor={b.id}
-                        className="flex items-center gap-3 p-4 rounded-xl border-2 border-border hover:border-primary/40 cursor-pointer has-[:checked]:border-primary has-[:checked]:bg-primary/5"
+                        className="reviewai-soft-card flex items-center gap-3 p-4 hover:border-primary/40 cursor-pointer has-[:checked]:border-primary has-[:checked]:bg-primary/5"
                       >
                         <RadioGroupItem id={b.id} value={b.id} />
                         <span className="font-semibold">{b.name}</span>
@@ -343,9 +342,9 @@ const Onboarding = () => {
                   </RadioGroup>
                 )}
 
-                <div className="flex justify-between pt-2">
+                <div className="flex justify-between items-center gap-3 border-t border-border/60 pt-5 mt-5">
                   <Button variant="ghost" onClick={back}>{isFrench ? "Retour" : "Back"}</Button>
-                  <Button onClick={handleContinueLocation} disabled={!selectedBusinessId || discovering}>{isFrench ? "Continuer" : "Continue"} <ArrowRight className="w-4 h-4 ml-2" /></Button>
+                  <Button className="rounded-xl reviewai-brand-gradient h-11 px-6" onClick={handleContinueLocation} disabled={!selectedBusinessId || discovering}>{isFrench ? "Continuer" : "Continue"} <ArrowRight className="w-4 h-4 ml-2" /></Button>
                 </div>
               </div>
             )}
@@ -367,7 +366,7 @@ const Onboarding = () => {
                     <Label
                       key={t.value}
                       htmlFor={t.value}
-                      className="flex items-start gap-3 p-4 rounded-xl border-2 border-border cursor-pointer has-[:checked]:border-primary has-[:checked]:bg-primary/5"
+                      className="reviewai-soft-card flex items-start gap-3 p-4 hover:border-primary/40 cursor-pointer has-[:checked]:border-primary has-[:checked]:bg-primary/5"
                     >
                       <RadioGroupItem id={t.value} value={t.value} className="mt-0.5" />
                       <div>
@@ -380,12 +379,12 @@ const Onboarding = () => {
 
                 <div className="space-y-2">
                   <Label htmlFor="sig">{isFrench ? "Signature des réponses" : "Reply signature"}</Label>
-                  <Input id="sig" value={signature} onChange={(e) => setSignature(e.target.value)} placeholder={isFrench ? "L’équipe" : "The team"} />
+                  <Input id="sig" className="h-12 rounded-xl bg-background" value={signature} onChange={(e) => setSignature(e.target.value)} placeholder={isFrench ? "L’équipe" : "The team"} />
                 </div>
 
-                <div className="flex justify-between pt-2">
+                <div className="flex justify-between items-center gap-3 border-t border-border/60 pt-5 mt-5">
                   <Button variant="ghost" onClick={back}>{isFrench ? "Retour" : "Back"}</Button>
-                  <Button onClick={handleSaveAI} disabled={loading}>
+                  <Button className="rounded-xl reviewai-brand-gradient h-11 px-6" onClick={handleSaveAI} disabled={loading}>
                     {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <>{isFrench ? "Enregistrer et continuer" : "Save & continue"} <ArrowRight className="w-4 h-4 ml-2" /></>}
                   </Button>
                 </div>
@@ -405,12 +404,12 @@ const Onboarding = () => {
                 </div>
 
                 <div className="flex justify-center">
-                  <div className="inline-flex items-center p-1 rounded-full bg-muted border border-border">
+                  <div className="inline-flex items-center p-1 rounded-2xl bg-muted/70 border border-border/70">
                     <button
                       type="button"
                       onClick={() => setBilling("monthly")}
                       className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${
-                        billing === "monthly" ? "bg-foreground text-background" : "text-muted-foreground"
+                        billing === "monthly" ? "bg-card text-primary shadow-sm" : "text-muted-foreground"
                       }`}
                     >
                       {isFrench ? "Mensuel" : "Monthly"}
@@ -419,7 +418,7 @@ const Onboarding = () => {
                       type="button"
                       onClick={() => setBilling("yearly")}
                       className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all inline-flex items-center gap-1.5 ${
-                        billing === "yearly" ? "bg-foreground text-background" : "text-muted-foreground"
+                        billing === "yearly" ? "bg-card text-primary shadow-sm" : "text-muted-foreground"
                       }`}
                     >
                       {isFrench ? "Annuel" : "Yearly"}
@@ -445,14 +444,17 @@ const Onboarding = () => {
                         key={p.name}
                         onClick={() => handleChoosePlan(key)}
                         disabled={planLoading !== null}
-                        className={`text-left p-4 rounded-xl border-2 transition-all ${
+                        className={`relative text-left p-4 sm:p-5 rounded-[20px] border transition-all hover:-translate-y-0.5 disabled:opacity-60 ${
                           p.highlight
-                            ? "border-primary bg-primary/5 hover:bg-primary/10"
-                            : "border-border hover:border-primary/40"
+                            ? "border-primary/50 bg-primary/5 shadow-[0_8px_25px_rgba(59,84,245,0.08)] hover:bg-primary/10"
+                            : "border-border/80 bg-card hover:border-primary/40 hover:shadow-sm"
                         }`}
                       >
-                        <div className="font-bold">{p.name}</div>
-                        <div className="text-2xl font-extrabold mt-1">{price}<span className="text-xs font-normal text-muted-foreground">{period}</span></div>
+                        {p.highlight && <span className="inline-flex mb-2 rounded-full bg-primary text-primary-foreground text-[10px] font-semibold px-2.5 py-1">
+                           {isFrench ? "Le plus choisi" : "Most popular"}
+                         </span>}
+                         <div className="font-bold">{p.name}</div>
+                        <div className="text-2xl font-extrabold mt-2 tracking-tight">{price}<span className="text-xs font-normal text-muted-foreground">{period}</span></div>
                         <div className="text-xs text-muted-foreground mt-1">{description}</div>
                         {planLoading === key && (
                           <Loader2 className="w-4 h-4 animate-spin mt-2 text-primary" />
@@ -462,7 +464,7 @@ const Onboarding = () => {
                   })}
                 </div>
 
-                <div className="flex justify-start items-center pt-2">
+                <div className="flex justify-start items-center border-t border-border/60 pt-5">
                   <Button variant="ghost" onClick={back}>{isFrench ? "Retour" : "Back"}</Button>
                 </div>
               </div>
