@@ -69,12 +69,12 @@ const PLANS: PlanCard[] = [
   {
     id: "pro",
     name: "Pro",
-    tagline: { fr: "Avis + GEO + SEO/AEO auto", en: "Reviews + GEO + SEO/AEO auto" },
+    tagline: { fr: "Avis + GEO + SEO/GEO auto", en: "Reviews + GEO + SEO/GEO auto" },
     monthly: { price: "49€", key: "ranki_pro_monthly" },
     yearly:  { price: "470€", key: "ranki_pro_yearly" },
     features: {
-      fr: ["Jusqu'à 3 établissements", "Réponses IA illimitées", "GEO Rank quotidien", "Posts Google soumis à validation + FAQ AEO générées", "Support prioritaire"],
-      en: ["Up to 3 locations", "Unlimited AI replies", "Daily GEO ranking", "Google posts subject to approval + generated AEO FAQs", "Priority support"],
+      fr: ["Jusqu'à 3 établissements", "Réponses IA illimitées", "GEO Rank quotidien", "Posts Google soumis à validation + FAQ GEO générées", "Support prioritaire"],
+      en: ["Up to 3 locations", "Unlimited AI replies", "Daily GEO ranking", "Google posts subject to approval + generated GEO FAQs", "Priority support"],
     },
     highlight: true,
   },
