@@ -123,7 +123,18 @@ export default function GmbPost() {
       const { data, error } = await supabase.functions.invoke("generate-gmb-image", {
         body: { business_id: selectedBusinessId, summary: content.trim() },
       });
-      if (error || !data?.success || !data?.image_url) throw new Error(data?.error || error?.message || "Image unavailable");
+      if (error) {
+        // FunctionsHttpError only exposes a generic non-2xx message unless
+        // we read the JSON error returned by generate-gmb-image.
+        let backendError: string | undefined;
+        try {
+          backendError = (await (error as { context?: Response }).context?.clone?.().json?.())?.error;
+        } catch { /* Network errors may not contain JSON. */ }
+        throw new Error(backendError || error.message || t("Service d'image indisponible.", "Image service unavailable."));
+      }
+      if (!data?.success || !data?.image_url) {
+        throw new Error(data?.error || t("Aucune image générée. Réessayez.", "No image generated. Please retry."));
+      }
       setMediaUrl(data.image_url);
       toast.success(t("Image IA générée !", "AI photo generated!"));
     } catch (error) {
