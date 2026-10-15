@@ -736,13 +736,7 @@ const Dashboard = () => {
         {/* Stats Grid - 2x2 */}
         <div className="grid grid-cols-2 gap-3 sm:gap-4">
           {/* Response Rate */}
-          <Link to="/reviews" className={`rounded-2xl p-4 border transition-all hover:scale-[1.02] active:scale-[0.98] ${
-            responseRateColor === "green" 
-              ? "bg-green-500/5 border-green-500/20 hover:bg-green-500/10" 
-              : responseRateColor === "orange"
-              ? "bg-orange-500/5 border-orange-500/20 hover:bg-orange-500/10"
-              : "bg-red-500/5 border-red-500/20 hover:bg-red-500/10"
-          }`}>
+          <Link to="/reviews" className="reviewai-surface p-4 sm:p-5 transition-all hover:border-primary/35 active:scale-[0.99]">
             <div className="flex items-center gap-2 mb-2">
               <Percent className={`w-4 h-4 ${
                 responseRateColor === "green" ? "text-green-500" 
