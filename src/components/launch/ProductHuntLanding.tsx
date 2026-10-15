@@ -3,7 +3,7 @@ import { Link } from "@/lib/router-compat";
 import { useTranslation } from "react-i18next";
 import {
   ArrowRight, ArrowUpRight, Bell, Check, CheckCheck, ChevronRight,
-  CircleCheck, Clock3, Globe2, Layers3, MapPin, Menu, MessageSquareText,
+  CircleCheck, Globe2, Layers3, MapPin, Menu, MessageSquareText,
   MousePointer2, Send, ShieldCheck, Star, TrendingUp, Wand2, X,
 } from "lucide-react";
 import { RankiLogo } from "@/components/StarlinkoLogo";
@@ -12,7 +12,6 @@ import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { RankiPricingSection } from "@/components/ranki/RankiPricingSection";
 import { FAQSection } from "@/components/FAQSection";
 
-const BLUE = "#3B54F5";
 
 function Stars({ count = 5 }: { count?: number }) {
   return (
@@ -227,7 +226,7 @@ export default function ProductHuntLanding() {
   ];
 
   return (
-    <div className="min-h-screen overflow-x-hidden bg-[#F8FAFF] font-sans text-[#172744] selection:bg-[#C9D2FF]">
+    <div className="reviewsai-launch min-h-screen overflow-x-hidden bg-[#F8FAFF] font-sans text-[#172744] selection:bg-[#C9D2FF]">
       <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-white focus:p-3">
         {fr ? "Aller au contenu" : "Skip to content"}
       </a>
