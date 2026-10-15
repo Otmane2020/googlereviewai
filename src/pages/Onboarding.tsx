@@ -283,7 +283,7 @@ const Onboarding = () => {
             <span className="hidden sm:inline text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">
               {isFrench ? "Configuration du compte" : "Account setup"}
             </span>
-            <LanguageSwitcher variant="flags" />
+            <LanguageSwitcher variant="dropdown" />
           </div>
         </header>
         <div className="reviewai-surface px-4 pt-4 pb-3 sm:px-6 sm:pt-5 sm:pb-4 space-y-3">
