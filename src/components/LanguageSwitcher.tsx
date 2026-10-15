@@ -19,23 +19,20 @@ const FrenchFlag = () => (
   </svg>
 );
 
-const BritishFlag = () => (
-  <svg width="20" height="15" viewBox="0 0 60 30" className="rounded-sm">
-    <clipPath id="s"><path d="M0,0 v30 h60 v-30 z"/></clipPath>
-    <clipPath id="t"><path d="M30,15 h30 v15 z v15 h-30 z h-30 v-15 z v-15 h30 z"/></clipPath>
-    <g clipPath="url(#s)">
-      <path d="M0,0 v30 h60 v-30 z" fill="#012169"/>
-      <path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" strokeWidth="6"/>
-      <path d="M0,0 L60,30 M60,0 L0,30" clipPath="url(#t)" stroke="#C8102E" strokeWidth="4"/>
-      <path d="M30,0 v30 M0,15 h60" stroke="#fff" strokeWidth="10"/>
-      <path d="M30,0 v30 M0,15 h60" stroke="#C8102E" strokeWidth="6"/>
-    </g>
+const USFlag = () => (
+  <svg width="20" height="15" viewBox="0 0 38 20" className="rounded-sm" aria-label="United States flag">
+    <rect width="38" height="20" fill="#fff" />
+    {Array.from({ length: 7 }, (_, i) => <rect key={i} y={i * 3} width="38" height="1.55" fill="#B22234" />)}
+    <rect width="16" height="10.8" fill="#3C3B6E" />
+    {Array.from({ length: 4 }, (_, row) => Array.from({ length: 5 }, (_, col) =>
+      <circle key={`${row}-${col}`} cx={1.9 + col * 3.0} cy={1.2 + row * 2.55} r="0.45" fill="#fff" />
+    ))}
   </svg>
 );
 
 const languages = [
   { code: "fr", label: "Français", short: "FR", Flag: FrenchFlag },
-  { code: "en", label: "English", short: "EN", Flag: BritishFlag },
+  { code: "en", label: "English", short: "EN", Flag: USFlag },
 ];
 
 interface LanguageSwitcherProps {
