@@ -27,7 +27,7 @@ export const MobileBottomNav = () => {
     { icon: Building2, label: t("dashboard.businesses"), href: "/businesses" },
   ];
 
-  const isFr = !(i18n.language || "").toLowerCase().startsWith("en");
+  const isFr = (i18n.language || "en").toLowerCase().startsWith("fr");
   const planningLabel = isFr ? "Planning" : "Planning";
 
   const menuItems = [
