@@ -226,6 +226,10 @@ export const UpgradeDialog = ({ open, onOpenChange, currentPlan, exhausted = fal
   };
 
   const selectedPack = creditPacks.find((pack) => pack.priceKey === selectedPackKey) ?? creditPacks[1];
+  const localizedTier = (tier: {price:string;key:string}) => isEN ? {
+    price: ({ "9,99€":"$9.99", "95,90€":"$95.90", "49€":"$49", "470€":"$470", "99€":"$99", "950,40€":"$950.40" } as Record<string,string>)[tier.price] || tier.price,
+    key: tier.key + "_usd",
+  } : tier;
   const visiblePacks = showAllPacks ? creditPacks : creditPacks.slice(0, 4);
   const formatEuros = (price: number) =>
     new Intl.NumberFormat(isEN ? "en-GB" : "fr-FR", {
