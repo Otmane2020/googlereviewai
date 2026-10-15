@@ -5,7 +5,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useRequireSubscription } from "@/hooks/useRequireSubscription";
 import { includesPremiumModules } from "@/lib/planEntitlements";
-import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
@@ -570,7 +569,6 @@ const Reviews = () => {
         <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
           <Loader2 className="w-8 h-8 animate-spin text-primary" />
         </div>
-        <MobileBottomNav />
       </div>
     );
   }
@@ -1244,8 +1242,6 @@ const Reviews = () => {
         )}
       </main>
 
-      <MobileBottomNav />
-      
       {/* Upgrade Dialog for insufficient credits */}
       <UpgradeDialog 
         open={upgradeDialogOpen} 
