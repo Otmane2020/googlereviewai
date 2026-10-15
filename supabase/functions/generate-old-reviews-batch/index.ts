@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { callOpenRouterWithFallback } from "../_shared/openrouter.ts";
 import { sendFreeUpgradeEmail } from "../_shared/free-upgrade.ts";
+import { resolveReviewSignature, ensureReviewSignature } from "../_shared/review-signature.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -12,7 +13,9 @@ const corsHeaders = {
 async function generateAIResponse(
   review: any,
   aiSettings: any,
-  businessName: string
+  businessName: string,
+  legacyAccountFullName?: string | null,
+  language = "fr",
 ): Promise<string | null> {
   const OPENROUTER_API_KEY = Deno.env.get("OPENROUTER_API_KEY");
   if (!OPENROUTER_API_KEY) {
@@ -23,7 +26,10 @@ async function generateAIResponse(
   const tone = aiSettings?.tone || "friendly";
   const responseLength = aiSettings?.response_length || "M";
   const includeSignature = aiSettings?.include_signature ?? true;
-  const signature = aiSettings?.signature?.replace("{business_name}", businessName) || "";
+  const signature = resolveReviewSignature({
+    businessName, language, configuredSignature: aiSettings?.signature,
+    includeSignature, legacyAccountFullName,
+  });
   const customTemplate = aiSettings?.custom_template || "";
 
   const lengthMap: Record<string, string> = {
@@ -43,13 +49,13 @@ async function generateAIResponse(
   };
   const toneInstruction = toneMap[tone] || toneMap.friendly;
 
-  const systemPrompt = `You are an AI assistant that generates professional responses to customer reviews in French.
+  const systemPrompt = `You are an AI assistant that generates professional responses to customer reviews in ${language.startsWith("en") ? "English" : "French"}.
 ${toneInstruction}
 ${lengthInstruction}
 Always thank the customer and address their specific feedback.
 ${review.rating >= 4 ? "This is a positive review, express gratitude." : "This is a critical review, show empathy and offer to improve."}
 ${customTemplate ? `Additional instructions: ${customTemplate}` : ""}
-${includeSignature && signature ? `End with this signature: ${signature}` : ""}
+${signature ? `End with EXACTLY this signature: "${signature}". Never include the full Google listing description/category in the signature.` : "Do not include a signature."}
 Do not include any greeting like "Cher client" - start directly with the response.`;
 
   try {
@@ -59,7 +65,7 @@ Do not include any greeting like "Cher client" - start directly with the respons
         { role: "user", content: `Generate a response for this ${review.rating}-star review from ${review.author}: "${review.comment || "No comment provided"}"` },
       ],
     });
-    return content || null;
+    return content ? ensureReviewSignature(content, signature) : null;
   } catch (err) {
     console.error("[OldReviewsBatch] OpenRouter all-models error:", err);
     return null;
@@ -105,7 +111,7 @@ serve(async (req) => {
     // Get profile
     const { data: profile } = await supabase
       .from("profiles")
-      .select("credits")
+      .select("credits, full_name, preferred_language")
       .eq("id", userId)
       .single();
 
@@ -142,15 +148,13 @@ serve(async (req) => {
       }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    // Get business name
-    const { data: business } = await supabase
+    // Each review must use its own active Google location, not the first
+    // business in the account; otherwise signatures can name a wrong brand.
+    const { data: businesses } = await supabase
       .from("businesses")
-      .select("name")
+      .select("name, google_place_id, gmb_language")
       .eq("user_id", userId)
-      .limit(1)
-      .single();
-
-    const businessName = business?.name || "Notre équipe";
+      .eq("is_active", true);
 
     let processed = 0;
     let creditsUsed = 0;
@@ -160,8 +164,16 @@ serve(async (req) => {
     // decrementing from a stale browser-side balance.
     for (const review of oldReviews) {
       if (remaining < 1) break;
+      const locationId = String(review.location_id || "").split("/").filter(Boolean).pop();
+      const business = (businesses || []).find(b =>
+        String(b.google_place_id || "").split("/").filter(Boolean).pop() === locationId
+      );
+      if (!business) continue;
 
-      const aiResponse = await generateAIResponse(review, aiSettings, businessName);
+      const aiResponse = await generateAIResponse(
+        review, aiSettings, business.name, profile.full_name,
+        business.gmb_language || profile.preferred_language || "fr",
+      );
       if (!aiResponse) continue;
 
       const { data: newCredits, error: consumeError } = await supabase.rpc(
