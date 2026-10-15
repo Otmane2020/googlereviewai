@@ -12,6 +12,7 @@ import {
 
 // ported from main.tsx
 import "@/i18n/config"; // Initialize i18n (synchronous, SSR-safe)
+import { detectVisitorDefaultLanguage } from "@/i18n/config";
 
 import appCss from "../styles.css?url";
 import { Toaster } from "@/components/ui/toaster";
@@ -206,6 +207,11 @@ function RootComponent() {
 // ported from src/App.tsx (AppContent) + main.tsx (ensureServiceWorker)
 function AppShell() {
   useVisitTracking();
+  useEffect(() => {
+    // On first visit: use the server-provided country if available. This never
+    // overrides a manual language choice (which is persisted across OAuth).
+    void detectVisitorDefaultLanguage();
+  }, []);
   const [showSplash, setShowSplash] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
