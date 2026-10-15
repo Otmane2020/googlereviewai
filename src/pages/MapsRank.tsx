@@ -3,7 +3,6 @@ import { useNavigate, useSearchParams } from "@/lib/router-compat";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRequireSubscription } from "@/hooks/useRequireSubscription";
 import { supabase } from "@/integrations/supabase/client";
-import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { ManageLocationsDialog } from "@/components/ManageLocationsDialog";
 import { lazy, Suspense } from "react";
 import { ClientOnly } from "@tanstack/react-router";
@@ -770,7 +769,6 @@ const MapsRank = () => {
 
       <ManageLocationsDialog open={manageLocationsOpen} onOpenChange={setManageLocationsOpen}
         onSuccess={() => setLocationsVersion(v => v + 1)} />
-      <MobileBottomNav />
     </div>
   );
 };
