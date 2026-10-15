@@ -20,6 +20,7 @@ interface GoogleBusiness {
   address: string | null;
   phone: string | null;
   website: string | null;
+  profile_image_url?: string | null;
 }
 
 interface SelectBusinessesDialogProps {
@@ -182,6 +183,19 @@ export const SelectBusinessesDialog = ({
                   isSelected ? "border-primary bg-primary text-primary-foreground" : "border-muted-foreground/35 bg-background"
                 }`} aria-hidden="true">
                   {isSelected ? <Check className="h-3.5 w-3.5 stroke-[3px]" /> : <Square className="h-3.5 w-3.5 opacity-0" />}
+                </span>
+                <span className="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-border/70 bg-primary/5 sm:h-16 sm:w-16" aria-hidden="true">
+                  <Building2 className="h-7 w-7 text-primary/45" />
+                  {business.profile_image_url && (
+                    <img
+                      src={business.profile_image_url}
+                      alt=""
+                      loading="lazy"
+                      referrerPolicy="no-referrer"
+                      className="absolute inset-0 h-full w-full object-cover"
+                      onError={event => { event.currentTarget.style.display = "none"; }}
+                    />
+                  )}
                 </span>
                 <span className="block min-w-0 flex-1 space-y-1.5">
                   <span className="block break-words text-sm font-semibold leading-snug text-foreground">{business.name}</span>
