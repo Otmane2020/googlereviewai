@@ -3,6 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { callOpenRouterWithFallback } from "../_shared/openrouter.ts";
 import { sendFreeUpgradeEmail } from "../_shared/free-upgrade.ts";
 import { hasUnlimitedAiReplies } from "../_shared/plan-access.ts";
+import { resolveReviewSignature, ensureReviewSignature } from "../_shared/review-signature.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -121,7 +122,7 @@ serve(async (req) => {
 
     // Parallel fetch: profile, review, and AI settings
     const [profileResult, reviewResult, aiSettingsResult] = await Promise.all([
-      supabase.from("profiles").select("credits, plan_name, plan_id, subscription_status, current_period_end, trial_end, preferred_language").eq("id", userId).single(),
+      supabase.from("profiles").select("credits, plan_name, plan_id, subscription_status, current_period_end, trial_end, preferred_language, full_name").eq("id", userId).single(),
       supabase.from("reviews").select("*").eq("id", reviewId).eq("user_id", userId).single(),
       supabase.from("ai_settings").select("*").eq("user_id", userId).single(),
     ]);
@@ -226,15 +227,16 @@ serve(async (req) => {
     const includeSignature = aiSettings?.include_signature ?? true;
     const customTemplate = aiSettings?.custom_template || "";
     
-    // Build signature
-    let signature = "";
-    if (includeSignature && aiSettings?.signature) {
-      signature = aiSettings.signature
-        .replace("{business_name}", businessName)
-        .replace("{nom_etablissement}", businessName);
-    } else if (includeSignature) {
-      signature = `${responseT.signature} ${businessName}`;
-    }
+    // Use a short public brand name in the default sign-off. Respect actual
+    // user customizations, while correcting legacy auto-generated personal
+    // names and the old English default template.
+    const signature = resolveReviewSignature({
+      businessName,
+      language: responseLanguage,
+      configuredSignature: aiSettings?.signature,
+      includeSignature,
+      legacyAccountFullName: profile?.full_name,
+    });
 
     // Length and tone instructions
     const lengthInstruction = responseT.lengthMap[responseLength as keyof typeof responseT.lengthMap] || responseT.lengthMap.M;
@@ -260,7 +262,7 @@ STYLE DU GÉRANT (à respecter impérativement):
 - Longueur habituelle: ${brandVoice.length || "moyenne"}
 ${brandVoice.emojis ? `- Utilise des emojis: ${brandVoice.emoji_list?.join(" ") || "oui"}` : "- Pas d'emojis"}
 - Structure typique: ${brandVoice.structure?.join(" → ") || "remerciement → réponse → invitation"}
-${brandVoice.signature_style ? `- Formule de clôture: "${brandVoice.signature_style}"` : ""}
+${brandVoice.signature_style ? "- Garder un style naturel, mais respecter uniquement la signature explicite définie ci-dessous." : ""}
 ${brandVoice.keywords?.length ? `- Vocabulaire favori: ${brandVoice.keywords.join(", ")}` : ""}
 ${brandVoice.recurring_phrases?.length ? `- Expressions récurrentes: "${brandVoice.recurring_phrases.join('", "')}"` : ""}
 
@@ -283,7 +285,7 @@ ${responseT.rules}:
 ${!brandVoice ? `3. ${responseT.length}: ${lengthInstruction}.
 4. ${responseT.tone}: ${toneInstruction}.` : "3. Respecte le style du gérant défini ci-dessus."}
 ${customTemplate ? `${brandVoice ? "4" : "5"}. ${responseT.instructions}: ${customTemplate}` : ""}
-${signature && !brandVoice?.signature_style ? `${brandVoice ? "5" : "6"}. ${responseT.signatureLabel}: "${signature}"` : ""}
+${signature ? `${brandVoice ? "5" : "6"}. ${responseT.signatureLabel}: Termine avec EXACTEMENT "${signature}". Ne copie pas la catégorie, description ou localisation de la fiche Google dans la signature.` : "N'ajoute AUCUNE signature."}
 
 ${responseT.important}`;
 
@@ -323,10 +325,11 @@ ${responseT.important}`;
       throw new Error("No response generated");
     }
 
-    // Clean response
+    // Clean model quotes and enforce the exact configured or default sign-off.
     if (aiResponse.startsWith('"') && aiResponse.endsWith('"')) {
       aiResponse = aiResponse.slice(1, -1);
     }
+    aiResponse = ensureReviewSignature(aiResponse, signature);
 
     // A single DB transaction verifies review ownership and atomically
     // consumes a credit; concurrent requests cannot overspend the balance.
