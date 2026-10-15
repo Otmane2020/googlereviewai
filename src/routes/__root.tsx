@@ -71,9 +71,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         content:
           "Automate Google Business Profile (GMB) review replies with AI. Respond to customer reviews automatically, save time and manage your Google reputation.",
       },
-      { property: "og:image", content: "https://reviewsai.store/og-image.png" },
-      { property: "og:image:width", content: "1200" },
-      { property: "og:image:height", content: "630" },
+      { property: "og:image", content: "https://reviewsai.store/icon-512x512.png" },
+      { property: "og:image:width", content: "512" },
+      { property: "og:image:height", content: "512" },
       { property: "og:locale", content: "en_US" },
       { property: "og:site_name", content: "Reviews AI" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -83,7 +83,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         content:
           "Automate Google Business Profile (GMB) review replies with AI. Respond to customer reviews automatically, save time and manage your Google reputation.",
       },
-      { name: "twitter:image", content: "https://reviewsai.store/og-image.png" },
+      { name: "twitter:image", content: "https://reviewsai.store/icon-512x512.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },

@@ -5,8 +5,7 @@ interface BrandSparkleProps extends React.HTMLAttributes<HTMLImageElement> {
 }
 
 /**
- * Drop-in replacement for the Lucide `Sparkles` icon, using the GoogleReviewAI/Starlinko
- * favicon logo so the brand identity stays consistent everywhere.
+ * Brand icon used in compact AI indicators; no sparkle glyphs.
  */
 export const BrandSparkle = ({ className, ...props }: BrandSparkleProps) => (
   <img
