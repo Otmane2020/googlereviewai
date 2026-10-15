@@ -66,7 +66,7 @@ const T = {
     noCreditsSubject: (n: number) => `${n} avis sans réponse - Crédits épuisés`,
     noCreditsTitle: "Crédits épuisés",
     freeUpgradeSubject: "Vos 3 réponses IA gratuites ont été utilisées",
-    freeUpgradeTitle: "Prêt à aller plus loin avec GoogleReviewAI ?",
+    freeUpgradeTitle: "Prêt à aller plus loin avec Reviews AI ?",
     freeUpgradeBody: "Vous avez utilisé vos 3 réponses IA offertes. Pour continuer à répondre automatiquement aux avis Google et gagner du temps, choisissez la formule adaptée à votre établissement.",
     freeUpgradeButton: "Découvrir les abonnements",
     pendingReviews: "Avis en attente",
@@ -107,7 +107,7 @@ const T = {
     noCreditsSubject: (n: number) => `${n} unanswered review${n > 1 ? "s" : ""} - Credits exhausted`,
     noCreditsTitle: "Credits exhausted",
     freeUpgradeSubject: "Your 3 free AI review replies have been used",
-    freeUpgradeTitle: "Keep responding with GoogleReviewAI",
+    freeUpgradeTitle: "Keep responding with Reviews AI",
     freeUpgradeBody: "You have used your 3 complimentary AI review replies. Choose the right plan to keep replying to Google reviews automatically and save time.",
     freeUpgradeButton: "Explore paid plans",
     pendingReviews: "Pending reviews",
@@ -127,15 +127,15 @@ const T = {
 const getProHeader = () => `
   <div style="background: ${STYLES.bgWhite}; padding: 32px 24px; border-bottom: 1px solid ${STYLES.borderLight};">
     <table cellpadding="0" cellspacing="0" border="0"><tr>
-      <td style="vertical-align: middle;"><img src="https://googlereviewai.com/favicon.png" width="32" height="32" alt="GoogleReviewAI" style="display: block;" /></td>
-      <td style="vertical-align: middle; padding-left: 12px;"><span style="font-family: ${STYLES.fontFamily}; font-weight: 600; font-size: 18px; color: ${STYLES.textPrimary};">GoogleReviewAI</span></td>
+      <td style="vertical-align: middle;"><img src="https://reviewsai.store/favicon.png" width="32" height="32" alt="Reviews AI" style="display: block;" /></td>
+      <td style="vertical-align: middle; padding-left: 12px;"><span style="font-family: ${STYLES.fontFamily}; font-weight: 600; font-size: 18px; color: ${STYLES.textPrimary};">Reviews AI</span></td>
     </tr></table>
   </div>`;
 
 const getProFooter = (rights: string) => `
   <div style="padding: 24px; text-align: center; border-top: 1px solid ${STYLES.borderLight};">
-    <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textMuted}; font-size: 12px; margin: 0 0 8px 0;">© 2025 GoogleReviewAI. ${rights}</p>
-    <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textMuted}; font-size: 12px; margin: 0;"><a href="https://googlereviewai.com" style="color: ${STYLES.brandBlue}; text-decoration: none;">googlereviewai.com</a></p>
+    <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textMuted}; font-size: 12px; margin: 0 0 8px 0;">© 2025 Reviews AI. ${rights}</p>
+    <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textMuted}; font-size: 12px; margin: 0;"><a href="https://reviewsai.store" style="color: ${STYLES.brandBlue}; text-decoration: none;">googlereviewai.com</a></p>
   </div>`;
 
 const getProButton = (text: string, url: string) => `
@@ -162,7 +162,7 @@ function renderTemplate(type: EmailType, lang: Lang, name: string, data?: Engage
         <div style="background: ${STYLES.bgLight}; border-radius: 6px; padding: 20px; margin: 24px 0; border-left: 3px solid ${STYLES.brandBlue};">
           <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textPrimary}; font-size: 14px; font-weight: 500; margin: 0 0 12px 0;">${t.included}</p>
           <ul style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textSecondary}; font-size: 14px; line-height: 1.8; margin: 0; padding-left: 20px;"><li>${t.f1}</li><li>${t.f2}</li><li>${t.f3}</li><li>${t.f4}</li></ul>
-        </div><div style="text-align: left; margin: 32px 0;">${getProButton(t.configure, "https://googlereviewai.com/ai-settings")}</div>`),
+        </div><div style="text-align: left; margin: 32px 0;">${getProButton(t.configure, "https://reviewsai.store/ai-settings")}</div>`),
     };
   }
 
@@ -172,7 +172,7 @@ function renderTemplate(type: EmailType, lang: Lang, name: string, data?: Engage
       html: shell(lang, t.pendingTitle, name, `
         <div style="background: ${STYLES.warningBg}; border-radius: 6px; padding: 20px; margin: 24px 0; text-align: center;"><p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.warningText}; font-size: 13px; margin: 0 0 4px 0; text-transform: uppercase; letter-spacing: 0.5px;">${t.unanswered}</p><p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textPrimary}; font-size: 36px; font-weight: 600; margin: 0;">${count}</p></div>
         <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textSecondary}; font-size: 15px; line-height: 1.6; margin: 0 0 24px 0;">${t.pendingBody}</p>
-        <div style="text-align: left; margin: 32px 0;">${getProButton(t.viewReviews, "https://googlereviewai.com/reviews")}</div>
+        <div style="text-align: left; margin: 32px 0;">${getProButton(t.viewReviews, "https://reviewsai.store/reviews")}</div>
         <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textMuted}; font-size: 13px; line-height: 1.6; margin: 24px 0 0 0;">${t.bulkTip}</p>`),
     };
   }
@@ -183,7 +183,7 @@ function renderTemplate(type: EmailType, lang: Lang, name: string, data?: Engage
       html: shell(lang, t.lowTitle, name, `
         <div style="background: ${STYLES.errorBg}; border-radius: 6px; padding: 20px; margin: 24px 0; text-align: center;"><p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.errorText}; font-size: 13px; margin: 0 0 4px 0; text-transform: uppercase; letter-spacing: 0.5px;">${t.remainingCredits}</p><p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textPrimary}; font-size: 36px; font-weight: 600; margin: 0;">${credits}</p></div>
         <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textSecondary}; font-size: 15px; line-height: 1.6; margin: 0 0 24px 0;">${t.lowBody}</p>
-        <div style="text-align: left; margin: 32px 0;">${getProButton(t.seePlans, "https://googlereviewai.com/select-plan")}</div>`),
+        <div style="text-align: left; margin: 32px 0;">${getProButton(t.seePlans, "https://reviewsai.store/select-plan")}</div>`),
     };
   }
 
@@ -196,7 +196,7 @@ function renderTemplate(type: EmailType, lang: Lang, name: string, data?: Engage
           <p style="font-family: ${STYLES.fontFamily}; font-size: 36px; font-weight: 700; margin: 0; color: ${STYLES.textPrimary};">3 / 3</p>
           <p style="font-family: ${STYLES.fontFamily}; font-size: 13px; margin: 8px 0 0; color: ${STYLES.textMuted};">${t.freeUpgradeSubject}</p>
         </div>
-        <div style="text-align: center; margin: 30px 0;">${getProButton(t.freeUpgradeButton, "https://googlereviewai.com/select-plan")}</div>
+        <div style="text-align: center; margin: 30px 0;">${getProButton(t.freeUpgradeButton, "https://reviewsai.store/select-plan")}</div>
         <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textMuted}; font-size: 13px; line-height: 1.6; margin-top: 20px;">${t.manualReply}</p>`),
     };
   }
@@ -207,7 +207,7 @@ function renderTemplate(type: EmailType, lang: Lang, name: string, data?: Engage
       html: shell(lang, t.noCreditsTitle, name, `
         <div style="background: ${STYLES.errorBg}; border-radius: 6px; padding: 20px; margin: 24px 0; text-align: center;"><p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.errorText}; font-size: 13px; margin: 0 0 4px 0; text-transform: uppercase; letter-spacing: 0.5px;">${t.pendingReviews}</p><p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textPrimary}; font-size: 36px; font-weight: 600; margin: 0;">${count}</p></div>
         <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textSecondary}; font-size: 15px; line-height: 1.6; margin: 0 0 24px 0;">${t.noCreditsBody}</p>
-        <div style="text-align: left; margin: 32px 0;">${getProButton(t.topUp, "https://googlereviewai.com/select-plan")}</div>
+        <div style="text-align: left; margin: 32px 0;">${getProButton(t.topUp, "https://reviewsai.store/select-plan")}</div>
         <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textMuted}; font-size: 13px; line-height: 1.6; margin: 24px 0 0 0;">${t.manualReply}</p>`),
     };
   }
@@ -218,7 +218,7 @@ function renderTemplate(type: EmailType, lang: Lang, name: string, data?: Engage
       <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textSecondary}; font-size: 15px; line-height: 1.6; margin: 0 0 24px 0;">${t.weeklyIntro}</p>
       <table style="width: 100%; border-collapse: collapse; margin: 24px 0;"><tr><td style="width: 50%; padding: 0 8px 0 0;"><div style="background: ${STYLES.successBg}; border-radius: 6px; padding: 20px; text-align: center;"><p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.successText}; font-size: 13px; margin: 0 0 4px 0; text-transform: uppercase; letter-spacing: 0.5px;">${t.generatedReplies}</p><p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textPrimary}; font-size: 28px; font-weight: 600; margin: 0;">${data?.reviews_responded || 0}</p></div></td><td style="width: 50%; padding: 0 0 0 8px;"><div style="background: ${STYLES.bgLight}; border-radius: 6px; padding: 20px; text-align: center;"><p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textSecondary}; font-size: 13px; margin: 0 0 4px 0; text-transform: uppercase; letter-spacing: 0.5px;">${t.publishedGoogle}</p><p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textPrimary}; font-size: 28px; font-weight: 600; margin: 0;">${data?.reviews_published || 0}</p></div></td></tr></table>
       ${count > 0 ? `<div style="background: ${STYLES.warningBg}; border-radius: 6px; padding: 16px; margin: 24px 0;"><p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.warningText}; font-size: 14px; margin: 0;">${t.pendingLine(count)}</p></div>` : ""}
-      <div style="text-align: left; margin: 32px 0;">${getProButton(t.dashboard, "https://googlereviewai.com/dashboard")}</div>`),
+      <div style="text-align: left; margin: 32px 0;">${getProButton(t.dashboard, "https://reviewsai.store/dashboard")}</div>`),
   };
 }
 
@@ -244,7 +244,7 @@ serve(async (req) => {
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${RESEND_API_KEY}` },
-      body: JSON.stringify({ from: "GoogleReviewAI <support@ranki.ai>", to: [email], subject: rendered.subject, html: rendered.html }),
+      body: JSON.stringify({ from: "Reviews AI <support@ranki.ai>", to: [email], subject: rendered.subject, html: rendered.html }),
     });
 
     const resData = await res.json();

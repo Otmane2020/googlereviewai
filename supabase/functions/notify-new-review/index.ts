@@ -72,10 +72,10 @@ const getProHeader = () => `
     <table cellpadding="0" cellspacing="0" border="0">
       <tr>
         <td style="vertical-align: middle;">
-          <img src="https://googlereviewai.com/favicon.png" width="32" height="32" alt="GoogleReviewAI" style="display: block;" />
+          <img src="https://reviewsai.store/favicon.png" width="32" height="32" alt="Reviews AI" style="display: block;" />
         </td>
         <td style="vertical-align: middle; padding-left: 12px;">
-          <span style="font-family: ${STYLES.fontFamily}; font-weight: 600; font-size: 18px; color: ${STYLES.textPrimary};">GoogleReviewAI</span>
+          <span style="font-family: ${STYLES.fontFamily}; font-weight: 600; font-size: 18px; color: ${STYLES.textPrimary};">Reviews AI</span>
         </td>
       </tr>
     </table>
@@ -85,10 +85,10 @@ const getProHeader = () => `
 const getProFooter = (t: typeof emailTranslations.fr) => `
   <div style="padding: 24px; text-align: center; border-top: 1px solid ${STYLES.borderLight};">
     <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textMuted}; font-size: 12px; margin: 0 0 8px 0;">
-      © 2025 GoogleReviewAI. ${t.allRightsReserved}
+      © 2025 Reviews AI. ${t.allRightsReserved}
     </p>
     <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textMuted}; font-size: 12px; margin: 0;">
-      <a href="https://googlereviewai.com" style="color: ${STYLES.brandBlue}; text-decoration: none;">googlereviewai.com</a>
+      <a href="https://reviewsai.store" style="color: ${STYLES.brandBlue}; text-decoration: none;">googlereviewai.com</a>
     </p>
   </div>
 `;
@@ -129,7 +129,7 @@ serve(async (req) => {
       );
     }
 
-    const fullReviewUrl = `https://googlereviewai.com/reviews?review_id=${review_id}`;
+    const fullReviewUrl = `https://reviewsai.store/reviews?review_id=${review_id}`;
 
     // Fetch settings, profile, and business language
     const [settingsResult, profileResult] = await Promise.all([
@@ -150,7 +150,7 @@ serve(async (req) => {
     const userCredits = profileResult.data?.credits ?? 0;
 
     // Per-review emails follow the configured Google Business language,
-    // even when the user browses GoogleReviewAI in another language.
+    // even when the user browses Reviews AI in another language.
     const lang = await resolveEmailLang(userEmail, null, user_id, reviewData?.location_id);
 
     const t = emailTranslations[lang] || emailTranslations.fr;
@@ -232,7 +232,7 @@ serve(async (req) => {
       </div>
       
       <div style="text-align: left; margin: 32px 0;">
-        ${getProButton(t.rechargeCredits, "https://googlereviewai.com/select-plan")}
+        ${getProButton(t.rechargeCredits, "https://reviewsai.store/select-plan")}
       </div>
       
       <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textMuted}; font-size: 13px; line-height: 1.6; margin: 24px 0 0 0;">
@@ -255,7 +255,7 @@ serve(async (req) => {
               to: userEmail,
               subject: t.noCreditsSubject(rating),
               html: noCreditsEmailHtml,
-              from_name: "GoogleReviewAI",
+              from_name: "Reviews AI",
             }),
           });
 
@@ -322,7 +322,7 @@ serve(async (req) => {
               to: userEmail,
               subject: t.normalSubject(rating),
               html: emailHtml,
-              from_name: "GoogleReviewAI",
+              from_name: "Reviews AI",
             }),
           });
 
@@ -351,7 +351,7 @@ serve(async (req) => {
           title: notificationTitle,
           body: notificationMessage,
           url: fullReviewUrl,
-          icon: "https://googlereviewai.com/icon-512x512.png",
+          icon: "https://reviewsai.store/icon-512x512.png",
         }),
       });
       if (pushResponse.ok) {
@@ -378,7 +378,7 @@ serve(async (req) => {
           title: notificationTitle,
           message: notificationMessage,
           url: fullReviewUrl,
-          icon: "https://googlereviewai.com/icon-512x512.png",
+          icon: "https://reviewsai.store/icon-512x512.png",
         }),
       });
 
