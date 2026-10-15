@@ -46,7 +46,7 @@ export const MobileBottomNav = () => {
   };
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-card/95 backdrop-blur-xl border-t border-border safe-area-inset-bottom">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-card/96 backdrop-blur-xl border-t border-border/70 shadow-[0_-6px_28px_rgba(45,59,127,0.055)] safe-area-inset-bottom">
       <div className="flex items-center justify-around h-16 px-2">
         {navItems.map((item) => {
           const isActive = location.pathname === item.href;
@@ -65,7 +65,7 @@ export const MobileBottomNav = () => {
             >
               {isPlus ? (
                 <div className="relative -mt-4">
-                  <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center shadow-lg shadow-primary/30">
+                  <div className="w-12 h-12 rounded-2xl reviewai-brand-gradient flex items-center justify-center shadow-md shadow-primary/20 ring-4 ring-background">
                     <item.icon className="w-6 h-6 text-primary-foreground stroke-[2.5px]" />
                   </div>
                 </div>
@@ -89,7 +89,7 @@ export const MobileBottomNav = () => {
           <SheetTrigger asChild>
             <button
               className="flex flex-col items-center justify-center flex-1 h-full gap-1 transition-all text-muted-foreground hover:text-foreground"
-              aria-label="Menu"
+              aria-label={isFr ? "Ouvrir le menu" : "Open menu"}
             >
               <div className="relative transition-transform">
                 <Menu className="w-5 h-5 stroke-[1.5px]" />
@@ -97,11 +97,11 @@ export const MobileBottomNav = () => {
               <span className="text-[10px] font-medium">Menu</span>
             </button>
           </SheetTrigger>
-          <SheetContent side="bottom" className="rounded-t-3xl max-h-[85vh] overflow-y-auto border-t border-border/60 pb-8">
+          <SheetContent side="bottom" className="rounded-t-[28px] max-h-[85vh] overflow-y-auto border-t border-primary/10 pb-8 bg-background">
             <SheetHeader>
               <SheetTitle className="text-left">Menu</SheetTitle>
             </SheetHeader>
-            <div className="mt-3 rounded-2xl border border-border/60 bg-muted/25 p-3 space-y-3">
+            <div className="mt-3 reviewai-surface p-3 space-y-3">
               <Link to="/settings" onClick={() => setMenuOpen(false)}
                 className="flex items-center gap-3 rounded-xl hover:bg-muted p-2 transition-colors"
                 aria-label={isFr ? "Compte et paramètres" : "Account and settings"}>
@@ -134,8 +134,8 @@ export const MobileBottomNav = () => {
                     onClick={() => setMenuOpen(false)}
                     className={`group flex flex-col items-center justify-center gap-2 p-3 rounded-2xl border transition-all active:scale-95 ${
                       isActive
-                        ? "bg-primary/5 border-primary/40 ring-1 ring-primary/20"
-                        : "bg-card border-border/60 hover:bg-muted/40"
+                        ? "bg-primary/5 border-primary/35 ring-1 ring-primary/15"
+                        : "bg-card border-border/70 hover:bg-muted/40"
                     }`}
                   >
                     <div className={`w-11 h-11 rounded-2xl flex items-center justify-center ${item.color}`}>

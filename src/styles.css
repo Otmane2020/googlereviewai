@@ -65,23 +65,23 @@
 }
 
 :root {
-  --background: 210 20% 98%;
-  --foreground: 222 47% 11%;
+  --background: 225 33% 98%;
+  --foreground: 226 38% 14%;
 
   --card: 0 0% 100%;
-  --card-foreground: 222 47% 11%;
+  --card-foreground: 226 38% 14%;
 
   --popover: 0 0% 100%;
-  --popover-foreground: 222 47% 11%;
+  --popover-foreground: 226 38% 14%;
 
-  --primary: 217 91% 60%;
+  --primary: 232 90% 60%;
   --primary-foreground: 0 0% 100%;
 
   --secondary: 160 84% 39%;
   --secondary-foreground: 0 0% 100%;
 
-  --muted: 210 40% 96%;
-  --muted-foreground: 215 20% 38%;
+  --muted: 225 40% 96%;
+  --muted-foreground: 222 18% 42%;
 
   --accent: 43 96% 56%;
   --accent-foreground: 222 47% 11%;
@@ -89,11 +89,11 @@
   --destructive: 0 84% 60%;
   --destructive-foreground: 0 0% 100%;
 
-  --border: 214 32% 91%;
-  --input: 214 32% 91%;
-  --ring: 217 91% 60%;
+  --border: 225 28% 91%;
+  --input: 225 28% 91%;
+  --ring: 232 90% 60%;
 
-  --radius: 0.75rem;
+  --radius: 1rem;
 
   /* Custom GoogleReviewAI colors */
   --google-blue: 217 89% 61%;
@@ -102,17 +102,17 @@
   --google-red: 4 90% 58%;
 
   /* Gradient variables */
-  --gradient-start: 217 89% 61%;
-  --gradient-end: 160 84% 39%;
+  --gradient-start: 232 90% 60%;
+  --gradient-end: 218 95% 57%;
 
-  --sidebar-background: 0 0% 98%;
-  --sidebar-foreground: 240 5% 26%;
-  --sidebar-primary: 217 91% 60%;
+  --sidebar-background: 0 0% 100%;
+  --sidebar-foreground: 226 38% 14%;
+  --sidebar-primary: 232 90% 60%;
   --sidebar-primary-foreground: 0 0% 100%;
-  --sidebar-accent: 210 40% 96%;
+  --sidebar-accent: 232 90% 97%;
   --sidebar-accent-foreground: 222 47% 11%;
-  --sidebar-border: 214 32% 91%;
-  --sidebar-ring: 217 91% 60%;
+  --sidebar-border: 225 28% 91%;
+  --sidebar-ring: 232 90% 60%;
 }
 
 .dark {
@@ -125,7 +125,7 @@
   --popover: 222 47% 8%;
   --popover-foreground: 210 40% 98%;
 
-  --primary: 217 91% 60%;
+  --primary: 232 90% 60%;
   --primary-foreground: 0 0% 100%;
 
   --secondary: 160 84% 39%;
@@ -142,7 +142,7 @@
 
   --border: 217 33% 17%;
   --input: 217 33% 17%;
-  --ring: 217 91% 60%;
+  --ring: 232 90% 60%;
 
   --sidebar-background: 222 47% 6%;
   --sidebar-foreground: 210 40% 98%;
@@ -152,6 +152,39 @@
   --sidebar-accent-foreground: 210 40% 98%;
   --sidebar-border: 217 33% 17%;
   --sidebar-ring: 217 91% 60%;
+}
+
+
+/* Reviews AI visual language derived from the current multicolour speech-bubble logo. */
+@layer components {
+  .reviewai-surface {
+    background: hsl(var(--card));
+    border: 1px solid hsl(var(--border) / .8);
+    border-radius: 1.25rem;
+    box-shadow: 0 5px 24px rgba(35, 54, 125, .045);
+  }
+
+  .reviewai-wizard-bg {
+    background:
+      radial-gradient(ellipse 60% 40% at 8% 0%, rgba(59, 84, 245, .10), transparent 75%),
+      radial-gradient(ellipse 50% 42% at 95% 12%, rgba(52, 168, 83, .07), transparent 77%),
+      hsl(var(--background));
+  }
+
+  .reviewai-brand-gradient {
+    background: linear-gradient(112deg, #3346d9 0%, #3b54f5 60%, #477ff9 100%);
+    color: #fff;
+  }
+
+  .reviewai-brand-line {
+    background: linear-gradient(90deg, #4285f4 0% 24%, #ea4335 24% 48%, #fbbc05 48% 72%, #34a853 72% 100%);
+  }
+
+  .reviewai-soft-card {
+    background: linear-gradient(130deg, hsl(var(--card)), hsl(var(--primary) / .025));
+    border: 1px solid hsl(var(--border) / .85);
+    border-radius: 1.15rem;
+  }
 }
 
 /* v3 container behavior: centered, 2rem padding, capped at 1400px from the 2xl breakpoint */
@@ -218,7 +251,7 @@
 }
 
 @utility gradient-hero {
-  background: linear-gradient(135deg, hsl(217 91% 45%) 0%, hsl(222 47% 20%) 100%);
+  background: linear-gradient(142deg, #2437aa 0%, #3b54f5 55%, #437cf8 100%);
 }
 
 @utility gradient-text {

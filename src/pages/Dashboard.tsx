@@ -496,14 +496,14 @@ const Dashboard = () => {
         <meta name="robots" content="noindex, nofollow" />
         <link rel="canonical" href="https://reviewsai.store/dashboard" />
       </Helmet>
-      <div className="bg-gradient-to-b from-background to-muted/20">
+      <div className="bg-background">
         {/* Mobile-only header (desktop uses sidebar layout) */}
 
 
-        <main className="max-w-7xl mx-auto px-4 md:px-6 py-5 md:py-8 space-y-4">
+        <main className="max-w-7xl mx-auto px-3.5 sm:px-5 md:px-8 py-4 sm:py-6 md:py-8 space-y-4 sm:space-y-5">
           {/* Compact active Google Business identity, no oversized hero card. */}
           {allBusinesses.length > 0 ? (
-            <section className="rounded-2xl border border-border/70 bg-card px-3 py-3 sm:px-4 sm:py-3.5 shadow-sm">
+            <section className="reviewai-surface px-3.5 py-3.5 sm:px-5 sm:py-4">
               <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
                 <div className="relative shrink-0 h-14 w-14 sm:h-16 sm:w-16 rounded-xl bg-primary/10 border border-border/60 overflow-hidden flex items-center justify-center">
                   <Building2 className="h-7 w-7 text-primary/35" aria-hidden="true" />
@@ -572,7 +572,7 @@ const Dashboard = () => {
           )}
         {/* Trial Banner */}
         {profile?.subscription_status === "trial" && (
-          <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-secondary/10 rounded-2xl p-4 border border-primary/20">
+          <div className="reviewai-soft-card p-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
                 <BrandSparkle className="w-5 h-5 text-primary" />
@@ -698,47 +698,45 @@ const Dashboard = () => {
           </div>
         )}
 
-        {/* Urgency Card - Unanswered */}
-        <Link to="/reviews?status=pending" className="block">
-          <div className={`relative overflow-hidden rounded-2xl p-5 transition-all ${
-            urgencyLevel === "red" 
-              ? "bg-gradient-to-br from-red-500 to-red-600 shadow-lg shadow-red-500/30" 
+        {/* Clear actionable review status — soft, brand-consistent and semantic. */}
+        <Link to="/reviews?status=pending" className="block group">
+          <div className={`reviewai-surface relative overflow-hidden p-4 sm:p-5 transition-all group-hover:border-primary/25 group-hover:shadow-md ${
+            urgencyLevel === "red"
+              ? "border-red-200/70 dark:border-red-900/40"
               : urgencyLevel === "orange"
-              ? "bg-gradient-to-br from-orange-500 to-orange-600 shadow-lg shadow-orange-500/30"
-              : "bg-gradient-to-br from-green-500 to-green-600 shadow-lg shadow-green-500/30"
+                ? "border-orange-200/70 dark:border-orange-900/40"
+                : "border-emerald-200/70 dark:border-emerald-900/40"
           }`}>
-            <div className="absolute -top-4 -right-4 w-24 h-24 bg-white/10 rounded-full blur-xl" />
-            <div className="relative flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center">
-                  {urgencyLevel === "green" ? (
-                    <CheckCircle2 className="w-7 h-7 text-white" />
-                  ) : (
-                    <AlertCircle className="w-7 h-7 text-white" />
-                  )}
-                </div>
-                <div>
-                  <p className="text-white/80 text-sm font-medium">
-                    {urgencyLevel === "green" ? t("dashboardPage.bannerAllClear") : t("dashboardPage.bannerUnanswered")}
-                  </p>
-                  <div className="text-3xl font-bold text-white">{stats.pending}</div>
-                </div>
+            <div className={`absolute inset-y-0 left-0 w-1.5 ${
+              urgencyLevel === "red" ? "bg-red-500" : urgencyLevel === "orange" ? "bg-orange-500" : "bg-emerald-500"
+            }`} />
+            <div className="flex items-center gap-3.5 sm:gap-4">
+              <div className={`h-12 w-12 sm:h-14 sm:w-14 rounded-2xl shrink-0 flex items-center justify-center ${
+                urgencyLevel === "red" ? "bg-red-500/10 text-red-600"
+                : urgencyLevel === "orange" ? "bg-orange-500/10 text-orange-600"
+                : "bg-emerald-500/10 text-emerald-600"
+              }`}>
+                {urgencyLevel === "green" ? <CheckCircle2 className="h-6 w-6 sm:h-7 sm:w-7" /> : <AlertCircle className="h-6 w-6 sm:h-7 sm:w-7" />}
               </div>
-              <ChevronRight className="w-6 h-6 text-white/60" />
+              <div className="min-w-0 flex-1">
+                <p className="font-semibold text-foreground text-sm sm:text-base">
+                  {urgencyLevel === "green" ? t("dashboardPage.bannerAllClear") : t("dashboardPage.bannerUnanswered")}
+                </p>
+                <p className={`text-2xl sm:text-3xl font-extrabold tabular-nums leading-tight mt-1 ${
+                  urgencyLevel === "green" ? "text-emerald-600" : urgencyLevel === "orange" ? "text-orange-600" : "text-red-600"
+                }`}>{stats.pending}</p>
+              </div>
+              <div className="h-9 w-9 shrink-0 rounded-xl bg-muted/60 flex items-center justify-center text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary transition-colors">
+                <ChevronRight className="h-5 w-5" />
+              </div>
             </div>
           </div>
         </Link>
 
         {/* Stats Grid - 2x2 */}
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4">
           {/* Response Rate */}
-          <Link to="/reviews" className={`rounded-2xl p-4 border transition-all hover:scale-[1.02] active:scale-[0.98] ${
-            responseRateColor === "green" 
-              ? "bg-green-500/5 border-green-500/20 hover:bg-green-500/10" 
-              : responseRateColor === "orange"
-              ? "bg-orange-500/5 border-orange-500/20 hover:bg-orange-500/10"
-              : "bg-red-500/5 border-red-500/20 hover:bg-red-500/10"
-          }`}>
+          <Link to="/reviews" className="reviewai-surface p-4 sm:p-5 transition-all hover:border-primary/35 active:scale-[0.99]">
             <div className="flex items-center gap-2 mb-2">
               <Percent className={`w-4 h-4 ${
                 responseRateColor === "green" ? "text-green-500" 
@@ -757,7 +755,7 @@ const Dashboard = () => {
           </Link>
 
           {/* Average Rating */}
-          <Link to="/reviews" className="bg-card rounded-2xl p-4 border border-border transition-all hover:scale-[1.02] active:scale-[0.98] hover:border-primary/40">
+          <Link to="/reviews" className="reviewai-surface p-4 sm:p-5 transition-all hover:border-primary/35 active:scale-[0.99]">
             <div className="flex items-center gap-2 mb-2">
               <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
               <span className="text-xs text-muted-foreground">{t("dashboardPage.averageRating")}</span>
@@ -766,7 +764,7 @@ const Dashboard = () => {
           </Link>
 
           {/* Total Reviews */}
-          <Link to="/reviews" className="bg-card rounded-2xl p-4 border border-border transition-all hover:scale-[1.02] active:scale-[0.98] hover:border-primary/40">
+          <Link to="/reviews" className="reviewai-surface p-4 sm:p-5 transition-all hover:border-primary/35 active:scale-[0.99]">
             <div className="flex items-center gap-2 mb-2">
               <MessageSquare className="w-4 h-4 text-primary" />
               <span className="text-xs text-muted-foreground">{t("dashboardPage.totalReviews")}</span>
@@ -775,7 +773,7 @@ const Dashboard = () => {
           </Link>
 
           {/* AI Responses */}
-          <Link to="/ai-settings" className="bg-card rounded-2xl p-4 border border-border transition-all hover:scale-[1.02] active:scale-[0.98] hover:border-primary/40">
+          <Link to="/ai-settings" className="reviewai-surface p-4 sm:p-5 transition-all hover:border-primary/35 active:scale-[0.99]">
             <div className="flex items-center gap-2 mb-2">
               <BrandSparkle className="w-4 h-4 text-secondary" />
               <span className="text-xs text-muted-foreground">{t("dashboardPage.aiResponses")}</span>
@@ -791,7 +789,7 @@ const Dashboard = () => {
 
         {/* GEO Autoposting Block - AI-generated Q&A scheduled to GMB */}
         <Link to="/geo-rank" className="block">
-          <div className="relative overflow-hidden rounded-2xl p-5 bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-700 shadow-lg shadow-violet-500/30 transition-all hover:shadow-xl">
+          <div className="relative overflow-hidden rounded-2xl p-5 reviewai-brand-gradient shadow-md shadow-primary/15 transition-all hover:shadow-xl">
             <div className="absolute -top-8 -right-8 w-32 h-32 bg-white/10 rounded-full blur-2xl" />
             <div className="absolute -bottom-6 -left-6 w-24 h-24 bg-white/5 rounded-full blur-xl" />
             <div className="relative">
