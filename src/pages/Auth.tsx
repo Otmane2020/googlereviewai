@@ -64,9 +64,10 @@ const Auth = () => {
       supabase.from("profiles").select("onboarding_completed, google_refresh_token").eq("id", userId).maybeSingle(),
       supabase.from("businesses").select("id", { count: "exact", head: true }).eq("user_id", userId).eq("is_active", true),
     ]);
-    // Always pass through onboarding when a Google account has not produced a GMB location.
-    // This is where the no-GMB purge/sign-out flow runs before any dashboard access.
-    if (!profile?.onboarding_completed || (profile.google_refresh_token && (businessCount || 0) === 0)) {
+    // The first Google sign-in already requests business.manage permission.
+    // If there are no managed locations yet, let onboarding discover them
+    // using the stored refresh token. Never purge accounts for API failures.
+    if (!profile?.onboarding_completed || (businessCount || 0) === 0) {
       navigate("/onboarding", { replace: true });
     } else {
       navigate("/dashboard", { replace: true });
@@ -84,7 +85,7 @@ const Auth = () => {
           const providerRefreshToken = session.provider_refresh_token;
           if (providerRefreshToken && session.user) {
             try {
-              await supabase
+              const { error: saveError } = await supabase
                 .from("profiles")
                 .update({
                   google_refresh_token: providerRefreshToken,
@@ -93,6 +94,7 @@ const Auth = () => {
                   updated_at: new Date().toISOString(),
                 })
                 .eq("id", session.user.id);
+              if (saveError) console.error("[Auth] Unable to persist Google Business authorization:", saveError.message);
             } catch (err) {
               console.error("[Auth] Failed to store Google refresh token:", err);
             }
