@@ -466,6 +466,24 @@ async function syncLocationReviews(
 
     console.log(`[CRON] Location ${locationId}: ${synced} synced, ${newReviewIds.length} NEW, ${deleted} deleted`);
     
+    // Compare the Google-advertised total with the actual returned records.
+    // An empty API response does not prove that the public listing has no review.
+    if (!errors.length && googleTotalReviewCount !== undefined &&
+      googleTotalReviewCount > allGoogleReviewIds.length) {
+      errors.push(`Fiche ${locationId}: Google annonce ${googleTotalReviewCount} avis mais n'en renvoie que ${allGoogleReviewIds.length} via API.`);
+    }
+    if (businessId) {
+      const status = errors.length ? "api_error" :
+        allGoogleReviewIds.length ? "reviews_imported" : "google_empty";
+      const { error: diagnosisError } = await supabase.from("businesses").update({
+        last_reviews_sync_at: new Date().toISOString(),
+        last_reviews_sync_status: status,
+        last_reviews_sync_error: errors.length ? errors.join(" ; ").slice(0, 1200) : null,
+        last_google_reviews_total: googleTotalReviewCount ?? null,
+      }).eq("id", businessId).eq("user_id", userId);
+      if (diagnosisError) errors.push(diagnosisError.message);
+    }
+
     // Update business with Google's official counts
     if (businessId && (googleTotalReviewCount !== undefined || googleAverageRating !== undefined)) {
       const updateData: Record<string, unknown> = {
@@ -596,6 +614,7 @@ serve(async (req) => {
           }
         });
 
+        const foundManagedIds = new Set<string>();
         console.log(`[CRON] User has ${businessIdMap.size} active businesses`);
 
         // Only report a clean sync if at least one managed Google location
@@ -625,6 +644,7 @@ serve(async (req) => {
               continue; // Not in the user's selected managed locations
             }
             matchedManagedLocations++;
+            foundManagedIds.add(locationId);
 
             console.log(`[CRON] 📍 Processing: ${location.title || locationId}`);
 
@@ -648,8 +668,16 @@ serve(async (req) => {
           }
         }
 
-        if (businessIdMap.size > 0 && matchedManagedLocations === 0) {
-          userErrors.push("Aucune fiche active du forfait n'est accessible avec le compte Google connecté. Vérifiez la fiche choisie dans Paramètres.");
+        for (const [googleId, dbId] of businessIdMap) {
+          if (foundManagedIds.has(googleId)) continue;
+          const diagnosis = `La fiche Google ${googleId} est active dans le forfait mais absente des établissements accessibles au compte Google connecté.`;
+          userErrors.push(diagnosis);
+          await supabase.from("businesses").update({
+            last_reviews_sync_at: new Date().toISOString(),
+            last_reviews_sync_status: "missing_from_google",
+            last_reviews_sync_error: diagnosis,
+            last_google_reviews_total: null,
+          }).eq("id", dbId).eq("user_id", userSettings.user_id);
         }
         totalSynced += userSynced;
         totalNewReviews += userNewReviews;
