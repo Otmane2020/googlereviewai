@@ -77,7 +77,7 @@ const Install = () => {
         <title>Install Reviews AI | Google Reviews PWA</title>
         <meta 
           name="description" 
-          content="Installez l'application Reviews AI sur votre téléphone. Accédez à vos avis Google depuis votre écran d'accueil, même hors ligne." 
+          content="Installez l'application Reviews AI sur votre téléphone. Accédez à vos avis Google depuis votre écran d'accueil et recevez vos notifications." 
         />
         <meta name="keywords" content="installer googlereviewai.com, application avis Google, PWA, mobile app" />
         <link rel="canonical" href="https://reviewsai.store/install" />
@@ -146,7 +146,7 @@ const Install = () => {
                 </li>
               </ol>
             </div>
-          ) : deferredPrompt ? (
+          ) : canInstall ? (
             <Button onClick={handleInstall} size="lg" className="w-full">
               <Download className="mr-2 h-5 w-5" />
               Installer l'application
