@@ -89,7 +89,7 @@ const RankiSidebar = () => {
           className={({ isActive }) =>
             `flex items-center gap-3 ${
               isActive
-                ? "bg-primary/10 text-primary font-semibold"
+                ? "bg-primary/10 text-primary font-semibold rounded-xl"
                 : "text-foreground/80 hover:bg-muted hover:text-foreground"
             }`
           }
@@ -112,12 +112,12 @@ const RankiSidebar = () => {
 
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader className="border-b border-sidebar-border">
+      <SidebarHeader className="border-b border-sidebar-border bg-card">
         <div className="flex items-center justify-between px-1 py-2">
           {!collapsed ? (
             <RankiLogo className="text-sidebar-foreground" />
           ) : (
-            <RankiLogo className="text-sidebar-foreground scale-75 -ml-1" />
+            <RankiLogo markOnly className="text-sidebar-foreground" />
           )}
         </div>
       </SidebarHeader>
@@ -153,7 +153,7 @@ const RankiSidebar = () => {
 
         {!collapsed && (
           <div className="px-3 mt-2">
-            <div className="rounded-xl border border-primary/20 bg-gradient-to-br from-primary/5 to-secondary/5 p-3">
+            <div className="reviewai-soft-card p-3">
               <div className="flex items-center gap-2 mb-1">
                 <CreditCard className="w-4 h-4 text-primary" />
                 <span className="text-xs font-bold text-foreground">{profile?.credits ?? 0} {t("sidebar.credits")}</span>
