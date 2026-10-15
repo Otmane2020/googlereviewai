@@ -121,7 +121,7 @@ const getProFooter = (t: typeof T.fr) => `
       © 2025 Reviews AI. ${t.rights}
     </p>
     <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textMuted}; font-size: 12px; margin: 0;">
-      <a href="https://reviewsai.store" style="color: ${STYLES.brandBlue}; text-decoration: none;">googlereviewai.com</a>
+      <a href="https://reviewsai.store" style="color: ${STYLES.brandBlue}; text-decoration: none;">reviewsai.store</a>
       &nbsp;|&nbsp;
       <a href="https://reviewsai.store/settings" style="color: ${STYLES.brandBlue}; text-decoration: none;">${t.manage}</a>
     </p>
@@ -226,7 +226,7 @@ serve(async (req) => {
       <table cellpadding="0" cellspacing="0" border="0" style="width: 100%;">${getNextSteps(plan_name, t)}</table>
       <div style="text-align: center; margin: 40px 0;">${getProButton(t.cta, "https://reviewsai.store/dashboard")}</div>
       ${is_trial ? `<div style="background: #fef3c7; border-radius: 6px; padding: 16px; margin: 24px 0; border-left: 3px solid #f59e0b;"><p style="font-family: ${STYLES.fontFamily}; color: #92400e; font-size: 14px; margin: 0;">${t.trialEnd(trial_days)}</p></div>` : ""}
-      <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textMuted}; font-size: 13px; line-height: 1.6; margin: 32px 0 0 0;">${t.questions} <a href="mailto:support@googlereviewai.com" style="color: ${STYLES.brandBlue}; text-decoration: none;">support@googlereviewai.com</a></p>
+      <p style="font-family: ${STYLES.fontFamily}; color: ${STYLES.textMuted}; font-size: 13px; line-height: 1.6; margin: 32px 0 0 0;">${t.questions} <a href="mailto:support@reviewsai.store" style="color: ${STYLES.brandBlue}; text-decoration: none;">support@reviewsai.store</a></p>
     </div>
     ${getProFooter(t)}
   </div>
@@ -242,7 +242,7 @@ serve(async (req) => {
         Authorization: `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: "Reviews AI <support@googlereviewai.com>",
+        from: Deno.env.get("REVIEWSAI_SUPPORT_FROM") || "Reviews AI <support@ranki.ai>",
         to: [email],
         subject,
         html: htmlContent,
