@@ -42,6 +42,7 @@ const SettingsPage = () => {
   const { user, session, signOut } = useAuth();
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
+  const tr = (fr: string, en: string) => i18n.language?.startsWith("fr") ? fr : en;
   const [currentLang, setCurrentLang] = useState(i18n.language?.startsWith("fr") ? "fr" : "en");
   const handleLanguageChange = async (lng: "fr" | "en") => {
     setCurrentLang(lng);
@@ -218,14 +219,14 @@ const SettingsPage = () => {
 
     if (error) {
       toast({
-        title: "Erreur",
-        description: "Impossible d'enregistrer le profil.",
+        title: tr("Erreur", "Error"),
+        description: tr("Impossible d'enregistrer le profil.", "Could not save your profile."),
         variant: "destructive",
       });
     } else {
       toast({
-        title: "Profil mis à jour",
-        description: "Vos informations ont été enregistrées.",
+        title: tr("Profil mis à jour", "Profile updated"),
+        description: tr("Vos informations ont été enregistrées.", "Your changes have been saved."),
       });
     }
     setSaving(false);
@@ -253,7 +254,7 @@ const SettingsPage = () => {
     } catch (error: any) {
       console.error("Portal error:", error);
       toast({
-        title: "Erreur",
+        title: tr("Erreur", "Error"),
         description: error.message === "No customer found" 
           ? "Aucun abonnement trouvé. Veuillez d'abord souscrire à un plan."
           : "Could not open management portal",
@@ -279,7 +280,7 @@ const SettingsPage = () => {
   return (
     <div className="min-h-screen bg-muted/30">
       <Helmet>
-        <title>Account settings | Reviews AI</title>
+        <title>{tr("Paramètres du compte | Reviews AI", "Account settings | Reviews AI")}</title>
         <meta name="description" content="Manage your Reviews AI account, subscription, notifications and connected Google Business Profile locations." />
         <meta name="robots" content="noindex, nofollow" />
         <link rel="canonical" href="https://reviewsai.store/settings" />
@@ -516,7 +517,7 @@ const SettingsPage = () => {
                   <p className="mt-1">
                     {i18n.language?.startsWith("fr") ? "Dernier résultat" : "Last result"}:{" "}
                     <span className="font-medium">
-                      {activeImportDiagnostic.status || (i18n.language?.startsWith("fr") ? "non vérifié" : "not checked")}
+                      {activeImportDiagnostic.status ? ({ reviews_imported: tr("Avis importés", "Reviews imported"), google_empty: tr("Aucun avis renvoyé par Google", "Google returned no reviews"), api_error: tr("Erreur Google", "Google API error"), missing_from_google: tr("Fiche Google inaccessible", "Google listing inaccessible") } as Record<string,string>)[activeImportDiagnostic.status] || activeImportDiagnostic.status : tr("non vérifié", "not checked")}
                     </span>
                   </p>
                   {activeImportDiagnostic.details && (
