@@ -10,6 +10,7 @@ import { toast } from "@/hooks/use-toast";
 import { ArrowLeft, Loader2, Check, ShieldCheck, AlertTriangle } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Helmet } from "react-helmet";
+import { isActivePaidPlan } from "@/lib/planEntitlements";
 
 const Auth = () => {
   const { t, i18n } = useTranslation();
@@ -37,8 +38,8 @@ const Auth = () => {
         const { data, error } = await supabase.functions.invoke("create-checkout", {
           body: {
             priceKey,
-            successUrl: `${window.location.origin}/dashboard?success=true`,
-            cancelUrl: `${window.location.origin}/?canceled=true`,
+            successUrl: `${window.location.origin}/payment-success`,
+            cancelUrl: `${window.location.origin}/onboarding?step=plan`,
           },
         });
         if (error) throw error;
@@ -56,19 +57,22 @@ const Auth = () => {
       }
     }
 
-    if (nextParam && nextParam.startsWith("/")) {
-      navigate(nextParam, { replace: true });
-      return;
-    }
     const [{ data: profile }, { count: businessCount }] = await Promise.all([
-      supabase.from("profiles").select("onboarding_completed, google_refresh_token").eq("id", userId).maybeSingle(),
+      supabase.from("profiles")
+        .select("onboarding_completed, free_plan_selected_at, plan_name, subscription_status, current_period_end, trial_end, google_refresh_token")
+        .eq("id", userId).maybeSingle(),
       supabase.from("businesses").select("id", { count: "exact", head: true }).eq("user_id", userId).eq("is_active", true),
     ]);
     // The first Google sign-in already requests business.manage permission.
     // If there are no managed locations yet, let onboarding discover them
     // using the stored refresh token. Never purge accounts for API failures.
-    if (!profile?.onboarding_completed || (businessCount || 0) === 0) {
+    // A legacy onboarding_completed=true may reflect an abandoned checkout.
+    const hasExplicitFreeChoice = Boolean(profile?.onboarding_completed && profile?.free_plan_selected_at);
+    const hasVerifiedPaidPlan = isActivePaidPlan(profile);
+    if ((!hasExplicitFreeChoice && !hasVerifiedPaidPlan) || (businessCount || 0) === 0) {
       navigate("/onboarding", { replace: true });
+    } else if (nextParam && nextParam.startsWith("/") && !nextParam.startsWith("//")) {
+      navigate(nextParam, { replace: true });
     } else {
       navigate("/dashboard", { replace: true });
     }
