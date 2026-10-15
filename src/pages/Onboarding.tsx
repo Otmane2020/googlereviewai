@@ -64,7 +64,7 @@ const Onboarding = () => {
   const [needsReconnect, setNeedsReconnect] = useState(false);
   const [discovering, setDiscovering] = useState(false);
   const [locationSelectionOpen, setLocationSelectionOpen] = useState(false);
-  const [discoveredLocations, setDiscoveredLocations] = useState<{name: string; google_place_id: string; address: string | null; phone: string | null; website: string | null}[]>([]);
+  const [discoveredLocations, setDiscoveredLocations] = useState<{name: string; google_place_id: string; address: string | null; phone: string | null; website: string | null; profile_image_url?: string | null}[]>([]);
   const [locationLimit, setLocationLimit] = useState(1);
   const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
