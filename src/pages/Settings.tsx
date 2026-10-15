@@ -5,7 +5,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useDeviceDetection } from "@/hooks/useDeviceDetection";
 import { useWebPush } from "@/hooks/useWebPush";
-import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { UpgradeDialog } from "@/components/UpgradeDialog";
 import { SupportDialog } from "@/components/SupportDialog";
 import { Button } from "@/components/ui/button";
@@ -731,8 +730,6 @@ const SettingsPage = () => {
 
       <ManageLocationsDialog open={manageLocationsOpen} onOpenChange={setManageLocationsOpen}
         onSuccess={async () => { setBusinessRefreshKey(v => v + 1); }} />
-      <MobileBottomNav />
-      
       <UpgradeDialog 
         open={showUpgradeDialog} 
         onOpenChange={setShowUpgradeDialog}
