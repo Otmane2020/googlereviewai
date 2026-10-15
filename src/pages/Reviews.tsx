@@ -472,7 +472,13 @@ const Reviews = () => {
   const handleSync = async () => {
     if (!selectedBusinessId) return;
     const result = await syncReviews(selectedBusinessId);
-    if (result.success) {
+    if (result.empty_from_google) {
+      toast({
+        title: i18n.language?.startsWith("fr") ? "Google renvoie zéro avis pour cette fiche" : "Google returned zero reviews",
+        description: result.message,
+        variant: "destructive",
+      });
+    } else if (result.success) {
       setLastSyncTime(new Date());
       toast({ title: i18n.language?.startsWith("fr") ? "Synchronisation terminée" : "Sync complete",
         description: result.message });
