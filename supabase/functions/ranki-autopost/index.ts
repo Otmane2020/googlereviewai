@@ -1,6 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
-import sanitizeHtml from "npm:sanitize-html@2.17.0";
+import sanitizeHtml from "https://esm.sh/sanitize-html@2.17.0";
 
 const MAX_BODY_BYTES = 1024 * 1024;
 const SITE_URL = "https://reviewsai.store";
