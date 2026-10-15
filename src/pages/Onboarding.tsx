@@ -12,6 +12,8 @@ import { toast } from "@/hooks/use-toast";
 import { ArrowRight, MessageCircle, Crown, Loader2, Star, AlertTriangle } from "lucide-react";
 import { useGoogleOAuth } from "@/hooks/useGoogleOAuth";
 import { BrandSparkle } from "@/components/BrandSparkle";
+import { RankiLogo } from "@/components/StarlinkoLogo";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { SelectBusinessesDialog } from "@/components/SelectBusinessesDialog";
 import { useTranslation } from "react-i18next";
 import { normalizeLanguage } from "@/i18n/config";
@@ -253,28 +255,46 @@ const Onboarding = () => {
 
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 flex items-center justify-center p-4">
-      <div className="w-full max-w-2xl space-y-6">
-        <div className="space-y-2">
-          <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span>{isFrench ? "Étape" : "Step"} {step + 1} {isFrench ? "sur" : "of"} {STEPS.length}</span>
-            <span>{labels[step]}</span>
+    <div className="min-h-screen reviewai-wizard-bg flex items-start justify-center px-3 py-5 sm:px-6 sm:py-10">
+      <div className="w-full max-w-[740px] space-y-5 sm:space-y-7">
+        <header className="reviewai-surface px-4 py-3 sm:px-5 sm:py-4 flex items-center justify-between gap-3">
+          <RankiLogo className="text-foreground" />
+          <div className="flex items-center gap-3">
+            <span className="hidden sm:inline text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">
+              {isFrench ? "Configuration du compte" : "Account setup"}
+            </span>
+            <LanguageSwitcher variant="flags" />
           </div>
-          <Progress value={((step + 1) / STEPS.length) * 100} className="h-2" />
+        </header>
+        <div className="reviewai-surface px-4 pt-4 pb-3 sm:px-6 sm:pt-5 sm:pb-4 space-y-3">
+          <div className="flex items-center justify-between text-xs font-semibold text-muted-foreground">
+            <span>{isFrench ? "Étape" : "Step"} {step + 1} {isFrench ? "sur" : "of"} {STEPS.length}</span>
+            <span className="text-primary">{labels[step]}</span>
+          </div>
+          <div className="grid grid-cols-4 gap-2" aria-label={isFrench ? "Progression de l'inscription" : "Signup progress"}>
+            {labels.map((label, index) => (
+              <div key={index} className="space-y-1.5 min-w-0">
+                <div className={`h-1.5 rounded-full transition-colors ${index <= step ? "reviewai-brand-gradient" : "bg-muted"}`} />
+                <span className={`hidden sm:block text-[10px] text-center truncate ${index === step ? "font-semibold text-primary" : "text-muted-foreground"}`}>
+                  {label}
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
-
-        <Card className="rounded-2xl border-border/60 shadow-xl">
-          <CardContent className="p-8 space-y-6">
+        <Card className="overflow-hidden border-border/75 rounded-[24px] sm:rounded-[28px] shadow-[0_16px_50px_rgba(39,57,121,0.07)] bg-card">
+          <div className="h-1 reviewai-brand-line" aria-hidden="true" />
+          <CardContent className="p-5 sm:p-8 space-y-6">
             {step === 0 && (
-              <div className="text-center space-y-4">
-                <div className="w-16 h-16 mx-auto rounded-2xl bg-primary/10 flex items-center justify-center">
-                  <BrandSparkle className="w-8 h-8 text-primary" />
+              <div className="text-center space-y-5 py-3 sm:py-6">
+                <div className="h-20 w-20 sm:h-24 sm:w-24 mx-auto rounded-[22px] bg-primary/5 border border-primary/10 flex items-center justify-center">
+                  <BrandSparkle className="w-14 h-14 sm:w-16 sm:h-16" />
                 </div>
-                <h2 className="text-2xl font-bold">{isFrench ? "Bienvenue sur Reviews AI 👋" : "Welcome to Reviews AI 👋"}</h2>
-                <p className="text-muted-foreground">
-                  {isFrench ? "Vous êtes déjà connecté avec Google. Choisissez votre fiche, personnalisez les réponses IA et choisissez un forfait." : "You are already signed in with Google. Choose your business, set up AI replies, and pick a plan."}
+                <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">{isFrench ? "Bienvenue sur Reviews AI" : "Welcome to Reviews AI"}</h2>
+                <p className="text-sm sm:text-base leading-relaxed text-muted-foreground max-w-md mx-auto">
+                  {isFrench ? "Votre compte Google est connecté. Choisissez un établissement, personnalisez vos réponses et démarrez avec le bon forfait." : "Your Google account is connected. Choose a location, personalize your replies and select your plan."}
                 </p>
-                <Button size="lg" onClick={next} className="rounded-xl">
+                <Button size="lg" onClick={next} className="w-full sm:w-auto px-9 h-12 rounded-xl reviewai-brand-gradient font-semibold shadow-md shadow-primary/15">
                   {isFrench ? "Commencer" : "Get started"} <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
               </div>
@@ -450,6 +470,9 @@ const Onboarding = () => {
 
           </CardContent>
         </Card>
+        <p className="text-center text-[11px] text-muted-foreground px-4 pb-2">
+          {isFrench ? "Reviews AI · Configuration sécurisée de votre espace" : "Reviews AI · Secure workspace setup"}
+        </p>
       </div>
       {user && <SelectBusinessesDialog
         open={locationSelectionOpen}
