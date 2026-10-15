@@ -357,3 +357,17 @@ html, body {
     min-height: -webkit-fill-available;
   }
 }
+
+/* Marketing launch is deliberately light, independent of dashboard dark mode. */
+.reviewsai-launch {
+  color-scheme: light;
+  --background: 225 33% 98%;
+  --foreground: 226 38% 14%;
+  --card: 0 0% 100%;
+  --card-foreground: 226 38% 14%;
+  --primary: 232 90% 60%;
+  --primary-foreground: 0 0% 100%;
+  --muted: 225 40% 96%;
+  --muted-foreground: 222 18% 42%;
+  --border: 225 28% 91%;
+}
