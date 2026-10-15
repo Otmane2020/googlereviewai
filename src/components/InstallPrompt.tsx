@@ -4,8 +4,10 @@ import { useDeviceDetection } from "@/hooks/useDeviceDetection";
 import { Button } from "@/components/ui/button";
 import { X, Download, Share, Plus } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useLocation } from "@/lib/router-compat";
 
 export const InstallPrompt = () => {
+  const location = useLocation();
   const { i18n } = useTranslation();
   const isFrench = i18n.language?.startsWith("fr");
   const { isInstalled, isStandalone, isIOS, canInstall, promptInstall } = usePWA();
@@ -22,6 +24,9 @@ export const InstallPrompt = () => {
     }
   }, []);
 
+  // Product Hunt visitors should see the product, not an install banner.
+  // Keep PWA installation available once they enter the application.
+  if (location.pathname === "/" || location.pathname === "/landing") return null;
   if (isNativeApp) return null;
   if (isInstalled || isStandalone || dismissed) return null;
   if (!isMobile && !canInstall) return null;
