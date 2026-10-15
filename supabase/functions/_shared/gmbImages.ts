@@ -1,7 +1,7 @@
 import type { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { generateGmbImageBytes } from "./gmbImageProviders.ts";
 
 const BUCKET = "gmb-generated-images";
-const IMAGE_MODEL = "google/gemini-2.5-flash-image";
 
 export type GmbImageBusiness = {
   id: string;
@@ -20,9 +20,6 @@ export async function generateGmbImage(
   postText: string,
   postKind: "news" | "information" | "spotlight" = "information",
 ): Promise<string> {
-  const key = Deno.env.get("OPENROUTER_API_KEY");
-  if (!key) throw new Error("OPENROUTER_API_KEY is missing. Image generation is not configured.");
-
   // Rate-limit costly generations on the server, not only in the UI.
   const folder = userId + "/" + business.id;
   const { data: previous, error: listError } = await admin.storage
@@ -50,55 +47,18 @@ export async function generateGmbImage(
     "Only a photo, never a flyer or ad graphic.",
   ].join(" ");
 
-  const timeout = AbortSignal.timeout(75_000);
-  const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Authorization": "Bearer " + key,
-      "Content-Type": "application/json",
-      "HTTP-Referer": "https://googlereviewai.com",
-      "X-Title": "GoogleReviewAI GMB image generator",
-    },
-    body: JSON.stringify({
-      model: IMAGE_MODEL,
-      modalities: ["image", "text"],
-      messages: [{ role: "user", content: prompt }],
-    }),
-    signal: timeout,
-  });
-  if (!response.ok) {
-    const info = await response.text().catch(() => "");
-    throw new Error("Image model error " + response.status + ": " + info.slice(0, 300));
-  }
-  const result = await response.json() as {
-    choices?: { message?: {
-      images?: { image_url?: { url?: string } }[];
-    } }[];
-    error?: { message?: string };
-  };
-  const imageDataUrl = result.choices?.[0]?.message?.images?.find(
-    (item) => item.image_url?.url?.startsWith("data:image/"),
-  )?.image_url?.url;
-  if (!imageDataUrl) {
-    throw new Error(result.error?.message || "OpenRouter returned no image. Please retry.");
-  }
-  const match = /^data:image\/(png|jpeg|webp);base64,([A-Za-z0-9+/=]+)$/.exec(imageDataUrl);
-  if (!match) throw new Error("Unsupported image format from OpenRouter.");
-  const mime = match[1] === "jpeg" ? "image/jpeg" : "image/" + match[1];
-  const approxBytes = Math.floor(match[2].length * 0.75);
-  if (approxBytes < 5000 || approxBytes > 10_000_000) throw new Error("Generated image has an invalid size.");
-  const binary = atob(match[2]);
-  const bytes = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-  const extension = match[1] === "jpeg" ? "jpg" : match[1];
-  const path = folder + "/" + crypto.randomUUID() + "." + extension;
+  // Cloudflare Workers AI (when configured) generates the image. OpenRouter
+  // remains a fallback. Both return validated binary bytes, never a model URL.
+  const generated = await generateGmbImageBytes(prompt);
+  const path = folder + "/" + crypto.randomUUID() + "." + generated.extension;
   const { error: uploadError } = await admin.storage
     .from(BUCKET)
-    .upload(path, bytes, { contentType: mime, cacheControl: "31536000", upsert: false });
+    .upload(path, generated.bytes, { contentType: generated.mime, cacheControl: "31536000", upsert: false });
   if (uploadError) throw new Error("Unable to save generated photo: " + uploadError.message);
   const { data } = admin.storage.from(BUCKET).getPublicUrl(path);
   if (!data.publicUrl || !data.publicUrl.startsWith("https://")) {
     throw new Error("The generated photo has no public HTTPS URL.");
   }
+  console.log("[GMB images] Generated and saved with provider", generated.provider, "business", business.id);
   return data.publicUrl;
 }
