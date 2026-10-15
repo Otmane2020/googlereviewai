@@ -215,12 +215,17 @@ serve(async (req) => {
             const items = data.mediaItems || [];
             // Match the cover image that visitors see at the top of Google
             // Business Profile. A PROFILE avatar may be different from this.
-            const validPhoto = (m: any) => m?.mediaFormat === "PHOTO" &&
-              typeof m?.googleUrl === "string" && /^https:\/\//.test(m.googleUrl);
-            const cover = items.find((m: any) => m.locationAssociation?.category === "COVER" && validPhoto(m));
-            const profile = items.find((m: any) => m.locationAssociation?.category === "PROFILE" && validPhoto(m));
-            const photo = cover || profile || items.find(validPhoto);
-            return photo?.googleUrl || null;
+            // Some verified listings return a thumbnail only, or omit
+            // mediaFormat. Prefer official COVER, then PROFILE, then any photo.
+            const photoUrl = (m: any) => {
+              if (!m || (m.mediaFormat && m.mediaFormat !== "PHOTO")) return null;
+              const url = m.googleUrl || m.thumbnailUrl || null;
+              return typeof url === "string" && /^https:\/\//i.test(url) ? url : null;
+            };
+            const cover = items.find((m: any) => m.locationAssociation?.category === "COVER" && photoUrl(m));
+            const profile = items.find((m: any) => m.locationAssociation?.category === "PROFILE" && photoUrl(m));
+            const photo = cover || profile || items.find(photoUrl);
+            return photoUrl(photo);
           }
           return null;
         }).catch(() => null),
@@ -301,11 +306,11 @@ serve(async (req) => {
     // Check if user already has active businesses selected
     const { data: existingBusinesses } = await supabaseAdmin
       .from("businesses")
-      .select("id,google_place_id,profile_image_url")
-      .eq("user_id", user.id)
-      .eq("is_active", true);
+      .select("id,google_place_id,profile_image_url,is_active")
+      .eq("user_id", user.id);
 
-    const existingPlaceIds = new Set((existingBusinesses || []).map(b => b.google_place_id));
+    const existingPlaceIds = new Set((existingBusinesses || [])
+      .filter(b => b.is_active).map(b => b.google_place_id));
     // Refresh the selected listing's real Google cover even when we are about
     // to return a selection dialog for newly discovered locations.
     for (const saved of existingBusinesses || []) {
@@ -345,6 +350,7 @@ serve(async (req) => {
             phone: b.phone,
             website: b.website,
             description: b.description,
+            profile_image_url: b.profile_image_url || null,
           })),
           max_businesses: maxBusinesses,
           active_google_place_ids: [...existingPlaceIds],
@@ -455,6 +461,7 @@ serve(async (req) => {
           phone: b.phone,
           website: b.website,
           description: b.description,
+          profile_image_url: b.profile_image_url || null,
         })),
         max_businesses: maxBusinesses,
       }),
