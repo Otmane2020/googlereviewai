@@ -141,22 +141,24 @@ const Auth = () => {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row">
+    <div className="min-h-screen flex flex-col lg:flex-row reviewai-wizard-bg">
       <Helmet>
-        <title>Sign in or create your account | Reviews AI</title>
+        <title>{i18n.language?.startsWith("fr") ? "Connexion ou inscription | Reviews AI" : "Sign in or create your account | Reviews AI"}</title>
         <meta name="description" content="Access your Reviews AI account to manage AI review responses, local SEO and GEO ranking for your business." />
         <meta name="robots" content="noindex, follow" />
         <link rel="canonical" href="https://reviewsai.store/auth" />
       </Helmet>
 
       {/* Left panel */}
-      <div className="hidden lg:flex lg:w-1/2 gradient-hero p-12 flex-col justify-between">
+      <div className="hidden lg:flex lg:w-[47%] reviewai-brand-gradient relative overflow-hidden p-12 flex-col justify-between">
         <div>
           <Link to="/">
-            <RankiLogo showBadge={false} className="text-card" />
+            <RankiLogo showBadge={false} variant="mono" className="text-white" />
           </Link>
         </div>
-        <div className="space-y-8">
+        <div className="absolute w-[360px] h-[360px] rounded-full bg-white/5 -right-28 -top-20 pointer-events-none" />
+        <div className="absolute w-[220px] h-[220px] rounded-full border border-white/15 -left-28 bottom-20 pointer-events-none" />
+        <div className="relative space-y-8">
           <div>
             <h1 className="text-4xl font-bold text-card mb-4">
               {t("auth.manageReviewsWithAI")}
@@ -180,8 +182,8 @@ const Auth = () => {
       </div>
 
       {/* Right panel */}
-      <div className="flex-1 flex flex-col bg-background">
-        <div className="lg:hidden p-4 border-b border-border">
+      <div className="flex-1 flex flex-col bg-transparent">
+        <div className="lg:hidden p-3 sm:p-4 border-b border-border/60 bg-card">
           <div className="flex items-center justify-between">
             <Link to="/" className="flex items-center gap-2 text-muted-foreground">
               <ArrowLeft className="w-5 h-5" />
@@ -189,17 +191,17 @@ const Auth = () => {
             </Link>
             <div className="flex items-center gap-2">
               <LanguageSwitcher variant="flags" />
-              <RankiLogo showBadge={false} />
+              <RankiLogo showBadge={false} compactOnMobile />
             </div>
           </div>
         </div>
 
-        <div className="hidden lg:flex justify-end p-4">
+        <div className="hidden lg:flex justify-end p-5">
           <LanguageSwitcher variant="flags" />
         </div>
 
-        <div className="flex-1 flex items-center justify-center p-6">
-          <div className="w-full max-w-md space-y-6">
+        <div className="flex-1 flex items-center justify-center px-4 py-7 sm:px-8">
+          <div className="w-full max-w-md reviewai-surface px-5 py-7 sm:p-9 space-y-6">
             <div className="hidden lg:block">
               <Link
                 to="/"
@@ -222,7 +224,7 @@ const Auth = () => {
               </div>
             )}
             <div>
-              <h2 className="text-2xl font-bold text-foreground">
+              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
                 {t("auth.signInTitle")}
               </h2>
               <p className="text-muted-foreground mt-2">
@@ -232,7 +234,7 @@ const Auth = () => {
 
             <Button
               type="button"
-              className="w-full h-12 text-base font-semibold bg-accent hover:bg-accent/90 text-accent-foreground shadow-lg"
+              className="w-full h-12 rounded-xl text-base font-semibold reviewai-brand-gradient shadow-md shadow-primary/15 hover:brightness-105"
               onClick={handleGoogle}
               disabled={isGoogleLoading}
             >
@@ -251,7 +253,7 @@ const Auth = () => {
               )}
             </Button>
 
-            <div className="flex items-start gap-2 text-xs text-muted-foreground bg-muted/40 rounded-lg p-3">
+            <div className="flex items-start gap-2 text-xs text-muted-foreground bg-primary/5 border border-primary/10 rounded-xl p-3">
               <ShieldCheck className="w-4 h-4 mt-0.5 text-primary shrink-0" />
               <span>
                 {t("auth.stripeNotice")}
