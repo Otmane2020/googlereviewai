@@ -73,7 +73,7 @@ const Dashboard = () => {
   const [recentReviews, setRecentReviews] = useState<Review[]>([]);
   const [stats, setStats] = useState({ total: 0, avgRating: 0, aiResponses: 0, pending: 0, businesses: 0, responseRate: 0 });
   const [primaryBusinessName, setPrimaryBusinessName] = useState<string | null>(null);
-  const [allBusinesses, setAllBusinesses] = useState<{ id: string; name: string; google_place_id: string | null; profile_image_url: string | null; maps_url: string | null; address: string | null; rating: number | null; total_reviews: number | null }[]>([]);
+  const [allBusinesses, setAllBusinesses] = useState<{ id: string; name: string; google_place_id: string | null; profile_image_url: string | null; maps_url: string | null; address: string | null; rating: number | null; total_reviews: number | null; last_reviews_sync_status: string | null; last_reviews_sync_error: string | null; last_reviews_sync_at: string | null; last_google_reviews_total: number | null }[]>([]);
   const [locationSyncError, setLocationSyncError] = useState<string | null>(null);
   const [alternateLocation, setAlternateLocation] = useState<{ name: string; count: number } | null>(null);
   const [selectedBusinessId, setSelectedBusinessId] = useState<string | null>(null);
@@ -214,7 +214,7 @@ const Dashboard = () => {
 
     const [profileRes, businessesRes, syncStatusRes] = await Promise.all([
       supabase.from("profiles").select("*").eq("id", user.id).maybeSingle(),
-      supabase.from("businesses").select("id, name, google_place_id, profile_image_url, maps_url, address, total_reviews, rating, is_active", { count: "exact" }).eq("user_id", user.id),
+      supabase.from("businesses").select("id, name, google_place_id, profile_image_url, maps_url, address, total_reviews, rating, is_active, last_reviews_sync_status, last_reviews_sync_error, last_reviews_sync_at, last_google_reviews_total", { count: "exact" }).eq("user_id", user.id),
       supabase.from("ai_settings").select("last_sync_at, last_sync_status, last_sync_error, reviews_synced_count").eq("user_id", user.id).maybeSingle()
     ]);
     
@@ -234,7 +234,7 @@ const Dashboard = () => {
     }
     setSelectedBusinessId(target?.id || null);
     setPrimaryBusinessName(target?.name || null);
-    setAllBusinesses(managed.map(b => ({ id: b.id, name: b.name, google_place_id: b.google_place_id, profile_image_url: b.profile_image_url, maps_url: b.maps_url, address: b.address, rating: b.rating, total_reviews: b.total_reviews })));
+    setAllBusinesses(managed.map(b => ({ id: b.id, name: b.name, google_place_id: b.google_place_id, profile_image_url: b.profile_image_url, maps_url: b.maps_url, address: b.address, rating: b.rating, total_reviews: b.total_reviews, last_reviews_sync_status: b.last_reviews_sync_status, last_reviews_sync_error: b.last_reviews_sync_error, last_reviews_sync_at: b.last_reviews_sync_at, last_google_reviews_total: b.last_google_reviews_total })));
 
     const scopedReviews = target?.google_place_id
       ? allReviews.filter(r => r.location_id === target.google_place_id)
@@ -606,6 +606,28 @@ const Dashboard = () => {
               <Link to="/settings#managed-locations" className="mt-2 inline-flex items-center gap-1 font-semibold text-primary underline underline-offset-2">
                 {i18n.language?.startsWith("fr") ? "Choisir la bonne fiche dans Paramètres" : "Select the correct listing in Settings"}
                 <ChevronRight className="h-3.5 w-3.5" />
+              </Link>
+            </div>
+          )}
+          {stats.total === 0 && allBusinesses.some(b => b.id === selectedBusinessId &&
+            b.last_reviews_sync_status && b.last_reviews_sync_status !== "reviews_imported") && (
+            <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-3 text-xs space-y-1">
+              <p className="font-semibold text-foreground">
+                {i18n.language?.startsWith("fr") ? "Google n'a pas transmis les avis de cette fiche" : "Google did not return reviews for this listing"}
+              </p>
+              <p className="text-muted-foreground break-words">
+                {allBusinesses.find(b => b.id === selectedBusinessId)?.last_reviews_sync_error ||
+                  (i18n.language?.startsWith("fr")
+                    ? "La dernière réponse de l'API Google n'a renvoyé aucun avis. Cela peut être lié aux droits de la fiche, à sa vérification ou au délai de disponibilité d'un nouvel avis."
+                    : "Google's last API response contained no reviews. Check listing permissions, verification, and possible review delays.")}
+              </p>
+              {allBusinesses.find(b => b.id === selectedBusinessId)?.last_reviews_sync_at && (
+                <p className="text-[11px] text-muted-foreground">
+                  {new Date(allBusinesses.find(b => b.id === selectedBusinessId)!.last_reviews_sync_at!).toLocaleString(i18n.language?.startsWith("fr") ? "fr-FR" : "en-US")}
+                </p>
+              )}
+              <Link to="/settings#managed-locations" className="text-primary underline font-semibold inline-block pt-1">
+                {i18n.language?.startsWith("fr") ? "Vérifier le compte et la fiche Google" : "Check Google account and listing"}
               </Link>
             </div>
           )}
