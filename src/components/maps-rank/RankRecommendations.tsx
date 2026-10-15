@@ -1,4 +1,5 @@
 import { useNavigate } from "@/lib/router-compat";
+import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -44,6 +45,8 @@ interface Recommendation {
 
 export const RankRecommendations = ({ points, keyword, businessId }: RankRecommendationsProps) => {
   const navigate = useNavigate();
+  const { i18n } = useTranslation();
+  const tr = (fr: string, en: string) => i18n.language?.startsWith("fr") ? fr : en;
 
   const generateRecommendations = (): Recommendation[] => {
     const recommendations: Recommendation[] = [];
@@ -83,11 +86,11 @@ export const RankRecommendations = ({ points, keyword, businessId }: RankRecomme
       recommendations.push({
         type: "warning",
         icon: <AlertTriangle className="w-4 h-4" />,
-        title: `Absent de ${Math.round((notFoundCount / totalPoints) * 100)}% des zones`,
-        description: `Votre établissement n'apparaît pas dans ${notFoundCount} zones sur ${totalPoints}. Créez du contenu Q&A pour améliorer votre visibilité.`,
+        title: tr(`Absent de ${Math.round((notFoundCount / totalPoints) * 100)} % des zones`, `Not found in ${Math.round((notFoundCount / totalPoints) * 100)}% of areas`),
+        description: tr(`Votre établissement n'apparaît pas dans ${notFoundCount} zones sur ${totalPoints}. Créez des FAQ GEO pour améliorer votre visibilité.`, `Your business is absent from ${notFoundCount} of ${totalPoints} areas. Build helpful GEO FAQs to improve visibility.`),
         action: {
-          label: "Créer Q&A AEO",
-          path: "/aeo-rank",
+          label: tr("Créer une FAQ GEO", "Create a GEO FAQ"),
+          path: "/geo-rank",
           params: { keyword, business_id: businessId },
         },
       });
@@ -98,10 +101,10 @@ export const RankRecommendations = ({ points, keyword, businessId }: RankRecomme
       recommendations.push({
         type: "improvement",
         icon: <TrendingUp className="w-4 h-4" />,
-        title: `Rang moyen #${avgRank.toFixed(1)} à améliorer`,
-        description: `Un rang moyen supérieur à 5 réduit vos chances d'être vu. Publiez du contenu SEO optimisé pour "${keyword}".`,
+        title: tr(`Position moyenne ${avgRank.toFixed(1)} à améliorer`, `Average rank #${avgRank.toFixed(1)} needs improvement`),
+        description: tr(`Une position moyenne au-delà de 5 réduit votre visibilité. Publiez du contenu SEO pour « ${keyword} ».`, `An average rank above 5 reduces visibility. Publish SEO content for "${keyword}".`),
         action: {
-          label: "Créer post SEO",
+          label: tr("Créer un article SEO", "Create SEO content"),
           path: "/seo-auto-post",
           params: { keyword, business_id: businessId },
         },
@@ -113,10 +116,10 @@ export const RankRecommendations = ({ points, keyword, businessId }: RankRecomme
       recommendations.push({
         type: "warning",
         icon: <MapPin className="w-4 h-4" />,
-        title: `Zone faible : ${dominantWeakZone[0]}`,
-        description: `Vous êtes mal positionné vers le ${dominantWeakZone[0]}. Ciblez cette zone dans vos publications.`,
+        title: tr(`Zone à améliorer : ${dominantWeakZone[0]}`, `Weak area: ${dominantWeakZone[0]}`),
+        description: tr(`Votre classement est faible vers ${dominantWeakZone[0]}. Ciblez cette zone dans vos contenus.`, `Your ranking is weak toward ${dominantWeakZone[0]}. Target the area in your content.`),
         action: {
-          label: "Améliorer zone",
+          label: tr("Améliorer la zone", "Improve this area"),
           path: "/seo-auto-post",
           params: { keyword: `${keyword} ${dominantWeakZone[0].toLowerCase()}`, business_id: businessId },
         },
@@ -128,8 +131,8 @@ export const RankRecommendations = ({ points, keyword, businessId }: RankRecomme
       recommendations.push({
         type: "success",
         icon: <TrendingUp className="w-4 h-4" />,
-        title: "Bonne performance !",
-        description: `Vous êtes dans le Top 3 sur ${Math.round((top3Count / totalPoints) * 100)}% des zones. Maintenez votre visibilité avec du contenu régulier.`,
+        title: tr("Bonne performance !", "Strong performance!"),
+        description: tr(`Vous figurez dans le top 3 de ${Math.round((top3Count / totalPoints) * 100)} % des zones. Continuez à publier régulièrement.`, `You rank in the top 3 in ${Math.round((top3Count / totalPoints) * 100)}% of areas. Keep publishing useful content.`),
       });
     }
 
@@ -138,10 +141,10 @@ export const RankRecommendations = ({ points, keyword, businessId }: RankRecomme
       recommendations.push({
         type: "improvement",
         icon: <Lightbulb className="w-4 h-4" />,
-        title: "Optimisez votre profil Google",
-        description: `Ajoutez "${keyword}" dans votre description et vos posts pour améliorer votre classement.`,
+        title: tr("Optimisez votre fiche Google", "Optimize your Google listing"),
+        description: tr(`Utilisez « ${keyword} » naturellement dans votre description et vos contenus.`, `Use "${keyword}" naturally in your business description and posts.`),
         action: {
-          label: "Generate du contenu",
+          label: tr("Créer du contenu", "Create content"),
           path: "/seo-auto-post",
           params: { keyword, business_id: businessId },
         },
@@ -190,7 +193,7 @@ export const RankRecommendations = ({ points, keyword, businessId }: RankRecomme
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-base">
           <Lightbulb className="w-4 h-4 text-yellow-500" />
-          Recommandations
+          {tr("Recommandations", "Recommendations")}
         </CardTitle>
       </CardHeader>
       <CardContent>
