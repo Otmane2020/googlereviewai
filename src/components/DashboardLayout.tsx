@@ -27,6 +27,7 @@ import { UpgradeDialog } from "@/components/UpgradeDialog";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useTranslation } from "react-i18next";
 import { BrandSparkle } from "@/components/BrandSparkle";
+import { isActivePaidPlan } from "@/lib/planEntitlements";
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -208,10 +209,15 @@ type CreditAccess = {
   businessCredits: number;
   planName: string | null;
   subscriptionStatus: string | null;
+  onboardingCompleted: boolean;
+  freePlanSelectedAt: string | null;
+  currentPeriodEnd: string | null;
+  trialEnd: string | null;
 };
 
 export const DashboardLayout = ({ children, title }: DashboardLayoutProps) => {
   const { user, signOut } = useAuth();
+  const navigate = useNavigate();
   const { i18n } = useTranslation();
   const isEN = i18n.language?.startsWith("en");
   const [retryKey, setRetryKey] = useState(0);
@@ -225,12 +231,13 @@ export const DashboardLayout = ({ children, title }: DashboardLayoutProps) => {
     setAccess({
       userId, status: "loading", credits: 0, agencyCredits: 0,
       businessCredits: 0, planName: null, subscriptionStatus: null,
+      onboardingCompleted: false, freePlanSelectedAt: null, currentPeriodEnd: null, trialEnd: null,
     });
 
     const refreshBalance = async () => {
       const [profileResult, businessResult] = await Promise.all([
         supabase.from("profiles")
-          .select("credits, agency_total_credits, plan_name, subscription_status")
+          .select("credits, agency_total_credits, plan_name, subscription_status, onboarding_completed, free_plan_selected_at, current_period_end, trial_end")
           .eq("id", userId).maybeSingle(),
         supabase.from("businesses")
           .select("credits")
@@ -246,6 +253,10 @@ export const DashboardLayout = ({ children, title }: DashboardLayoutProps) => {
           businessCredits: prev?.userId === userId ? prev.businessCredits : 0,
           planName: prev?.userId === userId ? prev.planName : null,
           subscriptionStatus: prev?.userId === userId ? prev.subscriptionStatus : null,
+          onboardingCompleted: prev?.userId === userId ? prev.onboardingCompleted : false,
+          freePlanSelectedAt: prev?.userId === userId ? prev.freePlanSelectedAt : null,
+          currentPeriodEnd: prev?.userId === userId ? prev.currentPeriodEnd : null,
+          trialEnd: prev?.userId === userId ? prev.trialEnd : null,
         }));
         return;
       }
@@ -260,6 +271,10 @@ export const DashboardLayout = ({ children, title }: DashboardLayoutProps) => {
         ),
         planName: profileResult.data.plan_name,
         subscriptionStatus: profileResult.data.subscription_status,
+        onboardingCompleted: Boolean(profileResult.data.onboarding_completed),
+        freePlanSelectedAt: profileResult.data.free_plan_selected_at,
+        currentPeriodEnd: profileResult.data.current_period_end,
+        trialEnd: profileResult.data.trial_end,
       });
     };
 
@@ -290,6 +305,22 @@ export const DashboardLayout = ({ children, title }: DashboardLayoutProps) => {
       void supabase.removeChannel(businessChannel);
     };
   }, [userId, retryKey]);
+
+  // Every dashboard module requires either an explicit free choice or verified Stripe plan.
+  // Receiving free credits alone must never complete onboarding.
+  const hasChosenPlan = Boolean(access?.onboardingCompleted && access?.freePlanSelectedAt)
+    || isActivePaidPlan({
+      plan_name: access?.planName,
+      subscription_status: access?.subscriptionStatus,
+      current_period_end: access?.currentPeriodEnd,
+      trial_end: access?.trialEnd,
+    });
+  const needsOnboarding = Boolean(userId && access?.userId === userId
+    && access?.status === "ready" && !hasChosenPlan);
+
+  useEffect(() => {
+    if (needsOnboarding) navigate("/onboarding?step=plan", { replace: true });
+  }, [needsOnboarding, navigate]);
 
   const checking = !!userId && (!access || access.userId !== userId || access.status === "loading");
   const failed = !!userId && access?.userId === userId && access.status === "error";
@@ -329,6 +360,14 @@ export const DashboardLayout = ({ children, title }: DashboardLayoutProps) => {
             {isEN ? "Sign out" : "Se déconnecter"}
           </Button>
         </div>
+      </div>
+    );
+  }
+
+  if (needsOnboarding) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background" aria-live="polite">
+        <Loader2 className="w-7 h-7 animate-spin text-primary" />
       </div>
     );
   }
