@@ -16,6 +16,13 @@ const PRICE_IDS: Record<string, string> = {
   ranki_pro_yearly:      "price_1TjxSKEfti9t9nN9iv48DJvm",  // 470€/yr (-20%)
   ranki_business_monthly:"price_1TjxSLEfti9t9nN9DqcufGNo",  // 99€/mo
   ranki_business_yearly: "price_1TjxSLEfti9t9nN9GrF6F0Pw",  // 950.40€/yr (-20%)
+  // USD prices on the SAME current products as the 2026 EUR plans:
+  ranki_starter_monthly_usd: "price_1UQtGKEfti9t9nN9XyTCtHYK", // $9.99/mo
+  ranki_starter_yearly_usd: "price_1UQtGMEfti9t9nN973J7Avoy",  // $95.90/yr
+  ranki_pro_monthly_usd: "price_1UQtGUEfti9t9nN9Fsfqwlfj",     // $49/mo
+  ranki_pro_yearly_usd: "price_1UQtGWEfti9t9nN9QNQxVIYI",      // $470/yr
+  ranki_business_monthly_usd: "price_1UQtGZEfti9t9nN9143Lii65", // $99/mo
+  ranki_business_yearly_usd: "price_1UQtGbEfti9t9nN9cNGQpdnJ", // $950.40/yr
 
   // ===== Legacy aliases (keep for older clients) =====
   ranki_starter: "price_1TjxSJEfti9t9nN9XgMVswCh",
@@ -82,6 +89,9 @@ const SUBSCRIPTION_PRICE_KEYS = [
   "ranki_starter_monthly", "ranki_starter_yearly",
   "ranki_pro_monthly", "ranki_pro_yearly",
   "ranki_business_monthly", "ranki_business_yearly",
+  "ranki_starter_monthly_usd", "ranki_starter_yearly_usd",
+  "ranki_pro_monthly_usd", "ranki_pro_yearly_usd",
+  "ranki_business_monthly_usd", "ranki_business_yearly_usd",
   "starter_monthly", "starter_yearly",
   "growth_monthly", "agency_monthly", "agency_eu_monthly",
   "pro_monthly", "pro_yearly",
