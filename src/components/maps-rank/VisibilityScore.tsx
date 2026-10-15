@@ -1,6 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Target, TrendingUp, TrendingDown, Minus } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface VisibilityScoreProps {
   points: {
@@ -12,6 +13,8 @@ interface VisibilityScoreProps {
 }
 
 export const VisibilityScore = ({ points, keyword, previousAvgRank }: VisibilityScoreProps) => {
+  const { i18n } = useTranslation();
+  const tr = (fr: string, en: string) => i18n.language?.startsWith("fr") ? fr : en;
   // Calculate visibility score (% in Top 10)
   const pointsWithRank = points.filter(p => p.rank_position !== null);
   const top10Count = pointsWithRank.filter(p => p.rank_position !== null && p.rank_position <= 10).length;
@@ -61,7 +64,7 @@ export const VisibilityScore = ({ points, keyword, previousAvgRank }: Visibility
         <div className="flex items-start justify-between mb-3">
           <div className="flex items-center gap-2">
             <Target className="w-5 h-5 text-primary" />
-            <span className="font-medium text-sm">Score de Visibilité</span>
+            <span className="font-medium text-sm">{tr("Score de Visibilité", "Visibility score")}</span>
           </div>
           {trend && (
             <div className={`flex items-center gap-1 text-xs ${
@@ -72,7 +75,7 @@ export const VisibilityScore = ({ points, keyword, previousAvgRank }: Visibility
               {trend === 'up' && <TrendingUp className="w-3 h-3" />}
               {trend === 'down' && <TrendingDown className="w-3 h-3" />}
               {trend === 'stable' && <Minus className="w-3 h-3" />}
-              <span>{trend === 'up' ? 'Amélioration' : trend === 'down' ? 'Baisse' : 'Stable'}</span>
+              <span>{trend === 'up' ? tr('Amélioration', 'Improving') : trend === 'down' ? tr('Baisse', 'Declining') : tr('Stable', 'Stable')}</span>
             </div>
           )}
         </div>
@@ -81,7 +84,7 @@ export const VisibilityScore = ({ points, keyword, previousAvgRank }: Visibility
           <span className={`text-4xl font-bold ${getScoreColor()}`}>
             {visibilityScore}%
           </span>
-          <span className="text-sm text-muted-foreground">visible en Top 10</span>
+          <span className="text-sm text-muted-foreground">{tr("visible en Top 10", "visible in top 10")}</span>
         </div>
 
         <div className="relative h-2 rounded-full bg-muted overflow-hidden mb-3">
@@ -100,20 +103,20 @@ export const VisibilityScore = ({ points, keyword, previousAvgRank }: Visibility
             <div className="text-lg font-bold text-primary">
               {avgRank > 0 ? `#${avgRank.toFixed(1)}` : "–"}
             </div>
-            <div className="text-[10px] text-muted-foreground">Rang moyen</div>
+            <div className="text-[10px] text-muted-foreground">{tr("Rang moyen", "Average rank")}</div>
           </div>
           <div className="bg-background/50 rounded-lg p-2">
             <div className="text-lg font-bold text-muted-foreground">
               {points.length - pointsWithRank.length}
             </div>
-            <div className="text-[10px] text-muted-foreground">Absents</div>
+            <div className="text-[10px] text-muted-foreground">{tr("Absents", "Not ranked")}</div>
           </div>
         </div>
 
         {keyword && (
           <div className="mt-3 pt-3 border-t border-primary/20">
             <div className="text-xs text-muted-foreground">
-              Keyword analysé : <span className="font-medium text-foreground">"{keyword}"</span>
+              {tr("Mot-clé analysé :", "Keyword analyzed:")} <span className="font-medium text-foreground">"{keyword}"</span>
             </div>
           </div>
         )}

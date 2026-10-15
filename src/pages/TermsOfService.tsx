@@ -133,7 +133,7 @@ const TermsOfService = () => {
           <section className="mb-10">
             <h2 className="text-xl font-semibold text-foreground mb-4">Contact</h2>
             <ul className="list-none text-muted-foreground space-y-2">
-              <li><strong>Support :</strong> support@ranki.ai</li>
+              <li><strong>Support :</strong> support@reviewsai.store</li>
               <li><strong>Questions légales :</strong> legal@reviewsai.store</li>
             </ul>
           </section>
