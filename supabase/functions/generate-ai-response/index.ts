@@ -4,6 +4,7 @@ import { callOpenRouterWithFallback } from "../_shared/openrouter.ts";
 import { sendFreeUpgradeEmail } from "../_shared/free-upgrade.ts";
 import { hasUnlimitedAiReplies } from "../_shared/plan-access.ts";
 import { resolveReviewSignature, ensureReviewSignature } from "../_shared/review-signature.ts";
+import { originalGoogleReviewText, reviewOriginalLanguage, languageLabel } from "../_shared/content-language.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -202,9 +203,11 @@ serve(async (req) => {
       business = data;
     }
 
-    // Use GMB language if available, otherwise use profile language
-    const responseLanguage = business?.gmb_language || lang;
-    const responseT = translations[responseLanguage as keyof typeof translations] || translations.fr;
+    // Replies follow original customer text; business/account language is only
+    // a fallback for star-only reviews and ambiguous one-word comments.
+    const responseLanguage = reviewOriginalLanguage(review.comment, business?.gmb_language || lang);
+    const responseT = responseLanguage === "en" ? translations.en : translations.fr;
+    const originalComment = originalGoogleReviewText(review.comment);
 
     const businessName = business?.name || t.ourEstablishment;
     const businessDescription = business?.description || "";
@@ -277,7 +280,7 @@ ${brandVoiceContext}
 Review:
 - Author: ${review.author}
 - Rating: ${review.rating}/5
-- Comment: "${review.comment || responseT.noComment}"
+- Comment: "${originalComment || responseT.noComment}"
 
 ${responseT.rules}:
 1. ${responseT.thankCustomer}
@@ -287,7 +290,13 @@ ${!brandVoice ? `3. ${responseT.length}: ${lengthInstruction}.
 ${customTemplate ? `${brandVoice ? "4" : "5"}. ${responseT.instructions}: ${customTemplate}` : ""}
 ${signature ? `${brandVoice ? "5" : "6"}. ${responseT.signatureLabel}: Termine avec EXACTEMENT "${signature}". Ne copie pas la catégorie, description ou localisation de la fiche Google dans la signature.` : "N'ajoute AUCUNE signature."}
 
-${responseT.important}`;
+${responseT.important}
+
+TOP PRIORITY: Write the entire reply in the SAME LANGUAGE as the original customer comment above.
+Likely source language: ${languageLabel(responseLanguage)} (${responseLanguage}), but inspect the customer's words directly if the hint is uncertain.
+Do not choose the language from the business listing, account, UI or Google's appended translation.
+For star-only reviews without a written comment use ${languageLabel(responseLanguage)}.
+Return only the final reply, without quotes or a language label.`;
 
     console.log("Calling OpenRouter (with fallback)... Language:", responseLanguage);
 
