@@ -11,6 +11,11 @@ project_id = "hlruprayqfnatnldrski"
     verify_jwt = false
   [functions.check-maps-ranking]
     verify_jwt = false
+  # Client payment functions require a signed-in Supabase user.
+  [functions.create-checkout]
+    verify_jwt = true
+  [functions.create-portal-session]
+    verify_jwt = true
   [functions.create-embedded-checkout]
     verify_jwt = false
   [functions.create-nfc-checkout]
@@ -82,6 +87,9 @@ project_id = "hlruprayqfnatnldrski"
   [functions.send-welcome-email]
     verify_jwt = false
   [functions.sync-gmb-posts]
+    verify_jwt = false
+  # Stripe has no Supabase JWT. Its webhook verifies Stripe-Signature.
+  [functions.stripe-webhook]
     verify_jwt = false
   [functions.sync-google-businesses]
     verify_jwt = false
