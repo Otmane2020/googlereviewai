@@ -74,8 +74,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "Manage Google reviews with ReviewsAI. Draft personalized AI replies, monitor customer feedback and improve local visibility with Google Business Profile tools.",
       },
       { property: "og:image", content: "https://reviewsai.store/og-image.png" },
-      { property: "og:image:width", content: "1200" },
-      { property: "og:image:height", content: "630" },
       { property: "og:locale", content: "en_US" },
       { property: "og:site_name", content: "ReviewsAI" },
       { name: "twitter:card", content: "summary_large_image" },
