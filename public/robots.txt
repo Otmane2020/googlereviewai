@@ -36,8 +36,8 @@ Disallow: /api/
 # Administration
 Disallow: /admin
 
-# Paid campaign pages: retain one canonical organic landing page
-Disallow: /landing
+# Campaign landing /landing is crawlable but declares noindex + canonical to /.
+# Internal paid campaign variations remain excluded from organic discovery.
 Disallow: /lp/
 Disallow: /mobile-ads
 
