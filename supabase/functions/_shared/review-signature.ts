@@ -32,9 +32,22 @@ type SignatureInput = {
 
 export function defaultReviewSignature(businessName?: string | null, language?: string | null): string {
   const brand = shortReviewBrandName(businessName);
-  return (language || "").toLowerCase().startsWith("en")
-    ? (brand ? `— The ${brand} team` : "— The team")
-    : (brand ? `— L'équipe ${brand}` : "— L'équipe");
+  const lang = (language || "fr").toLowerCase().split(/[-_]/)[0];
+  switch (lang) {
+    case "en": return brand ? `— The ${brand} team` : "— The team";
+    case "es": return brand ? `— El equipo de ${brand}` : "— El equipo";
+    case "de": return brand ? `— Das Team von ${brand}` : "— Das Team";
+    case "it": return brand ? `— Il team di ${brand}` : "— Il team";
+    case "pt": return brand ? `— A equipe ${brand}` : "— A equipe";
+    case "nl": return brand ? `— Het team van ${brand}` : "— Het team";
+    case "ar": return brand ? `— فريق ${brand}` : "— الفريق";
+    case "hi": return brand ? `— ${brand} की टीम` : "— हमारी टीम";
+    case "ja": return brand ? `— ${brand}チーム` : "— スタッフ一同";
+    case "ko": return brand ? `— ${brand} 팀` : "— 저희 팀";
+    case "zh": return brand ? `— ${brand}团队` : "— 我们的团队";
+    case "ru": return brand ? `— Команда ${brand}` : "— Наша команда";
+    default: return brand ? `— L'équipe ${brand}` : "— L'équipe";
+  }
 }
 
 export function resolveReviewSignature({
