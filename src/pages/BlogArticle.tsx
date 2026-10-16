@@ -58,7 +58,6 @@ const BlogArticle = () => {
   });
 
   if (staticArticle) {
-    const canonical = `https://reviewsai.store/blog/${staticArticle.slug}`;
     const articleText = [
       staticArticle.intro,
       staticArticle.quickAnswer,
@@ -72,84 +71,9 @@ const BlogArticle = () => {
       .map((relatedSlug) => seoArticles.find((item) => item.slug === relatedSlug))
       .filter(Boolean);
 
-    const articleSchema = {
-      "@context": "https://schema.org",
-      "@type": "Article",
-      headline: staticArticle.title,
-      description: staticArticle.description,
-      datePublished: staticArticle.publishedAt,
-      dateModified: staticArticle.updatedAt,
-      mainEntityOfPage: canonical,
-      author: {
-        "@type": "Organization",
-        name: "Reviews AI",
-        url: "https://reviewsai.store",
-      },
-      publisher: {
-        "@type": "Organization",
-        name: "Reviews AI",
-        url: "https://reviewsai.store",
-        logo: {
-          "@type": "ImageObject",
-          url: "https://reviewsai.store/icon-512x512.png",
-        },
-      },
-      keywords: staticArticle.keywords.join(", "),
-      wordCount,
-      articleSection: staticArticle.sections.map((section) => section.heading),
-    };
-
-    const faqSchema = {
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      mainEntity: staticArticle.faq.map((item) => ({
-        "@type": "Question",
-        name: item.question,
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: item.answer,
-        },
-      })),
-    };
-
-    const breadcrumbSchema = {
-      "@context": "https://schema.org",
-      "@type": "BreadcrumbList",
-      itemListElement: [
-        { "@type": "ListItem", position: 1, name: "Home", item: "https://reviewsai.store/" },
-        { "@type": "ListItem", position: 2, name: "Blog", item: "https://reviewsai.store/blog" },
-        { "@type": "ListItem", position: 3, name: staticArticle.title, item: canonical },
-      ],
-    };
-
     return (
       <>
-        <Helmet>
-          <html lang={staticArticle.slug.endsWith("-fr") ? "fr" : "en"} />
-          <title>{staticArticle.title} | Reviews AI</title>
-          <meta name="description" content={staticArticle.description} />
-          <meta name="keywords" content={[staticArticle.targetKeyword, ...staticArticle.keywords].join(", ")} />
-          <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large" />
-          <link rel="canonical" href={canonical} />
-          {staticArticle.category.includes("GEO &") && (
-            <>
-              <link rel="alternate" hrefLang="en" href={`https://reviewsai.store/blog/${staticArticle.slug.replace(/-fr$/, "")}`} />
-              <link rel="alternate" hrefLang="fr" href={`https://reviewsai.store/blog/${staticArticle.slug.replace(/-fr$/, "")}-fr`} />
-              <link rel="alternate" hrefLang="x-default" href={`https://reviewsai.store/blog/${staticArticle.slug.replace(/-fr$/, "")}`} />
-            </>
-          )}
-          <meta property="og:type" content="article" />
-          <meta property="og:title" content={staticArticle.title} />
-          <meta property="og:description" content={staticArticle.description} />
-          <meta property="og:url" content={canonical} />
-          <meta property="og:image" content="https://reviewsai.store/og-image.png" />
-          <meta name="twitter:card" content="summary_large_image" />
-          <meta name="twitter:title" content={staticArticle.title} />
-          <meta name="twitter:description" content={staticArticle.description} />
-          <script type="application/ld+json">{JSON.stringify(articleSchema)}</script>
-          <script type="application/ld+json">{JSON.stringify(faqSchema)}</script>
-          <script type="application/ld+json">{JSON.stringify(breadcrumbSchema)}</script>
-        </Helmet>
+
 
         <div className="min-h-screen bg-background">
           <Header />
