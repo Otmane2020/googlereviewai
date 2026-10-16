@@ -424,6 +424,70 @@ export default function ProductHuntLanding() {
           />
         </div>
 
+        {/* These editorial links connect high-intent search pages to the main product.
+            Real content and clear answers, not thin keyword or doorway pages. */}
+        <section aria-labelledby="learn-reviewsai" className="border-y border-[#E6EBF5] bg-white py-20 sm:py-24">
+          <div className="mx-auto max-w-[1200px] px-5 sm:px-8">
+            <div className="max-w-[780px]">
+              <span className="text-xs font-extrabold uppercase tracking-[.15em] text-[#3B54F5]">
+                {fr ? "GUIDES & CONSEILS" : "GUIDES & REAL-WORLD WORKFLOWS"}
+              </span>
+              <h2 id="learn-reviewsai" className="mt-4 text-[clamp(1.8rem,3.8vw,2.9rem)] font-extrabold leading-tight tracking-[-0.045em] text-[#172744]">
+                {fr ? "Mieux répondre aux avis Google : les bonnes méthodes." : "Useful answers to common Google review questions."}
+              </h2>
+              <p className="mt-4 max-w-[710px] text-base leading-8 text-[#65738C]">
+                {fr
+                  ? "L'IA peut préparer un brouillon, mais une bonne réponse doit rester précise, respectueuse et fidèle à ce que le client a écrit. Voici comment organiser ce travail."
+                  : "AI can draft a response, but a good reply still needs to address the customer's actual experience. Explore practical examples and clear guidelines."}
+              </p>
+            </div>
+            <div className="mt-10 grid gap-4 md:grid-cols-2">
+              {[
+                {
+                  to: "/google-review-response-generator",
+                  title: fr ? "Comment générer une réponse à un avis Google ?" : "How do you generate a Google review reply?",
+                  description: fr ? "Partir de la note et des mots du client, adapter le ton et vérifier le texte avant publication." : "Start with the customer's rating and words, adapt the tone and review the draft before publishing.",
+                  cta: fr ? "Générateur de réponses IA" : "AI review response generator",
+                },
+                {
+                  to: "/google-review-management",
+                  title: fr ? "Comment gérer plusieurs fiches Google ?" : "How can you manage reviews across locations?",
+                  description: fr ? "Centraliser les avis, repérer ceux en attente et préserver une voix de marque cohérente." : "Keep reviews organized, identify unanswered feedback and maintain a consistent brand voice.",
+                  cta: fr ? "Gestion des avis Google" : "Google review management",
+                },
+                {
+                  to: "/blog/negative-google-review-response-examples",
+                  title: fr ? "Que répondre à un avis Google négatif ?" : "How should you answer a negative review?",
+                  description: fr ? "Remercier, reconnaître la difficulté, éviter les données personnelles et proposer une suite concrète." : "Acknowledge the issue, protect private details and offer a clear next step without being defensive.",
+                  cta: fr ? "Exemples de réponses" : "Negative review examples",
+                },
+                {
+                  to: "/blog/google-business-profile-optimization-checklist",
+                  title: fr ? "Comment améliorer sa fiche Google Business ?" : "What improves your Google Business Profile?",
+                  description: fr ? "Vérifier les informations, les catégories, les photos et le suivi des avis : une liste de contrôle utile." : "Check business details, categories, photos and review workflows with a practical checklist.",
+                  cta: fr ? "Checklist Google Business" : "Google Business checklist",
+                },
+              ].map(item => (
+                <article key={item.to} className="group rounded-[22px] border border-[#E7ECF6] bg-[#FBFCFF] p-6 transition-colors hover:border-[#C8D3FF] sm:p-7">
+                  <h3 className="text-lg font-extrabold tracking-[-0.03em] text-[#1D2E4C]">{item.title}</h3>
+                  <p className="mt-3 text-sm leading-7 text-[#66758F]">{item.description}</p>
+                  <Link to={item.to} className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-[#3B54F5] hover:underline">
+                    {item.cta} <ArrowUpRight className="h-4 w-4" />
+                  </Link>
+                </article>
+              ))}
+            </div>
+            <div className="mt-8 flex flex-wrap items-center gap-3">
+              <Link to="/blog" className="inline-flex items-center gap-2 rounded-xl border border-[#DDE5FA] bg-white px-5 py-3 text-sm font-bold text-[#354763] transition-colors hover:bg-[#F5F7FF]">
+                {fr ? "Tous les guides ReviewsAI" : "Explore all ReviewsAI guides"} <ArrowRight className="h-4 w-4" />
+              </Link>
+              <Link to="/review-reply-ai-google-business-profile" className="inline-flex items-center gap-2 text-sm font-semibold text-[#62708C] hover:text-[#3B54F5]">
+                {fr ? "Réponses IA sur Google Business Profile" : "AI for Google Business Profile reviews"} <ArrowUpRight className="h-4 w-4" />
+              </Link>
+            </div>
+          </div>
+        </section>
+
         <section className="bg-[#F8FAFF] px-5 pb-20 pt-10 sm:px-8 sm:pb-28">
           <div className="relative mx-auto max-w-[1180px] overflow-hidden rounded-[32px] bg-[#16274C] px-7 py-14 text-center text-white sm:px-14 sm:py-20">
             <div className="pointer-events-none absolute -left-28 -bottom-36 h-80 w-80 rounded-full bg-[#3B54F5]/40 blur-[80px]" />
