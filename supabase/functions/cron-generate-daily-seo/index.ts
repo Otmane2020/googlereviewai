@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { hasSeoAutomationAccess } from "../_shared/plan-access.ts";
 import { callOpenRouterWithFallback } from "../_shared/openrouter.ts";
+import { gmbContentLanguage, languageLabel } from "../_shared/content-language.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -178,7 +179,9 @@ serve(async (req) => {
             spotlight: "À DÉCOUVRIR : mettre en avant uniquement un service ou produit réellement mentionné dans la description. Aucune promotion ni remise inventée.",
           };
           // Build the prompt for content generation
-          const systemPrompt = `Tu es un expert en SEO local et en rédaction de contenu pour Google Business Profile.
+          const locale = gmbContentLanguage(business.gmb_language, "fr");
+          const systemPrompt = `You are a local SEO expert creating a useful Google Business Profile post. All customer-facing copy must be written in ${languageLabel(locale)} (${locale}). The local business language overrides the account language and all source material.
+Tu es un expert en SEO local et en rédaction de contenu pour Google Business Profile.
 Génère un article SEO de 200-300 mots maximum optimisé pour la publication Google My Business.
 
 RÈGLES STRICTES:
@@ -191,7 +194,7 @@ RÈGLES STRICTES:
 - Ton professionnel mais accessible
 - Inclure un appel à l'action à la fin
 - Ne pas utiliser de markdown, titres ou formatage spécial
-- Écrire en ${business.gmb_language === "en" ? "anglais" : "français"}`;
+- Rédiger exclusivement en ${languageLabel(locale)} (la langue de cet établissement GMB). Même si le titre est en français, adapter le contenu à la langue de la fiche.`;
 
           const userPrompt = `Écris un article SEO pour Google My Business basé sur:
 
@@ -201,7 +204,7 @@ Adresse: ${business.address || "Non spécifiée"}
 Description: ${business.description || "Non spécifiée"}
 ${business.website_content ? `\nContexte du site web:\n${business.website_content.substring(0, 2000)}` : ""}
 
-Génère UNIQUEMENT le contenu de l'article (pas le titre), prêt à être publié sur Google.`;
+Rédige UNIQUEMENT le texte de la publication en ${languageLabel(locale)} (pas le titre), prêt à être publié sur Google.`;
 
           try {
             let content: string;
