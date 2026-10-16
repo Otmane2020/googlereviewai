@@ -21,7 +21,7 @@ test("public sitemap uses the right domain and has no duplicate URLs", () => {
   expect(locs).toContain("https://reviewsai.store/reponse-avis-google-ia-gratuit");
   expect(locs).toContain("https://reviewsai.store/ai-google-review-reply");
   expect(locs).toContain("https://reviewsai.store/blog");
-  expect(sitemap.endsWith("</urlset>")).toBe(true);
+  expect(sitemap.trimEnd().endsWith("</urlset>")).toBe(true);
 });
 
 test("old-domain marketing canonical links have been replaced", () => {
