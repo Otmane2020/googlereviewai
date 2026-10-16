@@ -17,6 +17,10 @@ import { SelectBusinessesDialog } from "@/components/SelectBusinessesDialog";
 import { useTranslation } from "react-i18next";
 import { normalizeLanguage } from "@/i18n/config";
 import { isActivePaidPlan } from "@/lib/planEntitlements";
+import {
+  shortReviewBrandName, resolveReviewSignature, detectReviewSignatureChoice,
+  buildReviewSignatureChoice, type ReviewSignatureMode,
+} from "../../supabase/functions/_shared/review-signature";
 
 const STEPS = ["Welcome", "Choose location", "AI tone", "Pick a plan"];
 
@@ -74,7 +78,9 @@ const Onboarding = () => {
   const [businesses, setBusinesses] = useState<{ id: string; name: string }[]>([]);
   const [selectedBusinessId, setSelectedBusinessId] = useState<string>("");
   const [tone, setTone] = useState("friendly");
-  const [signature, setSignature] = useState("");
+  const [signatureMode, setSignatureMode] = useState<ReviewSignatureMode>("automatic");
+  const [signatureName, setSignatureName] = useState("");
+  const [customSignature, setCustomSignature] = useState("");
   const [planLoading, setPlanLoading] = useState<string | null>(null);
   const [billing, setBilling] = useState<"monthly" | "yearly">("monthly");
 
@@ -166,7 +172,7 @@ const Onboarding = () => {
         supabase.from("profiles").select("google_refresh_token,full_name,onboarding_completed,free_plan_selected_at,plan_name,subscription_status,current_period_end,trial_end")
           .eq("id", user.id).maybeSingle(),
         supabase.from("businesses").select("id,name,is_active").eq("user_id", user.id),
-        supabase.from("ai_settings").select("user_id,signature,tone").eq("user_id", user.id).maybeSingle(),
+        supabase.from("ai_settings").select("user_id,signature,tone,include_signature").eq("user_id", user.id).maybeSingle(),
       ]);
       if (!active) return;
       const managed = (biz || []).filter(b => b.is_active);
@@ -210,14 +216,14 @@ const Onboarding = () => {
       }
       if (!active) return;
       setHasGoogle(authorized);
-      // The default signature follows the short public BRAND of the selected
-      // Google location, never the account owner's personal name.
-      const defaultSignature = isFrench ? "L'équipe {business_name}" : "The {business_name} team";
-      const storedSignature = aiSettings?.signature?.trim();
-      const isLegacyPersonalDefault = Boolean(profile?.full_name && storedSignature &&
-        ["L'équipe " + profile.full_name, "The " + profile.full_name + " team"]
-          .some(value => value.toLowerCase() === storedSignature.toLowerCase()));
-      setSignature(storedSignature && !isLegacyPersonalDefault ? storedSignature : defaultSignature);
+      // Restore explicit signature choices while migrating old onboarding
+      // defaults that mistakenly signed with the account owner's personal name.
+      const storedChoice = detectReviewSignatureChoice(
+        aiSettings?.signature, aiSettings?.include_signature, profile?.full_name,
+      );
+      setSignatureMode(storedChoice.mode);
+      setSignatureName(storedChoice.name);
+      setCustomSignature(storedChoice.custom);
       if (aiSettings?.tone) setTone(aiSettings.tone);
       setBusinesses(managed);
       const remembered = localStorage.getItem("googlereviewai.com_selected_business_" + user.id);
@@ -269,17 +275,43 @@ const Onboarding = () => {
   };
 
   const handleSaveAI = async () => {
-    if (!user) return;
-    setLoading(true);
-    const { error } = await supabase
-      .from("ai_settings")
-      .upsert({ user_id: user.id, tone, signature, enabled: true } as any, { onConflict: "user_id" });
-    setLoading(false);
-    if (error) {
-      toast({ title: isFrench ? "Erreur" : "Error", description: error.message, variant: "destructive" });
+    if (!user || loading) return;
+    let savedSignature: { signature: string; include_signature: boolean };
+    try {
+      savedSignature = buildReviewSignatureChoice(
+        { mode: signatureMode, name: signatureName, custom: customSignature },
+        isFrench ? "fr" : "en",
+      );
+    } catch {
+      toast({
+        title: isFrench ? "Signature incomplète" : "Incomplete signature",
+        description: isFrench ? "Renseignez le nom ou le texte de signature choisi." : "Enter your selected signature name or text.",
+        variant: "destructive",
+      });
       return;
     }
-    next();
+    setLoading(true);
+    try {
+      const { error } = await supabase
+        .from("ai_settings")
+        .upsert({
+          user_id: user.id,
+          tone,
+          signature: savedSignature.signature,
+          include_signature: savedSignature.include_signature,
+          enabled: true,
+        } as any, { onConflict: "user_id" });
+      if (error) throw error;
+      next();
+    } catch (error) {
+      toast({
+        title: isFrench ? "Erreur" : "Error",
+        description: error instanceof Error ? error.message : (isFrench ? "Impossible d'enregistrer les préférences" : "Unable to save your preferences"),
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleChoosePlan = async (priceKey: string) => {
@@ -334,6 +366,23 @@ const Onboarding = () => {
       setFreeLoading(false);
     }
   };
+
+  const selectedBusiness = businesses.find(b => b.id === selectedBusinessId) || businesses[0];
+  const smartBusinessName = shortReviewBrandName(selectedBusiness?.name);
+  const signatureChoice = { mode: signatureMode, name: signatureName, custom: customSignature };
+  const signaturePreview = (() => {
+    try {
+      const chosen = buildReviewSignatureChoice(signatureChoice, isFrench ? "fr" : "en");
+      return resolveReviewSignature({
+        businessName: selectedBusiness?.name,
+        language: isFrench ? "fr" : "en",
+        configuredSignature: chosen.signature,
+        includeSignature: chosen.include_signature,
+      });
+    } catch {
+      return "";
+    }
+  })();
 
   return (
     <div className="min-h-screen reviewai-wizard-bg flex items-start justify-center px-3 py-5 sm:px-6 sm:py-10">
@@ -485,14 +534,89 @@ const Onboarding = () => {
                   ))}
                 </RadioGroup>
 
-                <div className="space-y-2">
-                  <Label htmlFor="sig">{isFrench ? "Signature des réponses" : "Reply signature"}</Label>
-                  <Input id="sig" className="h-12 rounded-xl bg-background" value={signature} onChange={(e) => setSignature(e.target.value)} placeholder={isFrench ? "L'équipe {business_name}" : "The {business_name} team"} />
-                  <p className="text-xs text-muted-foreground">
-                    {isFrench
-                      ? "Le nom de la marque est raccourci automatiquement : « Sweet Deco - Grossiste de Meubles » devient « L'équipe Sweet Deco ». Vos signatures personnalisées restent possibles."
-                      : "The brand is shortened automatically: “Sweet Deco - Furniture Wholesaler” becomes “The Sweet Deco team”. Custom signatures are supported."}
-                  </p>
+                <div className="space-y-3 border-t border-border/60 pt-5">
+                  <div>
+                    <h3 className="text-base font-bold text-foreground">{isFrench ? "Qui signe vos réponses ?" : "Who signs your replies?"}</h3>
+                    <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                      {isFrench
+                        ? "Le nom de l'établissement est détecté et raccourci automatiquement. Vous pouvez le modifier."
+                        : "Your business name is automatically detected and shortened. You can change it."}
+                    </p>
+                    {selectedBusiness?.name && (
+                      <p className="mt-2 text-xs text-muted-foreground">
+                        {isFrench ? "Fiche Google :" : "Google listing:"} <span className="font-medium text-foreground">{selectedBusiness.name}</span>
+                        {smartBusinessName && smartBusinessName !== selectedBusiness.name && (
+                          <> <span aria-hidden="true">→</span> <span className="font-semibold text-primary">{smartBusinessName}</span></>
+                        )}
+                      </p>
+                    )}
+                  </div>
+
+                  <RadioGroup value={signatureMode} onValueChange={(v) => setSignatureMode(v as ReviewSignatureMode)} className="space-y-2">
+                    <Label htmlFor="signature-automatic" className="reviewai-soft-card flex cursor-pointer items-start gap-3 p-4 has-[:checked]:border-primary has-[:checked]:bg-primary/5">
+                      <RadioGroupItem id="signature-automatic" value="automatic" className="mt-1" />
+                      <span className="min-w-0 flex-1">
+                        <span className="flex flex-wrap items-center gap-2 text-sm font-semibold">
+                          {isFrench ? "L'équipe + nom intelligent" : "Team + smart business name"}
+                          <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary">{isFrench ? "Recommandé" : "Recommended"}</span>
+                        </span>
+                        <span className="mt-1 block text-xs text-muted-foreground">
+                          {isFrench ? "Ex. : " : "E.g. "}{isFrench ? "L'équipe " + (smartBusinessName || "Votre entreprise") : "The " + (smartBusinessName || "business") + " team"}
+                        </span>
+                      </span>
+                    </Label>
+
+                    <Label htmlFor="signature-business-only" className="reviewai-soft-card flex cursor-pointer items-start gap-3 p-4 has-[:checked]:border-primary has-[:checked]:bg-primary/5">
+                      <RadioGroupItem id="signature-business-only" value="business_only" className="mt-1" />
+                      <span className="min-w-0 flex-1">
+                        <span className="block text-sm font-semibold">{isFrench ? "Nom de la marque uniquement" : "Business name only"}</span>
+                        <span className="mt-1 block text-xs text-muted-foreground">{smartBusinessName || (isFrench ? "Nom de votre marque" : "Your brand name")}</span>
+                      </span>
+                    </Label>
+
+                    <Label htmlFor="signature-named-team" className="reviewai-soft-card flex cursor-pointer items-start gap-3 p-4 has-[:checked]:border-primary has-[:checked]:bg-primary/5">
+                      <RadioGroupItem id="signature-named-team" value="named_team" className="mt-1" />
+                      <span className="block text-sm font-semibold">{isFrench ? "Choisir un autre nom" : "Choose a different name"}</span>
+                    </Label>
+                    {signatureMode === "named_team" && (
+                      <div className="pl-1 sm:pl-8 space-y-1.5">
+                        <Label htmlFor="signature-name" className="text-xs">{isFrench ? "Nom à afficher" : "Display name"}</Label>
+                        <Input id="signature-name" className="h-11 rounded-xl bg-background" maxLength={80}
+                          value={signatureName} onChange={e => setSignatureName(e.target.value)}
+                          placeholder={smartBusinessName || (isFrench ? "Nom de votre enseigne" : "Your business name")} />
+                        <p className="text-xs text-muted-foreground">
+                          {isFrench ? "Ce nom sera utilisé pour les réponses de tous vos établissements." : "This name will be used for replies across all your locations."}
+                        </p>
+                      </div>
+                    )}
+
+                    <Label htmlFor="signature-custom" className="reviewai-soft-card flex cursor-pointer items-start gap-3 p-4 has-[:checked]:border-primary has-[:checked]:bg-primary/5">
+                      <RadioGroupItem id="signature-custom" value="custom" className="mt-1" />
+                      <span className="block text-sm font-semibold">{isFrench ? "Écrire ma propre signature" : "Write my own signature"}</span>
+                    </Label>
+                    {signatureMode === "custom" && (
+                      <div className="pl-1 sm:pl-8 space-y-1.5">
+                        <Label htmlFor="signature-custom-text" className="text-xs">{isFrench ? "Signature personnalisée" : "Custom sign-off"}</Label>
+                        <Input id="signature-custom-text" className="h-11 rounded-xl bg-background" maxLength={180}
+                          value={customSignature} onChange={e => setCustomSignature(e.target.value)}
+                          placeholder={isFrench ? "À bientôt, l'équipe de la boutique" : "Warm regards, our team"} />
+                      </div>
+                    )}
+
+                    <Label htmlFor="signature-none" className="reviewai-soft-card flex cursor-pointer items-start gap-3 p-4 has-[:checked]:border-primary has-[:checked]:bg-primary/5">
+                      <RadioGroupItem id="signature-none" value="none" className="mt-1" />
+                      <span className="block text-sm font-semibold">{isFrench ? "Sans signature" : "No signature"}</span>
+                    </Label>
+                  </RadioGroup>
+
+                  <div aria-live="polite" className="rounded-2xl border border-primary/15 bg-primary/[0.045] px-4 py-3">
+                    <p className="text-[11px] font-bold uppercase tracking-wide text-primary">{isFrench ? "Aperçu de la signature" : "Signature preview"}</p>
+                    <p className="mt-2 break-words text-sm font-semibold text-foreground">
+                      {signaturePreview || (signatureMode === "none"
+                        ? (isFrench ? "Aucune signature ne sera ajoutée." : "No sign-off will be added.")
+                        : (isFrench ? "Saisissez votre nom pour voir l'aperçu." : "Enter your name to see the preview."))}
+                    </p>
+                  </div>
                 </div>
 
                 <div className="flex justify-between items-center gap-3 border-t border-border/60 pt-5 mt-5">
