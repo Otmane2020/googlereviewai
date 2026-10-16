@@ -2,6 +2,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getGoogleAccessToken } from "../_shared/googleAuth.ts";
+import { googlePostLanguageCode } from "../_shared/content-language.ts";
 import { generateGmbImage } from "../_shared/gmbImages.ts";
 
 const corsHeaders = {
@@ -129,7 +130,7 @@ serve(async (req) => {
     }
 
     const postBody: Record<string, unknown> = {
-      languageCode: business.gmb_language?.startsWith("en") ? "en" : "fr",
+      languageCode: googlePostLanguageCode(business.gmb_language),
       summary,
       topicType: topic,
       ...(finalImage ? { media: [{ mediaFormat: "PHOTO", sourceUrl: finalImage }] } : {}),
