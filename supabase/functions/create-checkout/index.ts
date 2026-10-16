@@ -4,7 +4,8 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
 // Price IDs mapping
@@ -114,7 +115,14 @@ serve(async (req) => {
   }
 
   try {
-    const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
+    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY")?.trim();
+    if (!stripeKey || !/^(sk|rk)_(test|live)_/.test(stripeKey)) {
+      return new Response(JSON.stringify({
+        error: "Stripe n'est pas configuré pour les paiements. Ajoutez STRIPE_SECRET_KEY dans Lovable Cloud / Supabase Edge Functions Secrets.",
+        code: "STRIPE_NOT_CONFIGURED",
+      }), { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+    const stripe = new Stripe(stripeKey, {
       apiVersion: "2023-10-16",
     });
 
@@ -124,12 +132,19 @@ serve(async (req) => {
     );
 
     // Get user from auth header
-    const authHeader = req.headers.get("Authorization")!;
-    const token = authHeader.replace("Bearer ", "");
+    const authHeader = req.headers.get("Authorization") || "";
+    if (!/^Bearer\s+\S+/i.test(authHeader)) {
+      return new Response(JSON.stringify({ error: "Please sign in to continue.", code: "AUTH_REQUIRED" }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    const token = authHeader.replace(/^Bearer\s+/i, "");
     const { data: { user }, error: userError } = await supabaseClient.auth.getUser(token);
 
-    if (userError || !user) {
-      throw new Error("Unauthorized");
+    if (userError || !user?.email) {
+      return new Response(JSON.stringify({ error: "Session expired. Please sign in again.", code: "AUTH_EXPIRED" }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     const body = await req.json();
@@ -149,10 +164,17 @@ serve(async (req) => {
 
     const { successUrl, cancelUrl } = body;
 
-    // Validate all price keys
+    // Accept only server-side catalog keys and safe integer quantities.
+    // Never accept raw Stripe price IDs or amounts supplied by the browser.
+    if (items.length < 1 || items.length > 20) {
+      throw new Error("Invalid cart size");
+    }
     for (const item of items) {
-      if (!PRICE_IDS[item.priceKey]) {
-        throw new Error(`Invalid price key: ${item.priceKey}`);
+      if (!item || typeof item.priceKey !== "string" || !Object.hasOwn(PRICE_IDS, item.priceKey)) {
+        throw new Error("Invalid price key");
+      }
+      if (!Number.isSafeInteger(item.quantity) || item.quantity < 1 || item.quantity > 10) {
+        throw new Error("Invalid quantity (1 to 10)");
       }
     }
 
@@ -166,6 +188,9 @@ serve(async (req) => {
 
     // Stripe doesn't allow mixing subscription and payment modes in one session
     // If we have both, we'll create a subscription and add one-time items as invoice items
+    if (hasSubscriptions && hasOneTime) {
+      throw new Error("Subscription plans and one-time credit packs require separate checkouts.");
+    }
     const checkoutMode = hasSubscriptions ? "subscription" : "payment";
 
     console.log(`[create-checkout] Mode: ${checkoutMode}, Subscription items: ${subscriptionItems.length}, One-time items: ${oneTimeItems.length}`);
@@ -202,8 +227,8 @@ serve(async (req) => {
         sub.currency === "usd"
       );
 
-      if (hasUsdSubscriptions) {
-        console.log("[create-checkout] Customer has USD subscriptions, creating new customer for EUR prices");
+      if (hasUsdSubscriptions && !subscriptionItems.some(item => item.priceKey.endsWith("_usd"))) {
+        console.log("[create-checkout] Customer has USD subscriptions, creating a distinct EUR customer");
         const newCustomer = await stripe.customers.create({
           email: user.email,
           metadata: {
@@ -288,15 +313,38 @@ serve(async (req) => {
       metadata.total_credits = String(totalCredits);
     }
 
+    // Validate redirect destinations (prevents checkout phishing redirects).
+    const callerOrigin = req.headers.get("origin") || "https://reviewsai.store";
+    const safeOrigin = (() => {
+      try {
+        const url = new URL(callerOrigin);
+        if (url.protocol === "https:" && (
+          url.hostname === "reviewsai.store" ||
+          url.hostname === "www.reviewsai.store" ||
+          url.hostname === "starlinko.lovable.app" ||
+          url.hostname.endsWith(".lovable.app")
+        )) return url.origin;
+      } catch { /* fall back to production */ }
+      return "https://reviewsai.store";
+    })();
+    const sameOriginCheckoutUrl = (candidate: unknown, fallbackPath: string) => {
+      if (typeof candidate !== "string" || !candidate) return safeOrigin + fallbackPath;
+      try {
+        const url = new URL(candidate);
+        return url.origin === safeOrigin && url.protocol === "https:"
+          ? url.toString() : safeOrigin + fallbackPath;
+      } catch { return safeOrigin + fallbackPath; }
+    };
+
     // Create checkout session
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
       customer: customerId,
       line_items: lineItems,
       mode: checkoutMode,
-      locale: "en",
+      locale: req.headers.get("accept-language")?.toLowerCase().startsWith("fr") ? "fr" : "en",
       allow_promotion_codes: true, // Enable promo codes in checkout
-      success_url: successUrl || `${req.headers.get("origin")}/dashboard?success=true`,
-      cancel_url: cancelUrl || `${req.headers.get("origin")}/checkout?canceled=true`,
+      success_url: sameOriginCheckoutUrl(successUrl, "/dashboard?success=true"),
+      cancel_url: sameOriginCheckoutUrl(cancelUrl, "/settings?canceled=true"),
       metadata,
     };
 
@@ -318,17 +366,46 @@ serve(async (req) => {
     }
 
     const session = await stripe.checkout.sessions.create(sessionParams);
+    if (!session.url) {
+      throw new Error("Stripe did not return a payment URL");
+    }
 
     return new Response(JSON.stringify({ url: session.url }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
     });
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    console.error("[create-checkout] Error:", message);
-    return new Response(JSON.stringify({ error: message }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-      status: 400,
+    const err = error as { message?: string; type?: string; code?: string; requestId?: string; statusCode?: number };
+    console.error("[create-checkout] Stripe/session failure:", {
+      type: err?.type, code: err?.code, message: err?.message, request_id: err?.requestId,
+    });
+    let code = "STRIPE_CHECKOUT_FAILED";
+    let message = "Stripe could not create a checkout session. Please try again.";
+    let status = 502;
+    if (err?.type === "StripeAuthenticationError" || err?.statusCode === 401) {
+      code = "STRIPE_AUTH_FAILED";
+      message = "Stripe rejected STRIPE_SECRET_KEY. Check that the key is valid and belongs to the Stripe account holding these prices.";
+      status = 503;
+    } else if (err?.type === "StripePermissionError" || err?.statusCode === 403) {
+      code = "STRIPE_PERMISSION_DENIED";
+      message = "The Stripe API key cannot create Checkout sessions. Check its account and permissions.";
+      status = 503;
+    } else if (err?.type === "StripeInvalidRequestError") {
+      code = /no such price|price.*does not exist|inactive|currency/i.test(err.message || "")
+        ? "STRIPE_PRICE_MISMATCH" : "STRIPE_INVALID_REQUEST";
+      message = code === "STRIPE_PRICE_MISMATCH"
+        ? "The Stripe price is not available to the connected Stripe key. Check that STRIPE_SECRET_KEY and the price IDs belong to the same account and mode."
+        : "Stripe rejected the checkout configuration. Check the function logs using the request ID.";
+      status = 422;
+    } else if (!err?.type && err?.message) {
+      code = "CHECKOUT_VALIDATION_FAILED";
+      message = err.message;
+      status = 400;
+    }
+    return new Response(JSON.stringify({
+      error: message, code, request_id: err?.requestId || null,
+    }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" }, status,
     });
   }
 });
