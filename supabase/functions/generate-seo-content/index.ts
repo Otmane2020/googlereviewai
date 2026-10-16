@@ -59,7 +59,9 @@ serve(async (req) => {
     // Language always comes from the selected Google Business location.
     // Never infer it from the browser/UI or from the language of a page title.
     const contentLang = gmbContentLanguage(language, "fr");
-    const templateLang = contentLang === "en" ? "en" : "fr";
+    // English prompt templates are neutral for other languages; the locale
+    // instruction below ensures Spanish/German/etc. output is NOT in English.
+    const templateLang = contentLang === "fr" ? "fr" : "en";
     console.log(`[generate-seo-content] GMB content language: ${contentLang}`);
 
     // Language-specific prompts
@@ -113,7 +115,7 @@ serve(async (req) => {
       // Analyze business and generate keywords
       systemPrompt = `${lang.analyzeIntro}
 ${scrapedContent ? "IMPORTANT: Use the scraped website content to generate PRECISE and RELEVANT keywords based on the actual services/products offered." : ""}
-${lang.generateIn}`;
+${contentLang === "fr" ? lang.generateIn : `Generate all customer-facing output in ${languageLabel(contentLang)}, not English.`}`;
 
       userPrompt = `Analyze this business and generate relevant SEO keywords:
 Name: ${businessName}
@@ -160,7 +162,7 @@ Generate 30 varied keywords including:
       
       const region = getRegion(city);
       
-      if (contentLang === "en") {
+      if (templateLang === "en") {
         systemPrompt = `You are an SEO and content marketing expert. You create UNIQUE and ORIGINAL article titles.
 
 STRICT RULES:
@@ -253,7 +255,7 @@ ${lang.jsonOnly}
       }
 
     } else if (type === "seo_article") {
-      if (contentLang === "en") {
+      if (templateLang === "en") {
         systemPrompt = `${lang.articleIntro}
       
 Important rules:
@@ -328,12 +330,12 @@ ${lang.jsonOnly}
       const existingQuestions = keywords?.slice(1) || []; // Existing questions passed after the first keyword
       const numQuestions = singleQuestion ? 1 : 5;
       const excludeList = existingQuestions.length > 0 
-        ? (contentLang === "en" 
+        ? (templateLang === "en" 
             ? `\n\nQUESTIONS NOT TO REPEAT:\n${existingQuestions.map((q: string) => `- ${q}`).join("\n")}`
             : `\n\nQUESTIONS À NE PAS RÉPÉTER:\n${existingQuestions.map((q: string) => `- ${q}`).join("\n")}`)
         : "";
       
-      if (contentLang === "en") {
+      if (templateLang === "en") {
         systemPrompt = `${lang.aeoIntro}
 
 OBJECTIVE: Create Q&A that AI will CITE in their responses.
