@@ -30,6 +30,8 @@ jobs:
         run: bun test scripts/review-signature.test.mjs
       - name: Test original review and GMB SEO GEO languages
         run: bun test scripts/content-language.test.mjs
+      - name: Test Stripe Checkout and one-time credits
+        run: bun test scripts/stripe-payment-contract.test.mjs
       - name: Test Cloudflare image generation and fallback
         run: bun test scripts/gmb-image-providers.test.mjs
       - name: Build TanStack Start
