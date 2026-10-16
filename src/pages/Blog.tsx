@@ -16,7 +16,6 @@ import {
   Search,
 } from "lucide-react";
 import { Link } from "@/lib/router-compat";
-import { Helmet } from "react-helmet";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
@@ -134,33 +133,7 @@ const Blog = () => {
 
   return (
     <>
-      <Helmet>
-        <html lang="en" />
-        <title>Google Reviews, Local SEO & AI Search Guides | Reviews AI</title>
-        <meta
-          name="description"
-          content="Practical guides on Google review management, Google Business Profile optimization, Google Maps rankings, local SEO and AI search visibility."
-        />
-        <meta name="robots" content="index, follow" />
-        <link rel="canonical" href="https://reviewsai.store/blog" />
-        <meta property="og:title" content="Reviews AI Guides — Reviews, Local SEO & AI Search" />
-        <meta property="og:description" content="Actionable guides for improving review management and local visibility." />
-        <meta property="og:url" content="https://reviewsai.store/blog" />
-        <meta property="og:type" content="website" />
-        <meta property="og:image" content="https://reviewsai.store/og-image.png" />
-        <script type="application/ld+json">{JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "CollectionPage",
-          name: "Reviews AI Guides",
-          description: "Guides on Google reviews, Google Business Profile, local SEO and AI search visibility.",
-          url: "https://reviewsai.store/blog",
-          hasPart: seoArticles.map((article) => ({
-            "@type": "Article",
-            headline: article.title,
-            url: `https://reviewsai.store/blog/${article.slug}`,
-          })),
-        })}</script>
-      </Helmet>
+
 
       <div className="min-h-screen bg-background">
         <Header />
