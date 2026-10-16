@@ -11,7 +11,7 @@ export const Route = createFileRoute("/blog/$slug")({
     if (!article) return {};
     const url = REVIEWSAI_ORIGIN + "/blog/" + article.slug;
     const lang = article.slug.endsWith("-fr") ? "fr" : "en";
-    const links = [{ rel: "canonical", href: url }];
+    const links: Array<{ rel: string; href: string; hrefLang?: string }> = [{ rel: "canonical", href: url }];
     if (article.category.includes("GEO &")) {
       const base = article.slug.replace(/-fr$/, "");
       links.push(
