@@ -4,7 +4,7 @@ import { getGoogleAccessToken } from "../_shared/googleAuth.ts";
 import { callOpenRouterWithFallback } from "../_shared/openrouter.ts";
 import { sendFreeUpgradeEmail } from "../_shared/free-upgrade.ts";
 import { hasUnlimitedAiReplies } from "../_shared/plan-access.ts";
-import { resolveEmailLang } from "../_shared/email-lang.ts";
+import { originalGoogleReviewText, reviewOriginalLanguage, languageLabel } from "../_shared/content-language.ts";
 import { resolveReviewSignature, ensureReviewSignature } from "../_shared/review-signature.ts";
 
 const corsHeaders = {
@@ -31,15 +31,9 @@ async function generateAIResponse(
   aiSettings: any,
   businessName: string,
   brandVoice?: BrandVoiceProfile | null,
-  responseLanguage: "fr" | "en" = "fr",
+  responseLanguage = "fr",
   legacyAccountFullName?: string | null,
 ): Promise<string | null> {
-  const OPENROUTER_API_KEY = Deno.env.get("OPENROUTER_API_KEY");
-  if (!OPENROUTER_API_KEY) {
-    console.error("[AutoRespond] OPENROUTER_API_KEY not configured");
-    return null;
-  }
-
   const tone = aiSettings?.tone || "friendly";
   const responseLength = aiSettings?.response_length || "M";
   const includeSignature = aiSettings?.include_signature ?? true;
@@ -91,7 +85,14 @@ IMPORTANT: Imite exactement ce style pour que la réponse semble écrite par la 
   const finalSignature = signature;
 
   // Build system prompt
-  let systemPrompt = `You are an AI assistant that generates professional responses to customer reviews. Write the entire reply in ${responseLanguage === "en" ? "English" : "French"}, irrespective of the language of the review text. Do not switch languages.`;
+  const originalComment = originalGoogleReviewText(review.comment);
+  const languageName = languageLabel(responseLanguage);
+  let systemPrompt = `You are an AI assistant that generates professional responses to customer reviews.
+LANGUAGE RULE (highest priority): Reply in the SAME LANGUAGE as the ORIGINAL customer review. Its likely language is ${languageName} (${responseLanguage}), but detect the language from the original customer words yourself if the hint is uncertain.
+Never use the language of the Google Business listing, account, app interface or an added Google translation to decide the reply language.
+If the customer wrote in French, answer in French; if they wrote in English, answer in English; likewise for any other language. Do not translate their review.
+Only when there is no original written comment, use ${languageName}.
+The sign-off is predetermined below and must be reproduced exactly.`;
   
   if (brandVoice && brandVoice.tone) {
     // Use brand voice instead of generic settings
@@ -111,7 +112,7 @@ Do not include any greeting like "Cher client" - start directly with the respons
     const content = await callOpenRouterWithFallback({
       messages: [
         { role: "system", content: systemPrompt },
-        { role: "user", content: `Generate a response for this ${review.rating}-star review from ${review.author}: "${review.comment || "No comment provided"}"` },
+        { role: "user", content: `Original customer review (${review.rating} stars) by ${review.author}: "${originalComment || "(no written comment)"}". Reply in the original language.` },
       ],
     });
     return content ? ensureReviewSignature(content, finalSignature) : null;
@@ -339,14 +340,16 @@ serve(async (req) => {
 
         for (const review of reviews) {
           const googleLocationId = String(review.location_id || "").split("/").pop();
-          const business = connectedBusinesses?.find(b => b.google_place_id === googleLocationId);
+          const business = connectedBusinesses?.find(b => String(b.google_place_id || "").split("/").filter(Boolean).pop() === googleLocationId);
           // A review from an inactive location must never consume credits
           // or receive an automated response on behalf of another business.
           if (!business) continue;
           const businessName = business.name;
           const brandVoice = (business?.ai_response_model || null) as BrandVoiceProfile | null;
-          const responseLanguage = await resolveEmailLang(
-            profile.email, null, userSettings.user_id, business?.id,
+          // The original review language takes precedence over both the
+          // business GMB locale and the customer's account/UI language.
+          const responseLanguage = reviewOriginalLanguage(
+            review.comment, business.gmb_language || profile.preferred_language || "fr",
           );
           if (!unlimitedReplies && profile.credits < 1) break;
 
