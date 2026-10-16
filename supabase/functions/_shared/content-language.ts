@@ -17,8 +17,8 @@ export function normalizeContentLanguage(raw?: string | null, fallback = "fr"): 
 }
 
 const words: Record<string, string[]> = {
-  fr: ["je", "nous", "vous", "les", "des", "une", "avec", "très", "merci", "pour", "mais", "chez", "vraiment", "livraison", "équipe", "achat", "accueil", "bien", "superbe", "parfait", "excellent", "recommande", "produit", "suis", "était", "qualité", "service", "rapide", "beaucoup", "notre", "leur"],
-  en: ["the", "and", "for", "with", "thank", "thanks", "very", "great", "lovely", "delivery", "staff", "team", "really", "excellent", "good", "amazing", "was", "were", "would", "again", "highly", "recommend", "purchase", "nice", "helpful", "quick", "friendly", "experience", "love", "best"],
+  fr: ["je", "nous", "vous", "les", "des", "une", "avec", "très", "merci", "pour", "mais", "chez", "vraiment", "livraison", "équipe", "achat", "accueil", "bien", "superbe", "parfait", "excellent", "recommande", "produit", "suis", "était", "qualité", "service", "rapide", "beaucoup", "notre", "leur", "le", "la", "un", "est", "était", "aussi", "bonne", "bon", "magnifique", "impeccable", "sympathique", "satisfait", "satisfaite", "chaises", "meuble", "vendeur", "vendeuse", "conforme", "reçu", "reçue"],
+  en: ["the", "and", "for", "with", "thank", "thanks", "very", "great", "lovely", "delivery", "staff", "team", "really", "excellent", "good", "amazing", "was", "were", "would", "again", "highly", "recommend", "purchase", "nice", "helpful", "quick", "friendly", "experience", "love", "best", "love", "happy", "beautiful", "perfect", "awesome", "table", "furniture", "arrived", "received"],
   es: ["muy", "gracias", "para", "con", "una", "los", "las", "del", "todo", "servicio", "excelente", "recomiendo", "bueno", "buena", "atención", "compra", "rápido", "estoy", "experiencia", "personal", "volveré", "muchas"],
   de: ["und", "der", "die", "das", "mit", "für", "sehr", "danke", "gute", "gut", "waren", "freundlich", "schnell", "lieferung", "empfehlen", "immer", "wieder", "super", "tolles", "toller", "service"],
   it: ["molto", "grazie", "per", "con", "una", "sono", "stato", "stata", "ottimo", "ottima", "servizio", "consegna", "consiglio", "personale", "esperienza", "bellissimo", "veloce", "gentile"],
@@ -26,8 +26,8 @@ const words: Record<string, string[]> = {
   nl: ["heel", "bedankt", "voor", "met", "een", "het", "van", "goed", "goede", "snelle", "levering", "vriendelijk", "aanrader", "geweldig", "tevreden", "erg", "service"],
 };
 const distinctive: Record<string, string[]> = {
-  fr: ["très", "équipe", "livraison", "accueil", "chez", "suis", "était", "qualité", "recommande", "parfait", "superbe", "vraiment"],
-  en: ["the", "and", "with", "thanks", "staff", "delivery", "helpful", "friendly", "really", "would", "highly"],
+  fr: ["très", "équipe", "livraison", "accueil", "chez", "suis", "était", "qualité", "recommande", "parfait", "superbe", "vraiment", "magnifique", "impeccable", "sympathique", "conforme", "reçu", "reçue"],
+  en: ["the", "and", "with", "thanks", "staff", "delivery", "helpful", "friendly", "really", "would", "highly", "beautiful", "perfect", "awesome", "great", "very"],
   es: ["gracias", "muy", "atención", "recomiendo", "volveré", "compra", "muchas"],
   de: ["und", "sehr", "danke", "freundlich", "lieferung", "schnell", "wieder"],
   it: ["grazie", "molto", "consegna", "consiglio", "gentile", "bellissimo"],
