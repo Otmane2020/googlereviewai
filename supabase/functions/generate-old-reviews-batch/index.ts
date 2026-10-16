@@ -3,6 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { callOpenRouterWithFallback } from "../_shared/openrouter.ts";
 import { sendFreeUpgradeEmail } from "../_shared/free-upgrade.ts";
 import { resolveReviewSignature, ensureReviewSignature } from "../_shared/review-signature.ts";
+import { originalGoogleReviewText, reviewOriginalLanguage, languageLabel } from "../_shared/content-language.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -17,12 +18,8 @@ async function generateAIResponse(
   legacyAccountFullName?: string | null,
   language = "fr",
 ): Promise<string | null> {
-  const OPENROUTER_API_KEY = Deno.env.get("OPENROUTER_API_KEY");
-  if (!OPENROUTER_API_KEY) {
-    console.error("[OldReviewsBatch] OPENROUTER_API_KEY not configured");
-    return null;
-  }
-
+  const originalComment = originalGoogleReviewText(review.comment);
+  language = reviewOriginalLanguage(review.comment, language);
   const tone = aiSettings?.tone || "friendly";
   const responseLength = aiSettings?.response_length || "M";
   const includeSignature = aiSettings?.include_signature ?? true;
@@ -49,7 +46,10 @@ async function generateAIResponse(
   };
   const toneInstruction = toneMap[tone] || toneMap.friendly;
 
-  const systemPrompt = `You are an AI assistant that generates professional responses to customer reviews in ${language.startsWith("en") ? "English" : "French"}.
+  const systemPrompt = `You are an AI assistant generating professional responses to customer reviews.
+LANGUAGE (mandatory): Reply in the language of the ORIGINAL customer review. Likely ${languageLabel(language)} (${language}), but detect the original language directly if the hint is uncertain.
+Ignore the GMB location locale, account locale, and any appended Google translation.
+Only use ${languageLabel(language)} as a fallback for reviews with no written comment.
 ${toneInstruction}
 ${lengthInstruction}
 Always thank the customer and address their specific feedback.
@@ -62,7 +62,7 @@ Do not include any greeting like "Cher client" - start directly with the respons
     const content = await callOpenRouterWithFallback({
       messages: [
         { role: "system", content: systemPrompt },
-        { role: "user", content: `Generate a response for this ${review.rating}-star review from ${review.author}: "${review.comment || "No comment provided"}"` },
+        { role: "user", content: `Generate a response for this ${review.rating}-star review from ${review.author}: "${originalComment || "No comment provided"}"` },
       ],
     });
     return content ? ensureReviewSignature(content, signature) : null;
