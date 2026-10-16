@@ -1,0 +1,61 @@
+name: Deploy ReviewsAI review and GMB content languages
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "supabase/functions/_shared/content-language.ts"
+      - "supabase/functions/_shared/review-signature.ts"
+      - "supabase/functions/auto-respond-reviews/**"
+      - "supabase/functions/generate-ai-response/**"
+      - "supabase/functions/generate-old-reviews-batch/**"
+      - "supabase/functions/generate-seo-content/**"
+      - "supabase/functions/cron-generate-daily-qa/**"
+      - "supabase/functions/cron-generate-daily-seo/**"
+      - "supabase/functions/publish-gmb-qa/**"
+      - "supabase/functions/publish-gmb-post/**"
+      - ".github/workflows/deploy-review-content-language.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-reviewsai-languages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      SUPABASE_PROJECT_REF: hlruprayqfnatnldrski
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify target project and required credential
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$SUPABASE_ACCESS_TOKEN" || { echo "::error::SUPABASE_ACCESS_TOKEN missing. Configure the GitHub Actions repository secret."; exit 1; }
+          grep -Fx 'project_id = "hlruprayqfnatnldrski"' supabase/config.toml
+          grep -A1 '^  \[functions.generate-ai-response\]' supabase/config.toml | grep -q 'verify_jwt = true'
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - name: Deploy authenticated manual AI review response
+        run: supabase functions deploy generate-ai-response --project-ref "$SUPABASE_PROJECT_REF"
+      - name: Deploy automatic Google review responses
+        run: supabase functions deploy auto-respond-reviews --project-ref "$SUPABASE_PROJECT_REF" --no-verify-jwt
+      - name: Deploy historic Google review responses
+        run: supabase functions deploy generate-old-reviews-batch --project-ref "$SUPABASE_PROJECT_REF" --no-verify-jwt
+      - name: Deploy SEO and GEO generation
+        run: supabase functions deploy generate-seo-content --project-ref "$SUPABASE_PROJECT_REF"
+      - name: Deploy scheduled SEO posts
+        run: supabase functions deploy cron-generate-daily-seo --project-ref "$SUPABASE_PROJECT_REF" --no-verify-jwt
+      - name: Deploy scheduled GEO Q&A
+        run: supabase functions deploy cron-generate-daily-qa --project-ref "$SUPABASE_PROJECT_REF" --no-verify-jwt
+      - name: Deploy GMB Q&A publishing locale
+        run: supabase functions deploy publish-gmb-qa --project-ref "$SUPABASE_PROJECT_REF" --no-verify-jwt
+      - name: Deploy GMB post publishing locale
+        run: supabase functions deploy publish-gmb-post --project-ref "$SUPABASE_PROJECT_REF" --no-verify-jwt
