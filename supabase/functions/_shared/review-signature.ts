@@ -97,3 +97,77 @@ export function ensureReviewSignature(reply: string, signature: string): string 
 
   return `${lines.join("\n").trim()}\n\n${target}`;
 }
+
+/** Onboarding signature choices use the same rules as the server-side AI. */
+export type ReviewSignatureMode =
+  | "automatic" | "business_only" | "named_team" | "custom" | "none";
+
+export type ReviewSignatureChoice = {
+  mode: ReviewSignatureMode;
+  name: string;
+  custom: string;
+};
+
+/** Interpret older saved signatures without overwriting genuine custom text. */
+export function detectReviewSignatureChoice(
+  signature?: string | null,
+  includeSignature: boolean | null | undefined = true,
+  legacyAccountFullName?: string | null,
+): ReviewSignatureChoice {
+  const clean = String(signature || "").trim();
+  const plain = clean.replace(/^[—–-]\s*/, "").trim().replace(/’/g, "'");
+  const defaultTemplates = [
+    "The {business_name} team",
+    "The team at {business_name}",
+    "L'équipe {business_name}",
+    "L'équipe {nom_etablissement}",
+  ];
+  const legacyPerson = String(legacyAccountFullName || "").trim();
+  const oldPersonal = Boolean(legacyPerson && [
+    `L'équipe ${legacyPerson}`, `The ${legacyPerson} team`,
+  ].some(value => value.toLowerCase() === plain.toLowerCase()));
+
+  if (includeSignature === false) return { mode: "none", name: "", custom: "" };
+  if (!clean || oldPersonal || defaultTemplates.some(value => value.toLowerCase() === plain.toLowerCase())) {
+    return { mode: "automatic", name: "", custom: "" };
+  }
+  if (/^\{(?:business_name|nom_etablissement)\}$/i.test(plain)) {
+    return { mode: "business_only", name: "", custom: "" };
+  }
+  const frenchTeam = /^L'équipe\s+(.+)$/i.exec(plain);
+  const englishTeam = /^The\s+(.+)\s+team$/i.exec(plain);
+  const named = (frenchTeam?.[1] || englishTeam?.[1] || "").trim();
+  if (named) return { mode: "named_team", name: named, custom: "" };
+  return { mode: "custom", name: "", custom: clean };
+}
+
+/** Convert an onboarding choice into the existing ai_settings columns. */
+export function buildReviewSignatureChoice(
+  choice: ReviewSignatureChoice,
+  language: string,
+): { signature: string; include_signature: boolean } {
+  if (choice.mode === "none") return { signature: "", include_signature: false };
+  if (choice.mode === "business_only") return { signature: "{business_name}", include_signature: true };
+  if (choice.mode === "automatic") {
+    return {
+      signature: language.toLowerCase().startsWith("en")
+        ? "The {business_name} team"
+        : "L'équipe {business_name}",
+      include_signature: true,
+    };
+  }
+
+  const name = choice.name.trim().replace(/\s+/g, " ").slice(0, 80);
+  const custom = choice.custom.trim().slice(0, 180);
+  if (choice.mode === "named_team") {
+    if (!name) throw new Error("A signature name is required");
+    return {
+      signature: language.toLowerCase().startsWith("en")
+        ? `The ${name} team`
+        : `L'équipe ${name}`,
+      include_signature: true,
+    };
+  }
+  if (!custom) throw new Error("A custom signature is required");
+  return { signature: custom, include_signature: true };
+}
