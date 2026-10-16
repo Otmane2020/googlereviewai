@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getGoogleAccessToken } from "../_shared/googleAuth.ts";
+import { googlePostLanguageCode } from "../_shared/content-language.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -45,7 +46,8 @@ serve(async (req) => {
         businesses (
           id,
           name,
-          google_place_id
+          google_place_id,
+          gmb_language
         )
       `)
       .eq("id", content_id)
@@ -149,7 +151,7 @@ serve(async (req) => {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              languageCode: "fr-FR",
+              languageCode: googlePostLanguageCode(business.gmb_language),
               summary: postContent.slice(0, 1500), // GMB limit
               topicType: "STANDARD",
             }),
