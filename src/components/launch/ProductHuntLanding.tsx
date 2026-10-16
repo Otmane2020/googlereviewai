@@ -481,11 +481,9 @@ export default function ProductHuntLanding() {
               <Link to="/blog" className="inline-flex items-center gap-2 rounded-xl border border-[#DDE5FA] bg-white px-5 py-3 text-sm font-bold text-[#354763] transition-colors hover:bg-[#F5F7FF]">
                 {fr ? "Tous les guides ReviewsAI" : "Explore all ReviewsAI guides"} <ArrowRight className="h-4 w-4" />
               </Link>
-              {fr && (
-                <Link to="/reponse-avis-google-ia-gratuit" className="inline-flex items-center gap-2 text-sm font-semibold text-[#3B54F5] hover:underline">
-                  Répondre gratuitement aux avis Google par IA <ArrowUpRight className="h-4 w-4" />
-                </Link>
-              )}
+              <Link to="/reponse-avis-google-ia-gratuit" hrefLang="fr" className="inline-flex items-center gap-2 text-sm font-semibold text-[#3B54F5] hover:underline">
+                {fr ? "Répondre gratuitement aux avis Google par IA" : "French guide: Reply to Google reviews with AI"} <ArrowUpRight className="h-4 w-4" />
+              </Link>
               <Link to="/review-reply-ai-google-business-profile" className="inline-flex items-center gap-2 text-sm font-semibold text-[#62708C] hover:text-[#3B54F5]">
                 {fr ? "Réponses IA sur Google Business Profile" : "AI for Google Business Profile reviews"} <ArrowUpRight className="h-4 w-4" />
               </Link>
@@ -530,7 +528,7 @@ export default function ProductHuntLanding() {
               <a href="#features" className="hover:text-[#3B54F5]">{fr ? "Fonctionnalités" : "Features"}</a>
               <a href="#pricing" className="hover:text-[#3B54F5]">{fr ? "Tarifs" : "Pricing"}</a>
               <Link to="/blog" className="hover:text-[#3B54F5]">Blog</Link>
-              {fr && <Link to="/reponse-avis-google-ia-gratuit" className="hover:text-[#3B54F5]">Réponses Google gratuites</Link>}
+              <Link to="/reponse-avis-google-ia-gratuit" className="hover:text-[#3B54F5]">{fr ? "Réponses Google gratuites" : "French guide: Google replies"}</Link>
             </div>
           </div>
           <div>
