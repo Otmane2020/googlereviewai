@@ -34,6 +34,8 @@ jobs:
         run: bun test scripts/stripe-payment-contract.test.mjs
       - name: Test Cloudflare image generation and fallback
         run: bun test scripts/gmb-image-providers.test.mjs
+      - name: Test ReviewsAI SEO/GEO launch metadata
+        run: bun test scripts/seo-marketing-contract.test.mjs
       - name: Build TanStack Start
         run: bun run build
       - name: Typecheck
