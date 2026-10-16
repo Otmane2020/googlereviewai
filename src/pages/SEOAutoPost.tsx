@@ -34,6 +34,7 @@ interface Business {
   categories: string[] | null;
   auto_keywords: string[] | null;
   google_place_id?: string | null;
+  gmb_language?: string | null;
 }
 
 interface ScheduledContent {
@@ -111,7 +112,7 @@ const SEOAutoPost = () => {
       const [businessRes, aiSettingsRes] = await Promise.all([
         supabase
           .from("businesses")
-          .select("id, name, address, description, categories, auto_keywords, google_place_id")
+          .select("id, name, address, description, categories, auto_keywords, google_place_id, gmb_language")
           .eq("user_id", user!.id)
           .eq("is_active", true),
         supabase
@@ -176,7 +177,8 @@ const SEOAutoPost = () => {
           type: "analyze_business",
           businessName: selectedBusiness.name,
           businessDescription: selectedBusiness.description || selectedBusiness.name,
-          location: selectedBusiness.address || "France",
+          location: selectedBusiness.address || "",
+          language: selectedBusiness.gmb_language || "fr",
         },
       });
 
@@ -202,7 +204,8 @@ const SEOAutoPost = () => {
           type: "article_titles",
           businessName: selectedBusiness.name,
           businessDescription: analysisData?.description || selectedBusiness.description || selectedBusiness.name,
-          location: selectedBusiness.address || "France",
+          location: selectedBusiness.address || "",
+          language: selectedBusiness.gmb_language || "fr",
           keywords: keywords,
           count: 30,
         },
@@ -286,7 +289,8 @@ const SEOAutoPost = () => {
           type: "seo_article",
           businessName: selectedBusiness?.name,
           businessDescription: selectedBusiness?.description || selectedBusiness?.name,
-          location: selectedBusiness?.address || "France",
+          location: selectedBusiness?.address || "",
+          language: selectedBusiness?.gmb_language || "fr",
           keywords: [item.keyword_used],
           title: item.title,
         },
