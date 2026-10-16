@@ -14,6 +14,19 @@ const supabaseAdmin = createClient(
 
 // Plan configurations
 // agencyPoolCredits: total credits added to the user's agency pool (to be allocated per business)
+// Verified Stripe prices of one-time credit packs; never trust a client-supplied credit count.
+const CREDIT_PACK_PRICE_AMOUNTS: Record<string, number> = {
+  "price_1SrrYEEfti9t9nN9N8l9AaA1": 10,
+  "price_1SrrYFEfti9t9nN9Y4zxBb3p": 100,
+  "price_1SrrYGEfti9t9nN9z01pdk3y": 330,
+  "price_1SrrYIEfti9t9nN9q8NplGxN": 660,
+  "price_1SrrYJEfti9t9nN9Bv7IhpUP": 1000,
+  "price_1SrrYKEfti9t9nN920sUpYws": 1660,
+  "price_1SrrYMEfti9t9nN9fqqz5xfd": 3330,
+  "price_1SrrYNEfti9t9nN9deRwwVI3": 6660,
+  "price_1SrrYOEfti9t9nN9TxSVXmcs": 10000,
+};
+
 const PLAN_CONFIG: Record<string, { credits: number; maxBusinesses: number; planName: string; agencyPoolCredits?: number; tier: number }> = {
   // ===== NEW Reviews AI plans (June 2026) =====
   "price_1TjxSJEfti9t9nN9XgMVswCh": { credits: 50,  maxBusinesses: 1,   planName: "Starter",         tier: 1 }, // 9.99€/mo
@@ -132,12 +145,17 @@ serve(async (req) => {
 
   let event: Stripe.Event;
 
+  // Never accept unsigned events. Otherwise anyone could impersonate Stripe
+  // and request free credits or alter subscription status.
+  if (!webhookSecret) {
+    console.error("[StripeWebhook] STRIPE_WEBHOOK_SECRET is not configured");
+    return new Response(JSON.stringify({ error: "Stripe webhook secret is not configured" }), { status: 503 });
+  }
+  if (!signature) {
+    return new Response(JSON.stringify({ error: "Missing Stripe signature" }), { status: 400 });
+  }
   try {
-    if (webhookSecret && signature) {
-      event = await stripe.webhooks.constructEventAsync(body, signature, webhookSecret);
-    } else {
-      event = JSON.parse(body);
-    }
+    event = await stripe.webhooks.constructEventAsync(body, signature, webhookSecret);
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Unknown error";
     console.error("Webhook signature verification failed:", message);
@@ -148,12 +166,53 @@ serve(async (req) => {
 
   try {
     switch (event.type) {
-      case "checkout.session.completed": {
+      case "checkout.session.completed":
+      case "checkout.session.async_payment_succeeded": {
         const session = event.data.object as Stripe.Checkout.Session;
         const userId = session.metadata?.supabase_user_id;
         const subscriptionId = session.subscription as string;
 
         console.log("[checkout.session.completed] Processing", { userId, subscriptionId });
+
+        // A paid, one-time credit pack must be fulfilled here. Previously this
+        // event only handled subscriptions, so paying for credits gave no balance.
+        if (session.mode === "payment" && session.payment_status === "paid" && userId) {
+          const lineItems = await stripe.checkout.sessions.listLineItems(session.id, { limit: 100 });
+          const validItems = lineItems.data.every(item =>
+            !!item.price?.id &&
+            !!CREDIT_PACK_PRICE_AMOUNTS[item.price.id] &&
+            Number.isSafeInteger(item.quantity) &&
+            (item.quantity || 0) > 0
+          );
+          const expectedCredits = lineItems.data.reduce((total, item) =>
+            total + (CREDIT_PACK_PRICE_AMOUNTS[item.price?.id || ""] || 0) * (item.quantity || 0), 0);
+          const declaredCredits = Number(session.metadata?.total_credits || 0);
+          const isCreditPack = lineItems.data.length > 0 && validItems &&
+            !lineItems.has_more && expectedCredits === declaredCredits &&
+            expectedCredits > 0 && expectedCredits <= 100000;
+          if (isCreditPack) {
+            const { data: granted, error: grantError } = await supabaseAdmin.rpc(
+              "grant_stripe_checkout_credits", {
+                p_session_id: session.id,
+                p_user_id: userId,
+                p_credits: expectedCredits,
+                p_price_keys: lineItems.data.map(item => item.price!.id).join(","),
+                p_currency: String(session.currency || "").toLowerCase(),
+                p_amount_total: session.amount_total || 0,
+              }
+            );
+            if (grantError) {
+              // Raise an error so Stripe retries, but the unique session ID
+              // prevents any double-credit if a previous delivery succeeded.
+              console.error("[StripeWebhook] Credit grant failed:", grantError.message);
+              throw grantError;
+            }
+            console.log("[StripeWebhook] Credit pack", session.id, "granted:", granted, "credits:", expectedCredits);
+          } else if (session.metadata?.total_credits) {
+            console.error("[StripeWebhook] Credit pack validation failed for session:", session.id);
+            throw new Error("Checkout credit pack did not match verified Stripe line items");
+          }
+        }
 
         // Mark any abandoned carts as converted
         if (userId) {
