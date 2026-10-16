@@ -13,6 +13,7 @@ import { Crown, ShieldCheck, Coins, Loader2, Check, RefreshCw, ArrowRight, Chevr
 import { Button } from "@/components/ui/button";
 import { BrandSparkle } from "@/components/BrandSparkle";
 import { effectivePlanTier, isActivePaidPlan, type PlanProfile } from "@/lib/planEntitlements";
+import { checkoutErrorMessage } from "@/lib/checkoutError";
 
 interface CreditPack {
   price: number;
@@ -175,8 +176,10 @@ export const UpgradeDialog = ({ open, onOpenChange, currentPlan, exhausted = fal
         const { data: portal, error: portalError } = await supabase.functions.invoke("create-portal-session", {
           body: { returnUrl: window.location.href },
         });
-        if (portalError || !portal?.url) throw portalError || new Error("Unable to open billing portal");
-        window.location.href = portal.url;
+        if (portalError || !portal?.url) {
+          throw new Error(await checkoutErrorMessage(portalError || new Error("Missing Stripe portal URL"), portal, Boolean(isEN)));
+        }
+        window.location.assign(portal.url);
         return;
       }
       const { data, error } = await supabase.functions.invoke("create-checkout", {
@@ -186,13 +189,15 @@ export const UpgradeDialog = ({ open, onOpenChange, currentPlan, exhausted = fal
           cancelUrl: `${window.location.origin}/settings?canceled=true`,
         },
       });
-      if (error) throw error;
-      if (data?.url) window.location.href = data.url;
+      if (error || !data?.url) {
+        throw new Error(await checkoutErrorMessage(error || new Error("Missing Stripe checkout URL"), data, Boolean(isEN)));
+      }
+      window.location.assign(data.url);
     } catch (error) {
       console.error("Checkout error:", error);
       toast({
-        title: isEN ? "Error" : "Erreur",
-        description: isEN ? "Unable to create payment session." : "Impossible de créer la session de paiement.",
+        title: isEN ? "Payment unavailable" : "Paiement indisponible",
+        description: error instanceof Error ? error.message : (isEN ? "Unable to create payment session." : "Impossible de créer la session de paiement."),
         variant: "destructive",
       });
     } finally {
@@ -211,13 +216,15 @@ export const UpgradeDialog = ({ open, onOpenChange, currentPlan, exhausted = fal
           cancelUrl: `${window.location.origin}/settings?canceled=true`,
         },
       });
-      if (error) throw error;
-      if (data?.url) window.location.href = data.url;
+      if (error || !data?.url) {
+        throw new Error(await checkoutErrorMessage(error || new Error("Missing Stripe checkout URL"), data, Boolean(isEN)));
+      }
+      window.location.assign(data.url);
     } catch (error) {
       console.error("Credits checkout error:", error);
       toast({
-        title: isEN ? "Error" : "Erreur",
-        description: isEN ? "Unable to create payment session." : "Impossible de créer la session de paiement.",
+        title: isEN ? "Payment unavailable" : "Paiement indisponible",
+        description: error instanceof Error ? error.message : (isEN ? "Unable to create payment session." : "Impossible de créer la session de paiement."),
         variant: "destructive",
       });
     } finally {
