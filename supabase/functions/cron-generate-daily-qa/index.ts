@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { activePlanTier } from "../_shared/plan-access.ts";
+import { gmbContentLanguage } from "../_shared/content-language.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -100,7 +101,7 @@ serve(async (req) => {
               websiteContent: business.website_content,
               keywords: randomKeyword ? [randomKeyword, ...existingQuestionsList] : existingQuestionsList,
               singleQuestion: true,
-              language: business.gmb_language || "fr",
+              language: gmbContentLanguage(business.gmb_language, "fr"),
             }),
           });
 
