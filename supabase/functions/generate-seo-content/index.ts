@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { callOpenRouterWithFallback } from "../_shared/openrouter.ts";
+import { gmbContentLanguage, languageLabel } from "../_shared/content-language.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -55,9 +56,11 @@ serve(async (req) => {
       language, // NEW: language for content generation (from GMB)
     } = await req.json();
     
-    // Determine content language (default to French)
-    const contentLang = language?.toLowerCase()?.startsWith("en") ? "en" : "fr";
-    console.log(`[generate-seo-content] Language: ${contentLang}`);
+    // Language always comes from the selected Google Business location.
+    // Never infer it from the browser/UI or from the language of a page title.
+    const contentLang = gmbContentLanguage(language, "fr");
+    const templateLang = contentLang === "en" ? "en" : "fr";
+    console.log(`[generate-seo-content] GMB content language: ${contentLang}`);
 
     // Language-specific prompts
     const langConfig = {
@@ -85,7 +88,7 @@ serve(async (req) => {
       }
     };
 
-    const lang = langConfig[contentLang];
+    const lang = langConfig[templateLang];
 
     // Use pre-scraped content from database - NO MORE Firecrawl calls here
     const scrapedContent = websiteContent || null;
@@ -429,7 +432,7 @@ ${lang.jsonOnly}
 
     const content = await callOpenRouterWithFallback({
       messages: [
-        { role: "system", content: systemPrompt },
+        { role: "system", content: `MANDATORY GOOGLE BUSINESS PROFILE LANGUAGE: ${languageLabel(contentLang)} (${contentLang}). Generate ALL customer-facing text in that language: business descriptions, keywords, article titles, article content, Google Posts, GEO questions and answers. Do not copy or preserve text from a different language merely because the source website, title, example JSON or account UI uses it. Translate any old planning title into the target language while preserving meaning. Retain proper nouns, brand names, addresses and valid JSON keys unchanged.\n\n${systemPrompt}` },
         { role: "user", content: userPrompt },
       ],
       temperature: 0.7,
