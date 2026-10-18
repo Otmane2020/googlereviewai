@@ -46,6 +46,7 @@ import { Route as PaymentSuccessRouteImport } from './routes/payment-success'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ProspectionStickersRouteImport } from './routes/prospection-stickers'
 import { Route as QrGratuitRouteImport } from './routes/qr-gratuit'
+import { Route as ReponseAvisGoogleIaGratuitRouteImport } from './routes/reponse-avis-google-ia-gratuit'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as RestaurantsRouteImport } from './routes/restaurants'
 import { Route as ReviewManagementSoftwareRouteImport } from './routes/review-management-software'
@@ -259,6 +260,12 @@ const QrGratuitRoute = QrGratuitRouteImport.update({
   path: '/qr-gratuit',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ReponseAvisGoogleIaGratuitRoute =
+  ReponseAvisGoogleIaGratuitRouteImport.update({
+    id: '/reponse-avis-google-ia-gratuit',
+    path: '/reponse-avis-google-ia-gratuit',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
@@ -425,6 +432,7 @@ export interface FileRoutesByFullPath {
   '/privacy': typeof PrivacyRoute
   '/prospection-stickers': typeof ProspectionStickersRoute
   '/qr-gratuit': typeof QrGratuitRoute
+  '/reponse-avis-google-ia-gratuit': typeof ReponseAvisGoogleIaGratuitRoute
   '/reset-password': typeof ResetPasswordRoute
   '/restaurants': typeof RestaurantsRoute
   '/review-management-software': typeof ReviewManagementSoftwareRoute
@@ -489,6 +497,7 @@ export interface FileRoutesByTo {
   '/privacy': typeof PrivacyRoute
   '/prospection-stickers': typeof ProspectionStickersRoute
   '/qr-gratuit': typeof QrGratuitRoute
+  '/reponse-avis-google-ia-gratuit': typeof ReponseAvisGoogleIaGratuitRoute
   '/reset-password': typeof ResetPasswordRoute
   '/restaurants': typeof RestaurantsRoute
   '/review-management-software': typeof ReviewManagementSoftwareRoute
@@ -554,6 +563,7 @@ export interface FileRoutesById {
   '/privacy': typeof PrivacyRoute
   '/prospection-stickers': typeof ProspectionStickersRoute
   '/qr-gratuit': typeof QrGratuitRoute
+  '/reponse-avis-google-ia-gratuit': typeof ReponseAvisGoogleIaGratuitRoute
   '/reset-password': typeof ResetPasswordRoute
   '/restaurants': typeof RestaurantsRoute
   '/review-management-software': typeof ReviewManagementSoftwareRoute
@@ -620,6 +630,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/prospection-stickers'
     | '/qr-gratuit'
+    | '/reponse-avis-google-ia-gratuit'
     | '/reset-password'
     | '/restaurants'
     | '/review-management-software'
@@ -684,6 +695,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/prospection-stickers'
     | '/qr-gratuit'
+    | '/reponse-avis-google-ia-gratuit'
     | '/reset-password'
     | '/restaurants'
     | '/review-management-software'
@@ -748,6 +760,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/prospection-stickers'
     | '/qr-gratuit'
+    | '/reponse-avis-google-ia-gratuit'
     | '/reset-password'
     | '/restaurants'
     | '/review-management-software'
@@ -813,6 +826,7 @@ export interface RootRouteChildren {
   PrivacyRoute: typeof PrivacyRoute
   ProspectionStickersRoute: typeof ProspectionStickersRoute
   QrGratuitRoute: typeof QrGratuitRoute
+  ReponseAvisGoogleIaGratuitRoute: typeof ReponseAvisGoogleIaGratuitRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   RestaurantsRoute: typeof RestaurantsRoute
   ReviewManagementSoftwareRoute: typeof ReviewManagementSoftwareRoute
@@ -1101,6 +1115,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof QrGratuitRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/reponse-avis-google-ia-gratuit': {
+      id: '/reponse-avis-google-ia-gratuit'
+      path: '/reponse-avis-google-ia-gratuit'
+      fullPath: '/reponse-avis-google-ia-gratuit'
+      preLoaderRoute: typeof ReponseAvisGoogleIaGratuitRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/reset-password': {
       id: '/reset-password'
       path: '/reset-password'
@@ -1317,6 +1338,7 @@ const rootRouteChildren: RootRouteChildren = {
   PrivacyRoute: PrivacyRoute,
   ProspectionStickersRoute: ProspectionStickersRoute,
   QrGratuitRoute: QrGratuitRoute,
+  ReponseAvisGoogleIaGratuitRoute: ReponseAvisGoogleIaGratuitRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   RestaurantsRoute: RestaurantsRoute,
   ReviewManagementSoftwareRoute: ReviewManagementSoftwareRoute,
