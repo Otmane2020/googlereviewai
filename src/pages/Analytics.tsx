@@ -1,13 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/contexts/AuthContext";
-import { useNavigate } from "@/lib/router-compat";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Activity, BarChart3, MapPin, Search, Sparkles, RefreshCw, ExternalLink, AlertTriangle } from "lucide-react";
+import { Activity, BarChart3, MapPin, RefreshCw, AlertTriangle } from "lucide-react";
 
 type Business = { id: string; name: string };
 type Post = { id: string; status: string; scheduled_date: string; content_type: string; google_post_id?: string | null };
@@ -16,7 +15,6 @@ type Insights = { profileViews?: number; websiteClicks?: number; phoneCalls?: nu
 export default function Analytics() {
   const { user } = useAuth();
   const { i18n } = useTranslation();
-  const nav = useNavigate();
   const en = i18n.language?.toLowerCase().startsWith("en");
   const t = (fr: string, eng: string) => en ? eng : fr;
   const [businesses, setBusinesses] = useState<Business[]>([]);
@@ -115,19 +113,13 @@ export default function Analytics() {
         <p className="text-xs text-muted-foreground">{t("Un tiret signifie donnée indisponible, pas zéro.", "A dash means unavailable data, not zero.")}</p>
       </CardContent></Card>
 
-    <div className="grid md:grid-cols-2 gap-4">
-      <Card><CardHeader><CardTitle className="flex items-center gap-2"><Search className="w-5 h-5"/>{t("Visibilité SEO", "SEO visibility")}</CardTitle>
-        <CardDescription>{t("Impressions, clics organiques, CTR et positions", "Impressions, organic clicks, CTR and rankings")}</CardDescription></CardHeader>
-        <CardContent className="space-y-3"><Badge variant="outline">{t("Google Search Console à connecter", "Google Search Console connection needed")}</Badge>
-          <p className="text-sm text-muted-foreground">{t("Les données Search Console ne sont pas encore intégrées. Aucune valeur estimée n'est affichée.", "Search Console data is not yet integrated. No estimated values are shown.")}</p>
-          <Button variant="outline" onClick={() => nav("/seo-autopost")}>{t("Voir les actions SEO", "View SEO actions")} <ExternalLink className="w-4 h-4 ml-2"/></Button>
-        </CardContent></Card>
-      <Card><CardHeader><CardTitle className="flex items-center gap-2"><Sparkles className="w-5 h-5"/>{t("Visibilité GEO / IA", "GEO / AI visibility")}</CardTitle>
-        <CardDescription>{t("Citations, mentions et comparaison concurrentielle", "Citations, mentions and competitor comparisons")}</CardDescription></CardHeader>
-        <CardContent className="space-y-3"><Badge variant="outline">{t("Suivi des citations IA à connecter", "AI citation tracking needed")}</Badge>
-          <p className="text-sm text-muted-foreground">{t("Aucune mesure ChatGPT, Gemini ou Claude n'est actuellement disponible. Les publications ne prouvent pas la visibilité IA.", "No ChatGPT, Gemini or Claude visibility measurements are currently available. Published posts do not prove AI visibility.")}</p>
-          <Button variant="outline" onClick={() => nav("/geo-rank")}>{t("Consulter le classement local", "View local rankings")} <ExternalLink className="w-4 h-4 ml-2"/></Button>
-        </CardContent></Card></div>
+    <Card><CardHeader><CardTitle>{t("Mesure de visibilité", "Visibility measurement")}</CardTitle>
+      <CardDescription>{t("SEO Google et citations IA : les résultats seront affichés ici après intégration de leurs sources de données, sans chiffres inventés.", "Google SEO and AI citations: results will appear here when their data sources are integrated, with no fabricated figures.")}</CardDescription></CardHeader>
+      <CardContent className="flex flex-wrap gap-2">
+        <Badge variant="outline">{t("Search Console non connecté", "Search Console not connected")}</Badge>
+        <Badge variant="outline">{t("Citations IA non mesurées", "AI citations not measured")}</Badge>
+      </CardContent>
+    </Card>
     <p className="text-xs text-muted-foreground">{t("Les corrélations avant/après publication et les tendances 7/30/90 jours nécessitent des historiques de mesures. Aucun gain de positionnement n'est attribué automatiquement à une action.", "Before/after comparisons and 7/30/90-day trends require historical measurements. No ranking improvement is automatically attributed to an action.")}</p>
   </main>;
 }
