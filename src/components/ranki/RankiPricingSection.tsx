@@ -43,7 +43,7 @@ const getPlans = (isFrench: boolean): Plan[] => [
   },
   {
     name: "Business",
-    tagline: isFrench ? "Gestion multi-établissements" : "Unlimited locations",
+    tagline: isFrench ? "Gestion multi-établissements" : "Multi-location management",
     monthly: { price: isFrench ? "99 €" : "$99", perMonth: isFrench ? "/mois" : "/month", priceKey: isFrench ? "ranki_business_monthly" : "ranki_business_monthly_usd" },
     yearly: { price: isFrench ? "950,40 €" : "$950.40", perMonth: isFrench ? "/an" : "/year", priceKey: isFrench ? "ranki_business_yearly" : "ranki_business_yearly_usd" },
     features: isFrench
