@@ -260,12 +260,14 @@ ${lang.jsonOnly}
       
 Important rules:
 - Write in English with a professional but accessible tone
-- Use keywords naturally (2-3% density)
-- Structure with H2 and H3
-- Include bullet lists when relevant
-- Length: 800-1200 words
-- Optimize for local search
-- Add a call to action at the end`;
+- Create an editorial Google Business Profile update, around 100-180 words and always under 1500 characters
+- Lead with a useful observation or practical insight, then develop it in 2-3 short natural paragraphs
+- Mention the primary keyword once where it reads naturally; no keyword density targets or city-name repetition
+- Use plain text only: NO Markdown, headings, H1/H2/H3, numbered sections, bullet points, hashtags, or keyword lists
+- Never invent a business address, phone number, service, statistics, rankings, promotions or demonstrably false SEO promises
+- Do not suggest that replying to reviews directly guarantees higher Google rankings
+- Vary editorial angles and sentence openings; avoid generic AI copy and exaggerated marketing
+- End with a soft contextual invitation only if appropriate; no mandatory sales pitch`;
 
         userPrompt = `Create an SEO article for:
 Business: ${businessName}
@@ -278,15 +280,15 @@ ${keywords?.length ? `Keywords: ${keywords.join(", ")}` : ""}
 Generate a complete article with:
 1. ${title ? `Keep the title: "${title}"` : "Catchy title (H1)"}
 2. Meta description (max 155 characters)
-3. Content structured in markdown
-4. Conclusion with CTA
+3. A short plain-text editorial Google Business Profile post with natural paragraphs (no heading, Markdown or lists)
+4. A relevant and subtle ending; only verified business details
 
 ${lang.jsonOnly}
 {
   "article": {
     "title": "${title || "Article title"}",
     "meta_description": "Meta description of max 155 characters",
-    "content": "Complete content in markdown with H2, H3, lists..."
+    "content": "Short editorial post in plain text, 2-3 natural paragraphs, no Markdown or heading"
   }
 }`;
       } else {
@@ -294,12 +296,14 @@ ${lang.jsonOnly}
       
 Règles importantes:
 - Écris en français avec un ton professionnel mais accessible
-- Utilise les mots-clés naturellement (densité 2-3%)
-- Structure avec H2 et H3
-- Inclus des listes à puces quand pertinent
-- Longueur: 800-1200 mots
-- Optimise pour la recherche locale
-- Ajoute un appel à l'action à la fin`;
+- Rédige une publication éditoriale Google Business Profile d'environ 100 à 180 mots, impérativement sous 1 500 caractères
+- Ouvre par un constat concret ou un conseil utile, puis développe l'idée en 2 ou 3 paragraphes naturels
+- Insère le mot-clé principal une seule fois si la formulation s'y prête, sans bourrage SEO ni répétition du nom de ville
+- Texte brut uniquement : aucun Markdown, H1/H2/H3, titre dans le corps, liste à puces, numérotation, hashtag ni liste de mots-clés
+- N'invente jamais d'adresse, numéro de téléphone, service, statistique, classement, promotion ou résultat SEO garanti
+- Ne prétends pas que les réponses aux avis améliorent automatiquement le classement Google
+- Varie les angles et les accroches, évite les phrases génériques d'IA et le ton publicitaire exagéré
+- Termine par une invitation sobre uniquement si elle est pertinente, sans argumentaire commercial obligatoire`;
 
         userPrompt = `Crée un article SEO pour:
 Entreprise: ${businessName}
@@ -312,15 +316,15 @@ ${keywords?.length ? `Mots-clés: ${keywords.join(", ")}` : ""}
 Génère un article complet avec:
 1. ${title ? `Garde le titre: "${title}"` : "Titre accrocheur (H1)"}
 2. Meta description (max 155 caractères)
-3. Contenu structuré en markdown
-4. Conclusion avec CTA
+3. Publication éditoriale courte au format texte brut pour Google Business Profile, en paragraphes naturels (sans titres, Markdown ni listes)
+4. Conclusion sobre et pertinente, sans coordonnées non vérifiées
 
 ${lang.jsonOnly}
 {
   "article": {
     "title": "${title || "Titre de l'article"}",
     "meta_description": "Description meta de 155 caractères max",
-    "content": "Contenu complet en markdown avec H2, H3, listes..."
+    "content": "Publication éditoriale en texte brut, 2 ou 3 paragraphes naturels, sans Markdown ni titre"
   }
 }`;
       }
