@@ -1234,6 +1234,91 @@ export type Database = {
         }
         Relationships: []
       }
+      reviewai_tracking_events: {
+        Row: {
+          created_at: string
+          event_name: string | null
+          event_type: string
+          id: number
+          page_path: string
+          referrer_host: string | null
+          session_id: string
+          site_id: string
+          source_name: string
+          source_type: string
+        }
+        Insert: {
+          created_at?: string
+          event_name?: string | null
+          event_type: string
+          id?: never
+          page_path: string
+          referrer_host?: string | null
+          session_id: string
+          site_id: string
+          source_name: string
+          source_type: string
+        }
+        Update: {
+          created_at?: string
+          event_name?: string | null
+          event_type?: string
+          id?: never
+          page_path?: string
+          referrer_host?: string | null
+          session_id?: string
+          site_id?: string
+          source_name?: string
+          source_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviewai_tracking_events_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "reviewai_tracking_sites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reviewai_tracking_sites: {
+        Row: {
+          business_id: string
+          created_at: string
+          domain: string
+          id: string
+          last_seen_at: string | null
+          public_key: string
+          user_id: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          domain: string
+          id?: string
+          last_seen_at?: string | null
+          public_key?: string
+          user_id: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          domain?: string
+          id?: string
+          last_seen_at?: string | null
+          public_key?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviewai_tracking_sites_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: true
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reviews: {
         Row: {
           ai_response: string | null
@@ -1454,6 +1539,56 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      seo_keyword_measurements: {
+        Row: {
+          business_id: string
+          competition: number | null
+          cpc: number | null
+          id: string
+          keyword: string
+          language_name: string
+          location_name: string
+          measured_at: string
+          search_volume: number | null
+          source: string
+          user_id: string
+        }
+        Insert: {
+          business_id: string
+          competition?: number | null
+          cpc?: number | null
+          id?: string
+          keyword: string
+          language_name: string
+          location_name: string
+          measured_at?: string
+          search_volume?: number | null
+          source?: string
+          user_id: string
+        }
+        Update: {
+          business_id?: string
+          competition?: number | null
+          cpc?: number | null
+          id?: string
+          keyword?: string
+          language_name?: string
+          location_name?: string
+          measured_at?: string
+          search_volume?: number | null
+          source?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seo_keyword_measurements_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
             referencedColumns: ["id"]
           },
         ]
