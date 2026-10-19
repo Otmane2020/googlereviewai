@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { measureKeywordDemand } from "../_shared/dataforseo-keywords.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -223,6 +224,24 @@ RÈGLES:
       }
     }
 
+    // One real search-volume batch per analysis; no inferred demand when not configured.
+    const languageCode = String(business.gmb_language || "fr").toLowerCase();
+    const languageName = languageCode.startsWith("en") ? "English" : languageCode.startsWith("es") ? "Spanish" : languageCode.startsWith("de") ? "German" : "French";
+    const locationName = business.address && /\\b(us|usa|united states)\\b/i.test(business.address) ? "United States" : "France";
+    const demand = extractedKeywords.length
+      ? await measureKeywordDemand(extractedKeywords, locationName, languageName)
+      : { measured: [], status: "unavailable" as const };
+    if (demand.status === "measured" && demand.measured.length) {
+      const { error: saveError } = await supabaseAdmin.from("seo_keyword_measurements").insert(
+        demand.measured.map(metric => ({
+          business_id: businessId, user_id: user.id, keyword: metric.keyword,
+          search_volume: metric.volume, cpc: metric.cpc, competition: metric.competition,
+          location_name: locationName, language_name: languageName, source: "dataforseo",
+        }))
+      );
+      if (saveError) console.error("[DataForSEO] Snapshot storage failed", saveError);
+    }
+
     // Step 4: Update business with keywords and description
     const updateData: any = {
       updated_at: new Date().toISOString(),
@@ -280,6 +299,8 @@ RÈGLES:
         description: generatedDescription || business.description,
         aeo_questions: aeoContent,
         seo_titles: seoContent,
+        keyword_metrics: demand.measured,
+        keyword_metrics_status: demand.status,
         websiteAnalyzed: !!websiteContent,
         gmbAnalyzed: !!gmbDescription,
       }),
