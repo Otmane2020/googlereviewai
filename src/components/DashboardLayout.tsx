@@ -16,7 +16,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
-import { LayoutDashboard, BarChart3, Star, Building2, Search, MapPin, Bell, Settings, CreditCard, LogOut, HelpCircle, MessageCircleQuestion, ListChecks, ShoppingBag, Package, Loader2, RefreshCw } from "lucide-react";
+import { LayoutDashboard, BarChart3, FlaskConical, Star, Building2, Search, MapPin, Bell, Settings, CreditCard, LogOut, HelpCircle, MessageCircleQuestion, ListChecks, ShoppingBag, Package, Loader2, RefreshCw } from "lucide-react";
 import { RankiLogo } from "@/components/StarlinkoLogo";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -46,6 +46,7 @@ const useNavItems = () => {
     { label: isEn ? "Analytics" : "Analytics", href: "/analytics", icon: BarChart3 },
     { label: t("sidebar.geoRankAi"), href: "/geo-rank", icon: BrandSparkle, badge: "AI" },
     { label: t("sidebar.seoAutopilot"), href: "/seo-autopost", icon: Search },
+    { label: isEn ? "Engine test" : "Test du moteur", href: "/seo-engine-test", icon: FlaskConical },
     { label: t("sidebar.planning"), href: "/calendar", icon: ListChecks },
   ];
   const businessNav = [
