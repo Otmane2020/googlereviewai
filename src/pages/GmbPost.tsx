@@ -32,6 +32,7 @@ interface GmbPost {
   cta_type: string | null;
   cta_url: string | null;
   media_url: string | null;
+  search_url?: string | null;
 }
 
 export default function GmbPost() {
@@ -614,6 +615,8 @@ export default function GmbPost() {
                         {post.media_url && <img src={post.media_url} alt="" className="mt-2 h-24 w-40 object-cover rounded-lg border" />}
                         {post.cta_url && <a href={post.cta_url} target="_blank" rel="noopener noreferrer"
                           className="text-xs text-primary underline mt-2 inline-block">{t("En savoir plus", "Learn more")}</a>}
+                        {post.search_url && <a href={post.search_url} target="_blank" rel="noopener noreferrer"
+                          className="text-xs text-primary underline mt-2 ml-3 inline-block">{t("Voir sur Google", "View on Google")}</a>}
                         <p className="text-xs text-muted-foreground mt-1">
                           {format(new Date(post.posted_at || post.created_at), isEN ? "MMM d, yyyy 'at' HH:mm" : "d MMM yyyy 'à' HH:mm", { locale: isEN ? enUS : fr })}
                         </p>

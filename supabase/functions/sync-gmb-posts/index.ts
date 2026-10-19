@@ -193,6 +193,7 @@ async function syncPostsToDb(
     cta_type: post.callToAction?.actionType || null,
     cta_url: post.callToAction?.url || null,
     media_url: post.media?.[0]?.sourceUrl || null,
+    search_url: post.searchUrl || null,
     posted_at: post.createTime || null,
     // Google is authoritative: PROCESSING is not public, only LIVE is published.
     status: (post.state || "").toUpperCase() === "LIVE" ? "published"
