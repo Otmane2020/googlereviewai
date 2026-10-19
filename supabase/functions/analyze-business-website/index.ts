@@ -65,6 +65,7 @@ serve(async (req) => {
     const lovableApiKey = Deno.env.get("LOVABLE_API_KEY");
 
     let websiteContent = "";
+    let crawlStatus = !website ? "no_website" : !firecrawlApiKey ? "not_configured" : "failed";
     let websiteMetadata: any = null;
 
     // Step 1: Scrape website with Firecrawl
@@ -96,6 +97,7 @@ serve(async (req) => {
           const rawContent = scrapeData.data?.markdown || scrapeData.markdown || "";
           // Store truncated version (max 8000 chars) for future use
           websiteContent = rawContent.substring(0, 8000);
+          if (websiteContent.trim()) crawlStatus = "success";
           websiteMetadata = scrapeData.data?.metadata || scrapeData.metadata || null;
           console.log(`[ANALYZE] Firecrawl scraped ${rawContent.length} chars, storing ${websiteContent.length}`);
           
@@ -120,6 +122,7 @@ serve(async (req) => {
       }
     }
 
+    if (!websiteContent && business.website_content && website === business.website) websiteContent = business.website_content;
     // Step 2: Combine content for analysis
     const fullContent = [
       websiteContent ? `CONTENU DU SITE WEB:\n${websiteContent.substring(0, 8000)}` : "",
@@ -137,6 +140,7 @@ serve(async (req) => {
     }
 
     let extractedKeywords: string[] = [];
+    let aiStatus = lovableApiKey ? "failed" : "not_configured";
     let generatedDescription = "";
     let aeoContent: any[] = [];
     let seoContent: any[] = [];
@@ -198,6 +202,7 @@ RÈGLES:
               extractedKeywords = parsed.keywords
                 .filter((k: any) => typeof k === "string" && k.length > 2)
                 .slice(0, 15);
+              if (extractedKeywords.length) aiStatus = "success";
               console.log(`[ANALYZE] Extracted ${extractedKeywords.length} keywords`);
             }
 
@@ -318,7 +323,10 @@ RÈGLES:
         keyword_opportunities: opportunities,
         qualified_keywords_count: opportunities.filter(row => row.validated).length,
         keyword_metrics_status: demand.status,
-        websiteAnalyzed: !!websiteContent,
+        crawl_status: crawlStatus,
+        ai_status: aiStatus,
+        websiteAnalyzed: crawlStatus === "success",
+        websiteContextAvailable: !!websiteContent,
         gmbAnalyzed: !!gmbDescription,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
