@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/contexts/AuthContext";
+import { ReviewsAITracking } from "@/components/ReviewsAITracking";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Activity, BarChart3, MapPin, RefreshCw, AlertTriangle } from "lucide-react";
 
-type Business = { id: string; name: string };
+type Business = { id: string; name: string; website: string | null };
 type Post = { id: string; status: string; scheduled_date: string; content_type: string; google_post_id?: string | null };
 type Insights = { profileViews?: number; websiteClicks?: number; phoneCalls?: number; directionRequests?: number };
 
@@ -29,7 +30,7 @@ export default function Analytics() {
   useEffect(() => {
     if (!user?.id) return;
     let active = true;
-    supabase.from("businesses").select("id,name").eq("user_id", user.id).order("name").then(({ data, error }) => {
+    supabase.from("businesses").select("id,name,website").eq("user_id", user.id).order("name").then(({ data, error }) => {
       if (!active) return;
       if (error) setLoadError(error.message);
       const list = (data || []) as Business[];
@@ -98,6 +99,8 @@ export default function Analytics() {
     </div>
     {loadError && <p role="alert" className="text-destructive text-sm">{loadError}</p>}
     {!businessId && <p className="text-muted-foreground">{t("Aucun établissement disponible.", "No location available.")}</p>}
+
+    {businessId && user?.id && <ReviewsAITracking businessId={businessId} website={businesses.find(b=>b.id===businessId)?.website || null} userId={user.id} days={Number(days)} />}
 
     <Card><CardHeader><CardTitle className="flex items-center gap-2"><Activity className="w-5 h-5"/>{t("Actions de publication", "Publishing activity")}</CardTitle>
       <CardDescription>{t("État des contenus planifiés. Ces volumes ne sont pas des indicateurs de classement.", "Scheduled-content status. These counts are not ranking indicators.")}</CardDescription></CardHeader>
