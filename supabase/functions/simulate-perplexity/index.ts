@@ -33,7 +33,7 @@ Deno.serve(async req=>{
   const sources=Array.isArray(data.citations)?data.citations: Array.isArray(data.search_results)?data.search_results.map((s:any)=>s.url):[];
   const citations=sources.filter((x:unknown):x is string=>typeof x==="string"&&/^https?:\/\//.test(x)).slice(0,25);
   const mentioned=Boolean(name&&clean(answer).includes(name));
-  const cited=Boolean(domain&&citations.some(url=>{try{const h=new URL(url).hostname.replace(/^www\./,"");return h===domain||h.endsWith("."+domain);}catch{return false;}}));
+  const cited=Boolean(domain&&citations.some((url:string)=>{try{const h=new URL(url).hostname.replace(/^www\./,"");return h===domain||h.endsWith("."+domain);}catch{return false;}}));
   return reply({provider:"Perplexity Sonar API",question:question.trim(),answer,citations,mentioned,cited,domain:domain||null,model:data.model||"sonar",measured_at:new Date().toISOString(),disclaimer:"One API response, not a stable ranking or observation of consumer Perplexity UI."});
  }catch(e){console.error("Perplexity simulation error",e);return reply({error:"SIMULATION_FAILED"},500);}
 });
