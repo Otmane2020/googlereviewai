@@ -88,6 +88,8 @@ export default function SeoEngineTest() {
       details: { websiteAnalyzed: data?.websiteAnalyzed, gmbAnalyzed: data?.gmbAnalyzed,
         keywords: data?.keywords, keyword_metrics_status: data?.keyword_metrics_status || "function_not_deployed_or_old_version",
         crawl_status: data?.crawl_status || (data?.websiteAnalyzed ? "success" : "unavailable"),
+        crawl_error: data?.crawl_error || null,
+        crawl_metadata: data?.crawl_metadata || null,
         ai_status: data?.ai_status || (data?.keywords?.length ? "success" : "unavailable"),
         keyword_metrics: data?.keyword_metrics, keyword_opportunities: data?.keyword_opportunities,
         qualified_keywords_count: data?.qualified_keywords_count,
