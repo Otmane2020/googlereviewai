@@ -5,7 +5,6 @@ type Business = {
  auto_keywords:string[]|null; website:string|null;
 };
 type Setting = {business_id:string;user_id:string;updated_at:string};
-const allowedOrigin = ["https://reviewsai.store"];
 const headers = { "Content-Type":"application/json" };
 const respond=(body:unknown,status=200)=>new Response(JSON.stringify(body),{status,headers});
 const clean=(s:string)=>s.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
@@ -109,7 +108,10 @@ Deno.serve(async req=>{
   if(!b){skipped++;continue;}
   const result=await perform(admin,perplexity,b as Business,setting,week);
   if(result==="success")success++;else if(result==="failed")failed++;else skipped++;
-  if(result!=="skipped")used++;
+  if(result!=="skipped"){
+   used++;
+   await admin.from("reviewai_ai_visibility_settings").update({updated_at:new Date().toISOString()}).eq("business_id",setting.business_id);
+  }
   usage.set(setting.user_id,used);
  }
  return respond({ok:true,success,failed,skipped,weekly_cap_per_account:capPerUser});
