@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "@/lib/router-compat";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/contexts/AuthContext";
@@ -161,6 +161,15 @@ const SEOAutoPost = () => {
     setSelectedArticle(article);
     setShowPreviewDialog(true);
   };
+
+  // Auto-launch plan generation once per location when the plan allows it and no content exists yet.
+  const autoLaunchedRef = useRef<Set<string>>(new Set());
+  useEffect(() => {
+    if (loading || generating || !isSubscribed || !selectedBusiness) return;
+    if (scheduledContent.length > 0 || autoLaunchedRef.current.has(selectedBusiness.id)) return;
+    autoLaunchedRef.current.add(selectedBusiness.id);
+    analyzeAndGeneratePlan();
+  }, [loading, generating, isSubscribed, selectedBusiness?.id, scheduledContent.length]);
 
   const analyzeAndGeneratePlan = async () => {
     if (!selectedBusiness) return;
@@ -485,7 +494,7 @@ const SEOAutoPost = () => {
             <Building2 className="h-4 w-4" />
             {t("Gérer mes établissements SEO & GEO", "Manage my SEO & GEO locations")}
           </Button>
-          {selectedBusiness && isSubscribed && (
+          {selectedBusiness && (
             <Button
               onClick={analyzeAndGeneratePlan}
               disabled={generating}

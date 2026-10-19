@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "@/lib/router-compat";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -206,6 +206,15 @@ const AEORank = () => {
     setSelectedArticle(article);
     setShowPreviewDialog(true);
   };
+
+  // Auto-launch plan generation once per location when the plan allows it and no content exists yet.
+  const autoLaunchedRef = useRef<Set<string>>(new Set());
+  useEffect(() => {
+    if (loading || generating || !isSubscribed || !selectedBusiness) return;
+    if (scheduledContent.length > 0 || autoLaunchedRef.current.has(selectedBusiness.id)) return;
+    autoLaunchedRef.current.add(selectedBusiness.id);
+    analyzeAndGeneratePlan();
+  }, [loading, generating, isSubscribed, selectedBusiness?.id, scheduledContent.length]);
 
   const analyzeAndGeneratePlan = async () => {
     if (!selectedBusiness) return;
@@ -581,7 +590,7 @@ const AEORank = () => {
             <Building2 className="w-4 h-4" />
             {tr("Gérer mes établissements GEO", "Manage GEO locations")}
           </Button>
-          {selectedBusiness && !isSubscribed && (
+          {selectedBusiness && (
             <Button
               onClick={analyzeAndGeneratePlan}
               disabled={generating}
