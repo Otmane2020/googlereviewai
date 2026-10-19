@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { measureKeywordDemand } from "../_shared/dataforseo-keywords.ts";
+import { rankLocalKeywords } from "../_shared/ranki-keyword-engine.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -242,6 +243,20 @@ RÈGLES:
       if (saveError) console.error("[DataForSEO] Snapshot storage failed", saveError);
     }
 
+    const opportunities = rankLocalKeywords({
+      keywords: extractedKeywords,
+      name: business.name,
+      description: gmbDescription || "",
+      categories: business.categories || [],
+      websiteContent,
+      address: business.address || "",
+      measured: demand.measured,
+    });
+    // Use verified first-party relevance to prioritize planning, not fabricated search volumes.
+    // Preserve original candidates if no qualified opportunities survive this run.
+    const qualifiedKeywords = opportunities.filter(row => row.validated).map(row => row.keyword);
+    if (qualifiedKeywords.length) extractedKeywords = qualifiedKeywords;
+
     // Step 4: Update business with keywords and description
     const updateData: any = {
       updated_at: new Date().toISOString(),
@@ -300,6 +315,8 @@ RÈGLES:
         aeo_questions: aeoContent,
         seo_titles: seoContent,
         keyword_metrics: demand.measured,
+        keyword_opportunities: opportunities,
+        qualified_keywords_count: opportunities.filter(row => row.validated).length,
         keyword_metrics_status: demand.status,
         websiteAnalyzed: !!websiteContent,
         gmbAnalyzed: !!gmbDescription,
