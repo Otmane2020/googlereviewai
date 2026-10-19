@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/contexts/AuthContext";
 import { ReviewsAITracking } from "@/components/ReviewsAITracking";
+import { PerplexitySimulator } from "@/components/PerplexitySimulator";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -100,6 +101,7 @@ export default function Analytics() {
     {loadError && <p role="alert" className="text-destructive text-sm">{loadError}</p>}
     {!businessId && <p className="text-muted-foreground">{t("Aucun établissement disponible.", "No location available.")}</p>}
 
+    {businessId && <PerplexitySimulator businessId={businessId} businessName={businesses.find(b=>b.id===businessId)?.name || ""} />}
     {businessId && user?.id && <ReviewsAITracking businessId={businessId} website={businesses.find(b=>b.id===businessId)?.website || null} userId={user.id} days={Number(days)} />}
 
     <Card><CardHeader><CardTitle className="flex items-center gap-2"><Activity className="w-5 h-5"/>{t("Actions de publication", "Publishing activity")}</CardTitle>
