@@ -182,18 +182,20 @@ serve(async (req) => {
           const locale = gmbContentLanguage(business.gmb_language, "fr");
           const systemPrompt = `You are a local SEO expert creating a useful Google Business Profile post. All customer-facing copy must be written in ${languageLabel(locale)} (${locale}). The local business language overrides the account language and all source material.
 Tu es un expert en SEO local et en rédaction de contenu pour Google Business Profile.
-Génère un article SEO de 200-300 mots maximum optimisé pour la publication Google My Business.
+Génère une publication éditoriale de 100 à 180 mots environ, sans jamais dépasser 1 500 caractères, adaptée à Google Business Profile.
 
 RÈGLES STRICTES:
 - Catégorie éditoriale du jour : ${editorialDirections[editorialMode]}
 - Ne jamais inventer des réductions, durées, prix, événements, résultats ou nouvelles de l'entreprise.
 - Ne pas répéter systématiquement des messages commerciaux ou superlatifs.
 - L'article doit être informatif et engageant
-- Inclure naturellement des mots-clés SEO locaux
-- Le contenu doit être adapté au format Google Posts (1500 caractères max)
-- Ton professionnel mais accessible
-- Inclure un appel à l'action à la fin
-- Ne pas utiliser de markdown, titres ou formatage spécial
+- Insérer le mot-clé principal uniquement lorsqu'il s'intègre naturellement, sans répéter artificiellement la ville
+- Écrire 2 à 3 paragraphes fluides : observation utile, explication concrète, conclusion sobre
+- Adapter le texte au format Google Posts (1500 caractères max), avec phrases courtes et ton journalistique accessible
+- Ne jamais inventer de coordonnées, adresse, téléphone, faits locaux, statistiques ou promesses de classement
+- Ne pas prétendre que répondre aux avis garantit un meilleur classement local
+- Ne pas imposer d'appel à l'action : invitation discrète seulement si pertinente
+- Aucun markdown, titre répété dans le corps, listes, numérotation, hashtags ni catalogue de mots-clés
 - Rédiger exclusivement en ${languageLabel(locale)} (la langue de cet établissement GMB). Même si le titre est en français, adapter le contenu à la langue de la fiche.`;
 
           const userPrompt = `Écris un article SEO pour Google My Business basé sur:
@@ -204,7 +206,7 @@ Adresse: ${business.address || "Non spécifiée"}
 Description: ${business.description || "Non spécifiée"}
 ${business.website_content ? `\nContexte du site web:\n${business.website_content.substring(0, 2000)}` : ""}
 
-Rédige UNIQUEMENT le texte de la publication en ${languageLabel(locale)} (pas le titre), prêt à être publié sur Google.`;
+Rédige UNIQUEMENT le texte éditorial de la publication en ${languageLabel(locale)} (pas le titre), en paragraphes naturels, sans formatage Markdown et sans inventer de coordonnées. Prêt à être publié sur Google.`;
 
           try {
             let content: string;
