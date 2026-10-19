@@ -83,7 +83,7 @@ export default function SeoEngineTest() {
       auto_keywords: data?.keywords || b.auto_keywords,
       website_content: b.website_content,
     } : b));
-    return { status: data?.keyword_metrics_status === "measured" && data?.keywords?.length && (data?.websiteAnalyzed || !business?.website) ? "ok" : "warning",
+    return { status: data?.context_status === "brand_mismatch" || (business?.website && data?.crawl_status !== "success") ? "warning" : (data?.ai_status === "success" && data?.measured_keyword_count > 0 ? "ok" : "warning"),
       message: t("Analyse exécutée. La mesure DataForSEO est indiquée séparément.", "Analysis executed. DataForSEO status is shown separately."),
       details: { websiteAnalyzed: data?.websiteAnalyzed, gmbAnalyzed: data?.gmbAnalyzed,
         keywords: data?.keywords, keyword_metrics_status: data?.keyword_metrics_status || "function_not_deployed_or_old_version",
@@ -92,6 +92,9 @@ export default function SeoEngineTest() {
         crawl_metadata: data?.crawl_metadata || null,
         ai_status: data?.ai_status || (data?.keywords?.length ? "success" : "unavailable"),
         keyword_metrics: data?.keyword_metrics, keyword_opportunities: data?.keyword_opportunities,
+        engine_version: data?.engine_version || "legacy",
+        context_status: data?.context_status || "unknown",
+        context_warning: data?.context_warning || null,
         qualified_keywords_count: data?.qualified_keywords_count,
         measured_keyword_count: (data?.keyword_metrics || []).filter((item: { volume: number | null }) => item.volume !== null).length,
         note: t("Cette action actualise les mots-clés enregistrés.", "This updates saved business keywords.") } };
