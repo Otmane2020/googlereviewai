@@ -1,0 +1,1 @@
+ALTER TABLE public.gmb_posts ADD COLUMN IF NOT EXISTS search_url text; NOTIFY pgrst, 'reload schema';
