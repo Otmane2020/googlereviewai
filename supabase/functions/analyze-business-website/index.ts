@@ -3,6 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { measureKeywordDemand } from "../_shared/dataforseo-keywords.ts";
 import { rankLocalKeywords } from "../_shared/ranki-keyword-engine.ts";
 import { internalScrape } from "../_shared/internal-website-scraper.ts";
+import { sourceQuality, seedKeywords } from "../_shared/seo-engine-v2.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -55,7 +56,8 @@ serve(async (req) => {
     }
 
     const website = providedWebsite || business.website;
-    const gmbDescription = business.description;
+    const sourceCheck = sourceQuality(business.name, business.description || "");
+    const gmbDescription = sourceCheck.safe ? business.description : null;
 
     console.log(`[ANALYZE] Starting analysis for: ${business.name}`);
     console.log(`[ANALYZE] Website: ${website || "none"}`);
@@ -86,16 +88,17 @@ serve(async (req) => {
 
     // Step 2: Combine content for analysis
     const fullContent = [
+      `ENTREPRISE: ${business.name}`,
       websiteContent ? `CONTENU DU SITE WEB:\n${websiteContent.substring(0, 8000)}` : "",
       gmbDescription ? `DESCRIPTION GOOGLE MY BUSINESS:\n${gmbDescription}` : "",
       business.categories?.length ? `CATÉGORIES: ${business.categories.join(", ")}` : "",
       business.address ? `ADRESSE: ${business.address}` : "",
     ].filter(Boolean).join("\n\n");
 
-    if (!fullContent) {
+    if (!business.name && !websiteContent && !gmbDescription) {
       console.log("[ANALYZE] No content to analyze");
       return new Response(
-        JSON.stringify({ success: true, keywords: [], message: "Aucun contenu à analyser. Ajoutez un site web." }),
+        JSON.stringify({ success: false, keywords: [], error: "SOURCE_CONTEXT_MISSING" }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -195,8 +198,9 @@ RÈGLES:
     const languageCode = String(business.gmb_language || "fr").toLowerCase();
     const languageName = languageCode.startsWith("en") ? "English" : languageCode.startsWith("es") ? "Spanish" : languageCode.startsWith("de") ? "German" : "French";
     const locationName = business.address && /\\b(us|usa|united states)\\b/i.test(business.address) ? "United States" : "France";
-    const demand = extractedKeywords.length
-      ? await measureKeywordDemand(extractedKeywords, locationName, languageName)
+    const measurementSeeds = seedKeywords(extractedKeywords, business.categories || []);
+    const demand = measurementSeeds.length
+      ? await measureKeywordDemand(measurementSeeds, locationName, languageName)
       : { measured: [], status: "unavailable" as const };
     if (demand.status === "measured" && demand.measured.length) {
       const { error: saveError } = await supabaseAdmin.from("seo_keyword_measurements").insert(
@@ -232,7 +236,7 @@ RÈGLES:
       updateData.auto_keywords = extractedKeywords;
     }
 
-    if (generatedDescription && !business.description) {
+    if (generatedDescription && !business.description && sourceCheck.safe) {
       // Only update description if it was empty
       updateData.description = generatedDescription;
     }
@@ -284,6 +288,10 @@ RÈGLES:
         keyword_opportunities: opportunities,
         qualified_keywords_count: opportunities.filter(row => row.validated).length,
         keyword_metrics_status: demand.status,
+        measured_keyword_count: demand.measured.filter(row => row.volume !== null).length,
+        context_status: sourceCheck.safe ? "validated" : "brand_mismatch",
+        context_warning: sourceCheck.reason,
+        engine_version: "v2",
         crawl_status: crawlStatus,
         crawl_error: crawlError,
         crawl_metadata: websiteMetadata,
