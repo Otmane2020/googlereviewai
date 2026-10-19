@@ -61,6 +61,7 @@ const SEOAutoPost = () => {
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [publishing, setPublishing] = useState<string | null>(null);
+  const [rewritingExisting, setRewritingExisting] = useState(false);
   const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null);
   const [activeTab, setActiveTab] = useState("planning");
   const [isSubscribed, setIsSubscribed] = useState(false);
@@ -340,6 +341,72 @@ const SEOAutoPost = () => {
       
       await fetchScheduledContent(selectedBusiness!.id);
       toast({ title: t("Erreur", "Error"), description: error.message, variant: "destructive" });
+    }
+  };
+
+  // Rework already generated drafts only. Never alter published Google posts or their schedule.
+  const rewriteExistingArticles = async () => {
+    if (!selectedBusiness || !user || !isSubscribed || rewritingExisting) return;
+    const drafts = scheduledContent.filter(item =>
+      item.content_type === "seo_article" &&
+      item.status === "generated" &&
+      Boolean(item.content?.trim()) &&
+      !(item as ScheduledContent & { google_post_id?: string | null }).google_post_id
+    );
+    if (!drafts.length) {
+      toast({ title: t("Aucun brouillon à réécrire", "No drafts to rewrite") });
+      return;
+    }
+    if (!window.confirm(t(
+      `Réécrire ${drafts.length} article(s) non publiés en style éditorial ? Les dates et titres seront conservés.`,
+      `Rewrite ${drafts.length} unpublished article(s) in editorial style? Dates and titles will be preserved.`
+    ))) return;
+
+    setRewritingExisting(true);
+    let updated = 0;
+    let errors = 0;
+    try {
+      for (const item of drafts) {
+        try {
+          const { data, error } = await supabase.functions.invoke("generate-seo-content", {
+            body: {
+              type: "seo_article",
+              businessName: selectedBusiness.name,
+              businessDescription: selectedBusiness.description || selectedBusiness.name,
+              location: selectedBusiness.address || "",
+              language: selectedBusiness.gmb_language || "fr",
+              keywords: item.keyword_used ? [item.keyword_used] : [],
+              title: item.title,
+            },
+          });
+          const content = data?.article?.content?.trim();
+          if (error || data?.error || typeof content !== "string" || content.length < 80 || content.length > 1500) {
+            throw new Error(data?.error || error?.message || "Invalid Google Business post");
+          }
+          // Re-check server state before saving to avoid modifying a post published during the rewrite.
+          const { data: current, error: readError } = await supabase.from("scheduled_content")
+            .select("id,status,google_post_id")
+            .eq("id", item.id).eq("user_id", user.id).eq("business_id", selectedBusiness.id)
+            .single();
+          if (readError || current?.status !== "generated" || current?.google_post_id) continue;
+          const { data: saved, error: saveError } = await supabase.from("scheduled_content")
+            .update({ content, error_message: null })
+            .eq("id", item.id).eq("user_id", user.id).eq("business_id", selectedBusiness.id)
+            .eq("status", "generated").is("google_post_id", null).select("id");
+          if (saveError || !saved?.length) throw saveError || new Error("Draft no longer editable");
+          updated++;
+        } catch (error) {
+          console.error("Editorial rewrite failed for draft", item.id, error);
+          errors++;
+        }
+      }
+      await fetchScheduledContent(selectedBusiness.id);
+      toast({
+        title: t(`${updated} article(s) réécrit(s)`, `${updated} article(s) rewritten`),
+        description: errors ? t(`${errors} échec(s), brouillons originaux conservés.`, `${errors} failed; original drafts retained.`) : t("Planification conservée.", "Schedule preserved."),
+      });
+    } finally {
+      setRewritingExisting(false);
     }
   };
 
@@ -661,6 +728,13 @@ const SEOAutoPost = () => {
                   <Badge variant="secondary" className="text-[10px]">{t("Quotidien", "Daily")}</Badge>
                 </div>
               </div>
+
+              {isSubscribed && scheduledContent.some(item => item.content_type === "seo_article" && item.status === "generated" && item.content?.trim() && !(item as ScheduledContent & { google_post_id?: string | null }).google_post_id) && (
+                <Button variant="outline" size="sm" className="mt-3 w-full" disabled={rewritingExisting} onClick={rewriteExistingArticles}>
+                  {rewritingExisting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <RefreshCw className="w-4 h-4 mr-2" />}
+                  {t("Réécrire les articles déjà générés", "Rewrite existing generated articles")}
+                </Button>
+              )}
 
               {/* Articles Tab - Mobile optimized */}
               <TabsContent value="articles" className="mt-3 space-y-2">
