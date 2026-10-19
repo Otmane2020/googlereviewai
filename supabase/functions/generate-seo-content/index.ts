@@ -58,9 +58,9 @@ serve(async (req) => {
     
     // Do not manufacture content for one company from another company's GBP text.
     // This catches the documented Decora Home / Sweet Deco cross-brand contamination.
-    const normalizedBrand = String(businessName || "").normalize("NFD").replace(/[\\u0300-\\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+    const normalizedBrand = String(businessName || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
     const suppliedDescription = String(gmbDescription || businessDescription || "");
-    const normalizedDescription = suppliedDescription.normalize("NFD").replace(/[\\u0300-\\u036f]/g, "").toLowerCase();
+    const normalizedDescription = suppliedDescription.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
     if (normalizedDescription.includes("sweet deco") && normalizedBrand !== "sweet deco" && normalizedBrand !== "sweet deco magasin de meubles") {
       return new Response(JSON.stringify({ error: "BRAND_CONTEXT_MISMATCH", message: "Description Google Business associée à Sweet Deco pour un autre établissement. Corrigez la description de l'établissement avant génération." }), {
         status: 422, headers: { ...corsHeaders, "Content-Type": "application/json" }
