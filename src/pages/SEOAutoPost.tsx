@@ -24,6 +24,8 @@ import { FileText, Loader2, Calendar, Check, Clock, AlertCircle, RefreshCw, Buil
 import { format, addDays, startOfToday, isSameDay } from "date-fns";
 import { fr, enUS } from "date-fns/locale";
 import { BrandSparkle } from "@/components/BrandSparkle";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 
 
 interface Business {
@@ -31,6 +33,7 @@ interface Business {
   name: string;
   address: string | null;
   description: string | null;
+  website: string | null;
   categories: string[] | null;
   auto_keywords: string[] | null;
   google_place_id?: string | null;
@@ -62,6 +65,10 @@ const SEOAutoPost = () => {
   const [generating, setGenerating] = useState(false);
   const [publishing, setPublishing] = useState<string | null>(null);
   const [rewritingExisting, setRewritingExisting] = useState(false);
+  const [profileConfirmed, setProfileConfirmed] = useState(false);
+  const [profileWebsite, setProfileWebsite] = useState("");
+  const [profileDescription, setProfileDescription] = useState("");
+  const [savingProfile, setSavingProfile] = useState(false);
   const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null);
   const [activeTab, setActiveTab] = useState("planning");
   const [isSubscribed, setIsSubscribed] = useState(false);
@@ -113,7 +120,7 @@ const SEOAutoPost = () => {
       const [businessRes, aiSettingsRes] = await Promise.all([
         supabase
           .from("businesses")
-          .select("id, name, address, description, categories, auto_keywords, google_place_id, gmb_language")
+          .select("id, name, address, description, website, categories, auto_keywords, google_place_id, gmb_language")
           .eq("user_id", user!.id)
           .eq("is_active", true),
         supabase
@@ -156,6 +163,42 @@ const SEOAutoPost = () => {
     setScheduledContent((data as ScheduledContent[]) || []);
   };
 
+  // Prepopulate from the connected Google Business location; ask only for corrections.
+  // The per-location confirmation is local until a persisted onboarding flag is available.
+  useEffect(() => {
+    setProfileWebsite(selectedBusiness?.website || "");
+    setProfileDescription(selectedBusiness?.description || "");
+    setProfileConfirmed(Boolean(selectedBusiness && localStorage.getItem(`seo-profile-confirmed:${user?.id}:${selectedBusiness.id}`) === "true"));
+  }, [selectedBusiness?.id, selectedBusiness?.website, selectedBusiness?.description, user?.id]);
+
+  const saveSeoProfile = async () => {
+    if (!selectedBusiness || !user) return;
+    if (!profileDescription.trim() && !selectedBusiness.categories?.length) {
+      toast({ title: t("Activité manquante", "Missing business details"), description: t("Ajoutez une description de votre activité.", "Add a description of your business."), variant: "destructive" });
+      return;
+    }
+    let website = profileWebsite.trim();
+    if (website && !/^https?:\/\//i.test(website)) website = `https://${website}`;
+    if (website) {
+      try { const u = new URL(website); if (!["http:", "https:"].includes(u.protocol)) throw new Error("Invalid URL"); }
+      catch { toast({ title: t("URL invalide", "Invalid URL"), variant: "destructive" }); return; }
+    }
+    setSavingProfile(true);
+    const { data, error } = await supabase.from("businesses").update({
+      website: website || null,
+      description: profileDescription.trim() || selectedBusiness.description,
+    }).eq("id", selectedBusiness.id).eq("user_id", user.id).select("id");
+    setSavingProfile(false);
+    if (error || !data?.length) {
+      toast({ title: t("Enregistrement impossible", "Unable to save"), description: error?.message, variant: "destructive" });
+      return;
+    }
+    setSelectedBusiness(prev => prev ? { ...prev, website: website || null, description: profileDescription.trim() || prev.description } : prev);
+    localStorage.setItem(`seo-profile-confirmed:${user.id}:${selectedBusiness.id}`, "true");
+    setProfileConfirmed(true);
+    toast({ title: t("Profil SEO & GEO validé", "SEO & GEO profile confirmed") });
+  };
+
   const manageLocations = () => setManageBusinessesOpen(true);
 
   const handlePreviewArticle = (article: ScheduledContent) => {
@@ -166,14 +209,14 @@ const SEOAutoPost = () => {
   // Auto-launch plan generation once per location when the plan allows it and no content exists yet.
   const autoLaunchedRef = useRef<Set<string>>(new Set());
   useEffect(() => {
-    if (loading || generating || !isSubscribed || !selectedBusiness) return;
+    if (loading || generating || !isSubscribed || !selectedBusiness || !profileConfirmed) return;
     if (scheduledContent.length > 0 || autoLaunchedRef.current.has(selectedBusiness.id)) return;
     autoLaunchedRef.current.add(selectedBusiness.id);
     analyzeAndGeneratePlan();
-  }, [loading, generating, isSubscribed, selectedBusiness?.id, scheduledContent.length]);
+  }, [loading, generating, isSubscribed, selectedBusiness?.id, scheduledContent.length, profileConfirmed]);
 
   const analyzeAndGeneratePlan = async () => {
-    if (!selectedBusiness) return;
+    if (!selectedBusiness || !profileConfirmed) return;
     
     if (!isSubscribed) {
       toast({ title: t("Abonnement requis", "Subscription required"), description: t("Le SEO automatique nécessite Pro ou Business.", "SEO automation requires Pro or Business."), variant: "destructive" });
@@ -185,6 +228,8 @@ const SEOAutoPost = () => {
       const { data: analysisData, error: analysisError } = await supabase.functions.invoke("generate-seo-content", {
         body: {
           type: "analyze_business",
+          websiteUrl: selectedBusiness.website || undefined,
+          gmbDescription: selectedBusiness.description || undefined,
           businessName: selectedBusiness.name,
           businessDescription: selectedBusiness.description || selectedBusiness.name,
           location: selectedBusiness.address || "",
@@ -212,6 +257,8 @@ const SEOAutoPost = () => {
       const { data: titlesData, error: titlesError } = await supabase.functions.invoke("generate-seo-content", {
         body: {
           type: "article_titles",
+          websiteUrl: selectedBusiness.website || undefined,
+          gmbDescription: selectedBusiness.description || undefined,
           businessName: selectedBusiness.name,
           businessDescription: analysisData?.description || selectedBusiness.description || selectedBusiness.name,
           location: selectedBusiness.address || "",
@@ -297,6 +344,8 @@ const SEOAutoPost = () => {
       const { data, error } = await supabase.functions.invoke("generate-seo-content", {
         body: {
           type: "seo_article",
+          websiteUrl: selectedBusiness?.website || undefined,
+          gmbDescription: selectedBusiness?.description || undefined,
           businessName: selectedBusiness?.name,
           businessDescription: selectedBusiness?.description || selectedBusiness?.name,
           location: selectedBusiness?.address || "",
@@ -705,6 +754,22 @@ const SEOAutoPost = () => {
               </Card>
             )}
 
+            {selectedBusiness && !profileConfirmed && (
+              <Card className="border-primary/30 mb-4">
+                <CardHeader><CardTitle>{t("Valider les données SEO & GEO", "Confirm SEO & GEO business data")}</CardTitle>
+                  <CardDescription>{t("Informations préremplies depuis Google Business. Corrigez uniquement les champs nécessaires avant la première génération.", "Pre-filled from Google Business. Review the details before first generation.")}</CardDescription></CardHeader>
+                <CardContent className="space-y-3">
+                  <p className="text-sm font-medium">{selectedBusiness.name}</p>
+                  <p className="text-xs text-muted-foreground">{selectedBusiness.address || ""}</p>
+                  <div><label className="text-sm font-medium" htmlFor="seo-profile-website">{t("Site détecté sur Google Business (facultatif)", "Website detected from Google Business (optional)")}</label>
+                    <Input id="seo-profile-website" placeholder="https://example.com" value={profileWebsite} onChange={e => setProfileWebsite(e.target.value)} /></div>
+                  <div><label className="text-sm font-medium" htmlFor="seo-profile-description">{t("Description de l'activité", "Business description")}</label>
+                    <Textarea id="seo-profile-description" value={profileDescription} onChange={e => setProfileDescription(e.target.value)} rows={3} /></div>
+                  <p className="text-xs text-muted-foreground">{t("Sans site web, le nom, les catégories et la description Google Business servent de base. Aucun site n'est obligatoire.", "Without a website, your Google Business name, categories and description provide the context. A website is not required.")}</p>
+                  <Button onClick={() => void saveSeoProfile()} disabled={savingProfile}>{savingProfile ? t("Enregistrement...", "Saving...") : t("Valider et activer SEO & GEO", "Confirm and activate SEO & GEO")}</Button>
+                </CardContent>
+              </Card>
+            )}
             {/* SEO operational monitoring: publication counts are not search-result metrics. */}
             <Card className="mt-4">
               <CardHeader className="pb-2">
