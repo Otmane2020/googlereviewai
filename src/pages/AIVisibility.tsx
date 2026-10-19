@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { ReviewsAITracking } from "@/components/ReviewsAITracking";
+import { ResponsiveContainer, BarChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -70,6 +71,20 @@ export default function AIVisibility(){
  const pct=observed.length?Math.round(mentionCount/observed.length*100):null;
  const pctCited=observed.length?Math.round(citedCount/observed.length*100):null;
  const latest=observed[0];
+ const trend=useMemo(()=>{
+  const grouped=new Map<string,{period:string;checks:number;mentions:number;citations:number}>();
+  for(const item of observed){
+   const dt=new Date(item.checked_at);dt.setUTCHours(0,0,0,0);
+   dt.setUTCDate(dt.getUTCDate()-(dt.getUTCDay()+6)%7);
+   const week=dt.toISOString().slice(0,10);
+   const row=grouped.get(week)||{period:week,checks:0,mentions:0,citations:0};
+   row.checks++;
+   if(item.mentioned)row.mentions++;
+   if(item.cited)row.citations++;
+   grouped.set(week,row);
+  }
+  return [...grouped.values()].sort((a,b)=>a.period.localeCompare(b.period));
+ },[checks]);
  const date=(iso:string)=>new Date(iso).toLocaleString(en?"en-US":"fr-FR",{dateStyle:"medium",timeStyle:"short"});
  const nextMonday=useMemo(()=>{
   const now=new Date(),d=new Date(now);
@@ -119,6 +134,19 @@ export default function AIVisibility(){
     <p className="text-2xl font-bold mt-1">{loading?"…":item.value}</p><p className="text-[11px] text-muted-foreground mt-1">{item.note}</p>
    </div>)}
   </div>
+  {observed.length>0&&<Card className="border-sky-500/15"><CardHeader>
+   <CardTitle>{t("Tendance des mentions et citations","Brand mentions and citations over time")}</CardTitle>
+   <CardDescription>{t("Nombre de réponses mesurées, mentions de marque et citations du site par semaine. Un graphique vide n'est pas un score nul.","Weekly observed answers, brand mentions and website citations. Missing observations are not zero visibility.")}</CardDescription>
+   </CardHeader><CardContent><div className="h-60 w-full"><ResponsiveContainer width="100%" height="100%">
+    <BarChart data={trend} margin={{top:8,right:8,left:-20,bottom:0}}>
+     <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.16}/>
+     <XAxis dataKey="period" tick={{fontSize:11}}/><YAxis allowDecimals={false} tick={{fontSize:11}}/>
+     <Tooltip/>
+     <Bar dataKey="checks" name={t("Réponses","Answers")} fill="#64748b" radius={[3,3,0,0]}/>
+     <Bar dataKey="mentions" name={t("Mentions","Mentions")} fill="#8b5cf6" radius={[3,3,0,0]}/>
+     <Bar dataKey="citations" name={t("Citations","Citations")} fill="#0ea5e9" radius={[3,3,0,0]}/>
+    </BarChart>
+   </ResponsiveContainer></div></CardContent></Card>}
   {id&&<Card><CardHeader><CardTitle>{t("Historique des réponses et citations","Answer and citation history")}</CardTitle>
    <CardDescription>{t("Observations réelles de l'API Perplexity ; elles ne garantissent pas le classement dans l'application grand public.","Real Perplexity API observations; not guaranteed rankings in its consumer app.")}</CardDescription></CardHeader>
    <CardContent className="space-y-4">
