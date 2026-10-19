@@ -90,13 +90,15 @@ export default function SeoEngineTest() {
         crawl_status: data?.crawl_status || (data?.websiteAnalyzed ? "success" : "unavailable"),
         ai_status: data?.ai_status || (data?.keywords?.length ? "success" : "unavailable"),
         keyword_metrics: data?.keyword_metrics, keyword_opportunities: data?.keyword_opportunities,
-        qualified_keywords_count: data?.qualified_keywords_count, note: t("Cette action actualise les mots-clés enregistrés.", "This updates saved business keywords.") } };
+        qualified_keywords_count: data?.qualified_keywords_count,
+        measured_keyword_count: (data?.keyword_metrics || []).filter((item: { volume: number | null }) => item.volume !== null).length,
+        note: t("Cette action actualise les mots-clés enregistrés.", "This updates saved business keywords.") } };
   });
 
   const checkGeneration = () => run("generation", async () => {
     // Refuse a misleading green result for a known cross-brand context.
-    if (business?.description && /\\bsweet\\s+deco\\b/i.test(business.description) &&
-        !/\\bsweet\\s+deco\\b/i.test(business.name)) {
+    if (business?.description && /\bsweet\s+deco\b/i.test(business.description) &&
+        !/\bsweet\s+deco\b/i.test(business.name)) {
       return { status: "error", message: t(
         "Génération bloquée : la description contient Sweet Deco alors que cet établissement porte un autre nom. Corrigez les données dans Établissements.",
         "Generation blocked: the description mentions Sweet Deco but this is a different business. Correct its data in Locations."
@@ -110,7 +112,7 @@ export default function SeoEngineTest() {
     const article = data?.article;
     if (!article || typeof article.content !== "string" || article.content.trim().length < 80)
       throw new Error(t("Réponse article invalide", "Invalid article response"));
-    const brandMismatch = business?.name && business?.description && !business.description.toLowerCase().includes(business.name.toLowerCase()) && /sweet deco/i.test(business.description) && !/sweet deco/i.test(business.name);
+    const brandMismatch = Boolean(business?.name && business?.description && !business.description.toLowerCase().includes(business.name.toLowerCase()) && /sweet deco/i.test(business.description) && !/sweet deco/i.test(business.name));
     return { status: article.content.length <= 1500 && !brandMismatch ? "ok" : "warning",
       message: t("Article généré en aperçu, non enregistré et non publié", "Article generated as preview, not saved or published"),
       details: { title: article.title, characters: article.content.length, brandMismatch: Boolean(brandMismatch), content: article.content } };
