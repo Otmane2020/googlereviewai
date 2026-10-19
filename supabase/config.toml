@@ -120,3 +120,6 @@ project_id = "hlruprayqfnatnldrski"
 
   [functions.health-cloud]
     verify_jwt = false
+
+  [functions.reviewai-track]
+    verify_jwt = false
