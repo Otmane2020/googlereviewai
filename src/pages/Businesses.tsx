@@ -67,6 +67,8 @@ const BusinessesPage = () => {
   const [editDescription, setEditDescription] = useState("");
   const [saving, setSaving] = useState(false);
   const [analyzingId, setAnalyzingId] = useState<string | null>(null);
+  const [keywordMetrics, setKeywordMetrics] = useState<Record<string, { keyword: string; volume: number | null; cpc: number | null; competition: number | null }[]>>({});
+  const [keywordMetricStatuses, setKeywordMetricStatuses] = useState<Record<string, string>>({});
   const { syncBusinesses, isSyncing } = useSyncGoogleBusinesses();
   const [newBusiness, setNewBusiness] = useState({
     name: "",
@@ -306,7 +308,7 @@ const BusinessesPage = () => {
     setAnalyzingId(business.id);
     
     try {
-      const { error } = await supabase.functions.invoke("analyze-business-website", {
+      const { data, error } = await supabase.functions.invoke("analyze-business-website", {
         body: {
           businessId: business.id,
           website: business.website,
@@ -804,7 +806,9 @@ const BusinessesPage = () => {
                               {analyzingId === business.id ? t("Analyse...", "Analyzing...") : t("Analyser", "Analyze")}
                             </Button>
                           </div>
-                          {business.auto_keywords && business.auto_keywords.length > 0 ? (
+                          {keywordMetricStatuses[business.id] && <p className="text-xs text-muted-foreground mb-3">{keywordMetricStatuses[business.id] === "measured" ? t("Volumes DataForSEO mesurés", "Measured DataForSEO volumes") : t("DataForSEO indisponible : aucun volume inventé", "DataForSEO unavailable: no estimated volumes")}</p>}
+                           {keywordMetrics[business.id]?.length > 0 && <div className="border rounded-lg mb-3 overflow-auto"><table className="w-full text-xs"><thead><tr><th className="p-2 text-left">{t("Mot-clé", "Keyword")}</th><th className="p-2">Volume</th><th className="p-2">CPC</th><th className="p-2">{t("Concurrence", "Competition")}</th></tr></thead><tbody>{keywordMetrics[business.id].map(row => <tr key={row.keyword} className="border-t"><td className="p-2">{row.keyword}</td><td className="p-2">{row.volume ?? "—"}</td><td className="p-2">{row.cpc ?? "—"}</td><td className="p-2">{row.competition ?? "—"}</td></tr>)}</tbody></table></div>}
+                           {business.auto_keywords && business.auto_keywords.length > 0 ? (
                             <div className="flex flex-wrap gap-2">
                               {business.auto_keywords.map((keyword, idx) => (
                                 <Badge key={idx} variant="secondary" className="text-sm px-3 py-1">
