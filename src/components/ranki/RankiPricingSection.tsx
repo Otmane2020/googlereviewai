@@ -36,19 +36,19 @@ const getPlans = (isFrench: boolean): Plan[] => [
     monthly: { price: isFrench ? "49 €" : "$49", perMonth: isFrench ? "/mois" : "/month", priceKey: isFrench ? "ranki_pro_monthly" : "ranki_pro_monthly_usd" },
     yearly: { price: isFrench ? "470 €" : "$470", perMonth: isFrench ? "/an" : "/year", priceKey: isFrench ? "ranki_pro_yearly" : "ranki_pro_yearly_usd" },
     features: isFrench
-      ? ["Jusqu'à 3 établissements", "Réponses IA illimitées aux avis Google", "GEO Rank quotidien (suivi positionnement Maps)", "Posts Google soumis à validation + FAQ GEO générées", "Notifications temps réel", "Support prioritaire"]
-      : ["Up to 3 locations", "Unlimited AI replies to Google reviews", "Daily GEO Rank tracking on Maps", "Google posts subject to approval + generated GEO FAQs", "Real-time notifications", "Priority support"],
+      ? ["Jusqu'à 3 établissements", "Réponses IA illimitées aux avis Google", "Analyse du positionnement sur Google Maps", "Posts Google soumis à validation + FAQ GEO générées", "Notifications temps réel", "Support client"]
+      : ["Up to 3 locations", "Unlimited AI replies to Google reviews", "Google Maps ranking analysis", "Google posts subject to approval + generated GEO FAQs", "Real-time notifications", "Customer support"],
     cta: isFrench ? "Choisir cette offre" : "Choose this plan",
     highlight: true,
   },
   {
     name: "Business",
-    tagline: isFrench ? "Multi-établissements illimités" : "Unlimited locations",
+    tagline: isFrench ? "Gestion multi-établissements" : "Unlimited locations",
     monthly: { price: isFrench ? "99 €" : "$99", perMonth: isFrench ? "/mois" : "/month", priceKey: isFrench ? "ranki_business_monthly" : "ranki_business_monthly_usd" },
     yearly: { price: isFrench ? "950,40 €" : "$950.40", perMonth: isFrench ? "/an" : "/year", priceKey: isFrench ? "ranki_business_yearly" : "ranki_business_yearly_usd" },
     features: isFrench
-      ? ["Établissements illimités", "Réponses IA illimitées + SEO & GEO", "Création de posts et FAQ illimitée (publication Google selon validation)", "API & webhooks avancés", "Manager dédié", "Rapports personnalisés"]
-      : ["Unlimited locations", "Unlimited AI replies + SEO & GEO", "Unlimited post and FAQ creation (Google approval required)", "Advanced API and webhooks", "Dedicated account manager", "Custom reports"],
+      ? ["Jusqu'à 999 établissements (limite technique)", "Réponses IA illimitées + outils SEO et suivi Google Maps", "Création de posts et FAQ assistée par IA (publication soumise à Google)", "Fonctions de gestion multi-établissements", "Gestion centralisée des établissements", "Tableau de bord Analytics"]
+      : ["Unlimited locations", "Unlimited AI replies + SEO tools and Google Maps ranking", "AI-assisted posts and FAQs (Google publication subject to approval)", "Multi-location management tools", "Centralized location management", "Analytics dashboard"],
     cta: isFrench ? "Choisir cette offre" : "Choose this plan",
   },
 ];
