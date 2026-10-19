@@ -445,6 +445,7 @@ export type Database = {
           media_url: string | null
           posted_at: string | null
           scheduled_for: string | null
+          search_url: string | null
           status: string
           summary: string
           synced_at: string | null
@@ -462,6 +463,7 @@ export type Database = {
           media_url?: string | null
           posted_at?: string | null
           scheduled_for?: string | null
+          search_url?: string | null
           status?: string
           summary: string
           synced_at?: string | null
@@ -479,6 +481,7 @@ export type Database = {
           media_url?: string | null
           posted_at?: string | null
           scheduled_for?: string | null
+          search_url?: string | null
           status?: string
           summary?: string
           synced_at?: string | null

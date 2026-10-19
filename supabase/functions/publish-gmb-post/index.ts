@@ -231,6 +231,7 @@ serve(async (req) => {
       cta_type: topic === "OFFER" ? null : (body.cta_type && body.cta_type !== "NONE" ? body.cta_type : "LEARN_MORE"),
       cta_url: website,
       media_url: finalImage,
+      search_url: googlePost.searchUrl || null,
       posted_at: new Date().toISOString(),
       status,
     }, { onConflict: "google_post_id" });
