@@ -123,3 +123,6 @@ project_id = "hlruprayqfnatnldrski"
 
   [functions.reviewai-track]
     verify_jwt = false
+
+  [functions.simulate-perplexity]
+    verify_jwt = true
