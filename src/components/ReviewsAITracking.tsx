@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -47,7 +47,7 @@ export function ReviewsAITracking({businessId,website,userId,days}:{businessId:s
  <p className="text-sm">{tr("Domaine","Domain")}: <strong>{site?.domain||domain}</strong></p>
  {!site?<Button disabled={creating} onClick={create}>{tr("Générer ma balise","Generate my tag")}</Button>:<>
  <div className="flex items-center gap-2 flex-wrap"><Badge variant="outline">{site.last_seen_at?tr("Balise détectée","Tag detected"):tr("En attente d'installation","Awaiting installation")}</Badge><Button variant="outline" size="sm" onClick={()=>void fetchData()} disabled={loading}>{tr("Actualiser","Refresh")}</Button></div>
- {snippet?<><p className="text-sm">{tr("Collez cette balise avant </head> sur le site de l'établissement.","Paste this tag before </head> on the business website.")}</p>
+ {snippet?<><p className="text-sm">{tr("Collez cette balise avant la fermeture de la balise head sur le site de l'établissement.","Paste this tag before the closing head tag on the business website.")}</p>
  <pre className="overflow-auto whitespace-pre-wrap break-all rounded-lg bg-muted p-3 text-xs">{snippet}</pre>
  <Button variant="outline" onClick={()=>navigator.clipboard.writeText(snippet)}>{tr("Copier la balise","Copy tag")}</Button></>:<p className="text-sm text-destructive">{tr("URL Supabase manquante dans la configuration publique.","Supabase URL missing from public configuration.")}</p>}
  <div className="grid grid-cols-2 gap-3"><div className="border rounded-lg p-3"><p className="text-xs text-muted-foreground">{tr("Sessions du site","Site sessions")}</p><strong className="text-xl">{sessions}</strong></div><div className="border rounded-lg p-3"><p className="text-xs text-muted-foreground">{tr("Sessions depuis une IA","AI referred sessions")}</p><strong className="text-xl">{aiSessions}</strong></div></div>
