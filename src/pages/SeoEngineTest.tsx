@@ -67,7 +67,7 @@ export default function SeoEngineTest() {
   });
 
   const checkSources = () => run("sources", async () => ({
-    status: business?.description || business?.website_content || business?.auto_keywords?.length ? "ok" : "warning",
+    status: business?.website && !business?.website_content ? "warning" : (business?.description || business?.website_content || business?.auto_keywords?.length ? "ok" : "warning"),
     message: t("Données enregistrées pour cet établissement (aucune requête payante)", "Stored data for this location (no paid request)"),
     details: { name: business?.name, website: business?.website, description: business?.description,
       crawledCharacters: business?.website_content?.length || 0, keywords: business?.auto_keywords || [],
@@ -83,10 +83,12 @@ export default function SeoEngineTest() {
       auto_keywords: data?.keywords || b.auto_keywords,
       website_content: b.website_content,
     } : b));
-    return { status: data?.keyword_metrics_status === "measured" ? "ok" : "warning",
+    return { status: data?.keyword_metrics_status === "measured" && data?.keywords?.length && (data?.websiteAnalyzed || !business?.website) ? "ok" : "warning",
       message: t("Analyse exécutée. La mesure DataForSEO est indiquée séparément.", "Analysis executed. DataForSEO status is shown separately."),
       details: { websiteAnalyzed: data?.websiteAnalyzed, gmbAnalyzed: data?.gmbAnalyzed,
-        keywords: data?.keywords, keyword_metrics_status: data?.keyword_metrics_status,
+        keywords: data?.keywords, keyword_metrics_status: data?.keyword_metrics_status || "function_not_deployed_or_old_version",
+        crawl_status: data?.crawl_status || (data?.websiteAnalyzed ? "success" : "unavailable"),
+        ai_status: data?.ai_status || (data?.keywords?.length ? "success" : "unavailable"),
         keyword_metrics: data?.keyword_metrics, note: t("Cette action actualise les mots-clés enregistrés.", "This updates saved business keywords.") } };
   });
 
@@ -99,9 +101,10 @@ export default function SeoEngineTest() {
     const article = data?.article;
     if (!article || typeof article.content !== "string" || article.content.trim().length < 80)
       throw new Error(t("Réponse article invalide", "Invalid article response"));
-    return { status: article.content.length <= 1500 ? "ok" : "warning",
+    const brandMismatch = business?.name && business?.description && !business.description.toLowerCase().includes(business.name.toLowerCase()) && /sweet deco/i.test(business.description) && !/sweet deco/i.test(business.name);
+    return { status: article.content.length <= 1500 && !brandMismatch ? "ok" : "warning",
       message: t("Article généré en aperçu, non enregistré et non publié", "Article generated as preview, not saved or published"),
-      details: { title: article.title, characters: article.content.length, content: article.content } };
+      details: { title: article.title, characters: article.content.length, brandMismatch: Boolean(brandMismatch), content: article.content } };
   });
 
   return <main className="max-w-5xl mx-auto p-4 md:p-7 space-y-5">
