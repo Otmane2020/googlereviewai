@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { measureKeywordDemand } from "../_shared/dataforseo-keywords.ts";
 import { rankLocalKeywords } from "../_shared/ranki-keyword-engine.ts";
+import { internalScrape } from "../_shared/internal-website-scraper.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -60,69 +61,29 @@ serve(async (req) => {
     console.log(`[ANALYZE] Website: ${website || "none"}`);
     console.log(`[ANALYZE] Generate content: ${generateContent ? "YES" : "NO"}`);
 
-    // Try both API key names for Firecrawl (original and connector-linked)
-    const firecrawlApiKey = Deno.env.get("FIRECRAWL_API_KEY_1") || Deno.env.get("FIRECRAWL_API_KEY");
     const lovableApiKey = Deno.env.get("LOVABLE_API_KEY");
-
     let websiteContent = "";
-    let crawlStatus = !website ? "no_website" : !firecrawlApiKey ? "not_configured" : "failed";
-    let websiteMetadata: any = null;
+    let websiteMetadata: {title:string|null;url:string}|null = null;
+    let crawlStatus = website ? "failed" : "no_website";
+    let crawlError: string|null = null;
 
-    // Step 1: Scrape website with Firecrawl
-    if (website && firecrawlApiKey) {
+    // Built-in Ranki-style scraper. No third-party crawling API key required.
+    if (website) {
       try {
-        let formattedUrl = website.trim();
-        if (!formattedUrl.startsWith("http://") && !formattedUrl.startsWith("https://")) {
-          formattedUrl = `https://${formattedUrl}`;
-        }
-
-        console.log(`[ANALYZE] Scraping with Firecrawl: ${formattedUrl}`);
-
-        const scrapeResponse = await fetch("https://api.firecrawl.dev/v1/scrape", {
-          method: "POST",
-          headers: {
-            "Authorization": `Bearer ${firecrawlApiKey}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            url: formattedUrl,
-            formats: ["markdown", "links"],
-            onlyMainContent: true,
-            waitFor: 3000,
-          }),
-        });
-
-        if (scrapeResponse.ok) {
-          const scrapeData = await scrapeResponse.json();
-          const rawContent = scrapeData.data?.markdown || scrapeData.markdown || "";
-          // Store truncated version (max 8000 chars) for future use
-          websiteContent = rawContent.substring(0, 8000);
-          if (websiteContent.trim()) crawlStatus = "success";
-          websiteMetadata = scrapeData.data?.metadata || scrapeData.metadata || null;
-          console.log(`[ANALYZE] Firecrawl scraped ${rawContent.length} chars, storing ${websiteContent.length}`);
-          
-          // Save scraped content to database immediately
-          const { error: contentUpdateError } = await supabaseAdmin
-            .from("businesses")
-            .update({ website_content: websiteContent })
-            .eq("id", businessId)
-            .eq("user_id", user.id);
-          
-          if (contentUpdateError) {
-            console.error("[ANALYZE] Failed to save website_content:", contentUpdateError);
-          } else {
-            console.log("[ANALYZE] Website content saved to database");
-          }
-        } else {
-          const errorText = await scrapeResponse.text();
-          console.error(`[ANALYZE] Firecrawl error: ${scrapeResponse.status}`, errorText);
-        }
+        const snapshot = await internalScrape(website);
+        websiteContent = snapshot.content;
+        websiteMetadata = {title:snapshot.title,url:snapshot.url};
+        crawlStatus = "success";
+        const {error:contentUpdateError}=await supabaseAdmin.from("businesses")
+          .update({website_content:websiteContent}).eq("id",businessId).eq("user_id",user.id);
+        if(contentUpdateError)console.error("[ANALYZE] Unable to save crawl",contentUpdateError);
       } catch (e) {
-        console.error(`[ANALYZE] Firecrawl scrape failed:`, e);
+        crawlError = e instanceof Error ? e.message : "CRAWL_FAILED";
+        console.warn("[ANALYZE] Internal crawler failed:",crawlError);
       }
     }
-
     if (!websiteContent && business.website_content && website === business.website) websiteContent = business.website_content;
+
     // Step 2: Combine content for analysis
     const fullContent = [
       websiteContent ? `CONTENU DU SITE WEB:\n${websiteContent.substring(0, 8000)}` : "",
@@ -324,6 +285,8 @@ RÈGLES:
         qualified_keywords_count: opportunities.filter(row => row.validated).length,
         keyword_metrics_status: demand.status,
         crawl_status: crawlStatus,
+        crawl_error: crawlError,
+        crawl_metadata: websiteMetadata,
         ai_status: aiStatus,
         websiteAnalyzed: crawlStatus === "success",
         websiteContextAvailable: !!websiteContent,
