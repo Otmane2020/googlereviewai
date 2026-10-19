@@ -126,3 +126,6 @@ project_id = "hlruprayqfnatnldrski"
 
   [functions.simulate-perplexity]
     verify_jwt = true
+
+  [functions.ai-visibility-weekly]
+    verify_jwt = false
