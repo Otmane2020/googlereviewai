@@ -94,6 +94,14 @@ export default function SeoEngineTest() {
   });
 
   const checkGeneration = () => run("generation", async () => {
+    // Refuse a misleading green result for a known cross-brand context.
+    if (business?.description && /\\bsweet\\s+deco\\b/i.test(business.description) &&
+        !/\\bsweet\\s+deco\\b/i.test(business.name)) {
+      return { status: "error", message: t(
+        "Génération bloquée : la description contient Sweet Deco alors que cet établissement porte un autre nom. Corrigez les données dans Établissements.",
+        "Generation blocked: the description mentions Sweet Deco but this is a different business. Correct its data in Locations."
+      ) };
+    }
     const { data, error: err } = await supabase.functions.invoke("generate-seo-content", {
       body: { ...context(), type: "seo_article", title: keyword.trim() || (en ? "Our services" : "Nos services"),
         keywords: keyword.trim() ? [keyword.trim()] : (business?.auto_keywords || []).slice(0, 3) },
