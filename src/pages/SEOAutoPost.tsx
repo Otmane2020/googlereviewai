@@ -705,6 +705,35 @@ const SEOAutoPost = () => {
               </Card>
             )}
 
+            {/* SEO operational monitoring: publication counts are not search-result metrics. */}
+            <Card className="mt-4">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base">{t("Monitoring SEO", "SEO monitoring")}</CardTitle>
+                <CardDescription>{t("Suivi des publications de cet établissement, distinct des résultats de visibilité.", "Track this location's publishing actions separately from visibility outcomes.")}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                  {[
+                    { label: t("Planifiés", "Scheduled"), count: scheduledContent.length },
+                    { label: t("Publiés", "Published"), count: scheduledContent.filter(x => x.status === "published").length },
+                    { label: t("Prêts", "Ready"), count: scheduledContent.filter(x => x.status === "generated").length },
+                    { label: t("En modération", "In moderation"), count: scheduledContent.filter(x => x.status === "processing").length },
+                    { label: t("Échecs / refus", "Failed / rejected"), count: scheduledContent.filter(x => ["failed", "error", "rejected"].includes(x.status)).length },
+                  ].map(metric => (
+                    <div key={metric.label} className="rounded-lg border p-3">
+                      <p className="text-xs text-muted-foreground">{metric.label}</p>
+                      <p className="text-2xl font-semibold tabular-nums">{metric.count}</p>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex flex-wrap gap-2 mt-3">
+                  <Button size="sm" variant="outline" onClick={() => navigate("/geo-rank")}>{t("Positions Google Maps", "Google Maps rankings")}</Button>
+                  <Button size="sm" variant="outline" onClick={() => navigate("/dashboard")}>{t("Statistiques Google Business", "Google Business insights")}</Button>
+                </div>
+                <p className="text-xs text-muted-foreground mt-3">{t("Les citations ChatGPT, Gemini et Claude ne sont pas encore mesurées. Le nombre de publications ne prouve pas une hausse du classement.", "ChatGPT, Gemini and Claude citations are not yet measured. Publishing activity is not evidence of ranking gains.")}</p>
+              </CardContent>
+            </Card>
+
             {/* Articles - Mobile optimized */}
             <Tabs value="articles" onValueChange={() => {}}>
               {/* Auto-publish info with time selector */}
