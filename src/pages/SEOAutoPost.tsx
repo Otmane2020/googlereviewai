@@ -32,6 +32,7 @@ interface Business {
   address: string | null;
   description: string | null;
   website: string | null;
+  website_content: string | null;
   categories: string[] | null;
   auto_keywords: string[] | null;
   google_place_id?: string | null;
@@ -114,7 +115,7 @@ const SEOAutoPost = () => {
       const [businessRes, aiSettingsRes] = await Promise.all([
         supabase
           .from("businesses")
-          .select("id, name, address, description, website, categories, auto_keywords, google_place_id, gmb_language")
+          .select("id, name, address, description, website, website_content, categories, auto_keywords, google_place_id, gmb_language")
           .eq("user_id", user!.id)
           .eq("is_active", true),
         supabase
@@ -187,6 +188,7 @@ const SEOAutoPost = () => {
         body: {
           type: "analyze_business",
           websiteUrl: selectedBusiness.website || undefined,
+          websiteContent: selectedBusiness.website_content || undefined,
           gmbDescription: selectedBusiness.description || undefined,
           businessName: selectedBusiness.name,
           businessDescription: selectedBusiness.description || selectedBusiness.name,
@@ -303,6 +305,7 @@ const SEOAutoPost = () => {
         body: {
           type: "seo_article",
           websiteUrl: selectedBusiness?.website || undefined,
+          websiteContent: selectedBusiness?.website_content || undefined,
           gmbDescription: selectedBusiness?.description || undefined,
           businessName: selectedBusiness?.name,
           businessDescription: selectedBusiness?.description || selectedBusiness?.name,
