@@ -15,6 +15,7 @@ import { Route as AeoRankRouteImport } from './routes/aeo-rank'
 import { Route as AiGoogleReviewReplyRouteImport } from './routes/ai-google-review-reply'
 import { Route as AiReviewReplyGeneratorRouteImport } from './routes/ai-review-reply-generator'
 import { Route as AiSettingsRouteImport } from './routes/ai-settings'
+import { Route as AnalyticsRouteImport } from './routes/analytics'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AvisAiGuideRouteImport } from './routes/avis-ai-guide'
 import { Route as AvisAiHotelRouteImport } from './routes/avis-ai-hotel'
@@ -54,6 +55,7 @@ import { Route as ReviewReplyAiGoogleBusinessProfileRouteImport } from './routes
 import { Route as ReviewsRouteImport } from './routes/reviews'
 import { Route as SelectPlanRouteImport } from './routes/select-plan'
 import { Route as SeoAutopostRouteImport } from './routes/seo-autopost'
+import { Route as SeoEngineTestRouteImport } from './routes/seo-engine-test'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SitemapRouteImport } from './routes/sitemap'
 import { Route as TermsRouteImport } from './routes/terms'
@@ -101,6 +103,11 @@ const AiReviewReplyGeneratorRoute = AiReviewReplyGeneratorRouteImport.update({
 const AiSettingsRoute = AiSettingsRouteImport.update({
   id: '/ai-settings',
   path: '/ai-settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AnalyticsRoute = AnalyticsRouteImport.update({
+  id: '/analytics',
+  path: '/analytics',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -303,6 +310,11 @@ const SeoAutopostRoute = SeoAutopostRouteImport.update({
   path: '/seo-autopost',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SeoEngineTestRoute = SeoEngineTestRouteImport.update({
+  id: '/seo-engine-test',
+  path: '/seo-engine-test',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
@@ -401,6 +413,7 @@ export interface FileRoutesByFullPath {
   '/ai-google-review-reply': typeof AiGoogleReviewReplyRoute
   '/ai-review-reply-generator': typeof AiReviewReplyGeneratorRoute
   '/ai-settings': typeof AiSettingsRoute
+  '/analytics': typeof AnalyticsRoute
   '/auth': typeof AuthRoute
   '/avis-ai-guide': typeof AvisAiGuideRoute
   '/avis-ai-hotel': typeof AvisAiHotelRoute
@@ -440,6 +453,7 @@ export interface FileRoutesByFullPath {
   '/reviews': typeof ReviewsRoute
   '/select-plan': typeof SelectPlanRoute
   '/seo-autopost': typeof SeoAutopostRoute
+  '/seo-engine-test': typeof SeoEngineTestRoute
   '/settings': typeof SettingsRoute
   '/sitemap': typeof SitemapRoute
   '/terms': typeof TermsRoute
@@ -466,6 +480,7 @@ export interface FileRoutesByTo {
   '/ai-google-review-reply': typeof AiGoogleReviewReplyRoute
   '/ai-review-reply-generator': typeof AiReviewReplyGeneratorRoute
   '/ai-settings': typeof AiSettingsRoute
+  '/analytics': typeof AnalyticsRoute
   '/auth': typeof AuthRoute
   '/avis-ai-guide': typeof AvisAiGuideRoute
   '/avis-ai-hotel': typeof AvisAiHotelRoute
@@ -505,6 +520,7 @@ export interface FileRoutesByTo {
   '/reviews': typeof ReviewsRoute
   '/select-plan': typeof SelectPlanRoute
   '/seo-autopost': typeof SeoAutopostRoute
+  '/seo-engine-test': typeof SeoEngineTestRoute
   '/settings': typeof SettingsRoute
   '/sitemap': typeof SitemapRoute
   '/terms': typeof TermsRoute
@@ -532,6 +548,7 @@ export interface FileRoutesById {
   '/ai-google-review-reply': typeof AiGoogleReviewReplyRoute
   '/ai-review-reply-generator': typeof AiReviewReplyGeneratorRoute
   '/ai-settings': typeof AiSettingsRoute
+  '/analytics': typeof AnalyticsRoute
   '/auth': typeof AuthRoute
   '/avis-ai-guide': typeof AvisAiGuideRoute
   '/avis-ai-hotel': typeof AvisAiHotelRoute
@@ -571,6 +588,7 @@ export interface FileRoutesById {
   '/reviews': typeof ReviewsRoute
   '/select-plan': typeof SelectPlanRoute
   '/seo-autopost': typeof SeoAutopostRoute
+  '/seo-engine-test': typeof SeoEngineTestRoute
   '/settings': typeof SettingsRoute
   '/sitemap': typeof SitemapRoute
   '/terms': typeof TermsRoute
@@ -599,6 +617,7 @@ export interface FileRouteTypes {
     | '/ai-google-review-reply'
     | '/ai-review-reply-generator'
     | '/ai-settings'
+    | '/analytics'
     | '/auth'
     | '/avis-ai-guide'
     | '/avis-ai-hotel'
@@ -638,6 +657,7 @@ export interface FileRouteTypes {
     | '/reviews'
     | '/select-plan'
     | '/seo-autopost'
+    | '/seo-engine-test'
     | '/settings'
     | '/sitemap'
     | '/terms'
@@ -664,6 +684,7 @@ export interface FileRouteTypes {
     | '/ai-google-review-reply'
     | '/ai-review-reply-generator'
     | '/ai-settings'
+    | '/analytics'
     | '/auth'
     | '/avis-ai-guide'
     | '/avis-ai-hotel'
@@ -703,6 +724,7 @@ export interface FileRouteTypes {
     | '/reviews'
     | '/select-plan'
     | '/seo-autopost'
+    | '/seo-engine-test'
     | '/settings'
     | '/sitemap'
     | '/terms'
@@ -729,6 +751,7 @@ export interface FileRouteTypes {
     | '/ai-google-review-reply'
     | '/ai-review-reply-generator'
     | '/ai-settings'
+    | '/analytics'
     | '/auth'
     | '/avis-ai-guide'
     | '/avis-ai-hotel'
@@ -768,6 +791,7 @@ export interface FileRouteTypes {
     | '/reviews'
     | '/select-plan'
     | '/seo-autopost'
+    | '/seo-engine-test'
     | '/settings'
     | '/sitemap'
     | '/terms'
@@ -795,6 +819,7 @@ export interface RootRouteChildren {
   AiGoogleReviewReplyRoute: typeof AiGoogleReviewReplyRoute
   AiReviewReplyGeneratorRoute: typeof AiReviewReplyGeneratorRoute
   AiSettingsRoute: typeof AiSettingsRoute
+  AnalyticsRoute: typeof AnalyticsRoute
   AuthRoute: typeof AuthRoute
   AvisAiGuideRoute: typeof AvisAiGuideRoute
   AvisAiHotelRoute: typeof AvisAiHotelRoute
@@ -834,6 +859,7 @@ export interface RootRouteChildren {
   ReviewsRoute: typeof ReviewsRoute
   SelectPlanRoute: typeof SelectPlanRoute
   SeoAutopostRoute: typeof SeoAutopostRoute
+  SeoEngineTestRoute: typeof SeoEngineTestRoute
   SettingsRoute: typeof SettingsRoute
   SitemapRoute: typeof SitemapRoute
   TermsRoute: typeof TermsRoute
@@ -896,6 +922,13 @@ declare module '@tanstack/react-router' {
       path: '/ai-settings'
       fullPath: '/ai-settings'
       preLoaderRoute: typeof AiSettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/analytics': {
+      id: '/analytics'
+      path: '/analytics'
+      fullPath: '/analytics'
+      preLoaderRoute: typeof AnalyticsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -1171,6 +1204,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SeoAutopostRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/seo-engine-test': {
+      id: '/seo-engine-test'
+      path: '/seo-engine-test'
+      fullPath: '/seo-engine-test'
+      preLoaderRoute: typeof SeoEngineTestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/settings': {
       id: '/settings'
       path: '/settings'
@@ -1307,6 +1347,7 @@ const rootRouteChildren: RootRouteChildren = {
   AiGoogleReviewReplyRoute: AiGoogleReviewReplyRoute,
   AiReviewReplyGeneratorRoute: AiReviewReplyGeneratorRoute,
   AiSettingsRoute: AiSettingsRoute,
+  AnalyticsRoute: AnalyticsRoute,
   AuthRoute: AuthRoute,
   AvisAiGuideRoute: AvisAiGuideRoute,
   AvisAiHotelRoute: AvisAiHotelRoute,
@@ -1347,6 +1388,7 @@ const rootRouteChildren: RootRouteChildren = {
   ReviewsRoute: ReviewsRoute,
   SelectPlanRoute: SelectPlanRoute,
   SeoAutopostRoute: SeoAutopostRoute,
+  SeoEngineTestRoute: SeoEngineTestRoute,
   SettingsRoute: SettingsRoute,
   SitemapRoute: SitemapRoute,
   TermsRoute: TermsRoute,
