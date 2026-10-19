@@ -16,7 +16,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
-import { LayoutDashboard, Star, Building2, Search, MapPin, Bell, Settings, CreditCard, LogOut, HelpCircle, MessageCircleQuestion, ListChecks, ShoppingBag, Package, Loader2, RefreshCw } from "lucide-react";
+import { LayoutDashboard, BarChart3, Star, Building2, Search, MapPin, Bell, Settings, CreditCard, LogOut, HelpCircle, MessageCircleQuestion, ListChecks, ShoppingBag, Package, Loader2, RefreshCw } from "lucide-react";
 import { RankiLogo } from "@/components/StarlinkoLogo";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -39,6 +39,7 @@ const useNavItems = () => {
   const isEn = i18n.language?.startsWith("en");
   const mainNav = [
     { label: t("sidebar.overview"), href: "/dashboard", icon: LayoutDashboard },
+    { label: isEn ? "Analytics" : "Statistiques", href: "/analytics", icon: BarChart3 },
     { label: t("sidebar.googleReviews"), href: "/reviews", icon: Star },
     { label: t("sidebar.googlePost"), href: "/gmb-post", icon: MessageCircleQuestion },
   ];
