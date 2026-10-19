@@ -24,7 +24,7 @@ export function ReviewsAITracking({businessId,website,userId,days}:{businessId:s
   const row=(data||null) as Site|null;setSite(row);
   if(row){
    const {data:ev,error:e}=await supabase.from("reviewai_tracking_events" as any).select("session_id,source_type,source_name,event_type,created_at").eq("site_id",row.id).gte("created_at",new Date(Date.now()-days*86400000).toISOString()).order("created_at",{ascending:false}).limit(3000);
-   if(e)setError(e.message);else setEvents((ev||[]) as Event[]);
+   if(e)setError(e.message);else setEvents((ev||[]) as unknown as Event[]);
   }setLoading(false);
  },[businessId,userId,days]);
  useEffect(()=>{void fetchData();},[fetchData]);
