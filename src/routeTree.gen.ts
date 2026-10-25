@@ -15,6 +15,7 @@ import { Route as AeoRankRouteImport } from './routes/aeo-rank'
 import { Route as AiGoogleReviewReplyRouteImport } from './routes/ai-google-review-reply'
 import { Route as AiReviewReplyGeneratorRouteImport } from './routes/ai-review-reply-generator'
 import { Route as AiSettingsRouteImport } from './routes/ai-settings'
+import { Route as AiVisibilityRouteImport } from './routes/ai-visibility'
 import { Route as AnalyticsRouteImport } from './routes/analytics'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AvisAiGuideRouteImport } from './routes/avis-ai-guide'
@@ -103,6 +104,11 @@ const AiReviewReplyGeneratorRoute = AiReviewReplyGeneratorRouteImport.update({
 const AiSettingsRoute = AiSettingsRouteImport.update({
   id: '/ai-settings',
   path: '/ai-settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AiVisibilityRoute = AiVisibilityRouteImport.update({
+  id: '/ai-visibility',
+  path: '/ai-visibility',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AnalyticsRoute = AnalyticsRouteImport.update({
@@ -413,6 +419,7 @@ export interface FileRoutesByFullPath {
   '/ai-google-review-reply': typeof AiGoogleReviewReplyRoute
   '/ai-review-reply-generator': typeof AiReviewReplyGeneratorRoute
   '/ai-settings': typeof AiSettingsRoute
+  '/ai-visibility': typeof AiVisibilityRoute
   '/analytics': typeof AnalyticsRoute
   '/auth': typeof AuthRoute
   '/avis-ai-guide': typeof AvisAiGuideRoute
@@ -480,6 +487,7 @@ export interface FileRoutesByTo {
   '/ai-google-review-reply': typeof AiGoogleReviewReplyRoute
   '/ai-review-reply-generator': typeof AiReviewReplyGeneratorRoute
   '/ai-settings': typeof AiSettingsRoute
+  '/ai-visibility': typeof AiVisibilityRoute
   '/analytics': typeof AnalyticsRoute
   '/auth': typeof AuthRoute
   '/avis-ai-guide': typeof AvisAiGuideRoute
@@ -548,6 +556,7 @@ export interface FileRoutesById {
   '/ai-google-review-reply': typeof AiGoogleReviewReplyRoute
   '/ai-review-reply-generator': typeof AiReviewReplyGeneratorRoute
   '/ai-settings': typeof AiSettingsRoute
+  '/ai-visibility': typeof AiVisibilityRoute
   '/analytics': typeof AnalyticsRoute
   '/auth': typeof AuthRoute
   '/avis-ai-guide': typeof AvisAiGuideRoute
@@ -617,6 +626,7 @@ export interface FileRouteTypes {
     | '/ai-google-review-reply'
     | '/ai-review-reply-generator'
     | '/ai-settings'
+    | '/ai-visibility'
     | '/analytics'
     | '/auth'
     | '/avis-ai-guide'
@@ -684,6 +694,7 @@ export interface FileRouteTypes {
     | '/ai-google-review-reply'
     | '/ai-review-reply-generator'
     | '/ai-settings'
+    | '/ai-visibility'
     | '/analytics'
     | '/auth'
     | '/avis-ai-guide'
@@ -751,6 +762,7 @@ export interface FileRouteTypes {
     | '/ai-google-review-reply'
     | '/ai-review-reply-generator'
     | '/ai-settings'
+    | '/ai-visibility'
     | '/analytics'
     | '/auth'
     | '/avis-ai-guide'
@@ -819,6 +831,7 @@ export interface RootRouteChildren {
   AiGoogleReviewReplyRoute: typeof AiGoogleReviewReplyRoute
   AiReviewReplyGeneratorRoute: typeof AiReviewReplyGeneratorRoute
   AiSettingsRoute: typeof AiSettingsRoute
+  AiVisibilityRoute: typeof AiVisibilityRoute
   AnalyticsRoute: typeof AnalyticsRoute
   AuthRoute: typeof AuthRoute
   AvisAiGuideRoute: typeof AvisAiGuideRoute
@@ -922,6 +935,13 @@ declare module '@tanstack/react-router' {
       path: '/ai-settings'
       fullPath: '/ai-settings'
       preLoaderRoute: typeof AiSettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ai-visibility': {
+      id: '/ai-visibility'
+      path: '/ai-visibility'
+      fullPath: '/ai-visibility'
+      preLoaderRoute: typeof AiVisibilityRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/analytics': {
@@ -1347,6 +1367,7 @@ const rootRouteChildren: RootRouteChildren = {
   AiGoogleReviewReplyRoute: AiGoogleReviewReplyRoute,
   AiReviewReplyGeneratorRoute: AiReviewReplyGeneratorRoute,
   AiSettingsRoute: AiSettingsRoute,
+  AiVisibilityRoute: AiVisibilityRoute,
   AnalyticsRoute: AnalyticsRoute,
   AuthRoute: AuthRoute,
   AvisAiGuideRoute: AvisAiGuideRoute,

@@ -48,7 +48,7 @@ export default function AIVisibility(){
   if(settings.error)setError(settings.error.message);
   else{setHasSetting(Boolean(settings.data));setEnabled(Boolean((settings.data as Setting|null)?.enabled));}
   if(observations.error)setError(observations.error.message);
-  else setChecks((observations.data||[]) as Check[]);
+  else setChecks((observations.data||[]) as unknown as Check[]);
   setLoading(false);
  },[id,user?.id,days]);
  useEffect(()=>{void load();},[load]);

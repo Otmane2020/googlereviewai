@@ -1234,6 +1234,91 @@ export type Database = {
         }
         Relationships: []
       }
+      reviewai_ai_visibility_checks: {
+        Row: {
+          answer: string | null
+          business_id: string
+          checked_at: string
+          citations: Json
+          cited: boolean | null
+          error_code: string | null
+          id: string
+          mentioned: boolean | null
+          provider: string
+          question: string
+          run_week: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          answer?: string | null
+          business_id: string
+          checked_at?: string
+          citations?: Json
+          cited?: boolean | null
+          error_code?: string | null
+          id?: string
+          mentioned?: boolean | null
+          provider?: string
+          question: string
+          run_week: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          answer?: string | null
+          business_id?: string
+          checked_at?: string
+          citations?: Json
+          cited?: boolean | null
+          error_code?: string | null
+          id?: string
+          mentioned?: boolean | null
+          provider?: string
+          question?: string
+          run_week?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviewai_ai_visibility_checks_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reviewai_ai_visibility_settings: {
+        Row: {
+          business_id: string
+          enabled: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          business_id: string
+          enabled?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          business_id?: string
+          enabled?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviewai_ai_visibility_settings_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: true
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reviewai_tracking_events: {
         Row: {
           created_at: string
