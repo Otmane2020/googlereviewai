@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PWRouteImport } from './routes/PW'
+import { Route as AboutRouteImport } from './routes/about'
 import { Route as AeoRankRouteImport } from './routes/aeo-rank'
 import { Route as AiGoogleReviewReplyRouteImport } from './routes/ai-google-review-reply'
 import { Route as AiReviewReplyGeneratorRouteImport } from './routes/ai-review-reply-generator'
@@ -84,6 +85,11 @@ const IndexRoute = IndexRouteImport.update({
 const PWRoute = PWRouteImport.update({
   id: '/PW',
   path: '/PW',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AeoRankRoute = AeoRankRouteImport.update({
@@ -415,6 +421,7 @@ const ApiPublicHealthCloudRoute = ApiPublicHealthCloudRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/PW': typeof PWRoute
+  '/about': typeof AboutRoute
   '/aeo-rank': typeof AeoRankRoute
   '/ai-google-review-reply': typeof AiGoogleReviewReplyRoute
   '/ai-review-reply-generator': typeof AiReviewReplyGeneratorRoute
@@ -483,6 +490,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/PW': typeof PWRoute
+  '/about': typeof AboutRoute
   '/aeo-rank': typeof AeoRankRoute
   '/ai-google-review-reply': typeof AiGoogleReviewReplyRoute
   '/ai-review-reply-generator': typeof AiReviewReplyGeneratorRoute
@@ -552,6 +560,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/PW': typeof PWRoute
+  '/about': typeof AboutRoute
   '/aeo-rank': typeof AeoRankRoute
   '/ai-google-review-reply': typeof AiGoogleReviewReplyRoute
   '/ai-review-reply-generator': typeof AiReviewReplyGeneratorRoute
@@ -622,6 +631,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/PW'
+    | '/about'
     | '/aeo-rank'
     | '/ai-google-review-reply'
     | '/ai-review-reply-generator'
@@ -690,6 +700,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/PW'
+    | '/about'
     | '/aeo-rank'
     | '/ai-google-review-reply'
     | '/ai-review-reply-generator'
@@ -758,6 +769,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/PW'
+    | '/about'
     | '/aeo-rank'
     | '/ai-google-review-reply'
     | '/ai-review-reply-generator'
@@ -827,6 +839,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   PWRoute: typeof PWRoute
+  AboutRoute: typeof AboutRoute
   AeoRankRoute: typeof AeoRankRoute
   AiGoogleReviewReplyRoute: typeof AiGoogleReviewReplyRoute
   AiReviewReplyGeneratorRoute: typeof AiReviewReplyGeneratorRoute
@@ -907,6 +920,13 @@ declare module '@tanstack/react-router' {
       path: '/PW'
       fullPath: '/PW'
       preLoaderRoute: typeof PWRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/aeo-rank': {
@@ -1363,6 +1383,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   PWRoute: PWRoute,
+  AboutRoute: AboutRoute,
   AeoRankRoute: AeoRankRoute,
   AiGoogleReviewReplyRoute: AiGoogleReviewReplyRoute,
   AiReviewReplyGeneratorRoute: AiReviewReplyGeneratorRoute,
