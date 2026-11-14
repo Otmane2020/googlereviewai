@@ -13,7 +13,6 @@ import { ConnectGMBDialog } from "@/components/ConnectGMBDialog";
 import { SyncProgressOverlay } from "@/components/SyncProgressOverlay";
 import { ReconnectGoogleDialog } from "@/components/ReconnectGoogleDialog";
 import { LowCreditsBanner } from "@/components/LowCreditsBanner";
-import { UpgradeDialog } from "@/components/UpgradeDialog";
 import { UTMBuilderDialog } from "@/components/UTMBuilderDialog";
 import { GmbInsightsCard } from "@/components/GmbInsightsCard";
 import { toast } from "sonner";
@@ -68,7 +67,6 @@ const Dashboard = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { handleOAuthCallback } = useGoogleOAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [showFreeUpgrade, setShowFreeUpgrade] = useState(false);
   const [recentReviews, setRecentReviews] = useState<Review[]>([]);
   const [stats, setStats] = useState({ total: 0, avgRating: 0, aiResponses: 0, pending: 0, businesses: 0, responseRate: 0 });
   const [primaryBusinessName, setPrimaryBusinessName] = useState<string | null>(null);
@@ -317,18 +315,6 @@ const Dashboard = () => {
     }
     await fetchData();
   };
-
-  // Show the upgrade once after the free quota is exhausted, including
-  // automatically generated replies. Do not interrupt every dashboard visit.
-  useEffect(() => {
-    if (!user || !profile) return;
-    const free = !profile.plan_name || profile.plan_name.trim().toLowerCase() === "free";
-    const key = `googlereviewai.com_free_upgrade_shown_${user.id}`;
-    if (free && profile.credits === 0 && !localStorage.getItem(key)) {
-      setShowFreeUpgrade(true);
-      localStorage.setItem(key, "1");
-    }
-  }, [user, profile]);
 
   // Use subscription verification hook
   const { loading: subscriptionLoading } = useRequireSubscription();
@@ -964,14 +950,6 @@ const Dashboard = () => {
             isVisible={showSyncProgress}
             currentStep={syncStep}
             onComplete={() => setShowSyncProgress(false)}
-          />
-
-          {/* Free quota conversion prompt, shown only once per account */}
-          <UpgradeDialog
-            open={showFreeUpgrade}
-            onOpenChange={setShowFreeUpgrade}
-            currentPlan={profile?.plan_name}
-            exhausted
           />
 
           {/* Google Reconnect Dialog */}

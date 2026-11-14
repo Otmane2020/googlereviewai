@@ -260,15 +260,15 @@ export const UpgradeDialog = ({ open, onOpenChange, currentPlan, exhausted = fal
               <DialogHeader>
                 <DialogTitle className="text-xl sm:text-2xl font-bold tracking-tight text-foreground text-left">
                   {exhausted
-                    ? (isEN ? "Get back to your dashboard" : "Retrouvez votre tableau de bord")
+                    ? (isEN ? "Keep replying with AI" : "Continuez vos réponses avec l’IA")
                     : (isEN ? "Choose how to continue" : "Choisissez comment continuer")}
                 </DialogTitle>
               </DialogHeader>
               <p className="text-sm text-muted-foreground mt-1 max-w-2xl leading-relaxed">
                 {exhausted
                   ? (isEN
-                    ? "You've used your available credits. Choose a subscription or buy a credit pack to restore access."
-                    : "Vous avez utilisé vos crédits disponibles. Choisissez un abonnement ou rechargez vos crédits pour retrouver l’accès.")
+                    ? "Your available credits are used up. Choose a plan or credit pack to generate more AI replies. Your dashboard remains accessible."
+                    : "Vos crédits disponibles sont épuisés. Choisissez un forfait ou une recharge pour générer de nouvelles réponses IA. Votre tableau de bord reste accessible.")
                   : (isEN
                     ? "Choose a subscription or top up with a one-time credit pack. Secure checkout."
                     : "Choisissez un abonnement ou une recharge ponctuelle. Paiement sécurisé.")}

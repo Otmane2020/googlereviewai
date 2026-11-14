@@ -1,11 +1,12 @@
 # Roadmap
 
 ## Open
-- [ ] Monétisation — appliquer la décision A/B/C sur le gratuit (en attente du choix du user)
+- [ ] Relance C — définir et autoriser les emails de relance avant tout envoi
 - [ ] Q&A Decora Home — marquer l'article publié + enregistrer le lien Google (fix `publish-gmb-qa` en attente)
 - [ ] Traffic — augmenter les visites (bottleneck réel : ~6 visites/jour)
 
 ## Done
+- [x] Monétisation B — proposition FR/EN à zéro crédit, fermable, avec bouton permanent et tableau de bord accessible (4 tests réussis ; scénario épuisé simulé dans un compte connecté)
 - [x] Page /about bilingue FR/EN (404 corrigé)
 - [x] `/.well-known/assetlinks.json` servi pour l'APK Android TWA
 - [x] Logo GoogleReviewAI sur fond blanc dans l'écran de sync

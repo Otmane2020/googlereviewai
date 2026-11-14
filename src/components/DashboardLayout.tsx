@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useEffect, useRef, useState } from "react";
 import { NavLink, useNavigate } from "@/lib/router-compat";
 import {
   Sidebar,
@@ -28,6 +28,7 @@ import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useTranslation } from "react-i18next";
 import { BrandSparkle } from "@/components/BrandSparkle";
 import { isActivePaidPlan } from "@/lib/planEntitlements";
+import { shouldPromptCreditUpgrade } from "@/lib/creditUpgrade";
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -224,6 +225,8 @@ export const DashboardLayout = ({ children, title }: DashboardLayoutProps) => {
   const isEN = i18n.language?.startsWith("en");
   const [retryKey, setRetryKey] = useState(0);
   const [access, setAccess] = useState<CreditAccess | null>(null);
+  const [creditUpgradeOpen, setCreditUpgradeOpen] = useState(false);
+  const promptedUser = useRef<string | null>(null);
   const userId = user?.id;
 
   useEffect(() => {
@@ -327,15 +330,31 @@ export const DashboardLayout = ({ children, title }: DashboardLayoutProps) => {
   const checking = !!userId && (!access || access.userId !== userId || access.status === "loading");
   const failed = !!userId && access?.userId === userId && access.status === "error";
 
-  // Paid Pro / Business plans include unlimited AI replies: a zero numeric balance
-  // must not lock out a customer whose unlimited subscription is still active.
-  const paidUnlimited = access?.status === "ready"
-    && ["active", "trial", "trialing"].includes((access.subscriptionStatus ?? "").toLowerCase())
-    && /(^|[_\s-])(pro|business|agence|agency)([_\s-]|$)/i.test(access.planName ?? "");
-  const availableCredits = (access?.credits ?? 0)
-    + (access?.agencyCredits ?? 0) + (access?.businessCredits ?? 0);
-  const exhausted = !!userId && access?.userId === userId
-    && access.status === "ready" && availableCredits <= 0 && !paidUnlimited;
+  const exhausted = shouldPromptCreditUpgrade({
+    ready: Boolean(userId && access?.userId === userId && access?.status === "ready" && hasChosenPlan),
+    profile: {
+      plan_name: access?.planName,
+      subscription_status: access?.subscriptionStatus,
+      current_period_end: access?.currentPeriodEnd,
+      trial_end: access?.trialEnd,
+    },
+    credits: access?.credits ?? 0,
+    agencyCredits: access?.agencyCredits ?? 0,
+    businessCredits: access?.businessCredits ?? 0,
+  });
+
+  useEffect(() => {
+    if (!userId || !exhausted || promptedUser.current === userId) return;
+    // Once per browser session, even when navigating between dashboard modules.
+    const key = `reviewsai-credit-upgrade:${userId}`;
+    let seen = false;
+    try {
+      seen = sessionStorage.getItem(key) === "shown";
+      sessionStorage.setItem(key, "shown");
+    } catch { /* A disabled storage must not block dashboard access. */ }
+    promptedUser.current = userId;
+    if (!seen) setCreditUpgradeOpen(true);
+  }, [exhausted, userId]);
 
   if (checking) {
     return (
@@ -374,28 +393,6 @@ export const DashboardLayout = ({ children, title }: DashboardLayoutProps) => {
     );
   }
 
-  if (exhausted) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-background p-6">
-        <RankiLogo className="text-foreground mb-5" />
-        <p className="max-w-sm text-center text-muted-foreground text-sm">
-          {isEN
-            ? "Your balance is empty. Top up or upgrade to access your dashboard."
-            : "Votre solde est épuisé. Rechargez vos crédits ou passez à un abonnement pour accéder au tableau de bord."}
-        </p>
-        <UpgradeDialog
-          open={true}
-          onOpenChange={() => {}}
-          currentPlan={access?.planName ?? undefined}
-          exhausted
-          locked
-          onRetry={() => setRetryKey((n) => n + 1)}
-          onSignOut={() => { void signOut(); }}
-        />
-      </div>
-    );
-  }
-
   return (
     <SidebarProvider defaultOpen={true}>
       <div className="min-h-screen flex w-full bg-background">
@@ -407,6 +404,16 @@ export const DashboardLayout = ({ children, title }: DashboardLayoutProps) => {
         <div className="flex-1 flex flex-col min-w-0">
           {/* Sticky top bar — visible on every dashboard page (language, notifications, credits) */}
           <DashboardHeader />
+          {exhausted && (
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border bg-primary/10 px-4 py-3" role="status">
+              <p className="text-sm text-foreground">
+                {isEN ? "Your free credits are used up. Choose a plan to keep generating AI replies." : "Vos crédits gratuits sont épuisés. Choisissez un forfait pour continuer les réponses IA."}
+              </p>
+              <Button size="sm" onClick={() => setCreditUpgradeOpen(true)} className="gap-2">
+                <CreditCard className="size-4" /> {isEN ? "Choose a plan" : "Choisir un forfait"}
+              </Button>
+            </div>
+          )}
           {title && (
             <div className="hidden md:flex sticky top-14 z-30 px-4 py-2 bg-background/80 backdrop-blur border-b border-border/40 items-center gap-3">
               <SidebarTrigger className="text-foreground" />
@@ -425,6 +432,12 @@ export const DashboardLayout = ({ children, title }: DashboardLayoutProps) => {
           <MobileBottomNav />
         </div>
       </div>
+      <UpgradeDialog
+        open={creditUpgradeOpen && exhausted}
+        onOpenChange={setCreditUpgradeOpen}
+        currentPlan={access?.planName ?? undefined}
+        exhausted
+      />
     </SidebarProvider>
   );
 };
