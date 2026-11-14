@@ -62,6 +62,7 @@ import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SitemapRouteImport } from './routes/sitemap'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as UnsubscribeRouteImport } from './routes/unsubscribe'
+import { Route as DotwellKnownAssetlinksDotjsonRouteImport } from './routes/[.]well-known/assetlinks[.]json'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as AdminOrdersRouteImport } from './routes/admin/orders'
 import { Route as BlogIndexRouteImport } from './routes/blog/index'
@@ -347,6 +348,12 @@ const UnsubscribeRoute = UnsubscribeRouteImport.update({
   path: '/unsubscribe',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DotwellKnownAssetlinksDotjsonRoute =
+  DotwellKnownAssetlinksDotjsonRouteImport.update({
+    id: '/.well-known/assetlinks.json',
+    path: '/.well-known/assetlinks.json',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/admin/',
   path: '/admin/',
@@ -472,6 +479,7 @@ export interface FileRoutesByFullPath {
   '/sitemap': typeof SitemapRoute
   '/terms': typeof TermsRoute
   '/unsubscribe': typeof UnsubscribeRoute
+  '/.well-known/assetlinks.json': typeof DotwellKnownAssetlinksDotjsonRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/boutique/nfc': typeof BoutiqueNfcRoute
@@ -541,6 +549,7 @@ export interface FileRoutesByTo {
   '/sitemap': typeof SitemapRoute
   '/terms': typeof TermsRoute
   '/unsubscribe': typeof UnsubscribeRoute
+  '/.well-known/assetlinks.json': typeof DotwellKnownAssetlinksDotjsonRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/boutique/nfc': typeof BoutiqueNfcRoute
@@ -611,6 +620,7 @@ export interface FileRoutesById {
   '/sitemap': typeof SitemapRoute
   '/terms': typeof TermsRoute
   '/unsubscribe': typeof UnsubscribeRoute
+  '/.well-known/assetlinks.json': typeof DotwellKnownAssetlinksDotjsonRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/boutique/nfc': typeof BoutiqueNfcRoute
@@ -682,6 +692,7 @@ export interface FileRouteTypes {
     | '/sitemap'
     | '/terms'
     | '/unsubscribe'
+    | '/.well-known/assetlinks.json'
     | '/admin/orders'
     | '/blog/$slug'
     | '/boutique/nfc'
@@ -751,6 +762,7 @@ export interface FileRouteTypes {
     | '/sitemap'
     | '/terms'
     | '/unsubscribe'
+    | '/.well-known/assetlinks.json'
     | '/admin/orders'
     | '/blog/$slug'
     | '/boutique/nfc'
@@ -820,6 +832,7 @@ export interface FileRouteTypes {
     | '/sitemap'
     | '/terms'
     | '/unsubscribe'
+    | '/.well-known/assetlinks.json'
     | '/admin/orders'
     | '/blog/$slug'
     | '/boutique/nfc'
@@ -890,6 +903,7 @@ export interface RootRouteChildren {
   SitemapRoute: typeof SitemapRoute
   TermsRoute: typeof TermsRoute
   UnsubscribeRoute: typeof UnsubscribeRoute
+  DotwellKnownAssetlinksDotjsonRoute: typeof DotwellKnownAssetlinksDotjsonRoute
   AdminOrdersRoute: typeof AdminOrdersRoute
   BlogSlugRoute: typeof BlogSlugRoute
   BoutiqueNfcRoute: typeof BoutiqueNfcRoute
@@ -1279,6 +1293,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UnsubscribeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/.well-known/assetlinks.json': {
+      id: '/.well-known/assetlinks.json'
+      path: '/.well-known/assetlinks.json'
+      fullPath: '/.well-known/assetlinks.json'
+      preLoaderRoute: typeof DotwellKnownAssetlinksDotjsonRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/': {
       id: '/admin/'
       path: '/admin'
@@ -1435,6 +1456,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapRoute: SitemapRoute,
   TermsRoute: TermsRoute,
   UnsubscribeRoute: UnsubscribeRoute,
+  DotwellKnownAssetlinksDotjsonRoute: DotwellKnownAssetlinksDotjsonRoute,
   AdminOrdersRoute: AdminOrdersRoute,
   BlogSlugRoute: BlogSlugRoute,
   BoutiqueNfcRoute: BoutiqueNfcRoute,

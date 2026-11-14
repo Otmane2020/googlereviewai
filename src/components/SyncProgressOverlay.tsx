@@ -78,8 +78,8 @@ export const SyncProgressOverlay = ({
       <div className="w-full max-w-sm mx-4 space-y-8">
         {/* Logo / Title */}
         <div className="text-center space-y-2">
-          <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-lg shadow-primary/30">
-            <BrandSparkle className="w-8 h-8 text-white" />
+          <div className="w-16 h-16 mx-auto rounded-2xl bg-white border border-border flex items-center justify-center shadow-lg">
+            <BrandSparkle className="w-8 h-8 text-primary" />
           </div>
           <h2 className="text-xl font-bold text-foreground">Syncing in progress</h2>
           <p className="text-sm text-muted-foreground">Connecting to Google My Business</p>
