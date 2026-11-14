@@ -1,0 +1,3 @@
+<resources>
+    <style name="ReviewsAILaunchTheme" parent="android:style/Theme.Translucent.NoTitleBar" />
+</resources>

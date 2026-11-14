@@ -1,0 +1,7 @@
+<resources>
+    <style name="ReviewsAILaunchTheme" parent="android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowSplashScreenBackground">@color/backgroundColor</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/reviewsai_splash_logo</item>
+        <item name="android:windowBackground">@color/backgroundColor</item>
+    </style>
+</resources>
