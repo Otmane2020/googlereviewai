@@ -2,7 +2,7 @@
 
 L'application Android ouvre la boîte d'avis de ReviewsAI à l'adresse https://reviewsai.store/reviews dans une Trusted Web Activity. Elle utilise le navigateur Android pour la connexion Google et le parcours existant de réponse aux avis.
 
-- Application Android : `store.reviewsai.android`
+- Application Android : `store.reviewsai.app`
 - Version : 1.0.0, code 1
 - Cible : Android 16 (API 36)
 - Appareils compatibles : Android 7.0 ou ultérieur
@@ -29,7 +29,7 @@ L'APK de test se trouve dans `app/build/outputs/apk/debug/`. Le bundle de produc
     "relation": ["delegate_permission/common.handle_all_urls"],
     "target": {
       "namespace": "android_app",
-      "package_name": "store.reviewsai.android",
+      "package_name": "store.reviewsai.app",
       "sha256_cert_fingerprints": ["REMPLACER_PAR_LE_SHA256_DE_SIGNATURE_PLAY"]
     }
   }

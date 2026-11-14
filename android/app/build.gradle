@@ -21,7 +21,7 @@ plugins {
 }
 
 def twaManifest = [
-    applicationId: 'store.reviewsai.android',
+    applicationId: 'store.reviewsai.app',
     hostName: 'reviewsai.store', // The domain being opened in the TWA.
     launchUrl: '/reviews', // The start path for the TWA. Must be relative to the domain.
     name: 'ReviewsAI', // The application name.
@@ -54,7 +54,7 @@ android {
     compileSdkVersion 36
     namespace "store.reviewsai.android"
     defaultConfig {
-        applicationId "store.reviewsai.android"
+        applicationId "store.reviewsai.app"
         minSdkVersion 24
         targetSdkVersion 36
         versionCode 2
@@ -190,7 +190,7 @@ task generateShorcutsFile {
                     'intent'(
                             'android:action': 'android.intent.action.MAIN',
                             'android:targetPackage': twaManifest.applicationId,
-                            'android:targetClass': twaManifest.applicationId + '.LauncherActivity',
+                            'android:targetClass': 'store.reviewsai.android.LauncherActivity',
                             'android:data': s.url)
                     'categories'('android:name': 'android.intent.category.LAUNCHER')
                 }
