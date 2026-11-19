@@ -11,6 +11,7 @@ import { ArrowLeft, Loader2, Check, ShieldCheck, AlertTriangle } from "lucide-re
 import { useTranslation } from "react-i18next";
 import { Helmet } from "react-helmet";
 import { isActivePaidPlan } from "@/lib/planEntitlements";
+import { isAgentConsentReturn, oauthReturnPath } from "@/lib/oauth-return-path";
 
 const Auth = () => {
   const { t, i18n } = useTranslation();
@@ -30,7 +31,14 @@ const Auth = () => {
     const params = new URLSearchParams(window.location.search);
     const redirectTo = params.get("redirect");
     const priceKey = params.get("priceKey") || localStorage.getItem("pending_price_key");
-    const nextParam = params.get("next");
+    const nextParam = oauthReturnPath(params.get("next"));
+
+    // Agent authorization is a separate flow from checkout and onboarding.
+    // Google returns to /auth with the original query intact.
+    if (isAgentConsentReturn(nextParam)) {
+      window.location.replace(nextParam);
+      return;
+    }
 
     if ((redirectTo === "checkout" || localStorage.getItem("pending_price_key")) && priceKey) {
       localStorage.removeItem("pending_price_key");
@@ -71,7 +79,7 @@ const Auth = () => {
     const hasVerifiedPaidPlan = isActivePaidPlan(profile);
     if ((!hasExplicitFreeChoice && !hasVerifiedPaidPlan) || (businessCount || 0) === 0) {
       navigate("/onboarding", { replace: true });
-    } else if (nextParam && nextParam.startsWith("/") && !nextParam.startsWith("//")) {
+    } else if (nextParam !== "/") {
       navigate(nextParam, { replace: true });
     } else {
       navigate("/dashboard", { replace: true });

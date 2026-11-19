@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "sdk_version": "3.5.0",
+  "path": "/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://hlruprayqfnatnldrski.supabase.co/auth/v1",
+    "require_oauth_client_claim": true,
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "reviewsai",
+      "version": "0.1.0",
+      "title": "ReviewsAI"
+    },
+    "tools": [
+      {
+        "name": "list_managed_businesses",
+        "title": "List managed businesses",
+        "description": "List active businesses managed by the connected ReviewsAI account, with their name, address, stored rating and review count.",
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "offset": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 1000000,
+              "description": "Number of businesses to skip for pagination (default: 0)."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}

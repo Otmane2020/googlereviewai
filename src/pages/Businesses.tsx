@@ -32,6 +32,8 @@ import {
 
 import { AgencyCreditsPanel } from "@/components/AgencyCreditsPanel";
 import { BrandSparkle } from "@/components/BrandSparkle";
+import { useWebMCP } from "use-webmcp-tool";
+import { runWebMCPTool } from "@/lib/webmcp-telemetry";
 
 interface Business {
   id: string;
@@ -57,6 +59,7 @@ const BusinessesPage = () => {
   const isEN = i18n.language?.toLowerCase().startsWith("en");
   const t = (fr: string, en: string) => (isEN ? en : fr);
   const [businesses, setBusinesses] = useState<Business[]>([]);
+  const [businessesOwner, setBusinessesOwner] = useState<string | null>(null);
   const [reviewCounts, setReviewCounts] = useState<Record<string, number>>({});
   const [reviewRatings, setReviewRatings] = useState<Record<string, number>>({});
   const [businessPosts, setBusinessPosts] = useState<Record<string, any[]>>({});
@@ -111,8 +114,10 @@ const BusinessesPage = () => {
 
     if (error) {
       console.error("Error fetching businesses:", error);
+      setBusinessesOwner(null);
     } else {
       setBusinesses((data || []) as Business[]);
+      setBusinessesOwner(user.id);
       
       // Fetch review counts and ratings per business
       if (data && data.length > 0) {
@@ -334,6 +339,20 @@ const BusinessesPage = () => {
       setAnalyzingId(null);
     }
   };
+
+  useWebMCP({
+    name: "list_visible_businesses",
+    description: "List the names and IDs of active establishments displayed on the ReviewsAI Businesses page.",
+    annotations: { readOnlyHint: true, untrustedContentHint: true },
+    enabled: Boolean(user && businessesOwner === user.id && !subscriptionLoading && !loading),
+    execute: () => runWebMCPTool("list_visible_businesses", () => {
+      if (!user || businessesOwner !== user.id || subscriptionLoading || loading) {
+        throw new Error(t("La liste des établissements n’est pas disponible.", "The business list is not available."));
+      }
+      if (businesses.length === 0) return t("Aucun établissement affiché.", "No businesses shown.");
+      return JSON.stringify(businesses.map(({ id, name }) => ({ id, name })));
+    }),
+  });
 
   if (loading) {
     return (

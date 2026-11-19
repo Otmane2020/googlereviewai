@@ -41,6 +41,7 @@ import { Route as LandingRouteImport } from './routes/landing'
 import { Route as LocalAeoRouteImport } from './routes/local-aeo'
 import { Route as LocalGeoRouteImport } from './routes/local-geo'
 import { Route as MapsRankRouteImport } from './routes/maps-rank'
+import { Route as McpRouteImport } from './routes/mcp'
 import { Route as MobileAdsRouteImport } from './routes/mobile-ads'
 import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
@@ -63,6 +64,7 @@ import { Route as SitemapRouteImport } from './routes/sitemap'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as UnsubscribeRouteImport } from './routes/unsubscribe'
 import { Route as DotwellKnownAssetlinksDotjsonRouteImport } from './routes/[.]well-known/assetlinks[.]json'
+import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as AdminOrdersRouteImport } from './routes/admin/orders'
 import { Route as BlogIndexRouteImport } from './routes/blog/index'
@@ -74,6 +76,7 @@ import { Route as LpFacebookRouteImport } from './routes/lp/facebook'
 import { Route as ShopIndexRouteImport } from './routes/shop/index'
 import { Route as ShopSlugRouteImport } from './routes/shop/$slug'
 import { Route as ShopCheckoutRouteImport } from './routes/shop/checkout'
+import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as ApiBlogSlugRouteImport } from './routes/api/blog/$slug'
 import { Route as ApiPublicRankiAutopostRouteImport } from './routes/api/public/ranki-autopost'
 import { Route as ApiPublicHealthCloudRouteImport } from './routes/api/public/health/cloud'
@@ -240,6 +243,11 @@ const MapsRankRoute = MapsRankRouteImport.update({
   path: '/maps-rank',
   getParentRoute: () => rootRouteImport,
 } as any)
+const McpRoute = McpRouteImport.update({
+  id: '/mcp',
+  path: '/mcp',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MobileAdsRoute = MobileAdsRouteImport.update({
   id: '/mobile-ads',
   path: '/mobile-ads',
@@ -354,6 +362,12 @@ const DotwellKnownAssetlinksDotjsonRoute =
     path: '/.well-known/assetlinks.json',
     getParentRoute: () => rootRouteImport,
   } as any)
+const Char91DotwellKnownChar93OauthProtectedResourceRoute =
+  Char91DotwellKnownChar93OauthProtectedResourceRouteImport.update({
+    id: '/.well-known/oauth-protected-resource',
+    path: '/.well-known/oauth-protected-resource',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/admin/',
   path: '/admin/',
@@ -409,6 +423,11 @@ const ShopCheckoutRoute = ShopCheckoutRouteImport.update({
   path: '/shop/checkout',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
+  id: '/.lovable/oauth/consent',
+  path: '/.lovable/oauth/consent',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiBlogSlugRoute = ApiBlogSlugRouteImport.update({
   id: '/api/blog/$slug',
   path: '/api/blog/$slug',
@@ -458,6 +477,7 @@ export interface FileRoutesByFullPath {
   '/local-aeo': typeof LocalAeoRoute
   '/local-geo': typeof LocalGeoRoute
   '/maps-rank': typeof MapsRankRoute
+  '/mcp': typeof McpRoute
   '/mobile-ads': typeof MobileAdsRoute
   '/notifications': typeof NotificationsRoute
   '/onboarding': typeof OnboardingRoute
@@ -480,6 +500,7 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/unsubscribe': typeof UnsubscribeRoute
   '/.well-known/assetlinks.json': typeof DotwellKnownAssetlinksDotjsonRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/boutique/nfc': typeof BoutiqueNfcRoute
@@ -491,6 +512,7 @@ export interface FileRoutesByFullPath {
   '/blog/': typeof BlogIndexRoute
   '/boutique/': typeof BoutiqueIndexRoute
   '/shop/': typeof ShopIndexRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/api/blog/$slug': typeof ApiBlogSlugRoute
   '/api/public/ranki-autopost': typeof ApiPublicRankiAutopostRoute
   '/api/public/health/cloud': typeof ApiPublicHealthCloudRoute
@@ -528,6 +550,7 @@ export interface FileRoutesByTo {
   '/local-aeo': typeof LocalAeoRoute
   '/local-geo': typeof LocalGeoRoute
   '/maps-rank': typeof MapsRankRoute
+  '/mcp': typeof McpRoute
   '/mobile-ads': typeof MobileAdsRoute
   '/notifications': typeof NotificationsRoute
   '/onboarding': typeof OnboardingRoute
@@ -550,6 +573,7 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/unsubscribe': typeof UnsubscribeRoute
   '/.well-known/assetlinks.json': typeof DotwellKnownAssetlinksDotjsonRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/boutique/nfc': typeof BoutiqueNfcRoute
@@ -561,6 +585,7 @@ export interface FileRoutesByTo {
   '/blog': typeof BlogIndexRoute
   '/boutique': typeof BoutiqueIndexRoute
   '/shop': typeof ShopIndexRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/api/blog/$slug': typeof ApiBlogSlugRoute
   '/api/public/ranki-autopost': typeof ApiPublicRankiAutopostRoute
   '/api/public/health/cloud': typeof ApiPublicHealthCloudRoute
@@ -599,6 +624,7 @@ export interface FileRoutesById {
   '/local-aeo': typeof LocalAeoRoute
   '/local-geo': typeof LocalGeoRoute
   '/maps-rank': typeof MapsRankRoute
+  '/mcp': typeof McpRoute
   '/mobile-ads': typeof MobileAdsRoute
   '/notifications': typeof NotificationsRoute
   '/onboarding': typeof OnboardingRoute
@@ -621,6 +647,7 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/unsubscribe': typeof UnsubscribeRoute
   '/.well-known/assetlinks.json': typeof DotwellKnownAssetlinksDotjsonRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/boutique/nfc': typeof BoutiqueNfcRoute
@@ -632,6 +659,7 @@ export interface FileRoutesById {
   '/blog/': typeof BlogIndexRoute
   '/boutique/': typeof BoutiqueIndexRoute
   '/shop/': typeof ShopIndexRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/api/blog/$slug': typeof ApiBlogSlugRoute
   '/api/public/ranki-autopost': typeof ApiPublicRankiAutopostRoute
   '/api/public/health/cloud': typeof ApiPublicHealthCloudRoute
@@ -671,6 +699,7 @@ export interface FileRouteTypes {
     | '/local-aeo'
     | '/local-geo'
     | '/maps-rank'
+    | '/mcp'
     | '/mobile-ads'
     | '/notifications'
     | '/onboarding'
@@ -693,6 +722,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/unsubscribe'
     | '/.well-known/assetlinks.json'
+    | '/.well-known/oauth-protected-resource'
     | '/admin/orders'
     | '/blog/$slug'
     | '/boutique/nfc'
@@ -704,6 +734,7 @@ export interface FileRouteTypes {
     | '/blog/'
     | '/boutique/'
     | '/shop/'
+    | '/.lovable/oauth/consent'
     | '/api/blog/$slug'
     | '/api/public/ranki-autopost'
     | '/api/public/health/cloud'
@@ -741,6 +772,7 @@ export interface FileRouteTypes {
     | '/local-aeo'
     | '/local-geo'
     | '/maps-rank'
+    | '/mcp'
     | '/mobile-ads'
     | '/notifications'
     | '/onboarding'
@@ -763,6 +795,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/unsubscribe'
     | '/.well-known/assetlinks.json'
+    | '/.well-known/oauth-protected-resource'
     | '/admin/orders'
     | '/blog/$slug'
     | '/boutique/nfc'
@@ -774,6 +807,7 @@ export interface FileRouteTypes {
     | '/blog'
     | '/boutique'
     | '/shop'
+    | '/.lovable/oauth/consent'
     | '/api/blog/$slug'
     | '/api/public/ranki-autopost'
     | '/api/public/health/cloud'
@@ -811,6 +845,7 @@ export interface FileRouteTypes {
     | '/local-aeo'
     | '/local-geo'
     | '/maps-rank'
+    | '/mcp'
     | '/mobile-ads'
     | '/notifications'
     | '/onboarding'
@@ -833,6 +868,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/unsubscribe'
     | '/.well-known/assetlinks.json'
+    | '/.well-known/oauth-protected-resource'
     | '/admin/orders'
     | '/blog/$slug'
     | '/boutique/nfc'
@@ -844,6 +880,7 @@ export interface FileRouteTypes {
     | '/blog/'
     | '/boutique/'
     | '/shop/'
+    | '/.lovable/oauth/consent'
     | '/api/blog/$slug'
     | '/api/public/ranki-autopost'
     | '/api/public/health/cloud'
@@ -882,6 +919,7 @@ export interface RootRouteChildren {
   LocalAeoRoute: typeof LocalAeoRoute
   LocalGeoRoute: typeof LocalGeoRoute
   MapsRankRoute: typeof MapsRankRoute
+  McpRoute: typeof McpRoute
   MobileAdsRoute: typeof MobileAdsRoute
   NotificationsRoute: typeof NotificationsRoute
   OnboardingRoute: typeof OnboardingRoute
@@ -904,6 +942,7 @@ export interface RootRouteChildren {
   TermsRoute: typeof TermsRoute
   UnsubscribeRoute: typeof UnsubscribeRoute
   DotwellKnownAssetlinksDotjsonRoute: typeof DotwellKnownAssetlinksDotjsonRoute
+  Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   AdminOrdersRoute: typeof AdminOrdersRoute
   BlogSlugRoute: typeof BlogSlugRoute
   BoutiqueNfcRoute: typeof BoutiqueNfcRoute
@@ -915,6 +954,7 @@ export interface RootRouteChildren {
   BlogIndexRoute: typeof BlogIndexRoute
   BoutiqueIndexRoute: typeof BoutiqueIndexRoute
   ShopIndexRoute: typeof ShopIndexRoute
+  DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   ApiBlogSlugRoute: typeof ApiBlogSlugRoute
   ApiPublicRankiAutopostRoute: typeof ApiPublicRankiAutopostRoute
   ApiPublicHealthCloudRoute: typeof ApiPublicHealthCloudRoute
@@ -1146,6 +1186,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MapsRankRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/mcp': {
+      id: '/mcp'
+      path: '/mcp'
+      fullPath: '/mcp'
+      preLoaderRoute: typeof McpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/mobile-ads': {
       id: '/mobile-ads'
       path: '/mobile-ads'
@@ -1300,6 +1347,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DotwellKnownAssetlinksDotjsonRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/.well-known/oauth-protected-resource': {
+      id: '/.well-known/oauth-protected-resource'
+      path: '/.well-known/oauth-protected-resource'
+      fullPath: '/.well-known/oauth-protected-resource'
+      preLoaderRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/': {
       id: '/admin/'
       path: '/admin'
@@ -1377,6 +1431,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ShopCheckoutRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/.lovable/oauth/consent': {
+      id: '/.lovable/oauth/consent'
+      path: '/.lovable/oauth/consent'
+      fullPath: '/.lovable/oauth/consent'
+      preLoaderRoute: typeof DotlovableOauthConsentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/blog/$slug': {
       id: '/api/blog/$slug'
       path: '/api/blog/$slug'
@@ -1434,6 +1495,7 @@ const rootRouteChildren: RootRouteChildren = {
   LocalAeoRoute: LocalAeoRoute,
   LocalGeoRoute: LocalGeoRoute,
   MapsRankRoute: MapsRankRoute,
+  McpRoute: McpRoute,
   MobileAdsRoute: MobileAdsRoute,
   NotificationsRoute: NotificationsRoute,
   OnboardingRoute: OnboardingRoute,
@@ -1457,6 +1519,8 @@ const rootRouteChildren: RootRouteChildren = {
   TermsRoute: TermsRoute,
   UnsubscribeRoute: UnsubscribeRoute,
   DotwellKnownAssetlinksDotjsonRoute: DotwellKnownAssetlinksDotjsonRoute,
+  Char91DotwellKnownChar93OauthProtectedResourceRoute:
+    Char91DotwellKnownChar93OauthProtectedResourceRoute,
   AdminOrdersRoute: AdminOrdersRoute,
   BlogSlugRoute: BlogSlugRoute,
   BoutiqueNfcRoute: BoutiqueNfcRoute,
@@ -1468,6 +1532,7 @@ const rootRouteChildren: RootRouteChildren = {
   BlogIndexRoute: BlogIndexRoute,
   BoutiqueIndexRoute: BoutiqueIndexRoute,
   ShopIndexRoute: ShopIndexRoute,
+  DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   ApiBlogSlugRoute: ApiBlogSlugRoute,
   ApiPublicRankiAutopostRoute: ApiPublicRankiAutopostRoute,
   ApiPublicHealthCloudRoute: ApiPublicHealthCloudRoute,

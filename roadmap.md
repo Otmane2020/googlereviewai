@@ -1,6 +1,7 @@
 # Roadmap
 
 ## Open
+- [ ] Intégrations MCP — valider le consentement sur le site après republication
 - [ ] Relance C — définir et autoriser les emails de relance avant tout envoi
 - [ ] Q&A Decora Home — marquer l'article publié + enregistrer le lien Google (fix `publish-gmb-qa` en attente)
 - [ ] Traffic — augmenter les visites (bottleneck réel : ~6 visites/jour)
