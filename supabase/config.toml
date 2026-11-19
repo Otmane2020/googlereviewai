@@ -1,5 +1,12 @@
 project_id = "hlruprayqfnatnldrski"
 
+# OAuth 2.1 server used by the remote MCP endpoint (https://reviewsai.store/mcp).
+# Consent UI: src/routes/[.]lovable.oauth.consent.tsx. Claude and ChatGPT register via DCR.
+[auth.oauth_server]
+enabled = true
+authorization_url_path = "/.lovable/oauth/consent"
+allow_dynamic_registration = true
+
 [functions]
   [functions.analyze-brand-voice]
     verify_jwt = true

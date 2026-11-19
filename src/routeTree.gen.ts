@@ -42,6 +42,7 @@ import { Route as LocalAeoRouteImport } from './routes/local-aeo'
 import { Route as LocalGeoRouteImport } from './routes/local-geo'
 import { Route as MapsRankRouteImport } from './routes/maps-rank'
 import { Route as McpRouteImport } from './routes/mcp'
+import { Route as McpDocsRouteImport } from './routes/mcp-docs'
 import { Route as MobileAdsRouteImport } from './routes/mobile-ads'
 import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
@@ -64,7 +65,9 @@ import { Route as SitemapRouteImport } from './routes/sitemap'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as UnsubscribeRouteImport } from './routes/unsubscribe'
 import { Route as DotwellKnownAssetlinksDotjsonRouteImport } from './routes/[.]well-known/assetlinks[.]json'
+import { Route as DotwellKnownOauthAuthorizationServerRouteImport } from './routes/[.]well-known/oauth-authorization-server'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
+import { Route as DotwellKnownOpenaiAppsChallengeRouteImport } from './routes/[.]well-known/openai-apps-challenge'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as AdminOrdersRouteImport } from './routes/admin/orders'
 import { Route as BlogIndexRouteImport } from './routes/blog/index'
@@ -248,6 +251,11 @@ const McpRoute = McpRouteImport.update({
   path: '/mcp',
   getParentRoute: () => rootRouteImport,
 } as any)
+const McpDocsRoute = McpDocsRouteImport.update({
+  id: '/mcp-docs',
+  path: '/mcp-docs',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MobileAdsRoute = MobileAdsRouteImport.update({
   id: '/mobile-ads',
   path: '/mobile-ads',
@@ -362,10 +370,22 @@ const DotwellKnownAssetlinksDotjsonRoute =
     path: '/.well-known/assetlinks.json',
     getParentRoute: () => rootRouteImport,
   } as any)
+const DotwellKnownOauthAuthorizationServerRoute =
+  DotwellKnownOauthAuthorizationServerRouteImport.update({
+    id: '/.well-known/oauth-authorization-server',
+    path: '/.well-known/oauth-authorization-server',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const Char91DotwellKnownChar93OauthProtectedResourceRoute =
   Char91DotwellKnownChar93OauthProtectedResourceRouteImport.update({
     id: '/.well-known/oauth-protected-resource',
     path: '/.well-known/oauth-protected-resource',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const DotwellKnownOpenaiAppsChallengeRoute =
+  DotwellKnownOpenaiAppsChallengeRouteImport.update({
+    id: '/.well-known/openai-apps-challenge',
+    path: '/.well-known/openai-apps-challenge',
     getParentRoute: () => rootRouteImport,
   } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
@@ -478,6 +498,7 @@ export interface FileRoutesByFullPath {
   '/local-geo': typeof LocalGeoRoute
   '/maps-rank': typeof MapsRankRoute
   '/mcp': typeof McpRoute
+  '/mcp-docs': typeof McpDocsRoute
   '/mobile-ads': typeof MobileAdsRoute
   '/notifications': typeof NotificationsRoute
   '/onboarding': typeof OnboardingRoute
@@ -500,7 +521,9 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/unsubscribe': typeof UnsubscribeRoute
   '/.well-known/assetlinks.json': typeof DotwellKnownAssetlinksDotjsonRoute
+  '/.well-known/oauth-authorization-server': typeof DotwellKnownOauthAuthorizationServerRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  '/.well-known/openai-apps-challenge': typeof DotwellKnownOpenaiAppsChallengeRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/boutique/nfc': typeof BoutiqueNfcRoute
@@ -551,6 +574,7 @@ export interface FileRoutesByTo {
   '/local-geo': typeof LocalGeoRoute
   '/maps-rank': typeof MapsRankRoute
   '/mcp': typeof McpRoute
+  '/mcp-docs': typeof McpDocsRoute
   '/mobile-ads': typeof MobileAdsRoute
   '/notifications': typeof NotificationsRoute
   '/onboarding': typeof OnboardingRoute
@@ -573,7 +597,9 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/unsubscribe': typeof UnsubscribeRoute
   '/.well-known/assetlinks.json': typeof DotwellKnownAssetlinksDotjsonRoute
+  '/.well-known/oauth-authorization-server': typeof DotwellKnownOauthAuthorizationServerRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  '/.well-known/openai-apps-challenge': typeof DotwellKnownOpenaiAppsChallengeRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/boutique/nfc': typeof BoutiqueNfcRoute
@@ -625,6 +651,7 @@ export interface FileRoutesById {
   '/local-geo': typeof LocalGeoRoute
   '/maps-rank': typeof MapsRankRoute
   '/mcp': typeof McpRoute
+  '/mcp-docs': typeof McpDocsRoute
   '/mobile-ads': typeof MobileAdsRoute
   '/notifications': typeof NotificationsRoute
   '/onboarding': typeof OnboardingRoute
@@ -647,7 +674,9 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/unsubscribe': typeof UnsubscribeRoute
   '/.well-known/assetlinks.json': typeof DotwellKnownAssetlinksDotjsonRoute
+  '/.well-known/oauth-authorization-server': typeof DotwellKnownOauthAuthorizationServerRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  '/.well-known/openai-apps-challenge': typeof DotwellKnownOpenaiAppsChallengeRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/boutique/nfc': typeof BoutiqueNfcRoute
@@ -700,6 +729,7 @@ export interface FileRouteTypes {
     | '/local-geo'
     | '/maps-rank'
     | '/mcp'
+    | '/mcp-docs'
     | '/mobile-ads'
     | '/notifications'
     | '/onboarding'
@@ -722,7 +752,9 @@ export interface FileRouteTypes {
     | '/terms'
     | '/unsubscribe'
     | '/.well-known/assetlinks.json'
+    | '/.well-known/oauth-authorization-server'
     | '/.well-known/oauth-protected-resource'
+    | '/.well-known/openai-apps-challenge'
     | '/admin/orders'
     | '/blog/$slug'
     | '/boutique/nfc'
@@ -773,6 +805,7 @@ export interface FileRouteTypes {
     | '/local-geo'
     | '/maps-rank'
     | '/mcp'
+    | '/mcp-docs'
     | '/mobile-ads'
     | '/notifications'
     | '/onboarding'
@@ -795,7 +828,9 @@ export interface FileRouteTypes {
     | '/terms'
     | '/unsubscribe'
     | '/.well-known/assetlinks.json'
+    | '/.well-known/oauth-authorization-server'
     | '/.well-known/oauth-protected-resource'
+    | '/.well-known/openai-apps-challenge'
     | '/admin/orders'
     | '/blog/$slug'
     | '/boutique/nfc'
@@ -846,6 +881,7 @@ export interface FileRouteTypes {
     | '/local-geo'
     | '/maps-rank'
     | '/mcp'
+    | '/mcp-docs'
     | '/mobile-ads'
     | '/notifications'
     | '/onboarding'
@@ -868,7 +904,9 @@ export interface FileRouteTypes {
     | '/terms'
     | '/unsubscribe'
     | '/.well-known/assetlinks.json'
+    | '/.well-known/oauth-authorization-server'
     | '/.well-known/oauth-protected-resource'
+    | '/.well-known/openai-apps-challenge'
     | '/admin/orders'
     | '/blog/$slug'
     | '/boutique/nfc'
@@ -920,6 +958,7 @@ export interface RootRouteChildren {
   LocalGeoRoute: typeof LocalGeoRoute
   MapsRankRoute: typeof MapsRankRoute
   McpRoute: typeof McpRoute
+  McpDocsRoute: typeof McpDocsRoute
   MobileAdsRoute: typeof MobileAdsRoute
   NotificationsRoute: typeof NotificationsRoute
   OnboardingRoute: typeof OnboardingRoute
@@ -942,7 +981,9 @@ export interface RootRouteChildren {
   TermsRoute: typeof TermsRoute
   UnsubscribeRoute: typeof UnsubscribeRoute
   DotwellKnownAssetlinksDotjsonRoute: typeof DotwellKnownAssetlinksDotjsonRoute
+  DotwellKnownOauthAuthorizationServerRoute: typeof DotwellKnownOauthAuthorizationServerRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  DotwellKnownOpenaiAppsChallengeRoute: typeof DotwellKnownOpenaiAppsChallengeRoute
   AdminOrdersRoute: typeof AdminOrdersRoute
   BlogSlugRoute: typeof BlogSlugRoute
   BoutiqueNfcRoute: typeof BoutiqueNfcRoute
@@ -1193,6 +1234,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof McpRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/mcp-docs': {
+      id: '/mcp-docs'
+      path: '/mcp-docs'
+      fullPath: '/mcp-docs'
+      preLoaderRoute: typeof McpDocsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/mobile-ads': {
       id: '/mobile-ads'
       path: '/mobile-ads'
@@ -1347,11 +1395,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DotwellKnownAssetlinksDotjsonRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/.well-known/oauth-authorization-server': {
+      id: '/.well-known/oauth-authorization-server'
+      path: '/.well-known/oauth-authorization-server'
+      fullPath: '/.well-known/oauth-authorization-server'
+      preLoaderRoute: typeof DotwellKnownOauthAuthorizationServerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/.well-known/oauth-protected-resource': {
       id: '/.well-known/oauth-protected-resource'
       path: '/.well-known/oauth-protected-resource'
       fullPath: '/.well-known/oauth-protected-resource'
       preLoaderRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.well-known/openai-apps-challenge': {
+      id: '/.well-known/openai-apps-challenge'
+      path: '/.well-known/openai-apps-challenge'
+      fullPath: '/.well-known/openai-apps-challenge'
+      preLoaderRoute: typeof DotwellKnownOpenaiAppsChallengeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/': {
@@ -1496,6 +1558,7 @@ const rootRouteChildren: RootRouteChildren = {
   LocalGeoRoute: LocalGeoRoute,
   MapsRankRoute: MapsRankRoute,
   McpRoute: McpRoute,
+  McpDocsRoute: McpDocsRoute,
   MobileAdsRoute: MobileAdsRoute,
   NotificationsRoute: NotificationsRoute,
   OnboardingRoute: OnboardingRoute,
@@ -1519,8 +1582,11 @@ const rootRouteChildren: RootRouteChildren = {
   TermsRoute: TermsRoute,
   UnsubscribeRoute: UnsubscribeRoute,
   DotwellKnownAssetlinksDotjsonRoute: DotwellKnownAssetlinksDotjsonRoute,
+  DotwellKnownOauthAuthorizationServerRoute:
+    DotwellKnownOauthAuthorizationServerRoute,
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
+  DotwellKnownOpenaiAppsChallengeRoute: DotwellKnownOpenaiAppsChallengeRoute,
   AdminOrdersRoute: AdminOrdersRoute,
   BlogSlugRoute: BlogSlugRoute,
   BoutiqueNfcRoute: BoutiqueNfcRoute,

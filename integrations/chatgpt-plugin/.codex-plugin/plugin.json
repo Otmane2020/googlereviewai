@@ -1,0 +1,31 @@
+{
+  "name": "reviewsai",
+  "version": "1.0.0",
+  "description": "Manage Google Business Profile reviews: read reviews, draft AI replies in your brand voice, publish approved replies, track profile stats and Google Maps ranking.",
+  "author": { "name": "ReviewsAI", "email": "support@reviewsai.store", "url": "https://reviewsai.store" },
+  "homepage": "https://reviewsai.store/mcp-docs",
+  "license": "Proprietary",
+  "keywords": ["google reviews", "google business profile", "review replies", "local seo", "maps ranking"],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "ReviewsAI",
+    "shortDescription": "Reply to Google reviews",
+    "longDescription": "ReviewsAI connects ChatGPT to your Google Business Profile locations managed in ReviewsAI.\n\n- See new and unanswered Google reviews across all your locations, filtered by rating or date.\n- Draft personalized replies in your brand voice, tone and signature, in the reviewer's language.\n- Publish a reply on Google only after you approve the exact text.\n- Check profile performance: views on Search and Maps, calls, website clicks and direction requests.\n- Measure your Google Maps ranking for a keyword on a grid around your business and review past scans.\n\nRequires a ReviewsAI account (free plan available) with at least one Google Business Profile connected. ReviewsAI is independent software and is not affiliated with Google.",
+    "developerName": "ReviewsAI",
+    "category": "Productivity",
+    "capabilities": ["Read", "Write"],
+    "websiteURL": "https://reviewsai.store",
+    "supportURL": "https://reviewsai.store/mcp-docs",
+    "privacyPolicyURL": "https://reviewsai.store/privacy",
+    "termsOfServiceURL": "https://reviewsai.store/terms",
+    "defaultPrompt": [
+      "Show my unanswered Google reviews from this week",
+      "Draft replies to my latest negative reviews",
+      "How many calls did my business get last month?"
+    ],
+    "brandColor": "#3B54F5",
+    "composerIcon": "./assets/icon.png",
+    "logo": "./assets/logo.png"
+  }
+}

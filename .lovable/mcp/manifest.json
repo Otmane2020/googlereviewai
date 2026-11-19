@@ -13,7 +13,7 @@
   "mcp": {
     "server": {
       "name": "reviewsai",
-      "version": "0.1.0",
+      "version": "1.0.0",
       "title": "ReviewsAI"
     },
     "tools": [
@@ -37,6 +37,230 @@
               "description": "Number of businesses to skip for pagination (default: 0)."
             }
           },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_reviews",
+        "title": "Lister les avis Google",
+        "description": "List Google reviews for the user's businesses, newest first. Filter by business, reply status (unanswered = no reply published on Google yet), star rating range and date. Returns review_id values used by generate_review_reply and publish_review_reply.",
+        "annotations": {
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "readOnlyHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "business_id": {
+              "type": "string",
+              "description": "Restrict to one business (id from list_managed_businesses)."
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "unanswered",
+                "answered",
+                "all"
+              ],
+              "description": "Reply status on Google (default: all)."
+            },
+            "min_rating": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 5
+            },
+            "max_rating": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 5
+            },
+            "since": {
+              "type": "string",
+              "description": "ISO date YYYY-MM-DD: only reviews posted on or after it."
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50,
+              "description": "Default 20."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "generate_review_reply",
+        "title": "Générer une réponse IA",
+        "description": "Draft an AI reply to one review in the business's brand voice and signature (as configured in ReviewsAI). The draft is saved on the review but NOT published. Uses one ReviewsAI credit on plans without unlimited replies. Show the draft to the user before publishing.",
+        "annotations": {
+          "destructiveHint": false,
+          "idempotentHint": false,
+          "readOnlyHint": false,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "review_id": {
+              "type": "integer",
+              "description": "From list_reviews."
+            },
+            "language": {
+              "type": "string",
+              "description": "Reply language code (fr, en, es…). Defaults to the review's language."
+            }
+          },
+          "required": [
+            "review_id"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "publish_review_reply",
+        "title": "Publier la réponse sur Google",
+        "description": "Publish a reply publicly on Google for one review. If `reply_text` is given it replaces the saved draft first; otherwise the saved draft (from generate_review_reply) is published. This is public and visible to everyone: only call it after the user has explicitly approved the exact text.",
+        "annotations": {
+          "destructiveHint": true,
+          "idempotentHint": false,
+          "readOnlyHint": false,
+          "openWorldHint": true
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "review_id": {
+              "type": "integer",
+              "description": "From list_reviews."
+            },
+            "reply_text": {
+              "type": "string",
+              "maxLength": 4000,
+              "description": "Final text approved by the user. Omit to publish the saved draft."
+            }
+          },
+          "required": [
+            "review_id"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_business_insights",
+        "title": "Statistiques Google Business",
+        "description": "Get Google Business Profile performance for the last N days: profile views (Search / Maps), calls, website clicks, direction requests. Omit business_id to aggregate all active businesses.",
+        "annotations": {
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "readOnlyHint": true,
+          "openWorldHint": true
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "business_id": {
+              "type": "string",
+              "description": "Omit to aggregate all active businesses."
+            },
+            "days": {
+              "type": "integer",
+              "minimum": 7,
+              "maximum": 180,
+              "description": "Default 30."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "check_maps_ranking",
+        "title": "Mesurer le classement Google Maps",
+        "description": "Run a new local ranking scan: searches Google Maps for `keyword` on a grid of points around the business and returns its position at each point plus the average rank. Takes up to a minute and uses paid search quota; prefer get_ranking_history if a recent scan exists.",
+        "annotations": {
+          "destructiveHint": false,
+          "idempotentHint": false,
+          "readOnlyHint": false,
+          "openWorldHint": true
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "business_id": {
+              "type": "string"
+            },
+            "keyword": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 120,
+              "description": "e.g. \"restaurant italien lyon\""
+            },
+            "grid_size": {
+              "type": "number",
+              "enum": [
+                3,
+                5,
+                7
+              ],
+              "description": "Grid points per side (default 3)."
+            },
+            "spacing_m": {
+              "type": "integer",
+              "minimum": 200,
+              "maximum": 5000,
+              "description": "Meters between grid points (default 1000)."
+            }
+          },
+          "required": [
+            "business_id",
+            "keyword"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_ranking_history",
+        "title": "Historique du classement Maps",
+        "description": "List previous Google Maps ranking scans (keyword, date, grid, average rank) for a business.",
+        "annotations": {
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "readOnlyHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "business_id": {
+              "type": "string"
+            },
+            "keyword": {
+              "type": "string",
+              "description": "Exact keyword filter."
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 30,
+              "description": "Default 10."
+            }
+          },
+          "required": [
+            "business_id"
+          ],
           "additionalProperties": false,
           "$schema": "http://json-schema.org/draft-07/schema#"
         },
