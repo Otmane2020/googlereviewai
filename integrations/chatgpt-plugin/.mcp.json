@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "reviewsai": {
+      "type": "streamable-http",
+      "url": "https://reviewsai.store/mcp"
+    }
+  }
+}

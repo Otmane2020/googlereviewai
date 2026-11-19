@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { agentConsentPath } from "@/lib/oauth-return-path";
 
 const title = "Autoriser un assistant | ReviewsAI";
-const description = "Acceptez ou refusez l’accès en lecture seule d’un assistant à vos établissements ReviewsAI.";
+const description = "Acceptez ou refusez l’accès d’un assistant à vos établissements et avis ReviewsAI.";
 
 export const Route = createFileRoute("/.lovable/oauth/consent")({
   ssr: false,
@@ -122,7 +122,14 @@ function ConsentRequest({ authorizationId }: { authorizationId: string }) {
       <div><dt>{t("Compte connecté", "Signed-in account")}</dt><dd className="text-foreground">{details.user.email}</dd></div>
       <div><dt>{t("Adresse de retour", "Callback address")}</dt><dd className="text-foreground">{details.redirect_uri}</dd></div>
     </dl>
-    <p>{t("L’assistant pourra consulter vos établissements actifs (nom, adresse, note et nombre d’avis), sans rien modifier ni publier. Les droits de votre compte restent inchangés.", "The assistant can read your active businesses (name, address, rating, and review count) without editing or publishing anything. Your account permissions still apply.")}</p>
+    <p>{t("L’assistant pourra :", "The assistant will be able to:")}</p>
+    <ul className="list-disc pl-5 text-sm">
+      <li>{t("lire vos établissements actifs et leurs avis Google", "read your active businesses and their Google reviews")}</li>
+      <li>{t("générer des brouillons de réponse IA (utilise vos crédits ReviewsAI)", "draft AI replies (uses your ReviewsAI credits)")}</li>
+      <li>{t("publier une réponse sur Google lorsque vous le demandez", "publish a reply on Google when you ask it to")}</li>
+      <li>{t("consulter vos statistiques Google Business et votre classement Maps", "view your Google Business stats and Maps ranking")}</li>
+    </ul>
+    <p className="text-sm text-muted-foreground">{t("Les droits de votre compte restent inchangés. Vous pouvez révoquer l’accès à tout moment depuis votre assistant.", "Your account permissions still apply. You can revoke access at any time from your assistant.")}</p>
     {scopes.length > 0 && <ul className="list-disc pl-5 text-sm text-muted-foreground">{scopes.map(scope => <li key={scope}>{scopeLabel(scope)}</li>)}</ul>}
     {problem && <p role="alert" className="text-destructive">{problem === "approve"
       ? t("L’autorisation a échoué. Réessayez.", "Approval failed. Try again.")
