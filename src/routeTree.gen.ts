@@ -41,6 +41,8 @@ import { Route as LandingRouteImport } from './routes/landing'
 import { Route as LocalAeoRouteImport } from './routes/local-aeo'
 import { Route as LocalGeoRouteImport } from './routes/local-geo'
 import { Route as MapsRankRouteImport } from './routes/maps-rank'
+import { Route as McpRouteImport } from './routes/mcp'
+import { Route as McpDocsRouteImport } from './routes/mcp-docs'
 import { Route as MobileAdsRouteImport } from './routes/mobile-ads'
 import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
@@ -63,6 +65,9 @@ import { Route as SitemapRouteImport } from './routes/sitemap'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as UnsubscribeRouteImport } from './routes/unsubscribe'
 import { Route as DotwellKnownAssetlinksDotjsonRouteImport } from './routes/[.]well-known/assetlinks[.]json'
+import { Route as DotwellKnownOauthAuthorizationServerRouteImport } from './routes/[.]well-known/oauth-authorization-server'
+import { Route as DotwellKnownOauthProtectedResourceRouteImport } from './routes/[.]well-known/oauth-protected-resource'
+import { Route as DotwellKnownOpenaiAppsChallengeRouteImport } from './routes/[.]well-known/openai-apps-challenge'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as AdminOrdersRouteImport } from './routes/admin/orders'
 import { Route as BlogIndexRouteImport } from './routes/blog/index'
@@ -71,9 +76,11 @@ import { Route as BoutiqueIndexRouteImport } from './routes/boutique/index'
 import { Route as BoutiqueNfcRouteImport } from './routes/boutique/nfc'
 import { Route as BoutiqueQrImprimeRouteImport } from './routes/boutique/qr-imprime'
 import { Route as LpFacebookRouteImport } from './routes/lp/facebook'
+import { Route as OauthConsentRouteImport } from './routes/oauth/consent'
 import { Route as ShopIndexRouteImport } from './routes/shop/index'
 import { Route as ShopSlugRouteImport } from './routes/shop/$slug'
 import { Route as ShopCheckoutRouteImport } from './routes/shop/checkout'
+import { Route as DotwellKnownOauthProtectedResourceMcpRouteImport } from './routes/[.]well-known/oauth-protected-resource_.mcp'
 import { Route as ApiBlogSlugRouteImport } from './routes/api/blog/$slug'
 import { Route as ApiPublicRankiAutopostRouteImport } from './routes/api/public/ranki-autopost'
 import { Route as ApiPublicHealthCloudRouteImport } from './routes/api/public/health/cloud'
@@ -240,6 +247,16 @@ const MapsRankRoute = MapsRankRouteImport.update({
   path: '/maps-rank',
   getParentRoute: () => rootRouteImport,
 } as any)
+const McpRoute = McpRouteImport.update({
+  id: '/mcp',
+  path: '/mcp',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const McpDocsRoute = McpDocsRouteImport.update({
+  id: '/mcp-docs',
+  path: '/mcp-docs',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MobileAdsRoute = MobileAdsRouteImport.update({
   id: '/mobile-ads',
   path: '/mobile-ads',
@@ -354,6 +371,24 @@ const DotwellKnownAssetlinksDotjsonRoute =
     path: '/.well-known/assetlinks.json',
     getParentRoute: () => rootRouteImport,
   } as any)
+const DotwellKnownOauthAuthorizationServerRoute =
+  DotwellKnownOauthAuthorizationServerRouteImport.update({
+    id: '/.well-known/oauth-authorization-server',
+    path: '/.well-known/oauth-authorization-server',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const DotwellKnownOauthProtectedResourceRoute =
+  DotwellKnownOauthProtectedResourceRouteImport.update({
+    id: '/.well-known/oauth-protected-resource',
+    path: '/.well-known/oauth-protected-resource',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const DotwellKnownOpenaiAppsChallengeRoute =
+  DotwellKnownOpenaiAppsChallengeRouteImport.update({
+    id: '/.well-known/openai-apps-challenge',
+    path: '/.well-known/openai-apps-challenge',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/admin/',
   path: '/admin/',
@@ -394,6 +429,11 @@ const LpFacebookRoute = LpFacebookRouteImport.update({
   path: '/lp/facebook',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OauthConsentRoute = OauthConsentRouteImport.update({
+  id: '/oauth/consent',
+  path: '/oauth/consent',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ShopIndexRoute = ShopIndexRouteImport.update({
   id: '/shop/',
   path: '/shop/',
@@ -409,6 +449,12 @@ const ShopCheckoutRoute = ShopCheckoutRouteImport.update({
   path: '/shop/checkout',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DotwellKnownOauthProtectedResourceMcpRoute =
+  DotwellKnownOauthProtectedResourceMcpRouteImport.update({
+    id: '/.well-known/oauth-protected-resource_/mcp',
+    path: '/.well-known/oauth-protected-resource/mcp',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiBlogSlugRoute = ApiBlogSlugRouteImport.update({
   id: '/api/blog/$slug',
   path: '/api/blog/$slug',
@@ -458,6 +504,8 @@ export interface FileRoutesByFullPath {
   '/local-aeo': typeof LocalAeoRoute
   '/local-geo': typeof LocalGeoRoute
   '/maps-rank': typeof MapsRankRoute
+  '/mcp': typeof McpRoute
+  '/mcp-docs': typeof McpDocsRoute
   '/mobile-ads': typeof MobileAdsRoute
   '/notifications': typeof NotificationsRoute
   '/onboarding': typeof OnboardingRoute
@@ -480,17 +528,22 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/unsubscribe': typeof UnsubscribeRoute
   '/.well-known/assetlinks.json': typeof DotwellKnownAssetlinksDotjsonRoute
+  '/.well-known/oauth-authorization-server': typeof DotwellKnownOauthAuthorizationServerRoute
+  '/.well-known/oauth-protected-resource': typeof DotwellKnownOauthProtectedResourceRoute
+  '/.well-known/openai-apps-challenge': typeof DotwellKnownOpenaiAppsChallengeRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/boutique/nfc': typeof BoutiqueNfcRoute
   '/boutique/qr-imprime': typeof BoutiqueQrImprimeRoute
   '/lp/facebook': typeof LpFacebookRoute
+  '/oauth/consent': typeof OauthConsentRoute
   '/shop/$slug': typeof ShopSlugRoute
   '/shop/checkout': typeof ShopCheckoutRoute
   '/admin/': typeof AdminIndexRoute
   '/blog/': typeof BlogIndexRoute
   '/boutique/': typeof BoutiqueIndexRoute
   '/shop/': typeof ShopIndexRoute
+  '/.well-known/oauth-protected-resource/mcp': typeof DotwellKnownOauthProtectedResourceMcpRoute
   '/api/blog/$slug': typeof ApiBlogSlugRoute
   '/api/public/ranki-autopost': typeof ApiPublicRankiAutopostRoute
   '/api/public/health/cloud': typeof ApiPublicHealthCloudRoute
@@ -528,6 +581,8 @@ export interface FileRoutesByTo {
   '/local-aeo': typeof LocalAeoRoute
   '/local-geo': typeof LocalGeoRoute
   '/maps-rank': typeof MapsRankRoute
+  '/mcp': typeof McpRoute
+  '/mcp-docs': typeof McpDocsRoute
   '/mobile-ads': typeof MobileAdsRoute
   '/notifications': typeof NotificationsRoute
   '/onboarding': typeof OnboardingRoute
@@ -550,17 +605,22 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/unsubscribe': typeof UnsubscribeRoute
   '/.well-known/assetlinks.json': typeof DotwellKnownAssetlinksDotjsonRoute
+  '/.well-known/oauth-authorization-server': typeof DotwellKnownOauthAuthorizationServerRoute
+  '/.well-known/oauth-protected-resource': typeof DotwellKnownOauthProtectedResourceRoute
+  '/.well-known/openai-apps-challenge': typeof DotwellKnownOpenaiAppsChallengeRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/boutique/nfc': typeof BoutiqueNfcRoute
   '/boutique/qr-imprime': typeof BoutiqueQrImprimeRoute
   '/lp/facebook': typeof LpFacebookRoute
+  '/oauth/consent': typeof OauthConsentRoute
   '/shop/$slug': typeof ShopSlugRoute
   '/shop/checkout': typeof ShopCheckoutRoute
   '/admin': typeof AdminIndexRoute
   '/blog': typeof BlogIndexRoute
   '/boutique': typeof BoutiqueIndexRoute
   '/shop': typeof ShopIndexRoute
+  '/.well-known/oauth-protected-resource/mcp': typeof DotwellKnownOauthProtectedResourceMcpRoute
   '/api/blog/$slug': typeof ApiBlogSlugRoute
   '/api/public/ranki-autopost': typeof ApiPublicRankiAutopostRoute
   '/api/public/health/cloud': typeof ApiPublicHealthCloudRoute
@@ -599,6 +659,8 @@ export interface FileRoutesById {
   '/local-aeo': typeof LocalAeoRoute
   '/local-geo': typeof LocalGeoRoute
   '/maps-rank': typeof MapsRankRoute
+  '/mcp': typeof McpRoute
+  '/mcp-docs': typeof McpDocsRoute
   '/mobile-ads': typeof MobileAdsRoute
   '/notifications': typeof NotificationsRoute
   '/onboarding': typeof OnboardingRoute
@@ -621,17 +683,22 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/unsubscribe': typeof UnsubscribeRoute
   '/.well-known/assetlinks.json': typeof DotwellKnownAssetlinksDotjsonRoute
+  '/.well-known/oauth-authorization-server': typeof DotwellKnownOauthAuthorizationServerRoute
+  '/.well-known/oauth-protected-resource': typeof DotwellKnownOauthProtectedResourceRoute
+  '/.well-known/openai-apps-challenge': typeof DotwellKnownOpenaiAppsChallengeRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/boutique/nfc': typeof BoutiqueNfcRoute
   '/boutique/qr-imprime': typeof BoutiqueQrImprimeRoute
   '/lp/facebook': typeof LpFacebookRoute
+  '/oauth/consent': typeof OauthConsentRoute
   '/shop/$slug': typeof ShopSlugRoute
   '/shop/checkout': typeof ShopCheckoutRoute
   '/admin/': typeof AdminIndexRoute
   '/blog/': typeof BlogIndexRoute
   '/boutique/': typeof BoutiqueIndexRoute
   '/shop/': typeof ShopIndexRoute
+  '/.well-known/oauth-protected-resource_/mcp': typeof DotwellKnownOauthProtectedResourceMcpRoute
   '/api/blog/$slug': typeof ApiBlogSlugRoute
   '/api/public/ranki-autopost': typeof ApiPublicRankiAutopostRoute
   '/api/public/health/cloud': typeof ApiPublicHealthCloudRoute
@@ -671,6 +738,8 @@ export interface FileRouteTypes {
     | '/local-aeo'
     | '/local-geo'
     | '/maps-rank'
+    | '/mcp'
+    | '/mcp-docs'
     | '/mobile-ads'
     | '/notifications'
     | '/onboarding'
@@ -693,17 +762,22 @@ export interface FileRouteTypes {
     | '/terms'
     | '/unsubscribe'
     | '/.well-known/assetlinks.json'
+    | '/.well-known/oauth-authorization-server'
+    | '/.well-known/oauth-protected-resource'
+    | '/.well-known/openai-apps-challenge'
     | '/admin/orders'
     | '/blog/$slug'
     | '/boutique/nfc'
     | '/boutique/qr-imprime'
     | '/lp/facebook'
+    | '/oauth/consent'
     | '/shop/$slug'
     | '/shop/checkout'
     | '/admin/'
     | '/blog/'
     | '/boutique/'
     | '/shop/'
+    | '/.well-known/oauth-protected-resource/mcp'
     | '/api/blog/$slug'
     | '/api/public/ranki-autopost'
     | '/api/public/health/cloud'
@@ -741,6 +815,8 @@ export interface FileRouteTypes {
     | '/local-aeo'
     | '/local-geo'
     | '/maps-rank'
+    | '/mcp'
+    | '/mcp-docs'
     | '/mobile-ads'
     | '/notifications'
     | '/onboarding'
@@ -763,17 +839,22 @@ export interface FileRouteTypes {
     | '/terms'
     | '/unsubscribe'
     | '/.well-known/assetlinks.json'
+    | '/.well-known/oauth-authorization-server'
+    | '/.well-known/oauth-protected-resource'
+    | '/.well-known/openai-apps-challenge'
     | '/admin/orders'
     | '/blog/$slug'
     | '/boutique/nfc'
     | '/boutique/qr-imprime'
     | '/lp/facebook'
+    | '/oauth/consent'
     | '/shop/$slug'
     | '/shop/checkout'
     | '/admin'
     | '/blog'
     | '/boutique'
     | '/shop'
+    | '/.well-known/oauth-protected-resource/mcp'
     | '/api/blog/$slug'
     | '/api/public/ranki-autopost'
     | '/api/public/health/cloud'
@@ -811,6 +892,8 @@ export interface FileRouteTypes {
     | '/local-aeo'
     | '/local-geo'
     | '/maps-rank'
+    | '/mcp'
+    | '/mcp-docs'
     | '/mobile-ads'
     | '/notifications'
     | '/onboarding'
@@ -833,17 +916,22 @@ export interface FileRouteTypes {
     | '/terms'
     | '/unsubscribe'
     | '/.well-known/assetlinks.json'
+    | '/.well-known/oauth-authorization-server'
+    | '/.well-known/oauth-protected-resource'
+    | '/.well-known/openai-apps-challenge'
     | '/admin/orders'
     | '/blog/$slug'
     | '/boutique/nfc'
     | '/boutique/qr-imprime'
     | '/lp/facebook'
+    | '/oauth/consent'
     | '/shop/$slug'
     | '/shop/checkout'
     | '/admin/'
     | '/blog/'
     | '/boutique/'
     | '/shop/'
+    | '/.well-known/oauth-protected-resource_/mcp'
     | '/api/blog/$slug'
     | '/api/public/ranki-autopost'
     | '/api/public/health/cloud'
@@ -882,6 +970,8 @@ export interface RootRouteChildren {
   LocalAeoRoute: typeof LocalAeoRoute
   LocalGeoRoute: typeof LocalGeoRoute
   MapsRankRoute: typeof MapsRankRoute
+  McpRoute: typeof McpRoute
+  McpDocsRoute: typeof McpDocsRoute
   MobileAdsRoute: typeof MobileAdsRoute
   NotificationsRoute: typeof NotificationsRoute
   OnboardingRoute: typeof OnboardingRoute
@@ -904,17 +994,22 @@ export interface RootRouteChildren {
   TermsRoute: typeof TermsRoute
   UnsubscribeRoute: typeof UnsubscribeRoute
   DotwellKnownAssetlinksDotjsonRoute: typeof DotwellKnownAssetlinksDotjsonRoute
+  DotwellKnownOauthAuthorizationServerRoute: typeof DotwellKnownOauthAuthorizationServerRoute
+  DotwellKnownOauthProtectedResourceRoute: typeof DotwellKnownOauthProtectedResourceRoute
+  DotwellKnownOpenaiAppsChallengeRoute: typeof DotwellKnownOpenaiAppsChallengeRoute
   AdminOrdersRoute: typeof AdminOrdersRoute
   BlogSlugRoute: typeof BlogSlugRoute
   BoutiqueNfcRoute: typeof BoutiqueNfcRoute
   BoutiqueQrImprimeRoute: typeof BoutiqueQrImprimeRoute
   LpFacebookRoute: typeof LpFacebookRoute
+  OauthConsentRoute: typeof OauthConsentRoute
   ShopSlugRoute: typeof ShopSlugRoute
   ShopCheckoutRoute: typeof ShopCheckoutRoute
   AdminIndexRoute: typeof AdminIndexRoute
   BlogIndexRoute: typeof BlogIndexRoute
   BoutiqueIndexRoute: typeof BoutiqueIndexRoute
   ShopIndexRoute: typeof ShopIndexRoute
+  DotwellKnownOauthProtectedResourceMcpRoute: typeof DotwellKnownOauthProtectedResourceMcpRoute
   ApiBlogSlugRoute: typeof ApiBlogSlugRoute
   ApiPublicRankiAutopostRoute: typeof ApiPublicRankiAutopostRoute
   ApiPublicHealthCloudRoute: typeof ApiPublicHealthCloudRoute
@@ -1146,6 +1241,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MapsRankRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/mcp': {
+      id: '/mcp'
+      path: '/mcp'
+      fullPath: '/mcp'
+      preLoaderRoute: typeof McpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mcp-docs': {
+      id: '/mcp-docs'
+      path: '/mcp-docs'
+      fullPath: '/mcp-docs'
+      preLoaderRoute: typeof McpDocsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/mobile-ads': {
       id: '/mobile-ads'
       path: '/mobile-ads'
@@ -1300,6 +1409,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DotwellKnownAssetlinksDotjsonRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/.well-known/oauth-authorization-server': {
+      id: '/.well-known/oauth-authorization-server'
+      path: '/.well-known/oauth-authorization-server'
+      fullPath: '/.well-known/oauth-authorization-server'
+      preLoaderRoute: typeof DotwellKnownOauthAuthorizationServerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.well-known/oauth-protected-resource': {
+      id: '/.well-known/oauth-protected-resource'
+      path: '/.well-known/oauth-protected-resource'
+      fullPath: '/.well-known/oauth-protected-resource'
+      preLoaderRoute: typeof DotwellKnownOauthProtectedResourceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.well-known/openai-apps-challenge': {
+      id: '/.well-known/openai-apps-challenge'
+      path: '/.well-known/openai-apps-challenge'
+      fullPath: '/.well-known/openai-apps-challenge'
+      preLoaderRoute: typeof DotwellKnownOpenaiAppsChallengeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/': {
       id: '/admin/'
       path: '/admin'
@@ -1356,6 +1486,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LpFacebookRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/oauth/consent': {
+      id: '/oauth/consent'
+      path: '/oauth/consent'
+      fullPath: '/oauth/consent'
+      preLoaderRoute: typeof OauthConsentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/shop/': {
       id: '/shop/'
       path: '/shop'
@@ -1375,6 +1512,13 @@ declare module '@tanstack/react-router' {
       path: '/shop/checkout'
       fullPath: '/shop/checkout'
       preLoaderRoute: typeof ShopCheckoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.well-known/oauth-protected-resource_/mcp': {
+      id: '/.well-known/oauth-protected-resource_/mcp'
+      path: '/.well-known/oauth-protected-resource/mcp'
+      fullPath: '/.well-known/oauth-protected-resource/mcp'
+      preLoaderRoute: typeof DotwellKnownOauthProtectedResourceMcpRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/blog/$slug': {
@@ -1434,6 +1578,8 @@ const rootRouteChildren: RootRouteChildren = {
   LocalAeoRoute: LocalAeoRoute,
   LocalGeoRoute: LocalGeoRoute,
   MapsRankRoute: MapsRankRoute,
+  McpRoute: McpRoute,
+  McpDocsRoute: McpDocsRoute,
   MobileAdsRoute: MobileAdsRoute,
   NotificationsRoute: NotificationsRoute,
   OnboardingRoute: OnboardingRoute,
@@ -1457,17 +1603,25 @@ const rootRouteChildren: RootRouteChildren = {
   TermsRoute: TermsRoute,
   UnsubscribeRoute: UnsubscribeRoute,
   DotwellKnownAssetlinksDotjsonRoute: DotwellKnownAssetlinksDotjsonRoute,
+  DotwellKnownOauthAuthorizationServerRoute:
+    DotwellKnownOauthAuthorizationServerRoute,
+  DotwellKnownOauthProtectedResourceRoute:
+    DotwellKnownOauthProtectedResourceRoute,
+  DotwellKnownOpenaiAppsChallengeRoute: DotwellKnownOpenaiAppsChallengeRoute,
   AdminOrdersRoute: AdminOrdersRoute,
   BlogSlugRoute: BlogSlugRoute,
   BoutiqueNfcRoute: BoutiqueNfcRoute,
   BoutiqueQrImprimeRoute: BoutiqueQrImprimeRoute,
   LpFacebookRoute: LpFacebookRoute,
+  OauthConsentRoute: OauthConsentRoute,
   ShopSlugRoute: ShopSlugRoute,
   ShopCheckoutRoute: ShopCheckoutRoute,
   AdminIndexRoute: AdminIndexRoute,
   BlogIndexRoute: BlogIndexRoute,
   BoutiqueIndexRoute: BoutiqueIndexRoute,
   ShopIndexRoute: ShopIndexRoute,
+  DotwellKnownOauthProtectedResourceMcpRoute:
+    DotwellKnownOauthProtectedResourceMcpRoute,
   ApiBlogSlugRoute: ApiBlogSlugRoute,
   ApiPublicRankiAutopostRoute: ApiPublicRankiAutopostRoute,
   ApiPublicHealthCloudRoute: ApiPublicHealthCloudRoute,
