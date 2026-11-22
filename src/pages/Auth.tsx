@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, type FormEvent } from "react";
 import { useNavigate, Link } from "@/lib/router-compat";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -17,8 +17,17 @@ const Auth = () => {
   const { t, i18n } = useTranslation();
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [isRedirecting, setIsRedirecting] = useState(false);
+  const [isPasswordLoading, setIsPasswordLoading] = useState(false);
+  const [passwordError, setPasswordError] = useState(false);
+  const [emailMode, setEmailMode] = useState<"signin" | "signup" | "reset">("signin");
+  const [signupSent, setSignupSent] = useState(false);
+  const [signupErrorCode, setSignupErrorCode] = useState<string>();
+  const isResetMode = emailMode === "reset";
+  const isSignupMode = emailMode === "signup";
+  const [resetStatus, setResetStatus] = useState<"sent" | "error" | null>(null);
+  const isFrench = i18n.language?.startsWith("fr");
 
-  const { signInWithGoogle, user, loading: authLoading } = useAuth();
+  const { signUp, signInWithGoogle, user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [gmbRequired, setGmbRequired] = useState(false);
   useEffect(() => {
@@ -138,6 +147,65 @@ const Auth = () => {
     }
   };
 
+  const handlePassword = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (isGoogleLoading || isPasswordLoading) return;
+
+    const fields = new FormData(event.currentTarget);
+    setIsPasswordLoading(true);
+    setPasswordError(false);
+    setResetStatus(null);
+    setSignupSent(false);
+    setSignupErrorCode(undefined);
+    const email = String(fields.get("email") ?? "").trim();
+    try {
+      if (isResetMode) {
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: new URL("/reset-password", window.location.origin).href,
+        });
+        setResetStatus(error ? "error" : "sent");
+        return;
+      }
+      const password = String(fields.get("password") ?? "");
+      if (isSignupMode) {
+        const { error } = await signUp(email, password, String(fields.get("fullName") ?? "").trim());
+        setPasswordError(Boolean(error));
+        setSignupErrorCode(error && "code" in error && typeof error.code === "string" ? error.code : undefined);
+        setSignupSent(!error);
+        return;
+      }
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      setPasswordError(Boolean(error));
+    } catch {
+      if (isResetMode) setResetStatus("error");
+      else setPasswordError(true);
+    } finally {
+      setIsPasswordLoading(false);
+    }
+  };
+
+  const signupErrorMessages: Record<string, [string, string]> = {
+    signup_disabled: ["L’inscription par e-mail est désactivée.", "Email registration is disabled."],
+    email_provider_disabled: ["L’inscription par e-mail est désactivée.", "Email registration is disabled."],
+    weak_password: ["Choisissez un mot de passe plus robuste.", "Choose a stronger password."],
+    email_address_invalid: ["Utilisez une adresse e-mail valide.", "Use a valid email address."],
+    email_address_not_authorized: ["Le service d’envoi ne peut pas écrire à cette adresse.", "The email service cannot send to this address."],
+    over_email_send_rate_limit: ["Trop d’e-mails envoyés. Réessayez plus tard.", "Too many emails sent. Try again later."],
+    over_request_rate_limit: ["Trop de tentatives. Réessayez dans quelques instants.", "Too many attempts. Try again shortly."],
+    unexpected_failure: ["Le service d’inscription a rencontré une erreur. Réessayez plus tard.", "The registration service encountered an error. Try again later."],
+  };
+  const signupErrorMessage = signupErrorCode ? signupErrorMessages[signupErrorCode]?.[isFrench ? 0 : 1] : undefined;
+
+  const changeEmailMode = (mode: typeof emailMode) => {
+    setEmailMode(mode);
+    setPasswordError(false);
+    setResetStatus(null);
+    setSignupSent(false);
+  };
+
   if (authLoading || isRedirecting) {
     return <AppLoadingBar message={t("auth.loading.connecting")} />;
   }
@@ -248,7 +316,7 @@ const Auth = () => {
               type="button"
               className="w-full h-12 rounded-xl text-base font-semibold reviewai-brand-gradient shadow-md shadow-primary/15 hover:brightness-105"
               onClick={handleGoogle}
-              disabled={isGoogleLoading}
+              disabled={isGoogleLoading || isPasswordLoading}
             >
               {isGoogleLoading ? (
                 <Loader2 className="w-5 h-5 animate-spin" />
@@ -264,6 +332,96 @@ const Auth = () => {
                 </>
               )}
             </Button>
+
+            <details open className="rounded-xl border border-border/60 p-3">
+              <summary className="cursor-pointer text-sm font-medium">
+                {isFrench ? "Continuer avec un e-mail" : "Continue with email"}
+              </summary>
+              <form className="mt-3 space-y-3" onSubmit={handlePassword}>
+                {isSignupMode && (
+                  <label className="block space-y-1 text-sm">
+                    <span>{isFrench ? "Nom complet" : "Full name"}</span>
+                    <input className="w-full rounded-md border border-input bg-background px-3 py-2" name="fullName" autoComplete="name" required />
+                  </label>
+                )}
+                <label className="block space-y-1 text-sm">
+                  <span>{isFrench ? "Adresse e-mail" : "Email address"}</span>
+                  <input
+                    className="w-full rounded-md border border-input bg-background px-3 py-2"
+                    name="email"
+                    type="email"
+                    autoComplete="username"
+                    required
+                  />
+                </label>
+                {!isResetMode && (
+                  <label className="block space-y-1 text-sm">
+                    <span>{isFrench ? "Mot de passe" : "Password"}</span>
+                    <input
+                      className="w-full rounded-md border border-input bg-background px-3 py-2"
+                      name="password"
+                      type="password"
+                      key={emailMode}
+                      autoComplete={isSignupMode ? "new-password" : "current-password"}
+                      minLength={isSignupMode ? 6 : undefined}
+                      required
+                    />
+                  </label>
+                )}
+                {resetStatus === "sent" && (
+                  <p className="text-sm text-muted-foreground" role="status">
+                    {isFrench
+                      ? "Si un compte correspond à cette adresse, vous recevrez un lien de réinitialisation."
+                      : "If an account matches this address, you’ll receive a password reset link."}
+                  </p>
+                )}
+                {resetStatus === "error" && (
+                  <p className="text-sm text-destructive" role="alert">
+                    {isFrench ? "Envoi impossible. Réessayez dans quelques instants." : "Couldn’t send the link. Please try again shortly."}
+                  </p>
+                )}
+                {signupSent && (
+                  <p className="text-sm text-muted-foreground" role="status">
+                    {isFrench ? "Vérifiez votre boîte mail pour confirmer votre inscription." : "Check your inbox to confirm your registration."}
+                  </p>
+                )}
+                {passwordError && (
+                  <p className="text-sm text-destructive" role="alert">
+                    {isSignupMode
+                      ? (signupErrorMessage ?? (isFrench ? "Inscription impossible. Réessayez dans quelques instants." : "Unable to sign up. Please try again shortly."))
+                      : (isFrench ? "Connexion impossible. Vérifiez vos identifiants." : "Unable to sign in. Check your credentials.")}
+                  </p>
+                )}
+                <Button type="submit" className="w-full" disabled={isGoogleLoading || isPasswordLoading}>
+                  {isPasswordLoading && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
+                  {isResetMode
+                    ? (isFrench ? "Envoyer le lien" : "Send reset link")
+                    : isSignupMode
+                      ? (isFrench ? "Créer mon compte" : "Create account")
+                      : (isFrench ? "Se connecter" : "Sign in")}
+                </Button>
+                <button
+                  type="button"
+                  className="text-sm text-primary underline-offset-4 hover:underline"
+                  disabled={isGoogleLoading || isPasswordLoading}
+                  onClick={() => changeEmailMode(emailMode === "signin" ? "reset" : "signin")}
+                >
+                  {emailMode !== "signin"
+                    ? (isFrench ? "Retour à la connexion" : "Back to sign in")
+                    : (isFrench ? "Mot de passe oublié ?" : "Forgot password?")}
+                </button>
+                {emailMode === "signin" && (
+                  <button
+                    type="button"
+                    className="block text-sm text-primary underline-offset-4 hover:underline"
+                    disabled={isGoogleLoading || isPasswordLoading}
+                    onClick={() => changeEmailMode("signup")}
+                  >
+                    {isFrench ? "Créer un compte" : "Sign up"}
+                  </button>
+                )}
+              </form>
+            </details>
 
             <div className="flex items-start gap-2 text-xs text-muted-foreground bg-primary/5 border border-primary/10 rounded-xl p-3">
               <ShieldCheck className="w-4 h-4 mt-0.5 text-primary shrink-0" />
