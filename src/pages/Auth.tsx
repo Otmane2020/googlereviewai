@@ -19,6 +19,8 @@ const Auth = () => {
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [isPasswordLoading, setIsPasswordLoading] = useState(false);
   const [passwordError, setPasswordError] = useState(false);
+  const [isResetMode, setIsResetMode] = useState(false);
+  const [resetStatus, setResetStatus] = useState<"sent" | "error" | null>(null);
   const isFrench = i18n.language?.startsWith("fr");
 
   const { signInWithGoogle, user, loading: authLoading } = useAuth();
@@ -148,14 +150,24 @@ const Auth = () => {
     const fields = new FormData(event.currentTarget);
     setIsPasswordLoading(true);
     setPasswordError(false);
+    setResetStatus(null);
+    const email = String(fields.get("email") ?? "").trim();
     try {
+      if (isResetMode) {
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: new URL("/reset-password", window.location.origin).href,
+        });
+        setResetStatus(error ? "error" : "sent");
+        return;
+      }
       const { error } = await supabase.auth.signInWithPassword({
-        email: String(fields.get("email") ?? "").trim(),
+        email,
         password: String(fields.get("password") ?? ""),
       });
       setPasswordError(Boolean(error));
     } catch {
-      setPasswordError(true);
+      if (isResetMode) setResetStatus("error");
+      else setPasswordError(true);
     } finally {
       setIsPasswordLoading(false);
     }
@@ -303,16 +315,30 @@ const Auth = () => {
                     required
                   />
                 </label>
-                <label className="block space-y-1 text-sm">
-                  <span>{isFrench ? "Mot de passe" : "Password"}</span>
-                  <input
-                    className="w-full rounded-md border border-input bg-background px-3 py-2"
-                    name="password"
-                    type="password"
-                    autoComplete="current-password"
-                    required
-                  />
-                </label>
+                {!isResetMode && (
+                  <label className="block space-y-1 text-sm">
+                    <span>{isFrench ? "Mot de passe" : "Password"}</span>
+                    <input
+                      className="w-full rounded-md border border-input bg-background px-3 py-2"
+                      name="password"
+                      type="password"
+                      autoComplete="current-password"
+                      required
+                    />
+                  </label>
+                )}
+                {resetStatus === "sent" && (
+                  <p className="text-sm text-muted-foreground" role="status">
+                    {isFrench
+                      ? "Si un compte correspond à cette adresse, vous recevrez un lien de réinitialisation."
+                      : "If an account matches this address, you’ll receive a password reset link."}
+                  </p>
+                )}
+                {resetStatus === "error" && (
+                  <p className="text-sm text-destructive" role="alert">
+                    {isFrench ? "Envoi impossible. Réessayez dans quelques instants." : "Couldn’t send the link. Please try again shortly."}
+                  </p>
+                )}
                 {passwordError && (
                   <p className="text-sm text-destructive" role="alert">
                     {isFrench ? "Connexion impossible. Vérifiez vos identifiants." : "Unable to sign in. Check your credentials."}
@@ -320,8 +346,24 @@ const Auth = () => {
                 )}
                 <Button type="submit" className="w-full" disabled={isGoogleLoading || isPasswordLoading}>
                   {isPasswordLoading && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
-                  {isFrench ? "Se connecter" : "Sign in"}
+                  {isResetMode
+                    ? (isFrench ? "Envoyer le lien" : "Send reset link")
+                    : (isFrench ? "Se connecter" : "Sign in")}
                 </Button>
+                <button
+                  type="button"
+                  className="text-sm text-primary underline-offset-4 hover:underline"
+                  disabled={isGoogleLoading || isPasswordLoading}
+                  onClick={() => {
+                    setIsResetMode(!isResetMode);
+                    setPasswordError(false);
+                    setResetStatus(null);
+                  }}
+                >
+                  {isResetMode
+                    ? (isFrench ? "Retour à la connexion" : "Back to sign in")
+                    : (isFrench ? "Mot de passe oublié ?" : "Forgot password?")}
+                </button>
               </form>
             </details>
 
