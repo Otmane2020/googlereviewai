@@ -19,11 +19,14 @@ const Auth = () => {
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [isPasswordLoading, setIsPasswordLoading] = useState(false);
   const [passwordError, setPasswordError] = useState(false);
-  const [isResetMode, setIsResetMode] = useState(false);
+  const [emailMode, setEmailMode] = useState<"signin" | "signup" | "reset">("signin");
+  const [signupSent, setSignupSent] = useState(false);
+  const isResetMode = emailMode === "reset";
+  const isSignupMode = emailMode === "signup";
   const [resetStatus, setResetStatus] = useState<"sent" | "error" | null>(null);
   const isFrench = i18n.language?.startsWith("fr");
 
-  const { signInWithGoogle, user, loading: authLoading } = useAuth();
+  const { signUp, signInWithGoogle, user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [gmbRequired, setGmbRequired] = useState(false);
   useEffect(() => {
@@ -151,6 +154,7 @@ const Auth = () => {
     setIsPasswordLoading(true);
     setPasswordError(false);
     setResetStatus(null);
+    setSignupSent(false);
     const email = String(fields.get("email") ?? "").trim();
     try {
       if (isResetMode) {
@@ -160,9 +164,16 @@ const Auth = () => {
         setResetStatus(error ? "error" : "sent");
         return;
       }
+      const password = String(fields.get("password") ?? "");
+      if (isSignupMode) {
+        const { error } = await signUp(email, password, String(fields.get("fullName") ?? "").trim());
+        setPasswordError(Boolean(error));
+        setSignupSent(!error);
+        return;
+      }
       const { error } = await supabase.auth.signInWithPassword({
         email,
-        password: String(fields.get("password") ?? ""),
+        password,
       });
       setPasswordError(Boolean(error));
     } catch {
@@ -171,6 +182,13 @@ const Auth = () => {
     } finally {
       setIsPasswordLoading(false);
     }
+  };
+
+  const changeEmailMode = (mode: typeof emailMode) => {
+    setEmailMode(mode);
+    setPasswordError(false);
+    setResetStatus(null);
+    setSignupSent(false);
   };
 
   if (authLoading || isRedirecting) {
@@ -305,6 +323,12 @@ const Auth = () => {
                 {isFrench ? "Continuer avec un e-mail" : "Continue with email"}
               </summary>
               <form className="mt-3 space-y-3" onSubmit={handlePassword}>
+                {isSignupMode && (
+                  <label className="block space-y-1 text-sm">
+                    <span>{isFrench ? "Nom complet" : "Full name"}</span>
+                    <input className="w-full rounded-md border border-input bg-background px-3 py-2" name="fullName" autoComplete="name" required />
+                  </label>
+                )}
                 <label className="block space-y-1 text-sm">
                   <span>{isFrench ? "Adresse e-mail" : "Email address"}</span>
                   <input
@@ -322,7 +346,9 @@ const Auth = () => {
                       className="w-full rounded-md border border-input bg-background px-3 py-2"
                       name="password"
                       type="password"
-                      autoComplete="current-password"
+                      key={emailMode}
+                      autoComplete={isSignupMode ? "new-password" : "current-password"}
+                      minLength={isSignupMode ? 6 : undefined}
                       required
                     />
                   </label>
@@ -339,31 +365,46 @@ const Auth = () => {
                     {isFrench ? "Envoi impossible. Réessayez dans quelques instants." : "Couldn’t send the link. Please try again shortly."}
                   </p>
                 )}
+                {signupSent && (
+                  <p className="text-sm text-muted-foreground" role="status">
+                    {isFrench ? "Vérifiez votre boîte mail pour confirmer votre inscription." : "Check your inbox to confirm your registration."}
+                  </p>
+                )}
                 {passwordError && (
                   <p className="text-sm text-destructive" role="alert">
-                    {isFrench ? "Connexion impossible. Vérifiez vos identifiants." : "Unable to sign in. Check your credentials."}
+                    {isSignupMode
+                      ? (isFrench ? "Inscription impossible. Vérifiez vos informations." : "Unable to sign up. Check your information.")
+                      : (isFrench ? "Connexion impossible. Vérifiez vos identifiants." : "Unable to sign in. Check your credentials.")}
                   </p>
                 )}
                 <Button type="submit" className="w-full" disabled={isGoogleLoading || isPasswordLoading}>
                   {isPasswordLoading && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
                   {isResetMode
                     ? (isFrench ? "Envoyer le lien" : "Send reset link")
-                    : (isFrench ? "Se connecter" : "Sign in")}
+                    : isSignupMode
+                      ? (isFrench ? "Créer mon compte" : "Create account")
+                      : (isFrench ? "Se connecter" : "Sign in")}
                 </Button>
                 <button
                   type="button"
                   className="text-sm text-primary underline-offset-4 hover:underline"
                   disabled={isGoogleLoading || isPasswordLoading}
-                  onClick={() => {
-                    setIsResetMode(!isResetMode);
-                    setPasswordError(false);
-                    setResetStatus(null);
-                  }}
+                  onClick={() => changeEmailMode(emailMode === "signin" ? "reset" : "signin")}
                 >
-                  {isResetMode
+                  {emailMode !== "signin"
                     ? (isFrench ? "Retour à la connexion" : "Back to sign in")
                     : (isFrench ? "Mot de passe oublié ?" : "Forgot password?")}
                 </button>
+                {emailMode === "signin" && (
+                  <button
+                    type="button"
+                    className="block text-sm text-primary underline-offset-4 hover:underline"
+                    disabled={isGoogleLoading || isPasswordLoading}
+                    onClick={() => changeEmailMode("signup")}
+                  >
+                    {isFrench ? "Créer un compte" : "Sign up"}
+                  </button>
+                )}
               </form>
             </details>
 
