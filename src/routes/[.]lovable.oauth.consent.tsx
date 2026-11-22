@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { RankiLogo } from "@/components/StarlinkoLogo";
 import { supabase } from "@/integrations/supabase/client";
 import { agentConsentPath } from "@/lib/oauth-return-path";
+import { classifyConsentError } from "@/lib/oauth-consent-error";
 
 const title = "Autoriser un assistant | ReviewsAI";
 const description = "Acceptez ou refusez l’accès d’un assistant à vos établissements et avis ReviewsAI.";
@@ -46,7 +47,7 @@ function ConsentRequest({ authorizationId }: { authorizationId: string }) {
   const en = (i18n.resolvedLanguage || i18n.language)?.startsWith("en");
   const t = (fr: string, english: string) => en ? english : fr;
   const [details, setDetails] = useState<OAuthAuthorizationDetails>();
-  const [problem, setProblem] = useState<"request" | "approve" | "deny">();
+  const [problem, setProblem] = useState<"request" | "expired" | "approve" | "deny">();
   const [busy, setBusy] = useState(false);
   const deciding = useRef(false);
 
@@ -71,8 +72,9 @@ function ConsentRequest({ authorizationId }: { authorizationId: string }) {
         } else {
           setDetails(response.data);
         }
-      } catch {
-        if (live) setProblem("request");
+      } catch (error) {
+        console.warn("[oauth-consent] load failed", error);
+        if (live) setProblem(classifyConsentError(error) === "expired" ? "expired" : "request");
       }
     }
     void load();
@@ -90,13 +92,26 @@ function ConsentRequest({ authorizationId }: { authorizationId: string }) {
         : await supabase.auth.oauth.denyAuthorization(authorizationId);
       if (error || !data?.redirect_url) throw error ?? new Error("Missing redirect");
       window.location.replace(data.redirect_url);
-    } catch {
+    } catch (error) {
+      console.warn("[oauth-consent] decision failed", error);
+      const kind = classifyConsentError(error);
       deciding.current = false;
       setBusy(false);
-      setProblem(approve ? "approve" : "deny");
+      if (kind === "session") {
+        const next = agentConsentPath + window.location.search + window.location.hash;
+        window.location.replace(`/auth?${new URLSearchParams({ next })}`);
+        return;
+      }
+      setProblem(kind === "expired" ? "expired" : approve ? "approve" : "deny");
     }
   }
 
+  if (problem === "expired") {
+    return <ConsentShell>
+      <h1 className="text-xl font-semibold">{t("Demande expirée", "Request expired")}</h1>
+      <p role="alert">{t("Cette demande de connexion a expiré ou a déjà été utilisée. Retournez dans votre assistant (Claude ou ChatGPT) et cliquez à nouveau sur « Se connecter » : une nouvelle demande s’ouvrira ici.", "This connection request has expired or was already used. Go back to your assistant (Claude or ChatGPT) and click “Connect” again: a new request will open here.")}</p>
+    </ConsentShell>;
+  }
   if (!authorizationId || problem === "request") {
     return <ConsentShell>
       <h1 className="text-xl font-semibold">{t("Connexion indisponible", "Connection unavailable")}</h1>
