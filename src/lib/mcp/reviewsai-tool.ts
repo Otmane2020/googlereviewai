@@ -1,8 +1,8 @@
 import { defineTool, ToolError } from "@lovable.dev/mcp-js";
 import { z } from "zod";
-import { TOOLS, ReviewsAiToolError, makeReviewsAiContext, readMcpEnv } from "../core";
+import { TOOLS, ReviewsAiToolError, makeReviewsAiContext, readMcpEnv } from "./core";
 
-// Wraps the shared ReviewsAI tool logic (../core.ts) as @lovable.dev/mcp-js tools.
+// Wraps the shared ReviewsAI tool logic (./core.ts) as @lovable.dev/mcp-js tools.
 const SCHEMAS: Record<string, Record<string, z.ZodTypeAny>> = {
   list_reviews: {
     business_id: z.string().optional().describe("Restrict to one business (id from list_managed_businesses)."),
@@ -37,8 +37,12 @@ const SCHEMAS: Record<string, Record<string, z.ZodTypeAny>> = {
   },
 };
 
-function wrap(def: (typeof TOOLS)[number]) {
-  return defineTool({
+// Builds the defineTool config for one ReviewsAI tool. Each tool lives in its own
+// file with a default export (one-tool-per-file is what @lovable.dev/mcp-js discovers).
+export function reviewsAiToolConfig(name: string) {
+  const def = TOOLS.find(t => t.name === name);
+  if (!def) throw new Error(`Unknown ReviewsAI tool: ${name}`);
+  return {
     name: def.name,
     title: def.title,
     description: def.description,
@@ -57,7 +61,5 @@ function wrap(def: (typeof TOOLS)[number]) {
         throw new ToolError("ReviewsAI internal error. Please try again later.");
       }
     },
-  });
+  } as Parameters<typeof defineTool>[0];
 }
-
-export const reviewsAiTools = TOOLS.map(wrap);

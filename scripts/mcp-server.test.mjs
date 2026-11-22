@@ -1,6 +1,6 @@
 import { test, expect } from "bun:test";
 import { TOOLS, makeReviewsAiContext } from "../src/lib/mcp/core.ts";
-import { reviewsAiTools } from "../src/lib/mcp/tools/reviewsai.ts";
+import { existsSync, readFileSync } from "node:fs";
 
 const SUPABASE = "https://proj.supabase.co";
 const BUSINESS = {
@@ -36,8 +36,21 @@ function ctx(calls = [], reviewOver = {}) {
 }
 const run = (name, args, c) => TOOLS.find((t) => t.name === name).run(args, c);
 
+test("every tool has its own default-exported file and is registered on the server", () => {
+  // @lovable.dev/mcp-js discovers one tool per file; a shared file only exposed list_managed_businesses in production.
+  const index = readFileSync(new URL("../src/lib/mcp/index.ts", import.meta.url), "utf8");
+  for (const t of TOOLS) {
+    const file = t.name.replaceAll("_", "-");
+    const path = new URL(`../src/lib/mcp/tools/${file}.ts`, import.meta.url);
+    expect(existsSync(path)).toBe(true);
+    const src = readFileSync(path, "utf8");
+    expect(src).toContain("export default defineTool(");
+    expect(src).toContain(`reviewsAiToolConfig("${t.name}")`);
+    expect(index).toContain(`./tools/${file}"`);
+  }
+});
+
 test("every tool has a title and safety annotations", () => {
-  expect(reviewsAiTools.length).toBe(TOOLS.length);
   for (const t of TOOLS) {
     expect(typeof t.title).toBe("string");
     expect(typeof t.annotations.readOnlyHint).toBe("boolean");
