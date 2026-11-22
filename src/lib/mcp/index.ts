@@ -1,6 +1,11 @@
 import { auth, defineMcp } from "@lovable.dev/mcp-js";
 import listManagedBusinesses from "./tools/list-managed-businesses";
-import { reviewsAiTools } from "./tools/reviewsai";
+import listReviews from "./tools/list-reviews";
+import generateReviewReply from "./tools/generate-review-reply";
+import publishReviewReply from "./tools/publish-review-reply";
+import getBusinessInsights from "./tools/get-business-insights";
+import checkMapsRanking from "./tools/check-maps-ranking";
+import getRankingHistory from "./tools/get-ranking-history";
 
 const projectRef = import.meta.env?.VITE_SUPABASE_PROJECT_ID ?? "project-ref-unset";
 
@@ -15,5 +20,5 @@ export default defineMcp({
     acceptedAudiences: "authenticated",
     requireOAuthClientClaim: true,
   }),
-  tools: [listManagedBusinesses, ...reviewsAiTools],
+  tools: [listManagedBusinesses, listReviews, generateReviewReply, publishReviewReply, getBusinessInsights, checkMapsRanking, getRankingHistory],
 });
