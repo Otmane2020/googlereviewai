@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, type FormEvent } from "react";
 import { useNavigate, Link } from "@/lib/router-compat";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -17,6 +17,9 @@ const Auth = () => {
   const { t, i18n } = useTranslation();
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [isRedirecting, setIsRedirecting] = useState(false);
+  const [isPasswordLoading, setIsPasswordLoading] = useState(false);
+  const [passwordError, setPasswordError] = useState(false);
+  const isFrench = i18n.language?.startsWith("fr");
 
   const { signInWithGoogle, user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
@@ -138,6 +141,26 @@ const Auth = () => {
     }
   };
 
+  const handlePassword = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (isGoogleLoading || isPasswordLoading) return;
+
+    const fields = new FormData(event.currentTarget);
+    setIsPasswordLoading(true);
+    setPasswordError(false);
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email: String(fields.get("email") ?? "").trim(),
+        password: String(fields.get("password") ?? ""),
+      });
+      setPasswordError(Boolean(error));
+    } catch {
+      setPasswordError(true);
+    } finally {
+      setIsPasswordLoading(false);
+    }
+  };
+
   if (authLoading || isRedirecting) {
     return <AppLoadingBar message={t("auth.loading.connecting")} />;
   }
@@ -248,7 +271,7 @@ const Auth = () => {
               type="button"
               className="w-full h-12 rounded-xl text-base font-semibold reviewai-brand-gradient shadow-md shadow-primary/15 hover:brightness-105"
               onClick={handleGoogle}
-              disabled={isGoogleLoading}
+              disabled={isGoogleLoading || isPasswordLoading}
             >
               {isGoogleLoading ? (
                 <Loader2 className="w-5 h-5 animate-spin" />
@@ -264,6 +287,43 @@ const Auth = () => {
                 </>
               )}
             </Button>
+
+            <details className="rounded-xl border border-border/60 p-3">
+              <summary className="cursor-pointer text-sm font-medium">
+                {isFrench ? "Continuer avec un e-mail" : "Continue with email"}
+              </summary>
+              <form className="mt-3 space-y-3" onSubmit={handlePassword}>
+                <label className="block space-y-1 text-sm">
+                  <span>{isFrench ? "Adresse e-mail" : "Email address"}</span>
+                  <input
+                    className="w-full rounded-md border border-input bg-background px-3 py-2"
+                    name="email"
+                    type="email"
+                    autoComplete="username"
+                    required
+                  />
+                </label>
+                <label className="block space-y-1 text-sm">
+                  <span>{isFrench ? "Mot de passe" : "Password"}</span>
+                  <input
+                    className="w-full rounded-md border border-input bg-background px-3 py-2"
+                    name="password"
+                    type="password"
+                    autoComplete="current-password"
+                    required
+                  />
+                </label>
+                {passwordError && (
+                  <p className="text-sm text-destructive" role="alert">
+                    {isFrench ? "Connexion impossible. Vérifiez vos identifiants." : "Unable to sign in. Check your credentials."}
+                  </p>
+                )}
+                <Button type="submit" className="w-full" disabled={isGoogleLoading || isPasswordLoading}>
+                  {isPasswordLoading && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
+                  {isFrench ? "Se connecter" : "Sign in"}
+                </Button>
+              </form>
+            </details>
 
             <div className="flex items-start gap-2 text-xs text-muted-foreground bg-primary/5 border border-primary/10 rounded-xl p-3">
               <ShieldCheck className="w-4 h-4 mt-0.5 text-primary shrink-0" />
