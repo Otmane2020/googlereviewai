@@ -21,6 +21,7 @@ const Auth = () => {
   const [passwordError, setPasswordError] = useState(false);
   const [emailMode, setEmailMode] = useState<"signin" | "signup" | "reset">("signin");
   const [signupSent, setSignupSent] = useState(false);
+  const [signupErrorCode, setSignupErrorCode] = useState<string>();
   const isResetMode = emailMode === "reset";
   const isSignupMode = emailMode === "signup";
   const [resetStatus, setResetStatus] = useState<"sent" | "error" | null>(null);
@@ -155,6 +156,7 @@ const Auth = () => {
     setPasswordError(false);
     setResetStatus(null);
     setSignupSent(false);
+    setSignupErrorCode(undefined);
     const email = String(fields.get("email") ?? "").trim();
     try {
       if (isResetMode) {
@@ -168,6 +170,7 @@ const Auth = () => {
       if (isSignupMode) {
         const { error } = await signUp(email, password, String(fields.get("fullName") ?? "").trim());
         setPasswordError(Boolean(error));
+        setSignupErrorCode(error && "code" in error && typeof error.code === "string" ? error.code : undefined);
         setSignupSent(!error);
         return;
       }
@@ -183,6 +186,18 @@ const Auth = () => {
       setIsPasswordLoading(false);
     }
   };
+
+  const signupErrorMessages: Record<string, [string, string]> = {
+    signup_disabled: ["L’inscription par e-mail est désactivée.", "Email registration is disabled."],
+    email_provider_disabled: ["L’inscription par e-mail est désactivée.", "Email registration is disabled."],
+    weak_password: ["Choisissez un mot de passe plus robuste.", "Choose a stronger password."],
+    email_address_invalid: ["Utilisez une adresse e-mail valide.", "Use a valid email address."],
+    email_address_not_authorized: ["Le service d’envoi ne peut pas écrire à cette adresse.", "The email service cannot send to this address."],
+    over_email_send_rate_limit: ["Trop d’e-mails envoyés. Réessayez plus tard.", "Too many emails sent. Try again later."],
+    over_request_rate_limit: ["Trop de tentatives. Réessayez dans quelques instants.", "Too many attempts. Try again shortly."],
+    unexpected_failure: ["Le service d’inscription a rencontré une erreur. Réessayez plus tard.", "The registration service encountered an error. Try again later."],
+  };
+  const signupErrorMessage = signupErrorCode ? signupErrorMessages[signupErrorCode]?.[isFrench ? 0 : 1] : undefined;
 
   const changeEmailMode = (mode: typeof emailMode) => {
     setEmailMode(mode);
@@ -373,7 +388,7 @@ const Auth = () => {
                 {passwordError && (
                   <p className="text-sm text-destructive" role="alert">
                     {isSignupMode
-                      ? (isFrench ? "Inscription impossible. Vérifiez vos informations." : "Unable to sign up. Check your information.")
+                      ? (signupErrorMessage ?? (isFrench ? "Inscription impossible. Réessayez dans quelques instants." : "Unable to sign up. Please try again shortly."))
                       : (isFrench ? "Connexion impossible. Vérifiez vos identifiants." : "Unable to sign in. Check your credentials.")}
                   </p>
                 )}
