@@ -44,8 +44,8 @@ test("every tool has its own default-exported file and is registered on the serv
     const path = new URL(`../src/lib/mcp/tools/${file}.ts`, import.meta.url);
     expect(existsSync(path)).toBe(true);
     const src = readFileSync(path, "utf8");
-    expect(src).toContain("export default defineTool(");
-    expect(src).toContain(`reviewsAiToolConfig("${t.name}")`);
+    expect(src).toContain("export default defineTool({");
+    expect(src).toContain(`name: \"${t.name}\"`);
     expect(index).toContain(`./tools/${file}"`);
   }
 });
