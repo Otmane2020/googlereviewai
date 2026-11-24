@@ -3,7 +3,7 @@ import { Link } from "@/lib/router-compat";
 import { useTranslation } from "react-i18next";
 import {
   ArrowRight, ArrowUpRight, Bell, Check, CheckCheck, ChevronRight,
-  CircleCheck, Globe2, Layers3, MapPin, Menu, MessageSquareText,
+  CircleCheck, Globe2, Layers3, MapPin, Menu, MessageSquareText, Pause, Play,
   MousePointer2, Send, ShieldCheck, Star, TrendingUp, Wand2, X,
 } from "lucide-react";
 import { RankiLogo } from "@/components/StarlinkoLogo";
@@ -19,6 +19,13 @@ const landingMotionStyles = `
 .reviewsai-launch main [id] { scroll-margin-top: 88px; }
 @media (prefers-reduced-motion: no-preference) {
   html:has(.reviewsai-launch) { scroll-behavior: smooth; }
+  @supports (animation-timeline: scroll()) {
+    .reviewsai-launch .reviewsai-scroll-progress {
+      transform-origin: left;
+      animation: reviewsai-demo-progress linear both;
+      animation-timeline: scroll(root block);
+    }
+  }
   .reviewsai-launch {
     --motion-ease: cubic-bezier(.16,1,.3,1);
     --motion-distance: 26px;
@@ -27,6 +34,52 @@ const landingMotionStyles = `
   .reviewsai-launch [data-hero-item],\n  .reviewsai-launch [data-hero-actions] > *,\n  .reviewsai-launch [data-hero-trust] > * {
     animation: reviewsai-rise 780ms var(--motion-ease) backwards;
     animation-delay: calc(var(--hero-order, 0) * 95ms * var(--motion-tempo));
+  }
+  .reviewsai-launch .reviewsai-demo-progress {
+    transform-origin: left center;
+    animation: reviewsai-demo-progress 5500ms linear both;
+  }
+  .reviewsai-launch .reviewsai-review-swap {
+    animation: reviewsai-review-swap 700ms var(--motion-ease) backwards !important;
+  }
+  .reviewsai-launch .reviewsai-reply-reveal {
+    animation: reviewsai-reply-reveal 820ms var(--motion-ease) 180ms backwards !important;
+  }
+  .reviewsai-launch .reviewsai-status-pop {
+    animation: reviewsai-status-pop 500ms var(--motion-ease) 680ms backwards !important;
+  }
+  .reviewsai-launch .reviewsai-reply-surface:has(.reviewsai-reply-reveal)::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #6B85FF, transparent);
+    pointer-events: none;
+    animation: reviewsai-scan 1000ms var(--motion-ease) both;
+  }
+  @keyframes reviewsai-demo-progress {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
+  }
+  @keyframes reviewsai-review-swap {
+    from { opacity: 0; transform: translateX(20px) scale(.98); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes reviewsai-reply-reveal {
+    from { opacity: 0; transform: translateY(14px); clip-path: inset(0 0 100% 0); }
+    to { opacity: 1; transform: none; clip-path: inset(0 0 0 0); }
+  }
+  @keyframes reviewsai-status-pop {
+    from { opacity: 0; transform: translateY(9px) scale(.95); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes reviewsai-scan {
+    0% { opacity: 0; transform: translateY(0); }
+    15% { opacity: 1; }
+    80% { opacity: .8; }
+    100% { opacity: 0; transform: translateY(100px); }
   }
   .reviewsai-launch [data-hero-title] {
     animation-name: reviewsai-title-in;
@@ -153,6 +206,7 @@ const landingMotionStyles = `
     scroll-behavior: auto !important;
   }
   .reviewsai-launch .reviewsai-motion-wait { opacity: 1; translate: none; }
+  .reviewsai-launch .reviewsai-demo-progress { display: none; }
 }
 `;
 
@@ -221,12 +275,12 @@ function useLandingMotion(fr: boolean) {
         if (!wasPending || reduced.matches || el.contains(document.activeElement)) continue;
         const config = targets.get(el);
         if (!config) continue;
-        const distance = compact.matches ? 16 : config.kind === "card" ? 30 : 22;
+        const distance = compact.matches ? 24 : config.kind === "card" ? 46 : 32;
         const keyframes: Keyframe[] = config.kind === "star"
           ? [{ opacity: 0, scale: ".6", rotate: "-12deg" }, { opacity: 1, scale: "1", rotate: "0deg" }]
           : [{ opacity: 0, translate: `0 ${distance}px` }, { opacity: 1, translate: "0 0" }];
         const animation = el.animate(keyframes, {
-          duration: compact.matches ? 480 : config.kind === "card" ? 760 : 650,
+          duration: compact.matches ? 600 : config.kind === "card" ? 900 : 750,
           delay: Math.min(config.delay * (compact.matches ? .55 : 1), 300),
           easing: "cubic-bezier(.16,1,.3,1)",
           fill: "backwards",
@@ -234,7 +288,7 @@ function useLandingMotion(fr: boolean) {
         running.set(el, animation);
         animation.onfinish = animation.oncancel = () => running.delete(el);
       }
-    }, { rootMargin: "0px 0px 36px 0px", threshold: 0 });
+    }, { rootMargin: "0px 0px -8% 0px", threshold: 0 });
 
     const clear = () => {
       observer.disconnect();
@@ -285,6 +339,29 @@ function ReviewWorkflowDemo({ fr }: { fr: boolean }) {
   const [reviewKind, setReviewKind] = useState<"positive" | "critical">("positive");
   const [showReply, setShowReply] = useState(true);
   const [demoTouched, setDemoTouched] = useState(false);
+  const [autoplay, setAutoplay] = useState(true);
+  const [demoVisible, setDemoVisible] = useState(false);
+  const [demoHover, setDemoHover] = useState(false);
+  const [demoFocus, setDemoFocus] = useState(false);
+  const demoRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = demoRef.current;
+    if (!el || !("IntersectionObserver" in window)) return;
+    const observer = new IntersectionObserver(([entry]) => setDemoVisible(entry.isIntersecting && entry.intersectionRatio >= .25), { threshold: [.25] });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+  useEffect(() => {
+    if (!autoplay || !demoVisible || demoHover || demoFocus || !showReply) return;
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
+    if (reduced.matches) return;
+    const timer = window.setInterval(() => {
+      if (document.hidden || reduced.matches) return;
+      setDemoTouched(true);
+      setReviewKind((kind) => kind === "positive" ? "critical" : "positive");
+    }, 5500);
+    return () => window.clearInterval(timer);
+  }, [autoplay, demoVisible, demoHover, demoFocus, showReply]);
   const positive = reviewKind === "positive";
   const review = positive
     ? {
@@ -306,7 +383,7 @@ function ReviewWorkflowDemo({ fr }: { fr: boolean }) {
       : "Thank you for sharing your experience, Alex. We're sorry the updates were not clear enough and will review this with our team.";
 
   return (
-    <div data-demo-part="shell" className="relative mx-auto w-full max-w-[600px]">
+    <div ref={demoRef} data-demo-part="shell" onMouseEnter={() => setDemoHover(true)} onMouseLeave={() => setDemoHover(false)} onFocusCapture={() => setDemoFocus(true)} onBlurCapture={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) setDemoFocus(false); }} className="relative mx-auto w-full max-w-[600px]">
       <div className="pointer-events-none absolute -inset-8 rounded-[48px] bg-gradient-to-br from-[#3B54F5]/15 via-[#B7C5FF]/10 to-[#34A853]/15 blur-3xl" />
       <div className="relative overflow-hidden rounded-[25px] border border-[#DDE4F3] bg-white shadow-[0_36px_100px_-30px_rgba(19,40,101,.26)]">
         <div data-demo-part="chrome" className="flex h-12 items-center gap-2 border-b border-[#E9EDF5] px-5">
@@ -347,19 +424,19 @@ function ReviewWorkflowDemo({ fr }: { fr: boolean }) {
             </div>
 
             <div data-demo-part="tabs" className="mt-6 flex flex-wrap gap-2" aria-label={fr ? "Choisir un exemple d'avis" : "Choose a sample review"}>
-              <button type="button" aria-pressed={positive} onClick={() => { setDemoTouched(true); setReviewKind("positive"); setShowReply(true); }}
+              <button type="button" aria-pressed={positive} onClick={() => { setAutoplay(false); setDemoTouched(true); setReviewKind("positive"); setShowReply(true); }}
                 className={"rounded-xl border px-3.5 py-2 text-xs font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-[#3B54F5] " +
                   (positive ? "border-[#3B54F5] bg-[#EEF1FF] text-[#334AE3]" : "border-[#E2E7F1] bg-white text-[#63718A] hover:border-[#9FB1FE]")}>
                 {fr ? "Avis positif" : "Positive review"}
               </button>
-              <button type="button" aria-pressed={!positive} onClick={() => { setDemoTouched(true); setReviewKind("critical"); setShowReply(true); }}
+              <button type="button" aria-pressed={!positive} onClick={() => { setAutoplay(false); setDemoTouched(true); setReviewKind("critical"); setShowReply(true); }}
                 className={"rounded-xl border px-3.5 py-2 text-xs font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-[#3B54F5] " +
                   (!positive ? "border-[#3B54F5] bg-[#EEF1FF] text-[#334AE3]" : "border-[#E2E7F1] bg-white text-[#63718A] hover:border-[#9FB1FE]")}>
                 {fr ? "Avis négatif" : "Critical review"}
               </button>
             </div>
 
-            <div key={reviewKind} data-demo-part="review" className={(demoTouched ? "reviewsai-demo-enter " : "") + "mt-4 rounded-2xl border border-[#E8ECF5] bg-white p-4 shadow-[0_8px_28px_-20px_rgba(29,47,94,.3)] sm:p-5"}>
+            <div key={reviewKind} data-demo-part="review" className={(demoTouched ? "reviewsai-demo-enter reviewsai-review-swap " : "") + "mt-4 rounded-2xl border border-[#E8ECF5] bg-white p-4 shadow-[0_8px_28px_-20px_rgba(29,47,94,.3)] sm:p-5"}>
               <div className="flex items-start gap-3">
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#EDF0FE] text-sm font-bold text-[#3B54F5]">
                   {review.author[0]}
@@ -375,7 +452,7 @@ function ReviewWorkflowDemo({ fr }: { fr: boolean }) {
               </div>
             </div>
 
-            <div data-demo-part="reply" className="relative mt-3 rounded-2xl border border-[#DCE3FF] bg-[#F5F7FF] p-4 sm:p-5">
+            <div data-demo-part="reply" className="reviewsai-reply-surface relative mt-3 overflow-hidden rounded-2xl border border-[#DCE3FF] bg-[#F5F7FF] p-4 sm:p-5">
               <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
                 <span className="flex items-center gap-2 text-xs font-bold text-[#344BDC]">
                   <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-white"><BrandSparkle className="h-4 w-4" /></span>
@@ -386,16 +463,16 @@ function ReviewWorkflowDemo({ fr }: { fr: boolean }) {
                 </span>
               </div>
               {showReply ? (
-                <div aria-live="polite">
-                  <p key={reviewKind} data-demo-part="reply-text" className={(demoTouched ? "reviewsai-demo-enter " : "") + "text-[13px] leading-[1.7] text-[#374763]"}>{response}</p>
+                <div aria-live={autoplay ? "off" : "polite"}>
+                  <p key={reviewKind} data-demo-part="reply-text" className={(demoTouched ? "reviewsai-reply-reveal " : "") + "text-[13px] leading-[1.7] text-[#374763]"}>{response}</p>
                   <p data-demo-part="signature" className="mt-2.5 whitespace-pre-line text-[13px] font-semibold text-[#27395B]">
                     {fr ? "— L'équipe Sweet Deco" : "— The Sweet Deco team"}
                   </p>
-                  <div data-demo-part="status" className="mt-4 flex flex-wrap items-center gap-2">
+                  <div key={reviewKind + "-status"} data-demo-part="status" className={(demoTouched ? "reviewsai-status-pop " : "") + "mt-4 flex flex-wrap items-center gap-2"}>
                     <span className="inline-flex items-center gap-1.5 rounded-lg bg-[#3B54F5] px-3 py-2 text-[11px] font-bold text-white">
                       <CheckCheck className="h-3.5 w-3.5" /> {fr ? "Prêt à publier" : "Ready to publish"}
                     </span>
-                    <button type="button" onClick={() => { setDemoTouched(true); setShowReply(false); }} className="rounded-lg border border-[#D8DFF6] bg-white px-3 py-2 text-[11px] font-semibold text-[#556784] hover:bg-[#F7F8FE]">
+                    <button type="button" onClick={() => { setAutoplay(false); setDemoTouched(true); setShowReply(false); }} className="rounded-lg border border-[#D8DFF6] bg-white px-3 py-2 text-[11px] font-semibold text-[#556784] hover:bg-[#F7F8FE]">
                       {fr ? "Modifier l'exemple" : "Edit example"}
                     </button>
                   </div>
@@ -410,6 +487,16 @@ function ReviewWorkflowDemo({ fr }: { fr: boolean }) {
                   </button>
                 </div>
               )}
+            </div>
+            <div className="mt-3 flex items-center justify-between gap-2 text-[10px] text-[#64748b]">
+              <span className="inline-flex items-center gap-1.5 font-medium"><span className="h-1.5 w-1.5 rounded-full bg-[#3B54F5]" />{fr ? "Démo interactive" : "Interactive demo"}</span>
+              <button type="button" onClick={() => { setAutoplay((value) => !value); setShowReply(true); }} aria-label={autoplay ? (fr ? "Mettre la démo en pause" : "Pause demo") : (fr ? "Relancer la démo" : "Play demo")} className="inline-flex items-center gap-1.5 rounded-lg border border-[#DCE3FB] bg-white px-2.5 py-1.5 font-semibold text-[#344BDC] hover:bg-[#EEF1FF]">
+                {autoplay ? <Pause className="h-3 w-3" /> : <Play className="h-3 w-3" />}
+                {autoplay ? (fr ? "Pause" : "Pause") : (fr ? "Lecture" : "Play")}
+              </button>
+            </div>
+            <div aria-hidden="true" className="mt-2 h-[3px] overflow-hidden rounded-full bg-[#E8EDFF]">
+              <div key={reviewKind + String(autoplay) + String(demoVisible) + String(demoHover) + String(demoFocus)} className={autoplay && demoVisible && !demoHover && !demoFocus && showReply ? "reviewsai-demo-progress h-full rounded-full bg-[#3B54F5]" : "h-full w-0 rounded-full bg-[#3B54F5]"} />
             </div>
             <p className="mt-3 text-center text-[10px] text-[#99A4B6]">
               {fr ? "Démonstration illustrative. Aucun avis réel n'est utilisé." : "Illustrative demo. No real customer reviews are used."}
@@ -523,6 +610,7 @@ export default function ProductHuntLanding() {
             </div>
           </nav>
         )}
+        <div aria-hidden="true" className="reviewsai-scroll-progress pointer-events-none absolute bottom-0 left-0 right-0 h-[2px] origin-left scale-x-0 bg-[#3B54F5]" />
       </header>
 
       <main id="main-content">
