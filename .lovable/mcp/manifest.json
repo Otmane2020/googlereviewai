@@ -47,9 +47,9 @@
         "title": "Lister les avis Google",
         "description": "List Google reviews for the user's businesses, newest first. Filter by business, reply status (unanswered = no reply published on Google yet), star rating range and date. Returns review_id values used by generate_review_reply and publish_review_reply.",
         "annotations": {
+          "readOnlyHint": true,
           "destructiveHint": false,
           "idempotentHint": true,
-          "readOnlyHint": true,
           "openWorldHint": false
         },
         "inputSchema": {
@@ -99,9 +99,9 @@
         "title": "Générer une réponse IA",
         "description": "Draft an AI reply to one review in the business's brand voice and signature (as configured in ReviewsAI). The draft is saved on the review but NOT published. Uses one ReviewsAI credit on plans without unlimited replies. Show the draft to the user before publishing.",
         "annotations": {
+          "readOnlyHint": false,
           "destructiveHint": false,
           "idempotentHint": false,
-          "readOnlyHint": false,
           "openWorldHint": false
         },
         "inputSchema": {
@@ -129,9 +129,9 @@
         "title": "Publier la réponse sur Google",
         "description": "Publish a reply publicly on Google for one review. If `reply_text` is given it replaces the saved draft first; otherwise the saved draft (from generate_review_reply) is published. This is public and visible to everyone: only call it after the user has explicitly approved the exact text.",
         "annotations": {
+          "readOnlyHint": false,
           "destructiveHint": true,
           "idempotentHint": false,
-          "readOnlyHint": false,
           "openWorldHint": true
         },
         "inputSchema": {
@@ -160,9 +160,9 @@
         "title": "Statistiques Google Business",
         "description": "Get Google Business Profile performance for the last N days: profile views (Search / Maps), calls, website clicks, direction requests. Omit business_id to aggregate all active businesses.",
         "annotations": {
+          "readOnlyHint": true,
           "destructiveHint": false,
           "idempotentHint": true,
-          "readOnlyHint": true,
           "openWorldHint": true
         },
         "inputSchema": {
@@ -189,9 +189,9 @@
         "title": "Mesurer le classement Google Maps",
         "description": "Run a new local ranking scan: searches Google Maps for `keyword` on a grid of points around the business and returns its position at each point plus the average rank. Takes up to a minute and uses paid search quota; prefer get_ranking_history if a recent scan exists.",
         "annotations": {
+          "readOnlyHint": false,
           "destructiveHint": false,
           "idempotentHint": false,
-          "readOnlyHint": false,
           "openWorldHint": true
         },
         "inputSchema": {
@@ -236,9 +236,9 @@
         "title": "Historique du classement Maps",
         "description": "List previous Google Maps ranking scans (keyword, date, grid, average rank) for a business.",
         "annotations": {
+          "readOnlyHint": true,
           "destructiveHint": false,
           "idempotentHint": true,
-          "readOnlyHint": true,
           "openWorldHint": false
         },
         "inputSchema": {
