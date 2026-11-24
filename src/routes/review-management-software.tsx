@@ -9,6 +9,12 @@ export const Route = createFileRoute("/review-management-software")({
     meta: [
       { title: config.metaTitle },
       { name: "description", content: config.metaDescription },
+      { name: "robots", content: "index,follow,max-image-preview:large" },
+      { property: "og:locale", content: "en_US" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: config.metaTitle },
+      { name: "twitter:description", content: config.metaDescription },
+      { name: "twitter:image", content: "https://reviewsai.store/og-image.png" },
       { property: "og:title", content: config.metaTitle },
       { property: "og:type", content: "website" },
       { property: "og:image", content: "https://reviewsai.store/og-image.png" },

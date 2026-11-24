@@ -1,4 +1,3 @@
-import { Helmet } from "react-helmet";
 import { Link } from "@/lib/router-compat";
 import { Button } from "@/components/ui/button";
 import { Header } from "@/components/Header";
@@ -11,56 +10,6 @@ const CHROME_STORE_URL =
 const ReviewReplyAIForGBP = () => {
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <Helmet>
-        <html lang="en" />
-        <title>GMB Review Auto Reply for Google Business Profile | Reviews AI</title>
-        <meta
-          name="description"
-          content="GMB review auto reply with AI for Google Business Profile. Generate personalized Google review responses in seconds using the Reviews AI Chrome extension."
-        />
-        <meta
-          name="keywords"
-          content="GMB auto reply, Google Business Review Auto Reply, Google Business Profile review replies, AI Google review response, Chrome extension for Google reviews"
-        />
-        <link
-          rel="canonical"
-          href="https://reviewsai.store/review-reply-ai-google-business-profile"
-        />
-        <meta name="robots" content="index, follow, max-image-preview:large" />
-        <meta
-          property="og:title"
-          content="GMB Review Auto Reply for Google Business Profile | Reviews AI"
-        />
-        <meta
-          property="og:description"
-          content="Generate personalized Google Business Profile (GMB) review replies in seconds with AI."
-        />
-        <meta
-          property="og:url"
-          content="https://reviewsai.store/review-reply-ai-google-business-profile"
-        />
-        <meta property="og:type" content="website" />
-        <meta property="og:image" content="https://reviewsai.store/landing/review-ai-workflow.jpg" />
-        <script type="application/ld+json">
-          {JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "SoftwareApplication",
-            name: "Review Reply AI for Google Business Profile™",
-            applicationCategory: "BusinessApplication",
-            operatingSystem: "Google Chrome",
-            description:
-              "A Chrome extension that helps businesses create personalized replies to Google Business Profile reviews.",
-            url: "https://reviewsai.store/review-reply-ai-google-business-profile",
-            installUrl: CHROME_STORE_URL,
-            image: "https://reviewsai.store/landing/review-ai-workflow.jpg",
-            publisher: {
-              "@type": "Organization",
-              name: "Reviews AI",
-              url: "https://reviewsai.store/",
-            },
-          })}
-        </script>
-      </Helmet>
 
       <Header />
 
@@ -73,7 +22,7 @@ const ReviewReplyAIForGBP = () => {
                 Chrome extension for business owners
               </div>
               <h1 className="max-w-3xl text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
-                Review Reply AI for Google Business Profile™
+                AI Google Review Reply Chrome Extension
               </h1>
               <p className="mt-6 max-w-2xl text-lg leading-8 text-muted-foreground sm:text-xl">
                 Write professional, personalized replies to your Google Business Profile reviews in seconds. Save time, keep your brand voice, and respond consistently.
@@ -86,7 +35,7 @@ const ReviewReplyAIForGBP = () => {
                   </a>
                 </Button>
                 <Button asChild size="lg" variant="outline">
-                  <Link to="/#reviews-ai">See Reviews AI</Link>
+                  <Link to="/">See Reviews AI</Link>
                 </Button>
               </div>
               <div className="mt-7 flex flex-wrap gap-x-6 gap-y-3 text-sm text-muted-foreground">
@@ -110,7 +59,7 @@ const ReviewReplyAIForGBP = () => {
         <section className="container mx-auto max-w-6xl px-5 py-20">
           <div className="mx-auto max-w-2xl text-center">
             <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">A faster review workflow</p>
-            <h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">Turn every review into a thoughtful response</h2>
+            <h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">Generate Google review replies directly in Chrome</h2>
             <p className="mt-4 text-lg text-muted-foreground">
               Review Reply AI helps restaurants, hotels, retailers, agencies, and local businesses respond clearly without starting from a blank page.
             </p>
@@ -156,7 +105,7 @@ const ReviewReplyAIForGBP = () => {
               />
             </div>
             <div>
-              <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">How the Chrome extension works</h2>
+              <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">How to use the Google review reply Chrome extension</h2>
               <ol className="mt-8 space-y-6">
                 {[
                   ["Open your Google Business Profile reviews", "Go to the reviews you want to answer in Chrome."],
@@ -201,7 +150,7 @@ const ReviewReplyAIForGBP = () => {
 
         <section className="bg-primary text-primary-foreground">
           <div className="container mx-auto max-w-4xl px-5 py-16 text-center">
-            <h2 className="text-3xl font-bold sm:text-4xl">Start replying to reviews faster</h2>
+            <h2 className="text-3xl font-bold sm:text-4xl">Install the AI review reply extension</h2>
             <p className="mx-auto mt-4 max-w-2xl text-primary-foreground/80">
               Install Review Reply AI for Google Business Profile™ and create your next professional review response in seconds.
             </p>

@@ -143,7 +143,7 @@ export default function FreeGoogleReviewReplyFR() {
         </section>
 
         <section className="mx-auto max-w-5xl px-5 py-16 sm:px-8 sm:py-24">
-          <h2 className="text-3xl font-extrabold tracking-tight">Questions fréquentes sur les réponses IA Google</h2>
+          <h2 className="text-3xl font-extrabold tracking-tight">Questions fréquentes sur les réponses IA aux avis Google</h2>
           <div className="mt-8 divide-y divide-[#E1E8F3]">
             {faqs.map(item => (
               <article key={item.q} className="py-6">
@@ -162,7 +162,7 @@ export default function FreeGoogleReviewReplyFR() {
         </section>
         <section className="bg-[#152447] py-14 text-center text-white sm:py-20">
           <div className="mx-auto max-w-3xl px-5">
-            <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl">Chaque avis mérite une vraie réponse.</h2>
+            <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl">Essayez 3 réponses IA gratuites aux avis Google</h2>
             <p className="mt-4 text-[#C0CBE5]">Commencez avec trois réponses IA offertes, sans carte bancaire et sans promesse de classement Google.</p>
             <Link to="/auth" className="mt-7 inline-flex items-center gap-2 rounded-xl bg-white px-7 py-4 font-extrabold text-[#3048DB] hover:bg-[#EAF0FF]">Essayer ReviewsAI <ArrowUpRight className="h-4 w-4" /></Link>
           </div>

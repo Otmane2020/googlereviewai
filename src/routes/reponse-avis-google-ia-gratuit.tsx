@@ -18,6 +18,10 @@ export const Route = createFileRoute("/reponse-avis-google-ia-gratuit")({
       { property: "og:url", content: canonical },
       { property: "og:locale", content: "fr_FR" },
       { property: "og:image", content: REVIEWSAI_ORIGIN + "/og-image.png" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: title },
+      { name: "twitter:description", content: description },
+      { name: "twitter:image", content: REVIEWSAI_ORIGIN + "/og-image.png" },
     ],
     links: [{ rel: "canonical", href: canonical }],
     scripts: [{
