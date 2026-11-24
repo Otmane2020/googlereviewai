@@ -13,32 +13,136 @@ import { RankiPricingSection } from "@/components/ranki/RankiPricingSection";
 import { FAQSection } from "@/components/FAQSection";
 
 
-// Keep SSR content visible: motion is purely progressive enhancement.
+// The first fold is orchestrated in CSS, before hydration. Scroll reveals are
+// progressive enhancement: all copy stays in the server-rendered HTML.
 const landingMotionStyles = `
+.reviewsai-launch main [id] { scroll-margin-top: 88px; }
 @media (prefers-reduced-motion: no-preference) {
   html:has(.reviewsai-launch) { scroll-behavior: smooth; }
-  .reviewsai-launch .reviewsai-menu-enter {
-    animation: reviewsai-menu-enter 220ms cubic-bezier(.2,.7,.2,1);
+  .reviewsai-launch {
+    --motion-ease: cubic-bezier(.16,1,.3,1);
+    --motion-distance: 26px;
+    --motion-tempo: 1;
   }
+  .reviewsai-launch [data-hero-item],\n  .reviewsai-launch [data-hero-actions] > *,\n  .reviewsai-launch [data-hero-trust] > * {
+    animation: reviewsai-rise 780ms var(--motion-ease) backwards;
+    animation-delay: calc(var(--hero-order, 0) * 95ms * var(--motion-tempo));
+  }
+  .reviewsai-launch [data-hero-title] {
+    animation-name: reviewsai-title-in;
+    animation-duration: 850ms;
+  }
+  .reviewsai-launch [data-hero-accent] {
+    animation: reviewsai-accent-in 900ms var(--motion-ease) backwards;
+    animation-delay: calc(180ms * var(--motion-tempo));
+  }
+  .reviewsai-launch [data-hero-actions] > :nth-child(1) { --hero-order: 3; }
+  .reviewsai-launch [data-hero-actions] > :nth-child(2) { --hero-order: 4; }
+  .reviewsai-launch [data-hero-trust] > :nth-child(1) { --hero-order: 5; }
+  .reviewsai-launch [data-hero-trust] > :nth-child(2) { --hero-order: 6; }
+  .reviewsai-launch [data-hero-trust] > :nth-child(3) { --hero-order: 7; }
+  .reviewsai-launch [data-hero-order="1"] { --hero-order: 1; }
+  .reviewsai-launch [data-hero-order="2"] { --hero-order: 2; }
+  .reviewsai-launch [data-motion="section"] > span { display: inline-block; }
+  .reviewsai-launch .reviewsai-motion-wait {
+    opacity: 0;
+    translate: 0 var(--motion-distance);
+  }
+  .reviewsai-launch .reviewsai-motion-wait:focus-within {
+    opacity: 1;
+    translate: none;
+  }
+  .reviewsai-launch .reviewsai-menu-enter > a,
+  .reviewsai-launch .reviewsai-menu-enter > div {
+    animation: reviewsai-rise 400ms var(--motion-ease) backwards;
+  }
+  .reviewsai-launch .reviewsai-menu-enter > :nth-child(2) { animation-delay: 35ms; }
+  .reviewsai-launch .reviewsai-menu-enter > :nth-child(3) { animation-delay: 70ms; }
+  .reviewsai-launch .reviewsai-menu-enter > :nth-child(4) { animation-delay: 105ms; }
+  .reviewsai-launch .reviewsai-menu-enter > :nth-child(5) { animation-delay: 140ms; }
   .reviewsai-launch .reviewsai-demo-enter {
-    animation: reviewsai-demo-enter 320ms cubic-bezier(.2,.7,.2,1);
+    animation: reviewsai-rise 500ms var(--motion-ease) backwards;
   }
-  @keyframes reviewsai-menu-enter {
-    from { opacity: .4; transform: translateY(-6px); }
-    to { opacity: 1; transform: translateY(0); }
+  .reviewsai-launch .reviewsai-demo-enter [data-demo-part="star"] {
+    animation: reviewsai-pop 450ms var(--motion-ease) backwards;
   }
-  @keyframes reviewsai-demo-enter {
-    from { opacity: .55; transform: translateY(5px); }
-    to { opacity: 1; transform: translateY(0); }
+  .reviewsai-launch [data-demo-part="star"]:nth-child(2) { --star-delay: 45ms; }
+  .reviewsai-launch [data-demo-part="star"]:nth-child(3) { --star-delay: 90ms; }
+  .reviewsai-launch [data-demo-part="star"]:nth-child(4) { --star-delay: 135ms; }
+  .reviewsai-launch [data-demo-part="star"]:nth-child(5) { --star-delay: 180ms; }
+  .reviewsai-launch .reviewsai-demo-enter [data-demo-part="star"] {
+    animation-delay: var(--star-delay, 0ms);
   }
-}
-.reviewsai-launch main [id] { scroll-margin-top: 88px; }
-@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
-  .reviewsai-launch main article [data-motion-icon] {
-    transition: transform 260ms cubic-bezier(.2,.7,.2,1);
+  @keyframes reviewsai-rise {
+    from { opacity: 0; translate: 0 var(--motion-distance); }
+    to { opacity: 1; translate: 0 0; }
   }
-  .reviewsai-launch main article:hover [data-motion-icon] {
-    transform: translateY(-3px) scale(1.05);
+  @keyframes reviewsai-title-in {
+    from { opacity: 0; translate: 0 30px; }
+    to { opacity: 1; translate: 0 0; }
+  }
+  @keyframes reviewsai-accent-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes reviewsai-pop {
+    from { opacity: 0; scale: .55; rotate: -12deg; }
+    to { opacity: 1; scale: 1; rotate: 0deg; }
+  }
+  @keyframes reviewsai-demo-shell {
+    from { opacity: 0; translate: 24px 24px; scale: .97; }
+    to { opacity: 1; translate: 0 0; scale: 1; }
+  }
+  @media (min-width: 1024px) {
+    .reviewsai-launch [data-demo-part="shell"] {
+      animation: reviewsai-demo-shell 950ms var(--motion-ease) 130ms backwards;
+    }
+    .reviewsai-launch [data-demo-part="chrome"],
+    .reviewsai-launch [data-demo-part="workspace"],
+    .reviewsai-launch [data-demo-part="tabs"],
+    .reviewsai-launch [data-demo-part="review"],
+    .reviewsai-launch [data-demo-part="reply"],
+    .reviewsai-launch [data-demo-part="reply-text"],
+    .reviewsai-launch [data-demo-part="signature"],
+    .reviewsai-launch [data-demo-part="status"],
+    .reviewsai-launch [data-demo-part="badge"] {
+      animation: reviewsai-rise 650ms var(--motion-ease) var(--demo-delay, 0ms) backwards;
+    }
+    .reviewsai-launch [data-demo-part="chrome"] { --demo-delay: 220ms; }
+    .reviewsai-launch [data-demo-part="workspace"] { --demo-delay: 300ms; }
+    .reviewsai-launch [data-demo-part="tabs"] { --demo-delay: 380ms; }
+    .reviewsai-launch [data-demo-part="review"] { --demo-delay: 460ms; }
+    .reviewsai-launch [data-demo-part="star"] {
+      animation: reviewsai-pop 450ms var(--motion-ease) calc(550ms + var(--star-delay, 0ms)) backwards;
+    }
+    .reviewsai-launch [data-demo-part="reply"] { --demo-delay: 660ms; }
+    .reviewsai-launch [data-demo-part="reply-text"] { --demo-delay: 740ms; }
+    .reviewsai-launch [data-demo-part="signature"] { --demo-delay: 820ms; }
+    .reviewsai-launch [data-demo-part="status"] { --demo-delay: 900ms; }
+    .reviewsai-launch [data-demo-part="badge"] { --demo-delay: 990ms; }
+    .reviewsai-launch .reviewsai-demo-enter[data-demo-part] { --demo-delay: 0ms; }
+    .reviewsai-launch .reviewsai-demo-enter [data-demo-part="star"] {
+      animation-delay: var(--star-delay, 0ms);
+    }
+  }
+  @media (max-width: 767px) {
+    .reviewsai-launch { --motion-distance: 16px; --motion-tempo: .58; }
+    .reviewsai-launch [data-hero-item], .reviewsai-launch [data-hero-accent] {
+      animation-duration: 570ms;
+    }
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .reviewsai-launch main article [data-motion-icon] {
+      transition: transform 420ms var(--motion-ease);
+    }
+    .reviewsai-launch main article:hover [data-motion-icon] {
+      transform: translateY(-4px) rotate(-5deg) scale(1.09);
+    }
+  }
+  .reviewsai-launch :focus-visible {
+    animation: none !important;
+    opacity: 1 !important;
+    translate: none !important;
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -48,6 +152,7 @@ const landingMotionStyles = `
     transition-duration: .01ms !important;
     scroll-behavior: auto !important;
   }
+  .reviewsai-launch .reviewsai-motion-wait { opacity: 1; translate: none; }
 }
 `;
 
@@ -58,56 +163,107 @@ function useLandingMotion(fr: boolean) {
     const main = root.current?.querySelector("main");
     if (!main || !("IntersectionObserver" in window) || !Element.prototype.animate) return;
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const small = window.matchMedia("(max-width: 767px)");
-    const running = new Set<Animation>();
-    const seen = new WeakSet<Element>();
+    if (reduced.matches) return;
+    const compact = window.matchMedia("(max-width: 767px)");
+    const stacked = window.matchMedia("(max-width: 1023px)");
+    const running = new Map<HTMLElement, Animation>();
+    const targets = new Map<HTMLElement, { delay: number; kind: string }>();
 
-    // Observe independent blocks, not entire tall sections, so mobile reveals
-    // happen as each card actually reaches the viewport.
-    const targets = main.querySelectorAll<HTMLElement>(
-      "[data-motion], #pricing h2, #pricing .grid > *, #faq h2, #faq [data-state][data-orientation]"
-    );
+    const add = (el: Element, delay = 0, kind = "rise") => {
+      if (!(el instanceof HTMLElement || el instanceof SVGElement)) return;
+      const target = el as HTMLElement;
+      if (targets.has(target)) return;
+      targets.set(target, { delay, kind });
+    };
+    const group = (el: Element, selector: string, offset = 0) => {
+      el.querySelectorAll(selector).forEach((child, i) => add(child, offset + Math.min(i, 5) * 65));
+    };
+    main.querySelectorAll('[data-motion="section"]').forEach((el) => {
+      group(el, ":scope > span, :scope > h2, :scope > p, :scope > a, :scope > div > span");
+    });
+    main.querySelectorAll('[data-motion="card"]').forEach((el) => {
+      const offset = compact.matches ? 0 : Number((el as HTMLElement).dataset.motionDelay || 0);
+      add(el, offset, "card");
+      group(el, ":scope > span:not(.pointer-events-none), :scope > h3, :scope > p, :scope > a, :scope > div:not(.pointer-events-none)", offset + 90);
+    });
+    main.querySelectorAll("#pricing h2, #pricing h2 + p, #pricing .grid > *, #pricing .grid > * > h3, #pricing .grid > * > p, #pricing .grid > * > ul > li, #pricing .grid > * > div:last-child, #faq h2, #faq h2 + p, #faq [data-state][data-orientation]:not([role=region])").forEach((el) => {
+      const index = el.parentElement ? Array.from(el.parentElement.children).indexOf(el) : 0;
+      add(el, Math.min(index, 4) * 55);
+    });
+    main.querySelectorAll("[data-scroll-extra]").forEach((el) => add(el, 45));
+    if (stacked.matches) {
+      main.querySelectorAll("[data-demo-part]").forEach((el) => {
+        const kind = el.getAttribute("data-demo-part");
+        if (kind === "star") {
+          const index = el.parentElement ? Array.from(el.parentElement.children).indexOf(el) : 0;
+          add(el, index * 50, "star");
+        } else if (kind !== "shell") {
+          const delays: Record<string, number> = { chrome: 0, workspace: 40, tabs: 80, review: 100, reply: 130, "reply-text": 155, signature: 180, status: 200, badge: 140 };
+          add(el, delays[kind || ""] || 0);
+        }
+      });
+    }
+
+    // Read bounds before writing styles. Only pre-hide blocks below the fold;
+    // already visible content never flashes out after hydration.
+    const pending = [...targets.keys()].filter((el) => {
+      const rect = el.getBoundingClientRect();
+      return rect.height > 0 && rect.width > 0 && rect.top >= window.innerHeight + 12;
+    });
+    pending.forEach((el) => el.classList.add("reviewsai-motion-wait"));
     const observer = new IntersectionObserver((entries) => {
       for (const entry of entries) {
         if (!entry.isIntersecting) continue;
         const el = entry.target as HTMLElement;
         observer.unobserve(el);
-        if (seen.has(el) || reduced.matches || el.contains(document.activeElement)) continue;
-        seen.add(el);
-        const hero = el.dataset.motion === "hero";
-        const delay = small.matches ? 0 : Math.min(Number(el.dataset.motionDelay || 0), 150);
-        const distance = small.matches ? 10 : 18;
-        const animation = el.animate(
-          [
-            { opacity: hero ? .88 : .55, translate: `0 ${hero ? 6 : distance}px` },
-            { opacity: 1, translate: "0 0" },
-          ],
-          {
-            duration: small.matches ? 340 : 500,
-            delay,
-            easing: "cubic-bezier(.2,.7,.2,1)",
-            fill: "backwards",
-          }
-        );
-        running.add(animation);
-        animation.onfinish = animation.oncancel = () => running.delete(animation);
+        const wasPending = el.classList.contains("reviewsai-motion-wait");
+        el.classList.remove("reviewsai-motion-wait");
+        if (!wasPending || reduced.matches || el.contains(document.activeElement)) continue;
+        const config = targets.get(el);
+        if (!config) continue;
+        const distance = compact.matches ? 16 : config.kind === "card" ? 30 : 22;
+        const keyframes: Keyframe[] = config.kind === "star"
+          ? [{ opacity: 0, scale: ".6", rotate: "-12deg" }, { opacity: 1, scale: "1", rotate: "0deg" }]
+          : [{ opacity: 0, translate: `0 ${distance}px` }, { opacity: 1, translate: "0 0" }];
+        const animation = el.animate(keyframes, {
+          duration: compact.matches ? 480 : config.kind === "card" ? 760 : 650,
+          delay: Math.min(config.delay * (compact.matches ? .55 : 1), 300),
+          easing: "cubic-bezier(.16,1,.3,1)",
+          fill: "backwards",
+        });
+        running.set(el, animation);
+        animation.onfinish = animation.oncancel = () => running.delete(el);
       }
-    }, { threshold: 0.06 });
+    }, { rootMargin: "0px 0px 36px 0px", threshold: 0 });
 
-    const stopAnimations = () => {
-      for (const animation of running) animation.cancel();
+    const clear = () => {
+      observer.disconnect();
+      pending.forEach((el) => el.classList.remove("reviewsai-motion-wait"));
+      running.forEach((animation) => animation.cancel());
       running.clear();
     };
-    const onPreferenceChange = () => {
-      if (reduced.matches) stopAnimations();
+    const onPreferenceChange = () => { if (reduced.matches) clear(); };
+    const onFocus = (event: FocusEvent) => {
+      const focused = event.target;
+      if (!(focused instanceof Element)) return;
+      targets.forEach((_, el) => {
+        if (el.contains(focused)) {
+          el.classList.remove("reviewsai-motion-wait");
+          running.get(el)?.cancel();
+          observer.unobserve(el);
+        }
+      });
     };
     reduced.addEventListener("change", onPreferenceChange);
-    targets.forEach((target) => observer.observe(target));
-
+    // On crossing the desktop breakpoint, reveal pending content immediately.
+    stacked.addEventListener("change", clear);
+    main.addEventListener("focusin", onFocus);
+    pending.forEach((el) => observer.observe(el));
     return () => {
-      observer.disconnect();
+      clear();
       reduced.removeEventListener("change", onPreferenceChange);
-      stopAnimations();
+      stacked.removeEventListener("change", clear);
+      main.removeEventListener("focusin", onFocus);
     };
   }, [fr]);
 
@@ -118,7 +274,7 @@ function Stars({ count = 5 }: { count?: number }) {
   return (
     <span className="inline-flex gap-0.5" aria-label={count + " / 5"}>
       {Array.from({ length: 5 }, (_, index) => (
-        <Star key={index} aria-hidden="true" className={"h-3.5 w-3.5 " + (index < count ? "fill-amber-400 text-amber-400" : "text-slate-200")} />
+        <Star key={index} data-demo-part="star" aria-hidden="true" className={"h-3.5 w-3.5 " + (index < count ? "fill-amber-400 text-amber-400" : "text-slate-200")} />
       ))}
     </span>
   );
@@ -128,6 +284,7 @@ function Stars({ count = 5 }: { count?: number }) {
 function ReviewWorkflowDemo({ fr }: { fr: boolean }) {
   const [reviewKind, setReviewKind] = useState<"positive" | "critical">("positive");
   const [showReply, setShowReply] = useState(true);
+  const [demoTouched, setDemoTouched] = useState(false);
   const positive = reviewKind === "positive";
   const review = positive
     ? {
@@ -149,10 +306,10 @@ function ReviewWorkflowDemo({ fr }: { fr: boolean }) {
       : "Thank you for sharing your experience, Alex. We're sorry the updates were not clear enough and will review this with our team.";
 
   return (
-    <div data-motion="hero" data-motion-delay="100" className="relative mx-auto w-full max-w-[600px]">
+    <div data-demo-part="shell" className="relative mx-auto w-full max-w-[600px]">
       <div className="pointer-events-none absolute -inset-8 rounded-[48px] bg-gradient-to-br from-[#3B54F5]/15 via-[#B7C5FF]/10 to-[#34A853]/15 blur-3xl" />
       <div className="relative overflow-hidden rounded-[25px] border border-[#DDE4F3] bg-white shadow-[0_36px_100px_-30px_rgba(19,40,101,.26)]">
-        <div className="flex h-12 items-center gap-2 border-b border-[#E9EDF5] px-5">
+        <div data-demo-part="chrome" className="flex h-12 items-center gap-2 border-b border-[#E9EDF5] px-5">
           <span className="h-2.5 w-2.5 rounded-full bg-[#FF6E69]" />
           <span className="h-2.5 w-2.5 rounded-full bg-[#FFCC58]" />
           <span className="h-2.5 w-2.5 rounded-full bg-[#51C994]" />
@@ -174,7 +331,7 @@ function ReviewWorkflowDemo({ fr }: { fr: boolean }) {
             <Layers3 className="h-[18px] w-[18px] text-[#A3AEC1]" />
           </aside>
           <div className="min-w-0 flex-1 p-4 sm:p-6">
-            <div className="flex flex-wrap items-center justify-between gap-3">
+            <div data-demo-part="workspace" className="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.13em] text-[#8996AB]">
                   {fr ? "ESPACE AVIS" : "REVIEW WORKSPACE"}
@@ -189,20 +346,20 @@ function ReviewWorkflowDemo({ fr }: { fr: boolean }) {
               </span>
             </div>
 
-            <div className="mt-6 flex flex-wrap gap-2" aria-label={fr ? "Choisir un exemple d'avis" : "Choose a sample review"}>
-              <button type="button" aria-pressed={positive} onClick={() => { setReviewKind("positive"); setShowReply(true); }}
+            <div data-demo-part="tabs" className="mt-6 flex flex-wrap gap-2" aria-label={fr ? "Choisir un exemple d'avis" : "Choose a sample review"}>
+              <button type="button" aria-pressed={positive} onClick={() => { setDemoTouched(true); setReviewKind("positive"); setShowReply(true); }}
                 className={"rounded-xl border px-3.5 py-2 text-xs font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-[#3B54F5] " +
                   (positive ? "border-[#3B54F5] bg-[#EEF1FF] text-[#334AE3]" : "border-[#E2E7F1] bg-white text-[#63718A] hover:border-[#9FB1FE]")}>
                 {fr ? "Avis positif" : "Positive review"}
               </button>
-              <button type="button" aria-pressed={!positive} onClick={() => { setReviewKind("critical"); setShowReply(true); }}
+              <button type="button" aria-pressed={!positive} onClick={() => { setDemoTouched(true); setReviewKind("critical"); setShowReply(true); }}
                 className={"rounded-xl border px-3.5 py-2 text-xs font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-[#3B54F5] " +
                   (!positive ? "border-[#3B54F5] bg-[#EEF1FF] text-[#334AE3]" : "border-[#E2E7F1] bg-white text-[#63718A] hover:border-[#9FB1FE]")}>
                 {fr ? "Avis négatif" : "Critical review"}
               </button>
             </div>
 
-            <div key={reviewKind} className="reviewsai-demo-enter mt-4 rounded-2xl border border-[#E8ECF5] bg-white p-4 shadow-[0_8px_28px_-20px_rgba(29,47,94,.3)] sm:p-5">
+            <div key={reviewKind} data-demo-part="review" className={(demoTouched ? "reviewsai-demo-enter " : "") + "mt-4 rounded-2xl border border-[#E8ECF5] bg-white p-4 shadow-[0_8px_28px_-20px_rgba(29,47,94,.3)] sm:p-5"}>
               <div className="flex items-start gap-3">
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#EDF0FE] text-sm font-bold text-[#3B54F5]">
                   {review.author[0]}
@@ -218,7 +375,7 @@ function ReviewWorkflowDemo({ fr }: { fr: boolean }) {
               </div>
             </div>
 
-            <div className="relative mt-3 rounded-2xl border border-[#DCE3FF] bg-[#F5F7FF] p-4 sm:p-5">
+            <div data-demo-part="reply" className="relative mt-3 rounded-2xl border border-[#DCE3FF] bg-[#F5F7FF] p-4 sm:p-5">
               <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
                 <span className="flex items-center gap-2 text-xs font-bold text-[#344BDC]">
                   <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-white"><BrandSparkle className="h-4 w-4" /></span>
@@ -230,15 +387,15 @@ function ReviewWorkflowDemo({ fr }: { fr: boolean }) {
               </div>
               {showReply ? (
                 <div aria-live="polite">
-                  <p key={reviewKind} className="reviewsai-demo-enter text-[13px] leading-[1.7] text-[#374763]">{response}</p>
-                  <p className="mt-2.5 whitespace-pre-line text-[13px] font-semibold text-[#27395B]">
+                  <p key={reviewKind} data-demo-part="reply-text" className={(demoTouched ? "reviewsai-demo-enter " : "") + "text-[13px] leading-[1.7] text-[#374763]"}>{response}</p>
+                  <p data-demo-part="signature" className="mt-2.5 whitespace-pre-line text-[13px] font-semibold text-[#27395B]">
                     {fr ? "— L'équipe Sweet Deco" : "— The Sweet Deco team"}
                   </p>
-                  <div className="mt-4 flex flex-wrap items-center gap-2">
+                  <div data-demo-part="status" className="mt-4 flex flex-wrap items-center gap-2">
                     <span className="inline-flex items-center gap-1.5 rounded-lg bg-[#3B54F5] px-3 py-2 text-[11px] font-bold text-white">
                       <CheckCheck className="h-3.5 w-3.5" /> {fr ? "Prêt à publier" : "Ready to publish"}
                     </span>
-                    <button type="button" onClick={() => setShowReply(false)} className="rounded-lg border border-[#D8DFF6] bg-white px-3 py-2 text-[11px] font-semibold text-[#556784] hover:bg-[#F7F8FE]">
+                    <button type="button" onClick={() => { setDemoTouched(true); setShowReply(false); }} className="rounded-lg border border-[#D8DFF6] bg-white px-3 py-2 text-[11px] font-semibold text-[#556784] hover:bg-[#F7F8FE]">
                       {fr ? "Modifier l'exemple" : "Edit example"}
                     </button>
                   </div>
@@ -248,7 +405,7 @@ function ReviewWorkflowDemo({ fr }: { fr: boolean }) {
                   <p className="rounded-lg border border-dashed border-[#BFCBFA] bg-white p-3 text-xs text-[#66748B]">
                     {fr ? "Votre équipe peut modifier une réponse avant publication." : "Your team can edit a reply before publishing it."}
                   </p>
-                  <button type="button" onClick={() => setShowReply(true)} className="inline-flex items-center gap-1.5 text-xs font-bold text-[#3B54F5]">
+                  <button type="button" onClick={() => { setDemoTouched(true); setShowReply(true); }} className="inline-flex items-center gap-1.5 text-xs font-bold text-[#3B54F5]">
                     <Wand2 className="h-3.5 w-3.5" /> {fr ? "Afficher la réponse IA" : "Show AI reply"}
                   </button>
                 </div>
@@ -260,7 +417,7 @@ function ReviewWorkflowDemo({ fr }: { fr: boolean }) {
           </div>
         </div>
       </div>
-      <div className="pointer-events-none absolute -bottom-6 -left-4 hidden items-center gap-2.5 rounded-2xl border border-[#DCE5F3] bg-white px-4 py-3 shadow-xl sm:flex">
+      <div data-demo-part="badge" className="pointer-events-none absolute -bottom-6 -left-4 hidden items-center gap-2.5 rounded-2xl border border-[#DCE5F3] bg-white px-4 py-3 shadow-xl sm:flex">
         <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#F1FAF5] text-[#2D9D62]"><CircleCheck className="h-5 w-5" /></span>
         <span>
           <span className="block text-[10px] text-[#92A0B2]">{fr ? "Une voix fidèle à votre marque" : "Your brand, your voice"}</span>
@@ -372,34 +529,34 @@ export default function ProductHuntLanding() {
         <section id="product" className="relative isolate overflow-hidden bg-[radial-gradient(ellipse_at_83%_12%,#E4EAFF_0%,transparent_47%),linear-gradient(180deg,#FCFDFF_0%,#F6F8FE_100%)] pb-20 pt-14 sm:pb-28 sm:pt-20 lg:pb-36 lg:pt-24">
           <div className="pointer-events-none absolute right-[-8%] top-20 h-72 w-72 rounded-full bg-[#3B54F5]/10 blur-[100px]" />
           <div className="mx-auto grid max-w-[1220px] items-center gap-14 px-5 sm:px-8 lg:grid-cols-[.94fr_1.06fr] lg:gap-10">
-            <div data-motion="hero" className="relative z-10 text-center lg:text-left">
-              <div className="mb-7 inline-flex items-center gap-2.5 rounded-full border border-[#DFE5FA] bg-white px-3 py-2 shadow-[0_4px_16px_-12px_#7289BD]">
+            <div className="relative z-10 text-center lg:text-left">
+              <div data-hero-item className="mb-7 inline-flex items-center gap-2.5 rounded-full border border-[#DFE5FA] bg-white px-3 py-2 shadow-[0_4px_16px_-12px_#7289BD]">
                 <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#E8EDFF]"><BrandSparkle className="h-3.5 w-3.5" /></span>
                 <span className="text-[11px] font-extrabold tracking-[0.065em] text-[#5263A3] sm:text-xs">
                   {fr ? "VOTRE RÉPUTATION, EN MIEUX." : "YOUR REPUTATION, SIMPLIFIED."}
                 </span>
                 <ArrowUpRight className="h-3.5 w-3.5 text-[#6478C9]" />
               </div>
-              <h1 className="max-w-[630px] text-[clamp(2.7rem,5.15vw,4.65rem)] font-extrabold leading-[1.07] tracking-[-0.065em] text-[#14233E]">
-                {fr ? <>Répondez aux avis Google <span className="text-[#3B54F5]">avec l’IA</span></> : <>Google Review Replies, <span className="text-[#3B54F5]">Powered by AI</span></>}
+              <h1 data-hero-item data-hero-title data-hero-order="1" className="max-w-[630px] text-[clamp(2.7rem,5.15vw,4.65rem)] font-extrabold leading-[1.07] tracking-[-0.065em] text-[#14233E]">
+                {fr ? <>Répondez aux avis Google <span data-hero-accent className="text-[#3B54F5]">avec l’IA</span></> : <>Google Review Replies, <span data-hero-accent className="text-[#3B54F5]">Powered by AI</span></>}
               </h1>
-              <p className="mx-auto mt-6 max-w-[515px] text-[16px] leading-[1.82] text-[#596982] sm:text-lg lg:mx-0">
+              <p data-hero-item data-hero-order="2" className="mx-auto mt-6 max-w-[515px] text-[16px] leading-[1.82] text-[#596982] sm:text-lg lg:mx-0">
                 {fr
                   ? "Répondez aux avis Google avec une IA qui respecte votre ton, suit vos établissements et vous laisse garder le contrôle. Moins de tâches répétitives. Plus d'attention pour vos clients."
                   : "Meet the AI workspace for Google reviews. Draft thoughtful, on-brand replies, stay on top of every location, and keep control over what gets published."}
               </p>
-              <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row lg:justify-start">
+              <div data-hero-actions className="mt-8 flex flex-col justify-center gap-3 sm:flex-row lg:justify-start">
                 <Link to="/auth" className="group inline-flex min-h-14 items-center justify-center gap-2.5 rounded-2xl bg-[#3B54F5] px-7 text-sm font-bold text-white shadow-[0_18px_34px_-18px_rgba(59,84,245,.85)] transition-all hover:-translate-y-0.5 hover:bg-[#2E45DE] sm:text-base">
                   {fr ? "Essayer 3 réponses IA gratuites" : "Try 3 AI replies for free"}
                   <ArrowRight className="h-[18px] w-[18px] transition-transform group-hover:translate-x-1" />
                 </Link>
-                <a href="#how-it-works" className="inline-flex min-h-14 items-center justify-center gap-2 rounded-2xl border border-[#D7DFEF] bg-white px-6 text-sm font-bold text-[#364761] transition-colors hover:bg-[#F1F4FC] sm:text-base">
+                <a href="#how-it-works" data-hero-item className="inline-flex min-h-14 items-center justify-center gap-2 rounded-2xl border border-[#D7DFEF] bg-white px-6 text-sm font-bold text-[#364761] transition-colors hover:bg-[#F1F4FC] sm:text-base">
                   <MousePointer2 className="h-4 w-4 text-[#5264EA]" /> {fr ? "Découvrir le produit" : "See how it works"}
                 </a>
               </div>
-              <div className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs font-medium text-[#687993] lg:justify-start">
+              <div data-hero-trust className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs font-medium text-[#687993] lg:justify-start">
                 {[fr ? "Sans carte bancaire" : "No credit card", fr ? "3 crédits IA offerts" : "3 free AI credits", fr ? "Connexion Google Business" : "Google Business connection"].map((item) => (
-                  <span key={item} className="inline-flex items-center gap-1.5"><Check className="h-4 w-4 text-[#20A76A]" /> {item}</span>
+                  <span key={item} data-hero-item className="inline-flex items-center gap-1.5"><Check className="h-4 w-4 text-[#20A76A]" /> {item}</span>
                 ))}
               </div>
             </div>
@@ -509,7 +666,7 @@ export default function ProductHuntLanding() {
                 </article>
               ))}
             </div>
-            <div className="mt-8 flex flex-wrap items-center gap-2 text-xs font-semibold text-[#8793AA]">
+            <div data-scroll-extra className="mt-8 flex flex-wrap items-center gap-2 text-xs font-semibold text-[#8793AA]">
               <ShieldCheck className="h-4 w-4 text-[#26A775]" />
               {fr ? "Vous gardez le contrôle des réponses et des établissements connectés." : "You stay in control of your connected locations and replies."}
             </div>
@@ -580,7 +737,7 @@ export default function ProductHuntLanding() {
                 </article>
               ))}
             </div>
-            <div className="mt-8 flex flex-wrap items-center gap-3">
+            <div data-scroll-extra className="mt-8 flex flex-wrap items-center gap-3">
               <Link to="/blog" className="inline-flex items-center gap-2 rounded-xl border border-[#DDE5FA] bg-white px-5 py-3 text-sm font-bold text-[#354763] transition-colors hover:bg-[#F5F7FF]">
                 {fr ? "Tous les guides ReviewsAI" : "Explore all ReviewsAI guides"} <ArrowRight className="h-4 w-4" />
               </Link>
