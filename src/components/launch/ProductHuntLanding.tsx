@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "@/lib/router-compat";
 import { useTranslation } from "react-i18next";
 import {
@@ -12,6 +12,107 @@ import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { RankiPricingSection } from "@/components/ranki/RankiPricingSection";
 import { FAQSection } from "@/components/FAQSection";
 
+
+// Keep SSR content visible: motion is purely progressive enhancement.
+const landingMotionStyles = `
+@media (prefers-reduced-motion: no-preference) {
+  html:has(.reviewsai-launch) { scroll-behavior: smooth; }
+  .reviewsai-launch .reviewsai-menu-enter {
+    animation: reviewsai-menu-enter 220ms cubic-bezier(.2,.7,.2,1);
+  }
+  .reviewsai-launch .reviewsai-demo-enter {
+    animation: reviewsai-demo-enter 320ms cubic-bezier(.2,.7,.2,1);
+  }
+  @keyframes reviewsai-menu-enter {
+    from { opacity: .4; transform: translateY(-6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes reviewsai-demo-enter {
+    from { opacity: .55; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+}
+.reviewsai-launch main [id] { scroll-margin-top: 88px; }
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .reviewsai-launch main article [data-motion-icon] {
+    transition: transform 260ms cubic-bezier(.2,.7,.2,1);
+  }
+  .reviewsai-launch main article:hover [data-motion-icon] {
+    transform: translateY(-3px) scale(1.05);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .reviewsai-launch *, .reviewsai-launch *::before, .reviewsai-launch *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+`;
+
+function useLandingMotion(fr: boolean) {
+  const root = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const main = root.current?.querySelector("main");
+    if (!main || !("IntersectionObserver" in window) || !Element.prototype.animate) return;
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const small = window.matchMedia("(max-width: 767px)");
+    const running = new Set<Animation>();
+    const seen = new WeakSet<Element>();
+
+    // Observe independent blocks, not entire tall sections, so mobile reveals
+    // happen as each card actually reaches the viewport.
+    const targets = main.querySelectorAll<HTMLElement>(
+      "[data-motion], #pricing h2, #pricing .grid > *, #faq h2, #faq [data-state][data-orientation]"
+    );
+    const observer = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        const el = entry.target as HTMLElement;
+        observer.unobserve(el);
+        if (seen.has(el) || reduced.matches || el.contains(document.activeElement)) continue;
+        seen.add(el);
+        const hero = el.dataset.motion === "hero";
+        const delay = small.matches ? 0 : Math.min(Number(el.dataset.motionDelay || 0), 150);
+        const distance = small.matches ? 10 : 18;
+        const animation = el.animate(
+          [
+            { opacity: hero ? .88 : .55, translate: `0 ${hero ? 6 : distance}px` },
+            { opacity: 1, translate: "0 0" },
+          ],
+          {
+            duration: small.matches ? 340 : 500,
+            delay,
+            easing: "cubic-bezier(.2,.7,.2,1)",
+            fill: "backwards",
+          }
+        );
+        running.add(animation);
+        animation.onfinish = animation.oncancel = () => running.delete(animation);
+      }
+    }, { threshold: 0.06 });
+
+    const stopAnimations = () => {
+      for (const animation of running) animation.cancel();
+      running.clear();
+    };
+    const onPreferenceChange = () => {
+      if (reduced.matches) stopAnimations();
+    };
+    reduced.addEventListener("change", onPreferenceChange);
+    targets.forEach((target) => observer.observe(target));
+
+    return () => {
+      observer.disconnect();
+      reduced.removeEventListener("change", onPreferenceChange);
+      stopAnimations();
+    };
+  }, [fr]);
+
+  return root;
+}
 
 function Stars({ count = 5 }: { count?: number }) {
   return (
@@ -48,7 +149,7 @@ function ReviewWorkflowDemo({ fr }: { fr: boolean }) {
       : "Thank you for sharing your experience, Alex. We're sorry the updates were not clear enough and will review this with our team.";
 
   return (
-    <div className="relative mx-auto w-full max-w-[600px]">
+    <div data-motion="hero" data-motion-delay="100" className="relative mx-auto w-full max-w-[600px]">
       <div className="pointer-events-none absolute -inset-8 rounded-[48px] bg-gradient-to-br from-[#3B54F5]/15 via-[#B7C5FF]/10 to-[#34A853]/15 blur-3xl" />
       <div className="relative overflow-hidden rounded-[25px] border border-[#DDE4F3] bg-white shadow-[0_36px_100px_-30px_rgba(19,40,101,.26)]">
         <div className="flex h-12 items-center gap-2 border-b border-[#E9EDF5] px-5">
@@ -101,7 +202,7 @@ function ReviewWorkflowDemo({ fr }: { fr: boolean }) {
               </button>
             </div>
 
-            <div className="mt-4 rounded-2xl border border-[#E8ECF5] bg-white p-4 shadow-[0_8px_28px_-20px_rgba(29,47,94,.3)] sm:p-5">
+            <div key={reviewKind} className="reviewsai-demo-enter mt-4 rounded-2xl border border-[#E8ECF5] bg-white p-4 shadow-[0_8px_28px_-20px_rgba(29,47,94,.3)] sm:p-5">
               <div className="flex items-start gap-3">
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#EDF0FE] text-sm font-bold text-[#3B54F5]">
                   {review.author[0]}
@@ -129,7 +230,7 @@ function ReviewWorkflowDemo({ fr }: { fr: boolean }) {
               </div>
               {showReply ? (
                 <div aria-live="polite">
-                  <p className="text-[13px] leading-[1.7] text-[#374763]">{response}</p>
+                  <p key={reviewKind} className="reviewsai-demo-enter text-[13px] leading-[1.7] text-[#374763]">{response}</p>
                   <p className="mt-2.5 whitespace-pre-line text-[13px] font-semibold text-[#27395B]">
                     {fr ? "— L'équipe Sweet Deco" : "— The Sweet Deco team"}
                   </p>
@@ -191,6 +292,7 @@ export default function ProductHuntLanding() {
   const { i18n } = useTranslation();
   const fr = (i18n.resolvedLanguage || i18n.language || "en").toLowerCase().startsWith("fr");
   const [mobileOpen, setMobileOpen] = useState(false);
+  const landingRef = useLandingMotion(fr);
   const nav = [
     { href: "#product", label: fr ? "Le produit" : "Product" },
     { href: "#how-it-works", label: fr ? "Comment ça marche" : "How it works" },
@@ -226,7 +328,8 @@ export default function ProductHuntLanding() {
   ];
 
   return (
-    <div className="reviewsai-launch min-h-screen overflow-x-hidden bg-[#F8FAFF] font-sans text-[#172744] selection:bg-[#C9D2FF]">
+    <div ref={landingRef} className="reviewsai-launch min-h-screen overflow-x-hidden bg-[#F8FAFF] font-sans text-[#172744] selection:bg-[#C9D2FF]">
+      <style>{landingMotionStyles}</style>
       <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-white focus:p-3">
         {fr ? "Aller au contenu" : "Skip to content"}
       </a>
@@ -255,7 +358,7 @@ export default function ProductHuntLanding() {
           </div>
         </div>
         {mobileOpen && (
-          <nav className="border-t border-[#E7ECF5] bg-white px-5 pb-5 pt-2 shadow-xl sm:hidden" aria-label="Mobile navigation">
+          <nav className="reviewsai-menu-enter border-t border-[#E7ECF5] bg-white px-5 pb-5 pt-2 shadow-xl sm:hidden" aria-label="Mobile navigation">
             {nav.map((item) => <a key={item.href} href={item.href} onClick={() => setMobileOpen(false)} className="block rounded-xl px-2 py-3 text-sm font-semibold text-[#35435B]">{item.label}</a>)}
             <div className="mt-3 grid grid-cols-2 gap-3">
               <Link to="/auth" className="rounded-xl border border-[#DDE4F5] px-4 py-3 text-center text-sm font-bold">{fr ? "Connexion" : "Log in"}</Link>
@@ -269,7 +372,7 @@ export default function ProductHuntLanding() {
         <section id="product" className="relative isolate overflow-hidden bg-[radial-gradient(ellipse_at_83%_12%,#E4EAFF_0%,transparent_47%),linear-gradient(180deg,#FCFDFF_0%,#F6F8FE_100%)] pb-20 pt-14 sm:pb-28 sm:pt-20 lg:pb-36 lg:pt-24">
           <div className="pointer-events-none absolute right-[-8%] top-20 h-72 w-72 rounded-full bg-[#3B54F5]/10 blur-[100px]" />
           <div className="mx-auto grid max-w-[1220px] items-center gap-14 px-5 sm:px-8 lg:grid-cols-[.94fr_1.06fr] lg:gap-10">
-            <div className="relative z-10 text-center lg:text-left">
+            <div data-motion="hero" className="relative z-10 text-center lg:text-left">
               <div className="mb-7 inline-flex items-center gap-2.5 rounded-full border border-[#DFE5FA] bg-white px-3 py-2 shadow-[0_4px_16px_-12px_#7289BD]">
                 <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#E8EDFF]"><BrandSparkle className="h-3.5 w-3.5" /></span>
                 <span className="text-[11px] font-extrabold tracking-[0.065em] text-[#5263A3] sm:text-xs">
@@ -305,7 +408,7 @@ export default function ProductHuntLanding() {
         </section>
 
         <section className="border-y border-[#E8ECF5] bg-white py-7">
-          <div className="mx-auto flex max-w-[1200px] flex-col items-center justify-center gap-4 px-5 text-center sm:flex-row sm:gap-8 sm:text-left">
+          <div data-motion="section" className="mx-auto flex max-w-[1200px] flex-col items-center justify-center gap-4 px-5 text-center sm:flex-row sm:gap-8 sm:text-left">
             <p className="text-xs font-bold uppercase tracking-[.1em] text-[#8996AB]">{fr ? "Pensé pour celles et ceux qui accueillent des clients" : "Built for teams that serve real customers"}</p>
             <div className="flex flex-wrap items-center justify-center gap-3 text-xs font-semibold text-[#5F6E84] sm:gap-5">
               <span className="inline-flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-[#3B54F5]" />{fr ? "Commerces" : "Retail"}</span>
@@ -318,7 +421,7 @@ export default function ProductHuntLanding() {
 
         <section id="features" className="bg-white py-20 sm:py-28">
           <div className="mx-auto max-w-[1200px] px-5 sm:px-8">
-            <div className="mx-auto mb-12 max-w-[740px] text-center">
+            <div data-motion="section" className="mx-auto mb-12 max-w-[740px] text-center">
               <span className="text-xs font-extrabold uppercase tracking-[.16em] text-[#3B54F5]">{fr ? "L'ESSENTIEL, SANS COMPLEXITÉ" : "LESS BUSYWORK. MORE CONNECTION."}</span>
               <h2 className="mt-4 text-[clamp(2rem,4vw,3.25rem)] font-extrabold leading-[1.13] tracking-[-0.045em] text-[#172744]">
                 {fr ? "Gérez vos avis Google et répondez avec l’IA" : "Manage Google reviews and reply with AI"}
@@ -329,9 +432,9 @@ export default function ProductHuntLanding() {
             </div>
 
             <div className="grid gap-5 md:grid-cols-3">
-              {features.map((feature) => (
-                <article key={feature.title} className="group min-h-[270px] rounded-[26px] border border-[#E6EBF4] bg-[#FCFDFF] p-7 transition-all hover:-translate-y-1 hover:border-[#C9D3FF] hover:shadow-[0_20px_44px_-30px_#677CC5]">
-                  <span className={"inline-flex h-12 w-12 items-center justify-center rounded-[15px] " + feature.bg + " " + feature.color}>
+              {features.map((feature, index) => (
+                <article key={feature.title} data-motion="card" data-motion-delay={index * 65} className="group min-h-[270px] rounded-[26px] border border-[#E6EBF4] bg-[#FCFDFF] p-7 transition-all hover:-translate-y-1 hover:border-[#C9D3FF] hover:shadow-[0_20px_44px_-30px_#677CC5]">
+                  <span data-motion-icon className={"inline-flex h-12 w-12 items-center justify-center rounded-[15px] " + feature.bg + " " + feature.color}>
                     <feature.icon className="h-6 w-6" strokeWidth={1.9} />
                   </span>
                   <h3 className="mt-8 text-xl font-extrabold tracking-[-0.03em] text-[#1C2B46]">{feature.title}</h3>
@@ -341,7 +444,7 @@ export default function ProductHuntLanding() {
             </div>
 
             <div className="mt-5 grid gap-5 lg:grid-cols-[1.15fr_.85fr]">
-              <article className="relative overflow-hidden rounded-[28px] bg-[#142447] p-8 text-white sm:p-10">
+              <article data-motion="card" className="relative overflow-hidden rounded-[28px] bg-[#142447] p-8 text-white sm:p-10">
                 <div className="pointer-events-none absolute -right-28 -top-28 h-80 w-80 rounded-full bg-[#4969FF]/30 blur-[65px]" />
                 <span className="relative z-10 text-xs font-bold uppercase tracking-[.14em] text-[#A8B9FF]">SEO + GEO</span>
                 <h3 className="relative z-10 mt-5 max-w-lg text-[clamp(1.6rem,3vw,2.3rem)] font-extrabold leading-[1.16] tracking-[-0.04em]">
@@ -363,7 +466,7 @@ export default function ProductHuntLanding() {
                   </div>
                 </div>
               </article>
-              <article className="relative overflow-hidden rounded-[28px] border border-[#E6EAF5] bg-[#F2F5FF] p-8 sm:p-10">
+              <article data-motion="card" data-motion-delay="85" className="relative overflow-hidden rounded-[28px] border border-[#E6EAF5] bg-[#F2F5FF] p-8 sm:p-10">
                 <span className="text-xs font-bold uppercase tracking-[.14em] text-[#5369C3]">{fr ? "UNE VRAIE IDENTITÉ" : "YOUR BRAND VOICE"}</span>
                 <h3 className="mt-5 text-[clamp(1.6rem,3vw,2.3rem)] font-extrabold leading-[1.16] tracking-[-0.04em] text-[#192A4C]">
                   {fr ? "Pas de réponse robotique." : "Never sound like a bot."}
@@ -385,7 +488,7 @@ export default function ProductHuntLanding() {
 
         <section id="how-it-works" className="border-y border-[#E6EBF5] bg-[#F8FAFF] py-20 sm:py-28">
           <div className="mx-auto max-w-[1200px] px-5 sm:px-8">
-            <div className="max-w-[650px]">
+            <div data-motion="section" className="max-w-[650px]">
               <span className="text-xs font-extrabold uppercase tracking-[.15em] text-[#3B54F5]">{fr ? "COMMENT ÇA MARCHE" : "THREE SIMPLE STEPS"}</span>
               <h2 className="mt-4 text-[clamp(2rem,4vw,3.15rem)] font-extrabold leading-[1.15] tracking-[-0.045em] text-[#172744]">
                 {fr ? "Comment répondre aux avis Google avec l’IA" : "How to reply to Google reviews with AI"}
@@ -393,9 +496,9 @@ export default function ProductHuntLanding() {
             </div>
             <div className="relative mt-12 grid gap-5 md:grid-cols-3">
               {steps.map((step, index) => (
-                <article key={step.title} className="relative rounded-[25px] border border-[#E2E8F3] bg-white p-7 shadow-[0_10px_35px_-29px_#8591B8]">
+                <article key={step.title} data-motion="card" data-motion-delay={index * 65} className="relative rounded-[25px] border border-[#E2E8F3] bg-white p-7 shadow-[0_10px_35px_-29px_#8591B8]">
                   <div className="mb-8 flex items-center justify-between">
-                    <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#EFF2FF] text-[#3B54F5]">
+                    <span data-motion-icon className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#EFF2FF] text-[#3B54F5]">
                       <step.icon className="h-[22px] w-[22px]" />
                     </span>
                     <span className="text-5xl font-extrabold tracking-tight text-[#EFF2FA]">0{index + 1}</span>
@@ -428,7 +531,7 @@ export default function ProductHuntLanding() {
             Real content and clear answers, not thin keyword or doorway pages. */}
         <section aria-labelledby="learn-reviewsai" className="border-y border-[#E6EBF5] bg-white py-20 sm:py-24">
           <div className="mx-auto max-w-[1200px] px-5 sm:px-8">
-            <div className="max-w-[780px]">
+            <div data-motion="section" className="max-w-[780px]">
               <span className="text-xs font-extrabold uppercase tracking-[.15em] text-[#3B54F5]">
                 {fr ? "GUIDES & CONSEILS" : "GUIDES & REAL-WORLD WORKFLOWS"}
               </span>
@@ -467,8 +570,8 @@ export default function ProductHuntLanding() {
                   description: fr ? "Vérifier les informations, les catégories, les photos et le suivi des avis : une liste de contrôle utile." : "Check business details, categories, photos and review workflows with a practical checklist.",
                   cta: fr ? "Checklist Google Business" : "Google Business checklist",
                 },
-              ].map(item => (
-                <article key={item.to} className="group rounded-[22px] border border-[#E7ECF6] bg-[#FBFCFF] p-6 transition-colors hover:border-[#C8D3FF] sm:p-7">
+              ].map((item, index) => (
+                <article key={item.to} data-motion="card" data-motion-delay={(index % 2) * 85} className="group rounded-[22px] border border-[#E7ECF6] bg-[#FBFCFF] p-6 transition-colors hover:border-[#C8D3FF] sm:p-7">
                   <h3 className="text-lg font-extrabold tracking-[-0.03em] text-[#1D2E4C]">{item.title}</h3>
                   <p className="mt-3 text-sm leading-7 text-[#66758F]">{item.description}</p>
                   <Link to={item.to} className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-[#3B54F5] hover:underline">
@@ -495,7 +598,7 @@ export default function ProductHuntLanding() {
           <div className="relative mx-auto max-w-[1180px] overflow-hidden rounded-[32px] bg-[#16274C] px-7 py-14 text-center text-white sm:px-14 sm:py-20">
             <div className="pointer-events-none absolute -left-28 -bottom-36 h-80 w-80 rounded-full bg-[#3B54F5]/40 blur-[80px]" />
             <div className="pointer-events-none absolute -right-24 -top-36 h-80 w-80 rounded-full bg-[#34A853]/20 blur-[80px]" />
-            <div className="relative z-10">
+            <div data-motion="section" className="relative z-10">
               <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs font-bold text-[#D6E0FF]">
                 <BrandSparkle className="h-4 w-4" /> {fr ? "Un bon départ est gratuit." : "A better reply starts here."}
               </span>
