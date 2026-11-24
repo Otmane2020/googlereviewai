@@ -2,8 +2,8 @@
  * Metadata is emitted server-side by TanStack route.head, not only by React Helmet. */
 export const REVIEWSAI_ORIGIN = "https://reviewsai.store";
 export const homeSeo = {
-  title: "ReviewsAI — AI Google Review Replies & Reputation Management",
-  description: "Write on-brand replies to Google reviews with AI, manage Google Business Profile locations, get review alerts and explore local SEO/GEO tools. Try 3 free AI replies, no credit card.",
+  title: "Google Reviews AI Reply Generator | ReviewsAI",
+  description: "Generate personalized AI replies to Google reviews, manage your Google Business Profile and track customer feedback. Try 3 free AI replies, no card required.",
   canonical: REVIEWSAI_ORIGIN + "/",
   image: REVIEWSAI_ORIGIN + "/og-image.png",
 };

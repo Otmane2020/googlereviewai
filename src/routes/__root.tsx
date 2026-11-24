@@ -29,6 +29,7 @@ import { useVisitTracking } from "@/hooks/useVisitTracking";
 import { supabase } from "@/integrations/supabase/client";
 import { reportLovableError } from "@/lib/lovable-error-reporting";
 import NotFound from "@/pages/NotFound";
+import { homeSeo } from "@/lib/marketingSeo";
 
 const pushAlertHideCss =
   '#pushalert-overlay,#pa-push-notification-widget,.pushalert-subscription-widget,.pushalert-widget,.pa-widget,.pa-subscription-widget,[id*="pushalert"],[id*="pa-push"],[class*="pushalert"],[class*="pa-widget"],div[style*="pushalert"],iframe[src*="pushalert"] {display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important;position:absolute!important;left:-9999px!important;top:-9999px!important;width:0!important;height:0!important;}';
@@ -42,11 +43,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         content:
           "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover",
       },
-      { title: "ReviewsAI — AI Replies for Google Reviews" },
+      { title: homeSeo.title },
       {
         name: "description",
         content:
-          "Manage Google reviews with ReviewsAI. Draft personalized AI replies, monitor customer feedback and improve local visibility with Google Business Profile tools.",
+          homeSeo.description,
       },
       { name: "author", content: "ReviewsAI" },
       { name: "google-site-verification", content: "07-mTOgobA9QM8vgRLYvmLuHBrEU8mVCDhG0HfNEbmw" },
@@ -67,23 +68,23 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "msapplication-TileColor", content: "#4285F4" },
       { name: "msapplication-tap-highlight", content: "no" },
       { property: "og:type", content: "website" },
-      { property: "og:title", content: "ReviewsAI — AI Google Review Replies" },
+      { property: "og:title", content: homeSeo.title },
       {
         property: "og:description",
         content:
-          "Manage Google reviews with ReviewsAI. Draft personalized AI replies, monitor customer feedback and improve local visibility with Google Business Profile tools.",
+          homeSeo.description,
       },
-      { property: "og:image", content: "https://reviewsai.store/og-image.png" },
+      { property: "og:image", content: homeSeo.image },
       { property: "og:locale", content: "en_US" },
       { property: "og:site_name", content: "ReviewsAI" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "ReviewsAI — AI Google Review Replies" },
+      { name: "twitter:title", content: homeSeo.title },
       {
         name: "twitter:description",
         content:
-          "Manage Google reviews with ReviewsAI. Draft personalized AI replies, monitor customer feedback and improve local visibility with Google Business Profile tools.",
+          homeSeo.description,
       },
-      { name: "twitter:image", content: "https://reviewsai.store/og-image.png" },
+      { name: "twitter:image", content: homeSeo.image },
     ],
     links: [
       { rel: "stylesheet", href: appCss },

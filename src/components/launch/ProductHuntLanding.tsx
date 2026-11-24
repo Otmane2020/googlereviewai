@@ -201,19 +201,19 @@ export default function ProductHuntLanding() {
   const features = [
     {
       icon: MessageSquareText,
-      title: fr ? "Ne laissez aucun avis de côté." : "No review gets overlooked.",
+      title: fr ? "Gestion des avis Google" : "Google review management",
       desc: fr ? "Consultez les retours Google de vos établissements et préparez vos réponses depuis un espace unique." : "Keep Google feedback from your locations together and work through replies in one focused inbox.",
       bg: "bg-[#EBEFFF]", color: "text-[#3B54F5]",
     },
     {
       icon: Wand2,
-      title: fr ? "L'IA répond avec votre ton." : "Replies that sound like your business.",
+      title: fr ? "Réponses IA aux avis, avec votre ton" : "AI review replies in your brand voice",
       desc: fr ? "Une réponse adaptée à la note et au commentaire, avec une signature courte au nom de votre marque." : "Draft a thoughtful reply based on each rating and comment, with your tone and a clean brand signature.",
       bg: "bg-[#E8F8F0]", color: "text-[#188954]",
     },
     {
       icon: Bell,
-      title: fr ? "Vous restez au courant." : "Know when something needs attention.",
+      title: fr ? "Alertes de nouveaux avis" : "New review alerts",
       desc: fr ? "Recevez des alertes pour les nouveaux avis et gardez le suivi sans surveiller Google en permanence." : "Get notified about new reviews, then follow up without checking Google all day.",
       bg: "bg-[#FFF4E2]", color: "text-[#CF8422]",
     },
@@ -278,7 +278,7 @@ export default function ProductHuntLanding() {
                 <ArrowUpRight className="h-3.5 w-3.5 text-[#6478C9]" />
               </div>
               <h1 className="max-w-[630px] text-[clamp(2.7rem,5.15vw,4.65rem)] font-extrabold leading-[1.07] tracking-[-0.065em] text-[#14233E]">
-                {fr ? <>Chaque avis mérite <span className="text-[#3B54F5]">une vraie réponse.</span></> : <>Every review deserves <span className="text-[#3B54F5]">a great reply.</span></>}
+                {fr ? <>Répondez aux avis Google <span className="text-[#3B54F5]">avec l’IA</span></> : <>Google Review Replies, <span className="text-[#3B54F5]">Powered by AI</span></>}
               </h1>
               <p className="mx-auto mt-6 max-w-[515px] text-[16px] leading-[1.82] text-[#596982] sm:text-lg lg:mx-0">
                 {fr
@@ -321,7 +321,7 @@ export default function ProductHuntLanding() {
             <div className="mx-auto mb-12 max-w-[740px] text-center">
               <span className="text-xs font-extrabold uppercase tracking-[.16em] text-[#3B54F5]">{fr ? "L'ESSENTIEL, SANS COMPLEXITÉ" : "LESS BUSYWORK. MORE CONNECTION."}</span>
               <h2 className="mt-4 text-[clamp(2rem,4vw,3.25rem)] font-extrabold leading-[1.13] tracking-[-0.045em] text-[#172744]">
-                {fr ? "Tout ce qu'il vous faut pour prendre soin de vos avis." : "Make every customer interaction count."}
+                {fr ? "Gérez vos avis Google et répondez avec l’IA" : "Manage Google reviews and reply with AI"}
               </h2>
               <p className="mt-5 text-base leading-8 text-[#6A7890]">
                 {fr ? "De la première notification à la réponse finale, chaque étape trouve sa place." : "From the first notification to the final reply, it's all in one calm workflow."}
@@ -388,7 +388,7 @@ export default function ProductHuntLanding() {
             <div className="max-w-[650px]">
               <span className="text-xs font-extrabold uppercase tracking-[.15em] text-[#3B54F5]">{fr ? "COMMENT ÇA MARCHE" : "THREE SIMPLE STEPS"}</span>
               <h2 className="mt-4 text-[clamp(2rem,4vw,3.15rem)] font-extrabold leading-[1.15] tracking-[-0.045em] text-[#172744]">
-                {fr ? "De l'avis à la réponse, en toute simplicité." : "From feedback to follow-up, without the busywork."}
+                {fr ? "Comment répondre aux avis Google avec l’IA" : "How to reply to Google reviews with AI"}
               </h2>
             </div>
             <div className="relative mt-12 grid gap-5 md:grid-cols-3">
@@ -433,7 +433,7 @@ export default function ProductHuntLanding() {
                 {fr ? "GUIDES & CONSEILS" : "GUIDES & REAL-WORLD WORKFLOWS"}
               </span>
               <h2 id="learn-reviewsai" className="mt-4 text-[clamp(1.8rem,3.8vw,2.9rem)] font-extrabold leading-tight tracking-[-0.045em] text-[#172744]">
-                {fr ? "Mieux répondre aux avis Google : les bonnes méthodes." : "Useful answers to common Google review questions."}
+                {fr ? "Exemples de réponses aux avis Google et guides" : "Google review reply examples and guides"}
               </h2>
               <p className="mt-4 max-w-[710px] text-base leading-8 text-[#65738C]">
                 {fr
@@ -500,7 +500,7 @@ export default function ProductHuntLanding() {
                 <BrandSparkle className="h-4 w-4" /> {fr ? "Un bon départ est gratuit." : "A better reply starts here."}
               </span>
               <h2 className="mx-auto max-w-3xl text-[clamp(2.15rem,4vw,3.7rem)] font-extrabold leading-[1.12] tracking-[-0.055em]">
-                {fr ? "Faites de chaque avis une occasion de bien répondre." : "Your next great customer reply is one click away."}
+                {fr ? "Essayez gratuitement vos 3 premières réponses IA aux avis Google" : "Try your first 3 AI Google review replies for free"}
               </h2>
               <p className="mx-auto mt-5 max-w-xl text-[15px] leading-7 text-[#BBC9E8]">
                 {fr ? "Connectez votre établissement et essayez vos 3 premières réponses IA. Aucune carte bancaire nécessaire." : "Connect your business and try your first 3 AI-drafted replies. No card required."}
